@@ -928,15 +928,33 @@ _test-group-asan-inner path pattern:
             test_count=$((test_count + 1))
 
             BINARY=$(mktemp /tmp/mojo-asan-XXXXXX)
-            output=""
-            output2=""
-            if output=$(pixi run mojo build {{MOJO_ASAN}} {{MOJO_STRICT}} -I "$REPO_ROOT" -I . -Xlinker -lm "$test_file" -o "$BINARY" 2>&1) && output2=$("$BINARY" 2>&1); then
-                echo "$output2"
+            # Stream output live so CI logs show ASan diagnostics on signal-kill (e.g. OOM SIGKILL),
+            # not just "❌ FAILED" with empty captures. Capture exit status via PIPESTATUS.
+            echo "--- build ---"
+            set +e
+            pixi run mojo build {{MOJO_ASAN}} {{MOJO_STRICT}} -I "$REPO_ROOT" -I . -Xlinker -lm "$test_file" -o "$BINARY" 2>&1
+            build_status=$?
+            run_status=-1
+            if [ $build_status -eq 0 ]; then
+                echo "--- run ---"
+                "$BINARY" 2>&1
+                run_status=$?
+            fi
+            set -e
+            if [ $build_status -eq 0 ] && [ $run_status -eq 0 ]; then
                 echo "✅ PASSED: $test_file"
                 passed_count=$((passed_count + 1))
             else
-                echo "$output"
-                echo "$output2"
+                if [ $build_status -ne 0 ]; then
+                    echo "build exit status: $build_status"
+                else
+                    echo "run exit status: $run_status (binary: $BINARY)"
+                    # On signal death (>=128), report which signal — invaluable for diagnosing OOM kills.
+                    if [ $run_status -gt 128 ]; then
+                        sig=$((run_status - 128))
+                        echo "killed by signal $sig"
+                    fi
+                fi
                 echo "❌ FAILED: $test_file"
                 failed_count=$((failed_count + 1))
                 failed_tests="$failed_tests\n  - $test_file"
