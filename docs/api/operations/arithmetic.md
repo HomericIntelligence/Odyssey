@@ -24,7 +24,7 @@ fn add(a: AnyTensor, b: AnyTensor) raises -> AnyTensor
 **Example:**
 
 ```mojo
-from shared.core import zeros, ones, add
+from projectodyssey.core import zeros, ones, add
 
 var a = ones[DType.float32](3, 4)
 var b = ones[DType.float32](3, 4)

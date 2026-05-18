@@ -193,7 +193,7 @@ echo ""
 # The original 24-test monolithic file from Dec 2025 (Issue #2942).
 # This requires the shared library to be built. If not available, skip gracefully.
 echo "  Note: This test requires 'pixi run just build' to have been run first."
-echo "  The monolithic file uses project imports (from shared.core.*)."
+echo "  The monolithic file uses project imports (from projectodyssey.core.*)."
 echo ""
 
 run_test \

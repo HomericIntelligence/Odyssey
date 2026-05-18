@@ -554,9 +554,9 @@ fn test_conv_256_channels() raises:
 
 ## References
 
-- **Implementation**: `shared/testing/layer_testers.mojo`
-- **Special Values**: `shared/testing/special_values.mojo`
-- **Gradient Checker**: `shared/testing/gradient_checker.mojo`
-- **DType Utils**: `shared/testing/dtype_utils.mojo`
+- **Implementation**: `src/projectodyssey/testing/layer_testers.mojo`
+- **Special Values**: `src/projectodyssey/testing/special_values.mojo`
+- **Gradient Checker**: `src/projectodyssey/testing/gradient_checker.mojo`
+- **DType Utils**: `src/projectodyssey/testing/dtype_utils.mojo`
 - **PR Workflow**: `.github/workflows/comprehensive-tests.yml`
 - **Weekly E2E**: `.github/workflows/model-e2e-tests-weekly.yml`

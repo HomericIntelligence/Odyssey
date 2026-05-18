@@ -29,23 +29,23 @@ from model import (
     POOL2_STRIDE,
     POOL2_PADDING,
 )
-from shared.data.formats import (
+from projectodyssey.data.formats import (
     load_idx_images,
     load_idx_labels,
     normalize_images,
     one_hot_encode,
 )
-from shared.tensor.any_tensor import AnyTensor, zeros
-from shared.core.conv import conv2d, conv2d_backward
-from shared.core.pooling import maxpool2d, maxpool2d_backward
-from shared.core.linear import linear, linear_backward
-from shared.core.activation import relu, relu_backward
-from shared.core.loss import cross_entropy, cross_entropy_backward
-from shared.utils.arg_parser import create_training_parser
-from shared.training.loops import TrainingLoop
-from shared.training.optimizers import sgd_step_simple
-from shared.training.metrics import top1_accuracy, AccuracyMetric, LossTracker
-from shared.training.evaluation import evaluate_model_simple
+from projectodyssey.tensor.any_tensor import AnyTensor, zeros
+from projectodyssey.core.conv import conv2d, conv2d_backward
+from projectodyssey.core.pooling import maxpool2d, maxpool2d_backward
+from projectodyssey.core.linear import linear, linear_backward
+from projectodyssey.core.activation import relu, relu_backward
+from projectodyssey.core.loss import cross_entropy, cross_entropy_backward
+from projectodyssey.utils.arg_parser import create_training_parser
+from projectodyssey.training.loops import TrainingLoop
+from projectodyssey.training.optimizers import sgd_step_simple
+from projectodyssey.training.metrics import top1_accuracy, AccuracyMetric, LossTracker
+from projectodyssey.training.evaluation import evaluate_model_simple
 from std.collections import List
 
 # Default number of classes for MNIST dataset

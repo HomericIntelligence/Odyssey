@@ -12,8 +12,8 @@ Run with: `mojo test_data_integrity_part1.mojo`
 
 from std.collections import List
 from std.memory import UnsafePointer
-from shared.tensor.any_tensor import AnyTensor, zeros, ones
-from tests.shared.conftest import assert_equal_int, assert_true
+from projectodyssey.tensor.any_tensor import AnyTensor, zeros, ones
+from tests.projectodyssey.conftest import assert_equal_int, assert_true
 
 
 def test_mxfp4_aligned_roundtrip() raises:

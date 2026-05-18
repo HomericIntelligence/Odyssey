@@ -20,7 +20,7 @@ from std.testing import (
     assert_almost_equal,
 )
 from std.math import sqrt
-from shared.training.metrics import LossTracker, Statistics
+from projectodyssey.training.metrics import LossTracker, Statistics
 
 
 def test_loss_tracker_basic() raises:

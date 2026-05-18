@@ -31,7 +31,7 @@ configs/
 ### Load an experiment configuration
 
 ```mojo
-from shared.utils.config_loader import load_experiment_config
+from projectodyssey.utils.config_loader import load_experiment_config
 
 fn main() raises:
     # Load with 3-level merge: defaults → paper → experiment
@@ -46,7 +46,7 @@ fn main() raises:
 ### Load paper configuration
 
 ```mojo
-from shared.utils.config_loader import load_paper_config
+from projectodyssey.utils.config_loader import load_paper_config
 
 fn main() raises:
     # Load paper config with defaults merged
@@ -57,7 +57,7 @@ fn main() raises:
 ### Load defaults only
 
 ```mojo
-from shared.utils.config_loader import load_default_config
+from projectodyssey.utils.config_loader import load_default_config
 
 fn main() raises:
     var training_defaults = load_default_config("training")
@@ -163,7 +163,7 @@ JSON Schema validation will be added in `configs/schemas/` to provide:
 ## Related Files
 
 - [MIGRATION.md](MIGRATION.md) - Migration guide
-- [shared/utils/config_loader.mojo](../shared/utils/config_loader.mojo) - Loading utilities
+- [src/projectodyssey/utils/config_loader.mojo](../shared/utils/config_loader.mojo) - Loading utilities
 - [papers/_template/examples/train.mojo](../papers/_template/examples/train.mojo) - Usage example
 
 ## Advanced Usage

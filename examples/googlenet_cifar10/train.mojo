@@ -32,8 +32,8 @@ Training Details:
     - Epochs: 200 (recommended)
 """
 
-from shared.tensor.any_tensor import AnyTensor, zeros
-from shared.core import (
+from projectodyssey.tensor.any_tensor import AnyTensor, zeros
+from projectodyssey.core import (
     conv2d,
     maxpool2d,
     global_avgpool2d,
@@ -51,11 +51,11 @@ from shared.core import (
     dropout_backward,
     cross_entropy_backward,
 )
-from shared.data.batch_utils import compute_num_batches, extract_batch_pair
-from shared.data.constants import DatasetInfo
-from shared.data.datasets import CIFAR10Dataset
-from shared.training.schedulers import step_lr
-from shared.utils.training_args import parse_training_args_with_defaults
+from projectodyssey.data.batch_utils import compute_num_batches, extract_batch_pair
+from projectodyssey.data.constants import DatasetInfo
+from projectodyssey.data.datasets import CIFAR10Dataset
+from projectodyssey.training.schedulers import step_lr
+from projectodyssey.utils.training_args import parse_training_args_with_defaults
 from model import GoogLeNet, InceptionModule
 
 

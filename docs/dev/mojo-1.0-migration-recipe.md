@@ -68,7 +68,7 @@ def apply[
 
 ### Verified in
 
-- `shared/core/dtype_dispatch.mojo:87,130,207,254,342,384,462,517,574`
+- `src/projectodyssey/core/dtype_dispatch.mojo:87,130,207,254,342,384,462,517,574`
   (9 `def[T: DType]` parameters; all fixed by adding `thin`)
 - `/tmp/probe_c.mojo`, `/tmp/probe_d.mojo` (minimal repros)
 
@@ -151,15 +151,15 @@ errors but left `vectorize` call-site type mismatches because the closures
 no longer carry capture lists. Phase D's mechanical wave needs to reapply the
 correct `{var <captured_vars>}` capture list per closure. Files affected:
 
-- `shared/core/activation_simd.mojo`
-- `shared/core/matmul.mojo`
-- `shared/core/normalization_simd.mojo`
-- `shared/tensor/typed/activation_simd.mojo`
-- `shared/tensor/typed/arithmetic_contiguous.mojo`
-- `shared/tensor/typed/arithmetic_simd.mojo`
-- `shared/tensor/typed/numerical_safety.mojo`
-- `shared/training/gradient_clipping.mojo`
-- `shared/training/mixed_precision.mojo`
+- `src/projectodyssey/core/activation_simd.mojo`
+- `src/projectodyssey/core/matmul.mojo`
+- `src/projectodyssey/core/normalization_simd.mojo`
+- `src/projectodyssey/tensor/typed/activation_simd.mojo`
+- `src/projectodyssey/tensor/typed/arithmetic_contiguous.mojo`
+- `src/projectodyssey/tensor/typed/arithmetic_simd.mojo`
+- `src/projectodyssey/tensor/typed/numerical_safety.mojo`
+- `src/projectodyssey/training/gradient_clipping.mojo`
+- `src/projectodyssey/training/mixed_precision.mojo`
 
 ---
 
@@ -223,7 +223,7 @@ unsure — a wrapped `Optional` is zero-cost in 1.0.
 
 ### Verified in
 
-- `shared/tensor/any_tensor.mojo:452,475,508` (warnings; not yet fixed)
+- `src/projectodyssey/tensor/any_tensor.mojo:452,475,508` (warnings; not yet fixed)
 
 ---
 
@@ -352,14 +352,14 @@ the compiler infers the concrete `FuncType` from the argument, so no explicit
 
 ### Verified in
 
-- `shared/benchmarking/runner.mojo:223,230,349` (free functions + struct method)
-- `shared/utils/profiling.mojo:436,470` (two overloads)
-- `shared/testing/gradient_checker.mojo:232,236,471,742,948,952,1170,1179,1618,1630,1763`
-- `shared/testing/property_testing.mojo:223`
-- `shared/training/loops/training_loop.mojo:66,69,79,252`
-- `shared/training/loops/validation_loop.mojo:48,149,272,333`
-- `shared/training/script_runner.mojo:137`
-- `shared/training/trainer.mojo:229`
+- `src/projectodyssey/benchmarking/runner.mojo:223,230,349` (free functions + struct method)
+- `src/projectodyssey/utils/profiling.mojo:436,470` (two overloads)
+- `src/projectodyssey/testing/gradient_checker.mojo:232,236,471,742,948,952,1170,1179,1618,1630,1763`
+- `src/projectodyssey/testing/property_testing.mojo:223`
+- `src/projectodyssey/training/loops/training_loop.mojo:66,69,79,252`
+- `src/projectodyssey/training/loops/validation_loop.mojo:48,149,272,333`
+- `src/projectodyssey/training/script_runner.mojo:137`
+- `src/projectodyssey/training/trainer.mojo:229`
 
 ---
 
@@ -401,7 +401,7 @@ and `MONOTONIC` -> `RELAXED`, and reordered `compare_exchange` to take
 `success_ordering` before `failure_ordering`. Our codebase only uses the
 defaults, so we did not need to update those call sites.
 
-**Verified in:** `shared/base/memory_pool.mojo` (commit f6d2fa47c).
+**Verified in:** `src/projectodyssey/base/memory_pool.mojo` (commit f6d2fa47c).
 
 ---
 
@@ -515,7 +515,7 @@ method, the result is `capturing` and cannot be stored as a thin field.
   `# TODO(mojo-1.0)`**. This unblocks the package compile and clearly
   delegates the real refactor (e.g. to Phase E along with the test files).
 
-**Verified in:** `shared/data/generic_transforms.mojo` (D5 commit: stubbed;
+**Verified in:** `src/projectodyssey/data/generic_transforms.mojo` (D5 commit: stubbed;
 E3 commit: fully implemented with thin-parameter pattern).
 
 ---
@@ -538,7 +538,7 @@ struct. Values of "type A" cannot then be passed to functions expecting
 "type A" because they are technically different types under the hood.
 
 The historical workaround (already documented at the top of
-`shared/tensor/tensor_io.mojo`) is to use **relative imports** for sibling
+`src/projectodyssey/tensor/tensor_io.mojo`) is to use **relative imports** for sibling
 modules inside the cycle. Phase D1's relative->absolute conversion wave
 flipped these imports back to absolute and silently re-introduced the
 doubling.
@@ -548,8 +548,8 @@ modules:
 
 ```mojo
 # Before (post-D1):
-from shared.tensor.any_tensor import AnyTensor
-from shared.tensor.tensor_io import save_tensor
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_io import save_tensor
 
 # After (D5 fix):
 # NOTE: relative imports REQUIRED — see tensor_io.mojo top-of-file
@@ -558,16 +558,16 @@ from .any_tensor import AnyTensor
 from .tensor_io import save_tensor
 ```
 
-For `shared/tensor/`, the cycle is `any_tensor` <-> `tensor_io` <->
-`tensor_creation`. Other `shared/tensor/` files (`factories`, `typed/*`,
+For `src/projectodyssey/tensor/`, the cycle is `any_tensor` <-> `tensor_io` <->
+`tensor_creation`. Other `src/projectodyssey/tensor/` files (`factories`, `typed/*`,
 etc.) can keep absolute imports because they are not part of the cycle.
 
 **Future-proofing:** when a future migration wave touches imports inside
 a package, leave the explanatory `# NOTE` comments in place. The doubling
 is invisible until you call across the cycle.
 
-**Verified in:** `shared/tensor/any_tensor.mojo`,
-`shared/tensor/tensor_io.mojo`, `shared/tensor/tensor_creation.mojo`
+**Verified in:** `src/projectodyssey/tensor/any_tensor.mojo`,
+`src/projectodyssey/tensor/tensor_io.mojo`, `src/projectodyssey/tensor/tensor_creation.mojo`
 (commit 4a4f20338).
 
 ---
@@ -670,7 +670,7 @@ error: expected module name
     from {{module_path}} import *
          ^
 error: expected construct name to import
-    from shared.nn import Module, {{imports}}
+    from projectodyssey.nn import Module, {{imports}}
                                   ^
 ```
 
@@ -701,8 +701,8 @@ struct Layer_PLACEHOLDER(Module):
 
 Also update stale import paths simultaneously:
 
-- `from shared.nn import Module` → `from shared.core.module import Module`
-- `from shared.datasets import Dataset` → `from shared.data._datasets_core import Dataset`
+- `from projectodyssey.nn import Module` → `from projectodyssey.core.module import Module`
+- `from projectodyssey.datasets import Dataset` → `from projectodyssey.data._datasets_core import Dataset`
 
 **Verified in:** `.templates/layer_template.mojo`, `.templates/model_template.mojo`,
 `.templates/dataset_template.mojo`, `.templates/tests_template.mojo`,

@@ -8,8 +8,8 @@ Issue: #3686 — ConfusionMatrix.update() silently accepts float32 labels
 """
 
 from std.testing import assert_true, assert_raises
-from shared.tensor.any_tensor import AnyTensor
-from shared.training.metrics import ConfusionMatrix
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.training.metrics import ConfusionMatrix
 
 
 def test_float32_labels_raises() raises:

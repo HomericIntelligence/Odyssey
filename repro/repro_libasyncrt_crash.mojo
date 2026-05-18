@@ -29,11 +29,11 @@ Stack trace (constant across runs):
   #4 libAsyncRTRuntimeGlobals.so +0x416ba  (allocator — crash origin)
 """
 
-from shared.tensor.any_tensor import AnyTensor, zeros, ones
-from shared.core.conv import conv2d
-from shared.core.linear import linear
-from shared.core.activation import relu
-from shared.core.pooling import maxpool2d
+from projectodyssey.tensor.any_tensor import AnyTensor, zeros, ones
+from projectodyssey.core.conv import conv2d
+from projectodyssey.core.linear import linear
+from projectodyssey.core.activation import relu
+from projectodyssey.core.pooling import maxpool2d
 
 
 def conv_block(

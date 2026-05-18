@@ -33,7 +33,7 @@ Backtrace:
 
 ```text
 #0  abs () at math.mojo:3746
-#1  assert_almost_equal () at shared/testing/assertions.mojo:170
+#1  assert_almost_equal () at src/projectodyssey/testing/assertions.mojo:170
 #2  test_tensor_dataset_negative_indexing ()
 ```
 

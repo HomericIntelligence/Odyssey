@@ -15,15 +15,15 @@ Arguments:
 """
 
 from model import LeNet5
-from shared.data.constants import DatasetInfo
-from shared.data.formats import (
+from projectodyssey.data.constants import DatasetInfo
+from projectodyssey.data.formats import (
     load_idx_images,
     load_idx_labels,
     normalize_images,
 )
-from shared.tensor.any_tensor import AnyTensor, zeros
-from shared.utils.arg_parser import ArgumentParser
-from shared.training.metrics import top1_accuracy, AccuracyMetric
+from projectodyssey.tensor.any_tensor import AnyTensor, zeros
+from projectodyssey.utils.arg_parser import ArgumentParser
+from projectodyssey.training.metrics import top1_accuracy, AccuracyMetric
 from std.collections import List
 
 

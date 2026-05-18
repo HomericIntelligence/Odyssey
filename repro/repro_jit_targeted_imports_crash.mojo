@@ -6,7 +6,7 @@
 # is still observed intermittently on CI even after the conversion.
 #
 # This reproducer attempts to trigger the crash using only targeted imports
-# (no package-level from shared.core import / from shared import) to isolate
+# (no package-level from projectodyssey.core import / from projectodyssey import) to isolate
 # whether the crash is import-volume-triggered or something else.
 #
 # Environment: Ubuntu 24.04, GLIBC 2.39, Mojo 0.26.3 (dev2026040705)
@@ -17,14 +17,14 @@
 # Expected (fixed): prints test results normally
 
 from std.testing import assert_true
-from shared.tensor.any_tensor import AnyTensor, zeros, ones
-from shared.core.layers.linear import Linear
-from shared.core.layers.conv2d import Conv2dLayer
-from shared.core.layers.dropout import DropoutLayer
-from shared.core.layers.relu import ReLULayer
-from shared.core.activation import relu, sigmoid
-from shared.core.matrix import matmul
-from shared.core.shape import as_contiguous, reshape
+from projectodyssey.tensor.any_tensor import AnyTensor, zeros, ones
+from projectodyssey.core.layers.linear import Linear
+from projectodyssey.core.layers.conv2d import Conv2dLayer
+from projectodyssey.core.layers.dropout import DropoutLayer
+from projectodyssey.core.layers.relu import ReLULayer
+from projectodyssey.core.activation import relu, sigmoid
+from projectodyssey.core.matrix import matmul
+from projectodyssey.core.shape import as_contiguous, reshape
 
 
 fn test_linear() raises:

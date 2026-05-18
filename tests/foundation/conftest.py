@@ -74,7 +74,7 @@ def papers_dir(repo_root: Path) -> Path:
 @pytest.fixture
 def shared_dir(repo_root: Path) -> Path:
     """
-    Provide the shared/ directory path.
+    Provide the src/projectodyssey/ directory path.
 
     Args:
         repo_root: Real repository root directory
@@ -102,13 +102,13 @@ def template_dir(papers_dir: Path) -> Path:
 @pytest.fixture
 def shared_core_dir(shared_dir: Path) -> Path:
     """
-    Provide the shared/core/ directory path.
+    Provide the src/projectodyssey/core/ directory path.
 
     Args:
         shared_dir: Shared directory path
 
     Returns:
-        Path to shared/core directory
+        Path to src/projectodyssey/core directory
     """
     return shared_dir / "core"
 
@@ -116,13 +116,13 @@ def shared_core_dir(shared_dir: Path) -> Path:
 @pytest.fixture
 def shared_training_dir(shared_dir: Path) -> Path:
     """
-    Provide the shared/training/ directory path.
+    Provide the src/projectodyssey/training/ directory path.
 
     Args:
         shared_dir: Shared directory path
 
     Returns:
-        Path to shared/training directory
+        Path to src/projectodyssey/training directory
     """
     return shared_dir / "training"
 
@@ -130,13 +130,13 @@ def shared_training_dir(shared_dir: Path) -> Path:
 @pytest.fixture
 def shared_data_dir(shared_dir: Path) -> Path:
     """
-    Provide the shared/data/ directory path.
+    Provide the src/projectodyssey/data/ directory path.
 
     Args:
         shared_dir: Shared directory path
 
     Returns:
-        Path to shared/data directory
+        Path to src/projectodyssey/data directory
     """
     return shared_dir / "data"
 
@@ -144,13 +144,13 @@ def shared_data_dir(shared_dir: Path) -> Path:
 @pytest.fixture
 def shared_utils_dir(shared_dir: Path) -> Path:
     """
-    Provide the shared/utils/ directory path.
+    Provide the src/projectodyssey/utils/ directory path.
 
     Args:
         shared_dir: Shared directory path
 
     Returns:
-        Path to shared/utils directory
+        Path to src/projectodyssey/utils directory
     """
     return shared_dir / "utils"
 

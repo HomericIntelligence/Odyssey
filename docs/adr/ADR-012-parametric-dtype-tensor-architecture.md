@@ -14,7 +14,7 @@ Split AnyTensor into two types: `Tensor[dtype: DType]` (compile-time typed, SIMD
 element access) and `AnyTensor` (runtime-typed, type-erased for collections/I/O/trait
 interfaces). Both conform to a shared `TensorLike` trait and support zero-copy conversion
 via `as_tensor[dtype]()` and `as_any()` with shared reference counting. The new types live
-in a `shared/tensor/` package while existing files remain in `shared/core/`.
+in a `src/projectodyssey/tensor/` package while existing files remain in `src/projectodyssey/core/`.
 
 ## Context
 
@@ -36,9 +36,9 @@ type-erased `UnsafePointer[UInt8]` storage. This causes three categories of prob
    consumers, and 708 `_data.bitcast[T]()` calls. All of this should be monomorphized
    by the compiler instead of branching at runtime.
 
-**Source**: `shared/core/any_tensor.mojo:798` (`__getitem__` returns `Float32`),
-`shared/core/any_tensor.mojo:116` (`var _dtype: DType` runtime field),
-`shared/core/any_tensor.mojo:922-992` (12 `set()` overloads)
+**Source**: `src/projectodyssey/core/any_tensor.mojo:798` (`__getitem__` returns `Float32`),
+`src/projectodyssey/core/any_tensor.mojo:116` (`var _dtype: DType` runtime field),
+`src/projectodyssey/core/any_tensor.mojo:922-992` (12 `set()` overloads)
 
 ### Constraints
 
@@ -47,7 +47,7 @@ type-erased `UnsafePointer[UInt8]` storage. This causes three categories of prob
 - Mojo v0.26.1 does not support variadic generic parameters (`[*Ts: Module]`)
 - Mojo v0.26.1 has re-export chain limitations (#3754) that prevent transparent imports
   through intermediate `__init__.mojo` files
-- `shared/__init__.mojo:82` defines `comptime Tensor = AnyTensor`, creating a naming
+- `src/projectodyssey/__init__.mojo:82` defines `comptime Tensor = AnyTensor`, creating a naming
   collision with the new `struct Tensor[dtype: DType]` (B3)
 - 522 files import AnyTensor across the codebase (~15,700 lines to migrate)
 - Mojo uses eager monomorphization, risking binary bloat with many dtype instantiations
@@ -78,8 +78,8 @@ Introduce a dual-type system:
 - **`TensorLike` trait** -- shared interface (`numel`, `shape`, `dtype`, `ndim`) that
   both types conform to.
 
-The new files live in `shared/tensor/` (tensor.mojo, tensor_traits.mojo). Existing files
-remain in `shared/core/` -- no package reorganization. `comptime AnyTensor = AnyTensor`
+The new files live in `src/projectodyssey/tensor/` (tensor.mojo, tensor_traits.mojo). Existing files
+remain in `src/projectodyssey/core/` -- no package reorganization. `comptime AnyTensor = AnyTensor`
 alias provides backward compatibility during the migration.
 
 ### Technical Details
@@ -177,7 +177,7 @@ fn zeros[dtype: DType](shape: List[Int]) raises -> Tensor[dtype]: ...
 #### Package structure (no physical reorganization)
 
 ```text
-shared/
+src/projectodyssey/
     tensor/              # NEW -- only 3 new files
         __init__.mojo
         tensor.mojo      # struct Tensor[dtype: DType]
@@ -223,7 +223,7 @@ shared/
    Mitigated by defaulting to `DType.float32` and monitoring compile times. Most ML
    workloads use 1-3 float types.
 
-4. **No package reorganization**: Keeping files in `shared/core/` avoids 500+ import
+4. **No package reorganization**: Keeping files in `src/projectodyssey/core/` avoids 500+ import
    path changes but means the 3-layer architecture exists logically, not physically.
    This is the pragmatic choice given Mojo's re-export chain limitation (#3754).
 

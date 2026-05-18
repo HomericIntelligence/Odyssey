@@ -3,7 +3,7 @@
 Every test in tests/configs/ crashes at libKGENCompilerRTShared.so+0x6d4ab
 before any output. This file isolates the minimum import that triggers it.
 
-The crash is a KGEN JIT buffer overflow during compilation of shared.utils.config,
+The crash is a KGEN JIT buffer overflow during compilation of projectodyssey.utils.config,
 which imports std.python (CPython interop) and defines Dict[String, ConfigValue]
 with ConfigValue containing List[String]. The combination triggers the same
 __fortify_fail_abort seen across the project.
@@ -16,7 +16,7 @@ Expected: Either runs successfully (KGEN doesn't overflow) or crashes with
 before any output, confirming the compilation-phase KGEN overflow.
 """
 
-from shared.utils.config import Config
+from projectodyssey.utils.config import Config
 
 
 def main() raises:

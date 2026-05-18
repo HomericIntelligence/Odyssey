@@ -30,7 +30,7 @@ triggers:
 
 ```bash
 # Find all FIXME/TODO items
-grep -rn "FIXME\|TODO" shared/ --include="*.mojo"
+grep -rn "FIXME\|TODO" src/projectodyssey/ --include="*.mojo"
 ```
 
 ### 2. Categorization

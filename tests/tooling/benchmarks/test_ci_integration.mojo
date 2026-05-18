@@ -19,7 +19,7 @@ Following TDD principles:
 - Test error handling in CI context
 """
 
-from tests.shared.conftest import (
+from tests.projectodyssey.conftest import (
     assert_true,
     assert_false,
     assert_equal,

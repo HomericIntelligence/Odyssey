@@ -7,7 +7,7 @@ Dataset and DataLoader utilities for training.
 ML Odyssey provides data loading utilities for efficient batch processing:
 
 ```mojo
-from shared.training.data import Dataset, DataLoader
+from projectodyssey.training.data import Dataset, DataLoader
 ```
 
 ## Dataset
@@ -37,7 +37,7 @@ struct MyDataset(Dataset):
 #### MNIST
 
 ```mojo
-from shared.training.data import MNIST
+from projectodyssey.training.data import MNIST
 
 var train_dataset = MNIST(root="./data", train=True, download=True)
 var test_dataset = MNIST(root="./data", train=False)
@@ -49,7 +49,7 @@ print("Test samples:", len(test_dataset))       # 10000
 #### CIFAR-10
 
 ```mojo
-from shared.training.data import CIFAR10
+from projectodyssey.training.data import CIFAR10
 
 var train_dataset = CIFAR10(root="./data", train=True, download=True)
 var test_dataset = CIFAR10(root="./data", train=False)
@@ -58,7 +58,7 @@ var test_dataset = CIFAR10(root="./data", train=False)
 #### FashionMNIST
 
 ```mojo
-from shared.training.data import FashionMNIST
+from projectodyssey.training.data import FashionMNIST
 
 var train_dataset = FashionMNIST(root="./data", train=True)
 ```
@@ -89,7 +89,7 @@ fn __init__(
 ### Example
 
 ```mojo
-from shared.training.data import DataLoader, MNIST
+from projectodyssey.training.data import DataLoader, MNIST
 
 var dataset = MNIST(root="./data", train=True)
 var dataloader = DataLoader(
@@ -125,7 +125,7 @@ Apply transformations to data.
 Normalize tensor with mean and std.
 
 ```mojo
-from shared.training.data.transforms import Normalize
+from projectodyssey.training.data.transforms import Normalize
 
 var normalize = Normalize(mean=[0.1307], std=[0.3081])  # MNIST stats
 var normalized = normalize(image)
@@ -136,7 +136,7 @@ var normalized = normalize(image)
 Convert to tensor and scale to [0, 1].
 
 ```mojo
-from shared.training.data.transforms import ToTensor
+from projectodyssey.training.data.transforms import ToTensor
 
 var to_tensor = ToTensor()
 var tensor = to_tensor(raw_data)
@@ -147,7 +147,7 @@ var tensor = to_tensor(raw_data)
 Chain multiple transforms.
 
 ```mojo
-from shared.training.data.transforms import Compose, ToTensor, Normalize
+from projectodyssey.training.data.transforms import Compose, ToTensor, Normalize
 
 var transform = Compose([
     ToTensor(),
@@ -160,7 +160,7 @@ var dataset = MNIST(root="./data", transform=transform)
 ### Data Augmentation
 
 ```mojo
-from shared.training.data.transforms import (
+from projectodyssey.training.data.transforms import (
     RandomHorizontalFlip,
     RandomCrop,
     RandomRotation,
@@ -180,7 +180,7 @@ var train_transform = Compose([
 Split dataset for training and validation.
 
 ```mojo
-from shared.training.data import random_split
+from projectodyssey.training.data import random_split
 
 var dataset = MNIST(root="./data", train=True)
 
@@ -201,7 +201,7 @@ var val_loader = DataLoader(val_dataset, batch_size=32, shuffle=False)
 ### From NumPy Arrays
 
 ```mojo
-from shared.training.data import TensorDataset
+from projectodyssey.training.data import TensorDataset
 
 var X = randn[DType.float32](1000, 784)  # Features
 var y = zeros[DType.int32](1000)         # Labels
@@ -234,10 +234,10 @@ struct ImageFolderDataset(Dataset):
 ## Complete Training Example
 
 ```mojo
-from shared.training.data import MNIST, DataLoader
-from shared.training.data.transforms import Compose, ToTensor, Normalize
-from shared.training.optimizers import Adam
-from shared.core.layers import Linear, ReLU, Sequential
+from projectodyssey.training.data import MNIST, DataLoader
+from projectodyssey.training.data.transforms import Compose, ToTensor, Normalize
+from projectodyssey.training.optimizers import Adam
+from projectodyssey.core.layers import Linear, ReLU, Sequential
 
 # Prepare data
 var transform = Compose([

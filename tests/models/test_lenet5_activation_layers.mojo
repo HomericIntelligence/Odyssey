@@ -9,7 +9,7 @@ Tests:
 - ReLU1: forward float32, float16, backward float32
 """
 
-from shared.testing.layer_testers import LayerTester
+from projectodyssey.testing.layer_testers import LayerTester
 
 
 # ============================================================================

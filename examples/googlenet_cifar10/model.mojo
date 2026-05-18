@@ -19,8 +19,8 @@ References:
     https://arxiv.org/abs/1409.4842
 """
 
-from shared.tensor.any_tensor import AnyTensor, zeros
-from shared.core import (
+from projectodyssey.tensor.any_tensor import AnyTensor, zeros
+from projectodyssey.core import (
     conv2d,
     maxpool2d,
     global_avgpool2d,
@@ -30,9 +30,9 @@ from shared.core import (
     xavier_normal,
     constant,
 )
-from shared.core.linear import linear
-from shared.core.dropout import dropout
-from shared.utils.serialization import save_tensor, load_tensor
+from projectodyssey.core.linear import linear
+from projectodyssey.core.dropout import dropout
+from projectodyssey.utils.serialization import save_tensor, load_tensor
 
 
 struct InceptionModule:

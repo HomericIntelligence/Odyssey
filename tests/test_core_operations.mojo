@@ -21,8 +21,8 @@ from std.testing import (
     assert_equal,
     assert_almost_equal,
 )
-from shared.tensor.any_tensor import AnyTensor
-from shared.core.initializers import (
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.core.initializers import (
     xavier_uniform,
     xavier_normal,
     kaiming_uniform,
@@ -31,19 +31,19 @@ from shared.core.initializers import (
     normal,
     constant,
 )
-from shared.core.activation import relu, sigmoid, tanh, softmax
-from shared.core.loss import mean_squared_error, binary_cross_entropy
+from projectodyssey.core.activation import relu, sigmoid, tanh, softmax
+from projectodyssey.core.loss import mean_squared_error, binary_cross_entropy
 
 # Import matmul explicitly from matrix to avoid conflict with matmul module
-from shared.core.matrix import matmul
-from shared.training.metrics import (
+from projectodyssey.core.matrix import matmul
+from projectodyssey.training.metrics import (
     AccuracyMetric,
     LossTracker,
     ConfusionMatrix,
     MetricCollection,
     MetricLogger,
 )
-from shared.training.metrics.base import MetricResult
+from projectodyssey.training.metrics.base import MetricResult
 
 
 def test_initializers_with_activations() raises:

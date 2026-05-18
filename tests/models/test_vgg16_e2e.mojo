@@ -19,7 +19,7 @@ Tests use small input values (0.01) to prevent numerical overflow through
 13 conv layers with ones() weights — exponential growth overflows Float32.
 """
 
-from tests.shared.conftest import (
+from tests.projectodyssey.conftest import (
     TestFixtures,
     assert_equal,
     assert_equal_int,
@@ -28,13 +28,13 @@ from tests.shared.conftest import (
     assert_shape,
     assert_true,
 )
-from shared.tensor.any_tensor import AnyTensor, zeros, ones, full, randn
-from shared.core.conv import conv2d, conv2d_backward
-from shared.core.linear import linear, linear_backward
-from shared.core.activation import relu, relu_backward
-from shared.core.pooling import maxpool2d, maxpool2d_backward
-from shared.core.loss import cross_entropy
-from shared.core.reduction import mean
+from projectodyssey.tensor.any_tensor import AnyTensor, zeros, ones, full, randn
+from projectodyssey.core.conv import conv2d, conv2d_backward
+from projectodyssey.core.linear import linear, linear_backward
+from projectodyssey.core.activation import relu, relu_backward
+from projectodyssey.core.pooling import maxpool2d, maxpool2d_backward
+from projectodyssey.core.loss import cross_entropy
+from projectodyssey.core.reduction import mean
 from std.math import sqrt
 
 

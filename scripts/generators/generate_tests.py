@@ -144,8 +144,8 @@ Generated: {timestamp}
 
 from testing import assert_equal, assert_true, assert_almost_equal
 from {module_path} import *
-from shared.core import AnyTensor
-from shared.testing import gradient_check, LayerTester
+from projectodyssey.core import AnyTensor
+from projectodyssey.testing import gradient_check, LayerTester
 
 
 # =============================================================================
@@ -360,8 +360,8 @@ Generated: {timestamp}
 
 from testing import assert_equal, assert_true, assert_almost_equal
 from {module_path} import *
-from shared.core import AnyTensor
-from shared.training import SGD, CrossEntropyLoss
+from projectodyssey.core import AnyTensor
+from projectodyssey.training import SGD, CrossEntropyLoss
 
 
 # =============================================================================

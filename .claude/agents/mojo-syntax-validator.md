@@ -156,7 +156,7 @@ mojo build /tmp/test_syntax.mojo
 **Library files with relative imports CANNOT compile standalone** - this is expected behavior:
 
 - Files using `from ..module` or `from .submodule` will fail with "cannot import relative to a top-level package"
-- Use `mojo package shared` to build packages, not `mojo build shared/__init__.mojo`
+- Use `mojo package shared` to build packages, not `mojo build src/projectodyssey/__init__.mojo`
 - Only validate executable files (those with `main()`) using standalone compilation
 
 **Reference**: See [mojo-guidelines.md](../shared/mojo-guidelines.md#mojo-v0261-package-compilation-patterns)

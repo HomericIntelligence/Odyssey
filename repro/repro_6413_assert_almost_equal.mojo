@@ -3,7 +3,7 @@
 Captured backtrace (CI run 25649843238, Mojo 1.0.0b2.dev2026050805):
 
     Thread 1 "mojo" received signal SIGILL, Illegal instruction.
-    assert_almost_equal () at shared/testing/assertions.mojo:170
+    assert_almost_equal () at src/projectodyssey/testing/assertions.mojo:170
     170     var diff = abs(a - b)
     #1  test_tensor_dataset_negative_indexing () at tests/.../test_tensor_dataset.mojo:166
     #2  main ()
@@ -21,14 +21,14 @@ Loops the failing block 50× per process so a single process probabilistically
 exercises the crash window without needing thousands of process restarts.
 """
 
-from shared.data.datasets import TensorDataset
-from shared.tensor.any_tensor import AnyTensor
-from shared.testing.assertions import assert_almost_equal, assert_equal
+from projectodyssey.data.datasets import TensorDataset
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.testing.assertions import assert_almost_equal, assert_equal
 
 
 def trigger() raises:
     # Identical to test_tensor_dataset_negative_indexing in
-    # tests/shared/data/datasets/test_tensor_dataset.mojo:153-171
+    # tests/projectodyssey/data/datasets/test_tensor_dataset.mojo:153-171
     var data_list: List[Float32] = [Float32(1.0), Float32(2.0), Float32(3.0)]
     var data = AnyTensor(data_list^)
     var labels_list: List[Int] = [0, 1, 2]

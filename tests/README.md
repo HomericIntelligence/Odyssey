@@ -9,7 +9,7 @@ organized by component type and test classification (unit, integration, benchmar
 
 ```text
 tests/
-├── shared/                          # Shared library tests (primary test suite)
+├── src/projectodyssey/                          # Shared library tests (primary test suite)
 │   ├── core/                        # Core tensor & layer operations
 │   │   ├── test_*.mojo              # Individual component tests
 │   │   └── legacy/                  # Legacy operation tests
@@ -55,14 +55,14 @@ Mojo tests are executed individually using `pixi run mojo <file>`:
 
 ```bash
 # Run a single test file
-pixi run mojo tests/shared/core/test_tensors.mojo
+pixi run mojo tests/projectodyssey/core/test_tensors.mojo
 
 # Run test in a subdirectory
-pixi run mojo tests/shared/training/test_optimizers.mojo
+pixi run mojo tests/projectodyssey/training/test_optimizers.mojo
 
 # Run multiple test files (sequential)
-pixi run mojo tests/shared/core/test_arithmetic_part1.mojo
-pixi run mojo tests/shared/core/test_layers.mojo
+pixi run mojo tests/projectodyssey/core/test_arithmetic_part1.mojo
+pixi run mojo tests/projectodyssey/core/test_layers.mojo
 ```text
 
 ### Python Tests
@@ -89,32 +89,32 @@ The test suite is organized into 17 logical groups (see comprehensive-tests.yml)
 
 ```bash
 # Core tensor operations
-cd tests/shared/core && pixi run mojo test_tensors.mojo
+cd tests/projectodyssey/core && pixi run mojo test_tensors.mojo
 
 # Training optimizers
-cd tests/shared/training && pixi run mojo test_optimizers.mojo
+cd tests/projectodyssey/training && pixi run mojo test_optimizers.mojo
 
 # Data transforms
-cd tests/shared/data && pixi run mojo test_transforms.mojo
+cd tests/projectodyssey/data && pixi run mojo test_transforms.mojo
 ```text
 
 ## Test Organization & Classification
 
 ### Test Types
 
-**Unit Tests** (`tests/unit/`, `tests/shared/core/test_*.mojo`)
+**Unit Tests** (`tests/unit/`, `tests/projectodyssey/core/test_*.mojo`)
 - Test individual functions and classes in isolation
 - Fast execution (< 1 second each)
 - No external dependencies
 - Test a single responsibility
 
-**Integration Tests** (`tests/shared/integration/`, `tests/integration/`)
+**Integration Tests** (`tests/projectodyssey/integration/`, `tests/integration/`)
 - Test interactions between components
 - Validate data pipelines (DataLoader -> Transform -> Model)
 - Test training workflows (Optimizer -> LossFunction -> BackwardPass)
 - Test model inference end-to-end
 
-**Benchmarks** (`tests/shared/benchmarks/bench_*.mojo`)
+**Benchmarks** (`tests/projectodyssey/benchmarks/bench_*.mojo`)
 - Performance benchmarks for critical operations
 - Measure operation latency and throughput
 - Detect performance regressions
@@ -153,11 +153,11 @@ pixi run pytest tests/unit/ --cov
 - All backward operations (`*_backward.mojo`)
 - Activation function gradients
 
-**File**: `tests/shared/core/test_gradient_checking.mojo`
+**File**: `tests/projectodyssey/core/test_gradient_checking.mojo`
 
 ```bash
 # Local equivalent
-pixi run mojo tests/shared/core/test_gradient_checking.mojo
+pixi run mojo tests/projectodyssey/core/test_gradient_checking.mojo
 ```text
 
 ### 3. `integration-tests.yml` - Integration Tests (8 min target)
@@ -175,13 +175,13 @@ pixi run mojo tests/shared/core/test_gradient_checking.mojo
    - Tests: Agent configuration, repository structure validation
 
 3. **Shared Integration** - Library-level workflows
-   - Path: `tests/shared/integration/`
+   - Path: `tests/projectodyssey/integration/`
    - Tests: End-to-end training, packaging, deployment
 
 ```bash
 # Local equivalent - run each test file individually
-pixi run mojo tests/shared/integration/test_end_to_end.mojo
-pixi run mojo tests/shared/integration/test_training_workflow.mojo
+pixi run mojo tests/projectodyssey/integration/test_end_to_end.mojo
+pixi run mojo tests/projectodyssey/integration/test_training_workflow.mojo
 ```text
 
 ### 4. `comprehensive-tests.yml` - Complete Test Suite (10 min target)
@@ -192,19 +192,19 @@ pixi run mojo tests/shared/integration/test_training_workflow.mojo
 
 | # | Group Name | Path | Test Count | Focus |
 | --- | --- | --- | --- | --- |
-| 1 | Core: Tensors & Operations | `tests/shared/core` | ~20 | Tensor creation, arithmetic, reductions |
-| 2 | Core: Layers & Activations | `tests/shared/core` | ~15 | Fully-connected, ReLU, Sigmoid, etc. |
-| 3 | Core: Advanced Layers | `tests/shared/core` | ~12 | Conv2D, Pooling, Initialization |
-| 4 | Core: Legacy Tests | `tests/shared/core/legacy` | ~18 | Historical test suite, edge cases |
-| 5 | Training: Optimizers & Schedulers | `tests/shared/training` | ~18 | SGD, Adam, RMSprop, learning rate schedules |
-| 6 | Training: Loops & Metrics | `tests/shared/training` | ~15 | Training/validation loops, accuracy, confusion matrix |
-| 7 | Training: Callbacks | `tests/shared/training` | ~12 | Checkpointing, early stopping, logging |
-| 8 | Data: Datasets | `tests/shared/data` | ~10 | TensorDataset, FileDataset, custom datasets |
-| 9 | Data: Loaders & Samplers | `tests/shared/data` | ~12 | DataLoader, SequentialSampler, WeightedSampler |
-| 10 | Data: Transforms | `tests/shared/data` | ~15 | Image transforms, augmentation, pipelines |
-| 11 | Integration Tests | `tests/shared/integration` | ~8 | Full workflow tests |
-| 12 | Utils & Fixtures | `tests/shared/` | ~12 | Logging, profiling, config, mocks |
-| 13 | Benchmarks | `tests/shared/benchmarks` | ~4 | Performance measurements |
+| 1 | Core: Tensors & Operations | `tests/projectodyssey/core` | ~20 | Tensor creation, arithmetic, reductions |
+| 2 | Core: Layers & Activations | `tests/projectodyssey/core` | ~15 | Fully-connected, ReLU, Sigmoid, etc. |
+| 3 | Core: Advanced Layers | `tests/projectodyssey/core` | ~12 | Conv2D, Pooling, Initialization |
+| 4 | Core: Legacy Tests | `tests/projectodyssey/core/legacy` | ~18 | Historical test suite, edge cases |
+| 5 | Training: Optimizers & Schedulers | `tests/projectodyssey/training` | ~18 | SGD, Adam, RMSprop, learning rate schedules |
+| 6 | Training: Loops & Metrics | `tests/projectodyssey/training` | ~15 | Training/validation loops, accuracy, confusion matrix |
+| 7 | Training: Callbacks | `tests/projectodyssey/training` | ~12 | Checkpointing, early stopping, logging |
+| 8 | Data: Datasets | `tests/projectodyssey/data` | ~10 | TensorDataset, FileDataset, custom datasets |
+| 9 | Data: Loaders & Samplers | `tests/projectodyssey/data` | ~12 | DataLoader, SequentialSampler, WeightedSampler |
+| 10 | Data: Transforms | `tests/projectodyssey/data` | ~15 | Image transforms, augmentation, pipelines |
+| 11 | Integration Tests | `tests/projectodyssey/integration` | ~8 | Full workflow tests |
+| 12 | Utils & Fixtures | `tests/projectodyssey/` | ~12 | Logging, profiling, config, mocks |
+| 13 | Benchmarks | `tests/projectodyssey/benchmarks` | ~4 | Performance measurements |
 | 14 | Configs | `tests/configs` | ~6 | Configuration validation and merging |
 | 15 | Tooling | `tests/tooling/benchmarks` | ~6 | Benchmark regression detection |
 | 16 | Top-Level Tests | `tests/` | ~12 | Unit tests, training infrastructure |
@@ -214,7 +214,7 @@ pixi run mojo tests/shared/integration/test_training_workflow.mojo
 
 ```bash
 # Run one test group locally
-cd tests/shared/core
+cd tests/projectodyssey/core
 pixi run mojo test_tensors.mojo
 pixi run mojo test_arithmetic_part1.mojo
 pixi run mojo test_layers.mojo
@@ -304,12 +304,12 @@ Pull Request Created
   └─ Python tests/unit/*.py
   ↓
 [Parallel] test-gradients.yml (2 min)
-  └─ Gradient correctness tests/shared/core/test_gradient_checking.mojo
+  └─ Gradient correctness tests/projectodyssey/core/test_gradient_checking.mojo
   ↓
 [Parallel] integration-tests.yml (8 min)
   ├─ Mojo integration tests/integration/*.mojo
   ├─ Python integration tests/agents/*, tests/foundation/*
-  └─ Shared library tests/shared/integration/*.mojo
+  └─ Shared library tests/projectodyssey/integration/*.mojo
   ↓
 [Parallel] comprehensive-tests.yml (10 min, 17 groups)
   ├─ Group 1: Core tensors & operations
@@ -325,14 +325,14 @@ All Tests Fail → Blocking Issue, Fixes Required
 
 ### Adding a Mojo Test
 
-1. Create file in appropriate subdirectory (e.g., `tests/shared/core/test_new_feature.mojo`)
+1. Create file in appropriate subdirectory (e.g., `tests/projectodyssey/core/test_new_feature.mojo`)
 2. Follow naming pattern: `test_*.mojo`
 3. Import test helpers from `tests/helpers/`
 4. Write test functions with `fn test_*() raises:` signature
 5. Use assertions from `tests/helpers/assertions.mojo`
 
 ```mojo
-# tests/shared/core/test_new_feature.mojo
+# tests/projectodyssey/core/test_new_feature.mojo
 
 from tests.helpers import assertions, utils
 
@@ -401,7 +401,7 @@ New tests are automatically picked up by CI/CD workflows:
 All test files must include:
 
 ```mojo
-# tests/shared/core/test_example.mojo
+# tests/projectodyssey/core/test_example.mojo
 """
 Unit tests for tensor operations.
 
@@ -435,7 +435,7 @@ assertions.assert_equal(a, b, "Tensor values should match")
 ### Test Independence
 
 - Each test must be independent and runnable in isolation
-- Use fixtures from `tests/shared/fixtures/` for setup
+- Use fixtures from `tests/projectodyssey/fixtures/` for setup
 - Clean up resources after test completion
 - No test should depend on output of previous tests
 
@@ -467,10 +467,10 @@ Check the detailed test output in GitHub Actions:
 
 ```bash
 # Run failing test locally for debugging
-pixi run mojo tests/shared/core/failing_test.mojo
+pixi run mojo tests/projectodyssey/core/failing_test.mojo
 
 # Run with additional output
-pixi run mojo tests/shared/core/failing_test.mojo 2>&1 | tail -100
+pixi run mojo tests/projectodyssey/core/failing_test.mojo 2>&1 | tail -100
 
 # Run with Python debugger (for Python tests)
 pixi run pytest tests/agents/failing_test.py -v -s
@@ -486,5 +486,5 @@ pixi run pytest tests/agents/failing_test.py -v -s
 
 - **CI/CD Workflows**: `.github/workflows/`
 - **Test Helpers**: `tests/helpers/`
-- **Test Fixtures**: `tests/shared/fixtures/`
+- **Test Fixtures**: `tests/projectodyssey/fixtures/`
 - **GitHub Issues**: Implementation tracked in GitHub issues per CLAUDE.md

@@ -25,15 +25,15 @@ Reproduction:
         notes/blog/03-16-2026/artifacts/repro_slice_view_bad_free.mojo
 
 Bug location:
-    shared/tensor/any_tensor.mojo:491  (__del__ does not check _is_view)
-    shared/tensor/any_tensor.mojo:754  (slice() offsets _data pointer)
+    src/projectodyssey/tensor/any_tensor.mojo:491  (__del__ does not check _is_view)
+    src/projectodyssey/tensor/any_tensor.mojo:754  (slice() offsets _data pointer)
 
 Fix: __del__ must skip pooled_free when _is_view == True (view tensors
 share the parent's allocation, which the parent's destructor will free
 via refcount decrement).
 """
 
-from shared.tensor.any_tensor import AnyTensor, ones
+from projectodyssey.tensor.any_tensor import AnyTensor, ones
 
 
 def main() raises:

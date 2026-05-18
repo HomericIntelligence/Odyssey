@@ -8,11 +8,11 @@ Usage:
 See documentation: docs/advanced/custom-layers.md
 """
 
-from shared.core.module import Module
-from shared.core.layers import Linear
-from shared.tensor.any_tensor import AnyTensor, randn
-from shared.core.activation import softmax
-from shared.core.matrix import matmul, transpose
+from projectodyssey.core.module import Module
+from projectodyssey.core.layers import Linear
+from projectodyssey.tensor.any_tensor import AnyTensor, randn
+from projectodyssey.core.activation import softmax
+from projectodyssey.core.matrix import matmul, transpose
 
 
 struct MultiHeadAttention(Module):

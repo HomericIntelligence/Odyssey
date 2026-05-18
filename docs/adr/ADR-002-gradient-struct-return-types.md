@@ -46,7 +46,7 @@ practices for struct-based return types.
 
 ### Solution Architecture
 
-**File**: `shared/core/gradient_types.mojo`
+**File**: `src/projectodyssey/core/gradient_types.mojo`
 
 Two struct types for different return arities:
 
@@ -127,7 +127,7 @@ fn add_backward(...) raises -> (AnyTensor, AnyTensor)
 
 ### Changes Summary
 
-1. **New File** - `shared/core/gradient_types.mojo`
+1. **New File** - `src/projectodyssey/core/gradient_types.mojo`
    - Define `GradientPair` struct
    - Define `GradientTriple` struct
    - Comprehensive documentation with examples

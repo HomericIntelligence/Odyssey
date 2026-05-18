@@ -243,7 +243,7 @@ class TestBanditFilesPattern:
     @pytest.mark.parametrize(
         "path",
         [
-            "shared/nn/layers/conv2d.mojo",
+            "src/projectodyssey/nn/layers/conv2d.mojo",
             "papers/lenet5/model.mojo",
             "docs/dev/some_script.py",
         ],

@@ -9,8 +9,8 @@
 
 ## Description
 
-After converting all test files from package-level imports (`from shared.core import …`)
-to targeted submodule imports (`from shared.core.layers.linear import Linear`), JIT
+After converting all test files from package-level imports (`from projectodyssey.core import …`)
+to targeted submodule imports (`from projectodyssey.core.layers.linear import Linear`), JIT
 compilation crashes are still observed intermittently on CI for the Core Layers test group.
 
 This is significant because ADR-015's hypothesis was that import volume caused the crash.

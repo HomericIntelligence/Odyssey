@@ -13,14 +13,14 @@ Note:
     Currently, this demonstrates the interface and manual gradient computation.
 """
 
-from shared.autograd import Variable, GradientTape, SGD
-from shared.autograd.variable import (
+from projectodyssey.autograd import Variable, GradientTape, SGD
+from projectodyssey.autograd.variable import (
     variable_add,
     variable_multiply,
     variable_subtract,
     variable_mean,
 )
-from shared.tensor.any_tensor import AnyTensor, zeros, ones
+from projectodyssey.tensor.any_tensor import AnyTensor, zeros, ones
 
 
 def simple_linear_regression() raises:

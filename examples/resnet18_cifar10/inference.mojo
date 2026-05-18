@@ -3,12 +3,12 @@
 This script loads a trained ResNet-18 model and evaluates it on the CIFAR-10 test set.
 
 Shared Modules Used:
-    - shared.core: Tensor operations and AnyTensor type
-    - shared.data: Batch extraction and data utilities
-    - shared.data.datasets: CIFAR-10 test set loading
-    - shared.training.metrics: Evaluation and accuracy computation
-    - shared.utils.arg_parser: Command-line argument parsing
-    - shared.utils.serialization: Model weight loading
+    - projectodyssey.core: Tensor operations and AnyTensor type
+    - projectodyssey.data: Batch extraction and data utilities
+    - projectodyssey.data.datasets: CIFAR-10 test set loading
+    - projectodyssey.training.metrics: Evaluation and accuracy computation
+    - projectodyssey.utils.arg_parser: Command-line argument parsing
+    - projectodyssey.utils.serialization: Model weight loading
 
 Usage:
     # Evaluate on test set
@@ -18,24 +18,24 @@ Usage:
     mojo run examples/resnet18_cifar10/inference.mojo --weights-dir resnet18_weights --samples 100
 
 Features:
-    - Loads saved model weights via shared.utils.serialization
+    - Loads saved model weights via projectodyssey.utils.serialization
     - Evaluates accuracy on CIFAR-10 test set using shared metrics
-    - Reports per-class accuracy using shared.training.metrics
+    - Reports per-class accuracy using projectodyssey.training.metrics
     - Inference mode (no training, no batch norm running stats updates)
 """
 
-from shared.tensor.any_tensor import AnyTensor, zeros
-from shared.data.batch_utils import compute_num_batches, extract_batch_pair
-from shared.data.constants import DatasetInfo
-from shared.data.datasets import CIFAR10Dataset
-from shared.training.metrics import (
+from projectodyssey.tensor.any_tensor import AnyTensor, zeros
+from projectodyssey.data.batch_utils import compute_num_batches, extract_batch_pair
+from projectodyssey.data.constants import DatasetInfo
+from projectodyssey.data.datasets import CIFAR10Dataset
+from projectodyssey.training.metrics import (
     evaluate_with_predict,
     top1_accuracy,
     per_class_accuracy,
     evaluate_logits_batch,
 )
-from shared.utils.arg_parser import ArgumentParser, ArgumentSpec
-from shared.utils.serialization import load_tensor
+from projectodyssey.utils.arg_parser import ArgumentParser, ArgumentSpec
+from projectodyssey.utils.serialization import load_tensor
 from model import ResNet18
 
 
@@ -241,14 +241,14 @@ def print_detailed_results(
 def main() raises:
     """Main inference entry point.
 
-    Integrates command-line argument parsing via shared.utils.arg_parser.
+    Integrates command-line argument parsing via projectodyssey.utils.arg_parser.
     """
     print("=" * 60)
     print("ResNet-18 Inference on CIFAR-10")
     print("=" * 60)
     print()
 
-    # Parse command-line arguments using shared.utils.arg_parser
+    # Parse command-line arguments using projectodyssey.utils.arg_parser
     var parser = ArgumentParser()
 
     # Add inference arguments with defaults

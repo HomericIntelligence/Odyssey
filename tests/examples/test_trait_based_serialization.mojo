@@ -8,8 +8,8 @@ Tests serialization of layers implementing the Serializable trait:
 Runs as: pixi run mojo ./tests/examples/test_trait_based_serialization.mojo
 """
 
-from shared.tensor.any_tensor import AnyTensor, zeros, ones
-from shared.utils.serialization import (
+from projectodyssey.tensor.any_tensor import AnyTensor, zeros, ones
+from projectodyssey.utils.serialization import (
     save_named_tensors,
     load_named_tensors,
     NamedTensor,

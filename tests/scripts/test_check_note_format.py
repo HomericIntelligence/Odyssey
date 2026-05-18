@@ -79,7 +79,7 @@ class TestIsExcluded:
         assert is_excluded(path)
 
     def test_does_not_exclude_shared(self):
-        """Paths inside shared/ should not be excluded."""
+        """Paths inside src/projectodyssey/ should not be excluded."""
         path = Path("/repo/shared/core/foo.mojo")
         assert not is_excluded(path)
 

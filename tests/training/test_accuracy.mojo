@@ -18,8 +18,8 @@ from std.testing import (
     assert_equal,
     assert_almost_equal,
 )
-from shared.tensor.any_tensor import AnyTensor
-from shared.training.metrics import (
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.training.metrics import (
     top1_accuracy,
     topk_accuracy,
     per_class_accuracy,

@@ -10,9 +10,9 @@ Tests:
 - Conv2 (6→16 channels, 5x5 kernel): forward float32, float16, backward float32
 """
 
-from shared.tensor.any_tensor import AnyTensor
-from shared.testing.layer_params import ConvFixture
-from shared.testing.layer_testers import LayerTester
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.testing.layer_params import ConvFixture
+from projectodyssey.testing.layer_testers import LayerTester
 
 
 # ============================================================================

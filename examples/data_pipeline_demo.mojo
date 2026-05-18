@@ -23,19 +23,19 @@ Key Points:
 - PrefetchDataLoader separates data loading from training
 
 See Also:
-    shared/data/README.md - Data pipeline architecture overview
-    shared/data/loaders.mojo - BatchLoader implementation
-    shared/data/transforms.mojo - Available transforms
+    src/projectodyssey/data/README.md - Data pipeline architecture overview
+    src/projectodyssey/data/loaders.mojo - BatchLoader implementation
+    src/projectodyssey/data/transforms.mojo - Available transforms
 """
 
-from shared.data.cache import CachedDataset
-from shared.data.dataset_with_transform import TransformedDataset
-from shared.data.datasets import AnyTensorDataset
-from shared.data.loaders import Batch, BatchLoader
-from shared.data.prefetch import PrefetchDataLoader
-from shared.data.samplers import RandomSampler, SequentialSampler
-from shared.data.transforms import Normalize, Compose
-from shared.tensor.any_tensor import AnyTensor, ones, zeros
+from projectodyssey.data.cache import CachedDataset
+from projectodyssey.data.dataset_with_transform import TransformedDataset
+from projectodyssey.data.datasets import AnyTensorDataset
+from projectodyssey.data.loaders import Batch, BatchLoader
+from projectodyssey.data.prefetch import PrefetchDataLoader
+from projectodyssey.data.samplers import RandomSampler, SequentialSampler
+from projectodyssey.data.transforms import Normalize, Compose
+from projectodyssey.tensor.any_tensor import AnyTensor, ones, zeros
 from std.collections import List
 
 

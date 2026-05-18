@@ -84,6 +84,6 @@ See [mojo-guidelines.md](../shared/mojo-guidelines.md) for Mojo memory managemen
 
 ---
 
-**References**: [shared/common-constraints](../shared/common-constraints.md),
-[shared/mojo-guidelines](../shared/mojo-guidelines.md),
-[shared/documentation-rules](../shared/documentation-rules.md)
+**References**: [src/projectodyssey/common-constraints](../shared/common-constraints.md),
+[src/projectodyssey/mojo-guidelines](../shared/mojo-guidelines.md),
+[src/projectodyssey/documentation-rules](../shared/documentation-rules.md)

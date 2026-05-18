@@ -4,7 +4,7 @@ Update version across all ML Odyssey version files.
 
 This script updates version numbers in:
 - VERSION (root file)
-- shared/version.mojo (Mojo version module)
+- src/projectodyssey/version.mojo (Mojo version module)
 
 Usage:
     python3 scripts/update_version.py <new_version>
@@ -65,7 +65,7 @@ def update_version_file(repo_root: Path, version: str) -> None:
 
 def update_version_mojo(repo_root: Path, version: str, major: int, minor: int, patch: int) -> None:
     """
-    Update shared/version.mojo with new version.
+    Update src/projectodyssey/version.mojo with new version.
 
     Args:
         repo_root: Path to repository root
@@ -133,12 +133,12 @@ def verify_version_files(repo_root: Path, version: str) -> bool:
     if version_mojo.exists():
         content = version_mojo.read_text()
         if f'alias VERSION = "{version}"' in content:
-            print(f"  ✓ shared/version.mojo: {version}")
+            print(f"  ✓ src/projectodyssey/version.mojo: {version}")
         else:
-            print("  ✗ shared/version.mojo: version mismatch")
+            print("  ✗ src/projectodyssey/version.mojo: version mismatch")
             success = False
     else:
-        print("  ⚠️  shared/version.mojo not found (optional)")
+        print("  ⚠️  src/projectodyssey/version.mojo not found (optional)")
 
     return success
 

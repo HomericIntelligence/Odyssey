@@ -16,9 +16,9 @@ RENDERING CONVENTION (mojo-1.0):
 
 from testing import assert_equal, assert_true, assert_false
 # TEMPLATE: module_path_PLACEHOLDER -> {{module_path}} (filled during code generation)
-# Example: from shared.core.layers.linear import Linear
-from shared.tensor.any_tensor import AnyTensor
-from shared.tensor.tensor_creation import zeros
+# Example: from projectodyssey.core.layers.linear import Linear
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import zeros
 
 
 def create_test_data() raises -> AnyTensor:

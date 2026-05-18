@@ -310,7 +310,7 @@ _build-inner mode="debug":
     # ------------------------------------------------------------
     # Phase A: Package the shared library
     # ------------------------------------------------------------
-    # shared/ is a library (no main() entry points) — must be compiled with
+    # src/projectodyssey/ is a library (no main() entry points) — must be compiled with
     # `mojo package`, not file-by-file `mojo build`. This is the same logic
     # as `_package-inner`; we inline it here so `just build` produces a
     # complete artifact set in one invocation.
@@ -318,8 +318,8 @@ _build-inner mode="debug":
     # `mojo package` only accepts a small subset of compiler flags
     # (no -g / --no-optimization / -O3 / --sanitize). Pass STRICT only.
     echo "→ Packaging shared library"
-    pixi run mojo package $STRICT -I "$REPO_ROOT" shared \
-        -o "$BUILD_DIR/ProjectOdyssey-shared.mojopkg"
+    pixi run mojo package $STRICT -I "$REPO_ROOT/src" src/projectodyssey \
+        -o "$BUILD_DIR/projectodyssey.mojopkg"
 
     # ------------------------------------------------------------
     # Phase B: AOT-compile every executable (examples, benchmarks, papers)
@@ -333,7 +333,7 @@ _build-inner mode="debug":
     if [ "$MODE" = "asan" ] || [ "$MODE" = "tsan" ]; then
         echo
         echo "✅ Sanitizer build complete (shared package only)"
-        echo "  shared package: $BUILD_DIR/ProjectOdyssey-shared.mojopkg"
+        echo "  shared package: $BUILD_DIR/projectodyssey.mojopkg"
         echo "  Run sanitized tests: just test-mojo-${MODE}"
         exit 0
     fi
@@ -402,7 +402,7 @@ _build-inner mode="debug":
     echo "=================================================="
     echo "Build summary ($MODE)"
     echo "=================================================="
-    echo "  shared package: $BUILD_DIR/ProjectOdyssey-shared.mojopkg"
+    echo "  shared package: $BUILD_DIR/projectodyssey.mojopkg"
     echo "  executables:    $BUILT built, $FAILED failed"
     if [ "$FAILED" -gt 0 ]; then
         echo
@@ -448,16 +448,16 @@ _check-inner:
     #!/usr/bin/env bash
     set -euo pipefail
     REPO_ROOT="$(pwd)"
-    echo "🔍 Type-checking shared/ library..."
+    echo "🔍 Type-checking src/projectodyssey/ library..."
 
     # Use mojo package to validate compilation (no --check flag available)
     OUT=$(mktemp -d)
     trap "rm -rf $OUT" EXIT
 
-    if pixi run mojo package --Werror -I "$REPO_ROOT" shared -o "$OUT/shared.mojopkg" 2>&1; then
-        echo "✅ shared/ type-check passed"
+    if pixi run mojo package --Werror -I "$REPO_ROOT/src" src/projectodyssey -o "$OUT/projectodyssey.mojopkg" 2>&1; then
+        echo "✅ src/projectodyssey/ type-check passed"
     else
-        echo "❌ shared/ has compilation errors"
+        echo "❌ src/projectodyssey/ has compilation errors"
         exit 1
     fi
 
@@ -488,7 +488,7 @@ _package-inner mode="debug":
 
     echo "Packaging shared library in $MODE mode..."
     echo "Flags: $FLAGS"
-    pixi run mojo package $FLAGS -I "$REPO_ROOT" shared -o "build/$MODE/ProjectOdyssey-shared.mojopkg"
+    pixi run mojo package $FLAGS -I "$REPO_ROOT/src" src/projectodyssey -o "build/$MODE/projectodyssey.mojopkg"
 
 # Package debug version
 package-debug: (package "debug")

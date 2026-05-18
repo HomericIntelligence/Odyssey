@@ -27,7 +27,7 @@ All tests use pure functional API - no internal state or parameters.
 """
 
 
-from tests.shared.conftest import (
+from tests.projectodyssey.conftest import (
     TestFixtures,
     assert_almost_equal,
     assert_close_float,
@@ -36,24 +36,24 @@ from tests.shared.conftest import (
     assert_shape,
     assert_true,
 )
-from shared.tensor.any_tensor import AnyTensor, zeros, ones, full
-from shared.core.conv import (
+from projectodyssey.tensor.any_tensor import AnyTensor, zeros, ones, full
+from projectodyssey.core.conv import (
     conv2d,
     conv2d_no_bias,
     conv2d_backward,
     conv2d_no_bias_backward,
 )
-from shared.core.linear import (
+from projectodyssey.core.linear import (
     linear,
     linear_no_bias,
     linear_backward,
     linear_no_bias_backward,
 )
-from shared.core.activation import (
+from projectodyssey.core.activation import (
     relu,
     relu_backward,
 )
-from shared.core.pooling import (
+from projectodyssey.core.pooling import (
     maxpool2d,
     maxpool2d_backward,
 )

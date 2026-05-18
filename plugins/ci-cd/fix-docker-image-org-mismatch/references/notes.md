@@ -263,8 +263,8 @@ grep -r "ghcr.io/oldorg" --include="*.md" --include="*.yml" .
 - `notes/blog/` (8 files)
 - `notes/issues/2364/README.md`
 - `plugins/ci-cd/batch-pr-rebase/references/notes.md`
-- `shared/` (4 README files)
-- `tests/shared/README.md`
+- `src/projectodyssey/` (4 README files)
+- `tests/projectodyssey/README.md`
 - `tools/` (4 README files)
 
 ## Timeline

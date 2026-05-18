@@ -18,7 +18,7 @@ issues and PRs.
 | MobileNetV1 | Howard et al., 2017 |
 | GoogLeNet | Szegedy et al., 2014 |
 
-**Shared library** (`shared/`) provides tensor ops, autograd, layers, optimizers,
+**Shared library** (`src/projectodyssey/`) provides tensor ops, autograd, layers, optimizers,
 schedulers, mixed-precision training, checkpointing, and evaluation — all in Mojo.
 
 ~198K lines of Mojo code; 298+ tests across CI tiers.

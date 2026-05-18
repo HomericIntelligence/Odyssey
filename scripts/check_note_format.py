@@ -10,7 +10,7 @@ Non-compliant patterns like # NOTE: or # NOTE some text will be flagged.
 
 Usage:
     python scripts/check_note_format.py [directory]
-    python scripts/check_note_format.py shared/
+    python scripts/check_note_format.py src/projectodyssey/
     python scripts/check_note_format.py  # defaults to repo root, checks source dirs
 """
 

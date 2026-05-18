@@ -70,7 +70,7 @@ def migrate_fn_to_def_in_file(filepath: Path) -> tuple[int, list[str]]:
 
 
 def main():
-    """Process all .mojo files in shared/, tests/, and scripts/."""
+    """Process all .mojo files in src/projectodyssey/, tests/, and scripts/."""
     mojo_files = list(Path("/home/mvillmow/ProjectOdyssey").glob("**/*.mojo"))
 
     if not mojo_files:

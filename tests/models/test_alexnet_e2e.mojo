@@ -10,21 +10,21 @@ This test uses functional layer composition (no AlexNet model class required).
 Tests the same forward-backward pipeline that a full model would use.
 """
 
-from shared.tensor.any_tensor import AnyTensor, zeros, ones
-from shared.core.conv import conv2d, conv2d_backward
-from shared.core.pooling import maxpool2d
-from shared.core.linear import linear, linear_backward
-from shared.core.activation import relu, relu_backward
-from shared.core.initializers import kaiming_uniform
-from shared.core.loss import cross_entropy
-from shared.testing.assertions import (
+from projectodyssey.tensor.any_tensor import AnyTensor, zeros, ones
+from projectodyssey.core.conv import conv2d, conv2d_backward
+from projectodyssey.core.pooling import maxpool2d
+from projectodyssey.core.linear import linear, linear_backward
+from projectodyssey.core.activation import relu, relu_backward
+from projectodyssey.core.initializers import kaiming_uniform
+from projectodyssey.core.loss import cross_entropy
+from projectodyssey.testing.assertions import (
     assert_shape,
     assert_dtype,
     assert_true,
     assert_false,
     assert_close_float,
 )
-from shared.testing.special_values import (
+from projectodyssey.testing.special_values import (
     create_seeded_random_tensor,
     SPECIAL_VALUE_ONE,
 )

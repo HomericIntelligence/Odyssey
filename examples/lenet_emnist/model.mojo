@@ -19,15 +19,15 @@ References:
     - Reference Implementation: https://github.com/mattwang44/LeNet-from-Scratch
 """
 
-from shared.tensor.any_tensor import AnyTensor, zeros
-from shared.core.conv import conv2d, conv2d_backward
-from shared.core.pooling import maxpool2d, maxpool2d_backward
-from shared.core.linear import linear, linear_backward
-from shared.core.activation import relu, relu_backward
-from shared.core.initializers import kaiming_uniform, xavier_uniform
-from shared.core.shape import conv2d_output_shape, pool_output_shape
-from shared.core.traits import Model
-from shared.training.model_utils import (
+from projectodyssey.tensor.any_tensor import AnyTensor, zeros
+from projectodyssey.core.conv import conv2d, conv2d_backward
+from projectodyssey.core.pooling import maxpool2d, maxpool2d_backward
+from projectodyssey.core.linear import linear, linear_backward
+from projectodyssey.core.activation import relu, relu_backward
+from projectodyssey.core.initializers import kaiming_uniform, xavier_uniform
+from projectodyssey.core.shape import conv2d_output_shape, pool_output_shape
+from projectodyssey.core.traits import Model
+from projectodyssey.training.model_utils import (
     save_model_weights,
     load_model_weights,
     get_model_parameter_names,

@@ -17,34 +17,34 @@ Training Strategy:
     - Cross-entropy loss
 
 Shared Modules Used:
-    - shared.core: Tensor operations (conv2d, relu, batch_norm2d, etc.)
-    - shared.core.loss: cross_entropy loss functions
-    - shared.data: Data loading and batch extraction
-    - shared.data.datasets: CIFAR-10 dataset loading
-    - shared.training.optimizers: SGD with momentum
-    - shared.training.metrics: Evaluation utilities
-    - shared.utils.arg_parser: Command-line argument parsing
+    - projectodyssey.core: Tensor operations (conv2d, relu, batch_norm2d, etc.)
+    - projectodyssey.core.loss: cross_entropy loss functions
+    - projectodyssey.data: Data loading and batch extraction
+    - projectodyssey.data.datasets: CIFAR-10 dataset loading
+    - projectodyssey.training.optimizers: SGD with momentum
+    - projectodyssey.training.metrics: Evaluation utilities
+    - projectodyssey.utils.arg_parser: Command-line argument parsing
 
 Usage:
     mojo run examples/resnet18_cifar10/train.mojo --epochs 200 --batch-size 128 --lr 0.01
 """
 
-from shared.tensor.any_tensor import AnyTensor, zeros, ones
-from shared.core.loss import cross_entropy, cross_entropy_backward
-from shared.core.conv import conv2d, conv2d_backward
-from shared.core.pooling import avgpool2d, avgpool2d_backward
-from shared.core.linear import linear, linear_backward
-from shared.core.activation import relu, relu_backward
-from shared.core.normalization import batch_norm2d, batch_norm2d_backward
-from shared.core.arithmetic import add, add_backward
-from shared.data.batch_utils import compute_num_batches, extract_batch_pair
-from shared.data.constants import DatasetInfo
+from projectodyssey.tensor.any_tensor import AnyTensor, zeros, ones
+from projectodyssey.core.loss import cross_entropy, cross_entropy_backward
+from projectodyssey.core.conv import conv2d, conv2d_backward
+from projectodyssey.core.pooling import avgpool2d, avgpool2d_backward
+from projectodyssey.core.linear import linear, linear_backward
+from projectodyssey.core.activation import relu, relu_backward
+from projectodyssey.core.normalization import batch_norm2d, batch_norm2d_backward
+from projectodyssey.core.arithmetic import add, add_backward
+from projectodyssey.data.batch_utils import compute_num_batches, extract_batch_pair
+from projectodyssey.data.constants import DatasetInfo
 
 # CIFAR-10 dataset loading blocked on Python↔Mojo interop (#3076).
-# from shared.data.datasets import load_cifar10_train, load_cifar10_test
-from shared.training.optimizers import sgd_momentum_update_inplace
-from shared.training.metrics import evaluate_with_predict, top1_accuracy
-from shared.utils.training_args import parse_training_args_with_defaults
+# from projectodyssey.data.datasets import load_cifar10_train, load_cifar10_test
+from projectodyssey.training.optimizers import sgd_momentum_update_inplace
+from projectodyssey.training.metrics import evaluate_with_predict, top1_accuracy
+from projectodyssey.utils.training_args import parse_training_args_with_defaults
 from model import ResNet18
 
 

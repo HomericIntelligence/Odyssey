@@ -3,15 +3,15 @@
 Provides common tensor creation utilities for tests, including
 random tensors, sequential tensors, and special value tensors.
 
-These fixtures wrap the comprehensive infrastructure in shared.testing
+These fixtures wrap the comprehensive infrastructure in projectodyssey.testing
 with convenient test-specific APIs.
 """
 
-from shared.tensor.any_tensor import AnyTensor, zeros, ones
-from shared.tensor.any_tensor import nan_tensor as shared_nan_tensor
-from shared.tensor.any_tensor import inf_tensor as shared_inf_tensor
-from shared.testing.data_generators import random_tensor as shared_random_tensor
-from shared.testing.data_generators import random_uniform
+from projectodyssey.tensor.any_tensor import AnyTensor, zeros, ones
+from projectodyssey.tensor.any_tensor import nan_tensor as shared_nan_tensor
+from projectodyssey.tensor.any_tensor import inf_tensor as shared_inf_tensor
+from projectodyssey.testing.data_generators import random_tensor as shared_random_tensor
+from projectodyssey.testing.data_generators import random_uniform
 
 
 def random_tensor(

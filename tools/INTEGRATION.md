@@ -20,9 +20,9 @@ Tools integrate directly into the paper implementation workflow:
 ```text
 Developer Workflow:
 1. Create paper structure → tools/paper-scaffold/
-2. Write tests → tests/shared/fixtures/ (fixtures, generators)
+2. Write tests → tests/projectodyssey/fixtures/ (fixtures, generators)
 3. Implement model → (direct Mojo implementation)
-4. Benchmark performance → shared/benchmarking/
+4. Benchmark performance → src/projectodyssey/benchmarking/
 5. Generate boilerplate → tools/codegen/
 ```text
 
@@ -71,8 +71,8 @@ Tools can be integrated into GitHub Actions workflows:
 
 - `pre-commit.yml` - Could integrate validation tools
 - `test-agents.yml` - Could use test utilities
-- `unit-tests.yml` - Leverages tests/shared/fixtures/
-- `benchmark.yml` - Uses shared/benchmarking/
+- `unit-tests.yml` - Leverages tests/projectodyssey/fixtures/
+- `benchmark.yml` - Uses src/projectodyssey/benchmarking/
 - `validate-configs.yml` - Could use validation utilities
 
 ### 4. Agent System Integration
@@ -94,7 +94,7 @@ Tools support agent-driven workflows (`.claude/agents/`):
 - [`generate_boilerplate`](../skills/tier-1/generate-boilerplate/SKILL.md)
   → Wraps `tools/codegen/` for agent use
 - [`run_tests`](../skills/tier-1/run-tests/SKILL.md)
-  → Uses `tests/shared/fixtures/` for test execution
+  → Uses `tests/projectodyssey/fixtures/` for test execution
 ```text
 
 ## Usage Scenarios
@@ -131,7 +131,7 @@ from tests.shared.fixtures import generate_batch, ModelFixture
 pixi run mojo test benchmarks/
 
 # 2. Use shared benchmarking module in code
-from shared.benchmarking import benchmark_function, print_benchmark_report
+from projectodyssey.benchmarking import benchmark_function, print_benchmark_report
 ```text
 
 ### Scenario 3: Test-Driven Development
@@ -149,7 +149,7 @@ fn test_forward_pass() raises:
     assert output.shape()[0] == 32
 
 // 2. Use shared benchmarking
-from shared.benchmarking import benchmark_function
+from projectodyssey.benchmarking import benchmark_function
 
 fn test_inference_speed() raises:
     fn run_inference() raises:
@@ -197,9 +197,9 @@ python tools/setup/verify_tools.py
 ```text
 What do you need?
 ├── Create new paper structure → paper-scaffold/scaffold.py
-├── Generate test data → tests/shared/fixtures/data_generators.mojo
-├── Create test fixtures → shared/testing/test_models.mojo
-├── Measure performance → shared/benchmarking/
+├── Generate test data → tests/projectodyssey/fixtures/data_generators.mojo
+├── Create test fixtures → src/projectodyssey/testing/test_models.mojo
+├── Measure performance → src/projectodyssey/benchmarking/
 │   ├── Benchmark functions → benchmark_function()
 │   └── Print reports → print_benchmark_report()
 └── Generate code → codegen/
@@ -322,7 +322,7 @@ python tools/codegen/training_template.py \
     --output papers/resnet/train.mojo
 
 # 5. Write tests with fixtures
-# Use tests/shared/fixtures/ in test files
+# Use tests/projectodyssey/fixtures/ in test files
 
 # 6. Run benchmarks
 pixi run mojo test benchmarks/

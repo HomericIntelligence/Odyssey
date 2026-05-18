@@ -233,7 +233,7 @@ This matches the learning rate schedule used in the original AlexNet paper.
 ML Odyssey provides data augmentation transforms in `shared.data`:
 
 ```mojo
-from shared.data import RandomCrop, RandomHorizontalFlip, Compose
+from projectodyssey.data import RandomCrop, RandomHorizontalFlip, Compose
 
 # Create augmentation pipeline
 var transforms = Compose([
@@ -258,7 +258,7 @@ var augmented = transforms(images)
 This example follows **Keep It Simple, Stupid** principles:
 
 1. **Minimal Dependencies**: Uses only ML Odyssey shared library
-2. **Functional Design**: Model uses functional ops (conv2d, linear, relu, dropout) from shared/core
+2. **Functional Design**: Model uses functional ops (conv2d, linear, relu, dropout) from src/projectodyssey/core
 3. **Clear Structure**: Separate files for model, training, and inference
 4. **Simple Interfaces**: Command-line arguments for configuration
 5. **No Over-Engineering**: Direct implementation without unnecessary abstractions

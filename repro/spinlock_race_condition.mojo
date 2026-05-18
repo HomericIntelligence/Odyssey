@@ -1,7 +1,7 @@
 """Minimal standalone reproducer for SpinLock unlock() race condition.
 
 This file contains a self-contained spinlock implementation that reproduces
-the exact bug in shared/base/memory_pool.mojo SpinLock.unlock().
+the exact bug in src/projectodyssey/base/memory_pool.mojo SpinLock.unlock().
 
 The WRONG implementation uses store(0) for unlock. The CORRECT implementation
 uses fetch_add(-1).
@@ -163,4 +163,4 @@ def main() raises:
     print("CorrectSpinLock for BuggySpinLock in test_with_correct_lock()")
     print("and observe the hang.")
     print("")
-    print("See shared/base/memory_pool.mojo SpinLock.unlock() for the production fix.")
+    print("See src/projectodyssey/base/memory_pool.mojo SpinLock.unlock() for the production fix.")

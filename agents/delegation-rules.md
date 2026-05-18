@@ -390,7 +390,7 @@ git merge --no-commit <branch>
 
 | Component Type | Required Artifacts | Verification |
 | --- | --- | --- |
-| Mojo Library | `dist/<module>-<version>.mojopkg` | `mojo package shared/<module> -o dist/<module>-<version>.mojopkg` |
+| Mojo Library | `dist/<module>-<version>.mojopkg` | `mojo package src/projectodyssey/<module> -o dist/<module>-<version>.mojopkg` |
 | Tooling | `dist/<tool>-<version>.tar.gz` | Extract and run in fresh directory |
 | Documentation | `site/` + `.github/workflows/docs.yml` | `mkdocs build && mkdocs serve` |
 | Benchmarks | Archive + `.github/workflows/benchmark.yml` | Workflow runs successfully in CI |

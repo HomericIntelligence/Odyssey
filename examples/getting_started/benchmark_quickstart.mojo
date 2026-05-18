@@ -15,12 +15,12 @@ Usage:
 See documentation: docs/getting-started/quickstart.md
 """
 
-from shared.benchmarking import (
+from projectodyssey.benchmarking import (
     benchmark_function,
     print_benchmark_report,
     BenchmarkResult,
 )
-from shared.tensor.any_tensor import AnyTensor, ones, zeros
+from projectodyssey.tensor.any_tensor import AnyTensor, ones, zeros
 
 
 # ============================================================================

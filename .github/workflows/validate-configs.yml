@@ -8,7 +8,7 @@ on:
     paths:
       - 'configs/**/*.yaml'
       - 'configs/**/*.yml'
-      - 'shared/utils/config*.mojo'
+      - 'src/projectodyssey/utils/config*.mojo'
       - '.claude/agents/**'
       - 'tests/agents/**'
       - 'agents/**'
@@ -22,7 +22,7 @@ on:
     paths:
       - 'configs/**/*.yaml'
       - 'configs/**/*.yml'
-      - 'shared/utils/config*.mojo'
+      - 'src/projectodyssey/utils/config*.mojo'
       - '.claude/agents/**'
       - 'tests/agents/**'
       - 'agents/**'

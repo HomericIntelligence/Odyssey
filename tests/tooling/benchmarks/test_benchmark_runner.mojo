@@ -20,7 +20,7 @@ Following TDD principles:
 - Deterministic and reproducible tests
 """
 
-from tests.shared.conftest import (
+from tests.projectodyssey.conftest import (
     assert_true,
     assert_false,
     assert_equal,

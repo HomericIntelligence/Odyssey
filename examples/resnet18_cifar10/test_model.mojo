@@ -3,14 +3,14 @@
 Tests ResNet-18 forward pass, weight persistence, and model integration with shared modules.
 
 Shared Modules Used:
-    - shared.core: Core tensor operations
-    - shared.utils.serialization: Weight save/load functionality
+    - projectodyssey.core: Core tensor operations
+    - projectodyssey.utils.serialization: Weight save/load functionality
 """
 
 from model import ResNet18
-from shared.tensor.any_tensor import AnyTensor, zeros
-from shared.utils.serialization import save_tensor, load_tensor
-from shared.data.constants import DatasetInfo
+from projectodyssey.tensor.any_tensor import AnyTensor, zeros
+from projectodyssey.utils.serialization import save_tensor, load_tensor
+from projectodyssey.data.constants import DatasetInfo
 from std.collections import List
 
 

@@ -12,11 +12,11 @@ in combination.
 
 | Directory | Purpose | Primary Users | Key Integration Points |
 | --- | --- | --- | --- |
-| **benchmarks/** | Performance measurement | Developers, CI/CD | papers/, shared/, configs/ |
+| **benchmarks/** | Performance measurement | Developers, CI/CD | papers/, src/projectodyssey/, configs/ |
 | **docs/** | User documentation | All users | All directories |
 | **agents/** | AI automation | Claude Code | All directories |
 | **tools/** | Development utilities | Developers | papers/, configs/, tests/ |
-| **configs/** | Configuration management | All users | papers/, benchmarks/, shared/ |
+| **configs/** | Configuration management | All users | papers/, benchmarks/, src/projectodyssey/ |
 
 ## Integration Patterns
 
@@ -250,16 +250,16 @@ jobs:
 ```text
 
 papers/
-  ├─> shared/ (uses layers, optimizers)
+  ├─> src/projectodyssey/ (uses layers, optimizers)
   ├─> configs/ (loads configurations)
   └─> tools/ (uses utilities)
 
-shared/
+src/projectodyssey/
   └─> configs/ (config loading utilities)
 
 benchmarks/
   ├─> papers/ (benchmarks implementations)
-  ├─> shared/ (benchmarks components)
+  ├─> src/projectodyssey/ (benchmarks components)
   └─> configs/ (benchmark configurations)
 
 tools/
@@ -284,7 +284,7 @@ agents/
 
 - Provides configuration to all other directories
 - Used by papers/, benchmarks/, tools/
-- Loaded by shared/utils/config_loader
+- Loaded by src/projectodyssey/utils/config_loader
 
 ### Integration Layer
 
@@ -331,7 +331,7 @@ agents/
 
 1. **Measure** with `benchmarks/scripts/`
 1. **Profile** with `tools/benchmarking/`
-1. **Optimize** in `papers/{name}/` or `shared/`
+1. **Optimize** in `papers/{name}/` or `src/projectodyssey/`
 1. **Verify** with `benchmarks/scripts/`
 1. **Document** in `docs/advanced/`
 
@@ -599,7 +599,7 @@ python scripts/lint_configs.py configs/experiments/my_experiment.yaml
 echo $ML_ODYSSEY_DATA
 
 # Test loading
-mojo -c "from shared.utils.config_loader import load_experiment_config; var c = load_experiment_config('paper', 'exp')"
+mojo -c "from projectodyssey.utils.config_loader import load_experiment_config; var c = load_experiment_config('paper', 'exp')"
 
 ```text
 
