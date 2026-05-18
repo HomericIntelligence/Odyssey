@@ -1,0 +1,56 @@
+context:
+  version: "0.1.0"
+  mojo_version: "=1.0.0b2"
+
+package:
+  name: "projectodyssey"
+  version: ${{ version }}
+
+source:
+  # Local development: build straight from the working tree.
+  # For modular-community submission, replace with:
+  #
+  #   - git: https://github.com/HomericIntelligence/ProjectOdyssey.git
+  #     rev: <commit-sha-or-tag>
+  #
+  # See scripts/publish_modular_community.py — it rewrites this block
+  # automatically when copying the recipe into modular/modular-community.
+  - path: ..
+
+build:
+  number: 0
+  script:
+    - mkdir -p ${PREFIX}/lib/mojo
+    - mojo package -I src src/projectodyssey -o ${PREFIX}/lib/mojo/projectodyssey.mojopkg
+
+requirements:
+  build:
+    - mojo-compiler ${{ mojo_version }}
+  host:
+    - mojo-compiler ${{ mojo_version }}
+  run:
+    - mojo-compiler ${{ mojo_version }}
+
+tests:
+  - script:
+      - if: unix
+        then:
+          - pixi run mojo run conda.recipe/test_import.mojo
+    requirements:
+      run:
+        - mojo-compiler ${{ mojo_version }}
+    files:
+      source:
+        - conda.recipe/test_import.mojo
+
+about:
+  homepage: https://github.com/HomericIntelligence/ProjectOdyssey
+  license: BSD-3-Clause
+  license_file: LICENSE
+  summary: Mojo-based AI research platform for reproducing classic research papers. Provides reusable tensor ops, autograd, layers, optimizers, and training infrastructure.
+  repository: https://github.com/HomericIntelligence/ProjectOdyssey.git
+
+extra:
+  project_name: projectodyssey
+  maintainers:
+    - mvillmow

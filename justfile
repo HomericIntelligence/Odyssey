@@ -497,6 +497,38 @@ package-debug: (package "debug")
 package-release: (package "release")
 
 # ==============================================================================
+# Conda Recipe (rattler-build) — install/publish to modular-community
+# ==============================================================================
+# Wraps the real tools — there is no `mojo install` or `mojo publish` CLI in
+# Mojo 1.0. "Install" means `pixi add projectodyssey` once the recipe lands
+# in https://repo.prefix.dev/modular-community; "publish" means a PR to
+# https://github.com/modular/modular-community adding `recipes/projectodyssey/`.
+
+# Build the conda package locally via rattler-build
+build-recipe:
+    @echo "Building conda package via rattler-build…"
+    @mkdir -p build/recipe
+    pixi exec --spec rattler-build -- rattler-build build \
+        --recipe conda.recipe/recipe.yaml \
+        -c conda-forge -c https://conda.modular.com/max \
+        -c https://repo.prefix.dev/modular-community \
+        --output-dir build/recipe
+    @echo "✅ Conda package built under build/recipe/"
+
+# Install the locally-built conda package into a scratch pixi env (smoke test)
+install-local: build-recipe
+    @echo "Smoke-testing locally-built package in a scratch pixi env…"
+    @bash scripts/install_local_recipe.sh
+
+# Open a PR to modular/modular-community publishing the current recipe
+publish:
+    @python3 scripts/publish_modular_community.py
+
+# Dry-run of publish: prints the PR body and recipe diff without pushing
+publish-dry-run:
+    @python3 scripts/publish_modular_community.py --dry-run
+
+# ==============================================================================
 # Model Training and Inference
 # ==============================================================================
 
