@@ -426,7 +426,7 @@ jobs:
           just test-group "tests" \
             "test_*.mojo training/test_*.mojo unit/test_*.mojo \
              integration/test_*.mojo helpers/test_*.mojo \
-             tooling/benchmarks/test_*.mojo src/projectodyssey/fuzz/test_*.mojo"
+             tooling/benchmarks/test_*.mojo projectodyssey/fuzz/test_*.mojo"
 
       - name: "Examples"
         if: matrix.group == 'models-misc'
