@@ -241,6 +241,9 @@ jobs:
       - name: Set up container
         uses: ./.github/actions/setup-container
 
+      - name: Set up just
+        uses: extractions/setup-just@53165ef7e734c5c07cb06b3c8e7b647c5aa16db3  # v4.0.0
+
       - name: Set up Python
         uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6
         with:
@@ -257,39 +260,24 @@ jobs:
           name: release-artifacts
           path: dist/
 
-      - name: Run unit tests
+      - name: Run Mojo tests
+        # The release pipeline gates on the FULL Mojo test suite — the same
+        # suite every PR runs via `just test-mojo`. Previously this step used
+        # `pixi run mojo test -I . tests/unit/` (and the same for `tests/integration/`),
+        # but the `mojo test` subcommand was removed in Mojo 1.0 (each test
+        # is now a `def main()` program run directly). `just test-mojo`
+        # discovers and runs them correctly inside the dev container.
+        run: just test-mojo
+
+      - name: Run Python tests
         run: |
-          echo "Running unit tests..."
-
-          # Run Mojo tests if they exist
-          if [ -d "tests/unit" ] && [ -n "$(find tests/unit -name '*.mojo' -o -name '*.🔥' 2>/dev/null)" ]; then
-            echo "Running Mojo unit tests..."
-            podman compose exec -T projectodyssey-dev bash -c 'pixi run mojo test -I . tests/unit/ --verbose'
-          fi
-
-          # Run Python tests if they exist
           if [ -d "tests/unit" ] && [ -n "$(find tests/unit -name 'test_*.py' 2>/dev/null)" ]; then
             echo "Running Python unit tests..."
             pytest tests/unit/ --verbose --timeout=300
           fi
-
-      - name: Run integration tests
-        run: |
-          echo "Running integration tests..."
-
-          # Run integration tests if they exist
-          if [ -d "tests/integration" ]; then
-            if [ -n "$(find tests/integration -name '*.mojo' -o -name '*.🔥' 2>/dev/null)" ]; then
-              echo "Running Mojo integration tests..."
-              podman compose exec -T projectodyssey-dev bash -c 'pixi run mojo test -I . tests/integration/ --verbose'
-            fi
-
-            if [ -n "$(find tests/integration -name 'test_*.py' 2>/dev/null)" ]; then
-              echo "Running Python integration tests..."
-              pytest tests/integration/ --verbose --timeout=600
-            fi
-          else
-            echo "⚠️  No integration tests found - skipping"
+          if [ -d "tests/integration" ] && [ -n "$(find tests/integration -name 'test_*.py' 2>/dev/null)" ]; then
+            echo "Running Python integration tests..."
+            pytest tests/integration/ --verbose --timeout=600
           fi
 
       - name: Test package installation
