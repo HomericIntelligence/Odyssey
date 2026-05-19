@@ -142,9 +142,16 @@ jobs:
         # src/*.mojo (wrong path post-rename in #5413) and used `mojo build`
         # (wrong subcommand — that produces executables, not a library
         # package), so the release workflow never actually shipped a .mojopkg.
+        #
+        # `dist/` must be world-writable: `just wheel` runs INSIDE the dev
+        # container (per #5424) and writes its .tmp-XXX staging directly into
+        # dist/, but the container user maps to a different host uid via the
+        # rootless Podman subuid mapping. Without `chmod 777`, the container
+        # would hit `PermissionError: [Errno 13]` on `dist/.tmp-XXX`.
         run: |
           echo "Building projectodyssey.mojopkg…"
           mkdir -p dist
+          chmod 777 dist
           just package-release
           cp build/release/projectodyssey.mojopkg dist/
           ls -la dist/projectodyssey.mojopkg
