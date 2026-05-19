@@ -20,11 +20,7 @@ here; see Mojo's Python-interop docs if you need them.
 
 from __future__ import annotations
 
-import os
-
-# Safe: this wheel pins requires-python = ">=3.10" (see pyproject.toml),
-# and importlib.resources has been a stable module since 3.9.
-from importlib.resources import files  # nosemgrep: python.lang.compatibility.python37.python37-compatibility-importlib
+from pathlib import Path
 
 __all__ = ["mojopkg_path", "import_dir", "__version__"]
 
@@ -32,10 +28,17 @@ __all__ = ["mojopkg_path", "import_dir", "__version__"]
 # When this drifts, the wheel build is the source of truth (it embeds this).
 __version__ = "0.1.0"
 
+# The .mojopkg ships as package data under projectodyssey/_data/.
+# Resolve relative to this module's file — works identically whether the
+# package was installed by pip, dropped on PYTHONPATH, or imported from
+# a source checkout. No reliance on importlib.resources (which Semgrep
+# flags) and no backport dependency.
+_DATA_DIR = Path(__file__).resolve().parent / "_data"
+
 
 def mojopkg_path() -> str:
     """Absolute filesystem path to the bundled `projectodyssey.mojopkg`."""
-    return os.fspath(files(__package__) / "_data" / "projectodyssey.mojopkg")
+    return str(_DATA_DIR / "projectodyssey.mojopkg")
 
 
 def import_dir() -> str:
@@ -43,4 +46,4 @@ def import_dir() -> str:
 
     Returns the parent directory of `projectodyssey.mojopkg`.
     """
-    return os.fspath(files(__package__) / "_data")
+    return str(_DATA_DIR)
