@@ -32,11 +32,16 @@ echo "📦 Scratch pixi env: $SCRATCH"
 
 cd "$SCRATCH"
 pixi init --quiet
-pixi workspace channel add --quiet "$RECIPE_OUT"
-pixi workspace channel add --quiet "https://conda.modular.com/max"
 
+# Use `pixi project` for back-compat with pixi <0.40; newer pixi accepts
+# `pixi workspace` as an alias.
+pixi project channel add --quiet "$RECIPE_OUT"
+pixi project channel add --quiet "https://conda.modular.com/max"
+
+# Let the recipe's `mojo-compiler` run requirement resolve the right version
+# from conda.modular.com/max — pinning to a dev build that isn't on the
+# public channel breaks reproducibility.
 pixi add --quiet projectodyssey
-pixi add --quiet "mojo==1.0.0b2.dev2026050805"
 
 cat > smoke_test.mojo <<'EOF'
 from projectodyssey.tensor.tensor import Tensor

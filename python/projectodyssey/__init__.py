@@ -20,13 +20,18 @@ here; see Mojo's Python-interop docs if you need them.
 
 from __future__ import annotations
 
+from importlib.metadata import PackageNotFoundError, version as _get_version
 from pathlib import Path
 
 __all__ = ["mojopkg_path", "import_dir", "__version__"]
 
-# Kept in sync manually with mojo.toml and python/pyproject.toml.
-# When this drifts, the wheel build is the source of truth (it embeds this).
-__version__ = "0.1.0"
+# Single source of truth: python/pyproject.toml [project].version, read at
+# import time via importlib.metadata. The fallback is hit only in source/editable
+# installs that lack dist-info (e.g. running from a fresh checkout).
+try:
+    __version__: str = _get_version("projectodyssey")
+except PackageNotFoundError:
+    __version__ = "0.0.0"
 
 # The .mojopkg ships as package data under projectodyssey/_data/.
 # Resolve relative to this module's file — works identically whether the
