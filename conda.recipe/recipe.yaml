@@ -1,6 +1,6 @@
 context:
   version: "0.1.0"
-  mojo_version: "=1.0.0b2"
+  mojo_version: ">=1.0.0b1"
 
 package:
   name: "projectodyssey"
@@ -35,7 +35,7 @@ tests:
   - script:
       - if: unix
         then:
-          - pixi run mojo run conda.recipe/test_import.mojo
+          - mojo run -I ${PREFIX}/lib/mojo conda.recipe/test_import.mojo
     requirements:
       run:
         - mojo-compiler ${{ mojo_version }}
