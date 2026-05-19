@@ -549,14 +549,31 @@ publish-dry-run:
 # tracking issue's "Out of scope" section).
 
 # Build the wheel: produces dist/projectodyssey-<version>-py3-none-any.whl
+#
+# Runs inside the dev container so `pixi` is available (GitHub-hosted runners
+# don't ship pixi at the host level, and `package-release` already populates
+# build/release/ as the container uid — keeping wheel in-container avoids
+# the same uid-mismatch perms issue that `build-recipe` hit in #5422).
 wheel: package-release
-    @echo "Staging projectodyssey.mojopkg into python/projectodyssey/_data/"
-    @mkdir -p python/projectodyssey/_data
-    @cp build/release/projectodyssey.mojopkg python/projectodyssey/_data/
-    @echo "Building wheel via python -m build…"
+    @just _run "just _wheel-inner"
+
+[private]
+_wheel-inner:
+    #!/usr/bin/env bash
+    set -e
+    echo "Staging projectodyssey.mojopkg into python/projectodyssey/_data/"
+    mkdir -p python/projectodyssey/_data
+    cp build/release/projectodyssey.mojopkg python/projectodyssey/_data/
+    echo "Building wheel via python -m build…"
     cd python && pixi run python -m build --wheel --outdir ../dist
-    @ls -la dist/projectodyssey-*.whl
-    @echo "✅ Wheel built. Verify with:  pip install dist/projectodyssey-*.whl"
+    cd ..
+    # Make wheel outputs readable by the host (release.yml's `find -exec cp`,
+    # checksum generation, twine validation all run host-side). Chmod only the
+    # files we just created — not the pre-existing host-owned tree.
+    chmod -R o+rX dist
+    chmod o+r python/projectodyssey/_data/projectodyssey.mojopkg
+    ls -la dist/projectodyssey-*.whl
+    echo "✅ Wheel built. Verify with:  pip install dist/projectodyssey-*.whl"
 
 # ==============================================================================
 # Model Training and Inference
