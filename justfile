@@ -529,6 +529,24 @@ publish-dry-run:
     @python3 scripts/publish_modular_community.py --dry-run
 
 # ==============================================================================
+# Python Wheel — pure-Python wrapper that bundles the .mojopkg
+# ==============================================================================
+# `pip install projectodyssey` ships projectodyssey.mojopkg as Python package
+# data. Consumers call `projectodyssey.import_dir()` to get the path to feed
+# `mojo run -I`. No native Python bindings (those are out-of-scope; see the
+# tracking issue's "Out of scope" section).
+
+# Build the wheel: produces dist/projectodyssey-<version>-py3-none-any.whl
+wheel: package-release
+    @echo "Staging projectodyssey.mojopkg into python/projectodyssey/_data/"
+    @mkdir -p python/projectodyssey/_data
+    @cp build/release/projectodyssey.mojopkg python/projectodyssey/_data/
+    @echo "Building wheel via python -m build…"
+    cd python && pixi run python -m build --wheel --outdir ../dist
+    @ls -la dist/projectodyssey-*.whl
+    @echo "✅ Wheel built. Verify with:  pip install dist/projectodyssey-*.whl"
+
+# ==============================================================================
 # Model Training and Inference
 # ==============================================================================
 

@@ -1,0 +1,43 @@
+# Wheel-only project config — pure-Python wheel that bundles
+# `projectodyssey.mojopkg` as package data so consumers can
+# `pip install projectodyssey` and feed the path to `mojo run -I`.
+#
+# Dependency-management note: this file is intentionally minimal and is
+# NOT a source of truth for the project's dependencies. The repo-level
+# `pixi.toml` remains the single source of truth per CLAUDE.md. This
+# pyproject.toml is consulted only when building the wheel.
+
+[build-system]
+requires = ["setuptools>=82", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "projectodyssey"
+version = "0.1.0"
+description = "ProjectOdyssey: ML Odyssey shared library bundled as a Mojo .mojopkg. Use projectodyssey.import_dir() to get the path to feed `mojo run -I`."
+license = { text = "BSD-3-Clause" }
+authors = [
+    { name = "Micah Villmow", email = "4211002+mvillmow@users.noreply.github.com" },
+]
+requires-python = ">=3.10"
+keywords = ["mojo", "ml", "tensor", "autograd"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: BSD License",
+    "Programming Language :: Python :: 3",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+
+[project.urls]
+Homepage = "https://github.com/HomericIntelligence/ProjectOdyssey"
+Repository = "https://github.com/HomericIntelligence/ProjectOdyssey"
+Issues = "https://github.com/HomericIntelligence/ProjectOdyssey/issues"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["projectodyssey*"]
+
+[tool.setuptools.package-data]
+projectodyssey = ["_data/*.mojopkg"]

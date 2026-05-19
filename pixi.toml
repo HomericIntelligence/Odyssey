@@ -28,6 +28,9 @@ pydantic = ">=2.12.5,<3"
 # Dev-only tools (not needed at runtime)
 flask = ">=3.0.0,<4"
 pip = ">=25.3,<26"
+# Python build frontend — used by `just wheel` to produce the
+# projectodyssey wheel from python/pyproject.toml.
+python-build = ">=1.2,<2"
 
 # Testing
 pytest = ">=8.1.0,<9"

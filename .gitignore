@@ -6,6 +6,10 @@
 __pycache__
 *.pyc
 
+# Python wheel build artifacts (produced by `just wheel`)
+*.egg-info/
+python/build/
+
 # agentic build artifacts
 logs/
 build/
