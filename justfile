@@ -504,16 +504,28 @@ package-release: (package "release")
 # in https://repo.prefix.dev/modular-community; "publish" means a PR to
 # https://github.com/modular/modular-community adding `recipes/projectodyssey/`.
 
-# Build the conda package locally via rattler-build
+# Build the conda package locally via rattler-build (runs inside container
+# so it can write into build/, which is owned by the container user when
+# earlier `just package-release` steps populated build/release/).
 build-recipe:
-    @echo "Building conda package via rattler-build…"
-    @mkdir -p build/recipe
+    @just _run "just _build-recipe-inner"
+
+[private]
+_build-recipe-inner:
+    #!/usr/bin/env bash
+    set -e
+    echo "Building conda package via rattler-build…"
+    mkdir -p build/recipe
     pixi exec --spec rattler-build -- rattler-build build \
         --recipe conda.recipe/recipe.yaml \
         -c conda-forge -c https://conda.modular.com/max \
         -c https://repo.prefix.dev/modular-community \
         --output-dir build/recipe
-    @echo "✅ Conda package built under build/recipe/"
+    # Make outputs readable by the host user too — `just install-local` and
+    # release.yml's downstream steps (find … -exec cp, checksums) run on the
+    # host where the container's uid maps to a different subuid.
+    chmod -R o+rX build/recipe
+    echo "✅ Conda package built under build/recipe/"
 
 # Install the locally-built conda package into a scratch pixi env (smoke test)
 install-local: build-recipe
