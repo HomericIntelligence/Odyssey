@@ -22,9 +22,9 @@ from __future__ import annotations
 
 import os
 
-# nosemgrep: python.lang.compatibility.python37.python37-compatibility-importlib
-# Safe to use here: this wheel pins requires-python = ">=3.10" (see pyproject.toml).
-from importlib.resources import files
+# Safe: this wheel pins requires-python = ">=3.10" (see pyproject.toml),
+# and importlib.resources has been a stable module since 3.9.
+from importlib.resources import files  # nosemgrep: python.lang.compatibility.python37.python37-compatibility-importlib
 
 __all__ = ["mojopkg_path", "import_dir", "__version__"]
 
