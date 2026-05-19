@@ -580,8 +580,10 @@ _wheel-inner:
     cd ..
     # Make wheel outputs readable by the host (release.yml's `find -exec cp`,
     # checksum generation, twine validation all run host-side). Chmod only the
-    # files we just created — not the pre-existing host-owned tree.
-    chmod -R o+rX dist
+    # wheels themselves — `dist/` may already contain host-owned siblings
+    # (`projectodyssey.mojopkg`, `*.conda`) that the container user can't chmod
+    # even though it owns `dist/.tmp-XXX` (release.yml `chmod 777`'d dist/ in #5425).
+    chmod o+r dist/projectodyssey-*.whl
     chmod o+r python/projectodyssey/_data/projectodyssey.mojopkg
     ls -la dist/projectodyssey-*.whl
     echo "✅ Wheel built. Verify with:  pip install dist/projectodyssey-*.whl"
