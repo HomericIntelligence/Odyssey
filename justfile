@@ -38,8 +38,19 @@ MOJO_RELEASE := "-g0 -O3"
 MOJO_TEST := "-g1"
 
 # Sanitizer flags
-MOJO_ASAN := "--sanitize address"
-MOJO_TSAN := "--sanitize thread"
+#
+# Pin sanitizer builds to a pre-AVX-512 CPU baseline. The Mojo compiler
+# defaults `--target-cpu` to the host CPU; CI runners report AVX-512-capable
+# CPUs (e.g. Cascadelake) but the actual executing cores intermittently
+# don't have AVX-512 enabled, producing SIGILL (signal 4, "Illegal
+# instruction") during sanitizer-instrumented runs. `x86-64-v3` is the
+# Haswell-era microarchitecture level: AVX/AVX2/BMI2/FMA, no AVX-512.
+# Every x86_64 GitHub-hosted runner supports v3, so this is safe everywhere.
+# See ProjectMnemosyne skill `mojo-jit-crash-and-retry-strategies` (AVX-512
+# ISA mismatch pattern) for prior diagnosis on this class of crash.
+MOJO_SAN_TARGET_CPU := "--mcpu=x86-64-v3"
+MOJO_ASAN := "--sanitize address " + MOJO_SAN_TARGET_CPU
+MOJO_TSAN := "--sanitize thread " + MOJO_SAN_TARGET_CPU
 
 # ==============================================================================
 # Internal Helpers
