@@ -20,6 +20,11 @@ from std.collections import List
 from std.memory import memcpy
 from projectodyssey.tensor.any_tensor import AnyTensor
 from projectodyssey.core.gradient_types import GradientPair
+from projectodyssey.core.dtype_dispatch import (
+    dispatch_kernel_3t1i,
+    dispatch_kernel_3t2i,
+    dispatch_kernel_3t3i,
+)
 from projectodyssey.base.dtype_ordinal import (
     dtype_to_ordinal,
     format_dtype_name,
@@ -79,35 +84,7 @@ def _dispatch_matmul_2d_1d(
     result: AnyTensor, a: AnyTensor, b: AnyTensor, m: Int, k: Int
 ) raises:
     """Runtime dispatch for 2D @ 1D matmul using ordinal-based dispatch."""
-    var ordinal = dtype_to_ordinal(a._dtype)
-    if ordinal == DTYPE_FLOAT16:
-        _matmul_2d_1d_impl[DType.float16](result, a, b, m, k)
-    elif ordinal == DTYPE_FLOAT32:
-        _matmul_2d_1d_impl[DType.float32](result, a, b, m, k)
-    elif ordinal == DTYPE_FLOAT64:
-        _matmul_2d_1d_impl[DType.float64](result, a, b, m, k)
-    elif ordinal == DTYPE_INT8:
-        _matmul_2d_1d_impl[DType.int8](result, a, b, m, k)
-    elif ordinal == DTYPE_INT16:
-        _matmul_2d_1d_impl[DType.int16](result, a, b, m, k)
-    elif ordinal == DTYPE_INT32:
-        _matmul_2d_1d_impl[DType.int32](result, a, b, m, k)
-    elif ordinal == DTYPE_INT64:
-        _matmul_2d_1d_impl[DType.int64](result, a, b, m, k)
-    elif ordinal == DTYPE_UINT8:
-        _matmul_2d_1d_impl[DType.uint8](result, a, b, m, k)
-    elif ordinal == DTYPE_UINT16:
-        _matmul_2d_1d_impl[DType.uint16](result, a, b, m, k)
-    elif ordinal == DTYPE_UINT32:
-        _matmul_2d_1d_impl[DType.uint32](result, a, b, m, k)
-    elif ordinal == DTYPE_UINT64:
-        _matmul_2d_1d_impl[DType.uint64](result, a, b, m, k)
-    else:
-        raise Error(
-            "matmul_2d_1d: unsupported dtype '"
-            + format_dtype_name(a._dtype)
-            + "'"
-        )
+    dispatch_kernel_3t2i[_matmul_2d_1d_impl](a._dtype, result, a, b, m, k)
 
 
 @always_inline
@@ -146,35 +123,7 @@ def _dispatch_matmul_1d_2d(
     result: AnyTensor, a: AnyTensor, b: AnyTensor, m: Int, n: Int
 ) raises:
     """Runtime dispatch for 1D @ 2D matmul using ordinal-based dispatch."""
-    var ordinal = dtype_to_ordinal(a._dtype)
-    if ordinal == DTYPE_FLOAT16:
-        _matmul_1d_2d_impl[DType.float16](result, a, b, m, n)
-    elif ordinal == DTYPE_FLOAT32:
-        _matmul_1d_2d_impl[DType.float32](result, a, b, m, n)
-    elif ordinal == DTYPE_FLOAT64:
-        _matmul_1d_2d_impl[DType.float64](result, a, b, m, n)
-    elif ordinal == DTYPE_INT8:
-        _matmul_1d_2d_impl[DType.int8](result, a, b, m, n)
-    elif ordinal == DTYPE_INT16:
-        _matmul_1d_2d_impl[DType.int16](result, a, b, m, n)
-    elif ordinal == DTYPE_INT32:
-        _matmul_1d_2d_impl[DType.int32](result, a, b, m, n)
-    elif ordinal == DTYPE_INT64:
-        _matmul_1d_2d_impl[DType.int64](result, a, b, m, n)
-    elif ordinal == DTYPE_UINT8:
-        _matmul_1d_2d_impl[DType.uint8](result, a, b, m, n)
-    elif ordinal == DTYPE_UINT16:
-        _matmul_1d_2d_impl[DType.uint16](result, a, b, m, n)
-    elif ordinal == DTYPE_UINT32:
-        _matmul_1d_2d_impl[DType.uint32](result, a, b, m, n)
-    elif ordinal == DTYPE_UINT64:
-        _matmul_1d_2d_impl[DType.uint64](result, a, b, m, n)
-    else:
-        raise Error(
-            "matmul_1d_2d: unsupported dtype '"
-            + format_dtype_name(a._dtype)
-            + "'"
-        )
+    dispatch_kernel_3t2i[_matmul_1d_2d_impl](a._dtype, result, a, b, m, n)
 
 
 @always_inline
@@ -229,35 +178,9 @@ def _dispatch_matmul_2d_2d(
     b_cols: Int,
 ) raises:
     """Runtime dispatch for 2D @ 2D matmul using ordinal-based dispatch."""
-    var ordinal = dtype_to_ordinal(a._dtype)
-    if ordinal == DTYPE_FLOAT16:
-        _matmul_2d_2d_impl[DType.float16](result, a, b, a_rows, a_cols, b_cols)
-    elif ordinal == DTYPE_FLOAT32:
-        _matmul_2d_2d_impl[DType.float32](result, a, b, a_rows, a_cols, b_cols)
-    elif ordinal == DTYPE_FLOAT64:
-        _matmul_2d_2d_impl[DType.float64](result, a, b, a_rows, a_cols, b_cols)
-    elif ordinal == DTYPE_INT8:
-        _matmul_2d_2d_impl[DType.int8](result, a, b, a_rows, a_cols, b_cols)
-    elif ordinal == DTYPE_INT16:
-        _matmul_2d_2d_impl[DType.int16](result, a, b, a_rows, a_cols, b_cols)
-    elif ordinal == DTYPE_INT32:
-        _matmul_2d_2d_impl[DType.int32](result, a, b, a_rows, a_cols, b_cols)
-    elif ordinal == DTYPE_INT64:
-        _matmul_2d_2d_impl[DType.int64](result, a, b, a_rows, a_cols, b_cols)
-    elif ordinal == DTYPE_UINT8:
-        _matmul_2d_2d_impl[DType.uint8](result, a, b, a_rows, a_cols, b_cols)
-    elif ordinal == DTYPE_UINT16:
-        _matmul_2d_2d_impl[DType.uint16](result, a, b, a_rows, a_cols, b_cols)
-    elif ordinal == DTYPE_UINT32:
-        _matmul_2d_2d_impl[DType.uint32](result, a, b, a_rows, a_cols, b_cols)
-    elif ordinal == DTYPE_UINT64:
-        _matmul_2d_2d_impl[DType.uint64](result, a, b, a_rows, a_cols, b_cols)
-    else:
-        raise Error(
-            "matmul_2d_2d: unsupported dtype '"
-            + format_dtype_name(a._dtype)
-            + "'"
-        )
+    dispatch_kernel_3t3i[_matmul_2d_2d_impl](
+        a._dtype, result, a, b, a_rows, a_cols, b_cols
+    )
 
 
 @always_inline
@@ -603,33 +526,7 @@ def _dispatch_dot(
     result: AnyTensor, a: AnyTensor, b: AnyTensor, length: Int
 ) raises:
     """Runtime dispatch for dot product using ordinal-based dispatch."""
-    var ordinal = dtype_to_ordinal(a._dtype)
-    if ordinal == DTYPE_FLOAT16:
-        _dot_impl[DType.float16](result, a, b, length)
-    elif ordinal == DTYPE_FLOAT32:
-        _dot_impl[DType.float32](result, a, b, length)
-    elif ordinal == DTYPE_FLOAT64:
-        _dot_impl[DType.float64](result, a, b, length)
-    elif ordinal == DTYPE_INT8:
-        _dot_impl[DType.int8](result, a, b, length)
-    elif ordinal == DTYPE_INT16:
-        _dot_impl[DType.int16](result, a, b, length)
-    elif ordinal == DTYPE_INT32:
-        _dot_impl[DType.int32](result, a, b, length)
-    elif ordinal == DTYPE_INT64:
-        _dot_impl[DType.int64](result, a, b, length)
-    elif ordinal == DTYPE_UINT8:
-        _dot_impl[DType.uint8](result, a, b, length)
-    elif ordinal == DTYPE_UINT16:
-        _dot_impl[DType.uint16](result, a, b, length)
-    elif ordinal == DTYPE_UINT32:
-        _dot_impl[DType.uint32](result, a, b, length)
-    elif ordinal == DTYPE_UINT64:
-        _dot_impl[DType.uint64](result, a, b, length)
-    else:
-        raise Error(
-            "dot: unsupported dtype '" + format_dtype_name(a._dtype) + "'"
-        )
+    dispatch_kernel_3t1i[_dot_impl](a._dtype, result, a, b, length)
 
 
 @always_inline
@@ -651,33 +548,7 @@ def _dispatch_outer(
     result: AnyTensor, a: AnyTensor, b: AnyTensor, len_a: Int, len_b: Int
 ) raises:
     """Runtime dispatch for outer product using ordinal-based dispatch."""
-    var ordinal = dtype_to_ordinal(a._dtype)
-    if ordinal == DTYPE_FLOAT16:
-        _outer_impl[DType.float16](result, a, b, len_a, len_b)
-    elif ordinal == DTYPE_FLOAT32:
-        _outer_impl[DType.float32](result, a, b, len_a, len_b)
-    elif ordinal == DTYPE_FLOAT64:
-        _outer_impl[DType.float64](result, a, b, len_a, len_b)
-    elif ordinal == DTYPE_INT8:
-        _outer_impl[DType.int8](result, a, b, len_a, len_b)
-    elif ordinal == DTYPE_INT16:
-        _outer_impl[DType.int16](result, a, b, len_a, len_b)
-    elif ordinal == DTYPE_INT32:
-        _outer_impl[DType.int32](result, a, b, len_a, len_b)
-    elif ordinal == DTYPE_INT64:
-        _outer_impl[DType.int64](result, a, b, len_a, len_b)
-    elif ordinal == DTYPE_UINT8:
-        _outer_impl[DType.uint8](result, a, b, len_a, len_b)
-    elif ordinal == DTYPE_UINT16:
-        _outer_impl[DType.uint16](result, a, b, len_a, len_b)
-    elif ordinal == DTYPE_UINT32:
-        _outer_impl[DType.uint32](result, a, b, len_a, len_b)
-    elif ordinal == DTYPE_UINT64:
-        _outer_impl[DType.uint64](result, a, b, len_a, len_b)
-    else:
-        raise Error(
-            "outer: unsupported dtype '" + format_dtype_name(a._dtype) + "'"
-        )
+    dispatch_kernel_3t2i[_outer_impl](a._dtype, result, a, b, len_a, len_b)
 
 
 @always_inline
@@ -699,35 +570,9 @@ def _dispatch_matmul_backward_2d_1d(
     grad_a: AnyTensor, grad_output: AnyTensor, b: AnyTensor, m: Int, k: Int
 ) raises:
     """Runtime dispatch for 2D @ 1D backward using ordinal-based dispatch."""
-    var ordinal = dtype_to_ordinal(grad_output._dtype)
-    if ordinal == DTYPE_FLOAT16:
-        _matmul_backward_2d_1d_impl[DType.float16](grad_a, grad_output, b, m, k)
-    elif ordinal == DTYPE_FLOAT32:
-        _matmul_backward_2d_1d_impl[DType.float32](grad_a, grad_output, b, m, k)
-    elif ordinal == DTYPE_FLOAT64:
-        _matmul_backward_2d_1d_impl[DType.float64](grad_a, grad_output, b, m, k)
-    elif ordinal == DTYPE_INT8:
-        _matmul_backward_2d_1d_impl[DType.int8](grad_a, grad_output, b, m, k)
-    elif ordinal == DTYPE_INT16:
-        _matmul_backward_2d_1d_impl[DType.int16](grad_a, grad_output, b, m, k)
-    elif ordinal == DTYPE_INT32:
-        _matmul_backward_2d_1d_impl[DType.int32](grad_a, grad_output, b, m, k)
-    elif ordinal == DTYPE_INT64:
-        _matmul_backward_2d_1d_impl[DType.int64](grad_a, grad_output, b, m, k)
-    elif ordinal == DTYPE_UINT8:
-        _matmul_backward_2d_1d_impl[DType.uint8](grad_a, grad_output, b, m, k)
-    elif ordinal == DTYPE_UINT16:
-        _matmul_backward_2d_1d_impl[DType.uint16](grad_a, grad_output, b, m, k)
-    elif ordinal == DTYPE_UINT32:
-        _matmul_backward_2d_1d_impl[DType.uint32](grad_a, grad_output, b, m, k)
-    elif ordinal == DTYPE_UINT64:
-        _matmul_backward_2d_1d_impl[DType.uint64](grad_a, grad_output, b, m, k)
-    else:
-        raise Error(
-            "matmul_backward_2d_1d: unsupported dtype '"
-            + format_dtype_name(grad_output._dtype)
-            + "'"
-        )
+    dispatch_kernel_3t2i[_matmul_backward_2d_1d_impl](
+        grad_output._dtype, grad_a, grad_output, b, m, k
+    )
 
 
 @always_inline
@@ -749,35 +594,9 @@ def _dispatch_matmul_backward_1d_2d(
     grad_b: AnyTensor, a: AnyTensor, grad_output: AnyTensor, k: Int, n: Int
 ) raises:
     """Runtime dispatch for 1D @ 2D backward using ordinal-based dispatch."""
-    var ordinal = dtype_to_ordinal(a._dtype)
-    if ordinal == DTYPE_FLOAT16:
-        _matmul_backward_1d_2d_impl[DType.float16](grad_b, a, grad_output, k, n)
-    elif ordinal == DTYPE_FLOAT32:
-        _matmul_backward_1d_2d_impl[DType.float32](grad_b, a, grad_output, k, n)
-    elif ordinal == DTYPE_FLOAT64:
-        _matmul_backward_1d_2d_impl[DType.float64](grad_b, a, grad_output, k, n)
-    elif ordinal == DTYPE_INT8:
-        _matmul_backward_1d_2d_impl[DType.int8](grad_b, a, grad_output, k, n)
-    elif ordinal == DTYPE_INT16:
-        _matmul_backward_1d_2d_impl[DType.int16](grad_b, a, grad_output, k, n)
-    elif ordinal == DTYPE_INT32:
-        _matmul_backward_1d_2d_impl[DType.int32](grad_b, a, grad_output, k, n)
-    elif ordinal == DTYPE_INT64:
-        _matmul_backward_1d_2d_impl[DType.int64](grad_b, a, grad_output, k, n)
-    elif ordinal == DTYPE_UINT8:
-        _matmul_backward_1d_2d_impl[DType.uint8](grad_b, a, grad_output, k, n)
-    elif ordinal == DTYPE_UINT16:
-        _matmul_backward_1d_2d_impl[DType.uint16](grad_b, a, grad_output, k, n)
-    elif ordinal == DTYPE_UINT32:
-        _matmul_backward_1d_2d_impl[DType.uint32](grad_b, a, grad_output, k, n)
-    elif ordinal == DTYPE_UINT64:
-        _matmul_backward_1d_2d_impl[DType.uint64](grad_b, a, grad_output, k, n)
-    else:
-        raise Error(
-            "matmul_backward_1d_2d: unsupported dtype '"
-            + format_dtype_name(a._dtype)
-            + "'"
-        )
+    dispatch_kernel_3t2i[_matmul_backward_1d_2d_impl](
+        a._dtype, grad_b, a, grad_output, k, n
+    )
 
 
 def matmul(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
@@ -1610,57 +1429,15 @@ def _dispatch_matmul_2d_2d_grad_a(
 ) raises:
     """Runtime dispatch for grad_a computation in 2D @ 2D matmul backward
     using ordinal-based dispatch."""
-    var ordinal = dtype_to_ordinal(grad_output._dtype)
-    if ordinal == DTYPE_FLOAT16:
-        _matmul_2d_2d_grad_a_impl[DType.float16](
-            grad_a, grad_output, b, grad_out_rows, grad_out_cols, b_rows
-        )
-    elif ordinal == DTYPE_FLOAT32:
-        _matmul_2d_2d_grad_a_impl[DType.float32](
-            grad_a, grad_output, b, grad_out_rows, grad_out_cols, b_rows
-        )
-    elif ordinal == DTYPE_FLOAT64:
-        _matmul_2d_2d_grad_a_impl[DType.float64](
-            grad_a, grad_output, b, grad_out_rows, grad_out_cols, b_rows
-        )
-    elif ordinal == DTYPE_INT8:
-        _matmul_2d_2d_grad_a_impl[DType.int8](
-            grad_a, grad_output, b, grad_out_rows, grad_out_cols, b_rows
-        )
-    elif ordinal == DTYPE_INT16:
-        _matmul_2d_2d_grad_a_impl[DType.int16](
-            grad_a, grad_output, b, grad_out_rows, grad_out_cols, b_rows
-        )
-    elif ordinal == DTYPE_INT32:
-        _matmul_2d_2d_grad_a_impl[DType.int32](
-            grad_a, grad_output, b, grad_out_rows, grad_out_cols, b_rows
-        )
-    elif ordinal == DTYPE_INT64:
-        _matmul_2d_2d_grad_a_impl[DType.int64](
-            grad_a, grad_output, b, grad_out_rows, grad_out_cols, b_rows
-        )
-    elif ordinal == DTYPE_UINT8:
-        _matmul_2d_2d_grad_a_impl[DType.uint8](
-            grad_a, grad_output, b, grad_out_rows, grad_out_cols, b_rows
-        )
-    elif ordinal == DTYPE_UINT16:
-        _matmul_2d_2d_grad_a_impl[DType.uint16](
-            grad_a, grad_output, b, grad_out_rows, grad_out_cols, b_rows
-        )
-    elif ordinal == DTYPE_UINT32:
-        _matmul_2d_2d_grad_a_impl[DType.uint32](
-            grad_a, grad_output, b, grad_out_rows, grad_out_cols, b_rows
-        )
-    elif ordinal == DTYPE_UINT64:
-        _matmul_2d_2d_grad_a_impl[DType.uint64](
-            grad_a, grad_output, b, grad_out_rows, grad_out_cols, b_rows
-        )
-    else:
-        raise Error(
-            "matmul_2d_2d_grad_a: unsupported dtype '"
-            + format_dtype_name(grad_output._dtype)
-            + "'"
-        )
+    dispatch_kernel_3t3i[_matmul_2d_2d_grad_a_impl](
+        grad_output._dtype,
+        grad_a,
+        grad_output,
+        b,
+        grad_out_rows,
+        grad_out_cols,
+        b_rows,
+    )
 
 
 def _dispatch_matmul_2d_2d_grad_b(
@@ -1673,57 +1450,15 @@ def _dispatch_matmul_2d_2d_grad_b(
 ) raises:
     """Runtime dispatch for grad_b computation in 2D @ 2D matmul backward
     using ordinal-based dispatch."""
-    var ordinal = dtype_to_ordinal(a._dtype)
-    if ordinal == DTYPE_FLOAT16:
-        _matmul_2d_2d_grad_b_impl[DType.float16](
-            grad_b, a, grad_output, a_rows, a_cols, grad_out_cols
-        )
-    elif ordinal == DTYPE_FLOAT32:
-        _matmul_2d_2d_grad_b_impl[DType.float32](
-            grad_b, a, grad_output, a_rows, a_cols, grad_out_cols
-        )
-    elif ordinal == DTYPE_FLOAT64:
-        _matmul_2d_2d_grad_b_impl[DType.float64](
-            grad_b, a, grad_output, a_rows, a_cols, grad_out_cols
-        )
-    elif ordinal == DTYPE_INT8:
-        _matmul_2d_2d_grad_b_impl[DType.int8](
-            grad_b, a, grad_output, a_rows, a_cols, grad_out_cols
-        )
-    elif ordinal == DTYPE_INT16:
-        _matmul_2d_2d_grad_b_impl[DType.int16](
-            grad_b, a, grad_output, a_rows, a_cols, grad_out_cols
-        )
-    elif ordinal == DTYPE_INT32:
-        _matmul_2d_2d_grad_b_impl[DType.int32](
-            grad_b, a, grad_output, a_rows, a_cols, grad_out_cols
-        )
-    elif ordinal == DTYPE_INT64:
-        _matmul_2d_2d_grad_b_impl[DType.int64](
-            grad_b, a, grad_output, a_rows, a_cols, grad_out_cols
-        )
-    elif ordinal == DTYPE_UINT8:
-        _matmul_2d_2d_grad_b_impl[DType.uint8](
-            grad_b, a, grad_output, a_rows, a_cols, grad_out_cols
-        )
-    elif ordinal == DTYPE_UINT16:
-        _matmul_2d_2d_grad_b_impl[DType.uint16](
-            grad_b, a, grad_output, a_rows, a_cols, grad_out_cols
-        )
-    elif ordinal == DTYPE_UINT32:
-        _matmul_2d_2d_grad_b_impl[DType.uint32](
-            grad_b, a, grad_output, a_rows, a_cols, grad_out_cols
-        )
-    elif ordinal == DTYPE_UINT64:
-        _matmul_2d_2d_grad_b_impl[DType.uint64](
-            grad_b, a, grad_output, a_rows, a_cols, grad_out_cols
-        )
-    else:
-        raise Error(
-            "matmul_2d_2d_grad_b: unsupported dtype '"
-            + format_dtype_name(a._dtype)
-            + "'"
-        )
+    dispatch_kernel_3t3i[_matmul_2d_2d_grad_b_impl](
+        a._dtype,
+        grad_b,
+        a,
+        grad_output,
+        a_rows,
+        a_cols,
+        grad_out_cols,
+    )
 
 
 def matmul_backward(

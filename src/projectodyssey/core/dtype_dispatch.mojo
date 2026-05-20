@@ -1520,3 +1520,186 @@ def dispatch_hard_tanh_backward(
         )
 
     return result^
+
+
+# ============================================================================
+# Typed-Kernel Dispatch (in-place result, integer shape args)
+# ============================================================================
+#
+# Matrix/linear-algebra kernels do not fit the unary/binary `op` shape: they
+# write into a pre-allocated `result` tensor and take integer shape arguments
+# instead of returning a new tensor. These helpers provide the same 12-branch
+# ordinal dispatch for that family of kernels, keyed on an explicit `dtype`
+# so the caller chooses which operand drives specialization.
+
+
+def dispatch_kernel_3t1i[
+    kernel: def[T: DType](AnyTensor, AnyTensor, AnyTensor, Int) thin -> None
+](dtype: DType, t0: AnyTensor, t1: AnyTensor, t2: AnyTensor, i0: Int) raises:
+    """Dispatch a (3-tensor, 1-int) typed kernel by runtime dtype.
+
+    Parameters:
+        kernel: Compile-time specialized kernel taking three tensors and one
+            integer argument.
+
+    Args:
+        dtype: Runtime dtype that selects the compile-time specialization.
+        t0: First tensor argument (typically the output).
+        t1: Second tensor argument.
+        t2: Third tensor argument.
+        i0: Integer shape argument.
+
+    Raises:
+        Error: If `dtype` is not one of the 11 supported dtypes.
+    """
+    var ordinal = dtype_to_ordinal(dtype)
+    if ordinal == DTYPE_FLOAT16:
+        kernel[DType.float16](t0, t1, t2, i0)
+    elif ordinal == DTYPE_FLOAT32:
+        kernel[DType.float32](t0, t1, t2, i0)
+    elif ordinal == DTYPE_FLOAT64:
+        kernel[DType.float64](t0, t1, t2, i0)
+    elif ordinal == DTYPE_INT8:
+        kernel[DType.int8](t0, t1, t2, i0)
+    elif ordinal == DTYPE_INT16:
+        kernel[DType.int16](t0, t1, t2, i0)
+    elif ordinal == DTYPE_INT32:
+        kernel[DType.int32](t0, t1, t2, i0)
+    elif ordinal == DTYPE_INT64:
+        kernel[DType.int64](t0, t1, t2, i0)
+    elif ordinal == DTYPE_UINT8:
+        kernel[DType.uint8](t0, t1, t2, i0)
+    elif ordinal == DTYPE_UINT16:
+        kernel[DType.uint16](t0, t1, t2, i0)
+    elif ordinal == DTYPE_UINT32:
+        kernel[DType.uint32](t0, t1, t2, i0)
+    elif ordinal == DTYPE_UINT64:
+        kernel[DType.uint64](t0, t1, t2, i0)
+    else:
+        raise Error(
+            "dispatch_kernel_3t1i: unsupported dtype '"
+            + _format_dtype_name(dtype)
+            + "'"
+        )
+
+
+def dispatch_kernel_3t2i[
+    kernel: def[T: DType](
+        AnyTensor, AnyTensor, AnyTensor, Int, Int
+    ) thin -> None
+](
+    dtype: DType,
+    t0: AnyTensor,
+    t1: AnyTensor,
+    t2: AnyTensor,
+    i0: Int,
+    i1: Int,
+) raises:
+    """Dispatch a (3-tensor, 2-int) typed kernel by runtime dtype.
+
+    Parameters:
+        kernel: Compile-time specialized kernel taking three tensors and two
+            integer arguments.
+
+    Args:
+        dtype: Runtime dtype that selects the compile-time specialization.
+        t0: First tensor argument (typically the output).
+        t1: Second tensor argument.
+        t2: Third tensor argument.
+        i0: First integer shape argument.
+        i1: Second integer shape argument.
+
+    Raises:
+        Error: If `dtype` is not one of the 11 supported dtypes.
+    """
+    var ordinal = dtype_to_ordinal(dtype)
+    if ordinal == DTYPE_FLOAT16:
+        kernel[DType.float16](t0, t1, t2, i0, i1)
+    elif ordinal == DTYPE_FLOAT32:
+        kernel[DType.float32](t0, t1, t2, i0, i1)
+    elif ordinal == DTYPE_FLOAT64:
+        kernel[DType.float64](t0, t1, t2, i0, i1)
+    elif ordinal == DTYPE_INT8:
+        kernel[DType.int8](t0, t1, t2, i0, i1)
+    elif ordinal == DTYPE_INT16:
+        kernel[DType.int16](t0, t1, t2, i0, i1)
+    elif ordinal == DTYPE_INT32:
+        kernel[DType.int32](t0, t1, t2, i0, i1)
+    elif ordinal == DTYPE_INT64:
+        kernel[DType.int64](t0, t1, t2, i0, i1)
+    elif ordinal == DTYPE_UINT8:
+        kernel[DType.uint8](t0, t1, t2, i0, i1)
+    elif ordinal == DTYPE_UINT16:
+        kernel[DType.uint16](t0, t1, t2, i0, i1)
+    elif ordinal == DTYPE_UINT32:
+        kernel[DType.uint32](t0, t1, t2, i0, i1)
+    elif ordinal == DTYPE_UINT64:
+        kernel[DType.uint64](t0, t1, t2, i0, i1)
+    else:
+        raise Error(
+            "dispatch_kernel_3t2i: unsupported dtype '"
+            + _format_dtype_name(dtype)
+            + "'"
+        )
+
+
+def dispatch_kernel_3t3i[
+    kernel: def[T: DType](
+        AnyTensor, AnyTensor, AnyTensor, Int, Int, Int
+    ) thin -> None
+](
+    dtype: DType,
+    t0: AnyTensor,
+    t1: AnyTensor,
+    t2: AnyTensor,
+    i0: Int,
+    i1: Int,
+    i2: Int,
+) raises:
+    """Dispatch a (3-tensor, 3-int) typed kernel by runtime dtype.
+
+    Parameters:
+        kernel: Compile-time specialized kernel taking three tensors and three
+            integer arguments.
+
+    Args:
+        dtype: Runtime dtype that selects the compile-time specialization.
+        t0: First tensor argument (typically the output).
+        t1: Second tensor argument.
+        t2: Third tensor argument.
+        i0: First integer shape argument.
+        i1: Second integer shape argument.
+        i2: Third integer shape argument.
+
+    Raises:
+        Error: If `dtype` is not one of the 11 supported dtypes.
+    """
+    var ordinal = dtype_to_ordinal(dtype)
+    if ordinal == DTYPE_FLOAT16:
+        kernel[DType.float16](t0, t1, t2, i0, i1, i2)
+    elif ordinal == DTYPE_FLOAT32:
+        kernel[DType.float32](t0, t1, t2, i0, i1, i2)
+    elif ordinal == DTYPE_FLOAT64:
+        kernel[DType.float64](t0, t1, t2, i0, i1, i2)
+    elif ordinal == DTYPE_INT8:
+        kernel[DType.int8](t0, t1, t2, i0, i1, i2)
+    elif ordinal == DTYPE_INT16:
+        kernel[DType.int16](t0, t1, t2, i0, i1, i2)
+    elif ordinal == DTYPE_INT32:
+        kernel[DType.int32](t0, t1, t2, i0, i1, i2)
+    elif ordinal == DTYPE_INT64:
+        kernel[DType.int64](t0, t1, t2, i0, i1, i2)
+    elif ordinal == DTYPE_UINT8:
+        kernel[DType.uint8](t0, t1, t2, i0, i1, i2)
+    elif ordinal == DTYPE_UINT16:
+        kernel[DType.uint16](t0, t1, t2, i0, i1, i2)
+    elif ordinal == DTYPE_UINT32:
+        kernel[DType.uint32](t0, t1, t2, i0, i1, i2)
+    elif ordinal == DTYPE_UINT64:
+        kernel[DType.uint64](t0, t1, t2, i0, i1, i2)
+    else:
+        raise Error(
+            "dispatch_kernel_3t3i: unsupported dtype '"
+            + _format_dtype_name(dtype)
+            + "'"
+        )
