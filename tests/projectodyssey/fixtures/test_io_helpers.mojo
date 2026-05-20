@@ -326,7 +326,7 @@ def test_get_test_data_path() raises:
     var path = get_test_data_path("sample.txt")
 
     # Test: path should start with fixtures directory
-    var expected_prefix = "tests/shared/fixtures/"
+    var expected_prefix = "tests/projectodyssey/fixtures/"
     var starts_correctly = path.startswith(expected_prefix)
     assert_true(starts_correctly, "Path should start with fixtures directory")
 
