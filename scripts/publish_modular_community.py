@@ -6,16 +6,21 @@ There is no `mojo publish` CLI in Mojo 1.0. Publishing a Mojo library to the
 against `modular/modular-community` that adds a `recipes/<package_name>/`
 folder containing the rattler-build recipe.
 
-This script automates that PR:
+This script automates that PR via a fork workflow (we have no push access
+to `modular/modular-community`):
 
-1. Clones (or refreshes) modular/modular-community at
-   `$HOME/.cache/projectodyssey/modular-community`.
+1. Clones (or refreshes) the HomericIntelligence fork
+   (`HomericIntelligence/modular-community`) at
+   `$HOME/.cache/projectodyssey/modular-community`. `origin` is the fork;
+   an `upstream` remote points at `modular/modular-community` so the fork's
+   `main` can be fast-forwarded before branching.
 2. Copies `conda.recipe/recipe.yaml` and `conda.recipe/test_import.mojo`
    into `recipes/projectodyssey/`.
 3. Rewrites the `source:` block from `path: ..` (local) to a `git:` source
    pinned at the current `HEAD` commit SHA so the recipe is reproducible
    in modular-community's CI.
-4. Creates a branch, commits, and opens a PR via `gh`.
+4. Creates a branch, commits, pushes to the fork, and opens a PR against
+   `modular/modular-community` with `--head HomericIntelligence:<branch>`.
 
 Python (not Mojo) per ADR-001: this is GitHub automation involving
 subprocess output capture and string templating, both of which Mojo's
@@ -39,8 +44,11 @@ from pathlib import Path
 
 PACKAGE_NAME = "projectodyssey"
 UPSTREAM_REPO_URL = "https://github.com/HomericIntelligence/ProjectOdyssey.git"
+# We cannot push to modular/modular-community, so PRs come from a fork owned
+# by the HomericIntelligence org.
+FORK_OWNER = "HomericIntelligence"
 MODULAR_COMMUNITY_REPO = "modular/modular-community"
-MODULAR_COMMUNITY_URL = f"https://github.com/{MODULAR_COMMUNITY_REPO}.git"
+FORK_REPO = f"{FORK_OWNER}/modular-community"
 CACHE_DIR = Path.home() / ".cache" / "projectodyssey" / "modular-community"
 
 
@@ -85,20 +93,38 @@ def rewrite_source_block(recipe_text: str, commit_sha: str) -> str:
 
 
 def ensure_clone(dry_run: bool) -> Path:
-    """Clone or refresh modular/modular-community at the cache path."""
+    """Clone or refresh the fork, syncing its `main` to upstream `modular/main`.
+
+    `origin` is the HomericIntelligence fork (we push branches there).
+    `upstream` is `modular/modular-community` (we fast-forward `main` from it
+    so each PR branches off current upstream, not a stale fork snapshot).
+    """
     if not CACHE_DIR.exists():
         if dry_run:
-            print(f"[dry-run] would clone {MODULAR_COMMUNITY_URL} → {CACHE_DIR}")
+            print(f"[dry-run] would clone {FORK_REPO} → {CACHE_DIR}")
+            print(f"[dry-run] would add upstream remote {MODULAR_COMMUNITY_REPO}")
             return CACHE_DIR
         CACHE_DIR.parent.mkdir(parents=True, exist_ok=True)
-        run(["gh", "repo", "clone", MODULAR_COMMUNITY_REPO, str(CACHE_DIR)])
-    else:
-        if dry_run:
-            print(f"[dry-run] would refresh {CACHE_DIR} against origin/main")
-        else:
-            run(["git", "fetch", "origin", "--quiet"], cwd=CACHE_DIR)
-            run(["git", "checkout", "main"], cwd=CACHE_DIR)
-            run(["git", "pull", "--ff-only", "origin", "main", "--quiet"], cwd=CACHE_DIR)
+        run(["gh", "repo", "clone", FORK_REPO, str(CACHE_DIR)])
+        run(
+            ["git", "remote", "add", "upstream", f"https://github.com/{MODULAR_COMMUNITY_REPO}.git"],
+            cwd=CACHE_DIR,
+        )
+
+    if dry_run:
+        print(f"[dry-run] would sync {CACHE_DIR} main from upstream/{MODULAR_COMMUNITY_REPO}")
+        return CACHE_DIR
+
+    # `upstream` may be missing if the cache predates the fork workflow — add it.
+    remotes = run(["git", "remote"], cwd=CACHE_DIR).stdout.split()
+    if "upstream" not in remotes:
+        run(
+            ["git", "remote", "add", "upstream", f"https://github.com/{MODULAR_COMMUNITY_REPO}.git"],
+            cwd=CACHE_DIR,
+        )
+    run(["git", "fetch", "upstream", "--quiet"], cwd=CACHE_DIR)
+    run(["git", "checkout", "main"], cwd=CACHE_DIR)
+    run(["git", "reset", "--hard", "upstream/main"], cwd=CACHE_DIR)
     return CACHE_DIR
 
 
@@ -163,10 +189,14 @@ def maybe_open_pr(target_repo: Path, branch: str, commit_sha: str, dry_run: bool
         print("====== PR body ======")
         print(pr_body(commit_sha))
         print()
-        print(f"[dry-run] would: git checkout -b {branch}; git add recipes/{PACKAGE_NAME}; commit; push; gh pr create")
+        print(
+            f"[dry-run] would: git checkout -b {branch}; git add recipes/{PACKAGE_NAME}; "
+            f"commit; push to fork ({FORK_REPO}); "
+            f"gh pr create --repo {MODULAR_COMMUNITY_REPO} --head {FORK_OWNER}:{branch}"
+        )
         return
 
-    # Branch + commit + push + PR.
+    # Branch + commit + push to the fork + PR against upstream.
     run(["git", "checkout", "-B", branch], cwd=target_repo)
     run(["git", "add", f"recipes/{PACKAGE_NAME}"], cwd=target_repo)
 
@@ -176,7 +206,8 @@ def maybe_open_pr(target_repo: Path, branch: str, commit_sha: str, dry_run: bool
         return
 
     run(["git", "commit", "-m", title], cwd=target_repo)
-    run(["git", "push", "-u", "origin", branch], cwd=target_repo)
+    # `origin` is the fork — push the branch there, then PR cross-repo.
+    run(["git", "push", "-u", "--force", "origin", branch], cwd=target_repo)
 
     result = subprocess.run(
         [
@@ -188,7 +219,7 @@ def maybe_open_pr(target_repo: Path, branch: str, commit_sha: str, dry_run: bool
             "--base",
             "main",
             "--head",
-            branch,
+            f"{FORK_OWNER}:{branch}",
             "--title",
             title,
             "--body",
