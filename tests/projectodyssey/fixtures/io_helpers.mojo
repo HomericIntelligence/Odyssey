@@ -275,7 +275,7 @@ def get_test_data_path(filename: String) -> String:
     Example:
         ```mojo
         var image_path = get_test_data_path("sample_image.png")
-        # image_path = "/path/to/tests/shared/fixtures/images/sample_image.png"
+        # image_path = "/path/to/tests/projectodyssey/fixtures/images/sample_image.png"
         ```
 
     Note:
