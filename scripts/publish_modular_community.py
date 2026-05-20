@@ -102,20 +102,18 @@ def ensure_clone(dry_run: bool) -> Path:
     if not CACHE_DIR.exists():
         if dry_run:
             print(f"[dry-run] would clone {FORK_REPO} → {CACHE_DIR}")
-            print(f"[dry-run] would add upstream remote {MODULAR_COMMUNITY_REPO}")
             return CACHE_DIR
         CACHE_DIR.parent.mkdir(parents=True, exist_ok=True)
+        # `gh repo clone` of a fork auto-adds an `upstream` remote pointing at
+        # the parent (modular/modular-community) — no explicit `remote add`.
         run(["gh", "repo", "clone", FORK_REPO, str(CACHE_DIR)])
-        run(
-            ["git", "remote", "add", "upstream", f"https://github.com/{MODULAR_COMMUNITY_REPO}.git"],
-            cwd=CACHE_DIR,
-        )
 
     if dry_run:
         print(f"[dry-run] would sync {CACHE_DIR} main from upstream/{MODULAR_COMMUNITY_REPO}")
         return CACHE_DIR
 
-    # `upstream` may be missing if the cache predates the fork workflow — add it.
+    # `upstream` is normally added by `gh repo clone` of a fork; add it only
+    # if a pre-fork-workflow cache is missing it.
     remotes = run(["git", "remote"], cwd=CACHE_DIR).stdout.split()
     if "upstream" not in remotes:
         run(
