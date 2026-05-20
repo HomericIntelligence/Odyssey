@@ -24,16 +24,25 @@ nbconvert = ">=7.16.0,<8"
 just = "*"
 pydantic = ">=2.12.5,<3"
 
+# Transitive-dependency CVE floors (#5386). These packages are not imported
+# by project code; the constraints force the conda solver past known CVEs:
+#   authlib    CVE-2026-41425
+#   gitpython  CVE-2026-42215 / -42284 / -44244 / GHSA-mv93-w799-cj2w
+#   mistune    CVE-2026-33079 / -44897
+authlib = ">=1.6.11"
+gitpython = ">=3.1.50"
+mistune = ">=3.2.1"
+
 [feature.dev.dependencies]
 # Dev-only tools (not needed at runtime)
 flask = ">=3.0.0,<4"
-pip = ">=25.3,<26"
+pip = ">=26.1"  # CVE-2026-1703 / -6357 (#5386)
 # Python build frontend — used by `just wheel` to produce the
 # projectodyssey wheel from python/pyproject.toml.
 python-build = ">=1.2,<2"
 
 # Testing
-pytest = ">=8.1.0,<9"
+pytest = ">=9.0.3"  # CVE-2025-71176 (#5386)
 pytest-cov = ">=6.0.0,<7"
 pytest-timeout = ">=2.1.0,<3"
 pytest-xdist = ">=3.0.0,<4"

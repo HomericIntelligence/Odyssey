@@ -275,26 +275,17 @@ jobs:
           #     means the audit cannot evaluate project deps; fix the metadata).
           #   - pip-audit exits non-zero on findings and blocks the PR.
           #
-          # Pre-existing transitive-dep CVEs are tracked in #5386 and explicitly
-          # allowlisted below with `--ignore-vuln`. Each allowlist entry must be
-          # removed once the underlying package is upgraded.
+          # Three transitive-dep CVEs remain allowlisted because upstream has
+          # not published a fix version (tracked in #5386). The other 10 CVEs
+          # were resolved by version floors in pixi.toml and are no longer
+          # ignored. Drop the remaining entries once upstream lands a fix.
           set -euo pipefail
           pip install setuptools wheel
           pip install -e . --no-deps
           pip-audit --skip-editable \
-            --ignore-vuln CVE-2026-41425 \
-            --ignore-vuln CVE-2026-42215 \
-            --ignore-vuln CVE-2026-42284 \
-            --ignore-vuln CVE-2026-44244 \
-            --ignore-vuln GHSA-mv93-w799-cj2w \
-            --ignore-vuln CVE-2026-33079 \
             --ignore-vuln CVE-2026-44708 \
             --ignore-vuln CVE-2026-44896 \
-            --ignore-vuln CVE-2026-44897 \
-            --ignore-vuln CVE-2026-1703 \
-            --ignore-vuln CVE-2026-3219 \
-            --ignore-vuln CVE-2026-6357 \
-            --ignore-vuln CVE-2025-71176
+            --ignore-vuln CVE-2026-3219
 
       - name: Post pip-audit summary
         if: always()
