@@ -232,7 +232,12 @@ jobs:
   test:
     needs: [validate-version, build]
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    # `just test-mojo` runs the full Mojo suite (each test is a `def main()`
+    # program compiled + run individually). The release gate runs the same
+    # suite PR CI does; 20 min was not enough headroom and the job was
+    # cancelled mid-run. 60 min matches the budget comprehensive-tests.yml
+    # gives the equivalent work.
+    timeout-minutes: 60
 
     steps:
       - name: Checkout code
