@@ -27,24 +27,21 @@ struct ConfigValue(Copyable, Movable):
     Supports common types needed for ML configurations: integers, floats,
     strings, booleans, and lists.
 
-    ## Fragile-Access Warning (POLA)
+    ## Type-Safe Access (POLA)
 
-    ConfigValue is a tagged union with no runtime type enforcement. Accessing
-    the wrong field (e.g. reading `int_val` when `value_type == "float"`)
-    silently returns a zero-initialised default — no error is raised.
-
-    Always guard access with a `value_type` check before reading a field:
+    Use the `as_*` accessor methods (`as_int`, `as_float`, `as_string`,
+    `as_bool`, `as_list`) to read a value. They check `value_type` and raise
+    `Error` on a mismatch, so a wrong-type read fails loudly instead of
+    silently returning a zero-initialised default.
 
     ```mojo
-    if cv.value_type == "int":
-        use(cv.int_val)
-    elif cv.value_type == "float":
-        use(cv.float_val)
-    # ... etc.
+    var lr = cv.as_float()   # raises if cv is not a float
     ```
 
-    Prefer the typed helpers on `Config` (`get_int`, `get_float`, `get_string`,
-    `get_bool`) which perform this guard and raise on mismatch.
+    The raw `int_val` / `float_val` / `str_val` / `bool_val` / `list_val`
+    fields remain public for serialization code that has already branched on
+    `value_type`, but new call sites should prefer the `as_*` methods.
+    `Config`'s typed helpers (`get_int`, `get_float`, ...) delegate to them.
     """
 
     var value_type: String
@@ -170,6 +167,86 @@ struct ConfigValue(Copyable, Movable):
         cv.bool_val = self.bool_val
         cv.list_val = self.list_val.copy()
         return cv^
+
+    def as_int(self) raises -> Int:
+        """Return the integer value, or raise if this is not an int.
+
+        Returns:
+            The stored integer value.
+
+        Raises:
+            Error: If `value_type` is not 'int'.
+        """
+        if self.value_type != "int":
+            raise Error(
+                "ConfigValue type mismatch: expected int but got "
+                + self.value_type
+            )
+        return self.int_val
+
+    def as_float(self) raises -> Float64:
+        """Return the float value, or raise if this is not a float.
+
+        Returns:
+            The stored Float64 value.
+
+        Raises:
+            Error: If `value_type` is not 'float'.
+        """
+        if self.value_type != "float":
+            raise Error(
+                "ConfigValue type mismatch: expected float but got "
+                + self.value_type
+            )
+        return self.float_val
+
+    def as_string(self) raises -> String:
+        """Return the string value, or raise if this is not a string.
+
+        Returns:
+            The stored String value.
+
+        Raises:
+            Error: If `value_type` is not 'string'.
+        """
+        if self.value_type != "string":
+            raise Error(
+                "ConfigValue type mismatch: expected string but got "
+                + self.value_type
+            )
+        return self.str_val
+
+    def as_bool(self) raises -> Bool:
+        """Return the boolean value, or raise if this is not a bool.
+
+        Returns:
+            The stored Bool value.
+
+        Raises:
+            Error: If `value_type` is not 'bool'.
+        """
+        if self.value_type != "bool":
+            raise Error(
+                "ConfigValue type mismatch: expected bool but got "
+                + self.value_type
+            )
+        return self.bool_val
+
+    def as_list(self) raises -> List[String]:
+        """Return a copy of the list value, or raise if this is not a list.
+
+        Returns:
+            A copy of the stored List[String] value.
+
+        Raises:
+            Error: If `value_type` is not 'list'.
+        """
+        if self.value_type != "list":
+            raise Error(
+                "ConfigValue type mismatch: expected list but got "
+                + self.value_type
+            )
+        return self.list_val.copy()
 
 
 # ============================================================================
@@ -310,14 +387,10 @@ struct Config(Copyable, ImplicitlyCopyable, Movable):
             return default
 
         ref val = self.data[key]
-        if val.value_type != "string":
-            raise Error(
-                "Type mismatch for key '"
-                + key
-                + "': expected string but got "
-                + val.value_type
-            )
-        return val.str_val
+        try:
+            return val.as_string()
+        except e:
+            raise Error("Type mismatch for key '" + key + "': " + String(e))
 
     def get_int(self, key: String, default: Int = 0) raises -> Int:
         """Get integer value with optional default.
@@ -336,14 +409,10 @@ struct Config(Copyable, ImplicitlyCopyable, Movable):
             return default
 
         ref val = self.data[key]
-        if val.value_type != "int":
-            raise Error(
-                "Type mismatch for key '"
-                + key
-                + "': expected int but got "
-                + val.value_type
-            )
-        return val.int_val
+        try:
+            return val.as_int()
+        except e:
+            raise Error("Type mismatch for key '" + key + "': " + String(e))
 
     def get_float(self, key: String, default: Float64 = 0.0) raises -> Float64:
         """Get float value with optional default.
@@ -362,14 +431,10 @@ struct Config(Copyable, ImplicitlyCopyable, Movable):
             return default
 
         ref val = self.data[key]
-        if val.value_type != "float":
-            raise Error(
-                "Type mismatch for key '"
-                + key
-                + "': expected float but got "
-                + val.value_type
-            )
-        return val.float_val
+        try:
+            return val.as_float()
+        except e:
+            raise Error("Type mismatch for key '" + key + "': " + String(e))
 
     def get_bool(self, key: String, default: Bool = False) raises -> Bool:
         """Get boolean value with optional default.
@@ -388,14 +453,10 @@ struct Config(Copyable, ImplicitlyCopyable, Movable):
             return default
 
         ref val = self.data[key]
-        if val.value_type != "bool":
-            raise Error(
-                "Type mismatch for key '"
-                + key
-                + "': expected bool but got "
-                + val.value_type
-            )
-        return val.bool_val
+        try:
+            return val.as_bool()
+        except e:
+            raise Error("Type mismatch for key '" + key + "': " + String(e))
 
     def get_list(self, key: String) raises -> List[String]:
         """Get list value.
@@ -413,18 +474,10 @@ struct Config(Copyable, ImplicitlyCopyable, Movable):
             return []
 
         ref val = self.data[key]
-        if val.value_type != "list":
-            raise Error(
-                "Type mismatch for key '"
-                + key
-                + "': expected list but got "
-                + val.value_type
-            )
-        # Copy list_val before returning to avoid partial destruction of val
-        var list_copy = List[String]()
-        for i in range(len(val.list_val)):
-            list_copy.append(val.list_val[i])
-        return list_copy^
+        try:
+            return val.as_list()
+        except e:
+            raise Error("Type mismatch for key '" + key + "': " + String(e))
 
     def get(self, key: String) raises -> ConfigValue:
         """Get raw configuration value by key.

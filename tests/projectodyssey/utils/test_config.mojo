@@ -17,6 +17,98 @@ from tests.projectodyssey.conftest import (
     assert_not_equal,
     TestFixtures,
 )
+from projectodyssey.utils.config import ConfigValue
+
+
+def test_configvalue_as_int_correct_type() raises:
+    """`as_int` returns the value when value_type is 'int'."""
+    var cv = ConfigValue(42)
+    assert_equal(cv.as_int(), 42, "as_int should return stored int")
+
+
+def test_configvalue_as_float_correct_type() raises:
+    """`as_float` returns the value when value_type is 'float'."""
+    var cv = ConfigValue(Float64(3.5))
+    assert_equal(cv.as_float(), 3.5, "as_float should return stored float")
+
+
+def test_configvalue_as_string_correct_type() raises:
+    """`as_string` returns the value when value_type is 'string'."""
+    var cv = ConfigValue(String("relu"))
+    assert_equal(cv.as_string(), "relu", "as_string should return stored str")
+
+
+def test_configvalue_as_bool_correct_type() raises:
+    """`as_bool` returns the value when value_type is 'bool'."""
+    var cv = ConfigValue(True)
+    assert_true(cv.as_bool(), "as_bool should return stored bool")
+
+
+def test_configvalue_as_list_correct_type() raises:
+    """`as_list` returns a copy of the value when value_type is 'list'."""
+    var items = List[String]()
+    items.append("a")
+    items.append("b")
+    var cv = ConfigValue(items^)
+    var got = cv.as_list()
+    assert_equal(len(got), 2, "as_list should return 2-element list")
+    assert_equal(got[0], "a", "as_list element 0")
+    assert_equal(got[1], "b", "as_list element 1")
+
+
+def test_configvalue_as_int_wrong_type_raises() raises:
+    """`as_int` raises when value_type is not 'int' (no silent zero)."""
+    var cv = ConfigValue(Float64(1.0))
+    var raised = False
+    try:
+        _ = cv.as_int()
+    except:
+        raised = True
+    assert_true(raised, "as_int on a float ConfigValue must raise")
+
+
+def test_configvalue_as_float_wrong_type_raises() raises:
+    """`as_float` raises when value_type is not 'float'."""
+    var cv = ConfigValue(7)
+    var raised = False
+    try:
+        _ = cv.as_float()
+    except:
+        raised = True
+    assert_true(raised, "as_float on an int ConfigValue must raise")
+
+
+def test_configvalue_as_string_wrong_type_raises() raises:
+    """`as_string` raises when value_type is not 'string'."""
+    var cv = ConfigValue(True)
+    var raised = False
+    try:
+        _ = cv.as_string()
+    except:
+        raised = True
+    assert_true(raised, "as_string on a bool ConfigValue must raise")
+
+
+def test_configvalue_as_bool_wrong_type_raises() raises:
+    """`as_bool` raises when value_type is not 'bool'."""
+    var cv = ConfigValue(String("yes"))
+    var raised = False
+    try:
+        _ = cv.as_bool()
+    except:
+        raised = True
+    assert_true(raised, "as_bool on a string ConfigValue must raise")
+
+
+def test_configvalue_as_list_wrong_type_raises() raises:
+    """`as_list` raises when value_type is not 'list'."""
+    var cv = ConfigValue(5)
+    var raised = False
+    try:
+        _ = cv.as_list()
+    except:
+        raised = True
+    assert_true(raised, "as_list on an int ConfigValue must raise")
 
 
 def test_load_yaml_config():
@@ -365,6 +457,36 @@ def test_config_from_cli_args():
 def main() raises:
     """Run all test_config tests."""
     print("Running test_config tests...")
+
+    test_configvalue_as_int_correct_type()
+    print("✓ test_configvalue_as_int_correct_type")
+
+    test_configvalue_as_float_correct_type()
+    print("✓ test_configvalue_as_float_correct_type")
+
+    test_configvalue_as_string_correct_type()
+    print("✓ test_configvalue_as_string_correct_type")
+
+    test_configvalue_as_bool_correct_type()
+    print("✓ test_configvalue_as_bool_correct_type")
+
+    test_configvalue_as_list_correct_type()
+    print("✓ test_configvalue_as_list_correct_type")
+
+    test_configvalue_as_int_wrong_type_raises()
+    print("✓ test_configvalue_as_int_wrong_type_raises")
+
+    test_configvalue_as_float_wrong_type_raises()
+    print("✓ test_configvalue_as_float_wrong_type_raises")
+
+    test_configvalue_as_string_wrong_type_raises()
+    print("✓ test_configvalue_as_string_wrong_type_raises")
+
+    test_configvalue_as_bool_wrong_type_raises()
+    print("✓ test_configvalue_as_bool_wrong_type_raises")
+
+    test_configvalue_as_list_wrong_type_raises()
+    print("✓ test_configvalue_as_list_wrong_type_raises")
 
     test_load_yaml_config()
     print("✓ test_load_yaml_config")
