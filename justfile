@@ -37,20 +37,29 @@ MOJO_DEBUG := "-g2 --no-optimization"
 MOJO_RELEASE := "-g0 -O3"
 MOJO_TEST := "-g1"
 
-# Sanitizer flags
+# Pre-AVX-512 CPU target — applied to ALL Mojo build/test/run invocations.
 #
-# Pin sanitizer builds to a pre-AVX-512 CPU baseline. The Mojo compiler
-# defaults `--target-cpu` to the host CPU; CI runners report AVX-512-capable
-# CPUs (e.g. Cascadelake) but the actual executing cores intermittently
-# don't have AVX-512 enabled, producing SIGILL (signal 4, "Illegal
-# instruction") during sanitizer-instrumented runs. `x86-64-v3` is the
-# Haswell-era microarchitecture level: AVX/AVX2/BMI2/FMA, no AVX-512.
-# Every x86_64 GitHub-hosted runner supports v3, so this is safe everywhere.
-# See ProjectMnemosyne skill `mojo-jit-crash-and-retry-strategies` (AVX-512
-# ISA mismatch pattern) for prior diagnosis on this class of crash.
-MOJO_SAN_TARGET_CPU := "--mcpu=x86-64-v3"
-MOJO_ASAN := "--sanitize address " + MOJO_SAN_TARGET_CPU
-MOJO_TSAN := "--sanitize thread " + MOJO_SAN_TARGET_CPU
+# The Mojo compiler defaults `--target-cpu` to the host CPU. GitHub Actions
+# x86_64 runners report AVX-512-capable CPUs (e.g. Cascadelake) but the
+# actual executing cores intermittently lack AVX-512, so `mojo`'s JIT emits
+# AVX-512 encodings (`%zmm`, `%k1` opmask, `vpternlogd`, `{1to4}` broadcast)
+# that SIGILL at runtime (signal 4, "Illegal instruction" — modular/modular#6413;
+# see notes/modular-6413-avx512-finding.md for the captured faulting sites).
+#
+# `x86-64-v3` is the Haswell-era microarchitecture level: AVX/AVX2/BMI2/FMA,
+# NO AVX-512. Every x86_64 GitHub-hosted runner supports v3, so pinning to it
+# is safe everywhere and eliminates the AVX-512 ISA mismatch.
+#
+# Approach credit: the Modular community `ExtraMojo` recipe uses an equivalent
+# workaround, disabling AVX-512 features explicitly via `--target-features`:
+# https://github.com/modular/modular-community/blob/main/recipes/ExtraMojo/recipe.yaml
+# `--mcpu=x86-64-v3` is the named-microarch equivalent of that feature list.
+# See also ProjectMnemosyne skill `mojo-jit-crash-and-retry-strategies`.
+MOJO_TARGET_CPU := "--mcpu=x86-64-v3"
+
+# Sanitizer flags (inherit the same pre-AVX-512 CPU target).
+MOJO_ASAN := "--sanitize address " + MOJO_TARGET_CPU
+MOJO_TSAN := "--sanitize thread " + MOJO_TARGET_CPU
 
 # ==============================================================================
 # Internal Helpers
@@ -395,7 +404,10 @@ _build-inner mode="debug":
         out="$BUILD_DIR/$out_name"
 
         echo "→ Building: $file"
-        if pixi run mojo build $FLAGS ${JOBS:-} -I "$REPO_ROOT/src" -I "$REPO_ROOT" \
+        # {{MOJO_TARGET_CPU}} pins a pre-AVX-512 target so example binaries
+        # don't SIGILL on AVX-512-free runner cores (modular/modular#6413).
+        if pixi run mojo build {{MOJO_TARGET_CPU}} $FLAGS ${JOBS:-} \
+                -I "$REPO_ROOT/src" -I "$REPO_ROOT" \
                 -Xlinker -lm "$file" -o "$out" 2>&1; then
             BUILT=$((BUILT + 1))
         else
@@ -598,7 +610,7 @@ train model="lenet_emnist" precision="fp32" epochs="10" batch_size="32" lr="0.00
     MODEL="{{model}}"
     if [ "$MODEL" = "lenet" ] || [ "$MODEL" = "lenet5" ]; then MODEL="lenet_emnist"; fi
     echo "Training $MODEL with precision={{precision}}, epochs={{epochs}}"
-    just _run "pixi run mojo run -I . examples/$MODEL/run_train.mojo \
+    just _run "pixi run mojo run {{MOJO_TARGET_CPU}} -I . examples/$MODEL/run_train.mojo \
         --epochs {{epochs}} --batch-size {{batch_size}} \
         --lr {{lr}} --precision {{precision}}"
 
@@ -608,7 +620,7 @@ infer model="lenet_emnist" checkpoint="lenet5_weights":
     MODEL="{{model}}"
     if [ "$MODEL" = "lenet" ] || [ "$MODEL" = "lenet5" ]; then MODEL="lenet_emnist"; fi
     echo "Running inference for $MODEL with checkpoint={{checkpoint}}"
-    just _run "pixi run mojo run -I . examples/$MODEL/run_infer.mojo \
+    just _run "pixi run mojo run {{MOJO_TARGET_CPU}} -I . examples/$MODEL/run_infer.mojo \
         --checkpoint {{checkpoint}} --test-set"
 
 # Run inference on single image. Accepts lenet/lenet5 as aliases for lenet_emnist.
@@ -617,7 +629,7 @@ infer-image checkpoint image_path model="lenet_emnist":
     MODEL="{{model}}"
     if [ "$MODEL" = "lenet" ] || [ "$MODEL" = "lenet5" ]; then MODEL="lenet_emnist"; fi
     echo "Running inference on {{image_path}}"
-    just _run "pixi run mojo run -I . examples/$MODEL/run_infer.mojo \
+    just _run "pixi run mojo run {{MOJO_TARGET_CPU}} -I . examples/$MODEL/run_infer.mojo \
         --checkpoint {{checkpoint}} --image {{image_path}}"
 
 # Download EMNIST dataset (balanced split) and flatten to datasets/emnist/
@@ -927,13 +939,16 @@ _test-group-inner path pattern:
             # gdb-wrapper branch (CI default): intercept libKGEN's in-process
             # SIGABRT handler before it swallows the crash (modular/modular#6413).
             # Local dev defaults to MOJO_TEST_UNDER_GDB=0 → direct mojo invocation.
+            # {{MOJO_TARGET_CPU}} pins a pre-AVX-512 target so the JIT does
+            # not emit AVX-512 encodings that SIGILL on runner cores without
+            # AVX-512 (modular/modular#6413).
             if [ "${MOJO_TEST_UNDER_GDB:-0}" = "1" ]; then
                 if ! bash "$REPO_ROOT/scripts/mojo-under-gdb.sh" "$CORE_DIR" \
-                        --Werror -debug-level=line-tables -I "$REPO_ROOT/src" -I "$REPO_ROOT" -I . "$test_file"; then
+                        {{MOJO_TARGET_CPU}} --Werror -debug-level=line-tables -I "$REPO_ROOT/src" -I "$REPO_ROOT" -I . "$test_file"; then
                     test_exit=$?
                 fi
             else
-                if ! pixi run mojo --Werror -debug-level=line-tables -I "$REPO_ROOT/src" -I "$REPO_ROOT" -I . "$test_file"; then
+                if ! pixi run mojo {{MOJO_TARGET_CPU}} --Werror -debug-level=line-tables -I "$REPO_ROOT/src" -I "$REPO_ROOT" -I . "$test_file"; then
                     test_exit=$?
                 fi
             fi
@@ -1096,7 +1111,9 @@ _test-mojo-sanitized-inner sanitizer:
     set -e
     REPO_ROOT="$(pwd)"
     SANITIZER="{{sanitizer}}"
-    SAN_FLAGS="--sanitize $SANITIZER"
+    # {{MOJO_TARGET_CPU}} pins a pre-AVX-512 target — sanitizer-instrumented
+    # binaries SIGILL on AVX-512-free runner cores otherwise (modular#6413).
+    SAN_FLAGS="--sanitize $SANITIZER {{MOJO_TARGET_CPU}}"
     # Match the JIT-crash workaround used in `_build-inner` for tsan
     JOBS=""
     if [ "$SANITIZER" = "thread" ]; then
@@ -1178,7 +1195,8 @@ _test-mojo-inner:
     failed_tests=""
     for test_file in "${test_files[@]}"; do
         echo "Testing: $test_file"
-        if ! pixi run mojo --Werror -I "$REPO_ROOT/src" -I "$REPO_ROOT" -I . "$test_file"; then
+        # {{MOJO_TARGET_CPU}}: pre-AVX-512 target, see modular/modular#6413.
+        if ! pixi run mojo {{MOJO_TARGET_CPU}} --Werror -I "$REPO_ROOT/src" -I "$REPO_ROOT" -I . "$test_file"; then
             failed=$((failed + 1))
             failed_tests="$failed_tests\n  - $test_file"
         fi
