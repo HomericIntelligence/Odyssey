@@ -115,7 +115,12 @@ struct AnyTensor(
     """
 
     var _data: UnsafePointer[UInt8, origin=MutAnyOrigin]
-    """Raw byte storage for tensor elements."""
+    """Raw byte storage for tensor elements. For a slice view this is offset
+    into the parent's buffer, so it must NOT be passed to `free()`."""
+    var _base_data: UnsafePointer[UInt8, origin=MutAnyOrigin]
+    """The original allocation pointer returned by `pooled_alloc`. Always the
+    address to free at refcount 0, regardless of `_is_view`. For owners this
+    equals `_data`; for views it points at the parent's base allocation."""
     var _shape: List[Int]
     """List of dimension sizes."""
     var _strides: List[Int]
@@ -196,6 +201,7 @@ struct AnyTensor(
 
         # Allocate raw byte storage through memory pool (for efficiency)
         self._data = pooled_alloc(total_bytes)
+        self._base_data = self._data
         self._allocated_size = total_bytes
 
         # Allocate and initialize reference count (fixes MOJO-003, MOJO-006)
@@ -229,6 +235,7 @@ struct AnyTensor(
         self._original_numel_quantized = -1
         var dtype_size = AnyTensor._get_dtype_size_static(DType.int64)
         self._data = pooled_alloc(dtype_size)
+        self._base_data = self._data
         self._allocated_size = dtype_size
         self._refcount = alloc[Int](1)
         self._refcount[] = 1
@@ -261,6 +268,7 @@ struct AnyTensor(
         self._original_numel_quantized = -1
         var dtype_size = AnyTensor._get_dtype_size_static(DType.float64)
         self._data = pooled_alloc(dtype_size)
+        self._base_data = self._data
         self._allocated_size = dtype_size
         self._refcount = alloc[Int](1)
         self._refcount[] = 1
@@ -287,6 +295,7 @@ struct AnyTensor(
         self._original_numel_quantized = -1
         var dtype_size = AnyTensor._get_dtype_size_static(DType.int64)
         self._data = pooled_alloc(dtype_size)
+        self._base_data = self._data
         self._allocated_size = dtype_size
         self._refcount = alloc[Int](1)
         self._refcount[] = 1
@@ -318,6 +327,7 @@ struct AnyTensor(
         self._original_numel_quantized = -1
         var dtype_size = AnyTensor._get_dtype_size_static(DType.float64)
         self._data = pooled_alloc(dtype_size)
+        self._base_data = self._data
         self._allocated_size = dtype_size
         self._refcount = alloc[Int](1)
         self._refcount[] = 1
@@ -370,6 +380,7 @@ struct AnyTensor(
             )
 
         self._data = pooled_alloc(total_bytes)
+        self._base_data = self._data
         self._allocated_size = total_bytes
         self._refcount = alloc[Int](1)
         self._refcount[] = 1
@@ -425,6 +436,7 @@ struct AnyTensor(
             )
 
         self._data = pooled_alloc(total_bytes)
+        self._base_data = self._data
         self._allocated_size = total_bytes
         self._refcount = alloc[Int](1)
         self._refcount[] = 1
@@ -440,6 +452,7 @@ struct AnyTensor(
         This prevents double-free and enables safe view semantics.
         """
         self._data = copy._data
+        self._base_data = copy._base_data
         self._shape = copy._shape.copy()
         self._strides = copy._strides.copy()
         self._dtype = copy._dtype
@@ -457,6 +470,7 @@ struct AnyTensor(
     def __init__(out self, *, deinit take: Self):
         """Move constructor - transfers ownership without refcount change."""
         self._data = take._data
+        self._base_data = take._base_data
         self._shape = take._shape^
         self._strides = take._strides^
         self._dtype = take._dtype
@@ -476,14 +490,15 @@ struct AnyTensor(
         # All copies (views or not) participate in refcount management.
         # _refcount is always allocated by every initializing constructor.
         self._refcount[] -= 1
-        # If last reference, free everything
+        # If last reference, free everything.
         if self._refcount[] == 0:
-            # Views share the parent tensor's data allocation — their
-            # _data pointer is an offset into the parent's buffer, not
-            # a separately malloc'd address. Only non-view tensors own
-            # their data allocation and should free it.
-            if not self._is_view:
-                pooled_free(self._data, self._allocated_size)
+            # Free the original allocation via `_base_data`, NOT `_data`.
+            # `_data` may be offset into the buffer for a slice view, so it is
+            # not a valid `free()` argument. `_base_data` always holds the
+            # pointer returned by `pooled_alloc`. Freeing here is unconditional:
+            # whichever reference is last (owner OR view) must release the
+            # shared allocation — a view can outlive the owner that created it.
+            pooled_free(self._base_data, self._allocated_size)
             self._refcount.free()
 
     def copy(self) -> Self:
@@ -497,6 +512,7 @@ struct AnyTensor(
 
         var ptr = mem_alloc[AnyTensor](1)
         ptr[0]._data = self._data
+        ptr[0]._base_data = self._base_data
         ptr[0]._shape = self._shape.copy()
         ptr[0]._strides = self._strides.copy()
         ptr[0]._dtype = self._dtype

@@ -500,6 +500,11 @@ struct Tensor[dtype: DType = DType.float32](
         # --- Replace fields with shared pointers from this Tensor ---
         # Share our data pointer (bitcast typed -> UInt8 for AnyTensor)
         result._data = self._data.bitcast[UInt8]()
+        # `_base_data` must also point at the shared allocation, NOT the freed
+        # temp buffer the AnyTensor constructor set it to. The Tensor never
+        # offsets its `_data`, so the base equals `_data` here. `AnyTensor.__del__`
+        # frees `_base_data` at refcount 0.
+        result._base_data = self._data.bitcast[UInt8]()
         result._allocated_size = self._allocated_size
         result._shape = self._shape.copy()
         result._strides = self._strides.copy()
