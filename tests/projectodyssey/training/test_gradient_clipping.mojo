@@ -584,6 +584,72 @@ def test_clip_per_param_f64() raises:
         )
 
 
+# ============================================================================
+# Scalar fallback path tests (non-float dtypes — issue #5145)
+#
+# compute_gradient_norm_list / clip_gradients_by_global_norm /
+# clip_gradients_per_param / clip_gradients_by_value_list take a SIMD path for
+# float32/float64 and a scalar `_get_float64`/`_set_float64` fallback for every
+# other dtype. These tests exercise that fallback with int32 gradients.
+# ============================================================================
+
+
+def test_norm_scalar_fallback_int32() raises:
+    """Use the scalar path of compute_gradient_norm_list for int32 tensors."""
+    var grads = List[AnyTensor]()
+    # 9 elements of value 2 → norm = sqrt(9 * 4) = 6.0
+    grads.append(full([9], 2.0, DType.int32))
+    var norm = compute_gradient_norm_list(grads)
+    assert_close_float(
+        Float64(norm),
+        6.0,
+        atol=1e-4,
+        message="int32 scalar-fallback norm should be 6.0",
+    )
+
+
+def test_clip_by_global_norm_scalar_fallback_int32() raises:
+    """Report the int32 scalar-path norm from clip_gradients_by_global_norm."""
+    var grads = List[AnyTensor]()
+    grads.append(full([16], 3.0, DType.int32))  # norm = sqrt(16*9) = 12.0
+    var pre_norm = clip_gradients_by_global_norm(grads, max_norm=100.0)
+    assert_close_float(
+        Float64(pre_norm),
+        12.0,
+        atol=1e-4,
+        message="int32 scalar-fallback pre-clip norm should be 12.0",
+    )
+
+
+def test_clip_per_param_scalar_fallback_int32() raises:
+    """Run clip_gradients_per_param on int32 via its scalar fallback path."""
+    var grads = List[AnyTensor]()
+    grads.append(full([25], 2.0, DType.int32))  # local norm = sqrt(25*4) = 10
+    # max_norm above the local norm: a no-op clip, but exercises the path.
+    clip_gradients_per_param(grads, max_norm=100.0)
+    var v = grads[0]._get_float64(0)
+    assert_close_float(
+        v,
+        2.0,
+        atol=1e-4,
+        message="int32 scalar-fallback per-param value unchanged",
+    )
+
+
+def test_clip_by_value_scalar_fallback_int32() raises:
+    """Clamp int32 gradients via the value-clip scalar fallback path."""
+    var grads = List[AnyTensor]()
+    grads.append(full([8], 9.0, DType.int32))  # all 9 — above max
+    clip_gradients_by_value_list(grads, min_value=-5.0, max_value=5.0)
+    for j in range(8):
+        assert_close_float(
+            grads[0]._get_float64(j),
+            5.0,
+            atol=1e-4,
+            message="int32 value above max should clamp to 5.0",
+        )
+
+
 def main() raises:
     """Run all gradient clipping tests."""
     print("Testing Gradient Clipping...")
@@ -641,22 +707,38 @@ def main() raises:
     test_clip_per_param_non_aligned()
     print("✓ PASSED")
 
-    print("[14/17] Testing float64 gradient norm computation...")
+    print("[14/21] Testing float64 gradient norm computation...")
     test_compute_gradient_norm_f64()
     print("✓ PASSED")
 
-    print("[15/17] Testing float64 global norm clipping (with clipping)...")
+    print("[15/21] Testing float64 global norm clipping (with clipping)...")
     test_clip_by_global_norm_f64_with_clipping()
     print("✓ PASSED")
 
-    print("[16/17] Testing float64 value clipping...")
+    print("[16/21] Testing float64 value clipping...")
     test_clip_by_value_f64()
     print("✓ PASSED")
 
-    print("[17/17] Testing float64 per-param clipping...")
+    print("[17/21] Testing float64 per-param clipping...")
     test_clip_per_param_f64()
     print("✓ PASSED")
 
+    print("[18/21] Testing int32 scalar-fallback norm...")
+    test_norm_scalar_fallback_int32()
+    print("✓ PASSED")
+
+    print("[19/21] Testing int32 scalar-fallback global-norm clip...")
+    test_clip_by_global_norm_scalar_fallback_int32()
+    print("✓ PASSED")
+
+    print("[20/21] Testing int32 scalar-fallback per-param clip...")
+    test_clip_per_param_scalar_fallback_int32()
+    print("✓ PASSED")
+
+    print("[21/21] Testing int32 scalar-fallback value clip...")
+    test_clip_by_value_scalar_fallback_int32()
+    print("✓ PASSED")
+
     print("\n" + "=" * 70)
-    print("All 17 gradient clipping tests PASSED! ✓")
+    print("All 21 gradient clipping tests PASSED! ✓")
     print("Gradient clipping utilities are working correctly.")

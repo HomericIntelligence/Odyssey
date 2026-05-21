@@ -118,12 +118,18 @@ from projectodyssey.training.callbacks import (
 # ============================================================================
 
 
-# SGD Optimizer
-struct SGD(Movable, Optimizer):
-    """Stochastic Gradient Descent optimizer.
+# TrainingLoop SGD adapter
+struct TrainingLoopSGD(Movable, Optimizer):
+    """SGD adapter for the generic `TrainingLoop`.
 
-    Implements the Optimizer trait for use with generic TrainingLoop.
-    Delegates to the autograd SGD optimizer for actual gradient-based updates.
+    A thin `Optimizer`-trait adapter — `step()`/`zero_grad()` are no-ops
+    because `TrainingLoop` performs the actual gradient updates through the
+    autograd tape. Distinct from `projectodyssey.autograd.optimizers.SGD`,
+    the real gradient-based optimizer.
+
+    Renamed from `SGD` (issue #5392): two structs both named `SGD` were
+    re-exported into the top-level `projectodyssey` namespace, making
+    `from projectodyssey import SGD` an ambiguous import under `--Werror`.
     """
 
     var learning_rate: Float32
@@ -280,9 +286,11 @@ struct TrainingLoop[
     Example:
         ```mojo
         var model = SimpleMLP(...)
-        var optimizer = SGD(learning_rate=0.01)
+        var optimizer = TrainingLoopSGD(learning_rate=0.01)
         var loss_fn = MSELoss()
-        var loop = TrainingLoop[SimpleMLP, MSELoss, SGD](model, optimizer, loss_fn)
+        var loop = TrainingLoop[SimpleMLP, MSELoss, TrainingLoopSGD](
+            model, optimizer, loss_fn
+        )
         ```
     """
 

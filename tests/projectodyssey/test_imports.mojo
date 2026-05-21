@@ -34,12 +34,11 @@ from projectodyssey.core import (
     tanh,
 )
 
-# projectodyssey.training.SGD is a struct-based wrapper around the autograd SGD
-# optimizer (src/projectodyssey/training/__init__.mojo) while projectodyssey.SGD re-exports
-# the lower-level projectodyssey.autograd.optimizers.SGD directly
-# (src/projectodyssey/__init__.mojo). They are intentionally two distinct types with
-# the same name, so we alias the training wrapper here to keep both
-# importable in one module without a name collision.
+# projectodyssey.training.TrainingLoopSGD is a thin Optimizer-trait adapter
+# for the generic TrainingLoop, distinct from projectodyssey.autograd's real
+# SGD optimizer (which projectodyssey.SGD re-exports). They were renamed apart
+# in issue #5392 — both used to be named `SGD`, which made the top-level
+# `from projectodyssey import SGD` an ambiguous import.
 from projectodyssey.training import (
     Callback,
     CosineAnnealingLR,
@@ -50,8 +49,8 @@ from projectodyssey.training import (
     ModelCheckpoint,
     MultiStepLR,
     ReduceLROnPlateau,
-    SGD as TrainingSGD,
     StepLR,
+    TrainingLoopSGD,
     TrainingState,
     WarmupLR,
     base,
