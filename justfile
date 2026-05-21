@@ -37,7 +37,7 @@ MOJO_DEBUG := "-g2 --no-optimization"
 MOJO_RELEASE := "-g0 -O3"
 MOJO_TEST := "-g1"
 
-# Pre-AVX-512 CPU target — applied to ALL Mojo build/test/run invocations.
+# Disable AVX-512 — applied to ALL Mojo build/test/run invocations.
 #
 # The Mojo compiler defaults `--target-cpu` to the host CPU. GitHub Actions
 # x86_64 runners report AVX-512-capable CPUs (e.g. Cascadelake) but the
@@ -46,18 +46,18 @@ MOJO_TEST := "-g1"
 # that SIGILL at runtime (signal 4, "Illegal instruction" — modular/modular#6413;
 # see notes/modular-6413-avx512-finding.md for the captured faulting sites).
 #
-# `x86-64-v3` is the Haswell-era microarchitecture level: AVX/AVX2/BMI2/FMA,
-# NO AVX-512. Every x86_64 GitHub-hosted runner supports v3, so pinning to it
-# is safe everywhere and eliminates the AVX-512 ISA mismatch.
+# Rather than pinning a whole microarchitecture level (`--mcpu=x86-64-v3`),
+# subtract only the AVX-512 feature bits with `--target-features`: the host
+# CPU target is otherwise preserved, so any non-AVX-512 host features the
+# compiler would have used (e.g. AVX-VNNI, newer AVX2 extensions) remain
+# available. Only the instructions that SIGILL on the runners are removed.
 #
-# Approach credit: the Modular community `ExtraMojo` recipe uses an equivalent
-# workaround, disabling AVX-512 features explicitly via `--target-features`:
+# Approach borrowed verbatim from the Modular community `ExtraMojo` recipe:
 # https://github.com/modular/modular-community/blob/main/recipes/ExtraMojo/recipe.yaml
-# `--mcpu=x86-64-v3` is the named-microarch equivalent of that feature list.
 # See also ProjectMnemosyne skill `mojo-jit-crash-and-retry-strategies`.
-MOJO_TARGET_CPU := "--mcpu=x86-64-v3"
+MOJO_TARGET_CPU := "--target-features -avx512bf16,-avx512bitalg,-avx512bw,-avx512cd,-avx512dq,-avx512f,-avx512ifma,-avx512vbmi,-avx512vbmi2,-avx512vl,-avx512vnni,-avx512vpopcntdq"
 
-# Sanitizer flags (inherit the same pre-AVX-512 CPU target).
+# Sanitizer flags (inherit the same AVX-512-disabled target).
 MOJO_ASAN := "--sanitize address " + MOJO_TARGET_CPU
 MOJO_TSAN := "--sanitize thread " + MOJO_TARGET_CPU
 
@@ -404,7 +404,7 @@ _build-inner mode="debug":
         out="$BUILD_DIR/$out_name"
 
         echo "→ Building: $file"
-        # {{MOJO_TARGET_CPU}} pins a pre-AVX-512 target so example binaries
+        # {{MOJO_TARGET_CPU}} disables AVX-512 features so example binaries
         # don't SIGILL on AVX-512-free runner cores (modular/modular#6413).
         if pixi run mojo build {{MOJO_TARGET_CPU}} $FLAGS ${JOBS:-} \
                 -I "$REPO_ROOT/src" -I "$REPO_ROOT" \
@@ -939,7 +939,7 @@ _test-group-inner path pattern:
             # gdb-wrapper branch (CI default): intercept libKGEN's in-process
             # SIGABRT handler before it swallows the crash (modular/modular#6413).
             # Local dev defaults to MOJO_TEST_UNDER_GDB=0 → direct mojo invocation.
-            # {{MOJO_TARGET_CPU}} pins a pre-AVX-512 target so the JIT does
+            # {{MOJO_TARGET_CPU}} disables AVX-512 features so the JIT does
             # not emit AVX-512 encodings that SIGILL on runner cores without
             # AVX-512 (modular/modular#6413).
             if [ "${MOJO_TEST_UNDER_GDB:-0}" = "1" ]; then
@@ -1111,7 +1111,7 @@ _test-mojo-sanitized-inner sanitizer:
     set -e
     REPO_ROOT="$(pwd)"
     SANITIZER="{{sanitizer}}"
-    # {{MOJO_TARGET_CPU}} pins a pre-AVX-512 target — sanitizer-instrumented
+    # {{MOJO_TARGET_CPU}} disables AVX-512 features — sanitizer-instrumented
     # binaries SIGILL on AVX-512-free runner cores otherwise (modular#6413).
     SAN_FLAGS="--sanitize $SANITIZER {{MOJO_TARGET_CPU}}"
     # Match the JIT-crash workaround used in `_build-inner` for tsan
@@ -1195,7 +1195,7 @@ _test-mojo-inner:
     failed_tests=""
     for test_file in "${test_files[@]}"; do
         echo "Testing: $test_file"
-        # {{MOJO_TARGET_CPU}}: pre-AVX-512 target, see modular/modular#6413.
+        # {{MOJO_TARGET_CPU}}: disables AVX-512, see modular/modular#6413.
         if ! pixi run mojo {{MOJO_TARGET_CPU}} --Werror -I "$REPO_ROOT/src" -I "$REPO_ROOT" -I . "$test_file"; then
             failed=$((failed + 1))
             failed_tests="$failed_tests\n  - $test_file"
