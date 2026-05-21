@@ -92,7 +92,7 @@ if [ -d "$WEIGHTS_DIR" ]; then
     echo
     if [[ $REPLY =~ ^[Yy]$ ]]; then
         rm -rf "$WEIGHTS_DIR"
-        mojo run examples/alexnet_cifar10/train.mojo \
+        mojo run examples/alexnet_cifar10/run_train.mojo \
             --epochs "$EPOCHS" \
             --batch-size "$BATCH_SIZE" \
             --lr "$LEARNING_RATE" \
@@ -103,7 +103,7 @@ if [ -d "$WEIGHTS_DIR" ]; then
         echo "Skipping training"
     fi
 else
-    mojo run examples/alexnet_cifar10/train.mojo \
+    mojo run examples/alexnet_cifar10/run_train.mojo \
         --epochs "$EPOCHS" \
         --batch-size "$BATCH_SIZE" \
         --lr "$LEARNING_RATE" \
