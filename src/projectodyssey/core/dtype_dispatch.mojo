@@ -1703,3 +1703,44 @@ def dispatch_kernel_3t3i[
             + _format_dtype_name(dtype)
             + "'"
         )
+
+
+# ============================================================================
+# Float-Only Closure Dispatch (arity-agnostic)
+# ============================================================================
+#
+# Some kernels (the normalization family) take wildly varied argument lists —
+# mixes of UnsafePointer, AnyTensor, Int, and Float64 with arities from 7 to
+# 12. A fixed-signature dispatcher cannot cover them. `dispatch_float3` instead
+# takes a parametric capturing closure: the caller writes a `@parameter` body
+# that closes over its locals, and this helper supplies the runtime->comptime
+# dtype branch. Float16/32/64 only.
+
+
+def dispatch_float3[
+    body: def[T: DType]() raises capturing[_] -> None
+](dtype: DType) raises:
+    """Run a float-specialized closure under runtime dtype dispatch.
+
+    Parameters:
+        body: A `@parameter` closure parameterized on a compile-time dtype.
+            It closes over whatever arguments the kernel needs, so this helper
+            is independent of kernel arity.
+
+    Args:
+        dtype: Runtime dtype; must be float16, float32, or float64.
+
+    Raises:
+        Error: If `dtype` is not a supported float type, or if `body` raises.
+    """
+    if dtype == DType.float16:
+        body[DType.float16]()
+    elif dtype == DType.float32:
+        body[DType.float32]()
+    elif dtype == DType.float64:
+        body[DType.float64]()
+    else:
+        raise Error(
+            "dispatch_float3: only supports float16/32/64. Got "
+            + _format_dtype_name(dtype)
+        )
