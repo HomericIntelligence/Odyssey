@@ -4,7 +4,8 @@ Implements training with manual backward passes (no autograd).
 Uses SGD optimizer with momentum and dropout regularization.
 
 Usage:
-    mojo run examples/alexnet_cifar10/train.mojo --epochs 100 --batch-size 128 --lr 0.01 --momentum 0.9
+    just train alexnet_cifar10 fp32 100 128 0.01
+    mojo run examples/alexnet_cifar10/run_train.mojo --epochs 100 --batch-size 128 --lr 0.01
 
 Requirements:
     - CIFAR-10 dataset downloaded (run: python examples/alexnet_cifar10/download_cifar10.py)
@@ -16,8 +17,30 @@ References:
       Advances in Neural Information Processing Systems, 25, 1097-1105.
 """
 
-from model import AlexNet
+from model import (
+    AlexNet,
+    CONV1_STRIDE,
+    CONV1_PADDING,
+    CONV2_STRIDE,
+    CONV2_PADDING,
+    CONV3_STRIDE,
+    CONV3_PADDING,
+    CONV4_STRIDE,
+    CONV4_PADDING,
+    CONV5_STRIDE,
+    CONV5_PADDING,
+    POOL1_KERNEL_SIZE,
+    POOL1_STRIDE,
+    POOL1_PADDING,
+    POOL2_KERNEL_SIZE,
+    POOL2_STRIDE,
+    POOL2_PADDING,
+    POOL3_KERNEL_SIZE,
+    POOL3_STRIDE,
+    POOL3_PADDING,
+)
 from projectodyssey.data.datasets import CIFAR10Dataset
+from projectodyssey.data.formats import one_hot_encode
 from projectodyssey.tensor.any_tensor import AnyTensor, zeros
 from projectodyssey.core.conv import conv2d, conv2d_backward
 from projectodyssey.core.pooling import maxpool2d, maxpool2d_backward
@@ -78,38 +101,75 @@ def compute_gradients(
     """
     # ========== Forward Pass (with caching for backward) ==========
 
-    # Conv1 + ReLU + MaxPool
+    # Conv1 + ReLU + MaxPool. Conv/pool hyperparameters come from model.mojo
+    # so the forward pass, the backward pass, and AlexNet.forward() all share
+    # one architecture definition.
     var conv1_out = conv2d(
-        input, model.conv1_kernel, model.conv1_bias, stride=4, padding=2
+        input,
+        model.conv1_kernel,
+        model.conv1_bias,
+        stride=CONV1_STRIDE,
+        padding=CONV1_PADDING,
     )
     var relu1_out = relu(conv1_out)
-    var pool1_out = maxpool2d(relu1_out, kernel_size=3, stride=2, padding=0)
+    var pool1_out = maxpool2d(
+        relu1_out,
+        kernel_size=POOL1_KERNEL_SIZE,
+        stride=POOL1_STRIDE,
+        padding=POOL1_PADDING,
+    )
 
     # Conv2 + ReLU + MaxPool
     var conv2_out = conv2d(
-        pool1_out, model.conv2_kernel, model.conv2_bias, stride=1, padding=2
+        pool1_out,
+        model.conv2_kernel,
+        model.conv2_bias,
+        stride=CONV2_STRIDE,
+        padding=CONV2_PADDING,
     )
     var relu2_out = relu(conv2_out)
-    var pool2_out = maxpool2d(relu2_out, kernel_size=3, stride=2, padding=0)
+    var pool2_out = maxpool2d(
+        relu2_out,
+        kernel_size=POOL2_KERNEL_SIZE,
+        stride=POOL2_STRIDE,
+        padding=POOL2_PADDING,
+    )
 
     # Conv3 + ReLU
     var conv3_out = conv2d(
-        pool2_out, model.conv3_kernel, model.conv3_bias, stride=1, padding=1
+        pool2_out,
+        model.conv3_kernel,
+        model.conv3_bias,
+        stride=CONV3_STRIDE,
+        padding=CONV3_PADDING,
     )
     var relu3_out = relu(conv3_out)
 
     # Conv4 + ReLU
     var conv4_out = conv2d(
-        relu3_out, model.conv4_kernel, model.conv4_bias, stride=1, padding=1
+        relu3_out,
+        model.conv4_kernel,
+        model.conv4_bias,
+        stride=CONV4_STRIDE,
+        padding=CONV4_PADDING,
     )
     var relu4_out = relu(conv4_out)
 
     # Conv5 + ReLU + MaxPool
     var conv5_out = conv2d(
-        relu4_out, model.conv5_kernel, model.conv5_bias, stride=1, padding=1
+        relu4_out,
+        model.conv5_kernel,
+        model.conv5_bias,
+        stride=CONV5_STRIDE,
+        padding=CONV5_PADDING,
     )
     var relu5_out = relu(conv5_out)
-    var pool3_out = maxpool2d(relu5_out, kernel_size=3, stride=2, padding=0)
+    var pool3_out = maxpool2d(
+        relu5_out,
+        kernel_size=POOL3_KERNEL_SIZE,
+        stride=POOL3_STRIDE,
+        padding=POOL3_PADDING,
+    )
 
     # Flatten
     var pool3_shape = pool3_out.shape()
@@ -194,7 +254,11 @@ def compute_gradients(
 
     # MaxPool3 backward
     var grad_relu5_out = maxpool2d_backward(
-        grad_pool3_out, relu5_out, kernel_size=3, stride=2, padding=0
+        grad_pool3_out,
+        relu5_out,
+        kernel_size=POOL3_KERNEL_SIZE,
+        stride=POOL3_STRIDE,
+        padding=POOL3_PADDING,
     )
 
     # ReLU5 backward
@@ -202,7 +266,11 @@ def compute_gradients(
 
     # Conv5 backward
     var conv5_grads = conv2d_backward(
-        grad_conv5_out, relu4_out, model.conv5_kernel, stride=1, padding=1
+        grad_conv5_out,
+        relu4_out,
+        model.conv5_kernel,
+        stride=CONV5_STRIDE,
+        padding=CONV5_PADDING,
     )
     var grad_relu4_out = conv5_grads.grad_input
     var grad_conv5_kernel = conv5_grads.grad_weights
@@ -213,7 +281,11 @@ def compute_gradients(
 
     # Conv4 backward
     var conv4_grads = conv2d_backward(
-        grad_conv4_out, relu3_out, model.conv4_kernel, stride=1, padding=1
+        grad_conv4_out,
+        relu3_out,
+        model.conv4_kernel,
+        stride=CONV4_STRIDE,
+        padding=CONV4_PADDING,
     )
     var grad_relu3_out = conv4_grads.grad_input
     var grad_conv4_kernel = conv4_grads.grad_weights
@@ -224,7 +296,11 @@ def compute_gradients(
 
     # Conv3 backward
     var conv3_grads = conv2d_backward(
-        grad_conv3_out, pool2_out, model.conv3_kernel, stride=1, padding=1
+        grad_conv3_out,
+        pool2_out,
+        model.conv3_kernel,
+        stride=CONV3_STRIDE,
+        padding=CONV3_PADDING,
     )
     var grad_pool2_out = conv3_grads.grad_input
     var grad_conv3_kernel = conv3_grads.grad_weights
@@ -232,7 +308,11 @@ def compute_gradients(
 
     # MaxPool2 backward
     var grad_relu2_out = maxpool2d_backward(
-        grad_pool2_out, relu2_out, kernel_size=3, stride=2, padding=0
+        grad_pool2_out,
+        relu2_out,
+        kernel_size=POOL2_KERNEL_SIZE,
+        stride=POOL2_STRIDE,
+        padding=POOL2_PADDING,
     )
 
     # ReLU2 backward
@@ -240,7 +320,11 @@ def compute_gradients(
 
     # Conv2 backward
     var conv2_grads = conv2d_backward(
-        grad_conv2_out, pool1_out, model.conv2_kernel, stride=1, padding=2
+        grad_conv2_out,
+        pool1_out,
+        model.conv2_kernel,
+        stride=CONV2_STRIDE,
+        padding=CONV2_PADDING,
     )
     var grad_pool1_out = conv2_grads.grad_input
     var grad_conv2_kernel = conv2_grads.grad_weights
@@ -248,7 +332,11 @@ def compute_gradients(
 
     # MaxPool1 backward
     var grad_relu1_out = maxpool2d_backward(
-        grad_pool1_out, relu1_out, kernel_size=3, stride=2, padding=0
+        grad_pool1_out,
+        relu1_out,
+        kernel_size=POOL1_KERNEL_SIZE,
+        stride=POOL1_STRIDE,
+        padding=POOL1_PADDING,
     )
 
     # ReLU1 backward
@@ -256,7 +344,11 @@ def compute_gradients(
 
     # Conv1 backward
     var conv1_grads = conv2d_backward(
-        grad_conv1_out, input, model.conv1_kernel, stride=4, padding=2
+        grad_conv1_out,
+        input,
+        model.conv1_kernel,
+        stride=CONV1_STRIDE,
+        padding=CONV1_PADDING,
     )
     _ = conv1_grads.grad_input  # Not used (no input gradient needed)
     var grad_conv1_kernel = conv1_grads.grad_weights
@@ -382,7 +474,13 @@ def train_epoch(
 
         # Extract batch slice
         var batch_data = train_images.slice(start_idx, end_idx, axis=0)
-        var batch_labels = train_labels.slice(start_idx, end_idx, axis=0)
+        var batch_labels_int = train_labels.slice(start_idx, end_idx, axis=0)
+
+        # cross_entropy expects one-hot float32 targets shaped like the
+        # logits, not raw uint8 class indices.
+        var batch_labels = one_hot_encode(
+            batch_labels_int, num_classes=model.num_classes
+        )
 
         # Compute gradients and update parameters
         var batch_loss = compute_gradients(

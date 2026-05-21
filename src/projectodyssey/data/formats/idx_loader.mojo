@@ -172,9 +172,17 @@ def load_idx_images_rgb(filepath: String) raises -> AnyTensor:
 
     var data_bytes = content.unsafe_ptr()
 
-    # Parse header
+    # Parse header.
+    #
+    # Two magic numbers carry the same 4-D `(N, C, H, W)` RGB layout:
+    #   2052 — the project's custom RGB-image extension.
+    #   2051 — the standard IDX3 image magic (0x00000803). The shared dataset
+    #          downloader (`scripts/download_cifar10.py`) writes RGB CIFAR-10
+    #          batches with this magic followed by a 5-field `N,C,H,W` header,
+    #          which is byte-identical to the 2052 layout below.
+    # Accept either so this loader works with downloader output unchanged.
     var magic = read_uint32_be(data_bytes, 0)
-    if magic != 2052:  # RGB image file magic number (custom extension)
+    if magic != 2052 and magic != 2051:
         raise Error("Invalid IDX RGB image file magic number: " + String(magic))
 
     var num_images = read_uint32_be(data_bytes, 4)

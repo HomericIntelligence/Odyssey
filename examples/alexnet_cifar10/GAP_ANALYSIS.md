@@ -683,7 +683,7 @@ Includes all enhancements and optimizations
 - ✅ `examples/alexnet_cifar10/README.md` - Comprehensive documentation
 - ✅ `examples/alexnet_cifar10/model.mojo` - AlexNet architecture (13 parameters)
 - ✅ `examples/alexnet_cifar10/data_loader.mojo` - CIFAR-10 loading with RGB
-- ✅ `examples/alexnet_cifar10/train.mojo` - Training with manual backprop
+- ✅ `examples/alexnet_cifar10/run_train.mojo` - Training with manual backprop
 - ✅ `examples/alexnet_cifar10/inference.mojo` - Test evaluation
 - ✅ `examples/alexnet_cifar10/weights.mojo` - Weight serialization (copied from LeNet-5)
 - ✅ `examples/alexnet_cifar10/download_cifar10.py` - Dataset download/conversion

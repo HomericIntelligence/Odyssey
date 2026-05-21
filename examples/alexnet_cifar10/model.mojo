@@ -50,24 +50,29 @@ comptime INPUT_WIDTH = 32
 comptime INPUT_CHANNELS = 3
 
 # Conv layer 1 hyperparameters
+# Adapted for CIFAR-10's 32x32 input: the original AlexNet 11x11/stride-4
+# conv1 (designed for 224x224 ImageNet) collapses 32x32 to 7x7 in one step,
+# and the downstream layers then degrade to a 0x0 feature map. A 3x3/stride-1
+# conv preserves spatial resolution so the three 2x2 pools can halve it
+# gracefully: 32 -> 16 -> 8 -> 4.
 comptime CONV1_OUT_CHANNELS = 96
-comptime CONV1_KERNEL_SIZE = 11
-comptime CONV1_STRIDE = 4
-comptime CONV1_PADDING = 2
+comptime CONV1_KERNEL_SIZE = 3
+comptime CONV1_STRIDE = 1
+comptime CONV1_PADDING = 1
 
-# Pool layer 1 hyperparameters
-comptime POOL1_KERNEL_SIZE = 3
+# Pool layer 1 hyperparameters (2x2/stride-2: halves spatial dims)
+comptime POOL1_KERNEL_SIZE = 2
 comptime POOL1_STRIDE = 2
 comptime POOL1_PADDING = 0
 
-# Conv layer 2 hyperparameters
+# Conv layer 2 hyperparameters (3x3/stride-1, padding-1: preserves dims)
 comptime CONV2_OUT_CHANNELS = 256
-comptime CONV2_KERNEL_SIZE = 5
+comptime CONV2_KERNEL_SIZE = 3
 comptime CONV2_STRIDE = 1
-comptime CONV2_PADDING = 2
+comptime CONV2_PADDING = 1
 
-# Pool layer 2 hyperparameters
-comptime POOL2_KERNEL_SIZE = 3
+# Pool layer 2 hyperparameters (2x2/stride-2: halves spatial dims)
+comptime POOL2_KERNEL_SIZE = 2
 comptime POOL2_STRIDE = 2
 comptime POOL2_PADDING = 0
 
@@ -89,8 +94,8 @@ comptime CONV5_KERNEL_SIZE = 3
 comptime CONV5_STRIDE = 1
 comptime CONV5_PADDING = 1
 
-# Pool layer 3 hyperparameters
-comptime POOL3_KERNEL_SIZE = 3
+# Pool layer 3 hyperparameters (2x2/stride-2: 8x8 -> 4x4 final feature map)
+comptime POOL3_KERNEL_SIZE = 2
 comptime POOL3_STRIDE = 2
 comptime POOL3_PADDING = 0
 

@@ -26,7 +26,7 @@ This downloads the CIFAR-10 dataset (50,000 training samples, 10,000 test sample
 ### 2. Train Model
 
 ```bash
-mojo run examples/alexnet_cifar10/train.mojo --epochs 100 --batch-size 128 --lr 0.01
+mojo run examples/alexnet_cifar10/run_train.mojo --epochs 100 --batch-size 128 --lr 0.01
 ```text
 
 ### 3. Run Inference
@@ -139,7 +139,7 @@ examples/alexnet_cifar10/
 ### Training Options
 
 ```bash
-mojo run examples/alexnet_cifar10/train.mojo \
+mojo run examples/alexnet_cifar10/run_train.mojo \
     --epochs 100 \
     --batch-size 128 \
     --lr 0.01 \

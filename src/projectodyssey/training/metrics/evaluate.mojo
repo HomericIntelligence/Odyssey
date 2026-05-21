@@ -7,7 +7,7 @@ across the examples directory.
 Patterns consolidated from:
 - examples/lenet_emnist/train.mojo (fn evaluate)
 - examples/resnet18_cifar10/train.mojo (fn compute_accuracy)
-- examples/alexnet_cifar10/train.mojo (fn evaluate)
+- examples/alexnet_cifar10/run_train.mojo (fn evaluate)
 - examples/vgg16_cifar10/train.mojo (fn compute_accuracy)
 - examples/googlenet_cifar10/train.mojo (fn compute_accuracy)
 - examples/mobilenetv1_cifar10/train.mojo (fn compute_accuracy)
