@@ -1985,6 +1985,54 @@ struct AnyTensor(
 
         return _anytensor_compare_op[_ne](self, other)
 
+    def array_equal(
+        self, other: AnyTensor, equal_nan: Bool = True
+    ) raises -> Bool:
+        """Whole-tensor equality returning a single `Bool`.
+
+        Unlike `__eq__`, which is element-wise and returns a tensor of
+        1.0/0.0, this returns one `Bool`: True iff `self` and `other` have
+        the same shape and dtype and every element compares equal.
+
+        With `equal_nan=True` (the default), NaN matches NaN position-wise —
+        mirroring `__hash__`, which canonicalizes NaN so NaN-containing
+        tensors hash equally. This is what makes a NaN-containing tensor
+        usable as a dict/set key: `__hash__` and `array_equal` agree, so
+        lookup succeeds. With `equal_nan=False`, IEEE 754 semantics apply
+        and any NaN makes the tensors unequal (see issue #4061).
+
+        Args:
+            other: The tensor to compare against.
+            equal_nan: If True, NaN equals NaN at the same position.
+
+        Returns:
+            True iff the tensors are equal under the chosen NaN policy.
+        """
+        from std.math import isnan
+
+        if self._dtype != other._dtype:
+            return False
+        if len(self._shape) != len(other._shape):
+            return False
+        for i in range(len(self._shape)):
+            if self._shape[i] != other._shape[i]:
+                return False
+        if self._numel != other._numel:
+            return False
+
+        for i in range(self._numel):
+            var a = self._get_float64(i)
+            var b = other._get_float64(i)
+            var a_nan = isnan(a)
+            var b_nan = isnan(b)
+            if a_nan or b_nan:
+                # Equal only if both are NaN and equal_nan is set.
+                if not (equal_nan and a_nan and b_nan):
+                    return False
+            elif a != b:
+                return False
+        return True
+
     def __lt__(self, other: AnyTensor) raises -> AnyTensor:
         """Element-wise less than: a < b.
 

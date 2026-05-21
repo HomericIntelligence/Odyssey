@@ -17,6 +17,7 @@ from projectodyssey.tensor.any_tensor import (
     clone,
     item,
     diff,
+    nan_tensor,
 )
 from projectodyssey.core.shape import as_contiguous
 from projectodyssey.core.matrix import transpose_view
@@ -1053,6 +1054,67 @@ def test_diff_higher_order() raises:
         assert_value_at(d, i, 0.0, 1e-6, "Second-order differences should be 0")
 
 
+# ============================================================================
+# array_equal — whole-tensor NaN-aware equality (issues #4061, #5081)
+# ============================================================================
+
+
+def test_array_equal_identical() raises:
+    """Identical tensors compare equal."""
+    var a = full([3, 2], 4.0, DType.float32)
+    var b = full([3, 2], 4.0, DType.float32)
+    assert_true(a.array_equal(b), "identical tensors should be equal")
+
+
+def test_array_equal_different_values() raises:
+    """Tensors differing in one value are unequal."""
+    var a = full([4], 1.0, DType.float32)
+    var b = full([4], 1.0, DType.float32)
+    b.set(2, Float64(9.0))
+    assert_false(a.array_equal(b), "differing values should be unequal")
+
+
+def test_array_equal_different_shape() raises:
+    """Tensors of different shape are unequal."""
+    var a = ones([6], DType.float32)
+    var b = ones([2, 3], DType.float32)
+    assert_false(a.array_equal(b), "different shapes should be unequal")
+
+
+def test_array_equal_different_dtype() raises:
+    """Tensors of different dtype are unequal."""
+    var a = ones([4], DType.float32)
+    var b = ones([4], DType.float64)
+    assert_false(a.array_equal(b), "different dtypes should be unequal")
+
+
+def test_array_equal_nan_equal_when_equal_nan_true() raises:
+    """With equal_nan=True, NaN matches NaN position-wise (the default)."""
+    var a = nan_tensor([3], DType.float32)
+    var b = nan_tensor([3], DType.float32)
+    assert_true(
+        a.array_equal(b),
+        "NaN tensors should be equal under default equal_nan=True",
+    )
+
+
+def test_array_equal_nan_unequal_when_equal_nan_false() raises:
+    """With equal_nan=False, any NaN makes tensors unequal (IEEE 754)."""
+    var a = nan_tensor([3], DType.float32)
+    var b = nan_tensor([3], DType.float32)
+    assert_false(
+        a.array_equal(b, equal_nan=False),
+        "NaN tensors should be unequal under equal_nan=False",
+    )
+
+
+def test_array_equal_nan_vs_number() raises:
+    """A NaN element never equals a finite element, regardless of equal_nan."""
+    var a = nan_tensor([2], DType.float32)
+    var b = full([2], 1.0, DType.float32)
+    assert_false(a.array_equal(b), "NaN vs number should be unequal")
+
+
 def main() raises:
     """Run all test_utility tests."""
     print("Running test_utility tests...")
@@ -1209,5 +1271,26 @@ def main() raises:
 
     test_diff_higher_order()
     print("✓ test_diff_higher_order")
+
+    test_array_equal_identical()
+    print("✓ test_array_equal_identical")
+
+    test_array_equal_different_values()
+    print("✓ test_array_equal_different_values")
+
+    test_array_equal_different_shape()
+    print("✓ test_array_equal_different_shape")
+
+    test_array_equal_different_dtype()
+    print("✓ test_array_equal_different_dtype")
+
+    test_array_equal_nan_equal_when_equal_nan_true()
+    print("✓ test_array_equal_nan_equal_when_equal_nan_true")
+
+    test_array_equal_nan_unequal_when_equal_nan_false()
+    print("✓ test_array_equal_nan_unequal_when_equal_nan_false")
+
+    test_array_equal_nan_vs_number()
+    print("✓ test_array_equal_nan_vs_number")
 
     print("\nAll test_utility tests passed!")
