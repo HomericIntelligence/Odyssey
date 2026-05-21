@@ -1133,7 +1133,6 @@ def layer_norm_backward(
             computed independently for each sample.
     """
     var x_shape = x.shape()
-    var grad_shape = grad_output.shape()
 
     if len(x_shape) == 2:
         var batch = x_shape[0]
