@@ -64,9 +64,12 @@ jobs:
           VERSION="${{ steps.get-version.outputs.version }}"
 
           # Check version format (vX.Y.Z or vX.Y.Z-alpha.N, etc.)
-          if ! echo "$VERSION" | grep -qE '^v[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9.]+)?$'; then
+          # The pre-release suffix character class includes a hyphen: semver
+          # 2.0 §9 permits hyphens in pre-release identifiers (e.g.
+          # v0.1.0-rc-1, v0.1.0-pkg-test). See issue #5420.
+          if ! echo "$VERSION" | grep -qE '^v[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9.-]+)?$'; then
             echo "❌ Invalid version format: $VERSION"
-            echo "Expected format: vX.Y.Z or vX.Y.Z-suffix (e.g., v0.1.0, v1.2.3-alpha.1)"
+            echo "Expected format: vX.Y.Z or vX.Y.Z-suffix (e.g., v0.1.0, v1.2.3-alpha.1, v1.2.3-rc-1)"
             exit 1
           fi
 
