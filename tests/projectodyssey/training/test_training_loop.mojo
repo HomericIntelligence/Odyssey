@@ -8,7 +8,7 @@ Tests cover:
 Issue #2728: Enable Training Loop Tests with SimpleMLP and AnyTensor.randn.
 Tests enabled after core infrastructure was completed:
 - MSELoss.compute() implementation
-- SGD/TrainingLoop integration via autograd
+- TrainingLoopSGD/TrainingLoop integration via autograd
 - AnyTensor.randn export from projectodyssey.core
 """
 
@@ -29,7 +29,11 @@ from tests.projectodyssey.conftest import (
     create_simple_model,
     create_test_vector,
 )
-from projectodyssey.training import SGD, MSELoss, TrainingLoop
+from projectodyssey.training import (
+    TrainingLoopSGD,
+    MSELoss,
+    TrainingLoop,
+)
 from projectodyssey.training.trainer_interface import DataLoader
 from projectodyssey.tensor.any_tensor import (
     AnyTensor,
@@ -78,9 +82,9 @@ def test_training_loop_single_batch() raises:
     """
     # Create model, optimizer, and loss function
     var model = create_simple_model()
-    var optimizer = SGD(learning_rate=0.01)
+    var optimizer = TrainingLoopSGD(learning_rate=0.01)
     var loss_fn = MSELoss()
-    var training_loop = TrainingLoop[SimpleMLP, MSELoss, SGD](
+    var training_loop = TrainingLoop[SimpleMLP, MSELoss, TrainingLoopSGD](
         model^, optimizer^, loss_fn^
     )
 
@@ -110,9 +114,9 @@ def test_training_loop_full_epoch() raises:
     """
     # Create model, optimizer, and loss function
     var model = create_simple_model()
-    var optimizer = SGD(learning_rate=0.01)
+    var optimizer = TrainingLoopSGD(learning_rate=0.01)
     var loss_fn = MSELoss()
-    var training_loop = TrainingLoop[SimpleMLP, MSELoss, SGD](
+    var training_loop = TrainingLoop[SimpleMLP, MSELoss, TrainingLoopSGD](
         model^, optimizer^, loss_fn^
     )
 
@@ -157,9 +161,9 @@ def test_training_loop_multiple_epochs() raises:
     """
     # Create model, optimizer, and loss function
     var model = create_simple_model()
-    var optimizer = SGD(learning_rate=0.1)
+    var optimizer = TrainingLoopSGD(learning_rate=0.1)
     var loss_fn = MSELoss()
-    var training_loop = TrainingLoop[SimpleMLP, MSELoss, SGD](
+    var training_loop = TrainingLoop[SimpleMLP, MSELoss, TrainingLoopSGD](
         model^, optimizer^, loss_fn^
     )
 
@@ -196,9 +200,9 @@ def test_training_loop_forward_pass() raises:
     """
     # Create model, optimizer, and loss function
     var model = create_simple_model()
-    var optimizer = SGD(learning_rate=0.01)
+    var optimizer = TrainingLoopSGD(learning_rate=0.01)
     var loss_fn = MSELoss()
-    var training_loop = TrainingLoop[SimpleMLP, MSELoss, SGD](
+    var training_loop = TrainingLoop[SimpleMLP, MSELoss, TrainingLoopSGD](
         model^, optimizer^, loss_fn^
     )
 
@@ -226,9 +230,9 @@ def test_training_loop_forward_batches_independently() raises:
     """
     # Create model, optimizer, and loss function
     var model = create_simple_model()
-    var optimizer = SGD(learning_rate=0.01)
+    var optimizer = TrainingLoopSGD(learning_rate=0.01)
     var loss_fn = MSELoss()
-    var training_loop = TrainingLoop[SimpleMLP, MSELoss, SGD](
+    var training_loop = TrainingLoop[SimpleMLP, MSELoss, TrainingLoopSGD](
         model^, optimizer^, loss_fn^
     )
 
@@ -258,9 +262,9 @@ def test_training_loop_computes_loss() raises:
     """
     # Create model, optimizer, and loss function
     var model = create_simple_model()
-    var optimizer = SGD(learning_rate=0.01)
+    var optimizer = TrainingLoopSGD(learning_rate=0.01)
     var loss_fn = MSELoss()
-    var training_loop = TrainingLoop[SimpleMLP, MSELoss, SGD](
+    var training_loop = TrainingLoop[SimpleMLP, MSELoss, TrainingLoopSGD](
         model^, optimizer^, loss_fn^
     )
 
@@ -294,9 +298,9 @@ def test_training_loop_loss_scalar() raises:
     """
     # Create model, optimizer, and loss function
     var model = create_simple_model()
-    var optimizer = SGD(learning_rate=0.01)
+    var optimizer = TrainingLoopSGD(learning_rate=0.01)
     var loss_fn = MSELoss()
-    var training_loop = TrainingLoop[SimpleMLP, MSELoss, SGD](
+    var training_loop = TrainingLoop[SimpleMLP, MSELoss, TrainingLoopSGD](
         model^, optimizer^, loss_fn^
     )
 
@@ -331,9 +335,9 @@ def test_training_loop_backward_pass() raises:
     """
     # Create model, optimizer, and loss function
     var model = create_simple_model()
-    var optimizer = SGD(learning_rate=0.01)
+    var optimizer = TrainingLoopSGD(learning_rate=0.01)
     var loss_fn = MSELoss()
-    var training_loop = TrainingLoop[SimpleMLP, MSELoss, SGD](
+    var training_loop = TrainingLoop[SimpleMLP, MSELoss, TrainingLoopSGD](
         model^, optimizer^, loss_fn^
     )
 
@@ -365,9 +369,9 @@ def test_training_loop_gradient_accumulation() raises:
     """
     # Create model, optimizer, and loss function
     var model = create_simple_model()
-    var optimizer = SGD(learning_rate=0.01)
+    var optimizer = TrainingLoopSGD(learning_rate=0.01)
     var loss_fn = MSELoss()
-    var training_loop = TrainingLoop[SimpleMLP, MSELoss, SGD](
+    var training_loop = TrainingLoop[SimpleMLP, MSELoss, TrainingLoopSGD](
         model^, optimizer^, loss_fn^
     )
 
@@ -405,9 +409,9 @@ def test_training_loop_updates_weights() raises:
     """
     # Create model, optimizer, and loss function
     var model = create_simple_model()
-    var optimizer = SGD(learning_rate=0.1)
+    var optimizer = TrainingLoopSGD(learning_rate=0.1)
     var loss_fn = MSELoss()
-    var training_loop = TrainingLoop[SimpleMLP, MSELoss, SGD](
+    var training_loop = TrainingLoop[SimpleMLP, MSELoss, TrainingLoopSGD](
         model^, optimizer^, loss_fn^
     )
 
@@ -441,16 +445,16 @@ def test_training_loop_respects_learning_rate() raises:
     var model2 = create_simple_model()
 
     # Different learning rates
-    var optimizer1 = SGD(learning_rate=0.001)
-    var optimizer2 = SGD(learning_rate=0.1)  # 100x larger
+    var optimizer1 = TrainingLoopSGD(learning_rate=0.001)
+    var optimizer2 = TrainingLoopSGD(learning_rate=0.1)  # 100x larger
 
     var loss_fn1 = MSELoss()
     var loss_fn2 = MSELoss()
 
-    var loop1 = TrainingLoop[SimpleMLP, MSELoss, SGD](
+    var loop1 = TrainingLoop[SimpleMLP, MSELoss, TrainingLoopSGD](
         model1^, optimizer1^, loss_fn1^
     )
-    var loop2 = TrainingLoop[SimpleMLP, MSELoss, SGD](
+    var loop2 = TrainingLoop[SimpleMLP, MSELoss, TrainingLoopSGD](
         model2^, optimizer2^, loss_fn2^
     )
 
@@ -484,9 +488,9 @@ def test_training_loop_processes_variable_batch_sizes() raises:
     """
     # Create model, optimizer, and loss function
     var model = create_simple_model()
-    var optimizer = SGD(learning_rate=0.01)
+    var optimizer = TrainingLoopSGD(learning_rate=0.01)
     var loss_fn = MSELoss()
-    var training_loop = TrainingLoop[SimpleMLP, MSELoss, SGD](
+    var training_loop = TrainingLoop[SimpleMLP, MSELoss, TrainingLoopSGD](
         model^, optimizer^, loss_fn^
     )
 
@@ -515,9 +519,9 @@ def test_training_loop_averages_loss_over_batch() raises:
     """
     # Create model, optimizer, and loss function
     var model = create_simple_model()
-    var optimizer = SGD(learning_rate=0.01)
+    var optimizer = TrainingLoopSGD(learning_rate=0.01)
     var loss_fn = MSELoss(reduction="mean")
-    var training_loop = TrainingLoop[SimpleMLP, MSELoss, SGD](
+    var training_loop = TrainingLoop[SimpleMLP, MSELoss, TrainingLoopSGD](
         model^, optimizer^, loss_fn^
     )
 
@@ -549,9 +553,9 @@ def test_training_loop_property_loss_decreases_on_simple_problem() raises:
     """
     # Create model, optimizer, and loss function
     var model = create_simple_model()
-    var optimizer = SGD(learning_rate=0.01)
+    var optimizer = TrainingLoopSGD(learning_rate=0.01)
     var loss_fn = MSELoss()
-    var training_loop = TrainingLoop[SimpleMLP, MSELoss, SGD](
+    var training_loop = TrainingLoop[SimpleMLP, MSELoss, TrainingLoopSGD](
         model^, optimizer^, loss_fn^
     )
 
