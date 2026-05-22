@@ -19,7 +19,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Tuple
 from urllib.parse import urlparse
 
-from common import get_repo_root
+from hephaestus.utils import get_repo_root
 
 # Setup logging
 logger = logging.getLogger(__name__)

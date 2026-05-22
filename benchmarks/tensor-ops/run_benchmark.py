@@ -24,7 +24,7 @@ from typing import Any, Dict, List
 
 # Add scripts directory to path for common utilities
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "scripts"))
-from common import get_repo_root
+from hephaestus.utils import get_repo_root
 
 
 def run_mojo_benchmark(benchmark_file: Path, timeout: int = 300) -> Dict[str, Any]:

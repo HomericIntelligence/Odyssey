@@ -26,7 +26,7 @@ import yaml
 
 # Enable importing from scripts/common.py
 sys.path.insert(0, str(Path(__file__).parent))
-from common import get_repo_root
+from hephaestus.utils import get_repo_root
 
 
 def find_test_files(root_dir: Path) -> List[Path]:

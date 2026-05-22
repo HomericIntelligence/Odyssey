@@ -25,9 +25,11 @@ import sys
 from pathlib import Path
 from typing import Optional
 
-# Enable importing from scripts/common.py
+from hephaestus.utils import get_repo_root
+
+# Enable importing from scripts/common.py (EXCLUDE_DIRS is repo-specific)
 sys.path.insert(0, str(Path(__file__).parent))
-from common import get_repo_root, EXCLUDE_DIRS
+from common import EXCLUDE_DIRS
 
 # Regex to extract the numeric count from a shields.io tests badge URL.
 # Matches patterns like: tests-247%2B, tests-122%2B, tests-300

@@ -218,7 +218,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/linux-64/zeromq-4.3.5-h41580af_10.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/zipp-3.23.1-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/zstd-1.5.7-hb78ec9c_6.conda
-      - pypi: https://files.pythonhosted.org/packages/83/d9/db1a989116d3b374b09a1406d6b936fe40e1861ce46b176d1d05bfa2af5e/homericintelligence_hephaestus-0.7.0-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/52/b8/ea543bc39be56bf1eb75f90f295182e0b6b734282728d9a0166ed8618dc0/homericintelligence_hephaestus-0.9.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/dd/66/5839827cd0760925db9244a69b2878dfb274d239ffd828c12313d580ddac/pip_licenses-4.5.1-py3-none-any.whl
   notebook:
     channels:
@@ -591,7 +591,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/zipp-3.23.1-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/zlib-ng-2.3.3-hceb46e0_1.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/zstd-1.5.7-hb78ec9c_6.conda
-      - pypi: https://files.pythonhosted.org/packages/83/d9/db1a989116d3b374b09a1406d6b936fe40e1861ce46b176d1d05bfa2af5e/homericintelligence_hephaestus-0.7.0-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/52/b8/ea543bc39be56bf1eb75f90f295182e0b6b734282728d9a0166ed8618dc0/homericintelligence_hephaestus-0.9.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/dd/66/5839827cd0760925db9244a69b2878dfb274d239ffd828c12313d580ddac/pip_licenses-4.5.1-py3-none-any.whl
   prod:
     channels:
@@ -720,7 +720,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/linux-64/zeromq-4.3.5-h41580af_10.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/zipp-3.23.1-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/zstd-1.5.7-hb78ec9c_6.conda
-      - pypi: https://files.pythonhosted.org/packages/83/d9/db1a989116d3b374b09a1406d6b936fe40e1861ce46b176d1d05bfa2af5e/homericintelligence_hephaestus-0.7.0-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/52/b8/ea543bc39be56bf1eb75f90f295182e0b6b734282728d9a0166ed8618dc0/homericintelligence_hephaestus-0.9.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/dd/66/5839827cd0760925db9244a69b2878dfb274d239ffd828c12313d580ddac/pip_licenses-4.5.1-py3-none-any.whl
 packages:
 - conda: https://conda.anaconda.org/conda-forge/linux-64/_openmp_mutex-4.5-20_gnu.conda
@@ -1699,12 +1699,12 @@ packages:
   purls: []
   size: 2338203
   timestamp: 1775569314754
-- pypi: https://files.pythonhosted.org/packages/83/d9/db1a989116d3b374b09a1406d6b936fe40e1861ce46b176d1d05bfa2af5e/homericintelligence_hephaestus-0.7.0-py3-none-any.whl
+- pypi: https://files.pythonhosted.org/packages/52/b8/ea543bc39be56bf1eb75f90f295182e0b6b734282728d9a0166ed8618dc0/homericintelligence_hephaestus-0.9.0-py3-none-any.whl
   name: homericintelligence-hephaestus
-  version: 0.7.0
-  sha256: 917e01e020ea8e1cc8413b0f3b5f3cb931e3a9453065016e61898c0c9bae7d10
+  version: 0.9.0
+  sha256: 78bdebe090a6dde22f082aa1a7ba009c9d77cf148e20cf6c8c3751a2a8f5d717
   requires_dist:
-  - packaging>=21.0
+  - packaging>=21.0,<27
   - pydantic>=2.0,<3
   - pyyaml>=6.0,<7
   - defusedxml>=0.7,<1 ; extra == 'all'
@@ -1713,12 +1713,13 @@ packages:
   - pygithub>=1.55,<3 ; extra == 'all'
   - tomli>=2.0,<3 ; python_full_version < '3.11' and extra == 'all'
   - build>=1.0,<2 ; extra == 'dev'
-  - mypy>=1.8.0,<2 ; extra == 'dev'
+  - mypy>=1.8.0,<3 ; extra == 'dev'
   - pip-audit>=2.6,<3 ; extra == 'dev'
   - pre-commit>=3.0,<5 ; extra == 'dev'
   - pytest-cov>=7.0,<8 ; extra == 'dev'
   - pytest>=9.0,<10 ; extra == 'dev'
   - ruff>=0.1.0,<1 ; extra == 'dev'
+  - tomli>=2.0,<3 ; python_full_version < '3.11' and extra == 'dev'
   - pygithub>=1.55,<3 ; extra == 'github'
   - nats-py>=2.6,<3 ; extra == 'nats'
   - jsonschema>=4.0,<5 ; extra == 'schema'

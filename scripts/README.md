@@ -40,8 +40,7 @@ The following one-time scripts were removed in #3337 (stale audit follow-up to #
 ```text
 scripts/
 ├── README.md                           # This file
-├── common.py                           # Shared utilities and constants
-├── validation.py                       # Shared validation framework
+├── common.py                           # Repo-specific constants (LABEL_COLORS, EXCLUDE_DIRS)
 ├── analyze_issues.py                   # GitHub issue complexity analysis
 ├── analyze_warnings.py                 # Compiler warning analysis
 ├── audit_shared_links.py               # Audit .claude/shared/ link-backs in CLAUDE.md
@@ -116,22 +115,10 @@ scripts/
 
 ---
 
-#### `validation.py`
-
-**Purpose**: Shared validation framework for consistency across validation scripts.
-
-### Provides
-
-- `find_markdown_files()` - Find markdown files with exclusions
-- `validate_file_exists()` - Check file existence
-- `validate_directory_exists()` - Check directory existence
-- `check_required_sections()` - Validate markdown sections
-- `extract_markdown_links()` - Extract links from markdown
-- `validate_relative_link()` - Validate markdown links
-- `count_markdown_issues()` - Count common markdown issues
-- `setup_logger()` - Configure logging consistently
-
-**Usage**: Imported by validation scripts to ensure consistent validation logic.
+> **Note**: the former `validation.py` shared markdown-validation framework
+> was removed in issue #5061 — its functionality now lives in the
+> `hephaestus` library (`hephaestus.validation.markdown`). Import directly:
+> `from hephaestus.validation.markdown import validate_file_exists, …`.
 
 ---
 
@@ -450,27 +437,19 @@ python3 scripts/check_readmes.py notes/
 
 #### `lint_configs.py`
 
-**Purpose**: Lint YAML configuration files for syntax and formatting.
-
-### Features
-
-- YAML syntax validation
-- Indentation checking
-- Nested key validation
-- Can remove unused sections
-- Verbose output mode
+**Purpose**: CLI wrapper for linting YAML configuration files. The linting
+logic lives in `hephaestus.validation.config_lint.ConfigLinter` (migrated in
+issue #5061); this script supplies ML Odyssey's repo-specific deprecated-key
+rules and drives the linter over the given paths.
 
 ### Usage
 
 ```bash
-# Lint all YAML files
-python3 scripts/lint_configs.py
+# Lint all config files
+python3 scripts/lint_configs.py configs/
 
-# Lint with verbose output
-python3 scripts/lint_configs.py --verbose
-
-# Remove unused sections
-python3 scripts/lint_configs.py --remove-unused
+# Lint a single file with verbose output
+python3 scripts/lint_configs.py --verbose configs/papers/lenet5/model.yaml
 ```
 
 ### Exit Codes
@@ -762,9 +741,6 @@ Unit tests for shared modules are located in `/tests/`:
 ```bash
 # Run tests for common.py
 python3 tests/test_common.py
-
-# Run tests for validation.py
-python3 tests/test_validation.py
 
 # Run all tests (requires pytest)
 pytest tests/

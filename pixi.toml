@@ -78,7 +78,7 @@ prod = { solve-group = "default" }
 notebook = { features = ["notebook", "dev"], solve-group = "default" }
 
 [pypi-dependencies]
-homericintelligence-hephaestus = ">=0.7.0,<1"
+homericintelligence-hephaestus = ">=0.9.0,<1"
 pip-licenses = ">=4.0.0,<5"
 
 [tasks]
