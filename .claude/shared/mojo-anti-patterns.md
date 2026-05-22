@@ -237,6 +237,35 @@ var val = tensor.__bool__()  # Works with raising __bool__
 
 **Fix**: If a type's `__bool__` method raises, call `.__bool__()` directly instead of `Bool()`.
 
+## AnyTensor↔AnyTensor overload failure (RESOLVED in Mojo 1.0)
+
+On **Mojo 0.26.1**, importing `Tensor[dtype]` at the top level of a file that
+also defined `AnyTensor`-returning functions produced spurious overload-
+resolution errors — `error: cannot implicitly convert 'AnyTensor' value to
+'AnyTensor'` (same type to same type). It appeared 188 times across 18 files
+when typed `Tensor[dtype]` implementations were added (issue #5059).
+
+```mojo
+# Triggered the bug on Mojo 0.26.1:
+from projectodyssey.tensor.tensor import Tensor   # top-level Tensor import
+
+def add(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
+    return _add_impl[DType.float32](
+        a.as_tensor[DType.float32](), b.as_tensor[DType.float32]()
+    ).as_any()   # ← 0.26.1: "cannot implicitly convert AnyTensor to AnyTensor"
+```
+
+**Status**: **Resolved in Mojo 1.0.0b2** — verified with a minimal repro
+(top-level `Tensor` import + an `AnyTensor`-returning function calling
+`.as_any()`) which builds and runs cleanly. No workaround is needed on
+Mojo 1.0.
+
+The historical 0.26.1 mitigation — isolating typed implementations under
+`src/projectodyssey/tensor/typed/` and importing them function-locally — is
+still in place and remains good structure (see
+`docs/dev/mojo-1.0-migration-recipe.md` Recipe 8, ABSOLUTE_IMPORT_DOUBLING),
+but it is no longer load-bearing for this specific overload bug.
+
 ## Quick Detection Checklist
 
 Search codebase for these patterns:
