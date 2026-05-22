@@ -223,6 +223,27 @@ jobs:
             pixi run mojo --version
           echo "Production image working"
 
+      - name: Smoke test — non-root user (#5147)
+        env:
+          IMAGE_TAG: ${{ github.ref_name }}
+        run: |
+          # Verify the image runs as the non-root `dev` user and that
+          # pixi / mojo / pre-commit all work under that user. The Dockerfile
+          # sets `USER ${USER_NAME}` (default dev) in every stage; this asserts
+          # the published image actually behaves that way end-to-end.
+          echo "Verifying non-root user on runtime + ci images..."
+          for suffix in "" "-ci"; do
+            img="$REGISTRY/$IMAGE_NAME:${IMAGE_TAG}${suffix}"
+            echo "--- $img ---"
+            podman run --rm "$img" bash -c '
+              set -euo pipefail
+              whoami
+              test "$(id -un)" != "root"
+              pixi run mojo --version
+              pixi run pre-commit --version'
+          done
+          echo "Non-root user smoke test passed"
+
       - name: Run smoke tests
         env:
           IMAGE_TAG: ${{ github.ref_name }}
