@@ -162,9 +162,11 @@ jobs:
           echo "Validation level: $LEVEL"
 
       - name: Run README command validation
+        env:
+          VALIDATION_LEVEL: ${{ steps.validation-level.outputs.level }}
         run: |
-          python3 scripts/validate_readme_commands.py \
-            --level ${{ steps.validation-level.outputs.level }} \
+          pixi run python3 scripts/validate_readme_commands.py \
+            --level "$VALIDATION_LEVEL" \
             --output validation-report.md \
             README.md
 
