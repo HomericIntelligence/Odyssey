@@ -23,7 +23,7 @@ from typing import Dict, List, Optional, Tuple
 
 # Add scripts directory to path for common utilities
 sys.path.insert(0, str(Path(__file__).parent))
-from common import get_repo_root
+from hephaestus.utils import get_repo_root
 
 
 def run_git_command(args: List[str]) -> str:

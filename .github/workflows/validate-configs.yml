@@ -278,10 +278,10 @@ jobs:
           python-version: '3.11'
 
       - name: Install dependencies
-        run: pip install pyyaml "homericintelligence-hephaestus>=0.7.0,<1"
+        run: pip install pyyaml "homericintelligence-hephaestus>=0.9.0,<1"
 
       - name: Install hephaestus
-        run: pip install "homericintelligence-hephaestus>=0.7.0,<1"
+        run: pip install "homericintelligence-hephaestus>=0.9.0,<1"
 
       - name: Validate agent configurations
         run: python3 tests/agents/validate_configs.py .claude/agents/
@@ -633,7 +633,7 @@ jobs:
           python-version: '3.11'
 
       - name: Install dependencies
-        run: pip install pyyaml
+        run: pip install pyyaml "homericintelligence-hephaestus>=0.9.0,<1"
 
       - name: Validate test coverage
         run: python scripts/validate_test_coverage.py

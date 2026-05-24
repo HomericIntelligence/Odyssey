@@ -16,7 +16,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Optional
 
-from common import get_repo_root
+from hephaestus.utils import get_repo_root
 
 
 def create_papers_tarball(repo_root: Path, output_dir: Optional[Path] = None) -> Path:

@@ -34,6 +34,7 @@ test_*
 !conda.recipe/test_*
 .worktrees/
 .claude/worktrees/
+.claude/scheduled_tasks.lock
 .issue_implementer/
 
 # Training artifacts

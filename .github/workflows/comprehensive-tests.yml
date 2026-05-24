@@ -171,7 +171,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install pyyaml
+          pip install pyyaml "homericintelligence-hephaestus>=0.9.0,<1"
 
       - name: Validate test coverage
         id: validation
@@ -207,6 +207,9 @@ jobs:
         with:
           python-version: '3.11'
 
+      - name: Install dependencies
+        run: pip install "homericintelligence-hephaestus>=0.9.0,<1"
+
       - name: Audit src/projectodyssey links in CLAUDE.md
         run: |
           python scripts/audit_shared_links.py
@@ -229,7 +232,7 @@ jobs:
           python-version: '3.11'
 
       - name: Install hephaestus
-        run: pip install "homericintelligence-hephaestus>=0.7.0,<1"
+        run: pip install "homericintelligence-hephaestus>=0.9.0,<1"
 
       - name: Validate dependency consistency
         run: python scripts/check_dep_sync.py
@@ -582,7 +585,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install "homericintelligence-hephaestus>=0.7.0,<1" pytest pytest-cov pytest-timeout
+          pip install "homericintelligence-hephaestus>=0.9.0,<1" pytest pytest-cov pytest-timeout
 
           if [ -f requirements.txt ]; then
             pip install -r requirements.txt
@@ -593,7 +596,7 @@ jobs:
           fi
 
       - name: Install hephaestus
-        run: pip install "homericintelligence-hephaestus>=0.7.0,<1"
+        run: pip install "homericintelligence-hephaestus>=0.9.0,<1"
 
       - name: Run Python tests
         run: |
@@ -1040,6 +1043,9 @@ jobs:
         uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6
         with:
           python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install "homericintelligence-hephaestus>=0.9.0,<1"
 
       - name: Generate test metrics (JSON)
         run: |

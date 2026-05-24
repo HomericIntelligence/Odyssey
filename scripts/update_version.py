@@ -21,7 +21,7 @@ import sys
 from pathlib import Path
 from typing import Tuple
 
-from common import get_repo_root
+from hephaestus.utils import get_repo_root
 
 
 def parse_version(version: str) -> Tuple[int, int, int]:

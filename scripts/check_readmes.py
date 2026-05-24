@@ -17,7 +17,7 @@ import re
 from pathlib import Path
 from typing import Any, Dict, List, Tuple
 
-from common import get_repo_root
+from hephaestus.utils import get_repo_root
 
 # Required sections for different README types
 REQUIRED_SECTIONS = {

@@ -19,7 +19,7 @@ import sys
 from pathlib import Path
 from typing import List, Set, Tuple
 
-from common import get_repo_root
+from hephaestus.utils import get_repo_root
 
 # File suffixes to include in audit (extensible if new file types are added)
 ALLOWED_SUFFIXES = {".md"}

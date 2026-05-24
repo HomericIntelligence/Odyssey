@@ -43,7 +43,7 @@ from typing import List, Dict, Optional, Tuple
 
 # Enable importing from scripts/common.py
 sys.path.insert(0, str(Path(__file__).parent))
-from common import get_repo_root
+from hephaestus.utils import get_repo_root
 
 # Try to import tqdm for progress bars, fall back to simple counter if not available
 try:

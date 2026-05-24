@@ -17,7 +17,7 @@ import sys
 from pathlib import Path
 from typing import Any, Dict, List, Tuple
 
-from common import get_repo_root
+from hephaestus.utils import get_repo_root
 
 # Required top-level directories
 REQUIRED_DIRECTORIES = [

@@ -16,7 +16,7 @@ import sys
 
 # Enable importing from scripts/common.py
 sys.path.insert(0, str(Path(__file__).parent))
-from common import get_repo_root
+from hephaestus.utils import get_repo_root
 
 
 def count_test_functions(file_path: Path) -> int:

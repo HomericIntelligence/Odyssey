@@ -257,12 +257,12 @@ def test_config_loading():
 diff configs/defaults/training.yaml configs/experiments/custom.yaml
 ```text
 
-### 7. Automated Cleanup
+### 7. Automated Linting
 
-```python
-# Remove unused parameters
-python scripts/lint_configs.py --remove-unused configs/
-```text
+```bash
+# Lint all config files for deprecated keys and formatting issues
+python scripts/lint_configs.py configs/
+```
 
 ## Common Patterns
 
