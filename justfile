@@ -37,27 +37,20 @@ MOJO_DEBUG := "-g2 --no-optimization"
 MOJO_RELEASE := "-g0 -O3"
 MOJO_TEST := "-g1"
 
-# Disable AVX-512 — applied to ALL Mojo build/test/run invocations.
+# Disable AVX-512 for sanitizer-instrumented builds only.
 #
-# The Mojo compiler defaults `--target-cpu` to the host CPU. GitHub Actions
-# x86_64 runners report AVX-512-capable CPUs (e.g. Cascadelake) but the
-# actual executing cores intermittently lack AVX-512, so `mojo`'s JIT emits
-# AVX-512 encodings (`%zmm`, `%k1` opmask, `vpternlogd`, `{1to4}` broadcast)
-# that SIGILL at runtime (signal 4, "Illegal instruction" — modular/modular#6413;
-# see notes/modular-6413-avx512-finding.md for the captured faulting sites).
+# The upstream AVX-512 mis-emission bug (modular/modular#6413) is fixed in the
+# driver path: `mojo build --print-effective-target` correctly downgrades the
+# target when the runner masks AVX-512. However, ASAN-instrumented codegen on
+# Mojo 1.0.0b2.dev2026052506 still emits AVX-512 encodings that SIGILL on
+# AVX-512-masked GHA runners (confirmed: tests/projectodyssey/core/test_hash.mojo
+# fails with "Illegal instruction (core dumped)" under just test-group-asan when
+# this strip is absent). The non-sanitizer paths now run without this workaround.
 #
-# Rather than pinning a whole microarchitecture level (`--mcpu=x86-64-v3`),
-# subtract only the AVX-512 feature bits with `--target-features`: the host
-# CPU target is otherwise preserved, so any non-AVX-512 host features the
-# compiler would have used (e.g. AVX-VNNI, newer AVX2 extensions) remain
-# available. Only the instructions that SIGILL on the runners are removed.
-#
-# Approach borrowed verbatim from the Modular community `ExtraMojo` recipe:
-# https://github.com/modular/modular-community/blob/main/recipes/ExtraMojo/recipe.yaml
-# See also ProjectMnemosyne skill `mojo-jit-crash-and-retry-strategies`.
+# Once the driver fix propagates through sanitizer codegen upstream, remove this
+# block and let MOJO_ASAN/MOJO_TSAN fall through to the bare sanitizer flag.
 MOJO_TARGET_CPU := "--target-features -avx512bf16,-avx512bitalg,-avx512bw,-avx512cd,-avx512dq,-avx512f,-avx512ifma,-avx512vbmi,-avx512vbmi2,-avx512vl,-avx512vnni,-avx512vpopcntdq"
 
-# Sanitizer flags (inherit the same AVX-512-disabled target).
 MOJO_ASAN := "--sanitize address " + MOJO_TARGET_CPU
 MOJO_TSAN := "--sanitize thread " + MOJO_TARGET_CPU
 
@@ -271,8 +264,7 @@ _build-inner mode="debug":
     REPO_ROOT="$(pwd)"
     STRICT="--Werror"
 
-    # tsan needs single-job execution to work around modular/modular#6413
-    # (libKGEN JIT crashes under thread sanitizer with parallel codegen).
+    # tsan needs single-job execution for stability under thread sanitizer.
     JOBS=""
 
     case "$MODE" in
@@ -289,10 +281,10 @@ _build-inner mode="debug":
             FLAGS="-g1 $STRICT"
             ;;
         asan)
-            FLAGS="-g1 --sanitize address $STRICT"
+            FLAGS="-g1 {{MOJO_ASAN}} $STRICT"
             ;;
         tsan)
-            FLAGS="-g1 --sanitize thread $STRICT"
+            FLAGS="-g1 {{MOJO_TSAN}} $STRICT"
             JOBS="-j1"
             ;;
         *)
@@ -388,9 +380,7 @@ _build-inner mode="debug":
         out="$BUILD_DIR/$out_name"
 
         echo "→ Building: $file"
-        # {{MOJO_TARGET_CPU}} disables AVX-512 features so example binaries
-        # don't SIGILL on AVX-512-free runner cores (modular/modular#6413).
-        if pixi run mojo build {{MOJO_TARGET_CPU}} $FLAGS ${JOBS:-} \
+        if pixi run mojo build $FLAGS ${JOBS:-} \
                 -I "$REPO_ROOT/src" -I "$REPO_ROOT" \
                 -Xlinker -lm "$file" -o "$out" 2>&1; then
             BUILT=$((BUILT + 1))
@@ -428,7 +418,7 @@ build-release: (build "release")
 # Build with AddressSanitizer
 build-asan: (build "asan")
 
-# Build with ThreadSanitizer (uses -j1, modular/modular#6413 workaround)
+# Build with ThreadSanitizer (uses -j1 for stability under thread sanitizer)
 build-tsan: (build "tsan")
 
 # Build all modes
@@ -594,7 +584,7 @@ train model="lenet_emnist" precision="fp32" epochs="10" batch_size="32" lr="0.00
     MODEL="{{model}}"
     if [ "$MODEL" = "lenet" ] || [ "$MODEL" = "lenet5" ]; then MODEL="lenet_emnist"; fi
     echo "Training $MODEL with precision={{precision}}, epochs={{epochs}}"
-    just _run "pixi run mojo run {{MOJO_TARGET_CPU}} -I . examples/$MODEL/run_train.mojo \
+    just _run "pixi run mojo run -I . examples/$MODEL/run_train.mojo \
         --epochs {{epochs}} --batch-size {{batch_size}} \
         --lr {{lr}} --precision {{precision}}"
 
@@ -604,7 +594,7 @@ infer model="lenet_emnist" checkpoint="lenet5_weights":
     MODEL="{{model}}"
     if [ "$MODEL" = "lenet" ] || [ "$MODEL" = "lenet5" ]; then MODEL="lenet_emnist"; fi
     echo "Running inference for $MODEL with checkpoint={{checkpoint}}"
-    just _run "pixi run mojo run {{MOJO_TARGET_CPU}} -I . examples/$MODEL/run_infer.mojo \
+    just _run "pixi run mojo run -I . examples/$MODEL/run_infer.mojo \
         --checkpoint {{checkpoint}} --test-set"
 
 # Run inference on single image. Accepts lenet/lenet5 as aliases for lenet_emnist.
@@ -613,7 +603,7 @@ infer-image checkpoint image_path model="lenet_emnist":
     MODEL="{{model}}"
     if [ "$MODEL" = "lenet" ] || [ "$MODEL" = "lenet5" ]; then MODEL="lenet_emnist"; fi
     echo "Running inference on {{image_path}}"
-    just _run "pixi run mojo run {{MOJO_TARGET_CPU}} -I . examples/$MODEL/run_infer.mojo \
+    just _run "pixi run mojo run -I . examples/$MODEL/run_infer.mojo \
         --checkpoint {{checkpoint}} --image {{image_path}}"
 
 # Download EMNIST dataset (balanced split) and flatten to datasets/emnist/
@@ -913,10 +903,7 @@ _test-group-inner path pattern:
                 echo "warn: 'ulimit -v unlimited' rejected by environment" >&2
             fi
             test_exit=0
-            # {{MOJO_TARGET_CPU}} disables AVX-512 features so the JIT does
-            # not emit AVX-512 encodings that SIGILL on runner cores without
-            # AVX-512 (modular/modular#6413).
-            if ! pixi run mojo {{MOJO_TARGET_CPU}} --Werror -debug-level=line-tables -I "$REPO_ROOT/src" -I "$REPO_ROOT" -I . "$test_file"; then
+            if ! pixi run mojo --Werror -debug-level=line-tables -I "$REPO_ROOT/src" -I "$REPO_ROOT" -I . "$test_file"; then
                 test_exit=$?
             fi
             if [ "${test_exit}" -eq 0 ]; then
@@ -1066,8 +1053,8 @@ test-mojo-asan:
     @just _run "just _test-mojo-sanitized-inner address"
 
 # Run all Mojo tests under ThreadSanitizer (data races).
-# Uses -j1 codegen (modular/modular#6413 workaround). Note: each compile is
-# ~5min and holds 3-6GB; on memory-limited hosts, prefer `test-group-asan`
+# Uses -j1 codegen for stability under thread sanitizer. Note: each compile
+# is ~5min and holds 3-6GB; on memory-limited hosts, prefer `test-group-asan`
 # on individual groups.
 test-mojo-tsan:
     @just _run "just _test-mojo-sanitized-inner thread"
@@ -1078,10 +1065,7 @@ _test-mojo-sanitized-inner sanitizer:
     set -e
     REPO_ROOT="$(pwd)"
     SANITIZER="{{sanitizer}}"
-    # {{MOJO_TARGET_CPU}} disables AVX-512 features — sanitizer-instrumented
-    # binaries SIGILL on AVX-512-free runner cores otherwise (modular#6413).
-    SAN_FLAGS="--sanitize $SANITIZER {{MOJO_TARGET_CPU}}"
-    # Match the JIT-crash workaround used in `_build-inner` for tsan
+    SAN_FLAGS="--sanitize $SANITIZER"
     JOBS=""
     if [ "$SANITIZER" = "thread" ]; then
         JOBS="-j1"
@@ -1162,8 +1146,7 @@ _test-mojo-inner:
     failed_tests=""
     for test_file in "${test_files[@]}"; do
         echo "Testing: $test_file"
-        # {{MOJO_TARGET_CPU}}: disables AVX-512, see modular/modular#6413.
-        if ! pixi run mojo {{MOJO_TARGET_CPU}} --Werror -I "$REPO_ROOT/src" -I "$REPO_ROOT" -I . "$test_file"; then
+        if ! pixi run mojo --Werror -I "$REPO_ROOT/src" -I "$REPO_ROOT" -I . "$test_file"; then
             failed=$((failed + 1))
             failed_tests="$failed_tests\n  - $test_file"
         fi
