@@ -106,7 +106,6 @@ gh pr merge --auto --rebase
 
 - [Mojo Syntax & Patterns](/.claude/shared/mojo-guidelines.md)
 - [Mojo Anti-Patterns](/.claude/shared/mojo-anti-patterns.md) - 64+ failure patterns
-- [Mojo JIT Crash Workaround](docs/dev/mojo-jit-crash-workaround.md) - `libKGENCompilerRTShared.so` flake
 - [Mojo UnsafePointer Memory Safety](docs/dev/mojo-memory-safety.md) - when/how to use UnsafePointer safely
 - [PR Workflow](/.claude/shared/pr-workflow.md)
 - [GitHub Issue Workflow](/.claude/shared/github-issue-workflow.md)
@@ -466,6 +465,12 @@ Official docs: <https://mojolang.org/docs/>
 - Invalid imports cause compilation to fail before any code executes
 - This differs from Python where import errors can be caught at runtime
 - Plan test coverage accordingly: only test valid imports that compile successfully
+
+**JIT stability**: Mojo JIT is stable as of `1.0.0b2.dev2026052506` (upstream fix for
+[modular/modular#6413](https://github.com/modular/modular/issues/6413)). Execution crashes
+(`mojo: error: execution crashed`, `libKGENCompilerRTShared.so` stack frames, SIGILL) are
+real bugs. Do NOT add retry loops, `continue-on-error: true`, or skip markers to work around
+them. File a minimal reproducer at modular/modular and fix forward.
 
 ## Environment Setup
 
