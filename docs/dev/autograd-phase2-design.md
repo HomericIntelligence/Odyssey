@@ -7,7 +7,7 @@
 ### What works today
 
 | Component | Status | Notes |
-|---|---|---|
+| --- | --- | --- |
 | `Variable` wrapper | ✅ | `variable.mojo` — 11 ops: add/sub/mul/div/matmul/sum/mean/relu/sigmoid/tanh/neg |
 | `GradientTape.record()` | ✅ | Appends TapeNode in execution order |
 | `GradientTape.backward()` | ✅ | **Traverses nodes in LINEAR REVERSE ORDER** (tape.mojo:301-303). Works correctly because forward execution = topo order. **No separate topo sort needed.** |
@@ -19,7 +19,7 @@
 ### What's missing (Phase 2 scope)
 
 | Component | Required for | Notes |
-|---|---|---|
+| --- | --- | --- |
 | `variable_linear` | LeNet, AlexNet, ResNet, VGG, GoogLeNet, MobileNet, MNIST | Wraps core.linear.linear + saves (input, weight) for `linear_backward` |
 | `variable_conv2d` | All convnets | Wraps core.conv.conv2d + saves (input, weight, stride, padding) |
 | `variable_maxpool2d` | LeNet, AlexNet, VGG, GoogLeNet | Wraps core.pooling.maxpool2d + saves (input, kernel_size, stride, padding) |
@@ -102,7 +102,7 @@ just `[[1.0]]`. Caller provides this.
 ## Implementation phases (revised after Phase 0)
 
 | Phase | Scope | LOC | Risk |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | **1 (foundation + first new op)** | Fix 3 Float32-hardcoded bugs, add OP_FLATTEN, implement `variable_flatten` + dispatch, FD unit test. | ~150 | Low |
 | **2 (variable_linear + variable_cross_entropy)** | End-to-end MLP training on EMNIST. | ~300 | Medium |
 | **3 (variable_conv2d + variable_maxpool2d)** | Enable LeNet-shaped convnet training. | ~400 | Med-high |
@@ -121,7 +121,7 @@ wrappers and dispatch arms).
 ## Mojo-language risks identified in Phase 0
 
 | # | Risk | Mitigation |
-|---|---|---|
+| --- | --- | --- |
 | R1 | `SavedTensors.add_tensor` hardcoded `bitcast[Float32]` only works for fp32 inputs — for fp64/fp16/bf16 it silently copies garbage. | Fix in Phase 1 by dispatching on dtype. All `variable_*` ops can stay fp32-only until R1 is fixed. |
 | R2 | `_dispatch_backward_op` uses if/elif string-equality on `op_type`. As N ops grows this is O(N) per backward node. With ~20 ops + LeNet's ~12-node tape per batch + 1500 batches = ~360k dispatches/epoch. Currently fine; future Phase 3 optimization. | Accept for Phase 2. |
 | R3 | Variable identity via `id` requires optimizer to mutate `Variable.data` in place. Need to verify the existing `SGD.step()` in `autograd/optimizers.mojo` does this (line 90 takes `inout parameters: DynamicVector[Variable]` — looks correct). | Verify by reading optimizers.mojo lines 80-150 before Phase 2. |
