@@ -230,26 +230,31 @@ jobs:
           retention-days: 30
 
   # ============================================================================
-  # Run Tests — temporarily removed
+  # Run Tests
   # ============================================================================
-  # The `test` job (which ran the full Mojo suite via `just test-mojo`) was
-  # removed because an upstream Mojo JIT bug intermittently crashes large
-  # batches of unrelated tests with `mojo: error: execution crashed` (pure
-  # libc stack frames, no repo code). With 298 single-shot `mojo` invocations
-  # and no retry protection, a single transient JIT flake fails the entire
-  # release pipeline. The full Mojo suite still runs on every PR and on `main`
-  # via comprehensive-tests.yml (which is split into small retryable groups),
-  # so release builds are not shipping untested code.
-  #
-  # Restore a `test` job here once the upstream JIT crash is fixed (tracked
-  # by modular/modular#6413) — or add the standard retry wrapper to
-  # `_test-mojo-inner` so a single flake no longer fails the whole run.
+  test:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+
+      - name: Set up container
+        uses: ./.github/actions/setup-container
+
+      - name: Set up just
+        uses: extractions/setup-just@53165ef7e734c5c07cb06b3c8e7b647c5aa16db3  # v4.0.0
+
+      - name: Run full test suite
+        run: just test-mojo
 
   # ============================================================================
   # Create Release
   # ============================================================================
   create-release:
-    needs: [validate-version, build]
+    needs: [validate-version, build, test]
     runs-on: ubuntu-latest
     timeout-minutes: 10
 
