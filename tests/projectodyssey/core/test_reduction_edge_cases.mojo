@@ -6,7 +6,6 @@ Tests edge cases for sum, mean, max_reduce, min_reduce operations including:
 - Single-element tensor reductions
 - Reductions with all same values
 
-# Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
 """
 
 

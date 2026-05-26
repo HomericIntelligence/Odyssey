@@ -1,4 +1,3 @@
-# Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
 """Tests for SIMD-vectorized numerical safety functions.
 
 Validates has_nan, has_inf, count_nan, count_inf with SIMD edge cases:

@@ -1,4 +1,3 @@
-# Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
 """Tests for AnyTensor slice() view semantics (#3799).
 
 Verifies that slice() returns a zero-copy view using view_with_strides,

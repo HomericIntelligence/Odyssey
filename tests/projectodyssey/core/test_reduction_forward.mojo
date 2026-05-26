@@ -1,7 +1,5 @@
 """Tests for AnyTensor reduction operations.
 
-# Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
-
 Tests reduction operations following the Array API Standard:
 sum (all-elements and basic mean) with all-elements reduction (axis=-1).
 """

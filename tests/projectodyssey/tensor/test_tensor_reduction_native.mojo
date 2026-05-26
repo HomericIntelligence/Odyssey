@@ -1,7 +1,5 @@
 """Tests for AnyTensor reduction operations and precision.
 
-# Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
-
 Tests cover:
 - AnyTensor sum, mean, max_reduce, min_reduce correctness
 - Known values: sum([1,2,3])=6, mean([2,4,6])=4

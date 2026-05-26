@@ -1,4 +1,3 @@
-# Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
 """Tests for elementwise logical_xor operation.
 
 Tests cover:

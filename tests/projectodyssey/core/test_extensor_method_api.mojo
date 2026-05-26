@@ -1,4 +1,3 @@
-# Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
 """Tests for AnyTensor method-style API: split and split_with_indices.
 
 Verifies that the thin wrapper methods on AnyTensor produce identical results

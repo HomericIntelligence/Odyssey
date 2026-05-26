@@ -1,6 +1,5 @@
 """Tests for projectodyssey.testing.tensor_factory module.
 
-# Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
 """
 
 

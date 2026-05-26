@@ -1,7 +1,5 @@
 """Tests for typed Tensor[dtype] factory functions (part 2).
 
-# Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
-
 Tests cover:
 - randn[dtype]: Random normal tensor
 - nan_tensor[dtype]: NaN-filled tensor

@@ -2,7 +2,6 @@
 
 Tests image transforms including resize, crop, and basic normalize operations.
 
-# Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
 """
 
 

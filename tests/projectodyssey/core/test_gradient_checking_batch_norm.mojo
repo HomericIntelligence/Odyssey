@@ -1,5 +1,3 @@
-# Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
-
 """Parametrised gradient checking tests for batch norm backward pass.
 
 Tests batch_norm2d_backward across multiple batch sizes using non-uniform

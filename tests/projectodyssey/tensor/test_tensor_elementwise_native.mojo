@@ -1,7 +1,5 @@
 """Tests for AnyTensor elementwise operations and precision.
 
-# Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
-
 Tests cover:
 - AnyTensor exp, log, sqrt, abs, sin, cos correctness
 - Edge cases: exp(0)=1, log(1)=0, sqrt(4)=2, abs(-3)=3

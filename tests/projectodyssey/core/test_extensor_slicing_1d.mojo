@@ -1,4 +1,3 @@
-# Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
 """Tests for AnyTensor 1D slicing operations (basic and strided)."""
 
 from projectodyssey.tensor.any_tensor import (

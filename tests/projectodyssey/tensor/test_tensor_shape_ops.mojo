@@ -1,7 +1,5 @@
 """Tests for AnyTensor shape operations.
 
-# Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
-
 Tests cover:
 - reshape: Reshape via AnyTensor
 - squeeze: Remove size-1 dimensions via AnyTensor

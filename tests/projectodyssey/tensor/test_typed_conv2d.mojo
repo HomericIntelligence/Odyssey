@@ -1,4 +1,3 @@
-# Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
 """Tests for Parameterized Conv2dLayer[dtype].
 
 TDD tests for Phase 4a (PR 6, epic #4998): parameterize non-Module layers.

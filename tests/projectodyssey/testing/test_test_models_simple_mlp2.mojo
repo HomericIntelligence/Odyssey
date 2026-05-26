@@ -7,8 +7,6 @@ Coverage:
     - SimpleMLP2 train/inference mode propagation via Sequential3
 """
 
-# Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
-
 from projectodyssey.testing import (
     SimpleMLP2,
     assert_true,

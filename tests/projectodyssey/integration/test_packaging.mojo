@@ -3,7 +3,6 @@ Packaging Integration Tests.
 
 Tests that verify the shared library package structure and import hierarchy.
 
-# Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
 """
 
 

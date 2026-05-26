@@ -5,7 +5,6 @@ directly from the top-level `shared` package (Issue #3745).
 
 Run with: mojo test tests/shared/autograd/test_top_level_optimizer_imports.mojo
 
-# Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
 """
 
 from std.testing import assert_true

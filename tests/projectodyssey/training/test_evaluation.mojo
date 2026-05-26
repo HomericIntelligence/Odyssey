@@ -1,7 +1,5 @@
 """Tests for evaluation module.
 
-# Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
-
 Covers:
 - EvaluationResult struct initialization and field access
 - Generic evaluate_model function (perfect predictions, batch sizes, per-class stats)

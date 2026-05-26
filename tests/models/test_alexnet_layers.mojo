@@ -3,8 +3,6 @@
 Tests Conv1 (3→64, 11x11) and Conv2 (64→192, 5x5) layers independently
 with special FP-representable values. Each layer test runs on float32 and float16.
 
-# Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
-
 Float16 Precision Limitations
 ==============================
 Several AlexNet convolutional layers are skipped for Float16 due to known

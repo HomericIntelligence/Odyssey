@@ -1,7 +1,5 @@
 """Tests for AnyTensor matrix operations and precision.
 
-# Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
-
 Tests cover:
 - AnyTensor matmul correctness and shape validation
 - AnyTensor transpose correctness

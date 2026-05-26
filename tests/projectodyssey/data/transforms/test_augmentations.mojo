@@ -3,7 +3,6 @@
 Tests random augmentations that increase dataset variety during training,
 with emphasis on reproducibility and proper randomization.
 
-# Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
 """
 
 

@@ -1,7 +1,5 @@
 """Tests for data generators module.
 
-# Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
-
 Tests random_tensor function:
 - Shape creation (1D, 2D, 3D)
 - Dtype handling (float32, float64, int32)

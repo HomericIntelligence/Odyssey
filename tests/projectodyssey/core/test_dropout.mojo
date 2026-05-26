@@ -1,7 +1,5 @@
 """Tests for standard dropout regularization.
 
-# Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
-
 Tests cover:
 - Standard dropout (element-wise)
 - Training vs inference mode

@@ -1,7 +1,5 @@
 """Tests for integer assertion functions.
 
-# Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
-
 def test_ target per file.
 """
 

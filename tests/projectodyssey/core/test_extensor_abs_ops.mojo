@@ -1,4 +1,3 @@
-# Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
 """Tests for AnyTensor __abs__ operator and combined unary/binary operations."""
 
 from projectodyssey.tensor.any_tensor import AnyTensor, zeros, ones, full

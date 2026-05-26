@@ -1,8 +1,6 @@
 """Transform integration tests.
 
 
-# Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
-
 Tests cover:
 - Compose pipeline behavior (empty, single, multiple, determinism)
 - Transform trait conformance (Normalize, Reshape)

@@ -1,7 +1,5 @@
 """Tests for Tensor[dtype] typed element access.
 
-# Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
-
 Tests cover:
 - Tensor[DType.float32] creation with shape
 - Tensor[DType.float64] creation with shape

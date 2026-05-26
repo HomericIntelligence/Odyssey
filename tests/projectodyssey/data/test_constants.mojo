@@ -5,7 +5,6 @@ Tests for:
     - EMNIST class names (all splits)
     - DatasetInfo struct with CIFAR-10 and EMNIST Balanced
 
-# Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
 """
 
 

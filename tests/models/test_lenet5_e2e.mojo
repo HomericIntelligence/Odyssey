@@ -16,8 +16,6 @@ Optional: Tests requiring EMNIST dataset (downloaded by weekly CI):
 These tests may be skipped if dataset is not available (run locally).
 Full E2E testing happens in weekly CI job with complete dataset.
 
-# Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
-
 """
 
 

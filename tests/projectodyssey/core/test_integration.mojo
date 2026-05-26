@@ -2,7 +2,6 @@
 
 Tests chained arithmetic operations and creation + arithmetic patterns.
 
-# Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
 """
 
 

@@ -1,4 +1,3 @@
-# Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
 """Tests for linear layer backward passes."""
 
 from tests.projectodyssey.conftest import (

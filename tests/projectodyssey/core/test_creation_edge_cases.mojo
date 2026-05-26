@@ -1,4 +1,3 @@
-# Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
 """Tests for AnyTensor creation operations - Edge cases.
 
 Tests edge cases like scalar creation, very large tensors, and high-dimensional tensors.

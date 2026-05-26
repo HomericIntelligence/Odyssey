@@ -1,7 +1,5 @@
 """Tests for AnyTensor arithmetic operations.
 
-# Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
-
 Tests cover:
 - add: Element-wise addition via AnyTensor
 - subtract: Element-wise subtraction via AnyTensor

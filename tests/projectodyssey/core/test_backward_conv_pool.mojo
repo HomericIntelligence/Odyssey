@@ -1,4 +1,3 @@
-# Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
 """Tests for conv2d and pooling backward passes."""
 
 from tests.projectodyssey.conftest import (

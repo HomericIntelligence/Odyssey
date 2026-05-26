@@ -1,7 +1,5 @@
 """Tests for Linear[dtype] With Typed Tensor Weights (Phase 4b).
 
-# Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
-
 Phase 4b parameterizes Linear[dtype: DType = DType.float32]:
 - Internal weights stored as Tensor[dtype] for type safety
 - forward() accepts AnyTensor, returns AnyTensor (H7 boundary)

@@ -4,7 +4,6 @@ Tests edge cases for matmul and shape operations on matrices including:
 - Matmul with different tensor sizes
 - Matrix operations with special values
 
-# Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
 """
 
 

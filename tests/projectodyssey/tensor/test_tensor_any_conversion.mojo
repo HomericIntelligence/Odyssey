@@ -1,7 +1,5 @@
 """Tests for Tensor[dtype] <-> AnyTensor conversion.
 
-# Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
-
 Tests cover:
 - AnyTensor alias backward compatibility
 - AnyTensor direct creation

@@ -1,6 +1,5 @@
 """Tests for tensor dtype/numel/dim/value assertion functions.
 
-# Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
 """
 
 from std.testing import assert_true

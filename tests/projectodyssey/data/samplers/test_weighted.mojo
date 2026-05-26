@@ -1,7 +1,5 @@
 """Tests for weighted sampler.
 
-# Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
-
 Tests WeightedSampler which samples indices according to specified weights,
 enabling class balancing and importance sampling for imbalanced datasets.
 """

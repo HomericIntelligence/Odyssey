@@ -1,7 +1,5 @@
 """Tests that AnyTensor operations correctly dispatch to typed cores.
 
-# Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
-
 Tests cover:
 - AnyTensor add/subtract/multiply dispatch produces correct results
 - AnyTensor exp/log dispatch produces correct results
