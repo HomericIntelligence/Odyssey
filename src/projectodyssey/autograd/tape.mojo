@@ -78,6 +78,11 @@ from projectodyssey.autograd.backward_ops import (
     backward_relu,
     backward_sigmoid,
     backward_tanh,
+    backward_flatten,
+    backward_linear,
+    backward_conv2d,
+    backward_maxpool2d,
+    backward_cross_entropy,
 )
 
 
@@ -98,6 +103,12 @@ comptime OP_NEG = "neg"
 comptime OP_EXP = "exp"
 comptime OP_LOG = "log"
 comptime OP_SQRT = "sqrt"
+# Phase 2 substrate ops
+comptime OP_FLATTEN = "flatten"
+comptime OP_LINEAR = "linear"
+comptime OP_CONV2D = "conv2d"
+comptime OP_MAXPOOL2D = "maxpool2d"
+comptime OP_CROSS_ENTROPY = "cross_entropy"
 
 
 struct GradientTape:
@@ -263,6 +274,19 @@ struct GradientTape:
             backward_sigmoid(self.nodes, self.registry, node_idx, grad_output)
         elif op_type == OP_TANH:
             backward_tanh(self.nodes, self.registry, node_idx, grad_output)
+        # Phase 2 substrate ops
+        elif op_type == OP_FLATTEN:
+            backward_flatten(self.nodes, self.registry, node_idx, grad_output)
+        elif op_type == OP_LINEAR:
+            backward_linear(self.nodes, self.registry, node_idx, grad_output)
+        elif op_type == OP_CONV2D:
+            backward_conv2d(self.nodes, self.registry, node_idx, grad_output)
+        elif op_type == OP_MAXPOOL2D:
+            backward_maxpool2d(self.nodes, self.registry, node_idx, grad_output)
+        elif op_type == OP_CROSS_ENTROPY:
+            backward_cross_entropy(
+                self.nodes, self.registry, node_idx, grad_output
+            )
         else:
             raise Error(
                 "Unsupported operation type for backward pass: " + op_type

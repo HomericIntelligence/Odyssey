@@ -273,13 +273,25 @@ for epoch in range(num_epochs):
 - GradientTape for operation recording
 - SGD optimizer
 - Integration points with existing backward passes
+- **Automatic operation recording in Variable**
+- **Backward pass dispatch (15 op types: add/sub/mul/div/matmul/sum/mean/relu/sigmoid/tanh/flatten/linear/conv2d/maxpool2d/cross_entropy)**
+- **Automatic gradient computation in tape.backward()** — forward execution
+  appends nodes in topological order, so reverse iteration is correct
+  reverse-topological order (no DAG sort needed)
+- **Gradient accumulation** for shared parameters (VariableRegistry.set_grad
+  auto-accumulates)
 
-### 🚧 In Progress
+### Phase 2 substrate (complete)
 
-- Automatic operation recording in Variable
-- Backward pass dispatch (map operation -> backward function)
-- Topological sort of computation graph
-- Automatic gradient computation in tape.backward()
+`variable_flatten`, `variable_linear`, `variable_conv2d`, `variable_maxpool2d`,
+`variable_cross_entropy` enable end-to-end convnet training (LeNet/AlexNet/VGG
+forward+backward via `loss.backward(tape)`). See
+`tests/projectodyssey/autograd/test_variable_layers.mojo` for FD-validated
+gradient checks.
+
+Also fixed in Phase 2: `SavedTensors.add_tensor` and `VariableRegistry.set_grad`
+previously hardcoded `bitcast[Float32]`, silently corrupting fp16/bf16/fp64
+gradients. Both now use dtype-agnostic `_get_float64`/`_set_float64` accessors.
 
 ### 📋 TODO (Future Work)
 

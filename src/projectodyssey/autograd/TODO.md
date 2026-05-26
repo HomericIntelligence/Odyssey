@@ -109,16 +109,17 @@ The autograd module follows **YAGNI** (You Aren't Gonna Need It) and **KISS** (K
 - [ ] **Weight decay** - L2 regularization in optimizers
 - [ ] **Learning rate scheduling** - Decay schedules (step, exponential, cosine)
 
-### Phase 2: Automatic Differentiation (Future Major Release)
+### Phase 2: Automatic Differentiation (DELIVERED — #5452)
 
-- [ ] **Full tape-based autograd** - Automatic differentiation engine
-  - Record all operations in computation graph
-  - Automatic backward pass without manual gradient functions
-  - Support for custom gradient functions
-- [ ] **Variable wrapper** - Enhance Variable to support tape recording
-  - Track parent operations
-  - Automatic gradient accumulation
-  - Mutable gradient attributes
+- [x] **Full tape-based autograd** — Variable + GradientTape + automatic
+  backward dispatch for 15 op types (arithmetic, matmul, reductions,
+  activations, flatten, linear, conv2d, maxpool2d, cross_entropy).
+- [x] **Variable wrapper** — tape recording, gradient accumulation,
+  dtype-agnostic SavedTensors round-trip.
+- [x] Dtype-correct copy/accumulate in `SavedTensors` and `VariableRegistry`
+  (fixed silent Float32-bitcast bug that corrupted fp16/bf16/fp64).
+- [ ] **Per-architecture autograd ports** — wiring LeNet/AlexNet/VGG/ResNet
+  training loops onto the substrate is tracked separately.
 
 ### Phase 3: Advanced Features
 
