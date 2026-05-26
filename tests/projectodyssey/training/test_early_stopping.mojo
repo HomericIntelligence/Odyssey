@@ -7,8 +7,6 @@ Tests cover:
 - Min delta threshold
 - Monitor metric modes
 
-# Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
-
 All tests use the real EarlyStopping implementation.
 """
 

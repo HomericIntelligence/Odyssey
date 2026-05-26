@@ -1,7 +1,5 @@
 """Tests for Sequential with AnyTensor boundaries (Phase 4b).
 
-# Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
-
 Phase 4b updates Sequential2-5 to chain layers through AnyTensor:
 - Sequential.forward accepts and returns AnyTensor
 - Sequential.parameters returns List[AnyTensor]

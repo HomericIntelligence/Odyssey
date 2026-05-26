@@ -1,10 +1,6 @@
-"""
-Configuration Loading Tests.
+"""Configuration Loading Tests.
 
 Tests for loading default, paper-specific, experiment configurations, and YAML format.
-
-# Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
-
 """
 
 

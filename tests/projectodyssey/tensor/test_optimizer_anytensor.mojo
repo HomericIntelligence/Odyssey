@@ -1,7 +1,5 @@
 """Tests for optimizer infrastructure with AnyTensor.
 
-# Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
-
 Tests verify that SGD and Adam optimizers work correctly when Variable.data
 is AnyTensor (since AnyTensor is now an alias for AnyTensor). The optimizers
 operate on List[Variable] with gradients stored in GradientTape.

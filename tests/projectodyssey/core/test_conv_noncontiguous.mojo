@@ -11,8 +11,6 @@ Non-contiguous tensors are created by transposing H and W dims on
 non-square tensors (e.g. 4×6 → 6×4 via transpose(2,3)), which produces
 non-unit strides that violate C-order.
 
-# Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
-
 Follow-up from #3236.
 """
 

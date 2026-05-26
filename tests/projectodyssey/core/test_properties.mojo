@@ -1,6 +1,5 @@
 """Tests for AnyTensor shape and dtype properties.
 
-# Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
 """
 
 

@@ -1,4 +1,3 @@
-# Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
 """Concurrent stress tests for thread-safe memory pool.
 
 Tests verify that TensorMemoryPool operates correctly under concurrent

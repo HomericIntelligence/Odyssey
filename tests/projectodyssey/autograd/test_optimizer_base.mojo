@@ -5,7 +5,6 @@ Tests the OptimizerBase learning rate get/set methods and validation:
 - Learning rate validation
 
 
-# Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
 """
 
 

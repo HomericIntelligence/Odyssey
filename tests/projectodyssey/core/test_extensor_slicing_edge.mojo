@@ -1,4 +1,3 @@
-# Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
 """Tests for AnyTensor slice edge cases and copy semantics."""
 
 from projectodyssey.tensor.any_tensor import (

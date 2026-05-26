@@ -1,7 +1,5 @@
 """Tests for EarlyStopping callback.
 
-# Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
-
 Tests cover:
 - EarlyStopping callback with min/max modes
 - Metric tracking and state transitions

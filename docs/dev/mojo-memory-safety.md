@@ -148,8 +148,7 @@ be triggered or masked by incorrect pointer lifetimes. Specifically:
   allocator state in a way that surfaces as a later JIT segfault rather than an
   obvious crash at the free site.
 - Always reproduce suspected UnsafePointer bugs inside the Podman container
-  (see [`mojo-jit-crash-workaround.md`](mojo-jit-crash-workaround.md)) before
-  closing an issue as a JIT flake.
+  before closing an issue as a JIT flake.
 
 ---
 
@@ -158,8 +157,6 @@ be triggered or masked by incorrect pointer lifetimes. Specifically:
 - [`mojo-1.0-migration-recipe.md`](mojo-1.0-migration-recipe.md) — Recipe 3
   (non-null UnsafePointer), Recipe 6 (null constructor removal)
 - `src/projectodyssey/tensor/any_tensor.mojo` — canonical reference-count implementation
-- [`mojo-jit-crash-workaround.md`](mojo-jit-crash-workaround.md) — how to
-  reproduce crashes in a stable environment
 - [`mojo-anti-patterns.md`][anti-patterns] — broader Mojo failure patterns catalogue
 
 [anti-patterns]: https://github.com/HomericIntelligence/ProjectOdyssey/blob/main/.claude/shared/mojo-anti-patterns.md

@@ -23,9 +23,6 @@ Testing Strategy:
 - Use small batch sizes (2-4)
 - Test selective blocks rather than full model
 - Verify loss computation and gradient flow
-
-# Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
-
 """
 
 

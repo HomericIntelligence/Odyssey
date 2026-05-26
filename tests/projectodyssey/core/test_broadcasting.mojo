@@ -1,7 +1,5 @@
 """Tests for AnyTensor broadcasting operations.
 
-# Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
-
 Tests NumPy-style broadcasting rules for scalar and vector-to-matrix cases.
 """
 

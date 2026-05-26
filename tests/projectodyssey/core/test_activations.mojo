@@ -1,7 +1,5 @@
 """Tests for activation functions.
 
-# Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
-
 Tests: test_relu_basic, test_relu_non_negativity, test_relu_backward,
        test_relu_shape, test_relu_integer_types, test_relu_float64,
        test_leaky_relu_basic, test_leaky_relu_custom_alpha

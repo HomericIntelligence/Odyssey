@@ -1,4 +1,3 @@
-# Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
 """Tests for AnyTensor view/stride semantics via transpose and reshape.
 
 The methods view_with_strides() and _nd_index_to_flat_offset() were removed

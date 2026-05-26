@@ -1,7 +1,5 @@
 """Tests for configuration management module.
 
-# Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
-
 This module tests configuration loading functionality including:
 - YAML/JSON configuration file loading
 - Nested configuration loading

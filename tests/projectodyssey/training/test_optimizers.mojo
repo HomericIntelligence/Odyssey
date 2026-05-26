@@ -9,8 +9,6 @@ and numerical behavior for implementation in Issue #49.
 
 Note: Tests have been adapted from class-based API to pure functional API
 as per architecture decision to use functional design throughout shared library.
-
-in Mojo v0.26.1 (libKGENCompilerRTShared.so JIT fault under high test load).
 """
 
 

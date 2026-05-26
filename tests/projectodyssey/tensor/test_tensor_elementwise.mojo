@@ -1,7 +1,5 @@
 """Tests for AnyTensor elementwise and activation operations.
 
-# Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
-
 Tests cover:
 - exp: Element-wise exponential via AnyTensor
 - relu: ReLU activation via AnyTensor

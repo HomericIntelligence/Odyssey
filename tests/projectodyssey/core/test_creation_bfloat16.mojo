@@ -1,4 +1,3 @@
-# Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
 """Tests for bfloat16 dtype support in AnyTensor factory functions.
 
 Verifies that arange(), eye(), linspace(), and randn() correctly route

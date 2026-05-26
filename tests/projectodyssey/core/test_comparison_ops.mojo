@@ -1,7 +1,5 @@
 """Tests for AnyTensor comparison operations.
 
-# Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
-
 Tests comparison operations following the Array API Standard:
 equal, not_equal.
 All operations return boolean tensors (DType.bool).

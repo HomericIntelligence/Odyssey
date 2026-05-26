@@ -16,20 +16,19 @@
 
 ## Verified Workflow
 
-### 1. Triage: Separate real bugs from JIT crashes
+### 1. Triage: Identify real test failures
 
 ```bash
 # Get the failing workflow run
 gh run view <run-id> --log-failed | head -200
 
 # Look for patterns:
-# - "LLVM ERROR" / "libKGENCompilerRTShared.so" = JIT crash (not your bug)
 # - Assertion failures with wrong values = real bug
 # - "link check failed" = network flake or dead URL
+# - Compiler errors during JIT = file upstream issue
 ```
 
-**Key insight**: JIT crashes are non-deterministic Mojo compiler bugs. You cannot fix them in user code.
-Mark affected CI matrix entries as `continue-on-error: true`.
+**Key insight**: Some test failures may be Mojo compiler bugs. When they occur, file an issue upstream and mark affected CI matrix entries as `continue-on-error: true` if appropriate.
 
 ### 2. Fix real test failures by reading the assertion output
 
@@ -88,15 +87,14 @@ The blast radius covers the entire AnyTensor API.
 **Lesson**: When a "simple fix" requires changing a fundamental assumption (flat vs strided indexing),
 scope it as a separate effort. Skip the tests and file an issue.
 
-### Trying to fix JIT crashes in user code
+### Attempting to work around compiler bugs in user code
 
-**What**: Investigated whether code changes could prevent `libKGENCompilerRTShared.so` segfaults.
+**What**: Investigated whether code changes could prevent Mojo compiler crashes.
 
-**Why it failed**: These are Mojo compiler bugs triggered non-deterministically during JIT compilation.
-No user-code workaround exists.
+**Why it failed**: These are Mojo compiler bugs, not user-code issues. No reliable user-code workaround exists.
 
-**Lesson**: Use `continue-on-error` in CI and file upstream issues. Don't waste time trying to
-work around compiler crashes.
+**Lesson**: Use `continue-on-error` in CI for transient failures and file upstream issues. Don't waste time trying to
+work around compiler bugs that should be fixed upstream.
 
 ## Results & Parameters
 

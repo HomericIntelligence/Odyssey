@@ -1,7 +1,5 @@
 """Tests for random sampler (part 1 of 2): creation, randomization, and correctness.
 
-# Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
-
 Tests RandomSampler which yields dataset indices in random order,
 the standard sampling strategy for training to prevent order-dependent biases.
 """

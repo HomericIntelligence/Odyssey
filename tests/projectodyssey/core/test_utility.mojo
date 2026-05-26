@@ -3,7 +3,6 @@
 Tests utility functions including copy, clone, numel, dim, shape, dtype,
 and stride calculations.
 
-# Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
 """
 
 

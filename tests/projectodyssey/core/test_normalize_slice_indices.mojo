@@ -1,4 +1,3 @@
-# Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
 """Unit tests for AnyTensor._normalize_slice_indices helper."""
 
 from projectodyssey.tensor.any_tensor import AnyTensor, zeros

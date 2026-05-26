@@ -1,5 +1,3 @@
-# Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
-
 """Gradient checking tests for depthwise_conv2d backward pass.
 
 Uses check_gradient() (not check_gradients()) for combined relative+absolute

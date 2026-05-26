@@ -6,8 +6,6 @@ Tests cover:
 - Norm computation (single and global)
 - Single tensor norm clipping
 
-# Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
-
 These tests verify the common utilities available to all optimizer implementations.
 """
 

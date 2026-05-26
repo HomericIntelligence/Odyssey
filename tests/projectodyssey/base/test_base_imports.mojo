@@ -1,7 +1,5 @@
 """Tests that src/projectodyssey/base/ package imports work correctly.
 
-# Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
-
 Tests cover:
 - memory_pool imports (pooled_alloc, pooled_free)
 - broadcasting imports (broadcast_shapes, are_shapes_broadcastable)

@@ -1,7 +1,5 @@
 """Tests for AnyTensor arithmetic operations and precision.
 
-# Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
-
 Tests cover:
 - AnyTensor add/subtract/multiply/divide correctness
 - Float64 precision preservation

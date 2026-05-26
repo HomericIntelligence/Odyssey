@@ -9,8 +9,6 @@ Tests cover:
 
 All tests use pure functional API - no internal state.
 
-# Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
-
 """
 
 

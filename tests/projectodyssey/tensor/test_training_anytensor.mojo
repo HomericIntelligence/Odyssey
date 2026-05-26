@@ -1,7 +1,5 @@
 """Tests for training infrastructure with AnyTensor.
 
-# Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
-
 Tests verify that Variable wraps AnyTensor correctly and that the autograd
 infrastructure (Variable creation, backward, detach) works with AnyTensor
 as the underlying data type.

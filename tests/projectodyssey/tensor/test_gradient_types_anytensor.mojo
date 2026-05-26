@@ -1,7 +1,5 @@
 """Tests for gradient container types with AnyTensor.
 
-# Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
-
 Tests verify that gradient container types (GradientPair, GradientTriple,
 GradientQuad) store AnyTensor fields correctly. Since AnyTensor is now an
 alias for AnyTensor, these tests confirm the migration preserves correct

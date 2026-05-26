@@ -1,7 +1,5 @@
 """Tests for updated trait signatures using AnyTensor (Phase 5a).
 
-# Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
-
 Phase 5a changes trait signatures from AnyTensor to AnyTensor:
 - Module.forward(mut self, input: AnyTensor) -> AnyTensor
 - Module.parameters(self) -> List[AnyTensor]

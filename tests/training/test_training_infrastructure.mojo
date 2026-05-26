@@ -9,8 +9,6 @@ Tests covered:
 
 Training Infrastructure Tests (#303-322):
 - #304: Trainer interface and configuration
-
-# Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
 """
 
 

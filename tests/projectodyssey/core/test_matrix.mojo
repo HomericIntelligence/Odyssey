@@ -1,7 +1,5 @@
 """Tests for matrix operations.
 
-# Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
-
 Tests cover:
 - Matrix multiplication shapes (2D)
 - Matrix multiplication values (2D)

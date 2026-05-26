@@ -4,8 +4,6 @@ Verifies that add, subtract, multiply, divide produce correct results
 when given non-contiguous inputs (e.g., from transpose_view). Without
 the as_contiguous() guard these operations silently returned wrong values.
 
-# Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
-
 Follow-up from #3236.
 """
 

@@ -1,7 +1,5 @@
 """Tests for AnyTensor matrix and reduction operations.
 
-# Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
-
 Tests cover:
 - matmul: Matrix multiplication via AnyTensor
 - transpose: Matrix transpose via AnyTensor

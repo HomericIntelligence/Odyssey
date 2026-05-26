@@ -1,4 +1,3 @@
-# Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
 """Value-correctness tests for shape ops on non-contiguous inputs. Closes #4086.
 
 Tests that reshape, tile, repeat, broadcast_to, permute, concatenate, and

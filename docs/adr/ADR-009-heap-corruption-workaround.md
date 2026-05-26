@@ -68,8 +68,9 @@ The root cause (bitcast UAF in `AnyTensor`) was fixed by:
 - Removing `continue-on-error: true` from CI
 - File splitting workaround is no longer required
 
-The per-file JIT crash retry mechanism (ADR-014) handles the separate upstream JIT compiler
-non-determinism issue (`libKGENCompilerRTShared.so` ASLR-dependent crash).
+The separate upstream JIT compiler non-determinism issue
+(`libKGENCompilerRTShared.so` ASLR-dependent crash) was fixed in
+[modular/modular#6413](https://github.com/modular/modular/issues/6413).
 
 ## Consequences
 
@@ -91,8 +92,7 @@ non-determinism issue (`libKGENCompilerRTShared.so` ASLR-dependent crash).
 ## References
 
 - [ADR-013](ADR-013-slice-view-destructor-fix.md): Actual root cause fix (bitcast UAF)
-- [ADR-014](ADR-014-jit-crash-retry-mitigation.md): JIT crash retry for upstream compiler bug
-- [docs/dev/mojo-jit-crash-workaround.md](../dev/mojo-jit-crash-workaround.md)
+- [modular/modular#6413](https://github.com/modular/modular/issues/6413): upstream JIT compiler fix (AVX-512 mis-emission)
 
 ---
 

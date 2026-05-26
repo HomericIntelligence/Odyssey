@@ -4,8 +4,6 @@ Verifies that sum() and mean() produce correct results when given
 non-contiguous inputs. Without the as_contiguous() guard these operations
 read from wrong memory positions, silently producing wrong values.
 
-# Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
-
 Follow-up from #3236.
 """
 

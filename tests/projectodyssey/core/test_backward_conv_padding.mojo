@@ -1,4 +1,3 @@
-# Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
 """Numerical gradient tests for conv2d_backward with padding > 0.
 
 Follow-up from #3248: parametrized coverage for padding=1 and padding=2,

@@ -1,7 +1,5 @@
 """Tests for Tensor[dtype] <-> AnyTensor shared refcount safety (B4).
 
-# Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
-
 Tests cover:
 - as_any() shares refcount (same data)
 - as_tensor() shares refcount (same data)

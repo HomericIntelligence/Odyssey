@@ -1,7 +1,5 @@
 """Tests for collection operations with AnyTensor.
 
-# Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
-
 Tests verify that collection ops (concatenate, stack, split) work correctly
 when called with AnyTensor values. Since AnyTensor is now an alias for AnyTensor,
 these tests confirm the migration preserves correct behavior.

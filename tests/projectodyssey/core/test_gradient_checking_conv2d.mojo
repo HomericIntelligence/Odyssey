@@ -1,5 +1,3 @@
-# Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
-
 """Gradient checking tests for conv2d backward: grad_input, grad_weights, grad_bias.
 
 Verifies all three conv2d backward outputs via finite-difference gradient

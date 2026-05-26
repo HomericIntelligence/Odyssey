@@ -7,8 +7,6 @@ Tests cover:
 - Both minimize and maximize modes (save_best_only variants)
 - Best value tracking
 
-# Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
-
 All tests use the real ModelCheckpoint implementation.
 """
 

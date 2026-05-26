@@ -1,4 +1,3 @@
-# Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
 """Unit tests for AnyTensor first-axis-only fast-path memcpy optimization (#3697).
 
 Tests cover:
