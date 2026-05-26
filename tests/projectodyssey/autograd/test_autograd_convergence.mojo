@@ -46,6 +46,27 @@ def _make_tensor(shape: List[Int], fill: Float64) raises -> AnyTensor:
     return t^
 
 
+def _make_asymmetric(
+    shape: List[Int], base: Float64, slope: Float64
+) raises -> AnyTensor:
+    """Build a tensor with `t[i] = base + i * slope`.
+
+    Symmetric (uniform) weight init creates a mathematical pathology where
+    every output of a linear/conv layer is identical, the softmax distribution
+    is uniform, and the gradient back to the input is algebraically zero
+    (catastrophic-cancellation noise only). Tests that exercise a multi-layer
+    backward path must use asymmetric init to avoid masking real bugs with
+    this dead-symmetry mode.
+    """
+    var t = zeros(shape, DType.float32)
+    var n = 1
+    for d in shape:
+        n *= d
+    for i in range(n):
+        t._set_float64(i, base + Float64(i) * slope)
+    return t^
+
+
 def _set_value(mut t: AnyTensor, idx: Int, val: Float64) raises:
     t._set_float64(idx, val)
 
@@ -162,10 +183,10 @@ def test_conv_linear_softmax_converges() raises:
     print("[test] conv+linear+softmax convergence (30 steps) ...")
     var optimizer = SGD(learning_rate=0.5)
 
-    # Persistent params.
-    var c1w_data = _make_tensor([2, 1, 3, 3], 0.1)
+    # Persistent params with asymmetric init (see _make_asymmetric docstring).
+    var c1w_data = _make_asymmetric([2, 1, 3, 3], 0.05, 0.02)
     var c1b_data = _make_tensor([2], 0.0)
-    var fcw_data = _make_tensor([3, 32], 0.05)  # 2*4*4 = 32
+    var fcw_data = _make_asymmetric([3, 32], 0.01, 0.001)  # 2*4*4 = 32
     var fcb_data = _make_tensor([3], 0.0)
 
     var losses = List[Float32]()
@@ -175,7 +196,7 @@ def test_conv_linear_softmax_converges() raises:
         var tape = GradientTape()
         tape.enable()
 
-        var x_data = _make_tensor([2, 1, 6, 6], 0.3)
+        var x_data = _make_asymmetric([2, 1, 6, 6], 0.1, 0.005)
         var x = Variable(x_data^, False, tape)
 
         var c1w = Variable(c1w_data, True, tape)
@@ -238,17 +259,16 @@ def test_lenet_shape_converges() raises:
     print("[test] LeNet-shape convergence (50 steps, batch=4, 10 classes) ...")
     var optimizer = SGD(learning_rate=0.01)
 
-    # Persistent params with small uniform init (substrate uses raw arrays here;
-    # we don't depend on kaiming_uniform so the test is self-contained).
-    var c1w = _make_tensor([6, 1, 5, 5], 0.05)
+    # Persistent params with asymmetric init (see _make_asymmetric docstring).
+    var c1w = _make_asymmetric([6, 1, 5, 5], 0.05, 0.003)
     var c1b = _make_tensor([6], 0.0)
-    var c2w = _make_tensor([16, 6, 5, 5], 0.02)
+    var c2w = _make_asymmetric([16, 6, 5, 5], 0.02, 0.001)
     var c2b = _make_tensor([16], 0.0)
-    var fc1w = _make_tensor([120, 16 * 4 * 4], 0.01)
+    var fc1w = _make_asymmetric([120, 16 * 4 * 4], 0.005, 0.00005)
     var fc1b = _make_tensor([120], 0.0)
-    var fc2w = _make_tensor([84, 120], 0.01)
+    var fc2w = _make_asymmetric([84, 120], 0.005, 0.00005)
     var fc2b = _make_tensor([84], 0.0)
-    var fc3w = _make_tensor([10, 84], 0.01)
+    var fc3w = _make_asymmetric([10, 84], 0.005, 0.0005)
     var fc3b = _make_tensor([10], 0.0)
 
     var losses = List[Float32]()
@@ -258,7 +278,7 @@ def test_lenet_shape_converges() raises:
         var tape = GradientTape()
         tape.enable()
 
-        var x_data = _make_tensor([4, 1, 28, 28], 0.1)
+        var x_data = _make_asymmetric([4, 1, 28, 28], 0.05, 0.0002)
         var x = Variable(x_data^, False, tape)
 
         var v_c1w = Variable(c1w, True, tape)
