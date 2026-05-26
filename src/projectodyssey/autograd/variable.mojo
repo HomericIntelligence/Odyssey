@@ -41,6 +41,10 @@ from projectodyssey.core.arithmetic import add, subtract, multiply, divide
 from projectodyssey.core.activation import relu, sigmoid, tanh
 from projectodyssey.core.reduction import sum, mean
 from projectodyssey.core.matrix import matmul
+from projectodyssey.core.linear import linear as _linear
+from projectodyssey.core.conv import conv2d as _conv2d
+from projectodyssey.core.pooling import maxpool2d as _maxpool2d
+from projectodyssey.core.loss import cross_entropy as _cross_entropy
 
 comptime tensor_sum = sum
 comptime tensor_mean = mean
@@ -59,6 +63,11 @@ from projectodyssey.autograd.tape import (
     OP_SIGMOID,
     OP_TANH,
     OP_NEG,
+    OP_FLATTEN,
+    OP_LINEAR,
+    OP_CONV2D,
+    OP_MAXPOOL2D,
+    OP_CROSS_ENTROPY,
 )
 
 
@@ -578,3 +587,227 @@ def variable_neg(
         tape.record(OP_NEG, input_ids^, result_id, saved^)
 
     return Variable(result_data^, x.requires_grad, result_id)
+
+
+# ============================================================================
+# Phase 2 substrate ops (convnet primitives)
+# ============================================================================
+
+
+def variable_flatten(
+    x: Variable,
+    mut tape: GradientTape,
+) raises -> Variable:
+    """Flatten a Variable from rank-N to rank-2 (batch, features).
+
+    For input shape [B, d1, d2, ..., dN] returns shape [B, d1*d2*...*dN].
+
+    Saved layout for backward:
+        shapes[0] = original input shape.
+
+    Args:
+        x: Input Variable (rank >= 2).
+        tape: Gradient tape for recording.
+
+    Returns:
+        New Variable of shape (batch_size, flattened_features).
+
+    Raises:
+        Error: If operation fails or input rank < 1.
+    """
+    var in_shape = x.data.shape()
+    if len(in_shape) < 1:
+        raise Error("variable_flatten: input must have at least 1 dimension")
+
+    var batch = in_shape[0] if len(in_shape) > 0 else 1
+    var feat = 1
+    for i in range(1, len(in_shape)):
+        feat *= in_shape[i]
+
+    var new_shape = List[Int]()
+    new_shape.append(batch)
+    new_shape.append(feat)
+    var result_data = x.data.reshape(new_shape)
+
+    var result_id = tape.register_variable(x.requires_grad)
+
+    if tape.enabled and x.requires_grad:
+        var input_ids = List[Int]()
+        input_ids.append(x.id)
+        var saved = SavedTensors()
+        saved.add_shape(in_shape)
+        tape.record(OP_FLATTEN, input_ids^, result_id, saved^)
+
+    return Variable(result_data^, x.requires_grad, result_id)
+
+
+def variable_linear(
+    x: Variable,
+    weights: Variable,
+    bias: Variable,
+    mut tape: GradientTape,
+) raises -> Variable:
+    """Apply a fully connected (linear) layer: y = x @ W^T + b.
+
+    Saved layout for backward:
+        tensors[0] = input x      (batch, in_features)
+        tensors[1] = weights      (out_features, in_features)
+
+    Args:
+        x: Input activations Variable (batch, in_features).
+        weights: Weights Variable (out_features, in_features).
+        bias: Bias Variable (out_features,).
+        tape: Gradient tape for recording.
+
+    Returns:
+        Output Variable of shape (batch, out_features).
+    """
+    var result_data = _linear(x.data, weights.data, bias.data)
+    var needs_grad = (
+        x.requires_grad or weights.requires_grad or bias.requires_grad
+    )
+    var result_id = tape.register_variable(needs_grad)
+
+    if tape.enabled and needs_grad:
+        var input_ids = List[Int]()
+        input_ids.append(x.id)
+        input_ids.append(weights.id)
+        input_ids.append(bias.id)
+
+        var saved = SavedTensors()
+        saved.add_tensor(x.data)
+        saved.add_tensor(weights.data)
+        tape.record(OP_LINEAR, input_ids^, result_id, saved^)
+
+    return Variable(result_data^, needs_grad, result_id)
+
+
+def variable_conv2d(
+    x: Variable,
+    weights: Variable,
+    bias: Variable,
+    mut tape: GradientTape,
+    stride: Int = 1,
+    padding: Int = 0,
+) raises -> Variable:
+    """Apply 2D convolution with bias: y = conv2d(x, weights, stride, padding) + bias.
+
+    Saved layout for backward:
+        tensors[0] = input x      (batch, in_C, H, W)
+        tensors[1] = weights      (out_C, in_C, kH, kW)
+        scalars[0] = stride
+        scalars[1] = padding
+
+    Args:
+        x: Input activations Variable (batch, in_C, H, W).
+        weights: Conv kernel Variable (out_C, in_C, kH, kW).
+        bias: Bias Variable (out_C,).
+        tape: Gradient tape for recording.
+        stride: Convolution stride (default 1).
+        padding: Zero-padding (default 0).
+
+    Returns:
+        Output Variable of shape (batch, out_C, out_H, out_W).
+    """
+    var result_data = _conv2d(x.data, weights.data, bias.data, stride, padding)
+    var needs_grad = (
+        x.requires_grad or weights.requires_grad or bias.requires_grad
+    )
+    var result_id = tape.register_variable(needs_grad)
+
+    if tape.enabled and needs_grad:
+        var input_ids = List[Int]()
+        input_ids.append(x.id)
+        input_ids.append(weights.id)
+        input_ids.append(bias.id)
+
+        var saved = SavedTensors()
+        saved.add_tensor(x.data)
+        saved.add_tensor(weights.data)
+        saved.add_scalar(Float64(stride))
+        saved.add_scalar(Float64(padding))
+        tape.record(OP_CONV2D, input_ids^, result_id, saved^)
+
+    return Variable(result_data^, needs_grad, result_id)
+
+
+def variable_maxpool2d(
+    x: Variable,
+    mut tape: GradientTape,
+    kernel_size: Int,
+    stride: Int = 0,
+    padding: Int = 0,
+) raises -> Variable:
+    """Apply 2D max pooling.
+
+    Saved layout for backward (maxpool needs forward INPUT to recompute argmax):
+        tensors[0] = input x      (batch, channels, H, W)
+        scalars[0] = kernel_size
+        scalars[1] = stride
+        scalars[2] = padding
+
+    Args:
+        x: Input activations Variable (batch, channels, H, W).
+        tape: Gradient tape for recording.
+        kernel_size: Pooling window size.
+        stride: Pool stride (default 0 => kernel_size).
+        padding: Zero-padding (default 0).
+
+    Returns:
+        Output Variable of shape (batch, channels, out_H, out_W).
+    """
+    var result_data = _maxpool2d(x.data, kernel_size, stride, padding)
+    var result_id = tape.register_variable(x.requires_grad)
+
+    if tape.enabled and x.requires_grad:
+        var input_ids = List[Int]()
+        input_ids.append(x.id)
+
+        var saved = SavedTensors()
+        saved.add_tensor(x.data)
+        saved.add_scalar(Float64(kernel_size))
+        saved.add_scalar(Float64(stride))
+        saved.add_scalar(Float64(padding))
+        tape.record(OP_MAXPOOL2D, input_ids^, result_id, saved^)
+
+    return Variable(result_data^, x.requires_grad, result_id)
+
+
+def variable_cross_entropy(
+    logits: Variable,
+    targets: Variable,
+    mut tape: GradientTape,
+) raises -> Variable:
+    """Compute cross-entropy loss (with mean-over-batch reduction).
+
+    The targets Variable is treated as non-trainable; only logits receive
+    a gradient in the backward pass.
+
+    Saved layout for backward:
+        tensors[0] = logits  (batch, num_classes)
+        tensors[1] = targets (batch, num_classes)
+
+    Args:
+        logits: Raw model outputs (before softmax), Variable (batch, num_classes).
+        targets: One-hot ground-truth Variable (batch, num_classes), requires_grad=False.
+        tape: Gradient tape for recording.
+
+    Returns:
+        Scalar loss Variable.
+    """
+    var result_data = _cross_entropy(logits.data, targets.data)
+    var needs_grad = logits.requires_grad
+    var result_id = tape.register_variable(needs_grad)
+
+    if tape.enabled and needs_grad:
+        var input_ids = List[Int]()
+        input_ids.append(logits.id)
+        # NB: do NOT add targets.id — targets are non-trainable and
+        # backward_cross_entropy only routes to input_ids[0].
+
+        var saved = SavedTensors()
+        saved.add_tensor(logits.data)
+        saved.add_tensor(targets.data)
+        tape.record(OP_CROSS_ENTROPY, input_ids^, result_id, saved^)
+
+    return Variable(result_data^, needs_grad, result_id)

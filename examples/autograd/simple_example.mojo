@@ -8,9 +8,12 @@ This example shows how to:
 5. Update parameters using an optimizer
 
 Note:
-    This is a minimal example showing the API design. Full autograd functionality
-    (automatic operation recording and backward pass) is still being implemented.
-    Currently, this demonstrates the interface and manual gradient computation.
+    This example uses the fully-automated tape-based autograd path. Operations
+    on Variables are recorded by the tape; loss.backward(tape) computes all
+    gradients via the chain rule and the SGD optimizer updates parameters
+    in-place. See tests/projectodyssey/autograd/test_variable_layers.mojo
+    for finite-difference-validated gradient checks on the Phase 2 ops
+    (linear, conv2d, maxpool2d, flatten, cross_entropy).
 """
 
 from projectodyssey.autograd import Variable, GradientTape, SGD

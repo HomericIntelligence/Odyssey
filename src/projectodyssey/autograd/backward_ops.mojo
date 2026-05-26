@@ -44,6 +44,10 @@ from projectodyssey.core.activation import (
     sigmoid_backward,
     tanh_backward,
 )
+from projectodyssey.core.linear import linear_backward
+from projectodyssey.core.conv import conv2d_backward
+from projectodyssey.core.pooling import maxpool2d_backward
+from projectodyssey.core.loss import cross_entropy_backward
 
 # Import types from tape_types (avoids circular import with tape.mojo)
 from projectodyssey.autograd.tape_types import TapeNode, VariableRegistry
@@ -327,6 +331,35 @@ def backward_sigmoid(
         registry.set_grad(nodes[idx].input_ids[0], grad_input)
 
 
+def backward_flatten(
+    nodes: List[TapeNode],
+    mut registry: VariableRegistry,
+    idx: Int,
+    grad_output: AnyTensor,
+) raises:
+    """Backward pass for flatten.
+
+    Computes gradient for: y = flatten(x)
+    Given: grad_output = dL/dy (rank-2)
+    Returns: dL/dx = reshape(grad_output, input_shape)
+
+    Saved layout:
+        shapes[0] = input.shape() (original rank-N shape).
+
+    Args:
+        nodes: List of tape nodes containing saved shapes.
+        registry: Variable registry to store computed gradients.
+        idx: Index of the flatten node in the tape.
+        grad_output: Gradient flowing back from downstream operations.
+    """
+    if len(nodes[idx].saved.shapes) < 1:
+        return
+    var input_shape = nodes[idx].saved.shapes[0].copy()
+    var grad_input = grad_output.reshape(input_shape)
+    if len(nodes[idx].input_ids) >= 1:
+        registry.set_grad(nodes[idx].input_ids[0], grad_input)
+
+
 def backward_tanh(
     nodes: List[TapeNode],
     mut registry: VariableRegistry,
@@ -354,3 +387,126 @@ def backward_tanh(
     var grad_input = tanh_backward(grad_output, output)
     if len(nodes[idx].input_ids) >= 1:
         registry.set_grad(nodes[idx].input_ids[0], grad_input)
+
+
+# ============================================================================
+# Phase 2 substrate ops (convnet primitives)
+# ============================================================================
+
+
+def backward_linear(
+    nodes: List[TapeNode],
+    mut registry: VariableRegistry,
+    idx: Int,
+    grad_output: AnyTensor,
+) raises:
+    """Backward pass for linear (fully connected) layer.
+
+    Saved layout:
+        tensors[0] = input x  (batch, in_features)
+        tensors[1] = weights  (out_features, in_features)
+
+    Routes:
+        input_ids[0] -> grad_input
+        input_ids[1] -> grad_weights
+        input_ids[2] -> grad_bias (if 3 input_ids)
+    """
+    if len(nodes[idx].saved.tensors) < 2:
+        return
+    var x = nodes[idx].saved.tensors[0].copy()
+    var weights = nodes[idx].saved.tensors[1].copy()
+    var grads = linear_backward(grad_output, x, weights)
+    if len(nodes[idx].input_ids) >= 1:
+        registry.set_grad(nodes[idx].input_ids[0], grads.grad_input)
+    if len(nodes[idx].input_ids) >= 2:
+        registry.set_grad(nodes[idx].input_ids[1], grads.grad_weights)
+    if len(nodes[idx].input_ids) >= 3:
+        registry.set_grad(nodes[idx].input_ids[2], grads.grad_bias)
+
+
+def backward_conv2d(
+    nodes: List[TapeNode],
+    mut registry: VariableRegistry,
+    idx: Int,
+    grad_output: AnyTensor,
+) raises:
+    """Backward pass for 2D convolution.
+
+    Saved layout:
+        tensors[0] = input x   (batch, in_C, H, W)
+        tensors[1] = kernel    (out_C, in_C, kH, kW)
+        scalars[0] = stride  (Float64-cast Int)
+        scalars[1] = padding (Float64-cast Int)
+
+    Routes (same as linear):
+        input_ids[0] -> grad_input
+        input_ids[1] -> grad_weights
+        input_ids[2] -> grad_bias (if 3 input_ids)
+    """
+    if len(nodes[idx].saved.tensors) < 2:
+        return
+    if len(nodes[idx].saved.scalars) < 2:
+        return
+    var x = nodes[idx].saved.tensors[0].copy()
+    var kernel = nodes[idx].saved.tensors[1].copy()
+    var stride = Int(nodes[idx].saved.scalars[0])
+    var padding = Int(nodes[idx].saved.scalars[1])
+    var grads = conv2d_backward(grad_output, x, kernel, stride, padding)
+    if len(nodes[idx].input_ids) >= 1:
+        registry.set_grad(nodes[idx].input_ids[0], grads.grad_input)
+    if len(nodes[idx].input_ids) >= 2:
+        registry.set_grad(nodes[idx].input_ids[1], grads.grad_weights)
+    if len(nodes[idx].input_ids) >= 3:
+        registry.set_grad(nodes[idx].input_ids[2], grads.grad_bias)
+
+
+def backward_maxpool2d(
+    nodes: List[TapeNode],
+    mut registry: VariableRegistry,
+    idx: Int,
+    grad_output: AnyTensor,
+) raises:
+    """Backward pass for 2D max pooling.
+
+    Saved layout:
+        tensors[0] = input x   (needed to recompute argmax positions)
+        scalars[0] = kernel_size (Float64-cast Int)
+        scalars[1] = stride      (Float64-cast Int)
+        scalars[2] = padding     (Float64-cast Int)
+    """
+    if len(nodes[idx].saved.tensors) < 1:
+        return
+    if len(nodes[idx].saved.scalars) < 3:
+        return
+    var x = nodes[idx].saved.tensors[0].copy()
+    var kernel_size = Int(nodes[idx].saved.scalars[0])
+    var stride = Int(nodes[idx].saved.scalars[1])
+    var padding = Int(nodes[idx].saved.scalars[2])
+    var grad_input = maxpool2d_backward(
+        grad_output, x, kernel_size, stride, padding
+    )
+    if len(nodes[idx].input_ids) >= 1:
+        registry.set_grad(nodes[idx].input_ids[0], grad_input)
+
+
+def backward_cross_entropy(
+    nodes: List[TapeNode],
+    mut registry: VariableRegistry,
+    idx: Int,
+    grad_output: AnyTensor,
+) raises:
+    """Backward pass for cross-entropy loss.
+
+    Saved layout:
+        tensors[0] = logits  (batch, num_classes)
+        tensors[1] = targets (batch, num_classes) — non-trainable, not routed.
+
+    Only logits receive a gradient (input_ids[0]). Targets are non-trainable.
+    """
+    if len(nodes[idx].saved.tensors) < 2:
+        return
+    var logits = nodes[idx].saved.tensors[0].copy()
+    var targets = nodes[idx].saved.tensors[1].copy()
+    var grad_logits = cross_entropy_backward(grad_output, logits, targets)
+    if len(nodes[idx].input_ids) >= 1:
+        registry.set_grad(nodes[idx].input_ids[0], grad_logits)

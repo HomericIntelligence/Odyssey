@@ -108,6 +108,12 @@ from projectodyssey.autograd.variable import (
     variable_sigmoid,
     variable_tanh,
     variable_neg,
+    # Phase 2 substrate ops (convnet primitives)
+    variable_flatten,
+    variable_linear,
+    variable_conv2d,
+    variable_maxpool2d,
+    variable_cross_entropy,
 )
 
 from projectodyssey.autograd.tape_types import (
@@ -138,6 +144,11 @@ from projectodyssey.autograd.tape import (
     OP_EXP,
     OP_LOG,
     OP_SQRT,
+    OP_FLATTEN,
+    OP_LINEAR,
+    OP_CONV2D,
+    OP_MAXPOOL2D,
+    OP_CROSS_ENTROPY,
 )
 
 from projectodyssey.autograd.optimizers import (

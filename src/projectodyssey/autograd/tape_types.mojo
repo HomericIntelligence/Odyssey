@@ -40,15 +40,17 @@ struct SavedTensors(Copyable, Movable):
         """Save a tensor for backward pass.
 
         Modifies self in-place by appending tensor to internal storage.
+        Uses dtype-agnostic Float64 accessors so any float/int dtype is
+        copied correctly (previously hardcoded bitcast[Float32] silently
+        produced garbage for fp16/bf16/fp64).
 
         Raises:
             Error: If operation fails.
         """
-        # Create a copy of the tensor using tensor's __setitem__
         var copy = zeros_like(tensor)
         var size = tensor.numel()
         for i in range(size):
-            copy.set(i, Float64(tensor._data.bitcast[Float32]()[i]))
+            copy._set_float64(i, tensor._get_float64(i))
         self.tensors.append(copy^)
 
     def add_shape(mut self, shape: List[Int]):
@@ -191,18 +193,19 @@ struct VariableRegistry:
 
         var size = grad.numel()
         if self.has_grad[id]:
-            # Accumulate gradients - use tensor __setitem__
+            # Accumulate gradients using dtype-agnostic accessors.
             var existing = self.grads[id]
             for i in range(size):
-                var existing_val = existing._data.bitcast[Float32]()[i]
-                var grad_val = grad._data.bitcast[Float32]()[i]
-                existing.set(i, Float64(existing_val + grad_val))
+                var existing_val = existing._get_float64(i)
+                var grad_val = grad._get_float64(i)
+                existing._set_float64(i, existing_val + grad_val)
             self.grads[id] = existing^
         else:
-            # First gradient - copy it using tensor __setitem__
+            # First gradient - deep copy using dtype-agnostic accessors so the
+            # caller-owned `grad` can be safely freed/reused.
             var grad_copy = zeros_like(grad)
             for i in range(size):
-                grad_copy.set(i, Float64(grad._data.bitcast[Float32]()[i]))
+                grad_copy._set_float64(i, grad._get_float64(i))
             self.grads[id] = grad_copy^
             self.has_grad[id] = True
 
