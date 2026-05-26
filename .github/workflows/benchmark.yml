@@ -238,24 +238,8 @@ jobs:
           # Create output directory inside container
           podman compose exec -T projectodyssey-dev bash -c "mkdir -p /tmp/benchmark-results"
 
-          # Retry for JIT crash resilience (issue #3329)
-          attempt=0
-          delay=1
-          while [ $attempt -lt 3 ]; do
-            attempt=$((attempt + 1))
-            if podman compose exec -T projectodyssey-dev bash -c 'pixi run mojo run -I . benchmarks/bench_simd.mojo' | tee builds/benchmarks/simd-output.txt; then
-              echo "✅ SIMD benchmarks completed successfully"
-              break
-            fi
-            if [ $attempt -lt 3 ]; then
-              echo "Attempt $attempt failed, retrying in ${delay}s..."
-              sleep $delay
-              delay=$((delay * 2))
-            else
-              echo "SIMD benchmarks failed after 3 attempts"
-              exit 1
-            fi
-          done
+          podman compose exec -T projectodyssey-dev bash -c 'pixi run mojo run -I . benchmarks/bench_simd.mojo' | tee builds/benchmarks/simd-output.txt
+          echo "✅ SIMD benchmarks completed successfully"
 
           # Copy results from container to host
           CONTAINER_ID=$(podman compose ps -q projectodyssey-dev)
