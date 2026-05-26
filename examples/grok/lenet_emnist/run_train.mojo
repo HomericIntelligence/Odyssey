@@ -364,9 +364,7 @@ struct MultiMetricCheckpointer:
     var max_after_min_value: List[Float64]
     var max_after_min_epoch: List[Int]
 
-    def __init__(
-        out self, metrics: List[MetricMode], ckpt_dir: String
-    ) raises:
+    def __init__(out self, metrics: List[MetricMode], ckpt_dir: String) raises:
         self.metrics = metrics.copy()
         self.ckpt_dir = ckpt_dir
         self.best_max_value = List[Float64]()
@@ -443,16 +441,11 @@ struct MultiMetricCheckpointer:
                         subdir = name + "_best"
                     else:
                         subdir = name + "_min"
-                    self._save(
-                        model, subdir, name, "best", value, epoch
-                    )
+                    self._save(model, subdir, name, "best", value, epoch)
 
             # both: track min-after-max and max-after-min
             if mode == "both":
-                if (
-                    self.has_seen_max[i]
-                    and value < self.min_after_max_value[i]
-                ):
+                if self.has_seen_max[i] and value < self.min_after_max_value[i]:
                     self.min_after_max_value[i] = value
                     self.min_after_max_epoch[i] = epoch
                     self._save(
@@ -463,10 +456,7 @@ struct MultiMetricCheckpointer:
                         value,
                         epoch,
                     )
-                if (
-                    self.has_seen_min[i]
-                    and value > self.max_after_min_value[i]
-                ):
+                if self.has_seen_min[i] and value > self.max_after_min_value[i]:
                     self.max_after_min_value[i] = value
                     self.max_after_min_epoch[i] = epoch
                     self._save(
@@ -588,10 +578,7 @@ def main() raises:
     var test_images = normalize_images(test_images_raw)
 
     # Optional subset (memorization regime)
-    if (
-        config.subset_size > 0
-        and config.subset_size < train_images.shape()[0]
-    ):
+    if config.subset_size > 0 and config.subset_size < train_images.shape()[0]:
         train_images = train_images.slice(0, config.subset_size, axis=0)
         train_labels = train_labels.slice(0, config.subset_size, axis=0)
         print("  Subset: ", train_images.shape()[0], "samples")

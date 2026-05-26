@@ -534,16 +534,18 @@ def update_parameters_adamw(
     grad_fc3_bias: AnyTensor,
 ) raises:
     """Apply AdamW update to all 10 parameters, mutating model and state."""
-    (model.conv1_kernel, state.m_conv1_kernel, state.v_conv1_kernel) = (
-        adamw_step(
-            model.conv1_kernel,
-            grad_conv1_kernel,
-            state.m_conv1_kernel,
-            state.v_conv1_kernel,
-            t,
-            lr,
-            weight_decay=weight_decay,
-        )
+    (
+        model.conv1_kernel,
+        state.m_conv1_kernel,
+        state.v_conv1_kernel,
+    ) = adamw_step(
+        model.conv1_kernel,
+        grad_conv1_kernel,
+        state.m_conv1_kernel,
+        state.v_conv1_kernel,
+        t,
+        lr,
+        weight_decay=weight_decay,
     )
     (model.conv1_bias, state.m_conv1_bias, state.v_conv1_bias) = adamw_step(
         model.conv1_bias,
@@ -554,16 +556,18 @@ def update_parameters_adamw(
         lr,
         weight_decay=weight_decay,
     )
-    (model.conv2_kernel, state.m_conv2_kernel, state.v_conv2_kernel) = (
-        adamw_step(
-            model.conv2_kernel,
-            grad_conv2_kernel,
-            state.m_conv2_kernel,
-            state.v_conv2_kernel,
-            t,
-            lr,
-            weight_decay=weight_decay,
-        )
+    (
+        model.conv2_kernel,
+        state.m_conv2_kernel,
+        state.v_conv2_kernel,
+    ) = adamw_step(
+        model.conv2_kernel,
+        grad_conv2_kernel,
+        state.m_conv2_kernel,
+        state.v_conv2_kernel,
+        t,
+        lr,
+        weight_decay=weight_decay,
     )
     (model.conv2_bias, state.m_conv2_bias, state.v_conv2_bias) = adamw_step(
         model.conv2_bias,
