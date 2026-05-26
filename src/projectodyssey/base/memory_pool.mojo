@@ -362,11 +362,11 @@ struct _FreeListNode(Movable):
     at the beginning of each free block itself.
 
     Attributes:
-        next: Pointer to the next free block, or null if this is the last.
+        next: Pointer to the next free block, or None if this is the last.
     """
 
-    var next: UnsafePointer[_FreeListNode, MutAnyOrigin]
-    """Next block in free list, or null if last."""
+    var next: Optional[UnsafePointer[_FreeListNode, MutAnyOrigin]]
+    """Next block in free list, or None if last."""
 
 
 struct FreeList(Copyable, Movable):
@@ -376,13 +376,13 @@ struct FreeList(Copyable, Movable):
     Each block contains space for the linked list node at the beginning.
 
     Attributes:
-        head: Pointer to the first free block, or null if empty.
+        head: Pointer to the first free block, or None if empty.
         block_size: Size of each block managed by this free list.
         count: Number of blocks currently in the free list.
     """
 
-    var head: UnsafePointer[_FreeListNode, MutAnyOrigin]
-    """First node in free list, or null if empty."""
+    var head: Optional[UnsafePointer[_FreeListNode, MutAnyOrigin]]
+    """First node in free list, or None if empty."""
     var block_size: Int
     """Size of each block managed by this list."""
     var count: Int
@@ -394,7 +394,7 @@ struct FreeList(Copyable, Movable):
         Args:
             block_size: Size of each block this list will manage.
         """
-        self.head = UnsafePointer[_FreeListNode, MutAnyOrigin](_unsafe_null=())
+        self.head = None
         self.block_size = block_size
         self.count = 0
 
@@ -404,20 +404,17 @@ struct FreeList(Copyable, Movable):
         Returns:
             True if there are no free blocks available.
         """
-        return self.head == UnsafePointer[_FreeListNode, MutAnyOrigin](
-            _unsafe_null=()
-        )
+        return self.head is None
 
     def pop(mut self) -> UnsafePointer[UInt8, MutAnyOrigin]:
         """Remove and return a block from the free list.
 
         Returns:
-            UnsafePointer to the allocated block, or null if list is empty.
-        """
-        if self.is_empty():
-            return UnsafePointer[UInt8, MutAnyOrigin](_unsafe_null=())
+            UnsafePointer to the allocated block.
 
-        var node = self.head
+        Note: Caller must ensure the list is not empty before calling.
+        """
+        var node = self.head.value()
         self.head = node[].next
         self.count -= 1
 
@@ -429,15 +426,7 @@ struct FreeList(Copyable, Movable):
 
         Args:
             ptr: Pointer to the block to return to the pool.
-
-        Note: ptr must not be null. A null pointer indicates an allocation
-              failure and should not be returned to the pool.
         """
-        # Guard against null pointers (shouldn't happen in normal operation,
-        # but provides safety if allocate() somehow returns null)
-        if ptr == UnsafePointer[UInt8, MutAnyOrigin](_unsafe_null=()):
-            return
-
         var node = ptr.bitcast[_FreeListNode]()
         node[].next = self.head
         self.head = node
