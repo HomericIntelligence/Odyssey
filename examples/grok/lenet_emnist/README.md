@@ -154,7 +154,7 @@ Differences from `examples/lenet_emnist/`:
 
 ## Multi-metric best-checkpoint tracker
 
-Per-metric tracking modes via `--track-metric NAME:MODE` (repeatable):
+Per-metric tracking modes via `--track-metric NAME:MODE,NAME:MODE,...` (comma-separated, single flag):
 
 | Mode | Files saved | When |
 | --- | --- | --- |
@@ -167,10 +167,12 @@ Each `.bin` file is accompanied by a `.json` sidecar with `{"metric", "mode_kind
 Defaults from `train.sh`:
 
 ```text
---track-metric test_acc:max         # the headline "best model" checkpoint
---track-metric test_loss:both       # detect post-peak loss recovery (grok signal)
---track-metric train_loss:min       # sanity: training did converge
---track-metric weight_l2_norm:max   # detect weight-norm growth phase
+--track-metric "test_acc:max,test_loss:both,train_loss:min,weight_l2_norm:max"
+#                ^             ^             ^              ^
+#                |             |             |              detect weight-norm growth phase
+#                |             |             sanity: training did converge
+#                |             detect post-peak loss recovery (grok signal)
+#                the headline "best model" checkpoint
 ```
 
 The `min_after_max` and `max_after_min` distinction matters: a naive
@@ -195,7 +197,7 @@ during Phase 3).
 | `--max-batches` | 0 | If > 0, stop training after N batches per epoch (dry-run aid) |
 | `--log-every` | 1 | Emit EPOCH structured line every K epochs |
 | `--checkpoint-every` | 1 | Run checkpoint update every K epochs |
-| `--track-metric` | (repeatable) | `metric_name:mode` — see table above |
+| `--track-metric` | `test_acc:max` | Comma-separated list of `metric_name:mode` — see table above |
 
 `train.sh` presets a sensible subset of these per profile.
 

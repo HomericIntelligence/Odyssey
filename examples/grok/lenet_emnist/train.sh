@@ -22,8 +22,12 @@
 
 set -euo pipefail
 
-PROFILE="${1:?usage: $0 {dry-run|smoke|full} [extra mojo flags...]}"
-shift || true
+if [ $# -lt 1 ]; then
+  echo "usage: $0 {dry-run|smoke|full} [extra mojo flags...]" >&2
+  exit 2
+fi
+PROFILE="$1"
+shift
 
 # Operate from the repo root so `-I src` resolves projectodyssey.* correctly.
 REPO_ROOT="$(git rev-parse --show-toplevel)"
@@ -67,10 +71,7 @@ COMMON_FLAGS=(
   --lr 1e-3
   --weight-decay 1.0
   --batch-size 64
-  --track-metric test_acc:max
-  --track-metric test_loss:both
-  --track-metric train_loss:min
-  --track-metric weight_l2_norm:max
+  --track-metric "test_acc:max,test_loss:both,train_loss:min,weight_l2_norm:max"
   --data-dir datasets/emnist
   --weights-dir "examples/grok/lenet_emnist/checkpoints"
 )

@@ -12,7 +12,7 @@ emitted by ``examples/grok/lenet_emnist/train.mojo`` and reports:
   skill. Triggers when test accuracy peaks early then regresses while
   training loss keeps falling.
 
-- Phase 1 (memorization complete): train_acc >= 99 % for >= 5 consecutive
+- Phase 1 (memorization complete): train_acc >= 99 % for >= 3 consecutive
   logged epochs.
 
 - Phase 3 (grokking onset): test_acc jumps by >= 20 percentage points within
@@ -43,11 +43,11 @@ import sys
 from dataclasses import dataclass
 from pathlib import Path
 
-EPOCH_RE = re.compile(
-    r"EPOCH\s+(?P<epoch>\d+)"
-    r"(?:\s+(?P<kvs>(?:\S+=\S+\s*)+))?"
-)
-KV_RE = re.compile(r"(?P<key>\w+)=(?P<val>[-+]?(?:nan|inf|\d*\.?\d+(?:[eE][-+]?\d+)?))")
+# Match: "EPOCH 1 train_loss= 4.82926 train_acc= 0.0 test_loss= 3.85 test_acc= 2.13 weight_l2= 0.0"
+# Mojo's print() inserts a space after each value, so we accept "key= value" (with optional space
+# around the =) rather than the stricter "key=value".
+EPOCH_RE = re.compile(r"EPOCH\s+(?P<epoch>\d+)(?P<rest>.*)")
+KV_RE = re.compile(r"(?P<key>\w+)\s*=\s*(?P<val>[-+]?(?:nan|inf|\d*\.?\d+(?:[eE][-+]?\d+)?))")
 
 
 @dataclass
@@ -60,11 +60,14 @@ def parse_log(path: Path) -> list[EpochRow]:
     """Extract EPOCH rows from the log file. Tolerates non-EPOCH chatter around them."""
     rows: list[EpochRow] = []
     text = path.read_text(encoding="utf-8", errors="replace")
-    for m in EPOCH_RE.finditer(text):
+    for line in text.splitlines():
+        m = EPOCH_RE.search(line)
+        if not m:
+            continue
         epoch = int(m.group("epoch"))
-        kvs_blob = m.group("kvs") or ""
+        rest = m.group("rest") or ""
         metrics: dict[str, float] = {}
-        for kv in KV_RE.finditer(kvs_blob):
+        for kv in KV_RE.finditer(rest):
             try:
                 metrics[kv.group("key")] = float(kv.group("val"))
             except ValueError:
@@ -101,17 +104,10 @@ def diagnose_overfitting(rows: list[EpochRow]) -> dict:
         drop_ratio = (loss_at_peak - loss_at_end) / loss_at_peak
 
     post_peak = [v for e, v in accs if e > peak_epoch and v is not None]
-    below_peak_fraction = (
-        sum(1 for v in post_peak if v < peak_acc - 0.05) / len(post_peak)
-        if post_peak
-        else 0.0
-    )
+    below_peak_fraction = sum(1 for v in post_peak if v < peak_acc - 0.05) / len(post_peak) if post_peak else 0.0
 
     decoupling = (
-        drop_ratio is not None
-        and drop_ratio > 0.10
-        and (peak_acc - final_acc) > 0.3
-        and below_peak_fraction > 0.5
+        drop_ratio is not None and drop_ratio > 0.10 and (peak_acc - final_acc) > 0.3 and below_peak_fraction > 0.5
     )
 
     return {
@@ -146,14 +142,10 @@ def detect_phase1(rows: list[EpochRow], threshold: float = 99.0, consecutive: in
         else:
             run = 0
             first_epoch = None
-    last_train_acc = next(
-        (r.metrics["train_acc"] for r in reversed(rows) if "train_acc" in r.metrics), None
-    )
+    last_train_acc = next((r.metrics["train_acc"] for r in reversed(rows) if "train_acc" in r.metrics), None)
     return {
         "reached": False,
-        "max_train_acc_seen": max(
-            (r.metrics["train_acc"] for r in rows if "train_acc" in r.metrics), default=None
-        ),
+        "max_train_acc_seen": max((r.metrics["train_acc"] for r in rows if "train_acc" in r.metrics), default=None),
         "last_train_acc": last_train_acc,
         "needed": threshold,
     }
@@ -241,10 +233,7 @@ def emit_full(rows: list[EpochRow]) -> int:
     if p1["reached"]:
         print(f"Phase 1 (memorization complete):   reached at epoch {p1['first_epoch']}")
     else:
-        print(
-            f"Phase 1 (memorization complete):   NOT reached "
-            f"(max train_acc = {p1['max_train_acc_seen']:.2f}%)"
-        )
+        print(f"Phase 1 (memorization complete):   NOT reached (max train_acc = {p1['max_train_acc_seen']:.2f}%)")
 
     p3 = detect_phase3(rows)
     if p3["reached"]:
@@ -265,14 +254,8 @@ def emit_full(rows: list[EpochRow]) -> int:
         print(f"  peak test_acc:           {diag['peak_acc']:.4f}% at epoch {diag['peak_epoch']}")
         print(f"  final test_acc:          {diag['final_acc']:.4f}% at epoch {diag['final_epoch']}")
         if diag["loss_drop_after_peak_ratio"] is not None:
-            print(
-                f"  train_loss drop ratio after peak: "
-                f"{diag['loss_drop_after_peak_ratio']*100:.1f}%"
-            )
-        print(
-            f"  fraction of post-peak epochs below peak: "
-            f"{diag['post_peak_below_peak_fraction']*100:.1f}%"
-        )
+            print(f"  train_loss drop ratio after peak: {diag['loss_drop_after_peak_ratio'] * 100:.1f}%")
+        print(f"  fraction of post-peak epochs below peak: {diag['post_peak_below_peak_fraction'] * 100:.1f}%")
         verdict = (
             "OVERFITTING DETECTED (train loss kept falling while test accuracy regressed)"
             if diag["decoupling_detected"]
