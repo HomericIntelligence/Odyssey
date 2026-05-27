@@ -18,6 +18,11 @@ https://github.com/org/repo/issues/XX
 # These are valid redirects, not broken links
 github\.com/HomericIntelligence/ProjectOdyssey
 
+# Ignore ProjectMnemosyne skill links — GitHub returns intermittent 404s to
+# unauthenticated lychee on org repos even when the file exists (verified via
+# `gh api repos/HomericIntelligence/ProjectMnemosyne/contents/skills/...`).
+github\.com/HomericIntelligence/ProjectMnemosyne
+
 # Ignore pytorch docs redirects (pytorch.org -> docs.pytorch.org)
 pytorch\.org/docs
 
