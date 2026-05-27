@@ -66,7 +66,7 @@ blanket delete to everything under `repro/` and `repro/issues/`. The audit-trail
 comment posted to issue #5108 listed all 22 deleted paths but did not
 distinguish #6413-specific from independent bugs.
 
-Restored in PR <this PR> from the last commit that touched all of these files
+Restored in PR #5464 from the last commit that touched all of these files
 together: `e8c5609a` (refactor(packaging): rename shared/ → src/projectodyssey/
 (PR 1 of 4)).
 
