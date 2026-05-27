@@ -57,7 +57,7 @@ C and D both hold the lock simultaneously -> data corruption or deadlock.
 
 from std.algorithm import parallelize
 from std.memory import UnsafePointer, alloc
-from std.os.atomic import Atomic
+from std.atomic import Atomic
 
 
 struct BuggySpinLock:
@@ -149,7 +149,11 @@ def test_with_correct_lock() raises:
             + String(counter[0])
         )
     counter.free()
-    print("CORRECT lock: 8 threads x 500 iters, counter =", NUM_THREADS * ITERS, "✓")
+    print(
+        "CORRECT lock: 8 threads x 500 iters, counter =",
+        NUM_THREADS * ITERS,
+        "✓",
+    )
 
 
 def main() raises:
@@ -163,4 +167,7 @@ def main() raises:
     print("CorrectSpinLock for BuggySpinLock in test_with_correct_lock()")
     print("and observe the hang.")
     print("")
-    print("See src/projectodyssey/base/memory_pool.mojo SpinLock.unlock() for the production fix.")
+    print(
+        "See src/projectodyssey/base/memory_pool.mojo SpinLock.unlock() for the"
+        " production fix."
+    )
