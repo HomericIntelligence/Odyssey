@@ -320,7 +320,12 @@ def train_epoch(
             batch_labels_int_shape, train_labels.dtype()
         )
 
-        # Copy data into batch tensors
+        # Copy data into batch tensors using dtype-agnostic accessors.
+        # NOTE: the previous version used `(_data + i).load()` on the UInt8
+        # byte pointer, copying only 1 byte per element regardless of dtype
+        # and silently corrupting float32 training data. _get/_set_float64
+        # round-trip through Float64 and preserve the value at whatever
+        # precision the tensor was allocated with.
         for i in range(actual_batch_size):
             var sample_idx = start_idx + i
             # Copy image
@@ -349,12 +354,12 @@ def train_epoch(
                             + h * train_images.shape()[3]
                             + w
                         )
-                        (batch_images._data + dst_idx).store(
-                            (train_images._data + src_idx).load()
+                        batch_images._set_float64(
+                            dst_idx, train_images._get_float64(src_idx)
                         )
             # Copy label
-            (batch_labels_int._data + i).store(
-                (train_labels._data + sample_idx).load()
+            batch_labels_int._set_float64(
+                i, train_labels._get_float64(sample_idx)
             )
 
         # Convert batch labels to one-hot encoding
