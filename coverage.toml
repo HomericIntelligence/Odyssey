@@ -1,5 +1,8 @@
 # coverage.toml - Coverage configuration for ML Odyssey
-# Note: Full coverage metrics blocked until Mojo provides tooling (ADR-008)
+# STATUS: ASPIRATIONAL — targets cannot be enforced until Mojo provides coverage tooling (ADR-008)
+# These targets define the project's coverage goals and are used by map_test_to_source.py
+# to prioritize which source modules most urgently need test files.
+# Next review: 2026-06-25
 
 [coverage]
 # Overall project target (when available)
@@ -64,3 +67,9 @@ patterns = [
     "*/test_*.mojo",
     "examples/*/run_*.mojo",
 ]
+
+[mapping]
+# Configuration for test-to-source file mapping (scripts/map_test_to_source.py)
+# Until Mojo coverage tooling is available, this script identifies source modules
+# that lack test files as a structural coverage proxy
+tolerance = 0.10  # Flag when >10% of source modules lack test files

@@ -371,6 +371,47 @@ If Mojo releases coverage in a custom format (not Cobertura XML):
 3. **Consider Conversion**: Convert to Cobertura for tool compatibility
 4. **Update Expectations**: Revise documentation with actual format
 
+## Structural Coverage Workaround (Interim Mitigation)
+
+**Status**: Approved as interim measure pending Mojo tooling availability
+
+Until Mojo provides coverage instrumentation, the `scripts/map_test_to_source.py` script provides a
+structural coverage proxy by identifying which source modules under `shared/` have corresponding test
+files under `tests/shared/`. This is not a replacement for line-level coverage but serves as a
+checkpoint to ensure no source modules are completely without tests.
+
+**How It Works**:
+
+1. Discovers all `.mojo` source files in `shared/` (excluding `__init__.mojo`)
+2. Discovers all `test_*.mojo` test files in `tests/shared/`
+3. Maps each source file to test files using naming conventions:
+   - `shared/core/loss.mojo` → `tests/shared/core/test_loss*.mojo`
+   - `shared/core/layers/linear.mojo` → `tests/shared/core/layers/test_linear*.mojo`
+4. Reports unmapped source files sorted by priority from `coverage.toml`
+5. Enforces a 10% tolerance threshold in CI: if >10% of source modules lack tests, the CI job fails
+
+**Limitations**:
+
+- Detects only the **absence of test files**, not the adequacy of test cases
+- Does not measure line or branch coverage
+- Does not enforce coverage for test logic itself
+- Cannot detect untested code paths within tested files
+
+**When To Remove**:
+
+This workaround is automatically superseded when Mojo announces coverage tooling. At that time:
+
+1. Remove the `--ci` baseline-tracking logic from `map_test_to_source.py`
+2. Enable actual coverage enforcement in `check_coverage.py`
+3. Deprecate the mapping script (note in `README.md`)
+4. Update this ADR with migration details
+
+**References**:
+
+- Implementation: `scripts/map_test_to_source.py`
+- Tests: `tests/scripts/test_map_test_to_source.py`
+- CI Integration: `.github/workflows/comprehensive-tests.yml` job `validate-test-source-mapping`
+
 ## Alternatives Considered
 
 ### Alternative 1: Custom Coverage Instrumentation
@@ -802,10 +843,11 @@ This implementation is successful when:
 
 - **Location**: `/docs/adr/ADR-008-coverage-tool-blocker.md`
 - **Status**: Accepted
-- **Review Frequency**: As-needed (only if Mojo announces coverage features)
-- **Next Review**: TBD (triggered by Mojo announcements, not scheduled)
+- **Review Frequency**: Quarterly (2026-06-25 and subsequent quarters)
+- **Next Review**: 2026-06-25
 - **Supersedes**: None
 - **Superseded By**: None (current)
+- **Last Updated**: 2026-05-29 (added structural coverage workaround section)
 
 ---
 

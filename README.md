@@ -233,7 +233,8 @@ Full code coverage metrics are blocked by [Mojo coverage tooling availability](d
 
 ### Current Workarounds
 
-- All `test_*.mojo` files verified in CI via test discovery validation
+- **Test discovery validation** (`validate_test_coverage.py`) — ensures all test files run in CI
+- **Test-source mapping** (`map_test_to_source.py`) — identifies source modules lacking test files, prioritized by criticality
 - 298 test files (as of last count: `find tests -name 'test_*.mojo' | wc -l`) with 500+ test functions
 - Manual code review via PR checklist for test coverage verification
 - 70%+ threshold enforced for Python automation scripts via pytest-cov
