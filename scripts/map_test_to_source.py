@@ -103,8 +103,11 @@ def build_mapping(
         # src/projectodyssey/core/loss.mojo -> tests/projectodyssey/core/test_loss
         relative_path = source_file.relative_to(source_root)
         test_prefix = "test_" + relative_path.stem  # e.g., test_loss
-        # Map src/projectodyssey -> tests/projectodyssey
-        test_root = source_root.parent.parent / "tests" / source_root.name
+        # Map test files: tests/ is at the same level as the parent of source_root
+        # If source_root is /repo/src/projectodyssey, test_root is /repo/tests/projectodyssey
+        # If source_root is /tmpdir/shared, test_root is /tmpdir/tests/shared
+        source_parent = source_root.parent
+        test_root = source_parent.parent / "tests" / source_root.name
         test_dir = test_root / relative_path.parent
 
         # Find all matching test files (including part-numbered variants)
