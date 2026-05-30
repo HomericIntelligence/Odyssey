@@ -1,0 +1,17 @@
+[
+  {
+    "title": "File upstream tcmalloc/TSAN issue at modular/modular",
+    "body": "Issue #5391 documents the tcmalloc/ThreadSanitizer incompatibility. The doc includes a template for filing at https://github.com/modular/modular/issues. Once filed, update docs/dev/mojo-tsan-tcmalloc-incompatibility.md Tracking section with the actual upstream issue number and remove the 'not yet filed' fallback clause.",
+    "labels": ["documentation", "research"]
+  },
+  {
+    "title": "Add TSAN abort pattern to mojo-anti-patterns.md",
+    "body": "Document the tcmalloc MmapAligned() abort as a known failure pattern when building with --sanitize thread. Link to docs/dev/mojo-tsan-tcmalloc-incompatibility.md. This helps developers encountering the error quickly find the explanation.",
+    "labels": ["documentation", "enhancement"]
+  },
+  {
+    "title": "Update justfile once modular/modular fixes tcmalloc/TSAN",
+    "body": "When Modular reconciles the tcmalloc/ThreadSanitizer incompatibility upstream, re-run `just test-mojo-tsan` to verify all 298 tests pass. If passing, remove the ⚠️ caveat from the test-mojo-tsan comment block, update the doc's Status section, and simplify the scoped comment in _test-mojo-sanitized-inner.",
+    "labels": ["documentation", "testing"]
+  }
+]
