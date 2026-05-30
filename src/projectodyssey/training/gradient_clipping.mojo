@@ -641,7 +641,9 @@ def compute_gradient_statistics(
                     tensor_min = Float32(abs_val)
 
         # If NaN/Inf found, discard SIMD results and recompute scalar-only for this tensor
-        if has_nan_inf and (grad._dtype == DType.float32 or grad._dtype == DType.float64):
+        if has_nan_inf and (
+            grad._dtype == DType.float32 or grad._dtype == DType.float64
+        ):
             tensor_norm_sq = Float64(0.0)
             tensor_sum_abs = Float64(0.0)
             tensor_max = Float32(-1e9)
