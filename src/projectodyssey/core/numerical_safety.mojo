@@ -28,6 +28,8 @@ Example:
 from projectodyssey.tensor.any_tensor import AnyTensor
 from std.math import isnan, isinf, sqrt
 from std.collections import List
+from std.algorithm import vectorize
+from std.sys.info import simd_width_of
 from projectodyssey.base.dtype_ordinal import (
     dtype_to_ordinal,
     DTYPE_FLOAT16,
@@ -570,6 +572,111 @@ def check_gradient_safety[
 # `mojo package shared` from compiling. (Issue #4513)
 
 
+# ============================================================================
+# SIMD Helper Functions
+# ============================================================================
+
+
+@always_inline
+def _clip_norm_sq_simd_f32(tensor: AnyTensor) -> Float64:
+    """Compute squared L2 norm using SIMD for float32 tensors."""
+    comptime simd_width = simd_width_of[DType.float32]()
+    var size = tensor._numel
+    var ptr = tensor._data.bitcast[Float32]()
+    var acc = Float64(0.0)
+
+    def vectorized_norm[width: Int](idx: Int) {var ptr, mut acc}:
+        var vec = ptr.load[width=width](idx)
+        var sq = vec * vec
+        acc += sq.reduce_add().cast[DType.float64]()
+
+    vectorize[simd_width](size, vectorized_norm)
+    return acc
+
+
+@always_inline
+def _clip_norm_sq_simd_f64(tensor: AnyTensor) -> Float64:
+    """Compute squared L2 norm using SIMD for float64 tensors."""
+    comptime simd_width = simd_width_of[DType.float64]()
+    var size = tensor._numel
+    var ptr = tensor._data.bitcast[Float64]()
+    var acc = Float64(0.0)
+
+    def vectorized_norm[width: Int](idx: Int) {var ptr, mut acc}:
+        var vec = ptr.load[width=width](idx)
+        var sq = vec * vec
+        acc += sq.reduce_add()
+
+    vectorize[simd_width](size, vectorized_norm)
+    return acc
+
+
+@always_inline
+def _clip_scale_simd_f32(tensor: AnyTensor, scale: Float32):
+    """Scale all elements in-place using SIMD for float32 tensors."""
+    comptime simd_width = simd_width_of[DType.float32]()
+    var size = tensor._numel
+    var ptr = tensor._data.bitcast[Float32]()
+
+    def vectorized_scale[width: Int](idx: Int) {var ptr, var scale}:
+        var vec = ptr.load[width=width](idx)
+        var scale_vec = SIMD[DType.float32, width](scale)
+        ptr.store[width=width](idx, vec * scale_vec)
+
+    vectorize[simd_width](size, vectorized_scale)
+
+
+@always_inline
+def _clip_scale_simd_f64(tensor: AnyTensor, scale: Float64):
+    """Scale all elements in-place using SIMD for float64 tensors."""
+    comptime simd_width = simd_width_of[DType.float64]()
+    var size = tensor._numel
+    var ptr = tensor._data.bitcast[Float64]()
+
+    def vectorized_scale[width: Int](idx: Int) {var ptr, var scale}:
+        var vec = ptr.load[width=width](idx)
+        var scale_vec = SIMD[DType.float64, width](scale)
+        ptr.store[width=width](idx, vec * scale_vec)
+
+    vectorize[simd_width](size, vectorized_scale)
+
+
+@always_inline
+def _clip_clamp_simd_f32(tensor: AnyTensor, min_val: Float32, max_val: Float32):
+    """Clamp all elements in-place using SIMD for float32 tensors."""
+    comptime simd_width = simd_width_of[DType.float32]()
+    var size = tensor._numel
+    var ptr = tensor._data.bitcast[Float32]()
+
+    def vectorized_clamp[
+        width: Int
+    ](idx: Int) {var ptr, var min_val, var max_val}:
+        var vec = ptr.load[width=width](idx)
+        var min_vec = SIMD[DType.float32, width](min_val)
+        var max_vec = SIMD[DType.float32, width](max_val)
+        ptr.store[width=width](idx, max(min_vec, min(max_vec, vec)))
+
+    vectorize[simd_width](size, vectorized_clamp)
+
+
+@always_inline
+def _clip_clamp_simd_f64(tensor: AnyTensor, min_val: Float64, max_val: Float64):
+    """Clamp all elements in-place using SIMD for float64 tensors."""
+    comptime simd_width = simd_width_of[DType.float64]()
+    var size = tensor._numel
+    var ptr = tensor._data.bitcast[Float64]()
+
+    def vectorized_clamp[
+        width: Int
+    ](idx: Int) {var ptr, var min_val, var max_val}:
+        var vec = ptr.load[width=width](idx)
+        var min_vec = SIMD[DType.float64, width](min_val)
+        var max_vec = SIMD[DType.float64, width](max_val)
+        ptr.store[width=width](idx, max(min_vec, min(max_vec, vec)))
+
+    vectorize[simd_width](size, vectorized_clamp)
+
+
 def clip_grad_value_(mut grad: AnyTensor, max_value: Float64) raises:
     """Clip each gradient element to [-max_value, max_value].
 
@@ -587,12 +694,18 @@ def clip_grad_value_(mut grad: AnyTensor, max_value: Float64) raises:
     if max_value < 0.0:
         raise Error("max_value must be non-negative, got: " + String(max_value))
 
-    for i in range(grad.numel()):
-        var val = grad._get_float64(i)
-        if val > max_value:
-            grad._set_float64(i, max_value)
-        elif val < -max_value:
-            grad._set_float64(i, -max_value)
+    if grad._dtype == DType.float32:
+        _clip_clamp_simd_f32(grad, Float32(-max_value), Float32(max_value))
+    elif grad._dtype == DType.float64:
+        _clip_clamp_simd_f64(grad, -max_value, max_value)
+    else:
+        # Scalar fallback for other dtypes
+        for i in range(grad.numel()):
+            var val = grad._get_float64(i)
+            if val > max_value:
+                grad._set_float64(i, max_value)
+            elif val < -max_value:
+                grad._set_float64(i, -max_value)
 
 
 def clip_grad_norm_(mut grad: AnyTensor, max_norm: Float64) raises -> Float64:
@@ -615,18 +728,31 @@ def clip_grad_norm_(mut grad: AnyTensor, max_norm: Float64) raises -> Float64:
     if max_norm < 0.0:
         raise Error("max_norm must be non-negative, got: " + String(max_norm))
 
-    var norm_squared = 0.0
-    for i in range(grad.numel()):
-        var val = grad._get_float64(i)
-        norm_squared += val * val
+    var norm_squared: Float64
+    if grad._dtype == DType.float32:
+        norm_squared = _clip_norm_sq_simd_f32(grad)
+    elif grad._dtype == DType.float64:
+        norm_squared = _clip_norm_sq_simd_f64(grad)
+    else:
+        # Scalar fallback for other dtypes
+        norm_squared = 0.0
+        for i in range(grad.numel()):
+            var val = grad._get_float64(i)
+            norm_squared += val * val
 
     var norm = sqrt(norm_squared)
 
     if norm > max_norm and norm > 0.0:
         var scale_factor = max_norm / norm
-        for i in range(grad.numel()):
-            var val = grad._get_float64(i)
-            grad._set_float64(i, val * scale_factor)
+        if grad._dtype == DType.float32:
+            _clip_scale_simd_f32(grad, Float32(scale_factor))
+        elif grad._dtype == DType.float64:
+            _clip_scale_simd_f64(grad, scale_factor)
+        else:
+            # Scalar fallback for other dtypes
+            for i in range(grad.numel()):
+                var val = grad._get_float64(i)
+                grad._set_float64(i, val * scale_factor)
 
     return norm
 
@@ -655,21 +781,35 @@ def clip_grad_global_norm_(
     if len(grads) == 0:
         raise Error("grads list cannot be empty")
 
+    # Phase 1: accumulate norm using SIMD where possible
     var total_norm_squared = 0.0
     for grad_idx in range(len(grads)):
         var grad = grads[grad_idx]
-        for elem_idx in range(grad.numel()):
-            var val = grad._get_float64(elem_idx)
-            total_norm_squared += val * val
+        if grad._dtype == DType.float32:
+            total_norm_squared += _clip_norm_sq_simd_f32(grad)
+        elif grad._dtype == DType.float64:
+            total_norm_squared += _clip_norm_sq_simd_f64(grad)
+        else:
+            # Scalar fallback for other dtypes
+            for elem_idx in range(grad.numel()):
+                var val = grad._get_float64(elem_idx)
+                total_norm_squared += val * val
 
     var global_norm = sqrt(total_norm_squared)
 
+    # Phase 2: scale all gradients if needed
     if global_norm > max_norm and global_norm > 0.0:
         var scale_factor = max_norm / global_norm
         for grad_idx in range(len(grads)):
             var grad = grads[grad_idx]
-            for elem_idx in range(grad.numel()):
-                var val = grad._get_float64(elem_idx)
-                grad._set_float64(elem_idx, val * scale_factor)
+            if grad._dtype == DType.float32:
+                _clip_scale_simd_f32(grad, Float32(scale_factor))
+            elif grad._dtype == DType.float64:
+                _clip_scale_simd_f64(grad, scale_factor)
+            else:
+                # Scalar fallback for other dtypes
+                for elem_idx in range(grad.numel()):
+                    var val = grad._get_float64(elem_idx)
+                    grad._set_float64(elem_idx, val * scale_factor)
 
     return global_norm
