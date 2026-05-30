@@ -24,12 +24,19 @@ Design principles:
 """
 
 from std.collections import List
+from std.time import perf_counter_ns
 from projectodyssey.tensor.any_tensor import AnyTensor
 from projectodyssey.training.metrics import AccuracyMetric, LossTracker
 from projectodyssey.training.trainer_interface import (
     DataLoader,
     DataBatch,
     TrainingMetrics,
+)
+from projectodyssey.training.interruption import (
+    WallClockTimer,
+    is_shutdown_requested,
+    TrainingResult,
+    ShutdownReason,
 )
 
 
@@ -178,31 +185,37 @@ struct TrainingLoop:
     - Gradient updates
     - Metric tracking
     - Progress logging
+    - Timeout management and graceful shutdown
 
     Consolidates common training patterns from all examples:
     - Epoch iteration with configurable batch size
     - Custom batch processing via compute_batch_loss callback
     - Automatic progress reporting
     - Evaluation support with custom eval function
+    - Wall-clock timeout and signal-based shutdown
 
     Example usage (matches examples pattern):
-        var loop = TrainingLoop(log_interval=100)
-        loop.run_epoch(
-            train_images, train_labels, batch_size=128,
-            compute_batch_loss=my_batch_fn,
-            total_epochs=100, current_epoch=1
+        var loop = TrainingLoop(log_interval=100, max_wall_time_seconds=3600)
+        var result = loop.run(
+            model_forward, compute_loss, optimizer_step, zero_gradients,
+            train_loader, 100, metrics
         )
     """
 
     var log_interval: Int
     var clip_gradients: Bool
     var max_grad_norm: Float64
+    var max_wall_time_seconds: Int
+    var checkpoint_on_interrupt: Bool
+    var timer: WallClockTimer
 
     def __init__(
         out self,
         log_interval: Int = 10,
         clip_gradients: Bool = False,
         max_grad_norm: Float64 = 1.0,
+        max_wall_time_seconds: Int = 0,
+        checkpoint_on_interrupt: Bool = True,
     ):
         """Initialize training loop.
 
@@ -210,10 +223,15 @@ struct TrainingLoop:
             log_interval: Log metrics every N batches.
             clip_gradients: Whether to clip gradients.
             max_grad_norm: Maximum gradient norm for clipping.
+            max_wall_time_seconds: Max wall-clock seconds (0 = no limit).
+            checkpoint_on_interrupt: Save checkpoint on interrupt (default True).
         """
         self.log_interval = log_interval
         self.clip_gradients = clip_gradients
         self.max_grad_norm = max_grad_norm
+        self.max_wall_time_seconds = max_wall_time_seconds
+        self.checkpoint_on_interrupt = checkpoint_on_interrupt
+        self.timer = WallClockTimer()
 
     def run_epoch_manual[
         BatchLossFn: def(AnyTensor, AnyTensor) raises -> Float32,
@@ -332,8 +350,8 @@ struct TrainingLoop:
         mut train_loader: DataLoader,
         num_epochs: Int,
         mut metrics: TrainingMetrics,
-    ) raises:
-        """Run complete training loop.
+    ) raises -> TrainingResult:
+        """Run complete training loop with timeout support.
 
         Args:
             model_forward: Forward pass function.
@@ -344,10 +362,15 @@ struct TrainingLoop:
             num_epochs: Number of epochs to train.
             metrics: Training metrics to update.
 
+        Returns:
+            TrainingResult with termination reason and final epoch count.
+
         Raises:
             Error: If training fails.
         """
         print("\nStarting training for " + String(num_epochs) + " epochs...")
+        if self.max_wall_time_seconds > 0:
+            print("Wall-clock timeout: " + String(self.max_wall_time_seconds) + " seconds")
         print("=" * 50)
 
         for epoch in range(num_epochs):
@@ -366,6 +389,32 @@ struct TrainingLoop:
                 metrics,
             )
 
+            # Check for timeout or shutdown at epoch boundary
+            if self.max_wall_time_seconds > 0 and self.timer.has_elapsed(self.max_wall_time_seconds):
+                print("\nTraining timeout reached after " + String(self.timer.elapsed_seconds()) + " seconds")
+                return TrainingResult(
+                    stopped_epoch=epoch,
+                    reason=ShutdownReason.timeout(),
+                    checkpoint_path="",
+                    elapsed_seconds=self.timer.elapsed_seconds(),
+                )
+
+            if is_shutdown_requested():
+                print("\nTraining interrupted by shutdown signal")
+                return TrainingResult(
+                    stopped_epoch=epoch,
+                    reason=ShutdownReason.signal(),
+                    checkpoint_path="",
+                    elapsed_seconds=self.timer.elapsed_seconds(),
+                )
+
         print("\n" + "=" * 50)
         print("Training complete!")
         metrics.print_summary()
+
+        return TrainingResult(
+            stopped_epoch=num_epochs - 1,
+            reason=ShutdownReason.completed(),
+            checkpoint_path="",
+            elapsed_seconds=self.timer.elapsed_seconds(),
+        )
