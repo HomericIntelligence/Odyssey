@@ -153,7 +153,10 @@ def _count_inf_core[dtype: DType](tensor: Tensor[dtype]) -> Int:
 
 
 def _tensor_min_core[dtype: DType](tensor: Tensor[dtype]) -> Float64:
-    """Find minimum value in typed tensor (core implementation).
+    """Find minimum value in typed tensor (SIMD-vectorized).
+
+    Uses manual SIMD loop with reduce_min for parallel computation.
+    Falls back to scalar loop for tail elements.
 
     Parameters:
         dtype: Compile-time dtype parameter.
@@ -170,15 +173,31 @@ def _tensor_min_core[dtype: DType](tensor: Tensor[dtype]) -> Float64:
 
     var min_val = Float64(1e308)
     var ptr = tensor._data
-    for i in range(size):
+    comptime simd_w = simd_width_of[dtype]()
+
+    # SIMD loop
+    var i = 0
+    while i + simd_w <= size:
+        var vec = ptr.load[width=simd_w](i)
+        var vec_min = Float64(vec.reduce_min())
+        if vec_min < min_val:
+            min_val = vec_min
+        i += simd_w
+
+    # Scalar tail
+    while i < size:
         var val = Float64(ptr[i])
         if val < min_val:
             min_val = val
+        i += 1
     return min_val
 
 
 def _tensor_max_core[dtype: DType](tensor: Tensor[dtype]) -> Float64:
-    """Find maximum value in typed tensor (core implementation).
+    """Find maximum value in typed tensor (SIMD-vectorized).
+
+    Uses manual SIMD loop with reduce_max for parallel computation.
+    Falls back to scalar loop for tail elements.
 
     Parameters:
         dtype: Compile-time dtype parameter.
@@ -195,15 +214,31 @@ def _tensor_max_core[dtype: DType](tensor: Tensor[dtype]) -> Float64:
 
     var max_val = Float64(-1e308)
     var ptr = tensor._data
-    for i in range(size):
+    comptime simd_w = simd_width_of[dtype]()
+
+    # SIMD loop
+    var i = 0
+    while i + simd_w <= size:
+        var vec = ptr.load[width=simd_w](i)
+        var vec_max = Float64(vec.reduce_max())
+        if vec_max > max_val:
+            max_val = vec_max
+        i += simd_w
+
+    # Scalar tail
+    while i < size:
         var val = Float64(ptr[i])
         if val > max_val:
             max_val = val
+        i += 1
     return max_val
 
 
 def _compute_l2_norm_core[dtype: DType](tensor: Tensor[dtype]) -> Float64:
-    """Compute L2 norm of typed tensor (core implementation).
+    """Compute L2 norm of typed tensor (SIMD-vectorized).
+
+    Uses manual SIMD loop with reduce_add for parallel squaring and summation.
+    Falls back to scalar loop for tail elements.
 
     Parameters:
         dtype: Compile-time dtype parameter.
@@ -217,7 +252,19 @@ def _compute_l2_norm_core[dtype: DType](tensor: Tensor[dtype]) -> Float64:
     var size = tensor.numel()
     var sum_sq = Float64(0.0)
     var ptr = tensor._data
-    for i in range(size):
+    comptime simd_w = simd_width_of[dtype]()
+
+    # SIMD loop
+    var i = 0
+    while i + simd_w <= size:
+        var vec = ptr.load[width=simd_w](i)
+        var squared = vec * vec
+        sum_sq += Float64(squared.reduce_add())
+        i += simd_w
+
+    # Scalar tail
+    while i < size:
         var val = Float64(ptr[i])
         sum_sq += val * val
+        i += 1
     return sqrt(sum_sq)
