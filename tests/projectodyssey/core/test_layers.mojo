@@ -17,9 +17,10 @@ from tests.projectodyssey.conftest import (
     assert_true,
 )
 from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros, ones
+from projectodyssey.tensor.tensor_creation import zeros, ones, randn
 from projectodyssey.core.linear import linear, linear_no_bias
 from projectodyssey.core.activation import relu, sigmoid, tanh, softmax
+from projectodyssey.core.layers.conv2d import Conv2dLayer
 
 
 def test_linear_initialization() raises:
@@ -162,24 +163,26 @@ def test_conv2d_initialization() raises:
         Conv2D(
             in_channels: Int,
             out_channels: Int,
-            kernel_size: Int,
+            kernel_h: Int,
+            kernel_w: Int,
             stride: Int = 1,
-            padding: Int = 0,
-            bias: Bool = True
+            padding: Int = 0
         ).
     """
-    # TODO(#1538): Implement when Conv2D is available
-    # var layer = Conv2D(
-    #     in_channels=3,
-    #     out_channels=16,
-    #     kernel_size=3,
-    #     stride=1,
-    #     padding=1
-    # )
-    # assert_equal(layer.in_channels, 3)
-    # assert_equal(layer.out_channels, 16)
-    # assert_equal(layer.kernel_size, 3)
-    pass
+    var layer = Conv2dLayer(
+        in_channels=3,
+        out_channels=16,
+        kernel_h=3,
+        kernel_w=3,
+        stride=1,
+        padding=1
+    )
+    assert_equal(layer.in_channels, 3)
+    assert_equal(layer.out_channels, 16)
+    assert_equal(layer.kernel_h, 3)
+    assert_equal(layer.kernel_w, 3)
+    assert_equal(layer.stride, 1)
+    assert_equal(layer.padding, 1)
 
 
 def test_conv2d_output_shape() raises:
@@ -192,16 +195,15 @@ def test_conv2d_output_shape() raises:
         - Input: (batch, in_channels, height, width)
         - Output: (batch, out_channels, out_height, out_width).
     """
-    # TODO(#1538): Implement when Conv2D is available
-    # # Input: (batch=1, channels=3, height=32, width=32)
-    # # Conv2D: out_channels=16, kernel=3, stride=1, padding=1
-    # # Expected output: (1, 16, 32, 32) - same spatial size due to padding
-    #
-    # var layer = Conv2D(3, 16, kernel_size=3, stride=1, padding=1)
-    # var input = Tensor.randn(1, 3, 32, 32)
-    # var output = layer.forward(input)
-    # assert_shape_equal(output, Shape(1, 16, 32, 32))
-    pass
+    var layer = Conv2dLayer(3, 16, kernel_h=3, kernel_w=3, stride=1, padding=1)
+    var input_shape = List[Int](1, 3, 32, 32)
+    var input = randn(input_shape, DType.float32)
+    var output = layer.forward(input)
+    var output_shape = output.shape()
+    assert_equal(output_shape[0], 1)
+    assert_equal(output_shape[1], 16)
+    assert_equal(output_shape[2], 32)
+    assert_equal(output_shape[3], 32)
 
 
 def test_conv2d_stride() raises:
@@ -210,16 +212,15 @@ def test_conv2d_stride() raises:
     API Contract:
         Conv2D with stride=2 should halve spatial dimensions.
     """
-    # TODO(#1538): Implement when Conv2D is available
-    # # Input: (1, 3, 32, 32)
-    # # Conv2D: kernel=3, stride=2, padding=1
-    # # Expected output: (1, 16, 16, 16) - halved spatial size
-    #
-    # var layer = Conv2D(3, 16, kernel_size=3, stride=2, padding=1)
-    # var input = Tensor.randn(1, 3, 32, 32)
-    # var output = layer.forward(input)
-    # assert_shape_equal(output, Shape(1, 16, 16, 16))
-    pass
+    var layer = Conv2dLayer(3, 16, kernel_h=3, kernel_w=3, stride=2, padding=1)
+    var input_shape = List[Int](1, 3, 32, 32)
+    var input = randn(input_shape, DType.float32)
+    var output = layer.forward(input)
+    var output_shape = output.shape()
+    assert_equal(output_shape[0], 1)
+    assert_equal(output_shape[1], 16)
+    assert_equal(output_shape[2], 16)
+    assert_equal(output_shape[3], 16)
 
 
 def test_conv2d_valid_padding() raises:
@@ -228,16 +229,15 @@ def test_conv2d_valid_padding() raises:
     API Contract:
         Conv2D with padding=0 reduces spatial dimensions.
     """
-    # TODO(#1538): Implement when Conv2D is available
-    # # Input: (1, 3, 32, 32)
-    # # Conv2D: kernel=5, stride=1, padding=0
-    # # Expected output: (1, 16, 28, 28) - reduced by kernel_size-1
-    #
-    # var layer = Conv2D(3, 16, kernel_size=5, stride=1, padding=0)
-    # var input = Tensor.randn(1, 3, 32, 32)
-    # var output = layer.forward(input)
-    # assert_shape_equal(output, Shape(1, 16, 28, 28))
-    pass
+    var layer = Conv2dLayer(3, 16, kernel_h=5, kernel_w=5, stride=1, padding=0)
+    var input_shape = List[Int](1, 3, 32, 32)
+    var input = randn(input_shape, DType.float32)
+    var output = layer.forward(input)
+    var output_shape = output.shape()
+    assert_equal(output_shape[0], 1)
+    assert_equal(output_shape[1], 16)
+    assert_equal(output_shape[2], 28)
+    assert_equal(output_shape[3], 28)
 
 
 def test_relu_activation() raises:
@@ -345,16 +345,9 @@ def test_maxpool2d_downsampling() raises:
     API Contract:
         MaxPool2D(kernel_size: Int, stride: Int = None, padding: Int = 0)
         - Reduces spatial dimensions by kernel_size (if stride=kernel_size).
+
+    Deferred: MaxPool2D is not yet implemented - awaiting Issue #49 completion.
     """
-    # TODO(#1538): Implement when MaxPool2D is available
-    # # Input: (1, 16, 32, 32)
-    # # MaxPool2D: kernel=2, stride=2
-    # # Expected output: (1, 16, 16, 16)
-    #
-    # var pool = MaxPool2D(kernel_size=2, stride=2)
-    # var input = Tensor.randn(1, 16, 32, 32)
-    # var output = pool.forward(input)
-    # assert_shape_equal(output, Shape(1, 16, 16, 16))
     pass
 
 
@@ -363,19 +356,9 @@ def test_maxpool2d_max_selection() raises:
 
     API Contract:
         MaxPool2D selects max over kernel_size x kernel_size window.
+
+    Deferred: MaxPool2D is not yet implemented - awaiting Issue #49 completion.
     """
-    # TODO(#1538): Implement when MaxPool2D is available
-    # var pool = MaxPool2D(kernel_size=2)
-    #
-    # # Create input with known values
-    # # [[1, 2], [3, 4]] -> max = 4
-    # var data = [1.0, 2.0, 3.0, 4.0]
-    # var input = AnyTensor([1, 1, 2, 2], DType.float32)
-    # # Fill with data
-    # var output = pool.forward(input)
-    #
-    # # Output should be single value: 4.0
-    # assert_almost_equal(output._get_float64(0), 4.0)
     pass
 
 

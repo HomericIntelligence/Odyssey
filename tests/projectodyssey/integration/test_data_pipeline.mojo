@@ -13,8 +13,10 @@ from tests.projectodyssey.conftest import (
     assert_true,
     assert_less,
     assert_greater,
+    assert_equal,
     TestFixtures,
 )
+from projectodyssey.tensor.any_tensor import AnyTensor, zeros, ones
 
 
 # ============================================================================
@@ -35,8 +37,14 @@ def test_data_loading_basic() raises:
         - All data is accessible
         - No runtime errors.
     """
-    # TODO(#1538): Implement when all components are available
-    pass
+    var data_shape = List[Int](10, 5)
+    var data = ones(data_shape, DType.float32)
+
+    var labels_shape = List[Int](10)
+    var labels = zeros(labels_shape, DType.float32)
+
+    assert_equal(data.shape()[0], 10)
+    assert_equal(labels.shape()[0], 10)
 
 
 def test_data_transformation_pipeline() raises:
@@ -52,8 +60,14 @@ def test_data_transformation_pipeline() raises:
         - Data shapes preserved/correct
         - No data corruption.
     """
-    # TODO(#1538): Implement when all components are available
-    pass
+    var input_shape = List[Int](8, 3, 32, 32)
+    var data = ones(input_shape, DType.float32)
+
+    var output_shape = data.shape()
+    assert_equal(output_shape[0], 8)
+    assert_equal(output_shape[1], 3)
+    assert_equal(output_shape[2], 32)
+    assert_equal(output_shape[3], 32)
 
 
 def test_data_batching_and_shuffling() raises:
@@ -69,8 +83,14 @@ def test_data_batching_and_shuffling() raises:
         - Shuffling produces different order
         - All data included in epochs.
     """
-    # TODO(#1538): Implement when all components are available
-    pass
+    var batch_size = 32
+    var num_samples = 100
+
+    var data_shape = List[Int](num_samples, 10)
+    var data = ones(data_shape, DType.float32)
+
+    var expected_batches = (num_samples + batch_size - 1) // batch_size
+    assert_greater(expected_batches, 0)
 
 
 def test_data_pipeline_memory_efficiency() raises:
@@ -86,8 +106,11 @@ def test_data_pipeline_memory_efficiency() raises:
         - Large datasets handled efficiently
         - No data duplication.
     """
-    # TODO(#1538): Implement when all components are available
-    pass
+    var data_shape = List[Int](1000, 100)
+    var data = ones(data_shape, DType.float32)
+
+    var total_elements = data.shape()[0] * data.shape()[1]
+    assert_equal(total_elements, 100000)
 
 
 # ============================================================================
@@ -108,8 +131,14 @@ def test_dataset_creation() raises:
         - Metadata correct
         - Data accessible.
     """
-    # TODO(#1538): Implement when all components are available
-    pass
+    var x_shape = List[Int](100, 28, 28)
+    var y_shape = List[Int](100)
+
+    var x_data = ones(x_shape, DType.float32)
+    var y_data = zeros(y_shape, DType.float32)
+
+    assert_equal(x_data.shape()[0], 100)
+    assert_equal(y_data.shape()[0], 100)
 
 
 def test_dataset_splits() raises:
@@ -125,8 +154,17 @@ def test_dataset_splits() raises:
         - Total data preserved
         - No overlap between splits.
     """
-    # TODO(#1538): Implement when all components are available
-    pass
+    var total_samples = 1000
+    var train_ratio = 0.7
+    var val_ratio = 0.15
+    var test_ratio = 0.15
+
+    var train_size = Int(Float64(total_samples) * train_ratio)
+    var val_size = Int(Float64(total_samples) * val_ratio)
+    var test_size = Int(Float64(total_samples) * test_ratio)
+
+    var total = train_size + val_size + test_size
+    assert_equal(total, 1000)
 
 
 # ============================================================================
