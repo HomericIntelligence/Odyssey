@@ -116,7 +116,7 @@ def parse_coverage_report(coverage_file: Path) -> Optional[float]:
     # - CI test validation still runs (ensures tests execute, just no coverage metrics)
     #
     # BLOCKED BY: Mojo team (external dependency)
-    # REFERENCE: Issue #2583, Issue #2612, ADR-008
+    # REFERENCE: Issue #2583, Issue #2612, Issue #3079 (tracking), ADR-008
     print()
     print("⚠️" + "=" * 68)
     print("⚠️  WARNING: COVERAGE PARSING NOT IMPLEMENTED!")
