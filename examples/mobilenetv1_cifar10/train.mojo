@@ -26,7 +26,8 @@ Training Details:
     - Epochs: 200 (recommended)
 """
 
-from projectodyssey.tensor.any_tensor import AnyTensor, zeros
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import zeros
 from projectodyssey.core import (
     conv2d,
     batch_norm2d,

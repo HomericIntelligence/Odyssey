@@ -47,7 +47,8 @@ Examples:
     print(x.grad)  # Chain rule: dLoss/dx
 """
 
-from projectodyssey.tensor.any_tensor import AnyTensor, ones_like, zeros_like
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import ones_like, zeros_like
 from projectodyssey.core.arithmetic import (
     add_backward,
     subtract_backward,

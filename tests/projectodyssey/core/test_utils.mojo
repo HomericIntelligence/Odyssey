@@ -14,7 +14,8 @@ from tests.projectodyssey.conftest import (
     assert_true,
     assert_close_float,
 )
-from projectodyssey.tensor.any_tensor import AnyTensor, zeros, ones, arange
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import arange, ones, zeros
 from projectodyssey.core.utils import (
     argmax,
     argsort,

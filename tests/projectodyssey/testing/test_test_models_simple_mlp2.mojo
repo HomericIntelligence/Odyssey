@@ -12,11 +12,8 @@ from projectodyssey.testing import (
     assert_true,
     assert_equal,
 )
-from projectodyssey.tensor.any_tensor import (
-    AnyTensor,
-    zeros,
-    ones,
-)
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import ones, zeros
 
 
 # ============================================================================

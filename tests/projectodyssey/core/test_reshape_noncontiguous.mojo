@@ -4,7 +4,8 @@ Verifies that reshape() correctly handles non-contiguous tensors by using
 stride-based element access instead of flat-index access.
 """
 
-from projectodyssey.tensor.any_tensor import AnyTensor, arange
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import arange
 from projectodyssey.core.shape import (
     is_contiguous,
     reshape,

@@ -6,7 +6,8 @@ All operations return boolean tensors (DType.bool).
 """
 
 
-from projectodyssey.tensor.any_tensor import AnyTensor, full, ones, zeros
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import full, ones, zeros
 from projectodyssey.core.comparison import (
     equal,
     greater,

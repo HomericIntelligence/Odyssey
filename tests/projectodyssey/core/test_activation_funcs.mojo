@@ -17,7 +17,8 @@ from tests.projectodyssey.conftest import (
     assert_less_or_equal,
     assert_true,
 )
-from projectodyssey.tensor.any_tensor import AnyTensor, zeros, ones, full
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import full, ones, zeros
 from projectodyssey.core.activation import (
     leaky_relu,
     leaky_relu_backward,

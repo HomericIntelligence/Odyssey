@@ -10,7 +10,8 @@ These tests verify:
 - Incompatible shapes raise the expected error.
 """
 
-from projectodyssey.tensor.any_tensor import AnyTensor, zeros
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import zeros
 from projectodyssey.core.shape import concatenate
 from tests.projectodyssey.conftest import (
     assert_numel,

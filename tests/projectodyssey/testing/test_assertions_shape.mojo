@@ -12,7 +12,7 @@ from projectodyssey.testing.assertions import (
     assert_numel,
     assert_dim,
 )
-from projectodyssey.tensor.any_tensor import ones
+from projectodyssey.tensor.tensor_creation import ones
 
 
 def test_assert_greater_or_equal_float32_passes() raises:

@@ -4,13 +4,8 @@ Verifies that the thin wrapper methods on AnyTensor produce identical results
 to the functional implementations in projectodyssey.core.shape. Follows #3243 and #3804.
 """
 
-from projectodyssey.tensor.any_tensor import (
-    AnyTensor,
-    zeros,
-    ones,
-    full,
-    arange,
-)
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import arange, full, ones, zeros
 from projectodyssey.core.shape import split, split_with_indices
 
 from tests.projectodyssey.conftest import (

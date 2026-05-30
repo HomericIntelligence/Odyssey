@@ -9,7 +9,7 @@ from projectodyssey.testing.assertions import (
     assert_tensor_equal,
     assert_not_equal_tensor,
 )
-from projectodyssey.tensor.any_tensor import ones, zeros, full
+from projectodyssey.tensor.tensor_creation import full, ones, zeros
 
 
 def test_assert_all_values_passes() raises:

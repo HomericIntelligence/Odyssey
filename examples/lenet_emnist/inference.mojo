@@ -22,7 +22,8 @@ from projectodyssey.data.formats import (
     load_idx_labels,
     normalize_images,
 )
-from projectodyssey.tensor.any_tensor import AnyTensor, zeros
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import zeros
 from projectodyssey.utils.arg_parser import ArgumentParser
 from projectodyssey.training.metrics import (
     evaluate_with_predict,

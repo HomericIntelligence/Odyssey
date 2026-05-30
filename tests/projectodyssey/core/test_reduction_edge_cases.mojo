@@ -9,13 +9,8 @@ Tests edge cases for sum, mean, max_reduce, min_reduce operations including:
 """
 
 
-from projectodyssey.tensor.any_tensor import (
-    AnyTensor,
-    zeros,
-    ones,
-    full,
-    arange,
-)
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import arange, full, ones, zeros
 from projectodyssey.core.reduction import sum, mean, max_reduce, min_reduce
 from tests.projectodyssey.conftest import (
     assert_dtype,

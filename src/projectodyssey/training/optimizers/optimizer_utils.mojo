@@ -17,7 +17,8 @@ Design Philosophy:
 """
 
 from std.math import sqrt
-from projectodyssey.tensor.any_tensor import AnyTensor, zeros_like, full_like
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import full_like, zeros_like
 from projectodyssey.core.arithmetic_simd import multiply_simd
 
 
@@ -57,7 +58,7 @@ def initialize_optimizer_state(
             For SGD with momentum, use num_states=1 (one velocity buffer per param).
             For Adam variants, use num_states=2 (m and v buffers per param).
     """
-    from projectodyssey.tensor.any_tensor import zeros
+    from projectodyssey.tensor.tensor_creation import zeros
 
     var all_states = List[List[AnyTensor]]()
 
@@ -107,7 +108,7 @@ def initialize_optimizer_state_from_params(
             var states = initialize_optimizer_state_from_params(params, num_states=2)
             ```
     """
-    from projectodyssey.tensor.any_tensor import zeros
+    from projectodyssey.tensor.tensor_creation import zeros
 
     var all_states = List[List[AnyTensor]]()
 

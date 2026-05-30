@@ -6,14 +6,8 @@ behavior for tensors containing NaN values.
 """
 
 from std.memory import UnsafePointer
-from projectodyssey.tensor.any_tensor import (
-    AnyTensor,
-    zeros,
-    ones,
-    full,
-    arange,
-    nan_tensor,
-)
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import arange, full, nan_tensor, ones, zeros
 from tests.projectodyssey.conftest import (
     assert_equal_int,
 )

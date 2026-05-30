@@ -4,7 +4,8 @@ Note: Split from test_anytensor_new_methods.mojo due to Mojo 0.26.1 heap
 corruption bug that occurs after ~15 cumulative tests.
 """
 
-from projectodyssey.tensor.any_tensor import AnyTensor, zeros, randn
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import randn, zeros
 from tests.projectodyssey.conftest import (
     assert_true,
     assert_almost_equal,

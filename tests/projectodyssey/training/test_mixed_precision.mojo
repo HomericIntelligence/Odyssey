@@ -5,7 +5,8 @@ scaler step updates, backoff, min/max limits, and FP32 master weight conversion.
 """
 
 
-from projectodyssey.tensor.any_tensor import AnyTensor, full
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import full
 from projectodyssey.training.mixed_precision import (
     GradientScaler,
     check_gradients_finite,

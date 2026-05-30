@@ -20,13 +20,8 @@ from projectodyssey.testing import (
     create_linear_model,
     create_test_cnn,
 )
-from projectodyssey.tensor.any_tensor import (
-    AnyTensor,
-    full,
-    ones,
-    zeros,
-    zeros_like,
-)
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import full, ones, zeros, zeros_like
 
 
 def test_simple_cnn_initialization() raises:

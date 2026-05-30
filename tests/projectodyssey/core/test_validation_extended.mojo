@@ -17,7 +17,8 @@ from tests.projectodyssey.conftest import (
     assert_equal,
     assert_true,
 )
-from projectodyssey.tensor.any_tensor import AnyTensor, zeros, ones
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import ones, zeros
 from projectodyssey.core.validation import (
     validate_1d_input,
     validate_3d_input,

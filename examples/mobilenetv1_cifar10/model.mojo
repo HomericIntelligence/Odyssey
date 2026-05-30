@@ -19,7 +19,8 @@ References:
     https://arxiv.org/abs/1704.04861
 """
 
-from projectodyssey.tensor.any_tensor import AnyTensor, zeros
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import zeros
 from projectodyssey.core import (
     conv2d,
     batch_norm2d,

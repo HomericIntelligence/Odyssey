@@ -15,7 +15,8 @@ from projectodyssey.data.loaders import (
 from projectodyssey.data.samplers import RandomSampler
 from projectodyssey.data.dataset_with_transform import TransformedDataset
 from projectodyssey.data.prefetch import PrefetchBuffer, PrefetchDataLoader
-from projectodyssey.tensor.any_tensor import AnyTensor, ones, zeros
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import ones, zeros
 from std.collections import List
 
 

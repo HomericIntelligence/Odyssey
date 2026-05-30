@@ -21,7 +21,7 @@ from projectodyssey.core.arithmetic_simd import (
     multiply_simd,
     add_simd,
 )
-from projectodyssey.tensor.any_tensor import full_like
+from projectodyssey.tensor.tensor_creation import full_like
 
 
 def sgd_step(
@@ -291,7 +291,7 @@ def initialize_velocities(
             The order of velocities matches the order of shapes provided.
             Ensure you use the same ordering when calling sgd_momentum_update_inplace.
     """
-    from projectodyssey.tensor.any_tensor import zeros
+    from projectodyssey.tensor.tensor_creation import zeros
 
     var velocities: List[AnyTensor] = []
 
@@ -336,7 +336,7 @@ def initialize_velocities_from_params(
             var velocities = initialize_velocities_from_params(params)
             ```
     """
-    from projectodyssey.tensor.any_tensor import zeros
+    from projectodyssey.tensor.tensor_creation import zeros
 
     var velocities: List[AnyTensor] = []
 

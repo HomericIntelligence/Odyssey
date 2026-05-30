@@ -7,7 +7,8 @@ Tests cover:
 """
 
 from tests.projectodyssey.conftest import assert_almost_equal, assert_equal
-from projectodyssey.tensor.any_tensor import AnyTensor, zeros, ones
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import ones, zeros
 from projectodyssey.core.conv import conv2d, conv2d_backward
 
 

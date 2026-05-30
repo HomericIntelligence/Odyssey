@@ -16,7 +16,8 @@ from projectodyssey.tensor.tensor import (
     Tensor,
     Tensor as T,
 )
-from projectodyssey.tensor.any_tensor import AnyTensor, zeros
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import zeros
 
 
 def test_anytensor_alias_works() raises:

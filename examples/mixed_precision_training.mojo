@@ -18,7 +18,8 @@ Usage:
     mojo examples/mixed_precision_training.mojo
 """
 
-from projectodyssey.tensor.any_tensor import AnyTensor, full
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import full
 from projectodyssey.training.mixed_precision import (
     GradientScaler,
     convert_to_fp32_master,

@@ -13,7 +13,8 @@ Where:
     d_k: Key dimension (used for scaling).
 """
 
-from projectodyssey.tensor.any_tensor import AnyTensor, zeros, zeros_like, ones
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import ones, zeros, zeros_like
 from projectodyssey.core.matrix import matmul, transpose
 from projectodyssey.core.activation import softmax
 from projectodyssey.core.arithmetic import multiply, divide, add

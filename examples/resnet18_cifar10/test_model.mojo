@@ -8,7 +8,8 @@ Shared Modules Used:
 """
 
 from model import ResNet18
-from projectodyssey.tensor.any_tensor import AnyTensor, zeros
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import zeros
 from projectodyssey.utils.serialization import save_tensor, load_tensor
 from projectodyssey.data.constants import DatasetInfo
 from std.collections import List

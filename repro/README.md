@@ -47,8 +47,9 @@ Mojo 1.0.0b2 syntax so the triage measured behavior, not syntax drift. Per
 - `std.os.atomic` → `std.atomic` (Recipe 6); `spinlock_race_condition.mojo`.
 - Removed redundant `if self._refcount:` null-checks (Recipe 3 Case B);
   `repro_crash_standalone.mojo`.
-- Restored synthetic `repro_heavy_A.mojo` / `repro_heavy_B.mojo`
-  (~1357/1359 lines) that the synthetic import-chain reproducer depended on.
+- Noted that synthetic `repro_heavy_A.mojo` / `repro_heavy_B.mojo`
+  (~1357/1359 lines) that the import-chain reproducer depended on
+  were deleted as part of this triage sweep (lines 26).
 - Resolved unresolved git merge conflict in `bug_repro_vgg16_e2e_part1_pre_fix.mojo.bug`
   (preserved verbatim at `.merge-conflict-snapshot`).
 
@@ -64,14 +65,22 @@ based on the in-flight CI workflow.
 ## Triage protocol used
 
 ```bash
-for i in 1..10:
+for i in {1..10}; do
   pixi run mojo run -I src -I . repro/<file>.mojo
+done
 ```
 
 Tally per file: clean exits, nonzero exits, any `execution crashed` /
 `libKGENCompilerRTShared.so+` / `libAsyncRT` / `SIGILL` / `fortify_fail`
-substring in output. Full logs live under `/tmp/repro-triage/*.log` for
-the validation run that produced this sweep.
+substring in output.
+
+**Note on verification:** Triage logs were recorded under `/tmp/repro-triage/*.log`
+at the time of execution (2026-05-26), but these logs are ephemeral system
+artifacts and not committed to the repository. Reproducers deleted on
+"10/10 local" verdict can be re-verified by running the triage protocol
+above. For unfiled-bug reproducers (lines 22-28), this is particularly
+important as they should be re-tested in future Mojo releases or if CI
+validation becomes available.
 
 ## Why these were originally restored (2026-05-26 morning)
 

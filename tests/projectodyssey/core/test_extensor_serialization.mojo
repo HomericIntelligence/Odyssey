@@ -9,7 +9,8 @@ Tests the save_tensor() and load_tensor() standalone functions for:
 Runs as: pixi run mojo ./tests/shared/core/test_extensor_serialization.mojo (legacy name)
 """
 
-from projectodyssey.tensor.any_tensor import AnyTensor, zeros, ones, arange
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import arange, ones, zeros
 from projectodyssey.utils.serialization import save_tensor, load_tensor
 
 

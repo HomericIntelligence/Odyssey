@@ -13,7 +13,8 @@ from projectodyssey.testing.gradient_checker import (
     NumericalForward,
     NumericalBackward,
 )
-from projectodyssey.tensor.any_tensor import AnyTensor, zeros, zeros_like
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import zeros, zeros_like
 from projectodyssey.core.conv import depthwise_conv2d, depthwise_conv2d_backward
 
 

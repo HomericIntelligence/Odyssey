@@ -5,7 +5,8 @@ from tests.projectodyssey.conftest import (
     assert_equal,
     assert_true,
 )
-from projectodyssey.tensor.any_tensor import AnyTensor, zeros, ones, ones_like
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import ones, ones_like, zeros
 from projectodyssey.core.linear import linear, linear_backward
 from projectodyssey.testing.gradient_checker import (
     check_gradient,

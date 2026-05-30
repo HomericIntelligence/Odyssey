@@ -15,7 +15,8 @@ from projectodyssey.autograd import (
     apply_gradient,
     multiply_scalar,
 )
-from projectodyssey.tensor.any_tensor import AnyTensor, zeros
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import zeros
 from projectodyssey.core.arithmetic import add, multiply
 from projectodyssey.core.reduction import sum as tensor_sum
 

@@ -13,7 +13,8 @@ Design Note:
 """
 
 from projectodyssey.core.module import Module
-from projectodyssey.tensor.any_tensor import AnyTensor, zeros, ones
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import ones, zeros
 from projectodyssey.core.sequential import Sequential2, Sequential3
 from tests.projectodyssey.conftest import (
     assert_true,

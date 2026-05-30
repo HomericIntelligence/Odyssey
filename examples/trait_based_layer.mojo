@@ -21,7 +21,8 @@ Usage:
     mojo run examples/trait_based_layer.mojo
 """
 
-from projectodyssey.tensor.any_tensor import AnyTensor, zeros, zeros_like
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import zeros, zeros_like
 from projectodyssey.core.linear import linear, linear_backward
 from projectodyssey.core.traits import (
     Differentiable,

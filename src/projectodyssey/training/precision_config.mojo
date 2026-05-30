@@ -24,7 +24,8 @@ See examples/mixed_precision_training.mojo for complete usage
 from std.sys import is_defined
 from std.io import Writer
 
-from projectodyssey.tensor.any_tensor import AnyTensor, full, zeros
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import full, zeros
 from projectodyssey.core.dtype_cast import cast_tensor
 from projectodyssey.core.numerical_safety import has_nan, has_inf
 from projectodyssey.training.mixed_precision import (

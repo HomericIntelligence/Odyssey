@@ -21,7 +21,8 @@ from projectodyssey.training.precision_config import (
     PrecisionConfig,
     PrecisionMode,
 )
-from projectodyssey.tensor.any_tensor import AnyTensor, zeros, ones, full
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import full, ones, zeros
 from std.collections import List
 
 

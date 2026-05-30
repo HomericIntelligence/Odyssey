@@ -49,7 +49,8 @@ Example:
 
 from std.random import random_float64, seed as random_seed
 from std.math import isnan, isinf
-from projectodyssey.tensor.any_tensor import AnyTensor, zeros, ones, full
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import full, ones, zeros
 from projectodyssey.testing.dtype_utils import dtype_to_string
 
 

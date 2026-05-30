@@ -33,7 +33,8 @@ share the parent's allocation, which the parent's destructor will free
 via refcount decrement).
 """
 
-from projectodyssey.tensor.any_tensor import AnyTensor, ones
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import ones
 
 
 def main() raises:
