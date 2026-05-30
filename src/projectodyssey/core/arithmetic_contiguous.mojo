@@ -27,6 +27,7 @@ Usage:
 from std.algorithm import vectorize
 from std.sys.info import simd_width_of
 from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.core.dtype_dispatch import dispatch_binary_tensor
 
 
 # ============================================================================
@@ -105,52 +106,7 @@ def _add_contiguous_dispatch(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     Returns:
         Result tensor containing a + b.
     """
-    from projectodyssey.tensor.typed.arithmetic_contiguous import (
-        _add_contiguous_typed,
-    )
-
-    if a.dtype() == DType.float32:
-        return _add_contiguous_typed[DType.float32](
-            a.as_tensor[DType.float32](), b.as_tensor[DType.float32]()
-        ).as_any()
-    elif a.dtype() == DType.float64:
-        return _add_contiguous_typed[DType.float64](
-            a.as_tensor[DType.float64](), b.as_tensor[DType.float64]()
-        ).as_any()
-    elif a.dtype() == DType.int8:
-        return _add_contiguous_typed[DType.int8](
-            a.as_tensor[DType.int8](), b.as_tensor[DType.int8]()
-        ).as_any()
-    elif a.dtype() == DType.int16:
-        return _add_contiguous_typed[DType.int16](
-            a.as_tensor[DType.int16](), b.as_tensor[DType.int16]()
-        ).as_any()
-    elif a.dtype() == DType.int32:
-        return _add_contiguous_typed[DType.int32](
-            a.as_tensor[DType.int32](), b.as_tensor[DType.int32]()
-        ).as_any()
-    elif a.dtype() == DType.int64:
-        return _add_contiguous_typed[DType.int64](
-            a.as_tensor[DType.int64](), b.as_tensor[DType.int64]()
-        ).as_any()
-    elif a.dtype() == DType.uint8:
-        return _add_contiguous_typed[DType.uint8](
-            a.as_tensor[DType.uint8](), b.as_tensor[DType.uint8]()
-        ).as_any()
-    elif a.dtype() == DType.uint16:
-        return _add_contiguous_typed[DType.uint16](
-            a.as_tensor[DType.uint16](), b.as_tensor[DType.uint16]()
-        ).as_any()
-    elif a.dtype() == DType.uint32:
-        return _add_contiguous_typed[DType.uint32](
-            a.as_tensor[DType.uint32](), b.as_tensor[DType.uint32]()
-        ).as_any()
-    elif a.dtype() == DType.uint64:
-        return _add_contiguous_typed[DType.uint64](
-            a.as_tensor[DType.uint64](), b.as_tensor[DType.uint64]()
-        ).as_any()
-    else:
-        raise Error("Unsupported dtype for contiguous addition")
+    return dispatch_binary_tensor[_add_contiguous](a, b)
 
 
 def _subtract_contiguous_dispatch(
@@ -165,52 +121,7 @@ def _subtract_contiguous_dispatch(
     Returns:
         Result tensor containing a - b.
     """
-    from projectodyssey.tensor.typed.arithmetic_contiguous import (
-        _subtract_contiguous_typed,
-    )
-
-    if a.dtype() == DType.float32:
-        return _subtract_contiguous_typed[DType.float32](
-            a.as_tensor[DType.float32](), b.as_tensor[DType.float32]()
-        ).as_any()
-    elif a.dtype() == DType.float64:
-        return _subtract_contiguous_typed[DType.float64](
-            a.as_tensor[DType.float64](), b.as_tensor[DType.float64]()
-        ).as_any()
-    elif a.dtype() == DType.int8:
-        return _subtract_contiguous_typed[DType.int8](
-            a.as_tensor[DType.int8](), b.as_tensor[DType.int8]()
-        ).as_any()
-    elif a.dtype() == DType.int16:
-        return _subtract_contiguous_typed[DType.int16](
-            a.as_tensor[DType.int16](), b.as_tensor[DType.int16]()
-        ).as_any()
-    elif a.dtype() == DType.int32:
-        return _subtract_contiguous_typed[DType.int32](
-            a.as_tensor[DType.int32](), b.as_tensor[DType.int32]()
-        ).as_any()
-    elif a.dtype() == DType.int64:
-        return _subtract_contiguous_typed[DType.int64](
-            a.as_tensor[DType.int64](), b.as_tensor[DType.int64]()
-        ).as_any()
-    elif a.dtype() == DType.uint8:
-        return _subtract_contiguous_typed[DType.uint8](
-            a.as_tensor[DType.uint8](), b.as_tensor[DType.uint8]()
-        ).as_any()
-    elif a.dtype() == DType.uint16:
-        return _subtract_contiguous_typed[DType.uint16](
-            a.as_tensor[DType.uint16](), b.as_tensor[DType.uint16]()
-        ).as_any()
-    elif a.dtype() == DType.uint32:
-        return _subtract_contiguous_typed[DType.uint32](
-            a.as_tensor[DType.uint32](), b.as_tensor[DType.uint32]()
-        ).as_any()
-    elif a.dtype() == DType.uint64:
-        return _subtract_contiguous_typed[DType.uint64](
-            a.as_tensor[DType.uint64](), b.as_tensor[DType.uint64]()
-        ).as_any()
-    else:
-        raise Error("Unsupported dtype for contiguous subtraction")
+    return dispatch_binary_tensor[_subtract_contiguous](a, b)
 
 
 def _multiply_contiguous_dispatch(
@@ -225,52 +136,7 @@ def _multiply_contiguous_dispatch(
     Returns:
         Result tensor containing a * b.
     """
-    from projectodyssey.tensor.typed.arithmetic_contiguous import (
-        _multiply_contiguous_typed,
-    )
-
-    if a.dtype() == DType.float32:
-        return _multiply_contiguous_typed[DType.float32](
-            a.as_tensor[DType.float32](), b.as_tensor[DType.float32]()
-        ).as_any()
-    elif a.dtype() == DType.float64:
-        return _multiply_contiguous_typed[DType.float64](
-            a.as_tensor[DType.float64](), b.as_tensor[DType.float64]()
-        ).as_any()
-    elif a.dtype() == DType.int8:
-        return _multiply_contiguous_typed[DType.int8](
-            a.as_tensor[DType.int8](), b.as_tensor[DType.int8]()
-        ).as_any()
-    elif a.dtype() == DType.int16:
-        return _multiply_contiguous_typed[DType.int16](
-            a.as_tensor[DType.int16](), b.as_tensor[DType.int16]()
-        ).as_any()
-    elif a.dtype() == DType.int32:
-        return _multiply_contiguous_typed[DType.int32](
-            a.as_tensor[DType.int32](), b.as_tensor[DType.int32]()
-        ).as_any()
-    elif a.dtype() == DType.int64:
-        return _multiply_contiguous_typed[DType.int64](
-            a.as_tensor[DType.int64](), b.as_tensor[DType.int64]()
-        ).as_any()
-    elif a.dtype() == DType.uint8:
-        return _multiply_contiguous_typed[DType.uint8](
-            a.as_tensor[DType.uint8](), b.as_tensor[DType.uint8]()
-        ).as_any()
-    elif a.dtype() == DType.uint16:
-        return _multiply_contiguous_typed[DType.uint16](
-            a.as_tensor[DType.uint16](), b.as_tensor[DType.uint16]()
-        ).as_any()
-    elif a.dtype() == DType.uint32:
-        return _multiply_contiguous_typed[DType.uint32](
-            a.as_tensor[DType.uint32](), b.as_tensor[DType.uint32]()
-        ).as_any()
-    elif a.dtype() == DType.uint64:
-        return _multiply_contiguous_typed[DType.uint64](
-            a.as_tensor[DType.uint64](), b.as_tensor[DType.uint64]()
-        ).as_any()
-    else:
-        raise Error("Unsupported dtype for contiguous multiplication")
+    return dispatch_binary_tensor[_multiply_contiguous](a, b)
 
 
 def _divide_contiguous_dispatch(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
@@ -283,52 +149,7 @@ def _divide_contiguous_dispatch(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     Returns:
         Result tensor containing a / b.
     """
-    from projectodyssey.tensor.typed.arithmetic_contiguous import (
-        _divide_contiguous_typed,
-    )
-
-    if a.dtype() == DType.float32:
-        return _divide_contiguous_typed[DType.float32](
-            a.as_tensor[DType.float32](), b.as_tensor[DType.float32]()
-        ).as_any()
-    elif a.dtype() == DType.float64:
-        return _divide_contiguous_typed[DType.float64](
-            a.as_tensor[DType.float64](), b.as_tensor[DType.float64]()
-        ).as_any()
-    elif a.dtype() == DType.int8:
-        return _divide_contiguous_typed[DType.int8](
-            a.as_tensor[DType.int8](), b.as_tensor[DType.int8]()
-        ).as_any()
-    elif a.dtype() == DType.int16:
-        return _divide_contiguous_typed[DType.int16](
-            a.as_tensor[DType.int16](), b.as_tensor[DType.int16]()
-        ).as_any()
-    elif a.dtype() == DType.int32:
-        return _divide_contiguous_typed[DType.int32](
-            a.as_tensor[DType.int32](), b.as_tensor[DType.int32]()
-        ).as_any()
-    elif a.dtype() == DType.int64:
-        return _divide_contiguous_typed[DType.int64](
-            a.as_tensor[DType.int64](), b.as_tensor[DType.int64]()
-        ).as_any()
-    elif a.dtype() == DType.uint8:
-        return _divide_contiguous_typed[DType.uint8](
-            a.as_tensor[DType.uint8](), b.as_tensor[DType.uint8]()
-        ).as_any()
-    elif a.dtype() == DType.uint16:
-        return _divide_contiguous_typed[DType.uint16](
-            a.as_tensor[DType.uint16](), b.as_tensor[DType.uint16]()
-        ).as_any()
-    elif a.dtype() == DType.uint32:
-        return _divide_contiguous_typed[DType.uint32](
-            a.as_tensor[DType.uint32](), b.as_tensor[DType.uint32]()
-        ).as_any()
-    elif a.dtype() == DType.uint64:
-        return _divide_contiguous_typed[DType.uint64](
-            a.as_tensor[DType.uint64](), b.as_tensor[DType.uint64]()
-        ).as_any()
-    else:
-        raise Error("Unsupported dtype for contiguous division")
+    return dispatch_binary_tensor[_divide_contiguous](a, b)
 
 
 # ============================================================================

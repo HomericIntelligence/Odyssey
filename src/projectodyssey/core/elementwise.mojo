@@ -16,6 +16,8 @@ from projectodyssey.core.dtype_dispatch import (
     dispatch_binary,
     dispatch_float_unary,
     dispatch_float_binary,
+    dispatch_tensor_all_dtypes,
+    dispatch_float3,
 )
 from projectodyssey.base.dtype_ordinal import (
     dtype_to_ordinal,
@@ -393,23 +395,11 @@ def _dispatch_clip_forward(
     result: AnyTensor, tensor: AnyTensor, min_val: Float64, max_val: Float64
 ) raises:
     """Runtime dispatch for clip forward pass."""
-    var dtype = tensor.dtype()
-    if dtype == DType.float16:
-        _clip_forward_impl[DType.float16](result, tensor, min_val, max_val)
-    elif dtype == DType.float32:
-        _clip_forward_impl[DType.float32](result, tensor, min_val, max_val)
-    elif dtype == DType.float64:
-        _clip_forward_impl[DType.float64](result, tensor, min_val, max_val)
-    elif dtype == DType.int8:
-        _clip_forward_impl[DType.int8](result, tensor, min_val, max_val)
-    elif dtype == DType.int16:
-        _clip_forward_impl[DType.int16](result, tensor, min_val, max_val)
-    elif dtype == DType.int32:
-        _clip_forward_impl[DType.int32](result, tensor, min_val, max_val)
-    elif dtype == DType.int64:
-        _clip_forward_impl[DType.int64](result, tensor, min_val, max_val)
-    else:
-        raise Error("clip: unsupported dtype")
+    @parameter
+    fn kernel[dtype: DType]() raises:
+        _clip_forward_impl[dtype](result, tensor, min_val, max_val)
+
+    dispatch_tensor_all_dtypes[kernel](tensor.dtype())
 
 
 @always_inline
@@ -434,15 +424,11 @@ def _dispatch_log10_forward(
     result: AnyTensor, tensor: AnyTensor, numel: Int
 ) raises:
     """Runtime dispatch for log10 forward pass."""
-    var dtype = tensor.dtype()
-    if dtype == DType.float16:
-        _log10_forward_impl[DType.float16](result, tensor, numel)
-    elif dtype == DType.float32:
-        _log10_forward_impl[DType.float32](result, tensor, numel)
-    elif dtype == DType.float64:
-        _log10_forward_impl[DType.float64](result, tensor, numel)
-    else:
-        raise Error("log10: unsupported dtype (requires float type)")
+    @parameter
+    fn kernel[dtype: DType]() raises:
+        _log10_forward_impl[dtype](result, tensor, numel)
+
+    dispatch_float3[kernel](tensor.dtype())
 
 
 @always_inline
@@ -467,15 +453,11 @@ def _dispatch_log2_forward(
     result: AnyTensor, tensor: AnyTensor, numel: Int
 ) raises:
     """Runtime dispatch for log2 forward pass."""
-    var dtype = tensor.dtype()
-    if dtype == DType.float16:
-        _log2_forward_impl[DType.float16](result, tensor, numel)
-    elif dtype == DType.float32:
-        _log2_forward_impl[DType.float32](result, tensor, numel)
-    elif dtype == DType.float64:
-        _log2_forward_impl[DType.float64](result, tensor, numel)
-    else:
-        raise Error("log2: unsupported dtype (requires float type)")
+    @parameter
+    fn kernel[dtype: DType]() raises:
+        _log2_forward_impl[dtype](result, tensor, numel)
+
+    dispatch_float3[kernel](tensor.dtype())
 
 
 def _logical_and_impl[
@@ -523,37 +505,11 @@ def _dispatch_logical_and(
     total_elems: Int,
 ) raises:
     """Runtime dispatch for logical AND."""
-    var dtype = a.dtype()
-    if dtype == DType.float16:
-        _logical_and_impl[DType.float16](
-            result, a, b, strides_a, strides_b, result_shape, total_elems
-        )
-    elif dtype == DType.float32:
-        _logical_and_impl[DType.float32](
-            result, a, b, strides_a, strides_b, result_shape, total_elems
-        )
-    elif dtype == DType.float64:
-        _logical_and_impl[DType.float64](
-            result, a, b, strides_a, strides_b, result_shape, total_elems
-        )
-    elif dtype == DType.int8:
-        _logical_and_impl[DType.int8](
-            result, a, b, strides_a, strides_b, result_shape, total_elems
-        )
-    elif dtype == DType.int16:
-        _logical_and_impl[DType.int16](
-            result, a, b, strides_a, strides_b, result_shape, total_elems
-        )
-    elif dtype == DType.int32:
-        _logical_and_impl[DType.int32](
-            result, a, b, strides_a, strides_b, result_shape, total_elems
-        )
-    elif dtype == DType.int64:
-        _logical_and_impl[DType.int64](
-            result, a, b, strides_a, strides_b, result_shape, total_elems
-        )
-    else:
-        raise Error("logical_and: unsupported dtype")
+    @parameter
+    fn kernel[dtype: DType]() raises:
+        _logical_and_impl[dtype](result, a, b, strides_a, strides_b, result_shape, total_elems)
+
+    dispatch_tensor_all_dtypes[kernel](a.dtype())
 
 
 def _logical_or_impl[
@@ -600,37 +556,11 @@ def _dispatch_logical_or(
     total_elems: Int,
 ) raises:
     """Runtime dispatch for logical OR."""
-    var dtype = a.dtype()
-    if dtype == DType.float16:
-        _logical_or_impl[DType.float16](
-            result, a, b, strides_a, strides_b, result_shape, total_elems
-        )
-    elif dtype == DType.float32:
-        _logical_or_impl[DType.float32](
-            result, a, b, strides_a, strides_b, result_shape, total_elems
-        )
-    elif dtype == DType.float64:
-        _logical_or_impl[DType.float64](
-            result, a, b, strides_a, strides_b, result_shape, total_elems
-        )
-    elif dtype == DType.int8:
-        _logical_or_impl[DType.int8](
-            result, a, b, strides_a, strides_b, result_shape, total_elems
-        )
-    elif dtype == DType.int16:
-        _logical_or_impl[DType.int16](
-            result, a, b, strides_a, strides_b, result_shape, total_elems
-        )
-    elif dtype == DType.int32:
-        _logical_or_impl[DType.int32](
-            result, a, b, strides_a, strides_b, result_shape, total_elems
-        )
-    elif dtype == DType.int64:
-        _logical_or_impl[DType.int64](
-            result, a, b, strides_a, strides_b, result_shape, total_elems
-        )
-    else:
-        raise Error("logical_or: unsupported dtype")
+    @parameter
+    fn kernel[dtype: DType]() raises:
+        _logical_or_impl[dtype](result, a, b, strides_a, strides_b, result_shape, total_elems)
+
+    dispatch_tensor_all_dtypes[kernel](a.dtype())
 
 
 @always_inline
@@ -651,23 +581,11 @@ def _dispatch_logical_not(
     result: AnyTensor, tensor: AnyTensor, numel: Int
 ) raises:
     """Runtime dispatch for logical NOT."""
-    var dtype = tensor.dtype()
-    if dtype == DType.float16:
-        _logical_not_impl[DType.float16](result, tensor, numel)
-    elif dtype == DType.float32:
-        _logical_not_impl[DType.float32](result, tensor, numel)
-    elif dtype == DType.float64:
-        _logical_not_impl[DType.float64](result, tensor, numel)
-    elif dtype == DType.int8:
-        _logical_not_impl[DType.int8](result, tensor, numel)
-    elif dtype == DType.int16:
-        _logical_not_impl[DType.int16](result, tensor, numel)
-    elif dtype == DType.int32:
-        _logical_not_impl[DType.int32](result, tensor, numel)
-    elif dtype == DType.int64:
-        _logical_not_impl[DType.int64](result, tensor, numel)
-    else:
-        raise Error("logical_not: unsupported dtype")
+    @parameter
+    fn kernel[dtype: DType]() raises:
+        _logical_not_impl[dtype](result, tensor, numel)
+
+    dispatch_tensor_all_dtypes[kernel](tensor.dtype())
 
 
 def _logical_xor_impl[
@@ -717,37 +635,11 @@ def _dispatch_logical_xor(
     total_elems: Int,
 ) raises:
     """Runtime dispatch for logical XOR."""
-    var dtype = a.dtype()
-    if dtype == DType.float16:
-        _logical_xor_impl[DType.float16](
-            result, a, b, strides_a, strides_b, result_shape, total_elems
-        )
-    elif dtype == DType.float32:
-        _logical_xor_impl[DType.float32](
-            result, a, b, strides_a, strides_b, result_shape, total_elems
-        )
-    elif dtype == DType.float64:
-        _logical_xor_impl[DType.float64](
-            result, a, b, strides_a, strides_b, result_shape, total_elems
-        )
-    elif dtype == DType.int8:
-        _logical_xor_impl[DType.int8](
-            result, a, b, strides_a, strides_b, result_shape, total_elems
-        )
-    elif dtype == DType.int16:
-        _logical_xor_impl[DType.int16](
-            result, a, b, strides_a, strides_b, result_shape, total_elems
-        )
-    elif dtype == DType.int32:
-        _logical_xor_impl[DType.int32](
-            result, a, b, strides_a, strides_b, result_shape, total_elems
-        )
-    elif dtype == DType.int64:
-        _logical_xor_impl[DType.int64](
-            result, a, b, strides_a, strides_b, result_shape, total_elems
-        )
-    else:
-        raise Error("logical_xor: unsupported dtype")
+    @parameter
+    fn kernel[dtype: DType]() raises:
+        _logical_xor_impl[dtype](result, a, b, strides_a, strides_b, result_shape, total_elems)
+
+    dispatch_tensor_all_dtypes[kernel](a.dtype())
 
 
 def clip(
