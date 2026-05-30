@@ -20,7 +20,8 @@ from tests.projectodyssey.conftest import (
     TestFixtures,
 )
 from projectodyssey.testing.models import SimpleMLP
-from projectodyssey.tensor.any_tensor import AnyTensor, zeros, ones
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import ones, zeros
 from projectodyssey.core.loss import mean_squared_error
 from projectodyssey.core.reduction import mean
 from projectodyssey.core.activation import softmax

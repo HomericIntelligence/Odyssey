@@ -16,12 +16,8 @@ from tests.projectodyssey.conftest import (
     assert_equal_int,
     assert_numel,
 )
-from projectodyssey.tensor.any_tensor import (
-    AnyTensor,
-    full,
-    ones,
-    zeros,
-)
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import full, ones, zeros
 from projectodyssey.core.arithmetic import (
     add,
     add_backward,

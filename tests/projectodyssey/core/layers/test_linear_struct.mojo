@@ -14,7 +14,8 @@ from tests.projectodyssey.conftest import (
     assert_equal,
     assert_true,
 )
-from projectodyssey.tensor.any_tensor import AnyTensor, ones, zeros, zeros_like
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import ones, zeros, zeros_like
 from projectodyssey.core.layers.linear import Linear
 
 

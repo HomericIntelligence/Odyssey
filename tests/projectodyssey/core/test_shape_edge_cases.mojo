@@ -7,13 +7,8 @@ Tests edge cases for reshape operations including:
 """
 
 
-from projectodyssey.tensor.any_tensor import (
-    AnyTensor,
-    zeros,
-    ones,
-    full,
-    arange,
-)
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import arange, full, ones, zeros
 from projectodyssey.core.shape import (
     reshape,
     squeeze,

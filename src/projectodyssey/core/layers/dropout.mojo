@@ -10,7 +10,8 @@ Key components:
                y = x during inference
 """
 
-from projectodyssey.tensor.any_tensor import AnyTensor, zeros_like, full
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import full, zeros_like
 from std.random import random_float64
 
 

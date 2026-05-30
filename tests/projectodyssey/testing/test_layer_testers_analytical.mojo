@@ -8,7 +8,8 @@ Example usage:
 """
 
 from projectodyssey.testing import LayerTester
-from projectodyssey.tensor.any_tensor import AnyTensor, zeros
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import zeros
 from projectodyssey.core.initializers import kaiming_uniform
 
 

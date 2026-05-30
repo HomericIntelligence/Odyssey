@@ -8,7 +8,9 @@ Usage:
 See documentation: docs/core/mojo-patterns.md
 """
 
-from projectodyssey.tensor.any_tensor import AnyTensor, ones, item, full
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import full, ones
+from projectodyssey.tensor.tensor_utils import item
 from projectodyssey.core import sum, mean, multiply
 
 

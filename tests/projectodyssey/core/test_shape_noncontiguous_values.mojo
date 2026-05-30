@@ -15,7 +15,8 @@ Non-contiguous setup pattern (transpose_view):
 """
 
 # Import AnyTensor and shape operations
-from projectodyssey.tensor.any_tensor import AnyTensor, arange
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import arange
 from projectodyssey.core.shape import (
     reshape,
     flatten,

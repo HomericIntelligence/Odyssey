@@ -9,7 +9,8 @@ Key components:
   Implements: y = xW + b (with broadcasting support for batched inputs).
 """
 
-from projectodyssey.tensor.any_tensor import AnyTensor, zeros, randn, zeros_like
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import randn, zeros, zeros_like
 from projectodyssey.core.module import Module
 from projectodyssey.tensor.tensor import Tensor
 

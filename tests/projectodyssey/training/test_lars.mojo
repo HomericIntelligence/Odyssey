@@ -24,7 +24,8 @@ from tests.projectodyssey.conftest import (
     assert_true,
     create_test_vector,
 )
-from projectodyssey.tensor.any_tensor import AnyTensor, zeros, ones, zeros_like
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import ones, zeros, zeros_like
 from projectodyssey.core.numerical_safety import compute_tensor_l2_norm
 from projectodyssey.training.optimizers.lars import lars_step, lars_step_simple
 

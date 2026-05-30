@@ -18,7 +18,8 @@ from tests.projectodyssey.conftest import (
     measure_time,
     TestFixtures,
 )
-from projectodyssey.tensor.any_tensor import AnyTensor, zeros, ones, randn
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import ones, randn, zeros
 from std.time import perf_counter_ns
 from std.collections import List
 

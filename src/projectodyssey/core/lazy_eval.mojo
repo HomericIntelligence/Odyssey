@@ -12,7 +12,8 @@ Architecture:
 """
 
 from std.collections import List
-from projectodyssey.tensor.any_tensor import AnyTensor, full
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import full
 from projectodyssey.core.lazy_expression import (
     TensorExpr,
     ExprNode,

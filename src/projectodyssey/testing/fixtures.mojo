@@ -30,13 +30,8 @@ Example:
     ```
 """
 
-from projectodyssey.tensor.any_tensor import (
-    AnyTensor,
-    zeros,
-    ones,
-    full,
-    zeros_like,
-)
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import full, ones, zeros, zeros_like
 from projectodyssey.testing.models import SimpleCNN, LinearModel
 
 

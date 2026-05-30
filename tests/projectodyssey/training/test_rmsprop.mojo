@@ -19,7 +19,8 @@ from tests.projectodyssey.conftest import (
     assert_shape_equal,
     TestFixtures,
 )
-from projectodyssey.tensor.any_tensor import AnyTensor, zeros, ones
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import ones, zeros
 from projectodyssey.training.optimizers.rmsprop import (
     rmsprop_step,
     rmsprop_step_simple,

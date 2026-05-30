@@ -16,7 +16,8 @@ from projectodyssey.testing import (
     check_gradients_verbose,
     compute_numerical_gradient,
 )
-from projectodyssey.tensor.any_tensor import AnyTensor, zeros, ones, full, randn
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import full, ones, randn, zeros
 from projectodyssey.core.shape import as_contiguous
 from projectodyssey.core.matrix import transpose_view
 

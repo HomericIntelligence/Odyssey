@@ -36,7 +36,8 @@ Examples:
     print(tape.get_grad(y.id))  # dLoss/dy
 """
 
-from projectodyssey.tensor.any_tensor import AnyTensor, ones_like, zeros_like
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import ones_like, zeros_like
 from projectodyssey.core.arithmetic import add, subtract, multiply, divide
 from projectodyssey.core.activation import relu, sigmoid, tanh
 from projectodyssey.core.reduction import sum, mean

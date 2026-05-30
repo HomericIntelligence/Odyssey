@@ -8,7 +8,7 @@ from projectodyssey.testing.assertions import (
     assert_type,
     assert_not_equal_tensor,
 )
-from projectodyssey.tensor.any_tensor import ones, full
+from projectodyssey.tensor.tensor_creation import full, ones
 
 
 def test_assert_type_int() raises:

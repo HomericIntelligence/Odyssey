@@ -37,7 +37,8 @@ Example:
     ```
 """
 
-from projectodyssey.tensor.any_tensor import AnyTensor, zeros, ones, zeros_like
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import ones, zeros, zeros_like
 from projectodyssey.core.traits import Model
 
 

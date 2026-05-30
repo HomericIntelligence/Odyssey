@@ -30,7 +30,8 @@ Features:
 
 from std.random import random_float64, seed
 from std.math import sqrt
-from projectodyssey.tensor.any_tensor import AnyTensor, zeros, ones
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import ones, zeros
 from projectodyssey.core.shape import reshape
 from projectodyssey.testing.data_generators import random_tensor
 

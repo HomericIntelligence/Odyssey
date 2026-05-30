@@ -15,7 +15,8 @@ from tests.projectodyssey.conftest import (
     assert_shape,
     assert_true,
 )
-from projectodyssey.tensor.any_tensor import AnyTensor, zeros, ones, full
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import full, ones, zeros
 from projectodyssey.core.arithmetic import add, subtract, multiply, divide
 from projectodyssey.core.arithmetic_contiguous import (
     can_use_fast_path,

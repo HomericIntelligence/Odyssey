@@ -5,7 +5,8 @@ Verifies that _format_element() correctly handles all integer dtype paths for st
 Related: issue #4047, issue #3376
 """
 
-from projectodyssey.tensor.any_tensor import AnyTensor, zeros, full, arange
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import arange, full, zeros
 from tests.projectodyssey.conftest import assert_true, assert_equal
 
 

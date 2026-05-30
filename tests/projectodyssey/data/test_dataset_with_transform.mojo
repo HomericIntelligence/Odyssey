@@ -12,7 +12,8 @@ from tests.projectodyssey.conftest import (
 from projectodyssey.data.datasets import AnyTensorDataset
 from projectodyssey.data.dataset_with_transform import TransformedDataset
 from projectodyssey.data.transforms import Normalize
-from projectodyssey.tensor.any_tensor import AnyTensor, ones, zeros
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import ones, zeros
 from std.collections import List
 
 

@@ -1,12 +1,7 @@
 """Tests for AnyTensor multi-dimensional slicing and batch extraction."""
 
-from projectodyssey.tensor.any_tensor import (
-    AnyTensor,
-    zeros,
-    ones,
-    full,
-    arange,
-)
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import arange, full, ones, zeros
 from tests.projectodyssey.conftest import (
     assert_true,
     assert_almost_equal,

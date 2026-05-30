@@ -21,7 +21,7 @@ Note:
 """
 
 from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.any_tensor import zeros
+from projectodyssey.tensor.tensor_creation import zeros
 
 
 struct DatasetSplit(Copyable, Movable):

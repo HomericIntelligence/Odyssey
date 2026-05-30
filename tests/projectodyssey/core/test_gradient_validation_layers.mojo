@@ -22,7 +22,8 @@ from projectodyssey.core.activation import (
 )
 from projectodyssey.core.conv import conv2d, conv2d_backward
 from projectodyssey.core.linear import linear, linear_backward
-from projectodyssey.tensor.any_tensor import AnyTensor, zeros, zeros_like
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import zeros, zeros_like
 from projectodyssey.core.initializers import kaiming_uniform
 from projectodyssey.testing.gradient_checker import (
     check_gradient,

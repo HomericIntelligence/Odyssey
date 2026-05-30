@@ -76,7 +76,7 @@ struct TestFixtures:
         Returns:
             3x3 AnyTensor with deterministic values (0.1).
         """
-        from projectodyssey.tensor.any_tensor import full
+        from projectodyssey.tensor.tensor_creation import full
 
         var shape = List[Int]()
         shape.append(3)
@@ -90,7 +90,7 @@ struct TestFixtures:
         Returns:
             10x10 AnyTensor with zeros.
         """
-        from projectodyssey.tensor.any_tensor import zeros
+        from projectodyssey.tensor.tensor_creation import zeros
 
         var shape = List[Int]()
         shape.append(10)
@@ -104,7 +104,7 @@ struct TestFixtures:
         Returns:
             5x3 AnyTensor with deterministic small values.
         """
-        from projectodyssey.tensor.any_tensor import full
+        from projectodyssey.tensor.tensor_creation import full
 
         var shape = List[Int]()
         shape.append(5)
@@ -118,7 +118,7 @@ struct TestFixtures:
         Returns:
             5-element AnyTensor with zeros.
         """
-        from projectodyssey.tensor.any_tensor import zeros
+        from projectodyssey.tensor.tensor_creation import zeros
 
         var shape = List[Int]()
         shape.append(5)
@@ -137,7 +137,7 @@ struct TestFixtures:
         Returns:
             AnyTensor of shape (n_samples, n_features) with random values.
         """
-        from projectodyssey.tensor.any_tensor import randn
+        from projectodyssey.tensor.tensor_creation import randn
 
         var shape = List[Int]()
         shape.append(n_samples)
@@ -156,7 +156,7 @@ struct TestFixtures:
         Returns:
             AnyTensor of shape (n_samples,) with binary labels (0 or 1).
         """
-        from projectodyssey.tensor.any_tensor import zeros
+        from projectodyssey.tensor.tensor_creation import zeros
 
         var shape = List[Int]()
         shape.append(n_samples)

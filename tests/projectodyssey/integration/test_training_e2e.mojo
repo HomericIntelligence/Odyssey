@@ -20,7 +20,8 @@ from tests.projectodyssey.conftest import (
     assert_less,
     TestFixtures,
 )
-from projectodyssey.tensor.any_tensor import AnyTensor, zeros, ones, full
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import full, ones, zeros
 from projectodyssey.core.conv import conv2d, conv2d_backward
 from projectodyssey.core.pooling import maxpool2d, maxpool2d_backward
 from projectodyssey.core.linear import linear, linear_backward

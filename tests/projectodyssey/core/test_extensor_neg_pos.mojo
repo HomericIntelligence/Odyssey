@@ -1,6 +1,7 @@
 """Tests for AnyTensor __neg__ and __pos__ unary operators."""
 
-from projectodyssey.tensor.any_tensor import AnyTensor, zeros, ones, full
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import full, ones, zeros
 from tests.projectodyssey.conftest import (
     assert_true,
     assert_almost_equal,

@@ -20,7 +20,8 @@ from tests.projectodyssey.conftest import (
 )
 from projectodyssey.core.layers.linear import Linear
 from projectodyssey.core.activation import relu, sigmoid, tanh
-from projectodyssey.tensor.any_tensor import AnyTensor, ones, zeros_like
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import ones, zeros_like
 from std.time import perf_counter_ns
 from std.collections import List
 

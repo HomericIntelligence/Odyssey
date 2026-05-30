@@ -25,16 +25,8 @@ from tests.projectodyssey.conftest import (
     assert_true,
     assert_value_at,
 )
-from projectodyssey.tensor.any_tensor import (
-    AnyTensor,
-    zeros,
-    ones,
-    zeros_like,
-    ones_like,
-    full,
-    arange,
-    eye,
-)
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import arange, eye, full, ones, ones_like, zeros, zeros_like
 from projectodyssey.core.matrix import (
     matmul,
     transpose,

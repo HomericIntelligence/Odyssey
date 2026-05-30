@@ -12,7 +12,8 @@ AnyTensor versions dispatch to typed implementations via ordinal-based table.
 from std.algorithm import parallelize
 from std.collections import List
 
-from projectodyssey.tensor.any_tensor import AnyTensor, zeros
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import zeros
 from projectodyssey.core.gradient_types import (
     GradientPair,
     GradientTriple,

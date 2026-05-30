@@ -3,13 +3,8 @@
 """
 
 
-from projectodyssey.tensor.any_tensor import (
-    AnyTensor,
-    arange,
-    full,
-    ones,
-    zeros,
-)
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import arange, full, ones, zeros
 from projectodyssey.core.elementwise import (
     abs,
     clip,

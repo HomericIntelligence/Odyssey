@@ -35,7 +35,8 @@ References:
 from std.algorithm import vectorize
 from std.sys.info import simd_width_of
 from std.memory import memset_zero
-from projectodyssey.tensor.any_tensor import AnyTensor, zeros
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import zeros
 from projectodyssey.core.error_utils import format_dtype, format_matmul_error
 from projectodyssey.core.strassen import (
     matmul_strassen,

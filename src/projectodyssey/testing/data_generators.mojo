@@ -25,7 +25,8 @@ Example:
 
 from std.random import random_float64
 from std.math import sqrt, log, cos, sin, pi
-from projectodyssey.tensor.any_tensor import AnyTensor, zeros
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import zeros
 
 
 # ============================================================================

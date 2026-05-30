@@ -31,7 +31,8 @@ Common Patterns Supported:
 - Parameter update helpers
 """
 
-from projectodyssey.tensor.any_tensor import AnyTensor, ones
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import ones
 from projectodyssey.core.arithmetic import add, multiply, subtract, divide
 from projectodyssey.core.reduction import sum, mean, sum_backward, mean_backward
 from projectodyssey.core.loss import (

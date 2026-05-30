@@ -29,7 +29,8 @@ Usage:
     mojo run examples/resnet18_cifar10/train.mojo --epochs 200 --batch-size 128 --lr 0.01
 """
 
-from projectodyssey.tensor.any_tensor import AnyTensor, zeros, ones
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import ones, zeros
 from projectodyssey.core.loss import cross_entropy, cross_entropy_backward
 from projectodyssey.core.conv import conv2d, conv2d_backward
 from projectodyssey.core.pooling import avgpool2d, avgpool2d_backward

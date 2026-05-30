@@ -25,7 +25,8 @@ Note:
 
 from std.random import seed as random_seed
 from std.math import isnan, isinf
-from projectodyssey.tensor.any_tensor import AnyTensor, zeros, ones, full
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import full, ones, zeros
 from projectodyssey.core.arithmetic import add, subtract, multiply, divide
 
 comptime DEFAULT_SEED: Int = 42

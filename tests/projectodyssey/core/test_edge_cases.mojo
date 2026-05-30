@@ -4,16 +4,8 @@
 
 
 from std.math import isnan, isinf
-from projectodyssey.tensor.any_tensor import (
-    AnyTensor,
-    arange,
-    full,
-    inf_tensor,
-    nan_tensor,
-    neg_inf_tensor,
-    ones,
-    zeros,
-)
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import arange, full, inf_tensor, nan_tensor, neg_inf_tensor, ones, zeros
 from projectodyssey.core.arithmetic import (
     add,
     divide,

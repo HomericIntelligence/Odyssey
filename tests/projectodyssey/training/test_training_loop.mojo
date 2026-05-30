@@ -35,12 +35,8 @@ from projectodyssey.training import (
     TrainingLoop,
 )
 from projectodyssey.training.trainer_interface import DataLoader
-from projectodyssey.tensor.any_tensor import (
-    AnyTensor,
-    ones,
-    randn,
-    zeros,
-)
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import ones, randn, zeros
 from projectodyssey.core.arithmetic import subtract, multiply
 from projectodyssey.testing.models import SimpleMLP
 from projectodyssey.training.script_runner import (

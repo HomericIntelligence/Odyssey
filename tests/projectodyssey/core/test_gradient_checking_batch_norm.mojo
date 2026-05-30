@@ -18,7 +18,8 @@ from projectodyssey.testing.gradient_checker import (
     NumericalBackward,
 )
 from projectodyssey.testing.assertions import assert_true
-from projectodyssey.tensor.any_tensor import AnyTensor, zeros, ones
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import ones, zeros
 from projectodyssey.core.normalization import (
     batch_norm2d,
     batch_norm2d_backward,

@@ -19,7 +19,8 @@ References:
     - Reference Implementation: https://github.com/mattwang44/LeNet-from-Scratch
 """
 
-from projectodyssey.tensor.any_tensor import AnyTensor, zeros, zeros_like
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import zeros, zeros_like
 from projectodyssey.training.optimizers.adamw import adamw_step
 from projectodyssey.core.conv import conv2d, conv2d_backward
 from projectodyssey.core.pooling import maxpool2d, maxpool2d_backward

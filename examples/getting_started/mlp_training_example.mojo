@@ -13,13 +13,8 @@ This example trains on synthetic XOR-like data to demonstrate that the training
 pipeline is fully functional.
 """
 
-from projectodyssey.tensor.any_tensor import (
-    AnyTensor,
-    zeros,
-    ones,
-    full,
-    ones_like,
-)
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import full, ones, ones_like, zeros
 from projectodyssey.core import (
     add,
     subtract,

@@ -17,12 +17,8 @@ from tests.projectodyssey.conftest import (
     assert_less_or_equal,
     assert_true,
 )
-from projectodyssey.tensor.any_tensor import (
-    AnyTensor,
-    full,
-    ones,
-    zeros,
-)
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import full, ones, zeros
 from projectodyssey.core.loss_utils import (
     blend_tensors,
     clip_predictions,
