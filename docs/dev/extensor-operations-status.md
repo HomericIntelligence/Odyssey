@@ -117,7 +117,7 @@ All 5 categories have complete, production-ready implementations in the codebase
 | Operation | Forward | Backward | Type Signature |
 |-----------|---------|----------|-----------------|
 | Variance | `variance(a, axis, ddof)` | `variance_backward()` | `AnyTensor × Int × Int → AnyTensor` |
-| Standard deviation | `std(a, axis, ddof)` | `std_backward()` | `AnyTensor × Int × Int → AnyTensor` |
+| Standard deviation | `std_reduce(a, axis, ddof)` | `std_backward()` | `AnyTensor × Int × Int → AnyTensor` |
 | Median | `median(a, axis)` | `median_backward()` | `AnyTensor × Int → AnyTensor` |
 | Percentile | `percentile(a, q, axis)` | `percentile_backward()` | `AnyTensor × Float32 × Int → AnyTensor` |
 
@@ -221,7 +221,7 @@ from projectodyssey.core.elementwise import (
     exp, log, sqrt, sin, cos, tanh, ceil, floor, round, abs, sign, ...
 )
 from projectodyssey.core.reduction import (
-    variance, std, median, percentile, ...
+    variance, std_reduce, median, percentile, ...
 )
 ```
 
@@ -230,7 +230,7 @@ Users can import operations directly:
 from projectodyssey.core import split, tile, repeat, broadcast_to, permute
 from projectodyssey.core import exp, log, sqrt, sin, cos
 from projectodyssey.core import matmul, transpose, dot, outer
-from projectodyssey.core import variance, std, median, percentile
+from projectodyssey.core import variance, std_reduce, median, percentile
 ```
 
 ---
@@ -239,12 +239,29 @@ from projectodyssey.core import variance, std, median, percentile
 
 | Criterion | Status | Evidence |
 |-----------|--------|----------|
-| **Implement or document status of matrix operations** | ✅ COMPLETE | `src/projectodyssey/core/matrix.mojo`: 7 operations implemented |
-| **Implement or document status of shape manipulation** | ✅ COMPLETE | `src/projectodyssey/core/shape.mojo`: 14 operations implemented |
-| **Implement or document status of element-wise math** | ✅ COMPLETE | `src/projectodyssey/core/elementwise.mojo`: 11 operations implemented |
-| **Implement or document status of statistical operations** | ✅ COMPLETE | `src/projectodyssey/core/reduction.mojo`: 4 operations with backward passes |
-| **Implement slicing for batch processing** | ✅ COMPLETE | `trainer_interface.mojo:381`: DataLoader.next() uses native slicing |
-| **Update TODO comments with resolution** | ✅ COMPLETE | All references resolved via this documentation |
+| **Implement or document status of matrix operations** | ✅ COMPLETE | `src/projectodyssey/core/matrix.mojo`: 7 operations documented with test files |
+| **Implement or document status of shape manipulation** | ✅ COMPLETE | `src/projectodyssey/core/shape.mojo`: 14 operations documented with test files |
+| **Implement or document status of element-wise math** | ✅ COMPLETE | `src/projectodyssey/core/elementwise.mojo`: 11 operations documented with test files |
+| **Implement or document status of statistical operations** | ✅ COMPLETE | `src/projectodyssey/core/reduction.mojo`: 4 operations documented with backward passes |
+| **Implement slicing for batch processing** | ✅ COMPLETE | `trainer_interface.mojo:381`: DataLoader.next() verified using native `slice()` |
+| **Update TODO comments with resolution** | ⚠️ PARTIAL | Original issue referenced non-existent path `shared/core/extensor.mojo:23-28`. Resolution: Comprehensive implementation status documented in this file. Actual TODO comments in codebase are unrelated to operations (#3013). |
+
+---
+
+## Notes on TODO Comments and File Path Changes
+
+**Original Issue References**: The issue #3013 body references `shared/core/extensor.mojo:23-28` as containing a TODO list. This file path is a phantom — the codebase was refactored from `shared/` to `src/projectodyssey/` prior to this issue's scope.
+
+**Investigation Result**: 
+- No file `shared/core/extensor.mojo` exists in current codebase
+- The operations mentioned in the issue are implemented across multiple modules:
+  - Matrix ops: `src/projectodyssey/core/matrix.mojo`
+  - Shape manipulation: `src/projectodyssey/core/shape.mojo`
+  - Element-wise math: `src/projectodyssey/core/elementwise.mojo`
+  - Statistical ops: `src/projectodyssey/core/reduction.mojo`
+  - Slicing: `src/projectodyssey/tensor/any_tensor.mojo`
+
+**Resolution Strategy**: Rather than updating phantom TODO comments, this document provides the definitive mapping of issue #2717-#2721 requirements to their current implementations. The comprehensive tables in each category section serve as the "TODO resolution" — all 5 categories are fully implemented and this status document replaces any need for TODO markers.
 
 ---
 
