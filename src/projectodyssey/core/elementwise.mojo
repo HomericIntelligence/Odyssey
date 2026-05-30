@@ -395,8 +395,9 @@ def _dispatch_clip_forward(
     result: AnyTensor, tensor: AnyTensor, min_val: Float64, max_val: Float64
 ) raises:
     """Runtime dispatch for clip forward pass."""
+
     @parameter
-    fn kernel[dtype: DType]() raises:
+    def kernel[dtype: DType]() raises:
         _clip_forward_impl[dtype](result, tensor, min_val, max_val)
 
     dispatch_tensor_all_dtypes[kernel](tensor.dtype())
@@ -424,8 +425,9 @@ def _dispatch_log10_forward(
     result: AnyTensor, tensor: AnyTensor, numel: Int
 ) raises:
     """Runtime dispatch for log10 forward pass."""
+
     @parameter
-    fn kernel[dtype: DType]() raises:
+    def kernel[dtype: DType]() raises:
         _log10_forward_impl[dtype](result, tensor, numel)
 
     dispatch_float3[kernel](tensor.dtype())
@@ -453,8 +455,9 @@ def _dispatch_log2_forward(
     result: AnyTensor, tensor: AnyTensor, numel: Int
 ) raises:
     """Runtime dispatch for log2 forward pass."""
+
     @parameter
-    fn kernel[dtype: DType]() raises:
+    def kernel[dtype: DType]() raises:
         _log2_forward_impl[dtype](result, tensor, numel)
 
     dispatch_float3[kernel](tensor.dtype())
@@ -505,9 +508,12 @@ def _dispatch_logical_and(
     total_elems: Int,
 ) raises:
     """Runtime dispatch for logical AND."""
+
     @parameter
-    fn kernel[dtype: DType]() raises:
-        _logical_and_impl[dtype](result, a, b, strides_a, strides_b, result_shape, total_elems)
+    def kernel[dtype: DType]() raises:
+        _logical_and_impl[dtype](
+            result, a, b, strides_a, strides_b, result_shape, total_elems
+        )
 
     dispatch_tensor_all_dtypes[kernel](a.dtype())
 
@@ -556,9 +562,12 @@ def _dispatch_logical_or(
     total_elems: Int,
 ) raises:
     """Runtime dispatch for logical OR."""
+
     @parameter
-    fn kernel[dtype: DType]() raises:
-        _logical_or_impl[dtype](result, a, b, strides_a, strides_b, result_shape, total_elems)
+    def kernel[dtype: DType]() raises:
+        _logical_or_impl[dtype](
+            result, a, b, strides_a, strides_b, result_shape, total_elems
+        )
 
     dispatch_tensor_all_dtypes[kernel](a.dtype())
 
@@ -581,8 +590,9 @@ def _dispatch_logical_not(
     result: AnyTensor, tensor: AnyTensor, numel: Int
 ) raises:
     """Runtime dispatch for logical NOT."""
+
     @parameter
-    fn kernel[dtype: DType]() raises:
+    def kernel[dtype: DType]() raises:
         _logical_not_impl[dtype](result, tensor, numel)
 
     dispatch_tensor_all_dtypes[kernel](tensor.dtype())
@@ -635,9 +645,12 @@ def _dispatch_logical_xor(
     total_elems: Int,
 ) raises:
     """Runtime dispatch for logical XOR."""
+
     @parameter
-    fn kernel[dtype: DType]() raises:
-        _logical_xor_impl[dtype](result, a, b, strides_a, strides_b, result_shape, total_elems)
+    def kernel[dtype: DType]() raises:
+        _logical_xor_impl[dtype](
+            result, a, b, strides_a, strides_b, result_shape, total_elems
+        )
 
     dispatch_tensor_all_dtypes[kernel](a.dtype())
 

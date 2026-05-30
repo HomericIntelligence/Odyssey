@@ -1760,7 +1760,7 @@ def dispatch_float3[
 
 
 def dispatch_binary_tensor[
-    impl_fn: def[dtype: DType](AnyTensor, AnyTensor) raises -> AnyTensor
+    impl_fn: def[dtype: DType](AnyTensor, AnyTensor) raises thin -> AnyTensor
 ](lhs: AnyTensor, rhs: AnyTensor) raises -> AnyTensor:
     """Runtime dispatch to parametric binary tensor operation.
 
@@ -1839,7 +1839,7 @@ def dispatch_binary_tensor[
 
 
 def dispatch_unary_tensor[
-    impl_fn: def[dtype: DType](AnyTensor) raises -> AnyTensor
+    impl_fn: def[dtype: DType](AnyTensor) raises thin -> AnyTensor
 ](tensor: AnyTensor) raises -> AnyTensor:
     """Runtime dispatch to parametric unary tensor operation.
 
