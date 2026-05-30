@@ -1744,3 +1744,224 @@ def dispatch_float3[
             "dispatch_float3: only supports float16/32/64. Got "
             + _format_dtype_name(dtype)
         )
+
+
+# ============================================================================
+# Tensor-Level Binary Operation Dispatch
+# ============================================================================
+#
+# Dispatch mechanism for binary operations that work directly with tensor
+# parameters (not scalar operations). These are used for operations like
+# add, subtract, multiply, divide that need to dispatch on the tensor's dtype
+# at runtime, then call a parametric wrapper function at compile-time.
+#
+# This pattern eliminates the manual if/elif chains in modules like
+# arithmetic_contiguous.mojo and simplifies the elementwise.mojo dispatch layer.
+
+
+def dispatch_binary_tensor[
+    impl_fn: def[dtype: DType](AnyTensor, AnyTensor) raises thin -> AnyTensor
+](lhs: AnyTensor, rhs: AnyTensor) raises -> AnyTensor:
+    """Runtime dispatch to parametric binary tensor operation.
+
+    This helper eliminates manual dtype branching for binary operations that
+    take tensor parameters. Instead of writing:
+
+        if dtype == DType.float32:
+            return _op_typed[DType.float32](a, b).as_any()
+        elif dtype == DType.float64:
+            ...
+
+    You write:
+
+        return dispatch_binary_tensor[_op_typed](a, b)
+
+    Parameters:
+        impl_fn: Parametric binary tensor operation with signature
+                 `def[dtype: DType](AnyTensor, AnyTensor) -> AnyTensor`
+
+    Args:
+        lhs: Left-hand side tensor.
+        rhs: Right-hand side tensor (must have same dtype as lhs).
+
+    Returns:
+        Result tensor from the parametric implementation.
+
+    Raises:
+        Error: If dtypes don't match or dtype is unsupported.
+
+    Note:
+        Supports all dtypes: float16, float32, float64, int8, int16, int32,
+        int64, uint8, uint16, uint32, uint64.
+    """
+    if lhs._dtype != rhs._dtype:
+        var lhs_dtype = _format_dtype_name(lhs._dtype)
+        var rhs_dtype = _format_dtype_name(rhs._dtype)
+        raise Error(
+            "dispatch_binary_tensor: dtypes must match. Got lhs="
+            + lhs_dtype
+            + ", rhs="
+            + rhs_dtype
+        )
+
+    var dtype = lhs._dtype
+    var ordinal = dtype_to_ordinal(dtype)
+
+    if ordinal == DTYPE_FLOAT16:
+        return impl_fn[DType.float16](lhs, rhs)
+    elif ordinal == DTYPE_FLOAT32:
+        return impl_fn[DType.float32](lhs, rhs)
+    elif ordinal == DTYPE_FLOAT64:
+        return impl_fn[DType.float64](lhs, rhs)
+    elif ordinal == DTYPE_INT8:
+        return impl_fn[DType.int8](lhs, rhs)
+    elif ordinal == DTYPE_INT16:
+        return impl_fn[DType.int16](lhs, rhs)
+    elif ordinal == DTYPE_INT32:
+        return impl_fn[DType.int32](lhs, rhs)
+    elif ordinal == DTYPE_INT64:
+        return impl_fn[DType.int64](lhs, rhs)
+    elif ordinal == DTYPE_UINT8:
+        return impl_fn[DType.uint8](lhs, rhs)
+    elif ordinal == DTYPE_UINT16:
+        return impl_fn[DType.uint16](lhs, rhs)
+    elif ordinal == DTYPE_UINT32:
+        return impl_fn[DType.uint32](lhs, rhs)
+    elif ordinal == DTYPE_UINT64:
+        return impl_fn[DType.uint64](lhs, rhs)
+    else:
+        raise Error(
+            "dispatch_binary_tensor: unsupported dtype '"
+            + _format_dtype_name(dtype)
+            + "'. Supported: float16, float32, float64, int8, int16, int32,"
+            " int64, uint8, uint16, uint32, uint64"
+        )
+
+
+def dispatch_unary_tensor[
+    impl_fn: def[dtype: DType](AnyTensor) raises thin -> AnyTensor
+](tensor: AnyTensor) raises -> AnyTensor:
+    """Runtime dispatch to parametric unary tensor operation.
+
+    This helper eliminates manual dtype branching for unary operations that
+    take a single tensor parameter. Similar to dispatch_binary_tensor but
+    for single-tensor operations.
+
+    Parameters:
+        impl_fn: Parametric unary tensor operation with signature
+                 `def[dtype: DType](AnyTensor) -> AnyTensor`
+
+    Args:
+        tensor: Input tensor.
+
+    Returns:
+        Result tensor from the parametric implementation.
+
+    Raises:
+        Error: If tensor dtype is unsupported.
+
+    Note:
+        Supports all dtypes: float16, float32, float64, int8, int16, int32,
+        int64, uint8, uint16, uint32, uint64.
+    """
+    var dtype = tensor._dtype
+    var ordinal = dtype_to_ordinal(dtype)
+
+    if ordinal == DTYPE_FLOAT16:
+        return impl_fn[DType.float16](tensor)
+    elif ordinal == DTYPE_FLOAT32:
+        return impl_fn[DType.float32](tensor)
+    elif ordinal == DTYPE_FLOAT64:
+        return impl_fn[DType.float64](tensor)
+    elif ordinal == DTYPE_INT8:
+        return impl_fn[DType.int8](tensor)
+    elif ordinal == DTYPE_INT16:
+        return impl_fn[DType.int16](tensor)
+    elif ordinal == DTYPE_INT32:
+        return impl_fn[DType.int32](tensor)
+    elif ordinal == DTYPE_INT64:
+        return impl_fn[DType.int64](tensor)
+    elif ordinal == DTYPE_UINT8:
+        return impl_fn[DType.uint8](tensor)
+    elif ordinal == DTYPE_UINT16:
+        return impl_fn[DType.uint16](tensor)
+    elif ordinal == DTYPE_UINT32:
+        return impl_fn[DType.uint32](tensor)
+    elif ordinal == DTYPE_UINT64:
+        return impl_fn[DType.uint64](tensor)
+    else:
+        raise Error(
+            "dispatch_unary_tensor: unsupported dtype '"
+            + _format_dtype_name(dtype)
+            + "'. Supported: float16, float32, float64, int8, int16, int32,"
+            " int64, uint8, uint16, uint32, uint64"
+        )
+
+
+def dispatch_tensor_all_dtypes[
+    body: def[T: DType]() raises capturing[_] -> None
+](dtype: DType) raises:
+    """Dispatch for parametric functions with arbitrary arities/parameter types.
+
+    Use this when the kernel function has variable parameters (like elementwise
+    functions that mix result tensor, input tensors, strides, shapes, etc.).
+    The caller writes a `@parameter` closure that closes over its arguments,
+    and this helper supplies the dtype dispatch.
+
+    This is similar to `dispatch_float3` but supports all dtypes.
+
+    Parameters:
+        body: A `@parameter` closure parameterized on a compile-time dtype.
+            It closes over whatever arguments the kernel needs.
+
+    Args:
+        dtype: Runtime dtype (any of the supported types).
+
+    Raises:
+        Error: If `dtype` is not supported, or if `body` raises.
+
+    Note:
+        Supports all dtypes: float16, float32, float64, int8, int16, int32,
+        int64, uint8, uint16, uint32, uint64.
+
+    Example:
+        ```mojo
+        # Dispatch to a function with many parameters
+        var dtype = tensor.dtype()
+        @parameter
+        fn kernel() raises:
+            _complex_impl[dtype](result, a, b, strides, shapes, numel)
+        dispatch_tensor_all_dtypes[kernel](dtype)
+        ```
+    """
+    var ordinal = dtype_to_ordinal(dtype)
+
+    if ordinal == DTYPE_FLOAT16:
+        body[DType.float16]()
+    elif ordinal == DTYPE_FLOAT32:
+        body[DType.float32]()
+    elif ordinal == DTYPE_FLOAT64:
+        body[DType.float64]()
+    elif ordinal == DTYPE_INT8:
+        body[DType.int8]()
+    elif ordinal == DTYPE_INT16:
+        body[DType.int16]()
+    elif ordinal == DTYPE_INT32:
+        body[DType.int32]()
+    elif ordinal == DTYPE_INT64:
+        body[DType.int64]()
+    elif ordinal == DTYPE_UINT8:
+        body[DType.uint8]()
+    elif ordinal == DTYPE_UINT16:
+        body[DType.uint16]()
+    elif ordinal == DTYPE_UINT32:
+        body[DType.uint32]()
+    elif ordinal == DTYPE_UINT64:
+        body[DType.uint64]()
+    else:
+        raise Error(
+            "dispatch_tensor_all_dtypes: unsupported dtype '"
+            + _format_dtype_name(dtype)
+            + "'. Supported: float16, float32, float64, int8, int16, int32,"
+            " int64, uint8, uint16, uint32, uint64"
+        )
