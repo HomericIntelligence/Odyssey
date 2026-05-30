@@ -47,7 +47,9 @@ from projectodyssey.core.arithmetic_simd import (
 )
 from projectodyssey.core.elementwise import sqrt
 from projectodyssey.core.matrix import matmul, transpose
-from projectodyssey.training.optimizers.optimizer_utils import compute_tensor_norm
+from projectodyssey.training.optimizers.optimizer_utils import (
+    compute_tensor_norm,
+)
 
 
 def is_muon_eligible(params: AnyTensor) -> Bool:
@@ -158,7 +160,9 @@ def newton_schulz_orthogonalize(
     var Y = X
 
     if transposed:
-        Y = transpose(X, None)  # Reverse all axes for rank-2: [rows, cols] -> [cols, rows]
+        Y = transpose(
+            X, None
+        )  # Reverse all axes for rank-2: [rows, cols] -> [cols, rows]
         var tmp_shape = Y.shape()
         rows = tmp_shape[0]
         cols = tmp_shape[1]
@@ -285,9 +289,10 @@ def muon_step(
 
     if params.ndim() != 2:
         raise Error(
-            "Muon requires rank-2 parameters (matrix). Use is_muon_eligible(params) "
-            "to check. For non-matrix params (embeddings, biases), use AdamW instead. "
-            "See projectodyssey/training/optimizers/README.md for hybrid routing."
+            "Muon requires rank-2 parameters (matrix). Use"
+            " is_muon_eligible(params) to check. For non-matrix params"
+            " (embeddings, biases), use AdamW instead. See"
+            " projectodyssey/training/optimizers/README.md for hybrid routing."
         )
 
     # Update momentum: m_new = momentum_beta * m + grad

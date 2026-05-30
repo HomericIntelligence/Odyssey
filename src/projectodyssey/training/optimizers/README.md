@@ -5,7 +5,7 @@ This directory contains optimizer implementations for training neural networks i
 ## Available Optimizers
 
 | Optimizer | Use Case | Parameters | Notes |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | **SGD** | Small batch, fast convergence | Any shape | With momentum (default 0.9) |
 | **Adam** | General-purpose, adaptive learning rates | Any shape | Coupled weight decay |
 | **AdamW** | Better generalization than Adam | Any shape | Decoupled weight decay (default 0.01) |
@@ -38,7 +38,7 @@ if is_muon_eligible(W_linear) {
 ### By Model Type
 
 | Model | Weights | Biases | Embeddings | Notes |
-|---|---|---|---|---|
+| --- | --- | --- | --- | --- |
 | **Vision CNN** (ResNet, ViT) | Muon | AdamW | — | Muon shows ~2% improvement on ImageNet |
 | **Language LLM** (Transformer) | Muon | AdamW | AdamW | Muon matches AdamW speed, better perplexity |
 | **Small benchmark** (MNIST, CIFAR-10) | AdamW or SGD | AdamW | — | Muon overkill for small datasets |
@@ -48,7 +48,8 @@ if is_muon_eligible(W_linear) {
 
 ### What is Muon?
 
-Muon (Jordan et al. 2024) is a Newton-Schulz-based optimizer for matrix-shaped parameters. It orthogonalizes the momentum buffer before each update, which:
+Muon (Jordan et al. 2024) is a Newton-Schulz-based optimizer for matrix-shaped parameters.
+It orthogonalizes the momentum buffer before each update, which:
 
 - Improves conditioning of the weight matrix during training
 - Reduces the effective rank of weight changes (more stable learning)
@@ -56,12 +57,15 @@ Muon (Jordan et al. 2024) is a Newton-Schulz-based optimizer for matrix-shaped p
 - Matches AdamW speed (same O(1) per-parameter complexity)
 
 **Key papers / references:**
-- Jordan et al. 2024, ["Muon: An optimizer for hidden layers in neural networks"](https://kellerjordan.github.io/posts/muon/)
+
+- Jordan et al. 2024, ["Muon: An optimizer for hidden layers in neural networks"]
+  ([https://kellerjordan.github.io/posts/muon/](https://kellerjordan.github.io/posts/muon/))
 - Reference implementation: [KellerJordan/Muon](https://github.com/KellerJordan/Muon)
 
 ### When to Use Muon
 
 ✅ **Use Muon for:**
+
 - Linear layer weights: shape `[input_dim, output_dim]`
 - Convolutional kernels: reshape from `[out_ch, in_ch, kH, kW]` to `[out_ch, in_ch*kH*kW]`
 - Vision models (ResNets, ViT, etc.)
@@ -69,6 +73,7 @@ Muon (Jordan et al. 2024) is a Newton-Schulz-based optimizer for matrix-shaped p
 - Any model where matrix-shaped parameters dominate
 
 ❌ **Do NOT use Muon for:**
+
 - Embeddings: use AdamW instead
 - Biases: use AdamW instead
 - Batch norm / layer norm scales and shifts: use AdamW instead
@@ -139,19 +144,24 @@ def optimizer_step(
 (params, m) = muon_step(params, grads, m, lr=...)
 ```
 
-AdamW maintains two state buffers (m and v). Muon maintains only one (momentum). The return arity changes because **state cardinality differs**, not because of implementation style. This is expected behavior; see the hybrid example above for how to handle mixed optimizer state.
+AdamW maintains two state buffers (m and v). Muon maintains only one (momentum). The return
+arity changes because **state cardinality differs**, not because of implementation style. This
+is expected behavior; see the hybrid example above for how to handle mixed optimizer state.
 
 ### Hyperparameters
 
 | Parameter | Default | Range | Notes |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | `learning_rate` | — | 1e-4 to 1e-2 | Tune per task; try 0.01 for medium models |
 | `momentum_beta` | 0.95 | 0.9–0.99 | Paper default is 0.95 |
 | `weight_decay` | 0.01 | 0.0–0.1 | Decoupled decay; 0.01 matches AdamW default |
 | `ns_steps` | 5 | 3–8 | 5 is standard; more steps = better orthogonality, slower |
 | `nesterov` | True | — | Recommended; set to False for heavy-ball momentum |
 
-**Note on weight decay:** Muon's weight decay includes the learning rate factor (`lr * wd * p`), differing from AdamW's form (`wd * p`). This is the Jordan et al. 2024 recipe. If you migrate from AdamW and see different final accuracy, re-baseline hyperparameters; the decay formula difference may require tuning.
+**Note on weight decay:** Muon's weight decay includes the learning rate factor (`lr * wd * p`),
+differing from AdamW's form (`wd * p`). This is the Jordan et al. 2024 recipe. If you migrate
+from AdamW and see different final accuracy, re-baseline hyperparameters; the decay formula
+difference may require tuning.
 
 ## Pure Functional Design
 
@@ -167,6 +177,7 @@ update_momentum(mut momentum, grad=grad)
 ```
 
 Benefits:
+
 - **No hidden state**: all state is explicit in function arguments and returns
 - **Composable**: stack optimizers easily
 - **Testable**: no side effects
@@ -188,6 +199,7 @@ pixi run mojo test tests/projectodyssey/training/test_muon.mojo::test_muon_step_
 ```
 
 Tests verify:
+
 - Shape and dtype correctness
 - Descent on convex objectives (quadratic loss)
 - Orthogonality convergence (Muon-specific)
@@ -223,4 +235,5 @@ No special serialization needed for Muon; the single momentum buffer `m` is hand
 
 - Loshchilov, I., & Hutter, F. (2019). *Decoupled Weight Decay Regularization*. arXiv:1711.05101 [AdamW]
 - You, Y., Li, J., Reddi, S., et al. (2019). *LARS: Layer-wise Adaptive Rate Scaling*. arXiv:1708.03888
-- Jordan, K., et al. (2024). *Muon: An optimizer for hidden layers in neural networks*. https://kellerjordan.github.io/posts/muon/
+- Jordan, K., et al. (2024). *Muon: An optimizer for hidden layers in neural networks*.
+  [https://kellerjordan.github.io/posts/muon/](https://kellerjordan.github.io/posts/muon/)
