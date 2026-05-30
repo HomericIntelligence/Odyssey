@@ -92,6 +92,7 @@ The separate upstream JIT compiler non-determinism issue
 ## References
 
 - [ADR-013](ADR-013-slice-view-destructor-fix.md): Actual root cause fix (bitcast UAF)
+- [ADR-016](ADR-016-jit-crash-mitigations-consolidated-status.md): Consolidated JIT-crash mitigation status and audit closure
 - [modular/modular#6413](https://github.com/modular/modular/issues/6413): upstream JIT compiler fix (AVX-512 mis-emission)
 
 ---

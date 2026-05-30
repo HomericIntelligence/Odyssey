@@ -250,6 +250,7 @@ corruption before process exit.
 
 - [ADR-003](ADR-003-memory-pool-architecture.md): Memory pool architecture (`pooled_free`
   is the allocator entry point affected by the bad-free)
+- [ADR-016](ADR-016-jit-crash-mitigations-consolidated-status.md): Consolidated JIT-crash mitigation status and audit closure
 
 ### Related Issues
 

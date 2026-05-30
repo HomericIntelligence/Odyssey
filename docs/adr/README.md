@@ -24,7 +24,12 @@ An Architecture Decision Record captures a single architecture decision, includi
 | [ADR-006](ADR-006-benchmarking-infrastructure.md) | Benchmarking Infrastructure | Accepted | 2025-12-28 |
 | [ADR-007](ADR-007-training-infrastructure.md) | Training Infrastructure | Accepted | 2025-12-28 |
 | [ADR-008](ADR-008-coverage-tool-blocker.md) | Defer Code Coverage Until Mojo Tooling Available | Accepted | 2025-12-10 |
+| [ADR-009](ADR-009-heap-corruption-workaround.md) | Heap Corruption Workaround for Mojo Runtime Bug | Resolved | 2025-12-30 |
 | [ADR-010](ADR-010-fp16-simd-mojo-limitation.md) | FP16 SIMD Limitation in Mojo v0.26.1 | Accepted | 2026-03-07 |
+| [ADR-011](ADR-011-batch-norm-gradient-loss.md) | Batch Normalization Gradient Loss Analysis | Accepted | 2025-12-16 |
+| [ADR-012](ADR-012-parametric-dtype-tensor-architecture.md) | Parametric DType Tensor Architecture | Accepted | 2026-03-15 |
+| [ADR-013](ADR-013-slice-view-destructor-fix.md) | Slice View Destructor Fix | Accepted | 2026-03-24 |
+| [ADR-016](ADR-016-jit-crash-mitigations-consolidated-status.md) | JIT Crash Mitigations — Consolidated Status & Audit Closure | Accepted | 2026-05-29 |
 
 ## ADR Status Lifecycle
 

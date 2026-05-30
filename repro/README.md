@@ -1,7 +1,14 @@
 # Crash Reproducers — Triage Outcomes (2026-05-26)
 
+**Status**: See [ADR-016](../docs/adr/ADR-016-jit-crash-mitigations-consolidated-status.md)
+for the consolidated record of JIT-crash mitigations and audit closure (#5316).
+
 Local triage on Mojo `1.0.0b2.dev2026052506` (glibc 2.39 host) ran every
 reproducer here 10× consecutively against the post-#6413-fix toolchain.
+
+**Affected Mojo Versions**: Mojo 1.0.0b2 (current pin in `pixi.toml`). Many
+reproducers target historical 0.26.x bugs that have been fixed upstream or in
+our codebase (see triage outcomes below).
 
 ## Outcome summary
 
@@ -52,6 +59,28 @@ Mojo 1.0.0b2 syntax so the triage measured behavior, not syntax drift. Per
   were deleted as part of this triage sweep (lines 26).
 - Resolved unresolved git merge conflict in `bug_repro_vgg16_e2e_part1_pre_fix.mojo.bug`
   (preserved verbatim at `.merge-conflict-snapshot`).
+
+## Unfiled-Bug Reproducers — Deletion Policy and Risk Acknowledgment
+
+Seven reproducers (lines 22-28 of outcome table) for unfiled bugs were deleted on
+"10/10 local clean" evidence **without filing upstream issues with modular/modular**:
+
+- `repro_jit_volume_crash.mojo` (non-deterministic: "Run multiple times to increase likelihood")
+- `repro_jit_targeted_imports_crash.mojo`
+- `repro_jit_heavy_import_test.mojo`
+- `repro_module_import_crash.mojo`
+- `repro_import_chain_synthetic.mojo` (+ deleted helpers `repro_heavy_A.mojo` / `repro_heavy_B.mojo`)
+- `repro_parametric_monomorphization_crash.mojo`
+- `configs_kgen_crash.mojo`
+
+**Policy for future deletions:** Reproducers for unfiled bugs should have upstream
+issues filed with modular/modular before deletion. Local-10/10 passes alone are
+insufficient for non-deterministic crashes, as they may recur under different
+system conditions or in future Mojo builds.
+
+**If these crashes recur:** Developers should file a new issue with modular/modular
+and reference this README section. Do NOT re-add deleted reproducer files without
+upstream confirmation.
 
 ## #6445 (KGEN fortify overflow) — still OPEN
 
