@@ -254,6 +254,12 @@ struct TrainingConfig:
         result += "  checkpoint_every: " + String(self.checkpoint_every) + "\n"
         result += "  validate_every: " + String(self.validate_every) + "\n"
         result += "  log_interval: " + String(self.log_interval) + "\n"
-        result += "  max_wall_time_seconds: " + String(self.max_wall_time_seconds) + "\n"
-        result += "  checkpoint_on_interrupt: " + String(self.checkpoint_on_interrupt)
+        result += (
+            "  max_wall_time_seconds: "
+            + String(self.max_wall_time_seconds)
+            + "\n"
+        )
+        result += "  checkpoint_on_interrupt: " + String(
+            self.checkpoint_on_interrupt
+        )
         return result

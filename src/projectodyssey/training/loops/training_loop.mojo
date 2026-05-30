@@ -370,7 +370,11 @@ struct TrainingLoop:
         """
         print("\nStarting training for " + String(num_epochs) + " epochs...")
         if self.max_wall_time_seconds > 0:
-            print("Wall-clock timeout: " + String(self.max_wall_time_seconds) + " seconds")
+            print(
+                "Wall-clock timeout: "
+                + String(self.max_wall_time_seconds)
+                + " seconds"
+            )
         print("=" * 50)
 
         for epoch in range(num_epochs):
@@ -390,8 +394,14 @@ struct TrainingLoop:
             )
 
             # Check for timeout or shutdown at epoch boundary
-            if self.max_wall_time_seconds > 0 and self.timer.has_elapsed(self.max_wall_time_seconds):
-                print("\nTraining timeout reached after " + String(self.timer.elapsed_seconds()) + " seconds")
+            if self.max_wall_time_seconds > 0 and self.timer.has_elapsed(
+                self.max_wall_time_seconds
+            ):
+                print(
+                    "\nTraining timeout reached after "
+                    + String(self.timer.elapsed_seconds())
+                    + " seconds"
+                )
                 return TrainingResult(
                     stopped_epoch=epoch,
                     reason=ShutdownReason.timeout(),
