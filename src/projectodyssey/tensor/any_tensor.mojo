@@ -2124,7 +2124,7 @@ struct AnyTensor(
             A new AnyTensor with dtype=uint8 containing FP8-encoded values.
 
         Raises:
-            Error: If the source tensor is not a floating-point dtype.
+            Error: If the source tensor is bfloat16 (not supported) or a non-floating-point dtype.
 
         Examples:
             ```var t = zeros([3, 4], DType.float32)
@@ -2139,12 +2139,19 @@ struct AnyTensor(
         from projectodyssey.core.types.dtype_aliases import FP8
         from std.memory import bitcast
 
+        # Explicitly reject bfloat16 at validation time
+        if self._dtype == DType.bfloat16:
+            raise Error(
+                "to_fp8() does not support bfloat16: "
+                "the bfloat16 conversion path does not correctly round-trip "
+                "through the Float32 intermediate representation"
+            )
+
         # Verify source is floating point
         if not (
             self._dtype == DType.float16
             or self._dtype == DType.float32
             or self._dtype == DType.float64
-            or self._dtype == DType.bfloat16
         ):
             raise Error("to_fp8() requires a floating-point tensor")
 
@@ -2162,8 +2169,6 @@ struct AnyTensor(
                 val = self._data.bitcast[Float32]()[i]
             elif self._dtype == DType.float64:
                 val = self._data.bitcast[Float64]()[i].cast[DType.float32]()
-            elif self._dtype == DType.bfloat16:
-                val = self._data.bitcast[BFloat16]()[i].cast[DType.float32]()
             else:
                 # Defensive re-validation (fixes DATA-003)
                 raise Error("Invalid dtype for FP8 conversion")
@@ -2648,7 +2653,7 @@ struct AnyTensor(
             A new AnyTensor with dtype=uint8 containing BF8-encoded values.
 
         Raises:
-            Error: If the source tensor is not a floating-point dtype.
+            Error: If the source tensor is bfloat16 (not supported) or a non-floating-point dtype.
 
         Examples:
             var t = zeros([3, 4], DType.float32)
@@ -2664,12 +2669,19 @@ struct AnyTensor(
         from projectodyssey.core.types.dtype_aliases import BF8
         from std.memory import bitcast
 
+        # Explicitly reject bfloat16 at validation time
+        if self._dtype == DType.bfloat16:
+            raise Error(
+                "to_bf8() does not support bfloat16: "
+                "the bfloat16 conversion path does not correctly round-trip "
+                "through the Float32 intermediate representation"
+            )
+
         # Verify source is floating point
         if not (
             self._dtype == DType.float16
             or self._dtype == DType.float32
             or self._dtype == DType.float64
-            or self._dtype == DType.bfloat16
         ):
             raise Error("to_bf8() requires a floating-point tensor")
 
@@ -2685,8 +2697,6 @@ struct AnyTensor(
                 val = self._data.bitcast[Float32]()[i]
             elif self._dtype == DType.float64:
                 val = self._data.bitcast[Float64]()[i].cast[DType.float32]()
-            elif self._dtype == DType.bfloat16:
-                val = self._data.bitcast[BFloat16]()[i].cast[DType.float32]()
             else:
                 raise Error("Invalid dtype for BF8 conversion")
 
