@@ -154,6 +154,122 @@ def _clamp_simd_f64(tensor: AnyTensor, min_val: Float64, max_val: Float64):
     vectorize[simd_width](size, vectorized_clamp)
 
 
+@always_inline
+def _abs_sum_simd_f32(tensor: AnyTensor) -> Float64:
+    """Compute sum of absolute values using SIMD for float32 tensors."""
+    comptime simd_width = simd_width_of[DType.float32]()
+    var size = tensor._numel
+    var ptr = tensor._data.bitcast[Float32]()
+    var acc = Float64(0.0)
+
+    @always_inline
+    def vectorized_abs_sum[width: Int](idx: Int) {var ptr, mut acc}:
+        var vec = ptr.load[width=width](idx)
+        var abs_vec = abs(vec)
+        acc += abs_vec.reduce_add().cast[DType.float64]()
+
+    vectorize[simd_width](size, vectorized_abs_sum)
+    return acc
+
+
+@always_inline
+def _abs_sum_simd_f64(tensor: AnyTensor) -> Float64:
+    """Compute sum of absolute values using SIMD for float64 tensors."""
+    comptime simd_width = simd_width_of[DType.float64]()
+    var size = tensor._numel
+    var ptr = tensor._data.bitcast[Float64]()
+    var acc = Float64(0.0)
+
+    @always_inline
+    def vectorized_abs_sum[width: Int](idx: Int) {var ptr, mut acc}:
+        var vec = ptr.load[width=width](idx)
+        var abs_vec = abs(vec)
+        acc += abs_vec.reduce_add()
+
+    vectorize[simd_width](size, vectorized_abs_sum)
+    return acc
+
+
+@always_inline
+def _abs_max_simd_f32(tensor: AnyTensor) -> Float32:
+    """Compute maximum absolute value using SIMD for float32 tensors."""
+    comptime simd_width = simd_width_of[DType.float32]()
+    var size = tensor._numel
+    var ptr = tensor._data.bitcast[Float32]()
+    var max_acc = Float32(-1e9)
+
+    @always_inline
+    def vectorized_abs_max[width: Int](idx: Int) {var ptr, mut max_acc}:
+        var vec = ptr.load[width=width](idx)
+        var abs_vec = abs(vec)
+        var chunk_max = abs_vec.reduce_max()
+        if chunk_max > max_acc:
+            max_acc = chunk_max
+
+    vectorize[simd_width](size, vectorized_abs_max)
+    return max_acc
+
+
+@always_inline
+def _abs_max_simd_f64(tensor: AnyTensor) -> Float64:
+    """Compute maximum absolute value using SIMD for float64 tensors."""
+    comptime simd_width = simd_width_of[DType.float64]()
+    var size = tensor._numel
+    var ptr = tensor._data.bitcast[Float64]()
+    var max_acc = Float64(-1e9)
+
+    @always_inline
+    def vectorized_abs_max[width: Int](idx: Int) {var ptr, mut max_acc}:
+        var vec = ptr.load[width=width](idx)
+        var abs_vec = abs(vec)
+        var chunk_max = abs_vec.reduce_max()
+        if chunk_max > max_acc:
+            max_acc = chunk_max
+
+    vectorize[simd_width](size, vectorized_abs_max)
+    return max_acc
+
+
+@always_inline
+def _abs_min_simd_f32(tensor: AnyTensor) -> Float32:
+    """Compute minimum absolute value using SIMD for float32 tensors."""
+    comptime simd_width = simd_width_of[DType.float32]()
+    var size = tensor._numel
+    var ptr = tensor._data.bitcast[Float32]()
+    var min_acc = Float32(1e9)
+
+    @always_inline
+    def vectorized_abs_min[width: Int](idx: Int) {var ptr, mut min_acc}:
+        var vec = ptr.load[width=width](idx)
+        var abs_vec = abs(vec)
+        var chunk_min = abs_vec.reduce_min()
+        if chunk_min < min_acc:
+            min_acc = chunk_min
+
+    vectorize[simd_width](size, vectorized_abs_min)
+    return min_acc
+
+
+@always_inline
+def _abs_min_simd_f64(tensor: AnyTensor) -> Float64:
+    """Compute minimum absolute value using SIMD for float64 tensors."""
+    comptime simd_width = simd_width_of[DType.float64]()
+    var size = tensor._numel
+    var ptr = tensor._data.bitcast[Float64]()
+    var min_acc = Float64(1e9)
+
+    @always_inline
+    def vectorized_abs_min[width: Int](idx: Int) {var ptr, mut min_acc}:
+        var vec = ptr.load[width=width](idx)
+        var abs_vec = abs(vec)
+        var chunk_min = abs_vec.reduce_min()
+        if chunk_min < min_acc:
+            min_acc = chunk_min
+
+    vectorize[simd_width](size, vectorized_abs_min)
+    return min_acc
+
+
 def compute_gradient_norm_list(gradients: List[AnyTensor]) raises -> Float32:
     """Compute global L2 norm across all gradient tensors.
 
@@ -440,6 +556,9 @@ def compute_gradient_statistics(
 ) raises -> GradientStatistics:
     """Compute comprehensive gradient statistics for monitoring.
 
+    Uses SIMD vectorization for norm/abs-sum accumulation on float32/float64 tensors,
+    with a separate scalar pass for NaN/Inf detection and min/max tracking.
+
     Useful for detecting gradient explosions, vanishing gradients, and NaN/Inf issues.
 
     Args:
@@ -478,26 +597,79 @@ def compute_gradient_statistics(
         var numel = grad.numel()
         total_params += numel
 
+        # Pass 1: SIMD accumulation for norm and abs-sum (float32/float64 only)
+        var has_nan_inf = False
+        var tensor_norm_sq = Float64(0.0)
+        var tensor_sum_abs = Float64(0.0)
+        var tensor_max = Float32(-1e9)
+        var tensor_min = Float32(1e9)
+
+        if grad._dtype == DType.float32:
+            tensor_norm_sq = _norm_sq_simd_f32(grad)
+            tensor_sum_abs = _abs_sum_simd_f32(grad)
+            tensor_max = _abs_max_simd_f32(grad)
+            tensor_min = _abs_min_simd_f32(grad)
+        elif grad._dtype == DType.float64:
+            tensor_norm_sq = _norm_sq_simd_f64(grad)
+            tensor_sum_abs = _abs_sum_simd_f64(grad)
+            tensor_max = Float32(_abs_max_simd_f64(grad))
+            tensor_min = Float32(_abs_min_simd_f64(grad))
+
+        # Pass 2: Scalar NaN/Inf scan (all dtypes)
         for j in range(numel):
             var val = grad._get_float64(j)
 
             # Check for NaN/Inf
             if isnan(val):
                 nan_count += 1
+                has_nan_inf = True
                 continue
             if isinf(val):
                 inf_count += 1
+                has_nan_inf = True
                 continue
 
-            # Accumulate statistics
-            total_norm_sq += val * val
-            var abs_val = val if val >= 0.0 else -val
-            sum_abs += abs_val
+            # For non-float32/float64 tensors, accumulate in scalar pass
+            if grad._dtype != DType.float32 and grad._dtype != DType.float64:
+                tensor_norm_sq += val * val
+                var abs_val = val if val >= 0.0 else -val
+                tensor_sum_abs += abs_val
 
-            if abs_val > Float64(max_val):
-                max_val = Float32(abs_val)
-            if abs_val < Float64(min_val):
-                min_val = Float32(abs_val)
+                if abs_val > Float64(tensor_max):
+                    tensor_max = Float32(abs_val)
+                if abs_val < Float64(tensor_min):
+                    tensor_min = Float32(abs_val)
+
+        # If NaN/Inf found, discard SIMD results and recompute scalar-only for this tensor
+        if has_nan_inf and (grad._dtype == DType.float32 or grad._dtype == DType.float64):
+            tensor_norm_sq = Float64(0.0)
+            tensor_sum_abs = Float64(0.0)
+            tensor_max = Float32(-1e9)
+            tensor_min = Float32(1e9)
+
+            for j in range(numel):
+                var val = grad._get_float64(j)
+
+                if isnan(val) or isinf(val):
+                    continue
+
+                tensor_norm_sq += val * val
+                var abs_val = val if val >= 0.0 else -val
+                tensor_sum_abs += abs_val
+
+                if abs_val > Float64(tensor_max):
+                    tensor_max = Float32(abs_val)
+                if abs_val < Float64(tensor_min):
+                    tensor_min = Float32(abs_val)
+
+        # Accumulate tensor statistics into global statistics
+        total_norm_sq += tensor_norm_sq
+        sum_abs += tensor_sum_abs
+
+        if tensor_max > max_val:
+            max_val = tensor_max
+        if tensor_min < min_val:
+            min_val = tensor_min
 
     var global_norm = Float32(sqrt(total_norm_sq))
     var mean_val = Float32(
