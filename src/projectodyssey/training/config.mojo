@@ -92,6 +92,10 @@ struct TrainingConfig:
     """Run validation every N epochs (1 = every epoch)."""
     var log_interval: Int
     """Log progress every N batches."""
+    var max_wall_time_seconds: Int
+    """Maximum wall-clock seconds for training (0 = no limit)."""
+    var checkpoint_on_interrupt: Bool
+    """Save checkpoint when training is interrupted."""
 
     def __init__(
         out self,
@@ -106,6 +110,8 @@ struct TrainingConfig:
         checkpoint_every: Int = 0,
         validate_every: Int = 1,
         log_interval: Int = 10,
+        max_wall_time_seconds: Int = 0,
+        checkpoint_on_interrupt: Bool = True,
     ):
         """Initialize training configuration.
 
@@ -121,6 +127,8 @@ struct TrainingConfig:
             checkpoint_every: Save every N epochs (0 = only at end).
             validate_every: Validate every N epochs (default 1 = every epoch).
             log_interval: Log every N batches (default 10).
+            max_wall_time_seconds: Max wall-clock seconds (0 = no limit, default).
+            checkpoint_on_interrupt: Save checkpoint on interrupt (default True).
         """
         self.epochs = epochs
         self.batch_size = batch_size
@@ -133,6 +141,8 @@ struct TrainingConfig:
         self.checkpoint_every = checkpoint_every
         self.validate_every = validate_every
         self.log_interval = log_interval
+        self.max_wall_time_seconds = max_wall_time_seconds
+        self.checkpoint_on_interrupt = checkpoint_on_interrupt
 
     @staticmethod
     def for_lenet5() -> TrainingConfig:
@@ -192,6 +202,14 @@ struct TrainingConfig:
             log_interval=100,
         )
 
+    def has_timeout(self) -> Bool:
+        """Check if a wall-clock timeout is configured.
+
+        Returns:
+            True if max_wall_time_seconds > 0, False otherwise.
+        """
+        return self.max_wall_time_seconds > 0
+
     def should_validate(self, epoch: Int) -> Bool:
         """Check if validation should run this epoch.
 
@@ -235,5 +253,13 @@ struct TrainingConfig:
         result += "  lr_gamma: " + String(self.lr_gamma) + "\n"
         result += "  checkpoint_every: " + String(self.checkpoint_every) + "\n"
         result += "  validate_every: " + String(self.validate_every) + "\n"
-        result += "  log_interval: " + String(self.log_interval)
+        result += "  log_interval: " + String(self.log_interval) + "\n"
+        result += (
+            "  max_wall_time_seconds: "
+            + String(self.max_wall_time_seconds)
+            + "\n"
+        )
+        result += "  checkpoint_on_interrupt: " + String(
+            self.checkpoint_on_interrupt
+        )
         return result
