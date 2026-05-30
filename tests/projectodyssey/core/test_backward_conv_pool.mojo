@@ -5,7 +5,12 @@ from tests.projectodyssey.conftest import (
     assert_equal,
 )
 from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import ones, ones_like, zeros, zeros_like
+from projectodyssey.tensor.tensor_creation import (
+    ones,
+    ones_like,
+    zeros,
+    zeros_like,
+)
 from projectodyssey.core.conv import conv2d, conv2d_backward
 from projectodyssey.core.pooling import (
     maxpool2d,

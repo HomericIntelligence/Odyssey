@@ -12,7 +12,12 @@ Key components:
 """
 
 from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import ones, ones_like, zeros, zeros_like
+from projectodyssey.tensor.tensor_creation import (
+    ones,
+    ones_like,
+    zeros,
+    zeros_like,
+)
 from projectodyssey.core.normalization_simd import batch_norm2d_fused
 
 

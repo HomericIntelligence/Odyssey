@@ -12,7 +12,13 @@ from tests.projectodyssey.conftest import (
     assert_true,
 )
 from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import full, ones, ones_like, zeros, zeros_like
+from projectodyssey.tensor.tensor_creation import (
+    full,
+    ones,
+    ones_like,
+    zeros,
+    zeros_like,
+)
 from projectodyssey.core.activation import (
     elu,
     elu_backward,

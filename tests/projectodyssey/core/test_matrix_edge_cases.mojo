@@ -8,7 +8,13 @@ Tests edge cases for matmul and shape operations on matrices including:
 
 
 from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import eye, full, ones, zeros, zeros_like
+from projectodyssey.tensor.tensor_creation import (
+    eye,
+    full,
+    ones,
+    zeros,
+    zeros_like,
+)
 from projectodyssey.core.matrix import matmul
 from tests.projectodyssey.conftest import (
     assert_dtype,

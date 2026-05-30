@@ -16,7 +16,11 @@ from projectodyssey.tensor.factories import (
     full as typed_full,
 )
 from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import full as any_full, ones as any_ones, zeros as any_zeros
+from projectodyssey.tensor.tensor_creation import (
+    full as any_full,
+    ones as any_ones,
+    zeros as any_zeros,
+)
 from projectodyssey.core.arithmetic import add, subtract, multiply
 from projectodyssey.core.elementwise import exp, log
 from projectodyssey.core.matrix import matmul

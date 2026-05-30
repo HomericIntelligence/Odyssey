@@ -9,7 +9,11 @@ Tests cover:
 
 from std.testing import assert_true, assert_almost_equal
 from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import full as any_full, ones as any_ones, zeros as any_zeros
+from projectodyssey.tensor.tensor_creation import (
+    full as any_full,
+    ones as any_ones,
+    zeros as any_zeros,
+)
 from projectodyssey.core.matrix import matmul, transpose
 from projectodyssey.core.reduction import sum, mean
 
