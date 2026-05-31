@@ -1056,6 +1056,13 @@ test-mojo-asan:
 # Uses -j1 codegen for stability under thread sanitizer. Note: each compile
 # is ~5min and holds 3-6GB; on memory-limited hosts, prefer `test-group-asan`
 # on individual groups.
+#
+# ⚠️  NOT CURRENTLY FUNCTIONAL: All 298 test binaries compile cleanly but every
+# binary aborts at startup with a tcmalloc MmapAligned() failure (0 race reports).
+# This is a known tcmalloc/ThreadSanitizer incompatibility in Mojo's runtime —
+# TSAN's shadow-memory layout collides with tcmalloc's high-address mmap regions.
+# See docs/dev/mojo-tsan-tcmalloc-incompatibility.md and #5391.
+# Recipe retained — it works once Modular reconciles tcmalloc/TSAN upstream.
 test-mojo-tsan:
     @just _run "just _test-mojo-sanitized-inner thread"
 
@@ -1092,6 +1099,11 @@ _test-mojo-sanitized-inner sanitizer:
 
         BINARY=$(mktemp /tmp/mojo-san-XXXXXX)
         echo "Testing ($SANITIZER): $test_file"
+        # For --sanitize thread, the binary aborts at startup before any test code
+        # runs (tcmalloc/TSAN incompatibility in Mojo runtime — see #5391 and
+        # docs/dev/mojo-tsan-tcmalloc-incompatibility.md). This is an upstream
+        # runtime limitation, not a test or codegen defect. ASAN binaries run
+        # normally. Both are compiled here for coverage and upstream tracking.
         if pixi run mojo build $SAN_FLAGS --Werror $JOBS \
                 -I "$REPO_ROOT/src" -I "$REPO_ROOT" -I . -Xlinker -lm \
                 "$test_file" -o "$BINARY" 2>&1 \
