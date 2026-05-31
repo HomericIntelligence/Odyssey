@@ -369,7 +369,8 @@ jobs:
              test_composed_op*.mojo test_hash*.mojo test_sequential*.mojo \
              test_int_bitwise*.mojo test_uint_bitwise*.mojo \
              test_unsigned*.mojo test_normalize_slice*.mojo \
-             test_jit_crash*.mojo test_numerical_safety_simd*.mojo"
+             test_jit_crash*.mojo test_numerical_safety_simd*.mojo \
+             test_numerical_safety_dtype_dispatch*.mojo"
 
       # ---------- data ----------
       - name: "Data Core"
