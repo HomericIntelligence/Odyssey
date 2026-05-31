@@ -2,17 +2,21 @@
 
 ## Current State (Mojo 1.0)
 
-The functions `pooled_alloc()` and `pooled_free()` in `src/projectodyssey/base/memory_pool.mojo` bypass the `TensorMemoryPool` entirely and delegate directly to system `malloc`/`free`. This is a temporary workaround because **Mojo 1.0 does not support global mutable state**.
+The functions `pooled_alloc()` and `pooled_free()` in `src/projectodyssey/base/memory_pool.mojo`
+bypass the `TensorMemoryPool` entirely and delegate directly to system `malloc`/`free`. This is a
+temporary workaround because **Mojo 1.0 does not support global mutable state**.
 
 ### Why This Matters
 
 The `TensorMemoryPool` class is fully implemented with:
+
 - Three-tier bucket strategy for O(1) cache hits on common allocation sizes
 - Spinlock-protected free lists for thread-safety
 - Atomic statistics counters for allocation/deallocation tracking
 - Large allocation bypass (>16KB goes directly to system allocator)
 
-However, without a global singleton, there's no way to use these optimizations in the module-level `pooled_alloc`/`pooled_free` functions.
+However, without a global singleton, there's no way to use these optimizations in the module-level
+`pooled_alloc`/`pooled_free` functions.
 
 ### Current Workaround
 
@@ -89,6 +93,7 @@ just validate
 ```
 
 Expected outcomes:
+
 - All existing tests pass without modification
 - `pooled_alloc()` will show `pool_hits > 0` in stats after repeated allocations
 - `pooled_free()` will properly return blocks to buckets for reuse
@@ -96,7 +101,9 @@ Expected outcomes:
 
 ## Why This Limitation Exists
 
-Mojo's memory model prevents unsafe global mutable state to preserve memory safety guarantees. Once Mojo designs a safe mechanism (e.g., global immutable singletons, thread-local storage, or explicit pool-passing APIs), this limitation will be lifted.
+Mojo's memory model prevents unsafe global mutable state to preserve memory safety guarantees.
+Once Mojo designs a safe mechanism (e.g., global immutable singletons, thread-local storage, or
+explicit pool-passing APIs), this limitation will be lifted.
 
 See issue #5132 and ADR-009 for related discussions on global state and memory safety.
 
