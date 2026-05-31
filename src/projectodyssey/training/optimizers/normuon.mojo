@@ -109,7 +109,7 @@ def _normalize_tensor_by_axis(
                 var norm_val = norms[j]
                 result._set_float64(i * n + j, val / norm_val)
 
-    return (result, norms)
+    return (result, norms^)
 
 
 def normuon_step(
