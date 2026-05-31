@@ -53,6 +53,14 @@ from projectodyssey.training.optimizers.rmsprop import (
 # LARS optimizer (Layer-wise Adaptive Rate Scaling)
 from projectodyssey.training.optimizers.lars import lars_step, lars_step_simple
 
+# Muon optimizer (Newton-Schulz orthogonalized momentum for matrix-shaped parameters)
+from projectodyssey.training.optimizers.muon import (
+    muon_step,
+    muon_step_simple,
+    newton_schulz_orthogonalize,
+    is_muon_eligible,
+)
+
 # Optimizer utilities (common helper functions)
 from projectodyssey.training.optimizers.optimizer_utils import (
     initialize_optimizer_state,
