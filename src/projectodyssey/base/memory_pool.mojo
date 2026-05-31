@@ -767,7 +767,17 @@ def pooled_alloc(size: Int) -> UnsafePointer[UInt8, MutAnyOrigin]:
     """Allocate memory - currently bypasses pool (direct malloc).
 
     Routes allocations directly to system malloc. The pool infrastructure
-    is implemented but not used until Mojo v0.26+ supports global mutable state.
+    is fully implemented in TensorMemoryPool but cannot be used here until
+    Mojo supports global mutable state (see upgrade path in docs/dev/).
+
+    Current behavior (Mojo 1.0):
+    - Always delegates to system malloc, bypassing the pool entirely
+    - Thread-safe but does not benefit from pool's caching or statistics
+
+    Future behavior (when Mojo adds global var support):
+    - Will use a global TensorMemoryPool instance for all allocations
+    - Will provide O(1) cache hits for frequently-sized allocations
+    - Will track memory statistics via atomic counters
 
     Args:
         size: Number of bytes to allocate.
@@ -775,13 +785,17 @@ def pooled_alloc(size: Int) -> UnsafePointer[UInt8, MutAnyOrigin]:
     Returns:
         UnsafePointer to allocated memory.
 
+    See Also:
+        - TensorMemoryPool for pool-based allocation strategy
+        - docs/dev/memory-pool-upgrade-path.md for upgrade procedure
+        - get_global_pool() for test/local pool instances
+
     Example:
         ```mojo
         var ptr = pooled_alloc(256)  # Allocated via malloc
         var large_ptr = pooled_alloc(1024*1024)  # Allocated via malloc
         ```
     """
-    # Temporary: Direct malloc until we can use global pool
     return alloc[UInt8](size)
 
 
@@ -789,30 +803,48 @@ def pooled_free(ptr: UnsafePointer[UInt8, MutAnyOrigin], size: Int):
     """Return allocation to system allocator.
 
     Currently frees directly to system allocator. The pool infrastructure
-    is implemented but not used until Mojo v0.26+ supports global mutable state.
+    is fully implemented in TensorMemoryPool but cannot be used here until
+    Mojo supports global mutable state (see upgrade path in docs/dev/).
+
+    Current behavior (Mojo 1.0):
+    - Always delegates to system free, bypassing the pool entirely
+    - Thread-safe but does not benefit from pool's reuse or statistics
+
+    Future behavior (when Mojo adds global var support):
+    - Will return blocks to the appropriate size-class bucket for reuse
+    - Large allocations (> 16KB) will be returned to system allocator
+    - Will track deallocation statistics via atomic counters
 
     Args:
         ptr: Pointer to memory to deallocate.
-        size: Size of allocation (unused in direct mode).
+        size: Size of allocation (unused in current direct mode, but will be
+              used for bucket selection in pool mode).
+
+    See Also:
+        - TensorMemoryPool.deallocate() for pool-based deallocation
+        - docs/dev/memory-pool-upgrade-path.md for upgrade procedure
 
     Example:
         ```mojo
         pooled_free(ptr, 256)  # Freed to system allocator
         ```
     """
-    # Temporary: Direct free until we can use global pool
     ptr.free()
 
 
 def get_global_pool() -> TensorMemoryPool:
     """Get a new memory pool instance.
 
-    Note: This returns a new instance since Mojo v0.26.1+ doesn't support
-    global mutable state. The pool infrastructure is fully implemented but
-    not used until Mojo v0.26+ adds support for global vars.
+    Note: This returns a new instance since Mojo v1.0 doesn't support global
+    mutable state. When Mojo adds support for global vars, this function will
+    return a true singleton. The pool infrastructure is fully implemented and
+    ready to be used as a global once the language feature is available.
 
     Returns:
         A new TensorMemoryPool instance with default configuration.
+
+    See Also:
+        - docs/dev/memory-pool-upgrade-path.md for the upgrade path
 
     Example:
         ```mojo
