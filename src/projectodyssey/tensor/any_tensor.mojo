@@ -464,7 +464,7 @@ struct AnyTensor(
         """Private helper: Create a 1D Int64 tensor from a list.
 
         Consolidates common initialization boilerplate for List[Int]
-        constructor. Note: uses float64 setter for compatibility.
+        constructor.
         """
         var result: AnyTensor
         result._shape = List[Int]()
@@ -495,7 +495,7 @@ struct AnyTensor(
         result._refcount[] = 1
 
         for i in range(len(data)):
-            result._set_float64(i, Float64(data[i]))
+            result._set_int64(i, Int64(data[i]))
 
         return result^
 
