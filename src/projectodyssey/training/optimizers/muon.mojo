@@ -164,8 +164,8 @@ def newton_schulz_orthogonalize(
             X, None
         )  # Reverse all axes for rank-2: [rows, cols] -> [cols, rows]
         var tmp_shape = Y.shape()
-        rows = tmp_shape[0]
-        cols = tmp_shape[1]
+        _ = tmp_shape[0]
+        _ = tmp_shape[1]
 
     # Spectral pre-normalization: X / (frobenius_norm(X) + 1e-7)
     var norm = compute_tensor_norm(Y)
