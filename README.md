@@ -7,7 +7,7 @@ maximum performance and type safety.
 
 [![Mojo](https://img.shields.io/badge/Mojo-1.0.0b2-orange.svg)](https://mojolang.org/)
 [![License](https://img.shields.io/badge/License-BSD_3--Clause-blue.svg)](LICENSE)
-[![Tests](https://img.shields.io/badge/tests-298%2B-brightgreen.svg)](tests/)
+[![Tests](https://img.shields.io/badge/tests-308%2B-brightgreen.svg)](tests/)
 [![CI](https://github.com/HomericIntelligence/ProjectOdyssey/actions/workflows/comprehensive-tests.yml/badge.svg?branch=main)](https://github.com/HomericIntelligence/ProjectOdyssey/actions/workflows/comprehensive-tests.yml)
 [![Pre-commit](https://github.com/HomericIntelligence/ProjectOdyssey/actions/workflows/pre-commit.yml/badge.svg?branch=main)](https://github.com/HomericIntelligence/ProjectOdyssey/actions/workflows/pre-commit.yml)
 [![Security](https://github.com/HomericIntelligence/ProjectOdyssey/actions/workflows/security.yml/badge.svg?branch=main)](https://github.com/HomericIntelligence/ProjectOdyssey/actions/workflows/security.yml)
@@ -22,7 +22,7 @@ research papers with production-quality implementations. It has two goals:
 2. **Provide a reusable shared library** of ML components that paper implementations build on
 
 The project currently has ~198K lines of Mojo code, 7 fully-implemented neural network
-architectures, and 298+ tests across layerwise unit tests and end-to-end integration tests.
+architectures, and 308+ tests across layerwise unit tests and end-to-end integration tests.
 
 > **Note on project identity:** The GitHub repo description says "Training framework written
 > in Mojo." This repo is sometimes described elsewhere as an "experimental agent research
