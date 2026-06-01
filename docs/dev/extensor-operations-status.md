@@ -21,7 +21,7 @@ All 5 categories have complete, production-ready implementations in the codebase
 **Implemented Operations**:
 
 | Operation | Function | Type Signature |
-|-----------|----------|-----------------|
+| ----------- | ---------- | ----------------- |
 | Matrix multiplication | `matmul(a, b)` | `AnyTensor × AnyTensor → AnyTensor` |
 | Matrix multiplication (batched) | `matmul(a, b, transpose_a, transpose_b)` | With transpose flags |
 | Transpose | `transpose(a, axes)` | `AnyTensor × List[Int] → AnyTensor` |
@@ -45,7 +45,7 @@ All 5 categories have complete, production-ready implementations in the codebase
 **Implemented Operations**:
 
 | Operation | Function | Type Signature |
-|-----------|----------|-----------------|
+| ----------- | ---------- | ----------------- |
 | Reshape | `reshape(a, shape)` | `AnyTensor × List[Int] → AnyTensor` |
 | Squeeze | `squeeze(a, axis)` | `AnyTensor × Int → AnyTensor` |
 | Unsqueeze | `unsqueeze(a, axis)` | `AnyTensor × Int → AnyTensor` |
@@ -89,7 +89,7 @@ All 5 categories have complete, production-ready implementations in the codebase
 **Implemented Operations**:
 
 | Operation | Function | Type Signature |
-|-----------|----------|-----------------|
+| ----------- | ---------- | ----------------- |
 | Exponential | `exp(a)` | `AnyTensor → AnyTensor` |
 | Natural logarithm | `log(a)` | `AnyTensor → AnyTensor` |
 | Square root | `sqrt(a)` | `AnyTensor → AnyTensor` |
@@ -119,7 +119,7 @@ All 5 categories have complete, production-ready implementations in the codebase
 **Implemented Operations**:
 
 | Operation | Forward | Backward | Type Signature |
-|-----------|---------|----------|-----------------|
+| ----------- | --------- | ---------- | ----------------- |
 | Variance | `variance(a, axis, ddof)` | `variance_backward()` | `AnyTensor × Int × Int → AnyTensor` |
 | Standard deviation | `std_reduce(a, axis, ddof)` | `std_backward()` | `AnyTensor × Int × Int → AnyTensor` |
 | Median | `median(a, axis)` | `median_backward()` | `AnyTensor × Int → AnyTensor` |
@@ -144,14 +144,14 @@ All 5 categories have complete, production-ready implementations in the codebase
 ### Slicing
 
 | Operation | Function | Type Signature | Notes |
-|-----------|----------|-----------------|-------|
+| ----------- | ---------- | ----------------- | ------- |
 | Slice extraction | `tensor.slice(start, end, axis)` | `AnyTensor × Int × Int × Int → AnyTensor` | Zero-copy view for batch processing |
 | Slice extraction | `tensor.slice(start, end)` | `AnyTensor × Int × Int → AnyTensor` | Default axis=0 for batch iteration |
 
 ### Element Access
 
 | Operation | Function | Type Signature | Notes |
-|-----------|----------|-----------------|-------|
+| ----------- | ---------- | ----------------- | ------- |
 | Index access | `tensor[i]` | `AnyTensor × Int → AnyTensor` | Copy-based, creates new tensor |
 | Multi-dimensional access | `tensor[i, j, ...]` | Via `__getitem__(*indices)` | Supports arbitrary dimensions |
 
@@ -250,7 +250,7 @@ from projectodyssey.core import variance, std_reduce, median, percentile
 ## Acceptance Criteria Status
 
 | Criterion | Status | Evidence |
-|-----------|--------|----------|
+| ----------- | -------- | ---------- |
 | **Implement or document status of matrix operations** | ✅ COMPLETE | `src/projectodyssey/core/matrix.mojo`: 7 operations documented with test files |
 | **Implement or document status of shape manipulation** | ✅ COMPLETE | `src/projectodyssey/core/shape.mojo`: 14 operations documented with test files |
 | **Implement or document status of element-wise math** | ✅ COMPLETE | `src/projectodyssey/core/elementwise.mojo`: 11 operations documented with test files |
