@@ -36,6 +36,10 @@ Slicing Design:
 - The split between view (slice) and copy (getitem) is intentional: views support
   efficient batch iteration; copies ensure safety when downstream code may mutate.
 
+See Also:
+- Issue #3013: Consolidates issues #2717-#2721 documenting implementation status
+- docs/dev/extensor-operations-status.md: Comprehensive mapping of all 5 operation categories
+
 Reference: https://data-apis.org/array-api/latest/API_specification/index.html
 """
 
