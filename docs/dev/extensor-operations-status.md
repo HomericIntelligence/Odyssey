@@ -2,7 +2,9 @@
 
 ## Overview
 
-Issue #3013 consolidated 5 feature requests (#2717-#2721) to document the implementation status of ExTensor operations across 5 operational categories. This document provides a comprehensive mapping of operations to their implementations.
+Issue #3013 consolidated 5 feature requests (#2717-#2721) to document the implementation status
+of ExTensor operations across 5 operational categories. This document provides a comprehensive
+mapping of operations to their implementations.
 
 **Status**: ✅ **ALL OPERATIONS IMPLEMENTED**
 
@@ -60,19 +62,21 @@ All 5 categories have complete, production-ready implementations in the codebase
 | **Permute** | `permute(tensor, dims)` | `AnyTensor × List[Int] → AnyTensor` |
 
 **Tests**: `tests/projectodyssey/core/test_shape.mojo`
-  - ✅ `test_split_equal` - Split into equal parts
-  - ✅ `test_split_unequal` - Split with remainder
-  - ✅ `test_tile_1d` - Tiling 1D tensors
-  - ✅ `test_tile_multidim` - Tiling multidimensional tensors
-  - ✅ `test_repeat_elements` - Element repetition
-  - ✅ `test_repeat_axis` - Axis-wise repetition
-  - ✅ `test_broadcast_to_compatible` - Broadcasting to compatible shape
-  - ✅ `test_permute_axes` - Permuting dimensions
+
+- ✅ `test_split_equal` - Split into equal parts
+- ✅ `test_split_unequal` - Split with remainder
+- ✅ `test_tile_1d` - Tiling 1D tensors
+- ✅ `test_tile_multidim` - Tiling multidimensional tensors
+- ✅ `test_repeat_elements` - Element repetition
+- ✅ `test_repeat_axis` - Axis-wise repetition
+- ✅ `test_broadcast_to_compatible` - Broadcasting to compatible shape
+- ✅ `test_permute_axes` - Permuting dimensions
 
 **Exports**: Yes, all functions exported via `src/projectodyssey/core/__init__.mojo`
-  - `reshape`, `squeeze`, `unsqueeze`, `expand_dims`, `flatten`, `ravel`
-  - `concatenate`, `stack`, `split`, `split_with_indices`
-  - `tile`, `repeat`, `broadcast_to`, `permute`
+
+- `reshape`, `squeeze`, `unsqueeze`, `expand_dims`, `flatten`, `ravel`
+- `concatenate`, `stack`, `split`, `split_with_indices`
+- `tile`, `repeat`, `broadcast_to`, `permute`
 
 ---
 
@@ -158,21 +162,23 @@ def next(mut self) raises -> DataBatch:
     """Get next batch."""
     if not self.has_next():
         raise Error("No more batches available")
-    
+
     var start_idx = self.current_batch * self.batch_size
     var end_idx = min(start_idx + self.batch_size, self.num_samples)
-    
+
     # Extract batch slice — supports N-D tensors (2D, 3D, 4D, etc.)
     var batch_data = self.data.slice(start_idx, end_idx)
     var batch_labels = self.labels.slice(start_idx, end_idx)
-    
+
     self.current_batch += 1
     return DataBatch(batch_data, batch_labels)
+
 ```
 
 **Tests**: `tests/projectodyssey/core/test_slicing.mojo`
 
 **Design Notes**:
+
 - `slice()` returns a zero-copy view (shares memory) for efficient batch iteration
 - `__getitem__()` returns a copy for safety when downstream code may mutate
 - This design choice is intentional: views for batch processing, copies for element access
@@ -183,10 +189,12 @@ def next(mut self) raises -> DataBatch:
 
 ### AnyTensor Class Documentation
 
-The `AnyTensor` class (`src/projectodyssey/tensor/any_tensor.mojo:1-40`) includes a comprehensive list of all Array API categories with implementation status:
+The `AnyTensor` class (`src/projectodyssey/tensor/any_tensor.mojo:1-40`) includes a comprehensive
+list of all Array API categories with implementation status:
 
 ```mojo
 Array API Categories:
+
 - Creation: zeros, ones, full, empty, arange, eye, linspace ✓
 - Arithmetic: add, subtract, multiply, divide, floor_divide, modulo, power ✓
 - Comparison: equal, not_equal, less, less_equal, greater, greater_equal ✓
@@ -198,6 +206,7 @@ Array API Categories:
 - Statistical: var, std, median, percentile ✓ (src/projectodyssey/core/reduction.mojo)
 - Indexing: slicing, advanced indexing ✓ (__getitem__ methods)
 - Hashing: __hash__ via Hashable trait ✓
+
 ```
 
 ---
@@ -223,14 +232,17 @@ from projectodyssey.core.elementwise import (
 from projectodyssey.core.reduction import (
     variance, std_reduce, median, percentile, ...
 )
+
 ```
 
 Users can import operations directly:
+
 ```mojo
 from projectodyssey.core import split, tile, repeat, broadcast_to, permute
 from projectodyssey.core import exp, log, sqrt, sin, cos
 from projectodyssey.core import matmul, transpose, dot, outer
 from projectodyssey.core import variance, std_reduce, median, percentile
+
 ```
 
 ---
@@ -250,26 +262,32 @@ from projectodyssey.core import variance, std_reduce, median, percentile
 
 ## Notes on TODO Comments and File Path Changes
 
-**Original Issue References**: The issue #3013 body references `shared/core/extensor.mojo:23-28` as containing a TODO list. This file path is a phantom — the codebase was refactored from `shared/` to `src/projectodyssey/` prior to this issue's scope.
+**Original Issue References**: The issue #3013 body references `shared/core/extensor.mojo:23-28`
+as containing a TODO list. This file path is a phantom — the codebase was refactored from
+`shared/` to `src/projectodyssey/` prior to this issue's scope.
 
-**Investigation Result**: 
+**Investigation Result**:
+
 - No file `shared/core/extensor.mojo` exists in current codebase
 - The operations mentioned in the issue are implemented across multiple modules:
-  - Matrix ops: `src/projectodyssey/core/matrix.mojo`
-  - Shape manipulation: `src/projectodyssey/core/shape.mojo`
-  - Element-wise math: `src/projectodyssey/core/elementwise.mojo`
-  - Statistical ops: `src/projectodyssey/core/reduction.mojo`
-  - Slicing: `src/projectodyssey/tensor/any_tensor.mojo`
+- Matrix ops: `src/projectodyssey/core/matrix.mojo`
+- Shape manipulation: `src/projectodyssey/core/shape.mojo`
+- Element-wise math: `src/projectodyssey/core/elementwise.mojo`
+- Statistical ops: `src/projectodyssey/core/reduction.mojo`
+- Slicing: `src/projectodyssey/tensor/any_tensor.mojo`
 
-**Resolution Strategy**: Rather than updating phantom TODO comments, this document provides the definitive mapping of issue #2717-#2721 requirements to their current implementations. The comprehensive tables in each category section serve as the "TODO resolution" — all 5 categories are fully implemented and this status document replaces any need for TODO markers.
+**Resolution Strategy**: Rather than updating phantom TODO comments, this document provides the
+definitive mapping of issue #2717-#2721 requirements to their current implementations. The
+comprehensive tables in each category section serve as the "TODO resolution" — all 5 categories
+are fully implemented and this status document replaces any need for TODO markers.
 
 ---
 
 ## Reference
 
-- **Python Array API Standard**: https://data-apis.org/array-api/latest/
-- **NumPy Broadcasting**: https://numpy.org/doc/stable/user/basics.broadcasting.html
-- **Mojo Documentation**: https://mojolang.org/docs/
+- **Python Array API Standard**: <https://data-apis.org/array-api/latest/>
+- **NumPy Broadcasting**: <https://numpy.org/doc/stable/user/basics.broadcasting.html>
+- **Mojo Documentation**: <https://mojolang.org/docs/>
 
 ---
 
