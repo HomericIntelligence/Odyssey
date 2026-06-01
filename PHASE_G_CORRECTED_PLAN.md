@@ -15,6 +15,7 @@ The previous plan contained factual errors that have been corrected:
 ## Actual Phase G Work (Corrected Scope)
 
 ### G1: Triage (COMPLETE)
+
 - ✅ 94 issues classified in prior comment
 - ✅ 35 EASY + 33 MEDIUM + 17 HARD + 9 DEFERRED
 
@@ -37,7 +38,9 @@ The previous plan contained factual errors that have been corrected:
 ### Files to Modify
 
 For dispatch agents (corrected paths):
-- **#5134**: `src/projectodyssey/tensor/typed/numerical_safety.mojo` — SIMD-vectorize `_tensor_min_core`, `_tensor_max_core`, `_compute_l2_norm_core`
+
+- **#5134**: `src/projectodyssey/tensor/typed/numerical_safety.mojo` — SIMD-vectorize
+  `_tensor_min_core`, `_tensor_max_core`, `_compute_l2_norm_core`
 - **#5135**: `src/projectodyssey/core/numerical_safety.mojo` — SIMD-vectorize `clip_grad_value_`, `clip_grad_norm_`, `clip_grad_global_norm_`
 - **#5141**: `src/projectodyssey/training/gradient_clipping.mojo:438-515` — SIMD-vectorize `compute_gradient_statistics()`
 - **#5132**: `src/projectodyssey/core/` — Wire `pooled_alloc`/`pooled_free` to `TensorMemoryPool`
@@ -72,4 +75,3 @@ gh pr view 5445 --json state,title
 3. Monitor/close-out: Watch PRs, close merged issues that haven't auto-closed
 4. Post G4 summary: Tier counts, PR count, issues closed, HARD/DEFERRED carry-forward
 5. Close epic #5354
-
