@@ -175,7 +175,7 @@ def test_conv2d_initialization() raises:
         kernel_h=3,
         kernel_w=3,
         stride=1,
-        padding=1
+        padding=1,
     )
     assert_equal(layer.in_channels, 3)
     assert_equal(layer.out_channels, 16)
@@ -196,7 +196,7 @@ def test_conv2d_output_shape() raises:
         - Output: (batch, out_channels, out_height, out_width).
     """
     var layer = Conv2dLayer(3, 16, kernel_h=3, kernel_w=3, stride=1, padding=1)
-    var input_shape = List[Int](1, 3, 32, 32)
+    var input_shape: List[Int] = [1, 3, 32, 32]
     var input = randn(input_shape, DType.float32)
     var output = layer.forward(input)
     var output_shape = output.shape()
@@ -213,7 +213,7 @@ def test_conv2d_stride() raises:
         Conv2D with stride=2 should halve spatial dimensions.
     """
     var layer = Conv2dLayer(3, 16, kernel_h=3, kernel_w=3, stride=2, padding=1)
-    var input_shape = List[Int](1, 3, 32, 32)
+    var input_shape: List[Int] = [1, 3, 32, 32]
     var input = randn(input_shape, DType.float32)
     var output = layer.forward(input)
     var output_shape = output.shape()
@@ -230,7 +230,7 @@ def test_conv2d_valid_padding() raises:
         Conv2D with padding=0 reduces spatial dimensions.
     """
     var layer = Conv2dLayer(3, 16, kernel_h=5, kernel_w=5, stride=1, padding=0)
-    var input_shape = List[Int](1, 3, 32, 32)
+    var input_shape: List[Int] = [1, 3, 32, 32]
     var input = randn(input_shape, DType.float32)
     var output = layer.forward(input)
     var output_shape = output.shape()
