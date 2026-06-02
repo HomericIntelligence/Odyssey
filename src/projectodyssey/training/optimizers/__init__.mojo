@@ -9,6 +9,8 @@ Includes:
 - AdamW (Adam with Weight Decay)
 - RMSprop (Root Mean Square Propagation)
 - LARS (Layer-wise Adaptive Rate Scaling)
+- Muon (Newton-Schulz Orthogonalized Momentum)
+- NorMuon (Muon with per-parameter normalization)
 
 All optimizers follow pure functional design - caller manages state
 
@@ -59,6 +61,12 @@ from projectodyssey.training.optimizers.muon import (
     muon_step_simple,
     newton_schulz_orthogonalize,
     is_muon_eligible,
+)
+
+# NorMuon optimizer (Muon with per-parameter normalization)
+from projectodyssey.training.optimizers.normuon import (
+    normuon_step,
+    normuon_step_simple,
 )
 
 # Optimizer utilities (common helper functions)
