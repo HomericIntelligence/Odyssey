@@ -14,6 +14,7 @@ from projectodyssey.tensor.any_tensor import (
     zeros,
     zeros_like,
     randn,
+    full,
     full_like,
     ones_like,
 )
@@ -37,8 +38,8 @@ def test_reject_non_2d() raises:
     try:
         var (_, _) = normuon_step(params_1d, grad_1d, m_1d, learning_rate=0.01)
         raise Error("Should have rejected 1D params")
-    except Error as e:
-        print("  ✓ Correctly rejected 1D: " + e.__str__())
+    except e:
+        print("  ✓ Correctly rejected 1D: " + String(e))
 
     # Test 3D rejection
     var params_3d = zeros([2, 3, 4], DType.float32)
@@ -48,8 +49,8 @@ def test_reject_non_2d() raises:
     try:
         var (_, _) = normuon_step(params_3d, grad_3d, m_3d, learning_rate=0.01)
         raise Error("Should have rejected 3D params")
-    except Error as e:
-        print("  ✓ Correctly rejected 3D: " + e.__str__())
+    except e:
+        print("  ✓ Correctly rejected 3D: " + String(e))
 
     print("test_reject_non_2d PASSED")
 
@@ -65,8 +66,8 @@ def test_reject_dtype_mismatch() raises:
     try:
         var (_, _) = normuon_step(params, grad, m, learning_rate=0.01)
         raise Error("Should have rejected dtype mismatch")
-    except Error as e:
-        print("  ✓ Correctly rejected dtype mismatch: " + e.__str__())
+    except e:
+        print("  ✓ Correctly rejected dtype mismatch: " + String(e))
 
     print("test_reject_dtype_mismatch PASSED")
 
@@ -89,7 +90,7 @@ def test_row_norm_equals_lr() raises:
     var m = zeros_like(params)
 
     # Apply NorMuon step
-    var (new_params, new_m) = normuon_step(
+    var (_, _) = normuon_step(
         params,
         grad,
         m,
@@ -126,7 +127,7 @@ def test_col_norm_equals_lr() raises:
     var m = zeros_like(params)
 
     # Apply NorMuon step
-    var (new_params, new_m) = normuon_step(
+    var (_, _) = normuon_step(
         params,
         grad,
         m,
@@ -147,12 +148,12 @@ def test_zero_grad_no_nan() raises:
     """
     print("Running test_zero_grad_no_nan...")
 
-    var params = ones_like(zeros([8, 16], DType.float32)) * 0.1
+    var params = full([8, 16], 0.1, DType.float32)
     var grad = zeros([8, 16], DType.float32)
     var m = zeros_like(params)
 
     # Apply step
-    var (new_params, new_m) = normuon_step(
+    var (_, _) = normuon_step(
         params,
         grad,
         m,
@@ -174,7 +175,7 @@ def test_normuon_step_simple() raises:
     var m = zeros_like(params)
     var lr = 0.01
 
-    var (new_params, new_m) = normuon_step_simple(params, grad, m, lr)
+    var (_, _) = normuon_step_simple(params, grad, m, lr)
 
     print("  ✓ normuon_step_simple completed")
     print("test_normuon_step_simple PASSED")
@@ -193,8 +194,8 @@ def test_invalid_norm_axis() raises:
             params, grad, m, learning_rate=0.01, norm_axis=2  # Invalid
         )
         raise Error("Should have rejected norm_axis=2")
-    except Error as e:
-        print("  ✓ Correctly rejected invalid axis: " + e.__str__())
+    except e:
+        print("  ✓ Correctly rejected invalid axis: " + String(e))
 
     print("test_invalid_norm_axis PASSED")
 
@@ -216,8 +217,8 @@ def test_positive_eps() raises:
             eps=0.0,  # Invalid: not positive
         )
         raise Error("Should have rejected eps=0")
-    except Error as e:
-        print("  ✓ Correctly rejected non-positive eps: " + e.__str__())
+    except e:
+        print("  ✓ Correctly rejected non-positive eps: " + String(e))
 
     print("test_positive_eps PASSED")
 
