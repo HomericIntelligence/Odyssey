@@ -1,0 +1,17 @@
+{
+  "follow_ups": [],
+  "rejected": [
+    {
+      "title": "Add migration script to scripts/README.md",
+      "reason": "Documentation enhancement for one-time tooling; not a core defect or gap in library functionality."
+    },
+    {
+      "title": "Extend migration script to support Python files",
+      "reason": "Feature expansion; the issue scope is strictly Mojo files, and verification confirmed zero Python consumers exist."
+    },
+    {
+      "title": "Add pre-commit hook to prevent new any_tensor re-imports",
+      "reason": "Tooling suggestion beyond the issue's core migration scope; enforcement belongs in a separate architectural decision."
+    }
+  ]
+}
