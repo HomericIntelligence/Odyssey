@@ -187,30 +187,20 @@ struct AnyTensor(
             self._strides[i] = stride
             stride *= self._shape[i]
 
-        # Validate memory requirements
+        # Validate memory requirements + allocate.
         var dtype_size = AnyTensor._get_dtype_size_static(dtype)
         var total_bytes = self._numel * dtype_size
-
-        if total_bytes > MAX_TENSOR_BYTES:
-            raise Error(
-                "Tensor too large: "
-                + String(total_bytes)
-                + " bytes exceeds maximum "
-                + String(MAX_TENSOR_BYTES)
-                + " bytes. Consider using smaller batch sizes."
-            )
 
         if total_bytes > WARN_TENSOR_BYTES:
             print("Warning: Large tensor allocation:", total_bytes, "bytes")
 
-        # Allocate raw byte storage through memory pool (for efficiency)
-        self._data = pooled_alloc(total_bytes)
+        var (data, refcount, allocated_size) = AnyTensor._alloc_storage(
+            total_bytes
+        )
+        self._data = data
+        self._refcount = refcount
+        self._allocated_size = allocated_size
         self._base_data = self._data
-        self._allocated_size = total_bytes
-
-        # Allocate and initialize reference count (fixes MOJO-003, MOJO-006)
-        self._refcount = alloc[Int](1)
-        self._refcount[] = 1  # Start with 1 reference
 
     def __init__(out self, value: IntLiteral) raises:
         """Create a scalar AnyTensor from an integer literal.
@@ -238,11 +228,13 @@ struct AnyTensor(
         self._is_view = False
         self._original_numel_quantized = -1
         var dtype_size = AnyTensor._get_dtype_size_static(DType.int64)
-        self._data = pooled_alloc(dtype_size)
+        var (data, refcount, allocated_size) = AnyTensor._alloc_storage(
+            dtype_size
+        )
+        self._data = data
+        self._refcount = refcount
+        self._allocated_size = allocated_size
         self._base_data = self._data
-        self._allocated_size = dtype_size
-        self._refcount = alloc[Int](1)
-        self._refcount[] = 1
         self._set_int64(0, Int64(value))
 
     def __init__(out self, value: FloatLiteral) raises:
@@ -271,11 +263,13 @@ struct AnyTensor(
         self._is_view = False
         self._original_numel_quantized = -1
         var dtype_size = AnyTensor._get_dtype_size_static(DType.float64)
-        self._data = pooled_alloc(dtype_size)
+        var (data, refcount, allocated_size) = AnyTensor._alloc_storage(
+            dtype_size
+        )
+        self._data = data
+        self._refcount = refcount
+        self._allocated_size = allocated_size
         self._base_data = self._data
-        self._allocated_size = dtype_size
-        self._refcount = alloc[Int](1)
-        self._refcount[] = 1
         self._set_float64(0, Float64(value))
 
     def __init__(out self, value: Int) raises:
@@ -298,11 +292,13 @@ struct AnyTensor(
         self._is_view = False
         self._original_numel_quantized = -1
         var dtype_size = AnyTensor._get_dtype_size_static(DType.int64)
-        self._data = pooled_alloc(dtype_size)
+        var (data, refcount, allocated_size) = AnyTensor._alloc_storage(
+            dtype_size
+        )
+        self._data = data
+        self._refcount = refcount
+        self._allocated_size = allocated_size
         self._base_data = self._data
-        self._allocated_size = dtype_size
-        self._refcount = alloc[Int](1)
-        self._refcount[] = 1
         self._set_int64(0, Int64(value))
 
     def __init__(out self, value: Float64) raises:
@@ -330,11 +326,13 @@ struct AnyTensor(
         self._is_view = False
         self._original_numel_quantized = -1
         var dtype_size = AnyTensor._get_dtype_size_static(DType.float64)
-        self._data = pooled_alloc(dtype_size)
+        var (data, refcount, allocated_size) = AnyTensor._alloc_storage(
+            dtype_size
+        )
+        self._data = data
+        self._refcount = refcount
+        self._allocated_size = allocated_size
         self._base_data = self._data
-        self._allocated_size = dtype_size
-        self._refcount = alloc[Int](1)
-        self._refcount[] = 1
         self._set_float64(0, value)
 
     def __init__(out self, var data: List[Float32]) raises:
@@ -353,43 +351,24 @@ struct AnyTensor(
         ```
         ```
         """
-        var shape = List[Int]()
-        shape.append(len(data))
-
         # Initialize fields manually (delegating constructor doesn't satisfy compiler)
         self._shape = List[Int]()
         self._shape.append(len(data))
-        self._dtype = DType.float32
-        self._is_view = False
-        self._original_numel_quantized = -1
-
-        # Calculate numel
-        self._numel = len(data)
-
-        # Calculate strides
         self._strides = List[Int]()
         self._strides.append(1)
-
-        # Allocate memory
+        self._dtype = DType.float32
+        self._numel = len(data)
+        self._is_view = False
+        self._original_numel_quantized = -1
         var dtype_size = AnyTensor._get_dtype_size_static(DType.float32)
         var total_bytes = self._numel * dtype_size
-
-        if total_bytes > MAX_TENSOR_BYTES:
-            raise Error(
-                "Tensor too large: "
-                + String(total_bytes)
-                + " bytes exceeds maximum "
-                + String(MAX_TENSOR_BYTES)
-                + " bytes"
-            )
-
-        self._data = pooled_alloc(total_bytes)
+        var (data_ptr, refcount, allocated_size) = AnyTensor._alloc_storage(
+            total_bytes
+        )
+        self._data = data_ptr
+        self._refcount = refcount
+        self._allocated_size = allocated_size
         self._base_data = self._data
-        self._allocated_size = total_bytes
-        self._refcount = alloc[Int](1)
-        self._refcount[] = 1
-
-        # Copy data
         for i in range(len(data)):
             self._set_float32(i, data[i])
 
@@ -409,43 +388,24 @@ struct AnyTensor(
         ```
         ```
         """
-        var shape = List[Int]()
-        shape.append(len(data))
-
         # Initialize fields manually (delegating constructor doesn't satisfy compiler)
         self._shape = List[Int]()
         self._shape.append(len(data))
-        self._dtype = DType.int64
-        self._is_view = False
-        self._original_numel_quantized = -1
-
-        # Calculate numel
-        self._numel = len(data)
-
-        # Calculate strides
         self._strides = List[Int]()
         self._strides.append(1)
-
-        # Allocate memory
+        self._dtype = DType.int64
+        self._numel = len(data)
+        self._is_view = False
+        self._original_numel_quantized = -1
         var dtype_size = AnyTensor._get_dtype_size_static(DType.int64)
         var total_bytes = self._numel * dtype_size
-
-        if total_bytes > MAX_TENSOR_BYTES:
-            raise Error(
-                "Tensor too large: "
-                + String(total_bytes)
-                + " bytes exceeds maximum "
-                + String(MAX_TENSOR_BYTES)
-                + " bytes"
-            )
-
-        self._data = pooled_alloc(total_bytes)
+        var (data_ptr, refcount, allocated_size) = AnyTensor._alloc_storage(
+            total_bytes
+        )
+        self._data = data_ptr
+        self._refcount = refcount
+        self._allocated_size = allocated_size
         self._base_data = self._data
-        self._allocated_size = total_bytes
-        self._refcount = alloc[Int](1)
-        self._refcount[] = 1
-
-        # Copy data
         for i in range(len(data)):
             self._set_float64(i, Float64(data[i]))
 
@@ -557,6 +517,42 @@ struct AnyTensor(
             return 8
         else:
             return 4  # Default fallback
+
+    @staticmethod
+    def _alloc_storage(
+        total_bytes: Int,
+    ) raises -> Tuple[
+        UnsafePointer[UInt8, origin=MutAnyOrigin],
+        UnsafePointer[Int, origin=MutAnyOrigin],
+        Int,
+    ]:
+        """Allocate raw byte storage + refcount cell for an AnyTensor.
+
+        Centralizes the `pooled_alloc` + `alloc[Int](1)` + `refcount[] = 1`
+        pattern shared by every initializing constructor. Also enforces the
+        MAX_TENSOR_BYTES guard so no constructor can skip it.
+
+        Args:
+            total_bytes: Bytes to allocate (numel * dtype_size).
+
+        Returns:
+            A tuple of (data pointer, refcount pointer, allocated_size).
+
+        Raises:
+            Error: If `total_bytes` exceeds MAX_TENSOR_BYTES.
+        """
+        if total_bytes > MAX_TENSOR_BYTES:
+            raise Error(
+                "Tensor too large: "
+                + String(total_bytes)
+                + " bytes exceeds maximum "
+                + String(MAX_TENSOR_BYTES)
+                + " bytes"
+            )
+        var data = pooled_alloc(total_bytes)
+        var refcount = alloc[Int](1)
+        refcount[] = 1
+        return (data, refcount, total_bytes)
 
     def shape(self) -> List[Int]:
         """Return the shape of the tensor.
