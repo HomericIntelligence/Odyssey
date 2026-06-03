@@ -234,9 +234,19 @@ Full code coverage metrics are blocked by [Mojo coverage tooling availability](d
 ### Current Workarounds
 
 - All `test_*.mojo` files verified in CI via test discovery validation
-- 298 test files (as of last count: `find tests -name 'test_*.mojo' | wc -l`) with 500+ test functions
+  (`scripts/validate_test_coverage.py`)
+- Source-to-test mapping: every `src/projectodyssey/**/*.mojo` is checked for
+  a corresponding `test_*.mojo` file (`scripts/check_source_coverage.py`,
+  warn-only as of initial rollout). Run locally:
+  `python scripts/check_source_coverage.py`
+- Test and source file counts (regenerate via the commands shown):
+  `find tests -name 'test_*.mojo' | wc -l` and
+  `find src/projectodyssey -name '*.mojo' ! -name '__init__.mojo' | wc -l`
 - Manual code review via PR checklist for test coverage verification
 - 70%+ threshold enforced for Python automation scripts via pytest-cov
+- ADR-008 review cadence enforced quarterly via
+  `scripts/check_adr_review_dates.py` in scheduled CI (see
+  `.github/workflows/mojo-version-check.yml`)
 
 > **Note on Mojo coverage**: Mojo 1.0 still has no coverage instrumentation (`mojo test --coverage`
 > does not exist). The targets in `coverage.toml` are aspirational, not gated in CI. This is a

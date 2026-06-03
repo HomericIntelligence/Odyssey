@@ -2,13 +2,22 @@
 
 **Status**: Accepted — blocker persists as of Mojo 1.0.0b2
 
-**Date**: 2025-12-10 (last reviewed: 2026-05-09)
+**Date**: 2025-12-10
 
-**Issue Reference**: [Issue #2583][issue-2583] - Coverage Report Parsing
+**Last Reviewed**: 2026-06-03
+
+**Next Review**: 2026-09-03 (quarterly cadence; also re-check on each Mojo minor release)
+
+**Review Trigger**: ANY of the following invalidates this ADR and requires re-review:
+
+- Mojo release notes mention `--coverage`, `coverage`, `instrumentation`, or `lcov`
+- The quarterly date elapses (caught by `scripts/check_adr_review_dates.py` in scheduled CI)
+- A community signal (forum/Discord) about coverage tooling lands
+
+**Issue Reference**: [Issue #2583][issue-2583], [Issue #5040][issue-5040] (audit)
 
 [issue-2583]: https://github.com/HomericIntelligence/ProjectOdyssey/issues/2583
-
-**Decision Owner**: Documentation Specialist
+[issue-5040]: https://github.com/HomericIntelligence/ProjectOdyssey/issues/5040
 
 ## Executive Summary
 
@@ -514,6 +523,29 @@ discovery as workaround
 **Why Selected**: Best balance of pragmatism and project velocity. Allows focus on ML
 implementation (actual goal) while maintaining test validation. Ready to integrate coverage when
 tooling becomes available.
+
+### Alternative 6: Syscall-trace "Coverage" via strace / Python subprocess
+
+**Approach**: Run Mojo test binaries under `strace -e openat,read` (or similar) from
+Python, parse which source files were touched, and treat that as a coverage signal.
+
+**Why Rejected**:
+
+1. Mojo is **AOT-compiled to native ELF** — at runtime the loader does not open
+   `.mojo` source files. `strace` would only see `.so` / `.mojopkg` loads, which map
+   to compilation units, not source-line coverage.
+2. File-touch granularity is strictly weaker than what we already have. The
+   workaround in this ADR (`scripts/validate_test_coverage.py`) plus the new
+   `scripts/check_source_coverage.py` already provide source-file-level mapping
+   without runtime overhead, sandbox-incompatible syscalls, or platform-specific
+   tooling.
+3. Would produce a metric that *looks* like coverage but measures only "did the
+   test binary's loader see this object" — actively misleading, the same failure
+   mode that rejected "Alternative 2: Python coverage.py" above.
+
+**Why Documented**: Audit Issue #5040 listed this as a candidate workaround.
+Rejecting it explicitly prevents a future contributor from implementing
+misleading metrics. See Issue #5040 audit finding (recommendation #3).
 
 ## Implementation Plan
 

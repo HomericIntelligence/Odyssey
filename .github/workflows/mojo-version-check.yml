@@ -178,3 +178,17 @@ jobs:
           echo "| Installed | ${{ steps.installed.outputs.version }} |" >> "$GITHUB_STEP_SUMMARY"
           echo "| Latest Available | ${{ steps.latest.outputs.version }} |" >> "$GITHUB_STEP_SUMMARY"
           echo "| Update Available | ${{ steps.compare.outputs.update_available }} |" >> "$GITHUB_STEP_SUMMARY"
+
+  check-adr-review-dates:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    name: "ADR Review Cadence"
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6
+      - name: Set up Python
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6
+        with:
+          python-version: '3.11'
+      - name: Check ADR review dates
+        run: python scripts/check_adr_review_dates.py

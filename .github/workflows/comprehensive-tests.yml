@@ -190,6 +190,10 @@ jobs:
           echo "Test coverage validation failed. See PR comment for details."
           exit 1
 
+      - name: Check source-to-test mapping (warn-only)
+        run: |
+          python scripts/check_source_coverage.py || true
+
   # ============================================================================
   # Audit Shared Links - Verify .claude/shared/ files are documented in CLAUDE.md
   # ============================================================================
