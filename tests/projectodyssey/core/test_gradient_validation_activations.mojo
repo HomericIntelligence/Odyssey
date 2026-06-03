@@ -20,7 +20,8 @@ from projectodyssey.core.activation import (
     sigmoid,
     sigmoid_backward,
 )
-from projectodyssey.tensor.any_tensor import AnyTensor, full, zeros_like
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import full, zeros_like
 from projectodyssey.testing.gradient_checker import (
     check_gradient,
     NumericalForward,

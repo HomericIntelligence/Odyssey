@@ -5,13 +5,8 @@ sum (all-elements and basic mean) with all-elements reduction (axis=-1).
 """
 
 
-from projectodyssey.tensor.any_tensor import (
-    AnyTensor,
-    full,
-    ones,
-    zeros,
-    arange,
-)
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import full, ones, zeros, arange
 from projectodyssey.core.reduction import sum, mean, max_reduce, min_reduce
 from tests.projectodyssey.conftest import (
     assert_dtype,

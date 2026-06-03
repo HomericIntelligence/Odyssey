@@ -16,19 +16,8 @@ from tests.projectodyssey.conftest import (
     assert_equal_int,
     assert_true,
 )
-from projectodyssey.tensor.any_tensor import (
-    AnyTensor,
-    zeros,
-    ones,
-    full,
-    empty,
-    arange,
-    eye,
-    linspace,
-    zeros_like,
-    ones_like,
-    full_like,
-)
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import zeros, ones, full, empty, arange, eye, linspace, zeros_like, ones_like, full_like
 
 
 def test_zeros_creation() raises:

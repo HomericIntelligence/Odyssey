@@ -19,7 +19,8 @@ Full E2E testing happens in weekly CI job with complete dataset.
 """
 
 
-from projectodyssey.tensor.any_tensor import AnyTensor, zeros, ones
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import zeros, ones
 from projectodyssey.core.conv import conv2d
 from projectodyssey.core.pooling import maxpool2d
 from projectodyssey.core.linear import linear

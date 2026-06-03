@@ -12,7 +12,8 @@ Features:
     - Inference mode (no training, no batch norm running stats updates)
 """
 
-from projectodyssey.tensor.any_tensor import AnyTensor, zeros
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import zeros
 from projectodyssey.data.batch_utils import (
     compute_num_batches,
     extract_batch_pair,

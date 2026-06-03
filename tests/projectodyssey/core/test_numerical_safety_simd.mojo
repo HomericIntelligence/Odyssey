@@ -8,11 +8,8 @@ Validates has_nan, has_inf, count_nan, count_inf with SIMD edge cases:
 - Early exit behavior for has_nan/has_inf
 """
 
-from projectodyssey.tensor.any_tensor import (
-    AnyTensor,
-    zeros,
-    full,
-)
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import zeros, full
 from projectodyssey.core.numerical_safety import (
     has_nan,
     has_inf,

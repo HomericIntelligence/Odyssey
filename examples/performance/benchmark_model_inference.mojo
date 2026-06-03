@@ -21,7 +21,8 @@ from projectodyssey.benchmarking import (
     print_benchmark_summary,
     BenchmarkResult,
 )
-from projectodyssey.tensor.any_tensor import AnyTensor, ones
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import ones
 
 
 # ============================================================================

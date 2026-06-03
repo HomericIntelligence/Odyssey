@@ -10,7 +10,8 @@ Total: 8 tests.
 """
 
 
-from projectodyssey.tensor.any_tensor import AnyTensor, zeros, ones
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import zeros, ones
 from tests.projectodyssey.conftest import assert_equal, assert_almost_equal
 from projectodyssey.data.batch_utils import extract_batch, extract_batch_pair
 

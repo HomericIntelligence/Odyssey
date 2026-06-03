@@ -38,7 +38,7 @@ from projectodyssey.core.arithmetic_simd import (
     divide_simd,
 )
 from projectodyssey.core.elementwise import sqrt
-from projectodyssey.tensor.any_tensor import full_like, ones_like
+from projectodyssey.tensor.tensor_creation import full_like, ones_like
 
 
 def adamw_step(

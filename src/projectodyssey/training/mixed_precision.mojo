@@ -34,7 +34,8 @@ Usage:
 See mixed precision training examples in examples/mixed_precision/
 """
 
-from projectodyssey.tensor.any_tensor import AnyTensor, full
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import full
 from projectodyssey.core.numerical_safety import has_nan, has_inf
 from std.math import log2
 from std.algorithm import vectorize

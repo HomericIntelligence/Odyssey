@@ -9,7 +9,8 @@ Key components:
   Implements: y = conv2d(x, weight, bias, stride, padding)
 """
 
-from projectodyssey.tensor.any_tensor import AnyTensor, zeros, randn, zeros_like
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import zeros, randn, zeros_like
 from projectodyssey.core.initializers import kaiming_uniform
 from projectodyssey.core.conv import conv2d, conv2d_backward
 

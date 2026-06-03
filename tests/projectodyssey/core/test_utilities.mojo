@@ -6,15 +6,8 @@ This module tests the utility functions:
 - full_like
 """
 
-from projectodyssey.tensor.any_tensor import (
-    AnyTensor,
-    zeros,
-    ones,
-    full,
-    ones_like,
-    zeros_like,
-    full_like,
-)
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import zeros, ones, full, ones_like, zeros_like, full_like
 
 
 def test_ones_like_shape() raises:

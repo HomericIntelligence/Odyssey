@@ -15,14 +15,8 @@ from tests.projectodyssey.conftest import (
     assert_shape,
     assert_true,
 )
-from projectodyssey.tensor.any_tensor import (
-    AnyTensor,
-    zeros,
-    ones,
-    full,
-    zeros_like,
-    ones_like,
-)
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import zeros, ones, full, zeros_like, ones_like
 from projectodyssey.core.conv import (
     depthwise_conv2d,
     depthwise_conv2d_backward,

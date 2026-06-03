@@ -11,7 +11,8 @@ Tests cover:
 
 from std.testing import assert_true, assert_almost_equal
 from projectodyssey.tensor.tensor import Tensor
-from projectodyssey.tensor.any_tensor import AnyTensor, zeros
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import zeros
 
 
 def test_refcount_shared_on_as_any() raises:

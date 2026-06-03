@@ -8,12 +8,8 @@ These tests verify both import functionality and basic component behavior.
 
 
 from std.testing import assert_true
-from projectodyssey.tensor.any_tensor import (
-    AnyTensor,
-    ones,
-    randn,
-    zeros,
-)
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import ones, randn, zeros
 from projectodyssey.core import (
     BF8,
     FP8,

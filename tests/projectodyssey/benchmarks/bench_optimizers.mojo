@@ -18,7 +18,8 @@ from tests.projectodyssey.conftest import (
     measure_time,
     TestFixtures,
 )
-from projectodyssey.tensor.any_tensor import AnyTensor, randn, zeros_like
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import randn, zeros_like
 from projectodyssey.training.optimizers.sgd import sgd_step, sgd_step_simple
 from projectodyssey.training.optimizers.adam import adam_step, adam_step_simple
 from std.time import perf_counter_ns

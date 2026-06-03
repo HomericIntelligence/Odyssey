@@ -19,7 +19,8 @@ from tests.projectodyssey.conftest import (
     assert_equal_int,
     assert_true,
 )
-from projectodyssey.tensor.any_tensor import AnyTensor, zeros, ones, zeros_like
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import zeros, ones, zeros_like
 from projectodyssey.core.strassen import matmul_strassen, next_power_of_2
 from projectodyssey.core.matmul import matmul_tiled
 

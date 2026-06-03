@@ -9,7 +9,8 @@ from projectodyssey.testing.gradient_checker import (
     assert_gradients_close,
     relative_error,
 )
-from projectodyssey.tensor.any_tensor import AnyTensor, zeros, ones, full
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import zeros, ones, full
 
 
 # ============================================================================

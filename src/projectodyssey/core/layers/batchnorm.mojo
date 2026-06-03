@@ -11,13 +11,8 @@ Key components:
              y = gamma * (x - running_mean) / sqrt(running_var + eps) + beta (inference)
 """
 
-from projectodyssey.tensor.any_tensor import (
-    AnyTensor,
-    zeros,
-    ones,
-    zeros_like,
-    ones_like,
-)
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import zeros, ones, zeros_like, ones_like
 from projectodyssey.core.normalization_simd import batch_norm2d_fused
 
 

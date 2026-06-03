@@ -9,7 +9,8 @@ Tests the complete serialization pipeline including:
 
 from std.testing import assert_true, assert_equal
 from projectodyssey.testing.assertions import assert_almost_equal
-from projectodyssey.tensor.any_tensor import AnyTensor, zeros, ones, full
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import zeros, ones, full
 from projectodyssey.utils.serialization import (
     NamedTensor,
     save_tensor,

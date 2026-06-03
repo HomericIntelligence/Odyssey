@@ -26,13 +26,8 @@ from projectodyssey.core.dropout import (
     dropout_backward,
     dropout2d_backward,
 )
-from projectodyssey.tensor.any_tensor import (
-    AnyTensor,
-    zeros,
-    ones,
-    zeros_like,
-    ones_like,
-)
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import zeros, ones, zeros_like, ones_like
 
 
 # ============================================================================

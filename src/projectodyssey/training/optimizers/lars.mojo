@@ -24,7 +24,7 @@ from projectodyssey.core.arithmetic_simd import (
     multiply_simd,
     add_simd,
 )
-from projectodyssey.tensor.any_tensor import full_like
+from projectodyssey.tensor.tensor_creation import full_like
 from projectodyssey.core.numerical_safety import compute_tensor_l2_norm
 
 

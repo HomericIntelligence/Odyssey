@@ -10,7 +10,8 @@ See documentation: docs/advanced/custom-layers.md
 
 from projectodyssey.core.module import Module
 from projectodyssey.core.layers import Linear
-from projectodyssey.tensor.any_tensor import AnyTensor, randn
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import randn
 from projectodyssey.core.activation import softmax
 from projectodyssey.core.matrix import matmul, transpose
 

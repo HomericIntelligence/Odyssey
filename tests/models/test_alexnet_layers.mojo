@@ -19,7 +19,8 @@ See issue #3009 for detailed analysis.
 """
 
 
-from projectodyssey.tensor.any_tensor import AnyTensor, zeros, ones, full
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import zeros, ones, full
 from projectodyssey.core.conv import conv2d
 from projectodyssey.core.pooling import maxpool2d
 from projectodyssey.core.linear import linear

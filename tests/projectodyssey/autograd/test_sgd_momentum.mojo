@@ -10,7 +10,8 @@ Verifies:
 
 from std.testing import assert_true
 from tests.projectodyssey.conftest import assert_almost_equal
-from projectodyssey.tensor.any_tensor import AnyTensor, zeros
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import zeros
 from projectodyssey.autograd.variable import Variable
 from projectodyssey.autograd.tape import GradientTape
 from projectodyssey.autograd.optimizers import SGD

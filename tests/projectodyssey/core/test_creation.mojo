@@ -4,19 +4,8 @@ Tests zeros() and ones() creation functions with various shapes and dtypes.
 """
 
 
-from projectodyssey.tensor.any_tensor import (
-    AnyTensor,
-    arange,
-    empty,
-    eye,
-    full,
-    inf_tensor,
-    linspace,
-    nan_tensor,
-    neg_inf_tensor,
-    ones,
-    zeros,
-)
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import arange, empty, eye, full, inf_tensor, linspace, nan_tensor, neg_inf_tensor, ones, zeros
 from tests.projectodyssey.conftest import (
     assert_all_close,
     assert_all_values,

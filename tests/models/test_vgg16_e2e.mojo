@@ -28,7 +28,8 @@ from tests.projectodyssey.conftest import (
     assert_shape,
     assert_true,
 )
-from projectodyssey.tensor.any_tensor import AnyTensor, zeros, ones, full, randn
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import zeros, ones, full, randn
 from projectodyssey.core.conv import conv2d, conv2d_backward
 from projectodyssey.core.linear import linear, linear_backward
 from projectodyssey.core.activation import relu, relu_backward

@@ -10,7 +10,8 @@ Tests cover:
 
 from std.testing import assert_true, assert_false, assert_almost_equal
 from projectodyssey.core.layers.dropout import DropoutLayer
-from projectodyssey.tensor.any_tensor import AnyTensor, zeros, ones, full
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import zeros, ones, full
 
 
 def test_dropout_init_valid() raises:

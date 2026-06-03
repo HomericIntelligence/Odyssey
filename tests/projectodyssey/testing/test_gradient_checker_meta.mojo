@@ -37,13 +37,8 @@ from projectodyssey.testing import (
     relative_error,
     check_gradients_verbose,
 )
-from projectodyssey.tensor.any_tensor import (
-    AnyTensor,
-    zeros,
-    ones,
-    full,
-    zeros_like,
-)
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import zeros, ones, full, zeros_like
 
 
 def square_forward(x: AnyTensor) raises -> AnyTensor:

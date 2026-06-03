@@ -21,13 +21,8 @@ from tests.projectodyssey.conftest import (
     assert_false,
     assert_true,
 )
-from projectodyssey.tensor.any_tensor import (
-    AnyTensor,
-    arange,
-    full,
-    ones,
-    zeros,
-)
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import arange, full, ones, zeros
 from projectodyssey.core.conv import (
     conv2d,
     conv2d_backward,

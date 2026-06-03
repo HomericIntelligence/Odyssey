@@ -16,10 +16,7 @@ from projectodyssey.testing.fixtures import (
     create_test_input,
     create_test_targets,
 )
-from projectodyssey.tensor.any_tensor import (
-    ones,
-    zeros,
-)
+from projectodyssey.tensor.tensor_creation import ones, zeros
 
 
 def test_simple_cnn_initialization() raises:

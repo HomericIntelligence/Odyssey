@@ -4,7 +4,8 @@ Tests NumPy-style broadcasting rules for scalar and vector-to-matrix cases.
 """
 
 
-from projectodyssey.tensor.any_tensor import AnyTensor, zeros, ones, full
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import zeros, ones, full
 from projectodyssey.core.arithmetic import add, multiply, subtract, divide
 from projectodyssey.core.comparison import greater, less_equal
 from std.testing import assert_true

@@ -9,7 +9,8 @@
 # so there is no equivalent of pytest.raises(ImportError) here.
 
 from projectodyssey.tensor.tensor import Tensor
-from projectodyssey.tensor.any_tensor import AnyTensor, zeros
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import zeros
 
 
 def main() raises:

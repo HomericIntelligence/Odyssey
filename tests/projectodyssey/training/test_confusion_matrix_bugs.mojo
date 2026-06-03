@@ -11,7 +11,8 @@ Bug tested:
 """
 
 # Import AnyTensor and confusion matrix
-from projectodyssey.tensor.any_tensor import AnyTensor, ones, zeros
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import ones, zeros
 from projectodyssey.training.metrics.confusion_matrix import ConfusionMatrix
 
 

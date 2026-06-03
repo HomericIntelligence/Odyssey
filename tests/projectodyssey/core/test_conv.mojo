@@ -18,13 +18,8 @@ from tests.projectodyssey.conftest import (
     assert_shape,
     assert_true,
 )
-from projectodyssey.tensor.any_tensor import (
-    AnyTensor,
-    full,
-    ones,
-    ones_like,
-    zeros,
-)
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import full, ones, ones_like, zeros
 from projectodyssey.core.conv import (
     conv2d,
     conv2d_no_bias,
