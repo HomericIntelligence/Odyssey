@@ -30,6 +30,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Separated host/container pixi envs (detached-environments) to prevent bind-mount collisions;
   removed superseded ADR-009 ([#5348](https://github.com/HomericIntelligence/ProjectOdyssey/pull/5348))
 - Separated dev from production dependencies in `pixi.toml` ([#5337](https://github.com/HomericIntelligence/ProjectOdyssey/pull/5337))
+- Replace blanket `ignore_errors = True` in mypy.ini per-module sections (tests/, tools/, notebooks/) with
+  targeted `disable_error_code` lists, so new genuine type errors surface while pre-existing patterns remain
+  suppressed ([#5041](https://github.com/HomericIntelligence/ProjectOdyssey/issues/5041))
 
 ### Fixed
 
@@ -48,6 +51,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `just train lenet fp16 200` end-to-end failure inside Podman ([#5351](https://github.com/HomericIntelligence/ProjectOdyssey/pull/5351))
 - mypy type errors resolved by adding `hephaestus` as explicit dependency ([#5341](https://github.com/HomericIntelligence/ProjectOdyssey/pull/5341))
 - SpinLock unlock race: replaced `store(0)` with `fetch_add(-1)` in memory-pool
+
+### Documentation
+
+- Closed audit umbrella issue #5048: 11 of 13 sub-issues resolved and closed
+  ([#5036](https://github.com/HomericIntelligence/ProjectOdyssey/issues/5036),
+  [#5037](https://github.com/HomericIntelligence/ProjectOdyssey/issues/5037),
+  [#5038](https://github.com/HomericIntelligence/ProjectOdyssey/issues/5038),
+  [#5039](https://github.com/HomericIntelligence/ProjectOdyssey/issues/5039),
+  [#5041](https://github.com/HomericIntelligence/ProjectOdyssey/issues/5041),
+  [#5042](https://github.com/HomericIntelligence/ProjectOdyssey/issues/5042),
+  [#5043](https://github.com/HomericIntelligence/ProjectOdyssey/issues/5043),
+  [#5044](https://github.com/HomericIntelligence/ProjectOdyssey/issues/5044),
+  [#5045](https://github.com/HomericIntelligence/ProjectOdyssey/issues/5045),
+  [#5046](https://github.com/HomericIntelligence/ProjectOdyssey/issues/5046),
+  [#5047](https://github.com/HomericIntelligence/ProjectOdyssey/issues/5047)).
+  Mojo coverage tooling ([#5040](https://github.com/HomericIntelligence/ProjectOdyssey/issues/5040)) tracked separately.
 
 ## [0.2.0-dev] - 2025-11-08 to 2026-03-25
 
