@@ -161,7 +161,7 @@ jobs:
             .
 
       - name: Push images
-        if: (github.event_name != 'pull_request' || github.event.inputs.push == 'true') && matrix.target != 'ci'
+        if: github.event_name != 'pull_request' || github.event.inputs.push == 'true'
         run: |
           for tag in ${{ steps.tags.outputs.tags }}; do
             echo "Pushing $tag..."
