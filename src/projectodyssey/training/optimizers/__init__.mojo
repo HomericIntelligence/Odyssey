@@ -11,6 +11,8 @@ Includes:
 - LARS (Layer-wise Adaptive Rate Scaling)
 - Muon (Newton-Schulz Orthogonalized Momentum)
 - NorMuon (Muon with per-parameter normalization)
+- Lion (Symbolic Discovery of Optimization Algorithms)
+- Shampoo (two-sided matrix preconditioner via Newton-Schulz inverse fourth root)
 
 All optimizers follow pure functional design - caller manages state
 
@@ -71,6 +73,15 @@ from projectodyssey.training.optimizers.normuon import (
 
 # Lion optimizer (Symbolic Discovery of Optimization Algorithms)
 from projectodyssey.training.optimizers.lion import lion_step
+
+# Shampoo optimizer (two-sided matrix preconditioner via Newton-Schulz inverse fourth root)
+from projectodyssey.training.optimizers.shampoo import (
+    shampoo_step,
+    shampoo_step_simple,
+    newton_schulz_inv_fourth_root,
+    is_shampoo_eligible,
+    initialize_shampoo_state,
+)
 
 # Optimizer utilities (common helper functions)
 from projectodyssey.training.optimizers.optimizer_utils import (
