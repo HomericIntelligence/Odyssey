@@ -410,6 +410,13 @@ jobs:
         if: matrix.group == 'autograd-tensor-base'
         run: just test-group "tests/projectodyssey/base" "test_*.mojo"
 
+      # ---------- shampoo-optimizer (named for explicit failure attribution) ----------
+      - name: "Shampoo Optimizer"
+        if: matrix.group == 'autograd-tensor-base'
+        run: |
+          just test-group "tests/projectodyssey/training/optimizers" \
+            "test_shampoo.mojo"
+
       - name: "Shared Infra & Testing"
         if: matrix.group == 'autograd-tensor-base'
         run: |
