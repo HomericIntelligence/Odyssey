@@ -38,7 +38,8 @@ Reference:
 """
 
 from std.math import sqrt as scalar_sqrt
-from projectodyssey.tensor.any_tensor import AnyTensor, zeros_like, full_like
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import zeros_like, full_like
 from projectodyssey.core.arithmetic_simd import (
     subtract_simd,
     multiply_simd,
