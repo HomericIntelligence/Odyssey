@@ -25,7 +25,6 @@ Reference:
 """
 
 from projectodyssey.tensor.any_tensor import AnyTensor, full_like
-from projectodyssey.core.arithmetic import subtract, multiply, add
 from projectodyssey.core.arithmetic_simd import (
     subtract_simd,
     multiply_simd,
