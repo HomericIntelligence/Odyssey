@@ -24,7 +24,8 @@ Reference:
     https://github.com/google/automl/tree/master/lion
 """
 
-from projectodyssey.tensor.any_tensor import AnyTensor, full_like
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import full_like
 from projectodyssey.core.arithmetic_simd import (
     subtract_simd,
     multiply_simd,
