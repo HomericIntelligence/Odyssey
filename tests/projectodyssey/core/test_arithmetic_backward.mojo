@@ -16,7 +16,13 @@ from tests.projectodyssey.conftest import (
     assert_true,
 )
 from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros, ones, ones_like, zeros_like, full
+from projectodyssey.tensor.tensor_creation import (
+    zeros,
+    ones,
+    ones_like,
+    zeros_like,
+    full,
+)
 from projectodyssey.core.arithmetic import (
     add,
     subtract,

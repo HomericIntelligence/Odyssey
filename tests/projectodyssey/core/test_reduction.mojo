@@ -21,7 +21,12 @@ from tests.projectodyssey.conftest import (
     assert_true,
 )
 from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros, ones, zeros_like, ones_like
+from projectodyssey.tensor.tensor_creation import (
+    zeros,
+    ones,
+    zeros_like,
+    ones_like,
+)
 from projectodyssey.core.reduction import (
     max_reduce,
     max_reduce_backward,

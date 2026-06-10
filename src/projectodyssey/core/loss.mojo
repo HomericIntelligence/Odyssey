@@ -19,7 +19,11 @@ All loss functions include:
 """
 
 from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import ones_like, zeros_like, full_like
+from projectodyssey.tensor.tensor_creation import (
+    ones_like,
+    zeros_like,
+    full_like,
+)
 from projectodyssey.core.activation import softmax
 from projectodyssey.core.comparison import less, greater
 from projectodyssey.core.dtype_cast import cast_tensor

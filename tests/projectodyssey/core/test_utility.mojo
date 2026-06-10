@@ -7,7 +7,13 @@ and stride calculations.
 
 
 from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros, ones, full, arange, nan_tensor
+from projectodyssey.tensor.tensor_creation import (
+    zeros,
+    ones,
+    full,
+    arange,
+    nan_tensor,
+)
 from projectodyssey.tensor.tensor_utils import copy, clone, item, diff
 from projectodyssey.core.shape import as_contiguous
 from projectodyssey.core.matrix import transpose_view

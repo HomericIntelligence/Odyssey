@@ -11,7 +11,12 @@ from tests.projectodyssey.conftest import (
     assert_equal,
 )
 from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros, ones, zeros_like, ones_like
+from projectodyssey.tensor.tensor_creation import (
+    zeros,
+    ones,
+    zeros_like,
+    ones_like,
+)
 from projectodyssey.core.conv import depthwise_conv2d, depthwise_conv2d_backward
 from projectodyssey.testing.gradient_checker import (
     check_gradient,

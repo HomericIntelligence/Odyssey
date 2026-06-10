@@ -8,7 +8,12 @@ This helps prevent overfitting by randomly "dropping out" neurons.
 """
 
 from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros, zeros_like, ones_like, full_like
+from projectodyssey.tensor.tensor_creation import (
+    zeros,
+    zeros_like,
+    ones_like,
+    full_like,
+)
 from projectodyssey.core.arithmetic import multiply, divide
 from std import random
 
