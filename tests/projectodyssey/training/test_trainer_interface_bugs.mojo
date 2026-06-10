@@ -11,7 +11,8 @@ Bug tested:
 """
 
 # Import AnyTensor and trainer interface
-from projectodyssey.tensor.any_tensor import AnyTensor, ones
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import ones
 from projectodyssey.training.trainer_interface import DataLoader
 
 

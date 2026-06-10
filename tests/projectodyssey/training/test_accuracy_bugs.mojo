@@ -12,7 +12,8 @@ Bugs tested:
 """
 
 # Import AnyTensor and metrics
-from projectodyssey.tensor.any_tensor import AnyTensor, ones, zeros
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import ones, zeros
 from projectodyssey.training.metrics.accuracy import (
     top1_accuracy,
     per_class_accuracy,

@@ -12,11 +12,8 @@ from tests.projectodyssey.conftest import (
 )
 from projectodyssey.training.loops.validation_loop import validate
 from projectodyssey.training.trainer_interface import DataLoader
-from projectodyssey.tensor.any_tensor import (
-    AnyTensor,
-    ones,
-    zeros,
-)
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import ones, zeros
 
 # ============================================================================
 # Helper functions

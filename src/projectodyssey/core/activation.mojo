@@ -22,7 +22,8 @@ Type support:
 
 from std.math import exp, erf, sqrt, tanh as math_tanh, log as math_log
 from std.collections import List
-from projectodyssey.tensor.any_tensor import AnyTensor, full, zeros_like
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import full, zeros_like
 from projectodyssey.base.dtype_ordinal import (
     dtype_to_ordinal,
     DTYPE_FLOAT16,

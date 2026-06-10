@@ -14,7 +14,8 @@ from tests.projectodyssey.conftest import (
     assert_equal,
     assert_almost_equal,
 )
-from projectodyssey.tensor.any_tensor import AnyTensor, zeros, ones, full
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import zeros, ones, full
 from projectodyssey.training.evaluation import (
     EvaluationResult,
     evaluate_model,

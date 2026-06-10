@@ -1,7 +1,8 @@
 """Basic tests for lazy expression evaluation."""
 
 from std.collections import List
-from projectodyssey.tensor.any_tensor import AnyTensor, zeros, ones, full
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import zeros, ones, full
 from projectodyssey.core.lazy_expression import expr, TensorExpr
 from projectodyssey.core.lazy_eval import evaluate
 from projectodyssey.core.arithmetic import add, subtract, multiply, divide

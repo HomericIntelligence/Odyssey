@@ -5,13 +5,8 @@ from projectodyssey.testing.gradient_checker import (
     NumericalForward,
     NumericalBackward,
 )
-from projectodyssey.tensor.any_tensor import (
-    AnyTensor,
-    zeros,
-    ones,
-    full,
-    zeros_like,
-)
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import zeros, ones, full, zeros_like
 from projectodyssey.core.activation import (
     relu,
     relu_backward,

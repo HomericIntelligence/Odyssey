@@ -4,8 +4,8 @@
 
 
 from std.math import isnan, isinf
-from projectodyssey.tensor.any_tensor import (
-    AnyTensor,
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import (
     arange,
     full,
     inf_tensor,

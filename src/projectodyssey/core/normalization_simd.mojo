@@ -36,8 +36,8 @@ Related:
 
 from std.algorithm import vectorize
 from std.sys.info import simd_width_of
-from projectodyssey.tensor.any_tensor import (
-    AnyTensor,
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import (
     zeros,
     zeros_like,
     ones_like,

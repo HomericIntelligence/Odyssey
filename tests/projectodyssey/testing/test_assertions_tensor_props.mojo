@@ -10,7 +10,7 @@ from projectodyssey.testing.assertions import (
     assert_value_at,
     assert_all_values,
 )
-from projectodyssey.tensor.any_tensor import ones
+from projectodyssey.tensor.tensor_creation import ones
 
 
 def test_assert_dtype_tensor_passes() raises:

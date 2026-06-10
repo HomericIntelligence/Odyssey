@@ -40,7 +40,7 @@ from projectodyssey.core.arithmetic_simd import (
     divide_simd,
 )
 from projectodyssey.core.elementwise import sqrt
-from projectodyssey.tensor.any_tensor import full_like, zeros_like
+from projectodyssey.tensor.tensor_creation import full_like, zeros_like
 from projectodyssey.training.optimizers.muon import muon_step
 from std.math import sqrt as math_sqrt
 

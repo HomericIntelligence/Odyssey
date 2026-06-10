@@ -12,7 +12,8 @@ Test Coverage:
 
 from std.collections import List
 from std.memory import UnsafePointer
-from projectodyssey.tensor.any_tensor import AnyTensor, zeros
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import zeros
 from projectodyssey.data.formats import (
     CIFARLoader,
     CIFAR10_BYTES_PER_IMAGE,

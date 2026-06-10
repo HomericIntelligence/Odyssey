@@ -6,7 +6,8 @@ by performing 7 multiplications instead of 8.
 Typed helper cores live in src/projectodyssey/tensor/typed/strassen.mojo.
 """
 
-from projectodyssey.tensor.any_tensor import AnyTensor, zeros
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import zeros
 from projectodyssey.core.arithmetic import add, subtract
 from projectodyssey.core.matmul import matmul_tiled
 from projectodyssey.base.dtype_ordinal import (

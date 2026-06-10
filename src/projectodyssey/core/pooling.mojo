@@ -7,7 +7,8 @@ All operations are stateless - caller provides all inputs.
 from std.algorithm import parallelize
 from std.collections import List
 
-from projectodyssey.tensor.any_tensor import AnyTensor, zeros
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import zeros
 from projectodyssey.core.parallel_utils import should_parallelize
 
 # max and min are now builtins in Mojo - no import needed

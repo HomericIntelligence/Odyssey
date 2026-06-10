@@ -35,7 +35,8 @@ from projectodyssey.data.loaders import Batch, BatchLoader
 from projectodyssey.data.prefetch import PrefetchDataLoader
 from projectodyssey.data.samplers import RandomSampler, SequentialSampler
 from projectodyssey.data.transforms import Normalize, Compose
-from projectodyssey.tensor.any_tensor import AnyTensor, ones, zeros
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import ones, zeros
 from std.collections import List
 
 

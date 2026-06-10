@@ -15,7 +15,8 @@ from tests.projectodyssey.conftest import (
     assert_equal_int,
     assert_true,
 )
-from projectodyssey.tensor.any_tensor import AnyTensor, zeros, ones, ones_like
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import zeros, ones, ones_like
 from projectodyssey.autograd.variable import (
     Variable,
     variable_add,

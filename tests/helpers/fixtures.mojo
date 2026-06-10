@@ -7,9 +7,14 @@ These fixtures wrap the comprehensive infrastructure in projectodyssey.testing
 with convenient test-specific APIs.
 """
 
-from projectodyssey.tensor.any_tensor import AnyTensor, zeros, ones
-from projectodyssey.tensor.any_tensor import nan_tensor as shared_nan_tensor
-from projectodyssey.tensor.any_tensor import inf_tensor as shared_inf_tensor
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import zeros, ones
+from projectodyssey.tensor.tensor_creation import (
+    nan_tensor as shared_nan_tensor,
+)
+from projectodyssey.tensor.tensor_creation import (
+    inf_tensor as shared_inf_tensor,
+)
 from projectodyssey.testing.data_generators import (
     random_tensor as shared_random_tensor,
 )

@@ -16,7 +16,8 @@ Tests cover:
 
 from std.testing import assert_true, assert_almost_equal
 from projectodyssey.core.layers.linear import Linear
-from projectodyssey.tensor.any_tensor import AnyTensor, zeros, ones
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import zeros, ones
 
 
 def test_linear_default_dtype() raises:

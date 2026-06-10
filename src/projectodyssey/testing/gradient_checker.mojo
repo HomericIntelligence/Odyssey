@@ -45,7 +45,8 @@ Fix for intermittent JIT crashes (issue #5104):
     the entire pointer scope.
 """
 
-from projectodyssey.tensor.any_tensor import AnyTensor, zeros_like
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import zeros_like
 
 
 # ============================================================================

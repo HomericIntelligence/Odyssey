@@ -58,7 +58,8 @@ References:
     - CIFAR-10 Dataset: https://www.cs.toronto.edu/~kriz/cifar.html
 """
 
-from projectodyssey.tensor.any_tensor import AnyTensor, zeros, ones
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import zeros, ones
 from projectodyssey.core.conv import conv2d, conv2d_backward
 from projectodyssey.core.pooling import avgpool2d, avgpool2d_backward
 from projectodyssey.core.linear import linear, linear_backward

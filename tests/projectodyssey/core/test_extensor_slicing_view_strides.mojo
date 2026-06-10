@@ -6,7 +6,8 @@ using the current public API: transpose(), reshape(), view() from shape.mojo,
 and multi-dimensional __getitem__.
 """
 
-from projectodyssey.tensor.any_tensor import AnyTensor, zeros, ones, arange
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import zeros, ones, arange
 from projectodyssey.core.shape import view
 from tests.projectodyssey.conftest import (
     assert_true,

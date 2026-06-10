@@ -15,8 +15,8 @@ from projectodyssey.tensor.factories import (
     ones as typed_ones,
     full as typed_full,
 )
-from projectodyssey.tensor.any_tensor import (
-    AnyTensor,
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import (
     zeros as any_zeros,
     ones as any_ones,
     full as any_full,

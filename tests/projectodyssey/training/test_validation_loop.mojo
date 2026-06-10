@@ -33,12 +33,8 @@ from projectodyssey.training.trainer_interface import (
     TrainingMetrics,
 )
 from projectodyssey.training.metrics import ConfusionMatrix
-from projectodyssey.tensor.any_tensor import (
-    AnyTensor,
-    ones,
-    randn,
-    zeros,
-)
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import ones, randn, zeros
 
 # ============================================================================
 # Helper functions

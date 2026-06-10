@@ -18,8 +18,8 @@ All loss functions include:
 - Support for batched inputs
 """
 
-from projectodyssey.tensor.any_tensor import (
-    AnyTensor,
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import (
     ones_like,
     zeros_like,
     full_like,

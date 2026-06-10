@@ -9,7 +9,8 @@ Covers:
 CI verification: issue #3840. All 17 tests verified passing in CI.
 """
 
-from projectodyssey.tensor.any_tensor import AnyTensor, zeros, ones
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import zeros, ones
 from tests.projectodyssey.conftest import (
     assert_true,
     assert_almost_equal,

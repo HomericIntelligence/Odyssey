@@ -76,7 +76,9 @@ from projectodyssey.core.module import Module
 # Sequential — only parametric variants exist (Sequential2, Sequential3, …)
 
 # Core tensors — AnyTensor is the canonical runtime-typed tensor.
-# Import directly: from projectodyssey.tensor.any_tensor import AnyTensor, zeros, ones, randn
+# Import directly: from projectodyssey.tensor.any_tensor import AnyTensor
+# Factory functions live in tensor_creation:
+#   from projectodyssey.tensor.tensor_creation import zeros, ones, randn
 # NOT re-exported here to avoid circular imports.
 
 # Training optimizers — struct classes available via projectodyssey.autograd.optimizers

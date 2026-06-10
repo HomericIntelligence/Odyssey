@@ -10,7 +10,8 @@ Includes:
     - EMNISTDataset: Extended MNIST dataset with multiple splits
 """
 
-from projectodyssey.tensor.any_tensor import AnyTensor, zeros
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import zeros
 from projectodyssey.data.formats import load_idx_labels, load_idx_images
 from std.utils.index import Index
 

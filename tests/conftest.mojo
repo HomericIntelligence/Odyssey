@@ -3,7 +3,8 @@
 This file contains shared configuration and setup for all tests.
 """
 
-from projectodyssey.tensor.any_tensor import AnyTensor, zeros, ones
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import zeros, ones
 
 
 # ============================================================================

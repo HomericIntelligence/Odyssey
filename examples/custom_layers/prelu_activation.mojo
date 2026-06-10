@@ -11,7 +11,8 @@ Usage:
 See documentation: docs/advanced/custom-layers.md
 """
 
-from projectodyssey.tensor.any_tensor import AnyTensor, zeros
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import zeros
 from projectodyssey.core import clip
 
 

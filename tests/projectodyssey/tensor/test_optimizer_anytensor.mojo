@@ -14,7 +14,8 @@ Tests cover:
 
 from std.testing import assert_true
 from tests.projectodyssey.conftest import assert_almost_equal
-from projectodyssey.tensor.any_tensor import AnyTensor, zeros
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import zeros
 from projectodyssey.autograd import Variable, GradientTape, SGD, Adam
 
 

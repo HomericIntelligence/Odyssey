@@ -1,12 +1,7 @@
 """Tests for AnyTensor 1D slicing operations (basic and strided)."""
 
-from projectodyssey.tensor.any_tensor import (
-    AnyTensor,
-    zeros,
-    ones,
-    full,
-    arange,
-)
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import zeros, ones, full, arange
 from tests.projectodyssey.conftest import (
     assert_true,
     assert_almost_equal,

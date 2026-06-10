@@ -7,7 +7,8 @@ This file provides the AnyTensor public API only.
 
 from std.collections import List
 from std.math import nan
-from projectodyssey.tensor.any_tensor import AnyTensor, full
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import full
 from projectodyssey.core.gradient_types import GradientPair
 
 

@@ -7,8 +7,8 @@ Tests edge cases for matmul and shape operations on matrices including:
 """
 
 
-from projectodyssey.tensor.any_tensor import (
-    AnyTensor,
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import (
     zeros,
     ones,
     full,

@@ -46,7 +46,8 @@ from projectodyssey.autograd import (
     variable_linear,
     variable_cross_entropy,
 )
-from projectodyssey.tensor.any_tensor import AnyTensor, zeros
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import zeros
 from projectodyssey.training.evaluation import evaluate_model_simple
 from projectodyssey.utils.arg_parser import create_training_parser
 from std.collections import List

@@ -15,7 +15,8 @@ Bugs tested:
 """
 
 # Import AnyTensor and shape operations
-from projectodyssey.tensor.any_tensor import AnyTensor, ones, zeros, arange
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import ones, zeros, arange
 from projectodyssey.core.shape import (
     reshape,
     squeeze,

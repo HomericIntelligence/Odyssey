@@ -30,7 +30,8 @@ from projectodyssey.data.formats import (
     normalize_images,
     one_hot_encode,
 )
-from projectodyssey.tensor.any_tensor import AnyTensor, zeros
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import zeros
 from projectodyssey.core.conv import conv2d, conv2d_backward
 from projectodyssey.core.pooling import maxpool2d, maxpool2d_backward
 from projectodyssey.core.linear import linear, linear_backward

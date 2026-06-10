@@ -17,7 +17,8 @@ from projectodyssey.testing.assertions import (
     assert_shape,
     assert_true,
 )
-from projectodyssey.tensor.any_tensor import AnyTensor, zeros, ones, randn
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import zeros, ones, randn
 from projectodyssey.core.layers.conv2d import Conv2dLayer
 
 

@@ -4,8 +4,8 @@ Tests zeros() and ones() creation functions with various shapes and dtypes.
 """
 
 
-from projectodyssey.tensor.any_tensor import (
-    AnyTensor,
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import (
     arange,
     empty,
     eye,

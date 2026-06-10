@@ -35,7 +35,8 @@ from tests.projectodyssey.conftest import (
     assert_true,
     TestFixtures,
 )
-from projectodyssey.tensor.any_tensor import AnyTensor, zeros, ones, full, randn
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import zeros, ones, full, randn
 from projectodyssey.core.conv import (
     conv2d,
     conv2d_backward,

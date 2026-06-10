@@ -10,7 +10,8 @@ Test Coverage:
 - compute_gradient_statistics: Gradient monitoring and health checks
 """
 
-from projectodyssey.tensor.any_tensor import AnyTensor, zeros, ones, full
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import zeros, ones, full
 from projectodyssey.training.gradient_clipping import (
     compute_gradient_norm_list,
     clip_gradients_by_global_norm,

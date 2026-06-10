@@ -7,8 +7,8 @@ Dropout randomly zeros some elements of the input tensor with probability p duri
 This helps prevent overfitting by randomly "dropping out" neurons.
 """
 
-from projectodyssey.tensor.any_tensor import (
-    AnyTensor,
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import (
     zeros,
     zeros_like,
     ones_like,

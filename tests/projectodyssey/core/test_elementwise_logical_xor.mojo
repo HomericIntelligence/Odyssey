@@ -15,7 +15,8 @@ from tests.projectodyssey.conftest import (
     assert_equal,
     assert_true,
 )
-from projectodyssey.tensor.any_tensor import AnyTensor, zeros
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import zeros
 from projectodyssey.core.elementwise import logical_xor
 
 

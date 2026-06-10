@@ -8,8 +8,8 @@ Tests cover:
 """
 
 from std.testing import assert_true, assert_almost_equal
-from projectodyssey.tensor.any_tensor import (
-    AnyTensor,
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import (
     ones as any_ones,
     full as any_full,
 )

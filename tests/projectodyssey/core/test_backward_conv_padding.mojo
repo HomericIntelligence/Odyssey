@@ -9,8 +9,8 @@ from tests.projectodyssey.conftest import (
     assert_almost_equal,
     assert_equal,
 )
-from projectodyssey.tensor.any_tensor import (
-    AnyTensor,
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import (
     zeros,
     ones,
     zeros_like,

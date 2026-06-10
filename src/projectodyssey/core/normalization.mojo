@@ -6,8 +6,8 @@ All operations are stateless - caller manages running statistics and parameters.
 
 from std.algorithm import parallelize
 
-from projectodyssey.tensor.any_tensor import (
-    AnyTensor,
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import (
     zeros,
     zeros_like,
     ones_like,

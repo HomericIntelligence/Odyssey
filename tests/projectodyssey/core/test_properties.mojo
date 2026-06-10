@@ -3,14 +3,8 @@
 """
 
 
-from projectodyssey.tensor.any_tensor import (
-    AnyTensor,
-    zeros,
-    ones,
-    full,
-    arange,
-    eye,
-)
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import zeros, ones, full, arange, eye
 from tests.projectodyssey.conftest import (
     assert_true,
     assert_false,

@@ -5,7 +5,8 @@ element access on sliced views returns correct values, writes through
 views affect the original, and slice + transpose composition works.
 """
 
-from projectodyssey.tensor.any_tensor import AnyTensor, zeros, ones, arange
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import zeros, ones, arange
 from tests.projectodyssey.conftest import (
     assert_true,
     assert_false,

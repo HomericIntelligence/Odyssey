@@ -5,7 +5,8 @@ from tests.projectodyssey.conftest import (
     assert_equal,
     assert_true,
 )
-from projectodyssey.tensor.any_tensor import AnyTensor, zeros, ones, ones_like
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import zeros, ones, ones_like
 from projectodyssey.core.loss import (
     cross_entropy,
     cross_entropy_backward,

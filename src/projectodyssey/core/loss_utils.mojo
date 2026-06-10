@@ -11,8 +11,8 @@ All functions are pure functional - they process inputs to produce outputs witho
 maintaining internal state.
 """
 
-from projectodyssey.tensor.any_tensor import (
-    AnyTensor,
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import (
     ones_like,
     zeros_like,
     full_like,

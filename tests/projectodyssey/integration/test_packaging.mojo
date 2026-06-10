@@ -7,13 +7,8 @@ Tests that verify the shared library package structure and import hierarchy.
 
 
 from std.testing import assert_true, assert_equal
-from projectodyssey.tensor.any_tensor import (
-    AnyTensor,
-    full,
-    ones,
-    randn,
-    zeros,
-)
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import full, ones, randn, zeros
 from projectodyssey.training import (
     AccuracyMetric,
     CosineAnnealingLR,

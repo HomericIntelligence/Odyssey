@@ -54,7 +54,8 @@ Note:
 
 Example:
    ```mojo
-    from projectodyssey.tensor.any_tensor import AnyTensor, zeros
+    from projectodyssey.tensor.any_tensor import AnyTensor
+    from projectodyssey.tensor.tensor_creation import zeros
     from projectodyssey.core.linear import linear
     from projectodyssey.core.activation import relu
     from projectodyssey.core.matrix import matmul, transpose
@@ -157,8 +158,10 @@ from projectodyssey.core.optimizer_constants import (
 # ============================================================================
 # Core Tensor Type and Creation Functions
 # ============================================================================
-# AnyTensor and factory functions (zeros, ones, etc.) are now in projectodyssey.tensor.any_tensor.
-# Import directly: from projectodyssey.tensor.any_tensor import AnyTensor, zeros, ones
+# AnyTensor lives in projectodyssey.tensor.any_tensor; factory functions (zeros,
+# ones, etc.) live in projectodyssey.tensor.tensor_creation.
+# Import directly: from projectodyssey.tensor.any_tensor import AnyTensor
+#                  from projectodyssey.tensor.tensor_creation import zeros, ones
 # NOT re-exported here to avoid circular imports between projectodyssey.core and projectodyssey.tensor.
 
 # ============================================================================

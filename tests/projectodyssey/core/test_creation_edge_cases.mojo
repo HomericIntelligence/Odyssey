@@ -4,7 +4,8 @@ Tests edge cases like scalar creation, very large tensors, and high-dimensional 
 """
 
 # Import AnyTensor and creation operations
-from projectodyssey.tensor.any_tensor import AnyTensor, zeros
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import zeros
 
 # Import test helpers
 from tests.projectodyssey.conftest import (

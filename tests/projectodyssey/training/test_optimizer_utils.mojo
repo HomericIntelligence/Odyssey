@@ -15,13 +15,8 @@ from tests.projectodyssey.conftest import (
     assert_almost_equal,
     assert_equal,
 )
-from projectodyssey.tensor.any_tensor import (
-    AnyTensor,
-    zeros,
-    ones,
-    full,
-    zeros_like,
-)
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import zeros, ones, full, zeros_like
 from projectodyssey.training.optimizers import (
     apply_bias_correction,
     apply_weight_decay,

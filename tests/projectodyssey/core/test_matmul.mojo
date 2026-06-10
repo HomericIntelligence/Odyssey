@@ -21,8 +21,8 @@ from tests.projectodyssey.conftest import (
     assert_true,
     assert_value_at,
 )
-from projectodyssey.tensor.any_tensor import (
-    AnyTensor,
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import (
     zeros,
     ones,
     zeros_like,

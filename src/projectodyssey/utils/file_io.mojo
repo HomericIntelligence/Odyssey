@@ -25,7 +25,8 @@
 
 from std.python import Python, PythonObject
 from std.memory import UnsafePointer
-from projectodyssey.tensor.any_tensor import AnyTensor, zeros
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import zeros
 from projectodyssey.utils.serialization import dtype_to_string
 
 

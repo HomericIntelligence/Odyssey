@@ -5,7 +5,8 @@ a simple module implementation.
 """
 
 from projectodyssey.core.module import Module
-from projectodyssey.tensor.any_tensor import AnyTensor, zeros
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.tensor_creation import zeros
 from tests.projectodyssey.conftest import assert_true, assert_equal_int
 
 
