@@ -4,6 +4,7 @@
 Used by the weekly mojo-version-check workflow to enforce ADR-008's
 quarterly review cadence (Issue #5040).
 """
+
 import re
 import sys
 import datetime

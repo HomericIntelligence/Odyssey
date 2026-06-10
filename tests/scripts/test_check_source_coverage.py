@@ -1,8 +1,12 @@
 """Tests for scripts/check_source_coverage.py"""
+
 import sys
 from pathlib import Path
 
+import pytest
+
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "scripts"))
+import check_source_coverage
 from check_source_coverage import (
     expected_test_paths,
     find_uncovered_sources,
@@ -56,7 +60,32 @@ def test_generate_report_lists_each_uncovered_file() -> None:
     assert "1 of 10" in out
 
 
-def test_main_returns_zero_even_when_uncovered_exist() -> None:
-    """Test that main() returns 0 (warn-only contract on first land)."""
-    rc = main()
-    assert rc == 0
+def test_main_returns_zero_even_when_uncovered_exist(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """main() returns 0 (warn-only contract) when test discovery succeeds.
+
+    Stub find_test_files so the contract is verified deterministically,
+    independent of the current checkout (a worktree checkout would otherwise
+    yield zero discovered tests — see the sanity-guard test below).
+    """
+    monkeypatch.setattr(
+        check_source_coverage,
+        "find_test_files",
+        lambda _root: [Path("tests/projectodyssey/core/test_something.mojo")],
+    )
+    assert main() == 0
+
+
+def test_main_fails_when_no_tests_discovered(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """main() returns non-zero when test discovery yields nothing.
+
+    An empty test set is never legitimate in this repo; it signals a
+    misconfigured invocation (e.g. from a worktree checkout, which
+    find_test_files excludes). The script must fail loudly rather than emit a
+    misleading 100%-uncovered report.
+    """
+    monkeypatch.setattr(check_source_coverage, "find_test_files", lambda _root: [])
+    assert main() == 1

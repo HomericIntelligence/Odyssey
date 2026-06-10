@@ -1,6 +1,6 @@
 """Tests for scripts/check_adr_review_dates.py"""
+
 import sys
-import datetime
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "scripts"))

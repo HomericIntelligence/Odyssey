@@ -11,6 +11,7 @@ Exit codes:
 Usage:
     python scripts/check_source_coverage.py
 """
+
 import sys
 from pathlib import Path
 from typing import List, Set
@@ -29,8 +30,7 @@ def find_source_files(repo_root: Path) -> List[Path]:
     return sorted(
         p.relative_to(repo_root)
         for p in src.rglob("*.mojo")
-        if p.name != "__init__.mojo"
-        and str(p.relative_to(repo_root)) not in SOURCE_EXCLUSIONS
+        if p.name != "__init__.mojo" and str(p.relative_to(repo_root)) not in SOURCE_EXCLUSIONS
     )
 
 
@@ -59,9 +59,7 @@ def expected_test_paths(source: Path) -> List[Path]:
     ]
 
 
-def find_uncovered_sources(
-    sources: List[Path], all_tests: Set[Path]
-) -> List[Path]:
+def find_uncovered_sources(sources: List[Path], all_tests: Set[Path]) -> List[Path]:
     """Return source files whose every candidate test path is missing."""
     uncovered = []
     for src in sources:
@@ -94,6 +92,20 @@ def main() -> int:
     repo_root = get_repo_root()
     sources = find_source_files(repo_root)
     tests = set(find_test_files(repo_root))
+    # Sanity guard: this repo always has hundreds of .mojo test files. An empty
+    # result means test discovery is misconfigured — e.g. running from inside a
+    # `worktrees/` checkout, which find_test_files() deliberately excludes. In
+    # that case every source would be falsely reported as uncovered, so fail
+    # loudly instead of emitting a misleading 100%-uncovered report.
+    if not tests:
+        print(
+            "❌ No test files discovered under tests/ — source-to-test mapping "
+            "cannot run. This usually means the script is being invoked from a "
+            "worktree checkout (excluded by find_test_files). Run from a primary "
+            "repository checkout.",
+            file=sys.stderr,
+        )
+        return 1
     uncovered = find_uncovered_sources(sources, tests)
     print(generate_report(uncovered, len(sources)))
     return 0  # warn-only on first land (ADR-008 + KISS rollout)

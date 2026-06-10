@@ -191,8 +191,11 @@ jobs:
           exit 1
 
       - name: Check source-to-test mapping (warn-only)
-        run: |
-          python scripts/check_source_coverage.py || true
+        # The script is warn-only by design: it always exits 0 after printing the
+        # source-to-test mapping report (see scripts/check_source_coverage.py).
+        # No `|| true` suppression is needed — and it is forbidden by the
+        # forbid-suppressions required check (HomericIntelligence/Odysseus#280).
+        run: python scripts/check_source_coverage.py
 
   # ============================================================================
   # Audit Shared Links - Verify .claude/shared/ files are documented in CLAUDE.md
