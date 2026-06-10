@@ -24,7 +24,7 @@ The previous plan contained factual errors that have been corrected:
 **Current Backlog (30 open issues)**:
 
 | Tier | Count | Issues | Status |
-|------|-------|--------|--------|
+| ------ | ----- | ------ | ------ |
 | EASY | 2 | #3740, #5153 | Ready for dispatch |
 | MEDIUM | 6 | #5132, #5134, #5135, #5141, #5157, #3684 | Ready for dispatch |
 | HARD | 12 | #3181, #3184, #3187, #5040, #5156, #5159, #5181, #5182, #5183, #5184, #5316, #5391 | Deferred |
