@@ -69,6 +69,9 @@ from projectodyssey.training.optimizers.normuon import (
     normuon_step_simple,
 )
 
+# Lion optimizer (Symbolic Discovery of Optimization Algorithms)
+from projectodyssey.training.optimizers.lion import lion_step
+
 # Optimizer utilities (common helper functions)
 from projectodyssey.training.optimizers.optimizer_utils import (
     initialize_optimizer_state,

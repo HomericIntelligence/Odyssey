@@ -12,6 +12,7 @@ This directory contains optimizer implementations for training neural networks i
 | **RMSprop** | RNNs, non-convex problems | Any shape | Adaptive learning rates |
 | **LARS** | Large-batch distributed training | Any shape | Layer-wise adaptive rate scaling |
 | **Muon** | **Matrix-shaped parameters only** (linear/conv weights) | Rank-2 tensors | Newton-Schulz orthogonalization (new in 2024) |
+| **Lion** | Transfer learning, memory-constrained | Any shape | Signed momentum; 3-10x lower LR than AdamW |
 
 ## Quick Selection Guide
 
@@ -191,6 +192,9 @@ Run optimizer tests:
 # Test all optimizers
 pixi run mojo test tests/projectodyssey/training/
 
+# Test Lion (in the shared optimizer suite)
+pixi run mojo test tests/projectodyssey/training/test_optimizers.mojo
+
 # Test Muon specifically
 pixi run mojo test tests/projectodyssey/training/test_muon.mojo
 
@@ -231,9 +235,34 @@ v = checkpoint.load("v")
 
 No special serialization needed for Muon; the single momentum buffer `m` is handled the same as SGD's velocity.
 
+## Lion Optimizer
+
+Lion (Chen et al. 2023) is a memory-efficient optimizer that uses **signed momentum**. It maintains
+a single momentum buffer (half the memory of AdamW) and applies the *sign* of an interpolated
+momentum/gradient term as the update direction.
+
+```mojo
+from projectodyssey.training.optimizers import lion_step
+
+var (new_params, new_momentum) = lion_step(
+    params, gradients, momentum,
+    learning_rate=0.0001,  // 3-10x lower than AdamW
+    beta1=0.9,
+    beta2=0.99,
+    weight_decay=0.0,
+)
+```
+
+**WARNING:** Lion is sensitive to learning rate. The signed update makes every step the same
+magnitude (`lr`), so an AdamW learning rate of `1e-3` typically maps to a Lion learning rate of
+`1e-4`. Start 3-10x lower and tune up.
+
+State: 1 buffer (momentum), shape matches the parameter. Works on parameters of any shape.
+
 ## References
 
 - Loshchilov, I., & Hutter, F. (2019). *Decoupled Weight Decay Regularization*. arXiv:1711.05101 [AdamW]
 - You, Y., Li, J., Reddi, S., et al. (2019). *LARS: Layer-wise Adaptive Rate Scaling*. arXiv:1708.03888
 - Jordan, K., et al. (2024). *Muon: An optimizer for hidden layers in neural networks*.
   [https://kellerjordan.github.io/posts/muon/](https://kellerjordan.github.io/posts/muon/)
+- Chen, X., et al. (2023). *Symbolic Discovery of Optimization Algorithms*. arXiv:2302.06675 [Lion]

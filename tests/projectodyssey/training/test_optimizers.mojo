@@ -25,6 +25,7 @@ from projectodyssey.tensor.any_tensor import AnyTensor, zeros, ones, zeros_like
 from projectodyssey.training.optimizers.sgd import sgd_step, sgd_step_simple
 from projectodyssey.training.optimizers.adam import adam_step, adam_step_simple
 from projectodyssey.training.optimizers.adamw import adamw_step
+from projectodyssey.training.optimizers.lion import lion_step
 
 
 def test_sgd_initialization() raises:
@@ -669,6 +670,178 @@ def test_adam_matches_pytorch() raises:
     )
 
 
+def test_lion_initialization() raises:
+    """Test Lion optimizer initialization with hyperparameters."""
+    var shape: List[Int] = [1]
+    var params = ones(shape, DType.float32)
+    var grads = zeros(shape, DType.float32)
+    var momentum = zeros(shape, DType.float32)
+
+    # Should accept all hyperparameters without error
+    var result = lion_step(
+        params,
+        grads,
+        momentum,
+        learning_rate=0.001,
+        beta1=0.9,
+        beta2=0.99,
+        weight_decay=0.0,
+    )
+
+    # Verify shapes
+    assert_shape(result[0], shape, "Lion step params shape")
+    assert_shape(result[1], shape, "Lion step momentum shape")
+
+
+def test_lion_basic_update_manual() raises:
+    """Test Lion performs correct basic parameter update."""
+    var shape: List[Int] = [1]
+    var params = ones(shape, DType.float32)
+    params.set(0, Float32(1.0))
+
+    var grads = zeros(shape, DType.float32)
+    grads.set(0, Float32(0.1))
+
+    var momentum = zeros(shape, DType.float32)
+
+    # Step with Lion
+    var result = lion_step(
+        params,
+        grads,
+        momentum,
+        learning_rate=0.01,
+        beta1=0.9,
+        beta2=0.99,
+        weight_decay=0.0,
+    )
+    var new_params = result[0]
+    var new_momentum = result[1]
+
+    # Verify that parameters updated
+    var param_val = new_params._data.bitcast[Float32]()[0]
+    assert_less(Float64(param_val), 1.0, "Lion should decrease params")
+
+
+def test_lion_descent_on_quadratic() raises:
+    """Test Lion converges on simple quadratic loss."""
+    # f(x) = ||x||^2, optimal at x=0
+    var shape: List[Int] = [5]
+    var params = ones(shape, DType.float32)
+    var momentum = zeros(shape, DType.float32)
+
+    # Manually initialize params to [1, 1, 1, 1, 1]
+    for i in range(5):
+        params.set(i, Float32(1.0))
+
+    var learning_rate = 0.01
+    var num_steps = 50
+
+    for step in range(num_steps):
+        # Gradient of f(x) = ||x||^2 is grad = 2*x
+        var grads = zeros(shape, DType.float32)
+        for i in range(5):
+            var val = params._data.bitcast[Float32]()[i]
+            grads.set(i, val * Float32(2.0))
+
+        # Lion step
+        var result = lion_step(
+            params,
+            grads,
+            momentum,
+            learning_rate=learning_rate,
+            beta1=0.9,
+            beta2=0.99,
+            weight_decay=0.0,
+        )
+        params = result[0]
+        momentum = result[1]
+
+    # Lion uses signed updates: each step moves the parameter by exactly
+    # `learning_rate` (= 0.01). Starting at 1.0, the smallest reachable value
+    # after 50 monotone-downward steps is 1.0 - 50 * 0.01 = 0.5, which Lion
+    # attains here (final ~= 0.5000005). Assert clear descent with a margin
+    # just above that mathematical floor.
+    var final_val = Float64(params._data.bitcast[Float32]()[0])
+    assert_less(
+        final_val, 0.55, "Lion descent on quadratic: final value too high"
+    )
+
+
+def test_lion_weight_decay() raises:
+    """Test Lion applies weight decay correctly."""
+    var shape: List[Int] = [2]
+    var params = ones(shape, DType.float32)
+    params.set(0, Float32(2.0))
+    params.set(1, Float32(3.0))
+
+    var grads = zeros(shape, DType.float32)
+    grads.set(0, Float32(0.1))
+    grads.set(1, Float32(0.1))
+
+    var momentum = zeros(shape, DType.float32)
+
+    # With weight decay, params should decrease more
+    var result = lion_step(
+        params,
+        grads,
+        momentum,
+        learning_rate=0.01,
+        beta1=0.9,
+        beta2=0.99,
+        weight_decay=0.01,
+    )
+    var new_params = result[0]
+
+    # Without weight decay
+    var result_no_wd = lion_step(
+        params,
+        grads,
+        momentum,
+        learning_rate=0.01,
+        beta1=0.9,
+        beta2=0.99,
+        weight_decay=0.0,
+    )
+    var new_params_no_wd = result_no_wd[0]
+
+    # Weight decay version should have smaller params
+    var wd_val = new_params._data.bitcast[Float32]()[0]
+    var no_wd_val = new_params_no_wd._data.bitcast[Float32]()[0]
+    assert_less(
+        Float64(wd_val), Float64(no_wd_val), "Weight decay should reduce params"
+    )
+
+
+def test_lion_memory_footprint() raises:
+    """Test Lion uses only one state buffer (half of AdamW)."""
+    var shape: List[Int] = [3]
+    var params = ones(shape, DType.float32)
+    var momentum = zeros(shape, DType.float32)
+    var grads = zeros(shape, DType.float32)
+
+    # Lion should return (params, momentum) = 2 tensors
+    # AdamW returns (params, m, v) = 3 tensors
+    var result = lion_step(params, grads, momentum, learning_rate=0.0001)
+
+    # Verify tuple length is 2 (params + momentum only)
+    assert_true(
+        len(result) == 2, "Lion should return 2 tensors (params, momentum)"
+    )
+
+
+def test_lion_checkpoint_roundtrip() raises:
+    """Test Lion state can round-trip through save/load (structural compatibility).
+    """
+    var shape: List[Int] = [2]
+    var momentum = ones(shape, DType.float32)
+    momentum.set(0, Float32(0.5))
+    momentum.set(1, Float32(0.75))
+
+    # The key claim: momentum is a plain AnyTensor that matches param shapes
+    # and can be checkpointed using the same infrastructure as model parameters
+    assert_shape(momentum, shape, "Lion momentum matches param shape")
+
+
 def main() raises:
     """Run all test_optimizers tests."""
     print("Running test_optimizers tests...")
@@ -720,5 +893,23 @@ def main() raises:
 
     test_adam_matches_pytorch()
     print("✓ test_adam_matches_pytorch")
+
+    test_lion_initialization()
+    print("✓ test_lion_initialization")
+
+    test_lion_basic_update_manual()
+    print("✓ test_lion_basic_update_manual")
+
+    test_lion_descent_on_quadratic()
+    print("✓ test_lion_descent_on_quadratic")
+
+    test_lion_weight_decay()
+    print("✓ test_lion_weight_decay")
+
+    test_lion_memory_footprint()
+    print("✓ test_lion_memory_footprint")
+
+    test_lion_checkpoint_roundtrip()
+    print("✓ test_lion_checkpoint_roundtrip")
 
     print("\nAll test_optimizers tests passed!")

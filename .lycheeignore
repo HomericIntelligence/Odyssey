@@ -38,6 +38,7 @@ pullchecklist\.com
 geeksforgeeks\.org
 conventionalcommits\.org
 contributor-covenant\.org
+bravenewgeek\.com
 # cppreference returns 403 to lychee's user-agent (bot protection); pages
 # resolve fine in browsers
 en\.cppreference\.com

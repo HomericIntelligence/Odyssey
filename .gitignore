@@ -53,3 +53,4 @@ checkpoints/
 .coverage
 /test_cumulative.mojo
 lenet5_weights_autograd/
+.claude-prompt-*.md
