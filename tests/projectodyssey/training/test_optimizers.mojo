@@ -440,28 +440,37 @@ def test_rmsprop_parameter_update() raises:
 
 
 def test_optimizer_property_decreasing_loss() raises:
-    """Property: Optimizer should decrease loss on convex function.
+    """Property: Optimizer should decrease loss on a convex function.
 
-    Test that SGD minimizes a simple quadratic function x^2.
-    This validates basic convergence behavior.
+    Minimize f(x) = x^2 with SGD by recomputing the true gradient
+    (f'(x) = 2x) from the *current* parameter at every step. This
+    genuinely validates convergence behavior, not a pre-baked gradient
+    schedule.
     """
     var shape: List[Int] = [1]
     var params = ones(shape, DType.float32)
     params.set(0, Float32(5.0))
 
     var velocity = zeros(shape, DType.float32)
-    var initial_loss = 5.0 * 5.0
+    var x0 = Float32(5.0)
+    var initial_loss = x0 * x0
 
-    for step in range(100):
+    for _ in range(100):
+        # Gradient of x^2 at the current parameter value.
+        var x = params._data.bitcast[Float32]()[0]
         var grad = zeros(shape, DType.float32)
-        grad.set(0, Float32(2.0 * 5.0 / (Float32(step) + 1.0)))
+        grad.set(0, Float32(2.0) * x)
 
-        var result = sgd_step(params, grad, velocity, learning_rate=0.1, momentum=0.9)
+        var result = sgd_step(
+            params, grad, velocity, learning_rate=0.1, momentum=0.9
+        )
         params = result[0]
         velocity = result[1]
 
-    var final_loss = params._data.bitcast[Float32]()[0] * params._data.bitcast[Float32]()[0]
+    var final_x = params._data.bitcast[Float32]()[0]
+    var final_loss = final_x * final_x
 
+    # SGD on a convex quadratic must reduce the loss far below the start.
     assert_less(Float32(final_loss), Float32(initial_loss * 0.1))
 
 
