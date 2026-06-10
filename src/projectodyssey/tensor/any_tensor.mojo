@@ -4371,4 +4371,3 @@ def _anytensor_matmul(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
         "AnyTensor.__matmul__ only supports 2D x 2D. "
         "For 1D/batched matmul use projectodyssey.core.matrix.matmul directly."
     )
-
