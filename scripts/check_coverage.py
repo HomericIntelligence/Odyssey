@@ -18,10 +18,12 @@ from typing import Optional, Dict
 sys.path.insert(0, str(Path(__file__).parent))
 from hephaestus.utils import get_repo_root
 
-try:
-    from defusedxml.ElementTree import parse as safe_parse
-except ImportError:
-    from xml.etree.ElementTree import parse as safe_parse
+# defusedxml is a hard dependency (see pixi.toml) and is required for secure
+# XML parsing. We intentionally do NOT fall back to the stdlib xml.etree parser,
+# which is vulnerable to XXE / billion-laughs attacks (CWE-611). Falling back
+# would silently downgrade security and also trips Semgrep's
+# use-defused-xml-parse rule via the aliased import.
+from defusedxml.ElementTree import parse as safe_parse
 
 try:
     import tomllib
@@ -102,15 +104,16 @@ def parse_coverage_report(coverage_file: Path) -> Optional[float]:
 
         # Cobertura XML: coverage root element has line-rate attribute
         # line-rate is a float between 0.0 and 1.0
-        if 'line-rate' not in root.attrib:
+        if "line-rate" not in root.attrib:
             return None
 
-        line_rate = float(root.attrib['line-rate'])
+        line_rate = float(root.attrib["line-rate"])
         # Convert from 0.0-1.0 to 0-100 percentage
         coverage_percent = line_rate * 100
         return coverage_percent
-    except (Exception, ValueError, KeyError):
-        # If XML is malformed or missing expected attributes, return None
+    except Exception:
+        # Malformed XML, non-numeric line-rate, or any other parse failure:
+        # degrade gracefully to None (caller treats None as "unavailable").
         return None
 
 
