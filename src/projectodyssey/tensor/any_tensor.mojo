@@ -2113,6 +2113,56 @@ struct AnyTensor(
     # FP8 Conversion Methods
     # ========================================================================
 
+    def _convert_to_fp8_family[
+        target_fp8_dtype: DType
+    ](self, method_name: String) raises -> AnyTensor:
+        """Shared helper for to_fp8() and to_bf8() (FP8/BF8 SIMD encode family).
+
+        Rejects bfloat16, validates float input, SIMD-encodes each element to
+        target_fp8_dtype, and stores as uint8.
+        """
+        from std.memory import bitcast
+
+        # Explicitly reject bfloat16 at validation time
+        if self._dtype == DType.bfloat16:
+            raise Error(
+                method_name
+                + " does not support bfloat16: "
+                + "the bfloat16 conversion path does not correctly round-trip "
+                + "through the Float32 intermediate representation"
+            )
+
+        # Verify source is floating point
+        if not (
+            self._dtype == DType.float16
+            or self._dtype == DType.float32
+            or self._dtype == DType.float64
+        ):
+            raise Error(method_name + " requires a floating-point tensor")
+
+        # Create output tensor with uint8 dtype
+        var result = AnyTensor(self._shape, DType.uint8)
+
+        # Convert each element using native SIMD encode + bitcast, store as uint8
+        for i in range(self._numel):
+            var val: Float32
+            # Defensive dtype re-validation (fixes DATA-003)
+            if self._dtype == DType.float16:
+                val = self._data.bitcast[Float16]()[i].cast[DType.float32]()
+            elif self._dtype == DType.float32:
+                val = self._data.bitcast[Float32]()[i]
+            elif self._dtype == DType.float64:
+                val = self._data.bitcast[Float64]()[i].cast[DType.float32]()
+            else:
+                raise Error("Invalid dtype for " + method_name + " conversion")
+
+            var fp8_val = SIMD[target_fp8_dtype, 1](val)
+            var fp8_bits = bitcast[DType.uint8, 1](fp8_val)[0]
+            var fp8_ptr = (result._data + i).bitcast[UInt8]()
+            fp8_ptr[] = fp8_bits
+
+        return result^
+
     def to_fp8(self) raises -> AnyTensor:
         """Convert tensor values to FP8 E4M3 format.
 
@@ -2137,49 +2187,8 @@ struct AnyTensor(
             FP16 inputs are converted to FP32 before quantization.
         """
         from projectodyssey.core.types.dtype_aliases import FP8
-        from std.memory import bitcast
 
-        # Explicitly reject bfloat16 at validation time
-        if self._dtype == DType.bfloat16:
-            raise Error(
-                "to_fp8() does not support bfloat16: "
-                "the bfloat16 conversion path does not correctly round-trip "
-                "through the Float32 intermediate representation"
-            )
-
-        # Verify source is floating point
-        if not (
-            self._dtype == DType.float16
-            or self._dtype == DType.float32
-            or self._dtype == DType.float64
-        ):
-            raise Error("to_fp8() requires a floating-point tensor")
-
-        # Create output tensor with uint8 dtype
-        var result = AnyTensor(self._shape, DType.uint8)
-
-        # Convert each element to FP8
-        for i in range(self._numel):
-            # Get source value as Float32
-            var val: Float32
-            # Defensive dtype re-validation (fixes DATA-003)
-            if self._dtype == DType.float16:
-                val = self._data.bitcast[Float16]()[i].cast[DType.float32]()
-            elif self._dtype == DType.float32:
-                val = self._data.bitcast[Float32]()[i]
-            elif self._dtype == DType.float64:
-                val = self._data.bitcast[Float64]()[i].cast[DType.float32]()
-            else:
-                # Defensive re-validation (fixes DATA-003)
-                raise Error("Invalid dtype for FP8 conversion")
-
-            # Convert to FP8 using native SIMD and store as uint8
-            var fp8_val = SIMD[FP8, 1](val)
-            var fp8_bits = bitcast[DType.uint8, 1](fp8_val)[0]
-            var fp8_ptr = (result._data + i).bitcast[UInt8]()
-            fp8_ptr[] = fp8_bits
-
-        return result^
+        return self._convert_to_fp8_family[FP8]("to_fp8()")
 
     def from_fp8(self) raises -> AnyTensor:
         """Convert FP8-encoded tensor (uint8) back to Float32.
@@ -2225,6 +2234,67 @@ struct AnyTensor(
     # Integer Type Conversions
     # ===----------------------------------------------------------------------===#
 
+    def _convert_to_int_dtype[
+        target_dtype: DType
+    ](
+        self,
+        method_name: String,
+        min_val: Int64,
+        max_val: Int64,
+        do_clamp: Bool,
+    ) raises -> AnyTensor:
+        """Shared helper for all 8 to_int*/to_uint* methods (integer-clamp family).
+
+        Handles same-dtype fast-path, full dtype-dispatch read, optional clamp, and
+        _set_int64 store.  target_dtype selects the output element type at compile time.
+        """
+        var result = AnyTensor(self._shape, target_dtype)
+
+        for i in range(self._numel):
+            # Same-dtype fast-path: bitcast directly without going through Float32.
+            if self._dtype == target_dtype:
+                result._set_int64(i, self._get_int64(i))
+                continue
+
+            # Read source element as Float32 (handles all supported dtypes).
+            var val: Float32
+            if self._dtype == DType.float16:
+                val = self._data.bitcast[Float16]()[i].cast[DType.float32]()
+            elif self._dtype == DType.float32:
+                val = self._data.bitcast[Float32]()[i]
+            elif self._dtype == DType.float64:
+                val = self._data.bitcast[Float64]()[i].cast[DType.float32]()
+            elif self._dtype == DType.int8:
+                val = Float32(self._data.bitcast[Int8]()[i])
+            elif self._dtype == DType.int16:
+                val = Float32(self._data.bitcast[Int16]()[i])
+            elif self._dtype == DType.int32:
+                val = Float32(self._data.bitcast[Int32]()[i])
+            elif self._dtype == DType.int64:
+                val = Float32(self._data.bitcast[Int64]()[i])
+            elif self._dtype == DType.uint8:
+                val = Float32(self._data.bitcast[UInt8]()[i])
+            elif self._dtype == DType.uint16:
+                val = Float32(self._data.bitcast[UInt16]()[i])
+            elif self._dtype == DType.uint32:
+                val = Float32(self._data.bitcast[UInt32]()[i])
+            elif self._dtype == DType.uint64:
+                val = Float32(self._data.bitcast[UInt64]()[i])
+            else:
+                raise Error(
+                    "Unsupported dtype for " + method_name + " conversion"
+                )
+
+            var int_val = Int64(Int(val))
+            if do_clamp:
+                if int_val < min_val:
+                    int_val = min_val
+                elif int_val > max_val:
+                    int_val = max_val
+            result._set_int64(i, int_val)
+
+        return result^
+
     def to_int8(self) raises -> AnyTensor:
         """Convert tensor values to Int8 format.
 
@@ -2244,51 +2314,9 @@ struct AnyTensor(
         Note:
             FP16 inputs are converted to FP32 before conversion.
         """
-
-        # Create output tensor with int8 dtype
-        var result = AnyTensor(self._shape, DType.int8)
-
-        # Convert each element to Int8
-        for i in range(self._numel):
-            var val: Float32
-            # Defensive dtype re-validation (fixes DATA-003)
-            if self._dtype == DType.float16:
-                val = self._data.bitcast[Float16]()[i].cast[DType.float32]()
-            elif self._dtype == DType.float32:
-                val = self._data.bitcast[Float32]()[i]
-            elif self._dtype == DType.float64:
-                val = self._data.bitcast[Float64]()[i].cast[DType.float32]()
-            elif self._dtype == DType.int8:
-                var source_val = self._data.bitcast[Int8]()[i]
-                result._set_int64(i, source_val.cast[DType.int64]())
-                continue
-            elif self._dtype == DType.int16:
-                val = Float32(self._data.bitcast[Int16]()[i])
-            elif self._dtype == DType.int32:
-                val = Float32(self._data.bitcast[Int32]()[i])
-            elif self._dtype == DType.int64:
-                val = Float32(self._data.bitcast[Int64]()[i])
-            elif self._dtype == DType.uint8:
-                val = Float32(self._data.bitcast[UInt8]()[i])
-            elif self._dtype == DType.uint16:
-                val = Float32(self._data.bitcast[UInt16]()[i])
-            elif self._dtype == DType.uint32:
-                val = Float32(self._data.bitcast[UInt32]()[i])
-            elif self._dtype == DType.uint64:
-                val = Float32(self._data.bitcast[UInt64]()[i])
-            else:
-                # Defensive re-validation (fixes DATA-003)
-                raise Error("Unsupported dtype for to_int8 conversion")
-
-            # Convert to int8 range [-128, 127]
-            var int_val = Int(val)
-            if int_val < -128:
-                int_val = -128
-            elif int_val > 127:
-                int_val = 127
-            result._set_int64(i, Int64(int_val))
-
-        return result^
+        return self._convert_to_int_dtype[DType.int8](
+            "to_int8", Int64(-128), Int64(127), True
+        )
 
     def to_int16(self) raises -> AnyTensor:
         """Convert tensor values to Int16 format.
@@ -2303,45 +2331,9 @@ struct AnyTensor(
             Error: If conversion fails or bounds check error occurs.
 
         """
-        var result = AnyTensor(self._shape, DType.int16)
-
-        for i in range(self._numel):
-            var val: Float32
-            if self._dtype == DType.float16:
-                val = self._data.bitcast[Float16]()[i].cast[DType.float32]()
-            elif self._dtype == DType.float32:
-                val = self._data.bitcast[Float32]()[i]
-            elif self._dtype == DType.float64:
-                val = self._data.bitcast[Float64]()[i].cast[DType.float32]()
-            elif self._dtype == DType.int8:
-                val = Float32(self._data.bitcast[Int8]()[i])
-            elif self._dtype == DType.int16:
-                var source_val = self._data.bitcast[Int16]()[i]
-                result._set_int64(i, source_val.cast[DType.int64]())
-                continue
-            elif self._dtype == DType.int32:
-                val = Float32(self._data.bitcast[Int32]()[i])
-            elif self._dtype == DType.int64:
-                val = Float32(self._data.bitcast[Int64]()[i])
-            elif self._dtype == DType.uint8:
-                val = Float32(self._data.bitcast[UInt8]()[i])
-            elif self._dtype == DType.uint16:
-                val = Float32(self._data.bitcast[UInt16]()[i])
-            elif self._dtype == DType.uint32:
-                val = Float32(self._data.bitcast[UInt32]()[i])
-            elif self._dtype == DType.uint64:
-                val = Float32(self._data.bitcast[UInt64]()[i])
-            else:
-                raise Error("Unsupported dtype for to_int16 conversion")
-
-            var int_val = Int(val)
-            if int_val < -32768:
-                int_val = -32768
-            elif int_val > 32767:
-                int_val = 32767
-            result._set_int64(i, Int64(int_val))
-
-        return result^
+        return self._convert_to_int_dtype[DType.int16](
+            "to_int16", Int64(-32768), Int64(32767), True
+        )
 
     def to_int32(self) raises -> AnyTensor:
         """Convert tensor values to Int32 format.
@@ -2356,41 +2348,9 @@ struct AnyTensor(
             Error: If conversion fails or bounds check error occurs.
 
         """
-        var result = AnyTensor(self._shape, DType.int32)
-
-        for i in range(self._numel):
-            var val: Float32
-            if self._dtype == DType.float16:
-                val = self._data.bitcast[Float16]()[i].cast[DType.float32]()
-            elif self._dtype == DType.float32:
-                val = self._data.bitcast[Float32]()[i]
-            elif self._dtype == DType.float64:
-                val = self._data.bitcast[Float64]()[i].cast[DType.float32]()
-            elif self._dtype == DType.int8:
-                val = Float32(self._data.bitcast[Int8]()[i])
-            elif self._dtype == DType.int16:
-                val = Float32(self._data.bitcast[Int16]()[i])
-            elif self._dtype == DType.int32:
-                var source_val = self._data.bitcast[Int32]()[i]
-                result._set_int64(i, source_val.cast[DType.int64]())
-                continue
-            elif self._dtype == DType.int64:
-                val = Float32(self._data.bitcast[Int64]()[i])
-            elif self._dtype == DType.uint8:
-                val = Float32(self._data.bitcast[UInt8]()[i])
-            elif self._dtype == DType.uint16:
-                val = Float32(self._data.bitcast[UInt16]()[i])
-            elif self._dtype == DType.uint32:
-                val = Float32(self._data.bitcast[UInt32]()[i])
-            elif self._dtype == DType.uint64:
-                val = Float32(self._data.bitcast[UInt64]()[i])
-            else:
-                raise Error("Unsupported dtype for to_int32 conversion")
-
-            var int_val = Int(val)
-            result._set_int64(i, Int64(int_val))
-
-        return result^
+        return self._convert_to_int_dtype[DType.int32](
+            "to_int32", Int64(0), Int64(0), False
+        )
 
     def to_int64(self) raises -> AnyTensor:
         """Convert tensor values to Int64 format.
@@ -2404,40 +2364,9 @@ struct AnyTensor(
             Error: If conversion fails or bounds check error occurs.
 
         """
-        var result = AnyTensor(self._shape, DType.int64)
-
-        for i in range(self._numel):
-            var val: Float32
-            if self._dtype == DType.float16:
-                val = self._data.bitcast[Float16]()[i].cast[DType.float32]()
-            elif self._dtype == DType.float32:
-                val = self._data.bitcast[Float32]()[i]
-            elif self._dtype == DType.float64:
-                val = self._data.bitcast[Float64]()[i].cast[DType.float32]()
-            elif self._dtype == DType.int8:
-                val = Float32(self._data.bitcast[Int8]()[i])
-            elif self._dtype == DType.int16:
-                val = Float32(self._data.bitcast[Int16]()[i])
-            elif self._dtype == DType.int32:
-                val = Float32(self._data.bitcast[Int32]()[i])
-            elif self._dtype == DType.int64:
-                result._set_int64(i, self._data.bitcast[Int64]()[i])
-                continue
-            elif self._dtype == DType.uint8:
-                val = Float32(self._data.bitcast[UInt8]()[i])
-            elif self._dtype == DType.uint16:
-                val = Float32(self._data.bitcast[UInt16]()[i])
-            elif self._dtype == DType.uint32:
-                val = Float32(self._data.bitcast[UInt32]()[i])
-            elif self._dtype == DType.uint64:
-                val = Float32(self._data.bitcast[UInt64]()[i])
-            else:
-                raise Error("Unsupported dtype for to_int64 conversion")
-
-            var i64_val = Int64(val)
-            result._set_int64(i, i64_val)
-
-        return result^
+        return self._convert_to_int_dtype[DType.int64](
+            "to_int64", Int64(0), Int64(0), False
+        )
 
     def to_uint8(self) raises -> AnyTensor:
         """Convert tensor values to UInt8 format.
@@ -2452,45 +2381,9 @@ struct AnyTensor(
             Error: If conversion fails or bounds check error occurs.
 
         """
-        var result = AnyTensor(self._shape, DType.uint8)
-
-        for i in range(self._numel):
-            var val: Float32
-            if self._dtype == DType.float16:
-                val = self._data.bitcast[Float16]()[i].cast[DType.float32]()
-            elif self._dtype == DType.float32:
-                val = self._data.bitcast[Float32]()[i]
-            elif self._dtype == DType.float64:
-                val = self._data.bitcast[Float64]()[i].cast[DType.float32]()
-            elif self._dtype == DType.int8:
-                val = Float32(self._data.bitcast[Int8]()[i])
-            elif self._dtype == DType.int16:
-                val = Float32(self._data.bitcast[Int16]()[i])
-            elif self._dtype == DType.int32:
-                val = Float32(self._data.bitcast[Int32]()[i])
-            elif self._dtype == DType.int64:
-                val = Float32(self._data.bitcast[Int64]()[i])
-            elif self._dtype == DType.uint8:
-                var source_val = self._data.bitcast[UInt8]()[i]
-                result._set_int64(i, source_val.cast[DType.int64]())
-                continue
-            elif self._dtype == DType.uint16:
-                val = Float32(self._data.bitcast[UInt16]()[i])
-            elif self._dtype == DType.uint32:
-                val = Float32(self._data.bitcast[UInt32]()[i])
-            elif self._dtype == DType.uint64:
-                val = Float32(self._data.bitcast[UInt64]()[i])
-            else:
-                raise Error("Unsupported dtype for to_uint8 conversion")
-
-            var int_val = Int(val)
-            if int_val < 0:
-                int_val = 0
-            elif int_val > 255:
-                int_val = 255
-            result._set_int64(i, Int64(int_val))
-
-        return result^
+        return self._convert_to_int_dtype[DType.uint8](
+            "to_uint8", Int64(0), Int64(255), True
+        )
 
     def to_uint16(self) raises -> AnyTensor:
         """Convert tensor values to UInt16 format.
@@ -2505,41 +2398,9 @@ struct AnyTensor(
             Error: If conversion fails or bounds check error occurs.
 
         """
-        var result = AnyTensor(self._shape, DType.uint16)
-
-        for i in range(self._numel):
-            var val: Float32
-            if self._dtype == DType.float16:
-                val = self._data.bitcast[Float16]()[i].cast[DType.float32]()
-            elif self._dtype == DType.float32:
-                val = self._data.bitcast[Float32]()[i]
-            elif self._dtype == DType.float64:
-                val = self._data.bitcast[Float64]()[i].cast[DType.float32]()
-            elif self._dtype == DType.int8:
-                val = Float32(self._data.bitcast[Int8]()[i])
-            elif self._dtype == DType.int16:
-                val = Float32(self._data.bitcast[Int16]()[i])
-            elif self._dtype == DType.int32:
-                val = Float32(self._data.bitcast[Int32]()[i])
-            elif self._dtype == DType.int64:
-                val = Float32(self._data.bitcast[Int64]()[i])
-            elif self._dtype == DType.uint8:
-                val = Float32(self._data.bitcast[UInt8]()[i])
-            elif self._dtype == DType.uint16:
-                var source_val = self._data.bitcast[UInt16]()[i]
-                result._set_int64(i, source_val.cast[DType.int64]())
-                continue
-            elif self._dtype == DType.uint32:
-                val = Float32(self._data.bitcast[UInt32]()[i])
-            elif self._dtype == DType.uint64:
-                val = Float32(self._data.bitcast[UInt64]()[i])
-            else:
-                raise Error("Unsupported dtype for to_uint16 conversion")
-
-            var u16_val = UInt16(val)
-            result._set_int64(i, u16_val.cast[DType.int64]())
-
-        return result^
+        return self._convert_to_int_dtype[DType.uint16](
+            "to_uint16", Int64(0), Int64(0), False
+        )
 
     def to_uint32(self) raises -> AnyTensor:
         """Convert tensor values to UInt32 format.
@@ -2554,41 +2415,9 @@ struct AnyTensor(
             Error: If conversion fails or bounds check error occurs.
 
         """
-        var result = AnyTensor(self._shape, DType.uint32)
-
-        for i in range(self._numel):
-            var val: Float32
-            if self._dtype == DType.float16:
-                val = self._data.bitcast[Float16]()[i].cast[DType.float32]()
-            elif self._dtype == DType.float32:
-                val = self._data.bitcast[Float32]()[i]
-            elif self._dtype == DType.float64:
-                val = self._data.bitcast[Float64]()[i].cast[DType.float32]()
-            elif self._dtype == DType.int8:
-                val = Float32(self._data.bitcast[Int8]()[i])
-            elif self._dtype == DType.int16:
-                val = Float32(self._data.bitcast[Int16]()[i])
-            elif self._dtype == DType.int32:
-                val = Float32(self._data.bitcast[Int32]()[i])
-            elif self._dtype == DType.int64:
-                val = Float32(self._data.bitcast[Int64]()[i])
-            elif self._dtype == DType.uint8:
-                val = Float32(self._data.bitcast[UInt8]()[i])
-            elif self._dtype == DType.uint16:
-                val = Float32(self._data.bitcast[UInt16]()[i])
-            elif self._dtype == DType.uint32:
-                var source_val = self._data.bitcast[UInt32]()[i]
-                result._set_int64(i, source_val.cast[DType.int64]())
-                continue
-            elif self._dtype == DType.uint64:
-                val = Float32(self._data.bitcast[UInt64]()[i])
-            else:
-                raise Error("Unsupported dtype for to_uint32 conversion")
-
-            var u32_val = UInt32(val)
-            result._set_int64(i, u32_val.cast[DType.int64]())
-
-        return result^
+        return self._convert_to_int_dtype[DType.uint32](
+            "to_uint32", Int64(0), Int64(0), False
+        )
 
     def to_uint64(self) raises -> AnyTensor:
         """Convert tensor values to UInt64 format.
@@ -2602,41 +2431,9 @@ struct AnyTensor(
             Error: If conversion fails or bounds check error occurs.
 
         """
-        var result = AnyTensor(self._shape, DType.uint64)
-
-        for i in range(self._numel):
-            var val: Float32
-            if self._dtype == DType.float16:
-                val = self._data.bitcast[Float16]()[i].cast[DType.float32]()
-            elif self._dtype == DType.float32:
-                val = self._data.bitcast[Float32]()[i]
-            elif self._dtype == DType.float64:
-                val = self._data.bitcast[Float64]()[i].cast[DType.float32]()
-            elif self._dtype == DType.int8:
-                val = Float32(self._data.bitcast[Int8]()[i])
-            elif self._dtype == DType.int16:
-                val = Float32(self._data.bitcast[Int16]()[i])
-            elif self._dtype == DType.int32:
-                val = Float32(self._data.bitcast[Int32]()[i])
-            elif self._dtype == DType.int64:
-                val = Float32(self._data.bitcast[Int64]()[i])
-            elif self._dtype == DType.uint8:
-                val = Float32(self._data.bitcast[UInt8]()[i])
-            elif self._dtype == DType.uint16:
-                val = Float32(self._data.bitcast[UInt16]()[i])
-            elif self._dtype == DType.uint32:
-                val = Float32(self._data.bitcast[UInt32]()[i])
-            elif self._dtype == DType.uint64:
-                var source_val = self._data.bitcast[UInt64]()[i]
-                result._set_int64(i, source_val.cast[DType.int64]())
-                continue
-            else:
-                raise Error("Unsupported dtype for to_uint64 conversion")
-
-            var u64_val = UInt64(val)
-            result._set_int64(i, u64_val.cast[DType.int64]())
-
-        return result^
+        return self._convert_to_int_dtype[DType.uint64](
+            "to_uint64", Int64(0), Int64(0), False
+        )
 
     # ========================================================================
     # BF8 Conversion Methods
@@ -2667,46 +2464,8 @@ struct AnyTensor(
             FP16 inputs are converted to FP32 before quantization.
         """
         from projectodyssey.core.types.dtype_aliases import BF8
-        from std.memory import bitcast
 
-        # Explicitly reject bfloat16 at validation time
-        if self._dtype == DType.bfloat16:
-            raise Error(
-                "to_bf8() does not support bfloat16: "
-                "the bfloat16 conversion path does not correctly round-trip "
-                "through the Float32 intermediate representation"
-            )
-
-        # Verify source is floating point
-        if not (
-            self._dtype == DType.float16
-            or self._dtype == DType.float32
-            or self._dtype == DType.float64
-        ):
-            raise Error("to_bf8() requires a floating-point tensor")
-
-        # Create output tensor with uint8 dtype
-        var result = AnyTensor(self._shape, DType.uint8)
-
-        # Convert each element to BF8
-        for i in range(self._numel):
-            var val: Float32
-            if self._dtype == DType.float16:
-                val = self._data.bitcast[Float16]()[i].cast[DType.float32]()
-            elif self._dtype == DType.float32:
-                val = self._data.bitcast[Float32]()[i]
-            elif self._dtype == DType.float64:
-                val = self._data.bitcast[Float64]()[i].cast[DType.float32]()
-            else:
-                raise Error("Invalid dtype for BF8 conversion")
-
-            # Convert to BF8 using native SIMD and store as uint8
-            var bf8_val = SIMD[BF8, 1](val)
-            var bf8_bits = bitcast[DType.uint8, 1](bf8_val)[0]
-            var bf8_ptr = (result._data + i).bitcast[UInt8]()
-            bf8_ptr[] = bf8_bits
-
-        return result^
+        return self._convert_to_fp8_family[BF8]("to_bf8()")
 
     def from_bf8(self) raises -> AnyTensor:
         """Convert BF8-encoded tensor (uint8) back to Float32.
@@ -2751,6 +2510,118 @@ struct AnyTensor(
     # ===----------------------------------------------------------------------===#
     # FP4 Blocked Type Conversions
     # ===----------------------------------------------------------------------===#
+
+    def _convert_to_block_quant[
+        is_mxfp4: Bool
+    ](self, fmt_name: String) raises -> AnyTensor:
+        """Shared helper for to_mxfp4() and to_nvfp4() (block-quantized family).
+
+        is_mxfp4=True: 32-elem blocks, 17 bytes each (MXFP4).
+        is_mxfp4=False: 16-elem blocks, 9 bytes each (NVFP4).
+
+        Note: bfloat16 passes the outer guard but raises in the inner dispatch.
+        This asymmetry is a pre-existing bug preserved verbatim.
+        TODO(#5181-followup): fix bfloat16 guard for block-quant methods.
+        """
+        from std.memory import bitcast
+
+        # Verify source is floating point (bfloat16 outer guard passes; inner raises).
+        # TODO(#5181-followup): the bfloat16 outer guard accepts but inner raises;
+        # this asymmetry is preserved verbatim as a pre-existing bug.
+        if not (
+            self._dtype == DType.float16
+            or self._dtype == DType.float32
+            or self._dtype == DType.float64
+            or self._dtype == DType.bfloat16
+        ):
+            raise Error(fmt_name + " requires a floating-point tensor")
+
+        comptime if is_mxfp4:
+            from projectodyssey.core.types.mxfp4 import MXFP4Block
+
+            comptime block_size = 32
+            comptime bytes_per_block = 17
+            comptime data_bytes = 16
+            var num_blocks = (self._numel + block_size - 1) // block_size
+            var result = AnyTensor([num_blocks * bytes_per_block], DType.uint8)
+            result._original_numel_quantized = self._numel
+            for block_idx in range(num_blocks):
+                var start_idx = block_idx * block_size
+                var values = List[Float32]()
+                for i in range(block_size):
+                    var idx = start_idx + i
+                    if idx < self._numel:
+                        if idx >= self._numel:
+                            raise Error("Index out of bounds during bitcast")
+                        var val: Float32
+                        if self._dtype == DType.float16:
+                            val = self._data.bitcast[Float16]()[idx].cast[
+                                DType.float32
+                            ]()
+                        elif self._dtype == DType.float32:
+                            val = self._data.bitcast[Float32]()[idx]
+                        elif self._dtype == DType.float64:
+                            val = self._data.bitcast[Float64]()[idx].cast[
+                                DType.float32
+                            ]()
+                        else:
+                            raise Error("Invalid dtype for MXFP4 quantization")
+                        values.append(val)
+                    else:
+                        values.append(Float32(0.0))
+                var block = MXFP4Block.from_float32_array(values)
+                var block_offset = block_idx * bytes_per_block
+                for i in range(data_bytes):
+                    var ptr = (result._data + block_offset + i).bitcast[UInt8]()
+                    ptr[] = block.data[i]
+                var scale_ptr = (
+                    result._data + block_offset + data_bytes
+                ).bitcast[UInt8]()
+                scale_ptr[] = bitcast[DType.uint8, 1](block.scale)[0]
+            return result^
+        else:
+            from projectodyssey.core.types.nvfp4 import NVFP4Block
+
+            comptime block_size = 16
+            comptime bytes_per_block = 9
+            comptime data_bytes = 8
+            var num_blocks = (self._numel + block_size - 1) // block_size
+            var result = AnyTensor([num_blocks * bytes_per_block], DType.uint8)
+            result._original_numel_quantized = self._numel
+            for block_idx in range(num_blocks):
+                var start_idx = block_idx * block_size
+                var values = List[Float32]()
+                for i in range(block_size):
+                    var idx = start_idx + i
+                    if idx < self._numel:
+                        if idx >= self._numel:
+                            raise Error("Index out of bounds during bitcast")
+                        var val: Float32
+                        if self._dtype == DType.float16:
+                            val = self._data.bitcast[Float16]()[idx].cast[
+                                DType.float32
+                            ]()
+                        elif self._dtype == DType.float32:
+                            val = self._data.bitcast[Float32]()[idx]
+                        elif self._dtype == DType.float64:
+                            val = self._data.bitcast[Float64]()[idx].cast[
+                                DType.float32
+                            ]()
+                        else:
+                            raise Error("Invalid dtype for NVFP4 quantization")
+                        values.append(val)
+                    else:
+                        values.append(Float32(0.0))
+                var block = NVFP4Block.from_float32_array(values)
+                var block_offset = block_idx * bytes_per_block
+                for i in range(data_bytes):
+                    var ptr = (result._data + block_offset + i).bitcast[UInt8]()
+                    ptr[] = block.data[i]
+                var scale_ptr = (
+                    result._data + block_offset + data_bytes
+                ).bitcast[UInt8]()
+                scale_ptr[] = bitcast[DType.uint8, 1](block.scale)[0]
+            return result^
 
     def to_mxfp4(self) raises -> AnyTensor:
         """Convert tensor values to MXFP4 blocked format.
@@ -2815,75 +2686,7 @@ struct AnyTensor(
             Memory efficiency: 17 bytes per 32 Float32 values (16:1 compression).
             FP16 inputs are converted to FP32 before quantization.
         """
-        from projectodyssey.core.types.mxfp4 import MXFP4Block
-
-        # Verify source is floating point
-        if not (
-            self._dtype == DType.float16
-            or self._dtype == DType.float32
-            or self._dtype == DType.float64
-            or self._dtype == DType.bfloat16
-        ):
-            raise Error("to_mxfp4() requires a floating-point tensor")
-
-        # Calculate number of blocks (32 elements per block)
-        var num_blocks = (self._numel + 31) // 32
-        var total_bytes = num_blocks * 17  # 17 bytes per MXFP4Block
-
-        # Create output tensor as flattened uint8 array
-        var output_shape = List[Int]()
-        output_shape.append(total_bytes)
-        var result = AnyTensor(output_shape, DType.uint8)
-
-        # Store original size before padding
-        result._original_numel_quantized = self._numel
-
-        # Process each block
-        for block_idx in range(num_blocks):
-            var start_idx = block_idx * 32
-            var end_idx = min(start_idx + 32, self._numel)
-
-            # Collect 32 values (pad with zeros if needed)
-            var values = List[Float32]()
-            for i in range(32):
-                var idx = start_idx + i
-                if idx < self._numel:
-                    if idx >= self._numel:
-                        raise Error("Index out of bounds during bitcast")
-
-                    var val: Float32
-                    if self._dtype == DType.float16:
-                        val = self._data.bitcast[Float16]()[idx].cast[
-                            DType.float32
-                        ]()
-                    elif self._dtype == DType.float32:
-                        val = self._data.bitcast[Float32]()[idx]
-                    elif self._dtype == DType.float64:
-                        val = self._data.bitcast[Float64]()[idx].cast[
-                            DType.float32
-                        ]()
-                    else:
-                        raise Error("Invalid dtype for MXFP4 quantization")
-                    values.append(val)
-                else:
-                    values.append(Float32(0.0))  # Padding.
-
-            # Create MXFP4Block
-            var block = MXFP4Block.from_float32_array(values)
-
-            # Store block data (16 bytes + 1 scale byte)
-            var block_offset = block_idx * 17
-            for i in range(16):
-                var mxfp4_ptr = (result._data + block_offset + i).bitcast[
-                    UInt8
-                ]()
-                mxfp4_ptr[] = block.data[i]
-            # Extract exponent bits from E8M0 scale via bitcast
-            var scale_bits = bitcast[DType.uint8, 1](block.scale)[0]
-            var scale_ptr = (result._data + block_offset + 16).bitcast[UInt8]()
-            scale_ptr[] = scale_bits
-
-        return result^
+        return self._convert_to_block_quant[True]("to_mxfp4()")
 
     def from_mxfp4(self) raises -> AnyTensor:
         """Convert MXFP4-encoded tensor (uint8 blocks) back to Float32.
@@ -3032,77 +2835,7 @@ struct AnyTensor(
                 Memory efficiency: 9 bytes per 16 Float32 values (14:1 compression).
                 FP16 inputs are converted to FP32 before quantization.
         """
-        from projectodyssey.core.types.nvfp4 import NVFP4Block
-
-        # Verify source is floating point
-        if not (
-            self._dtype == DType.float16
-            or self._dtype == DType.float32
-            or self._dtype == DType.float64
-            or self._dtype == DType.bfloat16
-        ):
-            raise Error("to_nvfp4() requires a floating-point tensor")
-
-        # Calculate number of blocks (16 elements per block)
-        var num_blocks = (self._numel + 15) // 16
-        var total_bytes = num_blocks * 9  # 9 bytes per NVFP4Block
-
-        # Create output tensor as flattened uint8 array
-        var output_shape = List[Int]()
-        output_shape.append(total_bytes)
-        var result = AnyTensor(output_shape, DType.uint8)
-
-        # Store original size before padding
-        result._original_numel_quantized = self._numel
-
-        # Process each block
-        for block_idx in range(num_blocks):
-            var start_idx = block_idx * 16
-            var end_idx = min(start_idx + 16, self._numel)
-
-            # Collect 16 values (pad with zeros if needed)
-            var values = List[Float32]()
-            for i in range(16):
-                var idx = start_idx + i
-                if idx < self._numel:
-                    if idx >= self._numel:
-                        raise Error("Index out of bounds during bitcast")
-
-                    var val: Float32
-                    if self._dtype == DType.float16:
-                        val = self._data.bitcast[Float16]()[idx].cast[
-                            DType.float32
-                        ]()
-                    elif self._dtype == DType.float32:
-                        val = self._data.bitcast[Float32]()[idx]
-                    elif self._dtype == DType.float64:
-                        val = self._data.bitcast[Float64]()[idx].cast[
-                            DType.float32
-                        ]()
-                    else:
-                        raise Error("Invalid dtype for NVFP4 quantization")
-                    values.append(val)
-                else:
-                    values.append(Float32(0.0))  # Padding.
-
-            # Create NVFP4Block
-            var block = NVFP4Block.from_float32_array(values)
-
-            # Store block data (8 bytes + 1 scale byte)
-            var block_offset = block_idx * 9
-            for i in range(8):
-                var nvfp4_ptr = (result._data + block_offset + i).bitcast[
-                    UInt8
-                ]()
-                nvfp4_ptr[] = block.data[i]
-            # Extract raw FP8 bits from scale via bitcast
-            var nvfp4_scale_bits = bitcast[DType.uint8, 1](block.scale)[0]
-            var nvfp4_scale_ptr = (result._data + block_offset + 8).bitcast[
-                UInt8
-            ]()
-            nvfp4_scale_ptr[] = nvfp4_scale_bits
-
-        return result^
+        return self._convert_to_block_quant[False]("to_nvfp4()")
 
     def from_nvfp4(self) raises -> AnyTensor:
         """Convert NVFP4-encoded tensor (uint8 blocks) back to Float32.
