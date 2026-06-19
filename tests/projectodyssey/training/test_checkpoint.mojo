@@ -49,7 +49,7 @@ def test_save_and_load_checkpoint() raises:
     var param_names = create_param_names()
 
     # Save checkpoint at epoch 5
-    ckpt_mgr.save_checkpoint(
+    _ = ckpt_mgr.save_checkpoint(
         params,
         param_names,
         epoch=5,
@@ -98,19 +98,19 @@ def test_save_best_model() raises:
     var param_names = create_param_names()
 
     # Save checkpoint with val_loss=0.5
-    ckpt_mgr.save_checkpoint(
+    _ = ckpt_mgr.save_checkpoint(
         params, param_names, epoch=1, val_loss=0.5, val_acc=0.80
     )
     ckpt_mgr.save_best(params, param_names, epoch=1, metric_value=0.5)
 
     # Save checkpoint with val_loss=0.3 (better)
-    ckpt_mgr.save_checkpoint(
+    _ = ckpt_mgr.save_checkpoint(
         params, param_names, epoch=2, val_loss=0.3, val_acc=0.85
     )
     ckpt_mgr.save_best(params, param_names, epoch=2, metric_value=0.3)
 
     # Save checkpoint with val_loss=0.4 (worse, should not be best)
-    ckpt_mgr.save_checkpoint(
+    _ = ckpt_mgr.save_checkpoint(
         params, param_names, epoch=3, val_loss=0.4, val_acc=0.82
     )
     ckpt_mgr.save_best(params, param_names, epoch=3, metric_value=0.4)
@@ -139,7 +139,7 @@ def test_resume_training() raises:
         var val_loss = 0.9 / Float32(epoch)
         var val_acc = 0.7 + Float32(epoch) * 0.05
 
-        ckpt_mgr.save_checkpoint(
+        _ = ckpt_mgr.save_checkpoint(
             params,
             param_names,
             epoch=epoch,
@@ -167,7 +167,7 @@ def test_multiple_checkpoints() raises:
 
     # Save 10 checkpoints
     for epoch in range(1, 11):
-        ckpt_mgr.save_checkpoint(
+        _ = ckpt_mgr.save_checkpoint(
             params, param_names, epoch=epoch, train_loss=Float32(epoch) * 0.1
         )
 
@@ -192,13 +192,13 @@ def test_best_model_maximize_metric() raises:
     var param_names = create_param_names()
 
     # Save checkpoints with increasing accuracy
-    ckpt_mgr.save_checkpoint(params, param_names, epoch=1, val_acc=0.75)
+    _ = ckpt_mgr.save_checkpoint(params, param_names, epoch=1, val_acc=0.75)
     ckpt_mgr.save_best(params, param_names, epoch=1, metric_value=0.75)
 
-    ckpt_mgr.save_checkpoint(params, param_names, epoch=2, val_acc=0.85)
+    _ = ckpt_mgr.save_checkpoint(params, param_names, epoch=2, val_acc=0.85)
     ckpt_mgr.save_best(params, param_names, epoch=2, metric_value=0.85)
 
-    ckpt_mgr.save_checkpoint(params, param_names, epoch=3, val_acc=0.80)
+    _ = ckpt_mgr.save_checkpoint(params, param_names, epoch=3, val_acc=0.80)
     ckpt_mgr.save_best(
         params, param_names, epoch=3, metric_value=0.80
     )  # Should not update

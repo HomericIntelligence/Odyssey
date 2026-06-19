@@ -87,7 +87,11 @@ struct TrainingConfig:
     var lr_gamma: Float32
     """Multiplicative factor for learning rate decay."""
     var checkpoint_every: Int
-    """Save checkpoint every N epochs (0 = only at end)."""
+    """Save checkpoint every N epochs (0 = only at end). Kept for compatibility."""
+    var checkpoint_every_n_epochs: Int
+    """Save checkpoint every N epochs (0 = only at end). Preferred over checkpoint_every."""
+    var checkpoint_dir: String
+    """Directory to store checkpoints ('' = disabled). Required for resume."""
     var validate_every: Int
     """Run validation every N epochs (1 = every epoch)."""
     var log_interval: Int
@@ -108,6 +112,8 @@ struct TrainingConfig:
         lr_step_size: Int = 60,
         lr_gamma: Float32 = 0.2,
         checkpoint_every: Int = 0,
+        checkpoint_every_n_epochs: Int = 0,
+        checkpoint_dir: String = "",
         validate_every: Int = 1,
         log_interval: Int = 10,
         max_wall_time_seconds: Int = 0,
@@ -124,7 +130,9 @@ struct TrainingConfig:
             lr_schedule_type: Schedule type - "none", "step", or "cosine".
             lr_step_size: Epochs between step decay reductions (default 60).
             lr_gamma: LR decay multiplier (default 0.2).
-            checkpoint_every: Save every N epochs (0 = only at end).
+            checkpoint_every: Save every N epochs (0 = only at end, kept for compatibility).
+            checkpoint_every_n_epochs: Save every N epochs (0 = only at end, preferred).
+            checkpoint_dir: Directory to store checkpoints ('' = disabled).
             validate_every: Validate every N epochs (default 1 = every epoch).
             log_interval: Log every N batches (default 10).
             max_wall_time_seconds: Max wall-clock seconds (0 = no limit, default).
@@ -139,6 +147,12 @@ struct TrainingConfig:
         self.lr_step_size = lr_step_size
         self.lr_gamma = lr_gamma
         self.checkpoint_every = checkpoint_every
+        # checkpoint_every_n_epochs defaults to checkpoint_every if not explicitly set
+        if checkpoint_every_n_epochs != 0:
+            self.checkpoint_every_n_epochs = checkpoint_every_n_epochs
+        else:
+            self.checkpoint_every_n_epochs = checkpoint_every
+        self.checkpoint_dir = checkpoint_dir
         self.validate_every = validate_every
         self.log_interval = log_interval
         self.max_wall_time_seconds = max_wall_time_seconds
@@ -224,16 +238,41 @@ struct TrainingConfig:
     def should_checkpoint(self, epoch: Int) -> Bool:
         """Check if checkpoint should be saved this epoch.
 
+        Uses checkpoint_every_n_epochs (preferred) with fallback to checkpoint_every.
+
         Args:
             epoch: Current epoch (0-indexed).
 
         Returns:
             True if checkpoint should be saved, False otherwise.
-            Note: Returns True for last epoch if checkpoint_every > 0.
+            Note: Returns True for last epoch if checkpoint_every_n_epochs > 0.
         """
-        if self.checkpoint_every == 0:
+        if self.checkpoint_every_n_epochs == 0:
             return False
-        return (epoch + 1) % self.checkpoint_every == 0
+        return (epoch + 1) % self.checkpoint_every_n_epochs == 0
+
+    def to_snapshot_blob(self) -> String:
+        """Produce single-line key=value snapshot for embedding in checkpoint metadata.
+
+        Used to detect incompatible-config restarts on resume.
+
+        Returns:
+            Pipe-separated key=value string of key hyperparameters.
+        """
+        return (
+            "epochs="
+            + String(self.epochs)
+            + "|batch_size="
+            + String(self.batch_size)
+            + "|learning_rate="
+            + String(self.learning_rate)
+            + "|momentum="
+            + String(self.momentum)
+            + "|weight_decay="
+            + String(self.weight_decay)
+            + "|lr_schedule_type="
+            + self.lr_schedule_type
+        )
 
     def to_string(self) -> String:
         """Format configuration as human-readable string.
@@ -252,6 +291,12 @@ struct TrainingConfig:
         result += "  lr_step_size: " + String(self.lr_step_size) + "\n"
         result += "  lr_gamma: " + String(self.lr_gamma) + "\n"
         result += "  checkpoint_every: " + String(self.checkpoint_every) + "\n"
+        result += (
+            "  checkpoint_every_n_epochs: "
+            + String(self.checkpoint_every_n_epochs)
+            + "\n"
+        )
+        result += "  checkpoint_dir: " + self.checkpoint_dir + "\n"
         result += "  validate_every: " + String(self.validate_every) + "\n"
         result += "  log_interval: " + String(self.log_interval) + "\n"
         result += (

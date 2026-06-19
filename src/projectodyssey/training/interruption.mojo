@@ -145,6 +145,25 @@ struct TrainingResult:
         self.checkpoint_path = checkpoint_path
         self.elapsed_seconds = elapsed_seconds
 
+    def exit_code(self) -> Int:
+        """Return the process exit code corresponding to the shutdown reason.
+
+        Exit code conventions:
+            0   = success (COMPLETED or MAX_EPOCHS)
+            1   = permanent error (reserved for future use)
+            2   = transient failure (TIMEOUT — safe to retry)
+            130 = SIGINT (Ctrl+C / SIGNAL)
+
+        Returns:
+            Integer exit code (0, 2, or 130).
+        """
+        if self.reason == ShutdownReason.signal():
+            return 130
+        elif self.reason == ShutdownReason.timeout():
+            return 2
+        else:
+            return 0
+
     def to_string(self) -> String:
         var result = String()
         result += "TrainingResult:\n"
