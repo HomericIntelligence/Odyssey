@@ -9,10 +9,10 @@ Includes:
 - AdamW (Adam with Weight Decay)
 - RMSprop (Root Mean Square Propagation)
 - LARS (Layer-wise Adaptive Rate Scaling)
-- Muon (Newton-Schulz Orthogonalized Momentum)
+- Muon (Newton-Schulz Orthogonalized Momentum — Jordan et al. 2024)
 - NorMuon (Muon with per-parameter normalization)
-- Lion (Symbolic Discovery of Optimization Algorithms)
-- Shampoo (two-sided matrix preconditioner via Newton-Schulz inverse fourth root)
+- Lion (EvoLved Sign Momentum — Chen et al. 2023)
+- Shampoo (two-sided matrix preconditioner via Newton-Schulz inverse fourth root — Anil et al. 2020)
 
 All optimizers follow pure functional design - caller manages state
 
@@ -71,8 +71,8 @@ from projectodyssey.training.optimizers.normuon import (
     normuon_step_simple,
 )
 
-# Lion optimizer (Symbolic Discovery of Optimization Algorithms)
-from projectodyssey.training.optimizers.lion import lion_step
+# Lion optimizer (EvoLved Sign Momentum — Chen et al. 2023)
+from projectodyssey.training.optimizers.lion import lion_step, lion_step_simple
 
 # Shampoo optimizer (two-sided matrix preconditioner via Newton-Schulz inverse fourth root)
 from projectodyssey.training.optimizers.shampoo import (
