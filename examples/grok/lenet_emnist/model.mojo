@@ -22,6 +22,7 @@ References:
 from projectodyssey.tensor.any_tensor import AnyTensor
 from projectodyssey.tensor.tensor_creation import zeros, zeros_like
 from projectodyssey.training.optimizers.adamw import adamw_step
+from projectodyssey.training.optimizers.shampoo import initialize_shampoo_state
 from projectodyssey.core.conv import conv2d, conv2d_backward
 from projectodyssey.core.pooling import maxpool2d, maxpool2d_backward
 from projectodyssey.core.linear import linear, linear_backward
@@ -151,6 +152,33 @@ struct LeNet5(Model, Movable):
     var fc3_weights: AnyTensor
     var fc3_bias: AnyTensor
 
+    # Optimizer state buffers for Lion (signed-momentum) and Shampoo.
+    #
+    # Lion: uses one momentum buffer per parameter (_m fields).
+    # Shampoo: only rank-2 FC weight matrices are eligible (is_shampoo_eligible).
+    #   - Conv kernels (rank-4) and biases (rank-1) fall back to SGD.
+    #   - Eligible FC weight matrices require three buffers each:
+    #       _m  : momentum [m, n]  (reused from Lion slot)
+    #       _L  : left  Gram accumulator [m, m], identity-initialized
+    #       _R  : right Gram accumulator [n, n], identity-initialized
+    # Unused fields are zero-initialized and ignored for SGD/AdamW.
+    var conv1_kernel_m: AnyTensor
+    var conv1_bias_m: AnyTensor
+    var conv2_kernel_m: AnyTensor
+    var conv2_bias_m: AnyTensor
+    var fc1_weights_m: AnyTensor
+    var fc1_weights_L: AnyTensor
+    var fc1_weights_R: AnyTensor
+    var fc1_bias_m: AnyTensor
+    var fc2_weights_m: AnyTensor
+    var fc2_weights_L: AnyTensor
+    var fc2_weights_R: AnyTensor
+    var fc2_bias_m: AnyTensor
+    var fc3_weights_m: AnyTensor
+    var fc3_weights_L: AnyTensor
+    var fc3_weights_R: AnyTensor
+    var fc3_bias_m: AnyTensor
+
     def __init__(out self, num_classes: Int = 47) raises:
         """Initialize LeNet-5 model with random weights.
 
@@ -223,6 +251,37 @@ struct LeNet5(Model, Movable):
         )
         var fc3_bias_shape: List[Int] = [num_classes]
         self.fc3_bias = zeros(fc3_bias_shape, DType.float32)
+
+        # Initialize optimizer state buffers.
+        # Lion: all _m fields (momentum, zeros).
+        # Shampoo: FC weight matrices also get L/R Gram accumulators (identity).
+        # Conv kernels and biases are Shampoo-ineligible; their _m fields serve
+        # Lion only. SGD/AdamW ignore all optimizer state fields.
+        self.conv1_kernel_m = zeros_like(self.conv1_kernel)
+        self.conv1_bias_m = zeros_like(self.conv1_bias)
+        self.conv2_kernel_m = zeros_like(self.conv2_kernel)
+        self.conv2_bias_m = zeros_like(self.conv2_bias)
+
+        # FC1 weights: Shampoo state (L [m,m], R [n,n], momentum [m,n])
+        var fc1_shampoo = initialize_shampoo_state(self.fc1_weights)
+        self.fc1_weights_L = fc1_shampoo[0]
+        self.fc1_weights_R = fc1_shampoo[1]
+        self.fc1_weights_m = fc1_shampoo[2]
+        self.fc1_bias_m = zeros_like(self.fc1_bias)
+
+        # FC2 weights: Shampoo state (L [m,m], R [n,n], momentum [m,n])
+        var fc2_shampoo = initialize_shampoo_state(self.fc2_weights)
+        self.fc2_weights_L = fc2_shampoo[0]
+        self.fc2_weights_R = fc2_shampoo[1]
+        self.fc2_weights_m = fc2_shampoo[2]
+        self.fc2_bias_m = zeros_like(self.fc2_bias)
+
+        # FC3 weights: Shampoo state (L [m,m], R [n,n], momentum [m,n])
+        var fc3_shampoo = initialize_shampoo_state(self.fc3_weights)
+        self.fc3_weights_L = fc3_shampoo[0]
+        self.fc3_weights_R = fc3_shampoo[1]
+        self.fc3_weights_m = fc3_shampoo[2]
+        self.fc3_bias_m = zeros_like(self.fc3_bias)
 
     def forward(mut self, input: AnyTensor) raises -> AnyTensor:
         """Forward pass through LeNet-5.

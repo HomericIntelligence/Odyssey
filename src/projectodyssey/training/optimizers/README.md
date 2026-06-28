@@ -4,15 +4,17 @@ This directory contains optimizer implementations for training neural networks i
 
 ## Available Optimizers
 
-| Optimizer | Use Case | Parameters | Notes |
-| --- | --- | --- | --- |
-| **SGD** | Small batch, fast convergence | Any shape | With momentum (default 0.9) |
-| **Adam** | General-purpose, adaptive learning rates | Any shape | Coupled weight decay |
-| **AdamW** | Better generalization than Adam | Any shape | Decoupled weight decay (default 0.01) |
-| **RMSprop** | RNNs, non-convex problems | Any shape | Adaptive learning rates |
-| **LARS** | Large-batch distributed training | Any shape | Layer-wise adaptive rate scaling |
-| **Muon** | **Matrix-shaped parameters only** (linear/conv weights) | Rank-2 tensors | Newton-Schulz orthogonalization (new in 2024) |
-| **Lion** | Transfer learning, memory-constrained | Any shape | Signed momentum; 3-10x lower LR than AdamW |
+| Optimizer | State memory | Compute/step | Typical use case | Notes |
+| --- | --- | --- | --- | --- |
+| **SGD** | ~1x params | O(n) | Small batch, fast convergence | With momentum (default 0.9) |
+| **Adam** | ~2x params (m + v) | O(n) | General-purpose, adaptive LR | Coupled weight decay |
+| **AdamW** | ~2x params (m + v) | O(n) | General-purpose default | Decoupled weight decay (default 0.01) |
+| **RMSprop** | ~1x params (v only) | O(n) | RNNs, non-convex problems | Adaptive learning rates |
+| **LARS** | ~1x params | O(n) | Large-batch distributed training | Layer-wise adaptive rate scaling |
+| **Muon** | ~1x params (matrix-only) | O(n) + Newton-Schulz | **Matrix-shaped weights only** | Newton-Schulz orthogonalization; Jordan et al. 2024 |
+| **NorMuon** | ~1x params (matrix-only) | O(n) + Newton-Schulz + norms | Muon + per-row/col norm scaling | Improved LR stability vs Muon |
+| **Lion** | ~1x params (1 buffer) | O(n) | Memory-constrained, transfer learning | Signed momentum; **LR 3-10x SMALLER than AdamW** |
+| **Shampoo** | ~3x params (L [m×m] + R [n×n] + momentum [m×n]) | O(n³) + Newton-Schulz | Second-order baseline, matrix weights | Two-sided matrix preconditioner; Newton-Schulz inverse fourth root; **rank-2 params only** |
 
 ## Quick Selection Guide
 
@@ -259,6 +261,117 @@ magnitude (`lr`), so an AdamW learning rate of `1e-3` typically maps to a Lion l
 
 State: 1 buffer (momentum), shape matches the parameter. Works on parameters of any shape.
 
+## Shampoo Optimizer
+
+Shampoo (Gupta, Koren, Singer 2018; Anil et al. 2020) is a **second-order optimizer** that
+applies a two-sided matrix preconditioner computed via Newton-Schulz iteration. It is the
+**full matrix-form** algorithm: it maintains separate left and right Gram matrix accumulators
+and computes their inverse fourth roots to precondition each gradient update.
+
+**Eligibility:** Only rank-2 parameter tensors with both dimensions ≥ 2 are eligible. Use
+`is_shampoo_eligible(params)` to check. Biases, embeddings, and other non-matrix parameters
+must use a different optimizer (e.g., AdamW).
+
+**Fallback divergence (mixed-optimizer runs).** When a model contains Shampoo-ineligible
+parameters (rank-4 conv kernels, rank-1 biases), those parameters must be updated by a
+different rule for the same step. The `examples/grok/lenet_emnist` training loop applies
+momentum-free `sgd_step_simple` to the ineligible parameters under `--optimizer shampoo`,
+whereas the default `--optimizer sgd` path updates *every* parameter through
+`model.update_parameters`, which uses SGD with momentum (default 0.9). The two paths therefore
+update conv kernels and biases by different rules. This is intentional — Shampoo's matrix
+state buffers cannot back rank-1/rank-4 tensors — but it means a Shampoo run is not a pure
+drop-in replacement for the SGD run. When smoke-comparing optimizers, attribute differences in
+conv/bias trajectories to this fallback rather than to the Shampoo preconditioner itself.
+
+### State Initialization
+
+```mojo
+from projectodyssey.training.optimizers import (
+    initialize_shampoo_state,
+    shampoo_step,
+    is_shampoo_eligible,
+)
+
+// params shape: [m, n]
+// Returns three buffers: L [m, m], R [n, n], momentum [m, n]
+var (L, R, momentum) = initialize_shampoo_state(params)
+```
+
+### Training Loop
+
+```mojo
+// Each step returns a 4-tuple: (params_new, L_new, R_new, momentum_new)
+var (params, L, R, momentum) = shampoo_step(
+    params, gradients, L, R, momentum,
+    learning_rate=0.001,
+    beta_precond=0.95,    // EMA decay for Gram matrix accumulators
+    beta_momentum=0.95,   // EMA decay for momentum buffer
+    weight_decay=0.0,
+    ns_steps=8,           // Newton-Schulz iterations per inverse-root stage
+    eps=1e-10,
+    max_precond_norm=1e6, // Frobenius norm clamp for numerical stability
+)
+```
+
+Or use the convenience wrapper with default hyperparameters:
+
+```mojo
+var (params, L, R, momentum) = shampoo_step_simple(
+    params, gradients, L, R, momentum,
+    learning_rate=0.001,
+)
+```
+
+### Algorithm
+
+Shampoo maintains two Gram matrix accumulators that track gradient covariance:
+
+- `L [m, m]`: left accumulator, `L_t = β·L_{t-1} + G·Gᵀ`
+- `R [n, n]`: right accumulator, `R_t = β·R_{t-1} + Gᵀ·G`
+
+At each step, the inverse fourth roots are computed via Newton-Schulz iteration
+(`L^{-1/4}` and `R^{-1/4}`), and the preconditioned gradient is:
+
+```text
+precond_grad = L^{-1/4} @ G @ R^{-1/4}
+```
+
+Momentum is accumulated on the preconditioned gradient, then the parameter update is:
+
+```text
+momentum_t = β_m · momentum_{t-1} + precond_grad
+params_t   = params_{t-1} − lr · momentum_t
+```
+
+### Calling Convention
+
+Shampoo's calling convention differs from most optimizers:
+
+- `initialize_shampoo_state(params)` returns **3 buffers**: `(L, R, momentum)` — the
+  caller continues to hold `params` separately.
+- `shampoo_step(params, gradients, L, R, momentum, learning_rate, ...)` accepts
+  **5 state arguments** and returns a **4-tuple**: `(params_new, L_new, R_new, momentum_new)`.
+- `L_new` and `R_new` are the **unclamped** EMA accumulators; internal clamping only
+  affects the inverse-root computation for numerical stability.
+
+### Hyperparameters
+
+| Parameter | Default | Notes |
+| --- | --- | --- |
+| `learning_rate` | — | Tune per task; start around 0.001 |
+| `beta_precond` | 0.95 | EMA decay for L and R accumulators (Anil et al. variant) |
+| `beta_momentum` | 0.95 | EMA decay for the momentum buffer |
+| `weight_decay` | 0.0 | Decoupled L2 regularization |
+| `ns_steps` | 8 | Newton-Schulz iterations per inverse-root stage |
+| `eps` | 1e-10 | Numerical stability floor for trace normalization |
+| `max_precond_norm` | 1e6 | Frobenius norm clamp for L and R before inverse-root |
+
+**Note on `beta_precond`:** The original Gupta et al. 2018 paper uses a pure running sum
+(β = 1). The EMA form (β < 1) used here is the Anil et al. 2020 scalable variant, which
+keeps accumulators bounded during long training runs.
+
+State: 3 buffers per eligible parameter — `L [m, m]`, `R [n, n]`, `momentum [m, n]`.
+
 ## References
 
 - Loshchilov, I., & Hutter, F. (2019). *Decoupled Weight Decay Regularization*. arXiv:1711.05101 [AdamW]
@@ -266,3 +379,5 @@ State: 1 buffer (momentum), shape matches the parameter. Works on parameters of 
 - Jordan, K., et al. (2024). *Muon: An optimizer for hidden layers in neural networks*.
   [https://kellerjordan.github.io/posts/muon/](https://kellerjordan.github.io/posts/muon/)
 - Chen, X., et al. (2023). *Symbolic Discovery of Optimization Algorithms*. arXiv:2302.06675 [Lion]
+- Anil, R., Gupta, V., Koren, T., & Singer, Y. (2020). *Scalable Second Order Optimization for
+  Deep Learning*. arXiv:2002.09018 [Shampoo]

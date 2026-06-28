@@ -104,3 +104,39 @@ def lion_step(
         new_params = subtract_simd(new_params, wd_term)
 
     return (new_params, new_momentum)
+
+
+def lion_step_simple(
+    params: AnyTensor,
+    gradients: AnyTensor,
+    momentum: AnyTensor,
+    learning_rate: Float64,
+) raises -> Tuple[AnyTensor, AnyTensor]:
+    """Simplified Lion step with default hyperparameters (Chen et al. 2023 defaults).
+
+    Convenience wrapper around lion_step for the common case.
+
+    WARNING: Lion learning rates are typically 3-10x lower than AdamW.
+    If AdamW uses lr=1e-3, start Lion at lr=1e-4.
+
+    Args:
+        params: Model parameters to update.
+        gradients: Gradients of loss with respect to params.
+        momentum: Momentum buffer. Initialize to zeros_like(params).
+        learning_rate: Step size. Should be 3-10x lower than AdamW equivalent.
+
+    Returns:
+        Tuple of (new_params, new_momentum).
+
+    Raises:
+        Error: If tensor shapes or dtypes don't match.
+    """
+    return lion_step(
+        params,
+        gradients,
+        momentum,
+        learning_rate=learning_rate,
+        beta1=0.9,
+        beta2=0.99,
+        weight_decay=0.0,
+    )

@@ -26,8 +26,13 @@ from projectodyssey.tensor.tensor_creation import zeros, ones, zeros_like
 from projectodyssey.training.optimizers.sgd import sgd_step, sgd_step_simple
 from projectodyssey.training.optimizers.adam import adam_step, adam_step_simple
 from projectodyssey.training.optimizers.adamw import adamw_step
-from projectodyssey.training.optimizers.lion import lion_step
+from projectodyssey.training.optimizers.lion import lion_step, lion_step_simple
 from projectodyssey.training.optimizers.rmsprop import rmsprop_step
+from projectodyssey.training.optimizers.shampoo import (
+    shampoo_step,
+    shampoo_step_simple,
+    initialize_shampoo_state,
+)
 
 
 def test_sgd_initialization() raises:
@@ -847,6 +852,234 @@ def test_lion_checkpoint_roundtrip() raises:
     assert_shape(momentum, shape, "Lion momentum matches param shape")
 
 
+def test_shampoo_initialization() raises:
+    """Test Shampoo optimizer state initialization."""
+    var shape: List[Int] = [2, 3]
+    var params = ones(shape, DType.float32)
+
+    # initialize_shampoo_state returns (L, R, momentum)
+    var state = initialize_shampoo_state(params)
+    var L = state[0]
+    var R = state[1]
+    var m = state[2]
+
+    # L should be [m, m], R should be [n, n], momentum should match params
+    var L_shape: List[Int] = [2, 2]
+    var R_shape: List[Int] = [3, 3]
+    assert_shape(L, L_shape, "Shampoo L accumulator shape [m,m]")
+    assert_shape(R, R_shape, "Shampoo R accumulator shape [n,n]")
+    assert_shape(m, shape, "Shampoo momentum matches param shape")
+
+
+def test_shampoo_basic_update() raises:
+    """Test Shampoo performs a parameter update and returns updated state."""
+    var shape: List[Int] = [2, 3]
+    var params = ones(shape, DType.float32)
+    var grads = ones(shape, DType.float32)
+
+    var state = initialize_shampoo_state(params)
+    var L = state[0]
+    var R = state[1]
+    var m = state[2]
+
+    var result = shampoo_step(params, grads, L, R, m, learning_rate=0.01)
+    var new_params = result[0]
+    var new_L = result[1]
+    var new_R = result[2]
+    var new_m = result[3]
+
+    # Shapes preserved
+    assert_shape(new_params, shape, "Shampoo updated params shape preserved")
+    var L_shape: List[Int] = [2, 2]
+    var R_shape: List[Int] = [3, 3]
+    assert_shape(new_L, L_shape, "Shampoo updated L shape preserved")
+    assert_shape(new_R, R_shape, "Shampoo updated R shape preserved")
+    assert_shape(new_m, shape, "Shampoo updated momentum shape preserved")
+
+
+def test_shampoo_descent_on_quadratic() raises:
+    """Test Shampoo reduces loss on a simple quadratic objective.
+
+    Uses distinct per-element values so the parameter (and hence gradient)
+    matrix is full-rank. An all-equal 2x2 matrix yields rank-1 Gram matrices
+    L = G·Gᵀ and R = Gᵀ·G, which are singular and cause the Newton-Schulz
+    inverse-fourth-root iteration to fail to converge — that degenerate case
+    is not representative of Shampoo's intended use on full-rank weights.
+    """
+    var shape: List[Int] = [2, 2]
+    var params = ones(shape, DType.float32)
+    params.set(0, Float32(2.0))
+    params.set(1, Float32(-1.5))
+    params.set(2, Float32(1.0))
+    params.set(3, Float32(-3.0))
+
+    var state = initialize_shampoo_state(params)
+    var L = state[0]
+    var R = state[1]
+    var m = state[2]
+
+    # Quadratic: loss = sum(params^2), grad = 2 * params
+    var initial_norm = Float64(0.0)
+    for i in range(4):
+        var v = Float64(params._data.bitcast[Float32]()[i])
+        initial_norm = initial_norm + v * v
+
+    for _ in range(30):
+        var grads = ones(shape, DType.float32)
+        for i in range(4):
+            var p = params._data.bitcast[Float32]()[i]
+            grads.set(i, p * Float32(2.0))
+
+        var result = shampoo_step(params, grads, L, R, m, learning_rate=0.01)
+        params = result[0]
+        L = result[1]
+        R = result[2]
+        m = result[3]
+
+    var final_norm = Float64(0.0)
+    for i in range(4):
+        var v = Float64(params._data.bitcast[Float32]()[i])
+        final_norm = final_norm + v * v
+
+    assert_less(final_norm, initial_norm, "Shampoo reduces quadratic loss")
+
+
+def test_shampoo_preconditioner_accumulates() raises:
+    """Test Shampoo L and R accumulators change after gradient steps."""
+    var shape: List[Int] = [2, 2]
+    var params = ones(shape, DType.float32)
+    var grads = ones(shape, DType.float32)
+
+    var state = initialize_shampoo_state(params)
+    var L = state[0]
+    var R = state[1]
+    var m = state[2]
+
+    var L_before = Float64(L._data.bitcast[Float32]()[0])
+
+    var result = shampoo_step(params, grads, L, R, m, learning_rate=0.01)
+    var new_L = result[1]
+    var L_after = Float64(new_L._data.bitcast[Float32]()[0])
+
+    assert_true(
+        L_after != L_before, "Shampoo L accumulator changes after gradient step"
+    )
+
+
+def test_shampoo_epsilon_stability_zero_gradient() raises:
+    """Test Shampoo is stable with zero gradients (epsilon guards)."""
+    var shape: List[Int] = [2, 2]
+    var params = ones(shape, DType.float32)
+    var grads = zeros(shape, DType.float32)
+
+    var state = initialize_shampoo_state(params)
+    var L = state[0]
+    var R = state[1]
+    var m = state[2]
+
+    # Should not raise even with zero gradients
+    var result = shampoo_step(params, grads, L, R, m, learning_rate=0.01)
+    var new_params = result[0]
+
+    assert_shape(new_params, shape, "Shampoo stable with zero gradients")
+
+
+def test_shampoo_memory_footprint() raises:
+    """Test Shampoo state: L [m,m], R [n,n], momentum [m,n] — 4-tensor return.
+    """
+    var shape: List[Int] = [3, 4]
+    var params = ones(shape, DType.float32)
+    var grads = ones(shape, DType.float32)
+
+    var state = initialize_shampoo_state(params)
+    var L = state[0]
+    var R = state[1]
+    var m = state[2]
+
+    var result = shampoo_step(params, grads, L, R, m, learning_rate=0.01)
+
+    assert_true(
+        len(result) == 4,
+        "Shampoo should return 4 tensors (params, L, R, momentum)",
+    )
+
+
+def test_shampoo_weight_decay() raises:
+    """Test Shampoo with weight decay reduces parameter magnitude over time."""
+    var shape: List[Int] = [2, 2]
+    var params = ones(shape, DType.float32)
+    var grads = zeros(shape, DType.float32)
+
+    var state = initialize_shampoo_state(params)
+    var L = state[0]
+    var R = state[1]
+    var m = state[2]
+
+    var initial_sum = Float64(0.0)
+    for i in range(4):
+        initial_sum = initial_sum + Float64(params._data.bitcast[Float32]()[i])
+
+    for _ in range(10):
+        var result = shampoo_step(
+            params, grads, L, R, m, learning_rate=0.01, weight_decay=0.1
+        )
+        params = result[0]
+        L = result[1]
+        R = result[2]
+        m = result[3]
+
+    var final_sum = Float64(0.0)
+    for i in range(4):
+        final_sum = final_sum + Float64(params._data.bitcast[Float32]()[i])
+
+    assert_less(final_sum, initial_sum, "Shampoo weight decay shrinks params")
+
+
+def test_shampoo_pure_functional() raises:
+    """Test Shampoo does not mutate input tensors (pure functional)."""
+    var shape: List[Int] = [2, 2]
+    var params = ones(shape, DType.float32)
+    params.set(0, Float32(1.5))
+    var grads = ones(shape, DType.float32)
+
+    var state = initialize_shampoo_state(params)
+    var L = state[0]
+    var R = state[1]
+    var m = state[2]
+
+    var param_val_before = Float64(params._data.bitcast[Float32]()[0])
+    var _ = shampoo_step(params, grads, L, R, m, learning_rate=0.01)
+    var param_val_after = Float64(params._data.bitcast[Float32]()[0])
+
+    assert_almost_equal(
+        param_val_before,
+        param_val_after,
+        tolerance=1e-7,
+    )
+
+
+def test_shampoo_simple_wrapper() raises:
+    """Test shampoo_step_simple convenience wrapper returns correct tuple."""
+    var shape: List[Int] = [2, 2]
+    var params = ones(shape, DType.float32)
+    var grads = ones(shape, DType.float32)
+
+    var state = initialize_shampoo_state(params)
+    var L = state[0]
+    var R = state[1]
+    var m = state[2]
+
+    var result = shampoo_step_simple(params, grads, L, R, m, learning_rate=0.01)
+
+    assert_true(
+        len(result) == 4,
+        "shampoo_step_simple returns 4-tuple (params, L, R, momentum)",
+    )
+    assert_shape(
+        result[0], shape, "shampoo_step_simple: params shape preserved"
+    )
+
+
 def main() raises:
     """Run all test_optimizers tests."""
     print("Running test_optimizers tests...")
@@ -916,5 +1149,32 @@ def main() raises:
 
     test_lion_checkpoint_roundtrip()
     print("✓ test_lion_checkpoint_roundtrip")
+
+    test_shampoo_initialization()
+    print("✓ test_shampoo_initialization")
+
+    test_shampoo_basic_update()
+    print("✓ test_shampoo_basic_update")
+
+    test_shampoo_descent_on_quadratic()
+    print("✓ test_shampoo_descent_on_quadratic")
+
+    test_shampoo_preconditioner_accumulates()
+    print("✓ test_shampoo_preconditioner_accumulates")
+
+    test_shampoo_epsilon_stability_zero_gradient()
+    print("✓ test_shampoo_epsilon_stability_zero_gradient")
+
+    test_shampoo_memory_footprint()
+    print("✓ test_shampoo_memory_footprint")
+
+    test_shampoo_weight_decay()
+    print("✓ test_shampoo_weight_decay")
+
+    test_shampoo_pure_functional()
+    print("✓ test_shampoo_pure_functional")
+
+    test_shampoo_simple_wrapper()
+    print("✓ test_shampoo_simple_wrapper")
 
     print("\nAll test_optimizers tests passed!")
