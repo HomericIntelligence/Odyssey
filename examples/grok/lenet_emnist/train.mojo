@@ -330,76 +330,79 @@ def compute_gradients(
         model.fc3_bias = res[0]
         model.fc3_bias_m = res[1]
     elif optimizer_name == "shampoo":
-        var sres = shampoo_step(
-            model.conv1_kernel,
-            conv1_grads.grad_weights,
-            model.conv1_kernel_m,
-            t,
-            lr64,
+        # Matrix-form Shampoo requires rank-2 params and three state buffers
+        # (L [m,m], R [n,n], momentum [m,n]).  Conv kernels (rank-4) and all
+        # biases (rank-1) are ineligible; they fall back to SGD for this step.
+
+        # Conv kernels and biases: SGD fallback (Shampoo-ineligible)
+        model.conv1_kernel = sgd_step_simple(
+            model.conv1_kernel, conv1_grads.grad_weights, lr64
         )
-        model.conv1_kernel = sres[0]
-        model.conv1_kernel_m = sres[1]
-        sres = shampoo_step(
-            model.conv1_bias, conv1_grads.grad_bias, model.conv1_bias_m, t, lr64
+        model.conv1_bias = sgd_step_simple(
+            model.conv1_bias, conv1_grads.grad_bias, lr64
         )
-        model.conv1_bias = sres[0]
-        model.conv1_bias_m = sres[1]
-        sres = shampoo_step(
-            model.conv2_kernel,
-            conv2_grads.grad_weights,
-            model.conv2_kernel_m,
-            t,
-            lr64,
+        model.conv2_kernel = sgd_step_simple(
+            model.conv2_kernel, conv2_grads.grad_weights, lr64
         )
-        model.conv2_kernel = sres[0]
-        model.conv2_kernel_m = sres[1]
-        sres = shampoo_step(
-            model.conv2_bias, conv2_grads.grad_bias, model.conv2_bias_m, t, lr64
+        model.conv2_bias = sgd_step_simple(
+            model.conv2_bias, conv2_grads.grad_bias, lr64
         )
-        model.conv2_bias = sres[0]
-        model.conv2_bias_m = sres[1]
-        sres = shampoo_step(
+
+        # FC weight matrices: full matrix-form Shampoo
+        # shampoo_step(params, grads, L, R, momentum, lr) -> (params, L, R, momentum)
+        var fc1_res = shampoo_step(
             model.fc1_weights,
             fc1_grads.grad_weights,
+            model.fc1_weights_L,
+            model.fc1_weights_R,
             model.fc1_weights_m,
-            t,
             lr64,
         )
-        model.fc1_weights = sres[0]
-        model.fc1_weights_m = sres[1]
-        sres = shampoo_step(
-            model.fc1_bias, fc1_grads.grad_bias, model.fc1_bias_m, t, lr64
+        model.fc1_weights = fc1_res[0]
+        model.fc1_weights_L = fc1_res[1]
+        model.fc1_weights_R = fc1_res[2]
+        model.fc1_weights_m = fc1_res[3]
+
+        # FC1 bias: SGD fallback
+        model.fc1_bias = sgd_step_simple(
+            model.fc1_bias, fc1_grads.grad_bias, lr64
         )
-        model.fc1_bias = sres[0]
-        model.fc1_bias_m = sres[1]
-        sres = shampoo_step(
+
+        var fc2_res = shampoo_step(
             model.fc2_weights,
             fc2_grads.grad_weights,
+            model.fc2_weights_L,
+            model.fc2_weights_R,
             model.fc2_weights_m,
-            t,
             lr64,
         )
-        model.fc2_weights = sres[0]
-        model.fc2_weights_m = sres[1]
-        sres = shampoo_step(
-            model.fc2_bias, fc2_grads.grad_bias, model.fc2_bias_m, t, lr64
+        model.fc2_weights = fc2_res[0]
+        model.fc2_weights_L = fc2_res[1]
+        model.fc2_weights_R = fc2_res[2]
+        model.fc2_weights_m = fc2_res[3]
+
+        # FC2 bias: SGD fallback
+        model.fc2_bias = sgd_step_simple(
+            model.fc2_bias, fc2_grads.grad_bias, lr64
         )
-        model.fc2_bias = sres[0]
-        model.fc2_bias_m = sres[1]
-        sres = shampoo_step(
+
+        var fc3_res = shampoo_step(
             model.fc3_weights,
             fc3_grads.grad_weights,
+            model.fc3_weights_L,
+            model.fc3_weights_R,
             model.fc3_weights_m,
-            t,
             lr64,
         )
-        model.fc3_weights = sres[0]
-        model.fc3_weights_m = sres[1]
-        sres = shampoo_step(
-            model.fc3_bias, fc3_grads.grad_bias, model.fc3_bias_m, t, lr64
+        model.fc3_weights = fc3_res[0]
+        model.fc3_weights_L = fc3_res[1]
+        model.fc3_weights_R = fc3_res[2]
+        model.fc3_weights_m = fc3_res[3]
+
+        # FC3 bias: SGD fallback
+        model.fc3_bias = sgd_step_simple(
+            model.fc3_bias, fc3_grads.grad_bias, lr64
         )
-        model.fc3_bias = sres[0]
-        model.fc3_bias_m = sres[1]
     else:
         # Default: SGD via existing in-place update
         model.update_parameters(
