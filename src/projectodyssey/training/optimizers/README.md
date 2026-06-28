@@ -14,7 +14,7 @@ This directory contains optimizer implementations for training neural networks i
 | **Muon** | ~1x params (matrix-only) | O(n) + Newton-Schulz | **Matrix-shaped weights only** | Newton-Schulz orthogonalization; Jordan et al. 2024 |
 | **NorMuon** | ~1x params (matrix-only) | O(n) + Newton-Schulz + norms | Muon + per-row/col norm scaling | Improved LR stability vs Muon |
 | **Lion** | ~1x params (1 buffer) | O(n) | Memory-constrained, transfer learning | Signed momentum; **LR 3-10x SMALLER than AdamW** |
-| **Shampoo** | ~1x params (1 H buffer, diagonal v1) | O(n) | Second-order baseline | Diagonal variant; sqrt(sqrt(H)) preconditioner; eps=1e-12 |
+| **Shampoo** | ~3x params (L [m×m] + R [n×n] + momentum [m×n]) | O(n³) + Newton-Schulz | Second-order baseline, matrix weights | Two-sided matrix preconditioner; Newton-Schulz inverse fourth root; **rank-2 params only** |
 
 ## Quick Selection Guide
 
@@ -263,37 +263,103 @@ State: 1 buffer (momentum), shape matches the parameter. Works on parameters of 
 
 ## Shampoo Optimizer
 
-Shampoo (Anil et al. 2020) is a **second-order optimizer** that uses gradient statistics to build
-a preconditioner. This v1 implements the **diagonal element-wise variant**, which collapses
-the full algorithm's separate left (H\_L) and right (H\_R) preconditioners into a single buffer H.
+Shampoo (Gupta, Koren, Singer 2018; Anil et al. 2020) is a **second-order optimizer** that
+applies a two-sided matrix preconditioner computed via Newton-Schulz iteration. It is the
+**full matrix-form** algorithm: it maintains separate left and right Gram matrix accumulators
+and computes their inverse fourth roots to precondition each gradient update.
 
-The diagonal variant is still a meaningful second-order baseline: the `sqrt(sqrt(H))`
-preconditioner (exponent 1/4) differs from AdamW's `sqrt(v)` (exponent 1/2), giving distinct
-optimization dynamics.
+**Eligibility:** Only rank-2 parameter tensors with both dimensions ≥ 2 are eligible. Use
+`is_shampoo_eligible(params)` to check. Biases, embeddings, and other non-matrix parameters
+must use a different optimizer (e.g., AdamW).
+
+### State Initialization
 
 ```mojo
-from projectodyssey.training.optimizers import shampoo_step
+from projectodyssey.training.optimizers import (
+    initialize_shampoo_state,
+    shampoo_step,
+    is_shampoo_eligible,
+)
 
-var (new_params, new_H) = shampoo_step(
-    params, gradients, H,
-    t=global_step,
+// params shape: [m, n]
+// Returns three buffers: L [m, m], R [n, n], momentum [m, n]
+var (L, R, momentum) = initialize_shampoo_state(params)
+```
+
+### Training Loop
+
+```mojo
+// Each step returns a 4-tuple: (params_new, L_new, R_new, momentum_new)
+var (params, L, R, momentum) = shampoo_step(
+    params, gradients, L, R, momentum,
     learning_rate=0.001,
-    beta2=0.999,
-    epsilon=1e-12,
+    beta_precond=0.95,    // EMA decay for Gram matrix accumulators
+    beta_momentum=0.95,   // EMA decay for momentum buffer
+    weight_decay=0.0,
+    ns_steps=8,           // Newton-Schulz iterations per inverse-root stage
+    eps=1e-10,
+    max_precond_norm=1e6, // Frobenius norm clamp for numerical stability
 )
 ```
 
-### Why H\_L and H\_R collapse in the diagonal variant
+Or use the convenience wrapper with default hyperparameters:
 
-The full Shampoo maintains H\_L ≈ G G^T (shape [m×m]) and H\_R ≈ G^T G (shape [n×n]).
-At **element granularity** (diagonal approximation), both reduce to EMA(g²) — they are
-bit-identical buffers. Keeping two copies would use ~3x parameter memory with no algorithmic
-gain. The diagonal variant uses a single H ≈ EMA(g²), halving state relative to full Shampoo.
+```mojo
+var (params, L, R, momentum) = shampoo_step_simple(
+    params, gradients, L, R, momentum,
+    learning_rate=0.001,
+)
+```
 
-Full matrix-form Shampoo (with inverse-pth-root via eigendecomposition) is tracked as a
-follow-up issue.
+### Algorithm
 
-State: 1 buffer H per parameter, shape matches the parameter.
+Shampoo maintains two Gram matrix accumulators that track gradient covariance:
+
+- `L [m, m]`: left accumulator, `L_t = β·L_{t-1} + G·Gᵀ`
+- `R [n, n]`: right accumulator, `R_t = β·R_{t-1} + Gᵀ·G`
+
+At each step, the inverse fourth roots are computed via Newton-Schulz iteration
+(`L^{-1/4}` and `R^{-1/4}`), and the preconditioned gradient is:
+
+```text
+precond_grad = L^{-1/4} @ G @ R^{-1/4}
+```
+
+Momentum is accumulated on the preconditioned gradient, then the parameter update is:
+
+```text
+momentum_t = β_m · momentum_{t-1} + precond_grad
+params_t   = params_{t-1} − lr · momentum_t
+```
+
+### Calling Convention
+
+Shampoo's calling convention differs from most optimizers:
+
+- `initialize_shampoo_state(params)` returns **3 buffers**: `(L, R, momentum)` — the
+  caller continues to hold `params` separately.
+- `shampoo_step(params, gradients, L, R, momentum, learning_rate, ...)` accepts
+  **5 state arguments** and returns a **4-tuple**: `(params_new, L_new, R_new, momentum_new)`.
+- `L_new` and `R_new` are the **unclamped** EMA accumulators; internal clamping only
+  affects the inverse-root computation for numerical stability.
+
+### Hyperparameters
+
+| Parameter | Default | Notes |
+| --- | --- | --- |
+| `learning_rate` | — | Tune per task; start around 0.001 |
+| `beta_precond` | 0.95 | EMA decay for L and R accumulators (Anil et al. variant) |
+| `beta_momentum` | 0.95 | EMA decay for the momentum buffer |
+| `weight_decay` | 0.0 | Decoupled L2 regularization |
+| `ns_steps` | 8 | Newton-Schulz iterations per inverse-root stage |
+| `eps` | 1e-10 | Numerical stability floor for trace normalization |
+| `max_precond_norm` | 1e6 | Frobenius norm clamp for L and R before inverse-root |
+
+**Note on `beta_precond`:** The original Gupta et al. 2018 paper uses a pure running sum
+(β = 1). The EMA form (β < 1) used here is the Anil et al. 2020 scalable variant, which
+keeps accumulators bounded during long training runs.
+
+State: 3 buffers per eligible parameter — `L [m, m]`, `R [n, n]`, `momentum [m, n]`.
 
 ## References
 
