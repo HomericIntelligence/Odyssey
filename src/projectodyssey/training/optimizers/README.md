@@ -4,15 +4,17 @@ This directory contains optimizer implementations for training neural networks i
 
 ## Available Optimizers
 
-| Optimizer | Use Case | Parameters | Notes |
-| --- | --- | --- | --- |
-| **SGD** | Small batch, fast convergence | Any shape | With momentum (default 0.9) |
-| **Adam** | General-purpose, adaptive learning rates | Any shape | Coupled weight decay |
-| **AdamW** | Better generalization than Adam | Any shape | Decoupled weight decay (default 0.01) |
-| **RMSprop** | RNNs, non-convex problems | Any shape | Adaptive learning rates |
-| **LARS** | Large-batch distributed training | Any shape | Layer-wise adaptive rate scaling |
-| **Muon** | **Matrix-shaped parameters only** (linear/conv weights) | Rank-2 tensors | Newton-Schulz orthogonalization (new in 2024) |
-| **Lion** | Transfer learning, memory-constrained | Any shape | Signed momentum; 3-10x lower LR than AdamW |
+| Optimizer | State memory | Compute/step | Typical use case | Notes |
+| --- | --- | --- | --- | --- |
+| **SGD** | ~1x params | O(n) | Small batch, fast convergence | With momentum (default 0.9) |
+| **Adam** | ~2x params (m + v) | O(n) | General-purpose, adaptive LR | Coupled weight decay |
+| **AdamW** | ~2x params (m + v) | O(n) | General-purpose default | Decoupled weight decay (default 0.01) |
+| **RMSprop** | ~1x params (v only) | O(n) | RNNs, non-convex problems | Adaptive learning rates |
+| **LARS** | ~1x params | O(n) | Large-batch distributed training | Layer-wise adaptive rate scaling |
+| **Muon** | ~1x params (matrix-only) | O(n) + Newton-Schulz | **Matrix-shaped weights only** | Newton-Schulz orthogonalization; Jordan et al. 2024 |
+| **NorMuon** | ~1x params (matrix-only) | O(n) + Newton-Schulz + norms | Muon + per-row/col norm scaling | Improved LR stability vs Muon |
+| **Lion** | ~1x params (1 buffer) | O(n) | Memory-constrained, transfer learning | Signed momentum; **LR 3-10x SMALLER than AdamW** |
+| **Shampoo** | ~1x params (1 H buffer, diagonal v1) | O(n) | Second-order baseline | Diagonal variant; sqrt(sqrt(H)) preconditioner; eps=1e-12 |
 
 ## Quick Selection Guide
 
@@ -259,6 +261,40 @@ magnitude (`lr`), so an AdamW learning rate of `1e-3` typically maps to a Lion l
 
 State: 1 buffer (momentum), shape matches the parameter. Works on parameters of any shape.
 
+## Shampoo Optimizer
+
+Shampoo (Anil et al. 2020) is a **second-order optimizer** that uses gradient statistics to build
+a preconditioner. This v1 implements the **diagonal element-wise variant**, which collapses
+the full algorithm's separate left (H\_L) and right (H\_R) preconditioners into a single buffer H.
+
+The diagonal variant is still a meaningful second-order baseline: the `sqrt(sqrt(H))`
+preconditioner (exponent 1/4) differs from AdamW's `sqrt(v)` (exponent 1/2), giving distinct
+optimization dynamics.
+
+```mojo
+from projectodyssey.training.optimizers import shampoo_step
+
+var (new_params, new_H) = shampoo_step(
+    params, gradients, H,
+    t=global_step,
+    learning_rate=0.001,
+    beta2=0.999,
+    epsilon=1e-12,
+)
+```
+
+### Why H\_L and H\_R collapse in the diagonal variant
+
+The full Shampoo maintains H\_L ≈ G G^T (shape [m×m]) and H\_R ≈ G^T G (shape [n×n]).
+At **element granularity** (diagonal approximation), both reduce to EMA(g²) — they are
+bit-identical buffers. Keeping two copies would use ~3x parameter memory with no algorithmic
+gain. The diagonal variant uses a single H ≈ EMA(g²), halving state relative to full Shampoo.
+
+Full matrix-form Shampoo (with inverse-pth-root via eigendecomposition) is tracked as a
+follow-up issue.
+
+State: 1 buffer H per parameter, shape matches the parameter.
+
 ## References
 
 - Loshchilov, I., & Hutter, F. (2019). *Decoupled Weight Decay Regularization*. arXiv:1711.05101 [AdamW]
@@ -266,3 +302,5 @@ State: 1 buffer (momentum), shape matches the parameter. Works on parameters of 
 - Jordan, K., et al. (2024). *Muon: An optimizer for hidden layers in neural networks*.
   [https://kellerjordan.github.io/posts/muon/](https://kellerjordan.github.io/posts/muon/)
 - Chen, X., et al. (2023). *Symbolic Discovery of Optimization Algorithms*. arXiv:2302.06675 [Lion]
+- Anil, R., Gupta, V., Koren, T., & Singer, Y. (2020). *Scalable Second Order Optimization for
+  Deep Learning*. arXiv:2002.09018 [Shampoo]

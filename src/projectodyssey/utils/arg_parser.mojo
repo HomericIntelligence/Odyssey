@@ -364,6 +364,9 @@ def create_training_parser() raises -> ArgumentParser:
     parser.add_argument("lr-decay-factor", "float", "0.1")
     parser.add_flag("verbose")
 
+    # Optimizer selection (sgd, lion, shampoo, adamw, muon, normuon)
+    parser.add_argument("optimizer", "string", "sgd")
+
     # Early stopping arguments
     parser.add_flag("use-early-stopping")
     parser.add_argument("early-stopping-monitor", "string", "val_loss")

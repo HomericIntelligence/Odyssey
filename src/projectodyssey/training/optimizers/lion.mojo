@@ -112,15 +112,18 @@ def lion_step_simple(
     momentum: AnyTensor,
     learning_rate: Float64,
 ) raises -> Tuple[AnyTensor, AnyTensor]:
-    """Simplified Lion step with default hyperparameters (beta1=0.9, beta2=0.99).
+    """Simplified Lion step with default hyperparameters (Chen et al. 2023 defaults).
 
     Convenience wrapper around lion_step for the common case.
+
+    WARNING: Lion learning rates are typically 3-10x lower than AdamW.
+    If AdamW uses lr=1e-3, start Lion at lr=1e-4.
 
     Args:
         params: Model parameters to update.
         gradients: Gradients of loss with respect to params.
-        momentum: Momentum buffer (exponential moving average of gradients).
-        learning_rate: Step size for parameter updates.
+        momentum: Momentum buffer. Initialize to zeros_like(params).
+        learning_rate: Step size. Should be 3-10x lower than AdamW equivalent.
 
     Returns:
         Tuple of (new_params, new_momentum).

@@ -151,6 +151,21 @@ struct LeNet5(Model, Movable):
     var fc3_weights: AnyTensor
     var fc3_bias: AnyTensor
 
+    # Optimizer state buffers (Lion momentum / Shampoo H preconditioner).
+    # One buffer per learnable parameter; zero-initialized in __init__.
+    # Used when --optimizer lion or --optimizer shampoo is selected;
+    # unused (zero) for SGD/AdamW.
+    var conv1_kernel_m: AnyTensor
+    var conv1_bias_m: AnyTensor
+    var conv2_kernel_m: AnyTensor
+    var conv2_bias_m: AnyTensor
+    var fc1_weights_m: AnyTensor
+    var fc1_bias_m: AnyTensor
+    var fc2_weights_m: AnyTensor
+    var fc2_bias_m: AnyTensor
+    var fc3_weights_m: AnyTensor
+    var fc3_bias_m: AnyTensor
+
     def __init__(out self, num_classes: Int = 47) raises:
         """Initialize LeNet-5 model with random weights.
 
@@ -223,6 +238,19 @@ struct LeNet5(Model, Movable):
         )
         var fc3_bias_shape: List[Int] = [num_classes]
         self.fc3_bias = zeros(fc3_bias_shape, DType.float32)
+
+        # Initialize optimizer state buffers (zeros; shape matches each parameter).
+        # These hold Lion momentum or Shampoo H; unused for SGD/AdamW.
+        self.conv1_kernel_m = zeros_like(self.conv1_kernel)
+        self.conv1_bias_m = zeros_like(self.conv1_bias)
+        self.conv2_kernel_m = zeros_like(self.conv2_kernel)
+        self.conv2_bias_m = zeros_like(self.conv2_bias)
+        self.fc1_weights_m = zeros_like(self.fc1_weights)
+        self.fc1_bias_m = zeros_like(self.fc1_bias)
+        self.fc2_weights_m = zeros_like(self.fc2_weights)
+        self.fc2_bias_m = zeros_like(self.fc2_bias)
+        self.fc3_weights_m = zeros_like(self.fc3_weights)
+        self.fc3_bias_m = zeros_like(self.fc3_bias)
 
     def forward(mut self, input: AnyTensor) raises -> AnyTensor:
         """Forward pass through LeNet-5.

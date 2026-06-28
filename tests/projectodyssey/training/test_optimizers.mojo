@@ -28,7 +28,11 @@ from projectodyssey.training.optimizers.adam import adam_step, adam_step_simple
 from projectodyssey.training.optimizers.adamw import adamw_step
 from projectodyssey.training.optimizers.lion import lion_step, lion_step_simple
 from projectodyssey.training.optimizers.rmsprop import rmsprop_step
-from projectodyssey.training.optimizers.shampoo import shampoo_step, shampoo_step_simple
+from projectodyssey.training.optimizers.shampoo import (
+    shampoo_step,
+    shampoo_step_simple,
+    initialize_shampoo_state,
+)
 
 
 def test_sgd_initialization() raises:

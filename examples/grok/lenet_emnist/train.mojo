@@ -45,7 +45,11 @@ from projectodyssey.core.activation import relu, relu_backward
 from projectodyssey.core.loss import cross_entropy, cross_entropy_backward
 from projectodyssey.utils.arg_parser import create_training_parser
 from projectodyssey.training.loops import TrainingLoop
-from projectodyssey.training.optimizers import sgd_step_simple
+from projectodyssey.training.optimizers import (
+    sgd_step_simple,
+    lion_step,
+    shampoo_step,
+)
 from projectodyssey.training.metrics import (
     top1_accuracy,
     AccuracyMetric,
@@ -66,6 +70,7 @@ struct TrainConfig:
     var learning_rate: Float32
     var data_dir: String
     var weights_dir: String
+    var optimizer_name: String
 
     def __init__(
         out self,
@@ -74,12 +79,14 @@ struct TrainConfig:
         learning_rate: Float32,
         data_dir: String,
         weights_dir: String,
+        optimizer_name: String = "sgd",
     ):
         self.epochs = epochs
         self.batch_size = batch_size
         self.learning_rate = learning_rate
         self.data_dir = data_dir
         self.weights_dir = weights_dir
+        self.optimizer_name = optimizer_name
 
 
 def parse_args() raises -> TrainConfig:
@@ -107,8 +114,11 @@ def parse_args() raises -> TrainConfig:
     var learning_rate = Float32(args.get_float("lr", 0.001))
     var data_dir = args.get_string("data-dir", "datasets/emnist")
     var weights_dir = args.get_string("weights-dir", "lenet5_weights")
+    var optimizer_name = args.get_string("optimizer", "sgd")
 
-    return TrainConfig(epochs, batch_size, learning_rate, data_dir, weights_dir)
+    return TrainConfig(
+        epochs, batch_size, learning_rate, data_dir, weights_dir, optimizer_name
+    )
 
 
 def compute_gradients(
@@ -116,6 +126,8 @@ def compute_gradients(
     input: AnyTensor,
     labels: AnyTensor,
     learning_rate: Float32,
+    optimizer_name: String = "sgd",
+    t: Int = 1,
 ) raises -> Float32:
     """Compute gradients and update parameters for one batch.
 
@@ -125,7 +137,9 @@ def compute_gradients(
         model: LeNet-5 model.
         input: Batch of images (batch, 1, 28, 28).
         labels: One-hot encoded batch of labels (batch, num_classes).
-        learning_rate: Learning rate for SGD.
+        learning_rate: Learning rate for the optimizer.
+        optimizer_name: Which optimizer to use ("sgd", "lion", "shampoo").
+        t: Global training step counter (1-indexed, continuous across epochs).
 
     Returns:
         Loss value for this batch.
@@ -256,20 +270,151 @@ def compute_gradients(
         padding=CONV1_PADDING,
     )
 
-    # ========== Parameter Update (SGD) ==========
-    model.update_parameters(
-        learning_rate,
-        conv1_grads.grad_weights^,
-        conv1_grads.grad_bias^,
-        conv2_grads.grad_weights^,
-        conv2_grads.grad_bias^,
-        fc1_grads.grad_weights^,
-        fc1_grads.grad_bias^,
-        fc2_grads.grad_weights^,
-        fc2_grads.grad_bias^,
-        fc3_grads.grad_weights^,
-        fc3_grads.grad_bias^,
-    )
+    # ========== Parameter Update ==========
+    var lr64 = Float64(learning_rate)
+    if optimizer_name == "lion":
+        var res = lion_step(
+            model.conv1_kernel,
+            conv1_grads.grad_weights,
+            model.conv1_kernel_m,
+            lr64,
+        )
+        model.conv1_kernel = res[0]
+        model.conv1_kernel_m = res[1]
+        res = lion_step(
+            model.conv1_bias, conv1_grads.grad_bias, model.conv1_bias_m, lr64
+        )
+        model.conv1_bias = res[0]
+        model.conv1_bias_m = res[1]
+        res = lion_step(
+            model.conv2_kernel,
+            conv2_grads.grad_weights,
+            model.conv2_kernel_m,
+            lr64,
+        )
+        model.conv2_kernel = res[0]
+        model.conv2_kernel_m = res[1]
+        res = lion_step(
+            model.conv2_bias, conv2_grads.grad_bias, model.conv2_bias_m, lr64
+        )
+        model.conv2_bias = res[0]
+        model.conv2_bias_m = res[1]
+        res = lion_step(
+            model.fc1_weights, fc1_grads.grad_weights, model.fc1_weights_m, lr64
+        )
+        model.fc1_weights = res[0]
+        model.fc1_weights_m = res[1]
+        res = lion_step(
+            model.fc1_bias, fc1_grads.grad_bias, model.fc1_bias_m, lr64
+        )
+        model.fc1_bias = res[0]
+        model.fc1_bias_m = res[1]
+        res = lion_step(
+            model.fc2_weights, fc2_grads.grad_weights, model.fc2_weights_m, lr64
+        )
+        model.fc2_weights = res[0]
+        model.fc2_weights_m = res[1]
+        res = lion_step(
+            model.fc2_bias, fc2_grads.grad_bias, model.fc2_bias_m, lr64
+        )
+        model.fc2_bias = res[0]
+        model.fc2_bias_m = res[1]
+        res = lion_step(
+            model.fc3_weights, fc3_grads.grad_weights, model.fc3_weights_m, lr64
+        )
+        model.fc3_weights = res[0]
+        model.fc3_weights_m = res[1]
+        res = lion_step(
+            model.fc3_bias, fc3_grads.grad_bias, model.fc3_bias_m, lr64
+        )
+        model.fc3_bias = res[0]
+        model.fc3_bias_m = res[1]
+    elif optimizer_name == "shampoo":
+        var sres = shampoo_step(
+            model.conv1_kernel,
+            conv1_grads.grad_weights,
+            model.conv1_kernel_m,
+            t,
+            lr64,
+        )
+        model.conv1_kernel = sres[0]
+        model.conv1_kernel_m = sres[1]
+        sres = shampoo_step(
+            model.conv1_bias, conv1_grads.grad_bias, model.conv1_bias_m, t, lr64
+        )
+        model.conv1_bias = sres[0]
+        model.conv1_bias_m = sres[1]
+        sres = shampoo_step(
+            model.conv2_kernel,
+            conv2_grads.grad_weights,
+            model.conv2_kernel_m,
+            t,
+            lr64,
+        )
+        model.conv2_kernel = sres[0]
+        model.conv2_kernel_m = sres[1]
+        sres = shampoo_step(
+            model.conv2_bias, conv2_grads.grad_bias, model.conv2_bias_m, t, lr64
+        )
+        model.conv2_bias = sres[0]
+        model.conv2_bias_m = sres[1]
+        sres = shampoo_step(
+            model.fc1_weights,
+            fc1_grads.grad_weights,
+            model.fc1_weights_m,
+            t,
+            lr64,
+        )
+        model.fc1_weights = sres[0]
+        model.fc1_weights_m = sres[1]
+        sres = shampoo_step(
+            model.fc1_bias, fc1_grads.grad_bias, model.fc1_bias_m, t, lr64
+        )
+        model.fc1_bias = sres[0]
+        model.fc1_bias_m = sres[1]
+        sres = shampoo_step(
+            model.fc2_weights,
+            fc2_grads.grad_weights,
+            model.fc2_weights_m,
+            t,
+            lr64,
+        )
+        model.fc2_weights = sres[0]
+        model.fc2_weights_m = sres[1]
+        sres = shampoo_step(
+            model.fc2_bias, fc2_grads.grad_bias, model.fc2_bias_m, t, lr64
+        )
+        model.fc2_bias = sres[0]
+        model.fc2_bias_m = sres[1]
+        sres = shampoo_step(
+            model.fc3_weights,
+            fc3_grads.grad_weights,
+            model.fc3_weights_m,
+            t,
+            lr64,
+        )
+        model.fc3_weights = sres[0]
+        model.fc3_weights_m = sres[1]
+        sres = shampoo_step(
+            model.fc3_bias, fc3_grads.grad_bias, model.fc3_bias_m, t, lr64
+        )
+        model.fc3_bias = sres[0]
+        model.fc3_bias_m = sres[1]
+    else:
+        # Default: SGD via existing in-place update
+        model.update_parameters(
+            learning_rate,
+            conv1_grads.grad_weights^,
+            conv1_grads.grad_bias^,
+            conv2_grads.grad_weights^,
+            conv2_grads.grad_bias^,
+            fc1_grads.grad_weights^,
+            fc1_grads.grad_bias^,
+            fc2_grads.grad_weights^,
+            fc2_grads.grad_bias^,
+            fc3_grads.grad_weights^,
+            fc3_grads.grad_bias^,
+        )
 
     return loss
 
@@ -282,7 +427,9 @@ def train_epoch(
     learning_rate: Float32,
     epoch: Int,
     total_epochs: Int,
-) raises -> Float32:
+    optimizer_name: String = "sgd",
+    global_step_start: Int = 1,
+) raises -> Tuple[Float32, Int]:
     """Train for one epoch using manual batch processing.
 
     Args:
@@ -290,16 +437,19 @@ def train_epoch(
         train_images: Training images (num_samples, 1, 28, 28).
         train_labels: Integer training labels (num_samples,).
         batch_size: Mini-batch size.
-        learning_rate: Learning rate for SGD.
+        learning_rate: Learning rate for the optimizer.
         epoch: Current epoch number (1-indexed).
         total_epochs: Total number of epochs.
+        optimizer_name: Which optimizer to use ("sgd", "lion", "shampoo").
+        global_step_start: Starting value for the global step counter this epoch.
 
     Returns:
-        Average loss for the epoch.
+        Tuple of (average loss for the epoch, final global step after epoch).
     """
     var num_samples = train_images.shape()[0]
     var num_batches = (num_samples + batch_size - 1) // batch_size
     var total_loss = Float32(0.0)
+    var t = global_step_start
 
     # Manual batch processing
     for batch_idx in range(num_batches):
@@ -365,9 +515,10 @@ def train_epoch(
 
         # Compute gradients and update parameters
         var batch_loss = compute_gradients(
-            model, batch_images, batch_labels, learning_rate
+            model, batch_images, batch_labels, learning_rate, optimizer_name, t
         )
         total_loss += batch_loss
+        t += 1
 
         # Log progress every 100 batches
         if (batch_idx + 1) % 100 == 0:
@@ -385,7 +536,7 @@ def train_epoch(
                 avg_loss_so_far,
             )
 
-    return total_loss / Float32(num_batches)
+    return (total_loss / Float32(num_batches), t)
 
 
 def main() raises:
@@ -401,11 +552,13 @@ def main() raises:
     var learning_rate = config.learning_rate
     var data_dir = config.data_dir
     var weights_dir = config.weights_dir
+    var optimizer_name = config.optimizer_name
 
     print("\nConfiguration:")
     print("  Epochs: ", epochs)
     print("  Batch Size: ", batch_size)
     print("  Learning Rate: ", learning_rate)
+    print("  Optimizer: ", optimizer_name)
     print("  Data Directory: ", data_dir)
     print("  Weights Directory: ", weights_dir)
     print()
@@ -442,8 +595,9 @@ def main() raises:
 
     # Training loop
     print("Starting training...")
+    var global_step = 1
     for epoch in range(1, epochs + 1):
-        var train_loss = train_epoch(
+        var epoch_result = train_epoch(
             model,
             train_images,
             train_labels,
@@ -451,7 +605,11 @@ def main() raises:
             learning_rate,
             epoch,
             epochs,
+            optimizer_name,
+            global_step,
         )
+        var train_loss = epoch_result[0]
+        global_step = epoch_result[1]
 
         # Evaluate every epoch using shared evaluation module
         var test_acc = evaluate_model_simple(
