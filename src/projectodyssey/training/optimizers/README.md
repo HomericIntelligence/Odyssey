@@ -272,6 +272,17 @@ and computes their inverse fourth roots to precondition each gradient update.
 `is_shampoo_eligible(params)` to check. Biases, embeddings, and other non-matrix parameters
 must use a different optimizer (e.g., AdamW).
 
+**Fallback divergence (mixed-optimizer runs).** When a model contains Shampoo-ineligible
+parameters (rank-4 conv kernels, rank-1 biases), those parameters must be updated by a
+different rule for the same step. The `examples/grok/lenet_emnist` training loop applies
+momentum-free `sgd_step_simple` to the ineligible parameters under `--optimizer shampoo`,
+whereas the default `--optimizer sgd` path updates *every* parameter through
+`model.update_parameters`, which uses SGD with momentum (default 0.9). The two paths therefore
+update conv kernels and biases by different rules. This is intentional — Shampoo's matrix
+state buffers cannot back rank-1/rank-4 tensors — but it means a Shampoo run is not a pure
+drop-in replacement for the SGD run. When smoke-comparing optimizers, attribute differences in
+conv/bias trajectories to this fallback rather than to the Shampoo preconditioner itself.
+
 ### State Initialization
 
 ```mojo

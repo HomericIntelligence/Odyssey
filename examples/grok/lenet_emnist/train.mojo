@@ -333,6 +333,12 @@ def compute_gradients(
         # Matrix-form Shampoo requires rank-2 params and three state buffers
         # (L [m,m], R [n,n], momentum [m,n]).  Conv kernels (rank-4) and all
         # biases (rank-1) are ineligible; they fall back to SGD for this step.
+        #
+        # NOTE: this fallback uses momentum-free `sgd_step_simple`, which differs
+        # from the default `--optimizer sgd` path below (model.update_parameters,
+        # SGD with momentum 0.9).  See the "Fallback divergence" note in
+        # src/projectodyssey/training/optimizers/README.md before smoke-comparing
+        # optimizer runs.
 
         # Conv kernels and biases: SGD fallback (Shampoo-ineligible)
         model.conv1_kernel = sgd_step_simple(
