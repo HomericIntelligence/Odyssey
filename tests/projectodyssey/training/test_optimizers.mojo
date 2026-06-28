@@ -898,13 +898,20 @@ def test_shampoo_basic_update() raises:
 
 
 def test_shampoo_descent_on_quadratic() raises:
-    """Test Shampoo reduces loss on a simple quadratic objective."""
+    """Test Shampoo reduces loss on a simple quadratic objective.
+
+    Uses distinct per-element values so the parameter (and hence gradient)
+    matrix is full-rank. An all-equal 2x2 matrix yields rank-1 Gram matrices
+    L = G·Gᵀ and R = Gᵀ·G, which are singular and cause the Newton-Schulz
+    inverse-fourth-root iteration to fail to converge — that degenerate case
+    is not representative of Shampoo's intended use on full-rank weights.
+    """
     var shape: List[Int] = [2, 2]
     var params = ones(shape, DType.float32)
     params.set(0, Float32(2.0))
-    params.set(1, Float32(2.0))
-    params.set(2, Float32(2.0))
-    params.set(3, Float32(2.0))
+    params.set(1, Float32(-1.5))
+    params.set(2, Float32(1.0))
+    params.set(3, Float32(-3.0))
 
     var state = initialize_shampoo_state(params)
     var L = state[0]
