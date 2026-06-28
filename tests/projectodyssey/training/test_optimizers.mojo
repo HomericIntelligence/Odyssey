@@ -882,9 +882,7 @@ def test_shampoo_basic_update() raises:
     var R = state[1]
     var m = state[2]
 
-    var result = shampoo_step(
-        params, grads, L, R, m, learning_rate=0.01
-    )
+    var result = shampoo_step(params, grads, L, R, m, learning_rate=0.01)
     var new_params = result[0]
     var new_L = result[1]
     var new_R = result[2]
@@ -936,9 +934,7 @@ def test_shampoo_descent_on_quadratic() raises:
         var v = Float64(params._data.bitcast[Float32]()[i])
         final_norm = final_norm + v * v
 
-    assert_less(
-        final_norm, initial_norm, "Shampoo reduces quadratic loss"
-    )
+    assert_less(final_norm, initial_norm, "Shampoo reduces quadratic loss")
 
 
 def test_shampoo_preconditioner_accumulates() raises:
@@ -982,7 +978,8 @@ def test_shampoo_epsilon_stability_zero_gradient() raises:
 
 
 def test_shampoo_memory_footprint() raises:
-    """Test Shampoo state: L [m,m], R [n,n], momentum [m,n] — 4-tensor return."""
+    """Test Shampoo state: L [m,m], R [n,n], momentum [m,n] — 4-tensor return.
+    """
     var shape: List[Int] = [3, 4]
     var params = ones(shape, DType.float32)
     var grads = ones(shape, DType.float32)
@@ -1071,7 +1068,9 @@ def test_shampoo_simple_wrapper() raises:
         len(result) == 4,
         "shampoo_step_simple returns 4-tuple (params, L, R, momentum)",
     )
-    assert_shape(result[0], shape, "shampoo_step_simple: params shape preserved")
+    assert_shape(
+        result[0], shape, "shampoo_step_simple: params shape preserved"
+    )
 
 
 def main() raises:
