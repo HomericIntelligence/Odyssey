@@ -678,37 +678,9 @@ struct AnyTensor(
             var reshaped = t.reshape([6])  # (2, 3) -> (6,), zero-copy view
         ```
         """
-        # Verify total elements match
-        var new_numel = 1
-        for i in range(len(new_shape)):
-            new_numel *= new_shape[i]
+        from .tensor_views import reshape_impl
 
-        if new_numel != self._numel:
-            raise Error("Cannot reshape: element count mismatch")
-
-        # Create view by explicitly copying (increments refcount via copy constructor)
-        var result = self.copy()
-        result._is_view = (
-            True  # Mark as view since it shares data with original
-        )
-
-        # Update shape
-        result._shape = List[Int]()
-        for i in range(len(new_shape)):
-            result._shape.append(new_shape[i])
-
-        # Recalculate strides for new shape
-        result._strides = List[Int]()
-        var stride = 1
-        # Pre-allocate strides list with correct forward iteration
-        for _ in range(len(new_shape)):
-            result._strides.append(0)
-        # Now fill strides in backward order
-        for i in range(len(new_shape) - 1, -1, -1):
-            result._strides[i] = stride
-            stride *= new_shape[i]
-
-        return result^
+        return reshape_impl(self, new_shape)
 
     def slice(self, start: Int, end: Int, axis: Int = 0) raises -> AnyTensor:
         """Extract a slice along the specified axis, returning a view into the original data.
@@ -743,60 +715,9 @@ struct AnyTensor(
         var batch = dataset.slice(0, 32, axis=0)  # Returns (32, 1, 28, 28)
         ```
         """
-        # Validate axis
-        if axis < 0 or axis >= len(self._shape):
-            raise Error(
-                "Axis "
-                + String(axis)
-                + " out of range for tensor with "
-                + String(len(self._shape))
-                + " dimensions"
-            )
+        from .tensor_views import slice_impl
 
-        # Validate indices
-        var dim_size = self._shape[axis]
-        if start < 0 or start > dim_size:
-            raise Error(
-                "Start index "
-                + String(start)
-                + " out of range [0, "
-                + String(dim_size)
-                + "]"
-            )
-        if end < start or end > dim_size:
-            raise Error(
-                "End index "
-                + String(end)
-                + " out of range ["
-                + String(start)
-                + ", "
-                + String(dim_size)
-                + "]"
-            )
-
-        # Calculate offset to start of slice
-        var offset_elements = start * self._strides[axis]
-        var dtype_size = self._get_dtype_size()
-        var offset_bytes = offset_elements * dtype_size
-
-        # Create view by copying (increments refcount)
-        var result = self.copy()
-        result._is_view = True
-
-        # Update the sliced dimension in place
-        result._shape[axis] = end - start
-
-        # Update data pointer to point to sliced data
-        result._data = self._data + offset_bytes
-
-        # Strides remain the same (already copied by copy constructor)
-
-        # Recalculate numel after shape change
-        result._numel = 1
-        for i in range(len(result._shape)):
-            result._numel *= result._shape[i]
-
-        return result^
+        return slice_impl(self, start, end, axis)
 
     def transpose(self, dim0: Int, dim1: Int) raises -> AnyTensor:
         """Return a non-contiguous view with dim0 and dim1 swapped.
@@ -831,26 +752,9 @@ struct AnyTensor(
             var b = a.transpose(0, 1)  # shape (4, 3), non-contiguous view
             ```
         """
-        var ndim = self.dim()
-        if ndim < 2:
-            raise Error("transpose requires at least 2 dimensions")
-        if dim0 < 0 or dim0 >= ndim:
-            raise Error("transpose: dim0 out of range")
-        if dim1 < 0 or dim1 >= ndim:
-            raise Error("transpose: dim1 out of range")
+        from .tensor_views import transpose_impl
 
-        var result = self.copy()
-        result._is_view = True
-
-        var tmp_shape = result._shape[dim0]
-        result._shape[dim0] = result._shape[dim1]
-        result._shape[dim1] = tmp_shape
-
-        var tmp_stride = result._strides[dim0]
-        result._strides[dim0] = result._strides[dim1]
-        result._strides[dim1] = tmp_stride
-
-        return result^
+        return transpose_impl(self, dim0, dim1)
 
     def __getitem__(self, index: Int) raises -> Float32:
         """Get element at flat index.
@@ -876,26 +780,9 @@ struct AnyTensor(
             var val = t[5]  # Get element at index 5
         ```
         """
-        if index < 0 or index >= self._numel:
-            raise Error("Index out of bounds")
+        from .tensor_indexing import _getitem_int_impl
 
-        # For non-contiguous tensors, convert flat index to nd-coordinates
-        # then use strides to compute the real memory offset.
-        if not self.is_contiguous():
-            var remaining = index
-            var mem_offset = 0
-            for i in range(len(self._shape)):
-                # Compute the product of dimensions after axis i
-                var dim_size = 1
-                for j in range(i + 1, len(self._shape)):
-                    dim_size *= self._shape[j]
-                var coord = remaining // dim_size
-                remaining = remaining % dim_size
-                mem_offset += coord * self._strides[i]
-            return self._get_float32(mem_offset)
-
-        # Return value based on dtype
-        return self._get_float32(index)
+        return _getitem_int_impl(self, index)
 
     def _resolve_index(self, index: Int) raises -> Int:
         """Resolve flat index to memory offset, with bounds check.
@@ -912,20 +799,9 @@ struct AnyTensor(
         Raises:
             Error: If index is out of bounds.
         """
-        if index < 0 or index >= self._numel:
-            raise Error("Index out of bounds")
-        if not self.is_contiguous():
-            var remaining = index
-            var mem_offset = 0
-            for i in range(len(self._shape)):
-                var dim_size = 1
-                for j in range(i + 1, len(self._shape)):
-                    dim_size *= self._shape[j]
-                var coord = remaining // dim_size
-                remaining = remaining % dim_size
-                mem_offset += coord * self._strides[i]
-            return mem_offset
-        return index
+        from .tensor_indexing import _resolve_index_impl
+
+        return _resolve_index_impl(self, index)
 
     def __setitem__(mut self, index: Int, value: Float64) raises:
         """Set element at flat index.
@@ -1101,20 +977,9 @@ struct AnyTensor(
             var val = t[[1, 2]]  # Get element at row 1, col 2
             ```
         """
-        if len(indices) != len(self._shape):
-            raise Error(
-                "Number of indices ("
-                + String(len(indices))
-                + ") must match tensor rank ("
-                + String(len(self._shape))
-                + ")"
-            )
-        var mem_offset = 0
-        for i in range(len(indices)):
-            if indices[i] < 0 or indices[i] >= self._shape[i]:
-                raise Error("Index out of bounds at dimension " + String(i))
-            mem_offset += indices[i] * self._strides[i]
-        return self._get_float32(mem_offset)
+        from .tensor_indexing import _getitem_multi_impl
+
+        return _getitem_multi_impl(self, indices)
 
     def __setitem__(mut self, indices: List[Int], value: Float64) raises:
         """Set element at multi-dimensional index.
@@ -1195,31 +1060,9 @@ struct AnyTensor(
             Tuple of (normalized_start, normalized_end, normalized_step, result_size).
             result_size is the number of elements in the slice result.
         """
-        var norm_start = start
-        var norm_end = end
-        var norm_step = step
-        var result_size: Int
+        from .tensor_indexing import normalize_slice_indices_impl
 
-        if step < 0:
-            # Negative step: reverse iteration
-            var neg_step = -step
-            # Clamp start to [0, size-1], end to [-1, size-1]
-            norm_start = max(0, min(norm_start, size - 1))
-            norm_end = max(-1, min(norm_end, size - 1))
-            result_size = max(0, ceildiv(norm_start - norm_end, neg_step))
-        else:
-            # Positive step: forward iteration
-            # Normalize negative indices first
-            if norm_start < 0:
-                norm_start = size + norm_start
-            if norm_end < 0:
-                norm_end = size + norm_end
-            # Clamp forward slice to [0, size]
-            norm_start = max(0, min(norm_start, size))
-            norm_end = max(0, min(norm_end, size))
-            result_size = max(0, ceildiv(norm_end - norm_start, step))
-
-        return (norm_start, norm_end, norm_step, result_size)
+        return normalize_slice_indices_impl(size, start, end, step)
 
     def __getitem__(self, slice: Slice) raises -> Self:
         """Get slice of 1D tensor [start:end] or [start:end:step].
@@ -1249,87 +1092,11 @@ struct AnyTensor(
             var reversed = t[::-1]  # Copy of [9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
         ```
         """
-        if len(self._shape) != 1:
-            raise Error("Single slice only supported for 1D tensors")
+        from .tensor_indexing import _getitem_slice_impl
 
-        # Handle slice parameters — extract step first so defaults depend on sign
-        var size = self._shape[0]
-        var step = slice.step.or_else(1)
+        return _getitem_slice_impl(self, slice)
 
-        var start: Int
-        var end: Int
-        if step < 0:
-            # Negative step: default start=last element, default end=before index 0
-            start = slice.start.or_else(size - 1)
-            end = slice.end.or_else(-size - 1)
-        else:
-            start = slice.start.or_else(0)
-            end = slice.end.or_else(size)
-
-        # Normalize negative indices
-        if start < 0:
-            start = size + start
-        if end < 0:
-            end = size + end
-
-        # Handle negative step (reverse)
-        var result_size: Int
-        if step < 0:
-            var neg_step = -step
-            # Clamp start to [0, size-1], end to [-1, size-1]
-            start = max(0, min(start, size - 1))
-            end = max(-1, min(end, size - 1))
-            # No swap: iterate src_idx = start - i * neg_step while src_idx > end
-            result_size = max(0, ceildiv(start - end, neg_step))
-
-            # Create result tensor with shape
-            var shape = List[Int]()
-            shape.append(result_size)
-            var result = Self(shape, self._dtype)
-            result._is_view = False
-
-            # Copy in reverse
-            var dtype_size = self._get_dtype_size()
-            var src_ptr = self._data
-            var dst_ptr = result._data
-
-            for i in range(result_size):
-                var src_idx = start - i * neg_step
-                var src_offset = src_idx * dtype_size
-                var dst_offset = i * dtype_size
-                for b in range(dtype_size):
-                    dst_ptr[dst_offset + b] = src_ptr[src_offset + b]
-
-            return result^
-        else:
-            # Clamp forward slice to [0, size]
-            start = max(0, min(start, size))
-            end = max(0, min(end, size))
-            # Normal forward slice
-            result_size = max(0, ceildiv(end - start, step))
-
-        # Create result tensor with shape
-        var shape = List[Int]()
-        shape.append(result_size)
-        var result = Self(shape, self._dtype)
-        result._is_view = False  # Strided slice creates copy, not view
-
-        # Copy strided data
-        var dtype_size = self._get_dtype_size()
-        var src_ptr = self._data
-        var dst_ptr = result._data
-
-        for i in range(result_size):
-            var src_idx = start + i * step
-            var src_offset = src_idx * dtype_size
-            var dst_offset = i * dtype_size
-
-            # Copy element (byte-wise)
-            for b in range(dtype_size):
-                dst_ptr[dst_offset + b] = src_ptr[src_offset + b]
-
-        return result^
-
+    # Inlined per #5182: variadic *Slice overload
     def __getitem__(self, *slices: Slice) raises -> Self:
         """Get multi-dimensional slice (e.g., tensor[a:b, c:d, :]).
 
@@ -1802,6 +1569,7 @@ struct AnyTensor(
         Raises:
             Error: If tensors have incompatible shapes.
         """
+        from .tensor_ops import _anytensor_binary_op
 
         @always_inline
         def _add[T: DType](x: Scalar[T], y: Scalar[T]) -> Scalar[T]:
@@ -1821,6 +1589,7 @@ struct AnyTensor(
         Raises:
             Error: If tensors have incompatible shapes.
         """
+        from .tensor_ops import _anytensor_binary_op
 
         @always_inline
         def _sub[T: DType](x: Scalar[T], y: Scalar[T]) -> Scalar[T]:
@@ -1840,6 +1609,7 @@ struct AnyTensor(
         Raises:
             Error: If tensors have incompatible shapes.
         """
+        from .tensor_ops import _anytensor_binary_op
 
         @always_inline
         def _mul[T: DType](x: Scalar[T], y: Scalar[T]) -> Scalar[T]:
@@ -1860,6 +1630,7 @@ struct AnyTensor(
             Error: If tensors have incompatible shapes or division by zero.
 
         """
+        from .tensor_ops import _anytensor_binary_op
 
         @always_inline
         def _div[T: DType](x: Scalar[T], y: Scalar[T]) -> Scalar[T]:
@@ -1879,6 +1650,7 @@ struct AnyTensor(
         Raises:
             Error: If tensors have incompatible shapes or division by zero.
         """
+        from .tensor_ops import _anytensor_binary_op
 
         @always_inline
         def _floordiv[T: DType](x: Scalar[T], y: Scalar[T]) -> Scalar[T]:
@@ -1898,6 +1670,7 @@ struct AnyTensor(
         Raises:
             Error: If tensors have incompatible shapes.
         """
+        from .tensor_ops import _anytensor_binary_op
 
         @always_inline
         def _mod[T: DType](x: Scalar[T], y: Scalar[T]) -> Scalar[T]:
@@ -1917,6 +1690,7 @@ struct AnyTensor(
         Raises:
             Error: If tensors have incompatible shapes.
         """
+        from .tensor_ops import _anytensor_binary_op
 
         @always_inline
         def _pow[T: DType](x: Scalar[T], y: Scalar[T]) -> Scalar[T]:
@@ -1940,6 +1714,8 @@ struct AnyTensor(
             This operator handles 2D×2D matrix multiplication. For 1D vectors
             or batched matmul, use projectodyssey.core.matrix.matmul directly.
         """
+        from .tensor_ops import _anytensor_matmul
+
         return _anytensor_matmul(self, other)
 
     def __eq__(self, other: AnyTensor) raises -> AnyTensor:
@@ -1959,6 +1735,7 @@ struct AnyTensor(
         Raises:
             Error: If tensors have incompatible shapes.
         """
+        from .tensor_ops import _anytensor_compare_op
 
         @always_inline
         def _eq[T: DType](x: Scalar[T], y: Scalar[T]) -> Bool:
@@ -1978,6 +1755,7 @@ struct AnyTensor(
         Raises:
             Error: If tensors have incompatible shapes.
         """
+        from .tensor_ops import _anytensor_compare_op
 
         @always_inline
         def _ne[T: DType](x: Scalar[T], y: Scalar[T]) -> Bool:
@@ -2008,30 +1786,9 @@ struct AnyTensor(
         Returns:
             True iff the tensors are equal under the chosen NaN policy.
         """
-        from std.math import isnan
+        from .tensor_views import array_equal_impl
 
-        if self._dtype != other._dtype:
-            return False
-        if len(self._shape) != len(other._shape):
-            return False
-        for i in range(len(self._shape)):
-            if self._shape[i] != other._shape[i]:
-                return False
-        if self._numel != other._numel:
-            return False
-
-        for i in range(self._numel):
-            var a = self._get_float64(i)
-            var b = other._get_float64(i)
-            var a_nan = isnan(a)
-            var b_nan = isnan(b)
-            if a_nan or b_nan:
-                # Equal only if both are NaN and equal_nan is set.
-                if not (equal_nan and a_nan and b_nan):
-                    return False
-            elif a != b:
-                return False
-        return True
+        return array_equal_impl(self, other, equal_nan)
 
     def __lt__(self, other: AnyTensor) raises -> AnyTensor:
         """Element-wise less than: a < b.
@@ -2045,6 +1802,7 @@ struct AnyTensor(
         Raises:
             Error: If tensors have incompatible shapes.
         """
+        from .tensor_ops import _anytensor_compare_op
 
         @always_inline
         def _lt[T: DType](x: Scalar[T], y: Scalar[T]) -> Bool:
@@ -2064,6 +1822,7 @@ struct AnyTensor(
         Raises:
             Error: If tensors have incompatible shapes.
         """
+        from .tensor_ops import _anytensor_compare_op
 
         @always_inline
         def _le[T: DType](x: Scalar[T], y: Scalar[T]) -> Bool:
@@ -2083,6 +1842,7 @@ struct AnyTensor(
         Raises:
             Error: If tensors have incompatible shapes.
         """
+        from .tensor_ops import _anytensor_compare_op
 
         @always_inline
         def _gt[T: DType](x: Scalar[T], y: Scalar[T]) -> Bool:
@@ -2102,6 +1862,7 @@ struct AnyTensor(
         Raises:
             Error: If tensors have incompatible shapes.
         """
+        from .tensor_ops import _anytensor_compare_op
 
         @always_inline
         def _ge[T: DType](x: Scalar[T], y: Scalar[T]) -> Bool:
@@ -2121,47 +1882,9 @@ struct AnyTensor(
         Rejects bfloat16, validates float input, SIMD-encodes each element to
         target_fp8_dtype, and stores as uint8.
         """
-        from std.memory import bitcast
+        from .tensor_dtype_conv import _convert_to_fp8_family_impl
 
-        # Explicitly reject bfloat16 at validation time
-        if self._dtype == DType.bfloat16:
-            raise Error(
-                method_name
-                + " does not support bfloat16: "
-                + "the bfloat16 conversion path does not correctly round-trip "
-                + "through the Float32 intermediate representation"
-            )
-
-        # Verify source is floating point
-        if not (
-            self._dtype == DType.float16
-            or self._dtype == DType.float32
-            or self._dtype == DType.float64
-        ):
-            raise Error(method_name + " requires a floating-point tensor")
-
-        # Create output tensor with uint8 dtype
-        var result = AnyTensor(self._shape, DType.uint8)
-
-        # Convert each element using native SIMD encode + bitcast, store as uint8
-        for i in range(self._numel):
-            var val: Float32
-            # Defensive dtype re-validation (fixes DATA-003)
-            if self._dtype == DType.float16:
-                val = self._data.bitcast[Float16]()[i].cast[DType.float32]()
-            elif self._dtype == DType.float32:
-                val = self._data.bitcast[Float32]()[i]
-            elif self._dtype == DType.float64:
-                val = self._data.bitcast[Float64]()[i].cast[DType.float32]()
-            else:
-                raise Error("Invalid dtype for " + method_name + " conversion")
-
-            var fp8_val = SIMD[target_fp8_dtype, 1](val)
-            var fp8_bits = bitcast[DType.uint8, 1](fp8_val)[0]
-            var fp8_ptr = (result._data + i).bitcast[UInt8]()
-            fp8_ptr[] = fp8_bits
-
-        return result^
+        return _convert_to_fp8_family_impl[target_fp8_dtype](self, method_name)
 
     def to_fp8(self) raises -> AnyTensor:
         """Convert tensor values to FP8 E4M3 format.
@@ -2186,9 +1909,9 @@ struct AnyTensor(
             are clamped. This is useful for memory-efficient training/inference.
             FP16 inputs are converted to FP32 before quantization.
         """
-        from projectodyssey.core.types.dtype_aliases import FP8
+        from .tensor_dtype_conv import convert_to_fp8_impl
 
-        return self._convert_to_fp8_family[FP8]("to_fp8()")
+        return convert_to_fp8_impl(self)
 
     def from_fp8(self) raises -> AnyTensor:
         """Convert FP8-encoded tensor (uint8) back to Float32.
@@ -2210,25 +1933,9 @@ struct AnyTensor(
             This assumes the uint8 tensor contains valid FP8 E4M3 encoded values.
             Use this to decode tensors created by to_fp8().
         """
-        from projectodyssey.core.types.dtype_aliases import FP8
-        from std.memory import bitcast
+        from .tensor_dtype_conv import from_fp8_impl
 
-        # Verify source is uint8
-        if self._dtype != DType.uint8:
-            raise Error("from_fp8() requires a uint8 tensor (FP8-encoded)")
-
-        # Create output tensor with float32 dtype
-        var result = AnyTensor(self._shape, DType.float32)
-
-        # Convert each element from FP8 to Float32 using native SIMD
-        for i in range(self._numel):
-            var fp8_bits = self._data.bitcast[UInt8]()[i]
-            # Bitcast uint8 to FP8, then convert to float32
-            var fp8_val = bitcast[FP8, 1](SIMD[DType.uint8, 1](fp8_bits))
-            var float_val = Float32(fp8_val[0])
-            result[i] = Float32(float_val)
-
-        return result^
+        return from_fp8_impl(self)
 
     # ===----------------------------------------------------------------------===#
     # Integer Type Conversions
@@ -2248,52 +1955,11 @@ struct AnyTensor(
         Handles same-dtype fast-path, full dtype-dispatch read, optional clamp, and
         _set_int64 store.  target_dtype selects the output element type at compile time.
         """
-        var result = AnyTensor(self._shape, target_dtype)
+        from .tensor_dtype_conv import _convert_to_int_dtype_impl
 
-        for i in range(self._numel):
-            # Same-dtype fast-path: bitcast directly without going through Float32.
-            if self._dtype == target_dtype:
-                result._set_int64(i, self._get_int64(i))
-                continue
-
-            # Read source element as Float32 (handles all supported dtypes).
-            var val: Float32
-            if self._dtype == DType.float16:
-                val = self._data.bitcast[Float16]()[i].cast[DType.float32]()
-            elif self._dtype == DType.float32:
-                val = self._data.bitcast[Float32]()[i]
-            elif self._dtype == DType.float64:
-                val = self._data.bitcast[Float64]()[i].cast[DType.float32]()
-            elif self._dtype == DType.int8:
-                val = Float32(self._data.bitcast[Int8]()[i])
-            elif self._dtype == DType.int16:
-                val = Float32(self._data.bitcast[Int16]()[i])
-            elif self._dtype == DType.int32:
-                val = Float32(self._data.bitcast[Int32]()[i])
-            elif self._dtype == DType.int64:
-                val = Float32(self._data.bitcast[Int64]()[i])
-            elif self._dtype == DType.uint8:
-                val = Float32(self._data.bitcast[UInt8]()[i])
-            elif self._dtype == DType.uint16:
-                val = Float32(self._data.bitcast[UInt16]()[i])
-            elif self._dtype == DType.uint32:
-                val = Float32(self._data.bitcast[UInt32]()[i])
-            elif self._dtype == DType.uint64:
-                val = Float32(self._data.bitcast[UInt64]()[i])
-            else:
-                raise Error(
-                    "Unsupported dtype for " + method_name + " conversion"
-                )
-
-            var int_val = Int64(Int(val))
-            if do_clamp:
-                if int_val < min_val:
-                    int_val = min_val
-                elif int_val > max_val:
-                    int_val = max_val
-            result._set_int64(i, int_val)
-
-        return result^
+        return _convert_to_int_dtype_impl[target_dtype](
+            self, method_name, min_val, max_val, do_clamp
+        )
 
     def to_int8(self) raises -> AnyTensor:
         """Convert tensor values to Int8 format.
@@ -2314,9 +1980,9 @@ struct AnyTensor(
         Note:
             FP16 inputs are converted to FP32 before conversion.
         """
-        return self._convert_to_int_dtype[DType.int8](
-            "to_int8", Int64(-128), Int64(127), True
-        )
+        from .tensor_dtype_conv import to_int8_impl
+
+        return to_int8_impl(self)
 
     def to_int16(self) raises -> AnyTensor:
         """Convert tensor values to Int16 format.
@@ -2331,9 +1997,9 @@ struct AnyTensor(
             Error: If conversion fails or bounds check error occurs.
 
         """
-        return self._convert_to_int_dtype[DType.int16](
-            "to_int16", Int64(-32768), Int64(32767), True
-        )
+        from .tensor_dtype_conv import to_int16_impl
+
+        return to_int16_impl(self)
 
     def to_int32(self) raises -> AnyTensor:
         """Convert tensor values to Int32 format.
@@ -2348,9 +2014,9 @@ struct AnyTensor(
             Error: If conversion fails or bounds check error occurs.
 
         """
-        return self._convert_to_int_dtype[DType.int32](
-            "to_int32", Int64(0), Int64(0), False
-        )
+        from .tensor_dtype_conv import to_int32_impl
+
+        return to_int32_impl(self)
 
     def to_int64(self) raises -> AnyTensor:
         """Convert tensor values to Int64 format.
@@ -2364,9 +2030,9 @@ struct AnyTensor(
             Error: If conversion fails or bounds check error occurs.
 
         """
-        return self._convert_to_int_dtype[DType.int64](
-            "to_int64", Int64(0), Int64(0), False
-        )
+        from .tensor_dtype_conv import to_int64_impl
+
+        return to_int64_impl(self)
 
     def to_uint8(self) raises -> AnyTensor:
         """Convert tensor values to UInt8 format.
@@ -2381,9 +2047,9 @@ struct AnyTensor(
             Error: If conversion fails or bounds check error occurs.
 
         """
-        return self._convert_to_int_dtype[DType.uint8](
-            "to_uint8", Int64(0), Int64(255), True
-        )
+        from .tensor_dtype_conv import to_uint8_impl
+
+        return to_uint8_impl(self)
 
     def to_uint16(self) raises -> AnyTensor:
         """Convert tensor values to UInt16 format.
@@ -2398,9 +2064,9 @@ struct AnyTensor(
             Error: If conversion fails or bounds check error occurs.
 
         """
-        return self._convert_to_int_dtype[DType.uint16](
-            "to_uint16", Int64(0), Int64(0), False
-        )
+        from .tensor_dtype_conv import to_uint16_impl
+
+        return to_uint16_impl(self)
 
     def to_uint32(self) raises -> AnyTensor:
         """Convert tensor values to UInt32 format.
@@ -2415,9 +2081,9 @@ struct AnyTensor(
             Error: If conversion fails or bounds check error occurs.
 
         """
-        return self._convert_to_int_dtype[DType.uint32](
-            "to_uint32", Int64(0), Int64(0), False
-        )
+        from .tensor_dtype_conv import to_uint32_impl
+
+        return to_uint32_impl(self)
 
     def to_uint64(self) raises -> AnyTensor:
         """Convert tensor values to UInt64 format.
@@ -2431,9 +2097,9 @@ struct AnyTensor(
             Error: If conversion fails or bounds check error occurs.
 
         """
-        return self._convert_to_int_dtype[DType.uint64](
-            "to_uint64", Int64(0), Int64(0), False
-        )
+        from .tensor_dtype_conv import to_uint64_impl
+
+        return to_uint64_impl(self)
 
     # ========================================================================
     # BF8 Conversion Methods
@@ -2463,9 +2129,9 @@ struct AnyTensor(
             training/inference where range is more important than precision.
             FP16 inputs are converted to FP32 before quantization.
         """
-        from projectodyssey.core.types.dtype_aliases import BF8
+        from .tensor_dtype_conv import to_bf8_impl
 
-        return self._convert_to_fp8_family[BF8]("to_bf8()")
+        return to_bf8_impl(self)
 
     def from_bf8(self) raises -> AnyTensor:
         """Convert BF8-encoded tensor (uint8) back to Float32.
@@ -2487,25 +2153,9 @@ struct AnyTensor(
             This assumes the uint8 tensor contains valid BF8 E5M2 encoded values.
             Use this to decode tensors created by to_bf8().
         """
-        from projectodyssey.core.types.dtype_aliases import BF8
-        from std.memory import bitcast
+        from .tensor_dtype_conv import from_bf8_impl
 
-        # Verify source is uint8
-        if self._dtype != DType.uint8:
-            raise Error("from_bf8() requires a uint8 tensor (BF8-encoded)")
-
-        # Create output tensor with float32 dtype
-        var result = AnyTensor(self._shape, DType.float32)
-
-        # Convert each element from BF8 to Float32 using native SIMD
-        for i in range(self._numel):
-            var bf8_bits = self._data.bitcast[UInt8]()[i]
-            # Bitcast uint8 to BF8, then convert to float32
-            var bf8_val = bitcast[BF8, 1](SIMD[DType.uint8, 1](bf8_bits))
-            var float_val = Float32(bf8_val[0])
-            result[i] = Float32(float_val)
-
-        return result^
+        return from_bf8_impl(self)
 
     # ===----------------------------------------------------------------------===#
     # FP4 Blocked Type Conversions
@@ -2523,105 +2173,9 @@ struct AnyTensor(
         This asymmetry is a pre-existing bug preserved verbatim.
         TODO(#5181-followup): fix bfloat16 guard for block-quant methods.
         """
-        from std.memory import bitcast
+        from .tensor_dtype_conv import _convert_to_block_quant_impl
 
-        # Verify source is floating point (bfloat16 outer guard passes; inner raises).
-        # TODO(#5181-followup): the bfloat16 outer guard accepts but inner raises;
-        # this asymmetry is preserved verbatim as a pre-existing bug.
-        if not (
-            self._dtype == DType.float16
-            or self._dtype == DType.float32
-            or self._dtype == DType.float64
-            or self._dtype == DType.bfloat16
-        ):
-            raise Error(fmt_name + " requires a floating-point tensor")
-
-        comptime if is_mxfp4:
-            from projectodyssey.core.types.mxfp4 import MXFP4Block
-
-            comptime block_size = 32
-            comptime bytes_per_block = 17
-            comptime data_bytes = 16
-            var num_blocks = (self._numel + block_size - 1) // block_size
-            var result = AnyTensor([num_blocks * bytes_per_block], DType.uint8)
-            result._original_numel_quantized = self._numel
-            for block_idx in range(num_blocks):
-                var start_idx = block_idx * block_size
-                var values = List[Float32]()
-                for i in range(block_size):
-                    var idx = start_idx + i
-                    if idx < self._numel:
-                        if idx >= self._numel:
-                            raise Error("Index out of bounds during bitcast")
-                        var val: Float32
-                        if self._dtype == DType.float16:
-                            val = self._data.bitcast[Float16]()[idx].cast[
-                                DType.float32
-                            ]()
-                        elif self._dtype == DType.float32:
-                            val = self._data.bitcast[Float32]()[idx]
-                        elif self._dtype == DType.float64:
-                            val = self._data.bitcast[Float64]()[idx].cast[
-                                DType.float32
-                            ]()
-                        else:
-                            raise Error("Invalid dtype for MXFP4 quantization")
-                        values.append(val)
-                    else:
-                        values.append(Float32(0.0))
-                var block = MXFP4Block.from_float32_array(values)
-                var block_offset = block_idx * bytes_per_block
-                for i in range(data_bytes):
-                    var ptr = (result._data + block_offset + i).bitcast[UInt8]()
-                    ptr[] = block.data[i]
-                var scale_ptr = (
-                    result._data + block_offset + data_bytes
-                ).bitcast[UInt8]()
-                scale_ptr[] = bitcast[DType.uint8, 1](block.scale)[0]
-            return result^
-        else:
-            from projectodyssey.core.types.nvfp4 import NVFP4Block
-
-            comptime block_size = 16
-            comptime bytes_per_block = 9
-            comptime data_bytes = 8
-            var num_blocks = (self._numel + block_size - 1) // block_size
-            var result = AnyTensor([num_blocks * bytes_per_block], DType.uint8)
-            result._original_numel_quantized = self._numel
-            for block_idx in range(num_blocks):
-                var start_idx = block_idx * block_size
-                var values = List[Float32]()
-                for i in range(block_size):
-                    var idx = start_idx + i
-                    if idx < self._numel:
-                        if idx >= self._numel:
-                            raise Error("Index out of bounds during bitcast")
-                        var val: Float32
-                        if self._dtype == DType.float16:
-                            val = self._data.bitcast[Float16]()[idx].cast[
-                                DType.float32
-                            ]()
-                        elif self._dtype == DType.float32:
-                            val = self._data.bitcast[Float32]()[idx]
-                        elif self._dtype == DType.float64:
-                            val = self._data.bitcast[Float64]()[idx].cast[
-                                DType.float32
-                            ]()
-                        else:
-                            raise Error("Invalid dtype for NVFP4 quantization")
-                        values.append(val)
-                    else:
-                        values.append(Float32(0.0))
-                var block = NVFP4Block.from_float32_array(values)
-                var block_offset = block_idx * bytes_per_block
-                for i in range(data_bytes):
-                    var ptr = (result._data + block_offset + i).bitcast[UInt8]()
-                    ptr[] = block.data[i]
-                var scale_ptr = (
-                    result._data + block_offset + data_bytes
-                ).bitcast[UInt8]()
-                scale_ptr[] = bitcast[DType.uint8, 1](block.scale)[0]
-            return result^
+        return _convert_to_block_quant_impl[is_mxfp4](self, fmt_name)
 
     def to_mxfp4(self) raises -> AnyTensor:
         """Convert tensor values to MXFP4 blocked format.
@@ -2709,61 +2263,9 @@ struct AnyTensor(
             Use this to decode tensors created by to_mxfp4().
             Original tensor size is restored from metadata if available.
         """
-        from projectodyssey.core.types.mxfp4 import MXFP4Block
-        from projectodyssey.core.types.dtype_aliases import E8M0
+        from .tensor_dtype_conv import from_mxfp4_impl
 
-        # Verify source is uint8
-        if self._dtype != DType.uint8:
-            raise Error("from_mxfp4() requires a uint8 tensor (MXFP4-encoded)")
-
-        # Calculate number of blocks and output size
-        if self._numel % 17 != 0:
-            raise Error("MXFP4 tensor size must be multiple of 17 bytes")
-
-        var num_blocks = self._numel // 17
-        var padded_output_size = num_blocks * 32
-
-        # Check if original size is stored
-        var output_size: Int
-        if self._original_numel_quantized >= 0:
-            output_size = self._original_numel_quantized
-        else:
-            output_size = padded_output_size
-
-        # Create output tensor with proper shape
-        var output_shape = List[Int]()
-        output_shape.append(padded_output_size)
-        var result = AnyTensor(output_shape, DType.float32)
-
-        # Decode each block
-        for block_idx in range(num_blocks):
-            var block_offset = block_idx * 17
-
-            # Reconstruct MXFP4Block
-            var data = SIMD[DType.uint8, 16](0)
-            for i in range(16):
-                data[i] = self._data.bitcast[UInt8]()[block_offset + i]
-            # Reconstruct E8M0 scale from raw exponent byte
-            var scale_byte = self._data.bitcast[UInt8]()[block_offset + 16]
-            var scale = bitcast[E8M0, 1](SIMD[DType.uint8, 1](scale_byte))
-
-            var block = MXFP4Block(data, scale)
-
-            # Decode block to Float32 values (only decode needed elements)
-            var values = block.to_float32_array()
-            for i in range(32):
-                var output_idx = block_idx * 32 + i
-                if output_idx < output_size:
-                    result[output_idx] = Float32(values[i])
-
-        # Trim result to original size if needed
-        if output_size < padded_output_size:
-            var trimmed = AnyTensor([output_size], DType.float32)
-            for i in range(output_size):
-                trimmed[i] = result._data.bitcast[Float32]()[i]
-            return trimmed^
-
-        return result^
+        return from_mxfp4_impl(self)
 
     def to_nvfp4(self) raises -> AnyTensor:
         """Convert tensor values to NVFP4 blocked format.
@@ -2860,61 +2362,9 @@ struct AnyTensor(
                 Use this to decode tensors created by to_nvfp4().
                 Original tensor size is restored from metadata if available.
         """
-        from projectodyssey.core.types.nvfp4 import NVFP4Block
-        from projectodyssey.core.types.dtype_aliases import FP8
+        from .tensor_dtype_conv import from_nvfp4_impl
 
-        # Verify source is uint8
-        if self._dtype != DType.uint8:
-            raise Error("from_nvfp4() requires a uint8 tensor (NVFP4-encoded)")
-
-        # Calculate number of blocks and output size
-        if self._numel % 9 != 0:
-            raise Error("NVFP4 tensor size must be multiple of 9 bytes")
-
-        var num_blocks = self._numel // 9
-        var padded_output_size = num_blocks * 16
-
-        # Check if original size is stored
-        var output_size: Int
-        if self._original_numel_quantized >= 0:
-            output_size = self._original_numel_quantized
-        else:
-            output_size = padded_output_size
-
-        # Create output tensor with proper shape
-        var output_shape = List[Int]()
-        output_shape.append(padded_output_size)
-        var result = AnyTensor(output_shape, DType.float32)
-
-        # Decode each block
-        for block_idx in range(num_blocks):
-            var block_offset = block_idx * 9
-
-            # Reconstruct NVFP4Block
-            var data = SIMD[DType.uint8, 8](0)
-            for i in range(8):
-                data[i] = self._data.bitcast[UInt8]()[block_offset + i]
-            # Reconstruct FP8 (E4M3) scale from raw byte
-            var scale_byte = self._data.bitcast[UInt8]()[block_offset + 8]
-            var scale = bitcast[FP8, 1](SIMD[DType.uint8, 1](scale_byte))
-
-            var block = NVFP4Block(data, scale)
-
-            # Decode block to Float32 values (only decode needed elements)
-            var values = block.to_float32_array()
-            for i in range(16):
-                var output_idx = block_idx * 16 + i
-                if output_idx < output_size:
-                    result[output_idx] = Float32(values[i])
-
-        # Trim result to original size if needed
-        if output_size < padded_output_size:
-            var trimmed = AnyTensor([output_size], DType.float32)
-            for i in range(output_size):
-                trimmed[i] = result._data.bitcast[Float32]()[i]
-            return trimmed^
-
-        return result^
+        return from_nvfp4_impl(self)
 
     # Reflected operators - enable reversed operand order (e.g., 2 + tensor)
     # These are called when the left operand doesn't support the operation
@@ -2999,6 +2449,7 @@ struct AnyTensor(
             Error: If tensor allocation fails.
 
         """
+        from .tensor_ops import _anytensor_unary_op
 
         @always_inline
         def _neg[T: DType](x: Scalar[T]) -> Scalar[T]:
@@ -3024,6 +2475,7 @@ struct AnyTensor(
             Error: If operation fails.
 
         """
+        from .tensor_ops import _anytensor_unary_op
 
         @always_inline
         def _abs[T: DType](x: Scalar[T]) -> Scalar[T]:
@@ -3119,70 +2571,9 @@ struct AnyTensor(
         Args:
             writer: The writer to write the string representation to.
         """
-        comptime TRUNCATE_THRESHOLD = 1000
-        comptime SHOW_ELEMENTS = 3
+        from .tensor_printing import write_to_str_impl
 
-        var ndim = len(self._shape)
-
-        # Special case: empty tensor
-        if ndim == 0 or self._numel == 0:
-            writer.write("AnyTensor([], dtype=" + String(self._dtype) + ")")
-            return
-
-        # For 1D tensors: use flat format
-        if ndim == 1:
-            writer.write("AnyTensor([")
-            if self._numel > TRUNCATE_THRESHOLD:
-                for i in range(SHOW_ELEMENTS):
-                    if i > 0:
-                        writer.write(", ")
-                    writer.write(self._format_element(i))
-                writer.write(", ...")
-                for i in range(self._numel - SHOW_ELEMENTS, self._numel):
-                    writer.write(", " + self._format_element(i))
-            else:
-                for i in range(self._numel):
-                    if i > 0:
-                        writer.write(", ")
-                    writer.write(self._format_element(i))
-            writer.write("], dtype=" + String(self._dtype) + ")")
-            return
-
-        # For multi-dimensional tensors (2D+): build nested brackets.
-        # Truncate if total elements exceed threshold to prevent
-        # massive string output for large tensors (e.g., [100, 100]).
-        if self._numel > TRUNCATE_THRESHOLD:
-            # Show first and last sub-arrays along outermost dimension
-            var stride = 1
-            for d in range(1, ndim):
-                stride *= self._shape[d]
-
-            var data_str = String("[")
-            for i in range(SHOW_ELEMENTS):
-                if i > 0:
-                    data_str += ", "
-                data_str += self._format_nd_slice(1, i * stride)
-            data_str += ", ..."
-            for i in range(self._shape[0] - SHOW_ELEMENTS, self._shape[0]):
-                data_str += ", " + self._format_nd_slice(1, i * stride)
-            data_str += "]"
-
-            writer.write("AnyTensor(" + data_str + ", shape=[")
-            for i in range(len(self._shape)):
-                if i > 0:
-                    writer.write(", ")
-                writer.write(String(self._shape[i]))
-            writer.write("], dtype=" + String(self._dtype) + ")")
-            return
-
-        var data_str = self._format_nd_slice(0, 0)
-
-        writer.write("AnyTensor(" + data_str + ", shape=[")
-        for i in range(len(self._shape)):
-            if i > 0:
-                writer.write(", ")
-            writer.write(String(self._shape[i]))
-        writer.write("], dtype=" + String(self._dtype) + ")")
+        writer.write(write_to_str_impl(self))
 
     def __str__(self) -> String:
         """Human-readable string representation with NumPy-style truncation.
@@ -3223,29 +2614,9 @@ struct AnyTensor(
         Returns:
             String representation of the element.
         """
-        if self._dtype == DType.bool:
-            return "True" if self._get_int64(flat_idx) != 0 else "False"
-        elif self._dtype == DType.uint64:
-            # Read as native UInt64 to avoid sign corruption via _get_int64
-            var dtype_size = self._get_dtype_size()
-            var ptr = (self._data + flat_idx * dtype_size).bitcast[UInt64]()
-            return String(ptr[])
-        elif self._dtype == DType.uint32:
-            var dtype_size = self._get_dtype_size()
-            var ptr = (self._data + flat_idx * dtype_size).bitcast[UInt32]()
-            return String(ptr[])
-        elif (
-            self._dtype == DType.int8
-            or self._dtype == DType.int16
-            or self._dtype == DType.int32
-            or self._dtype == DType.int64
-            or self._dtype == DType.uint8
-            or self._dtype == DType.uint16
-        ):
-            return String(self._get_int64(flat_idx))
-        else:
-            # Float types
-            return String(self._get_float64(flat_idx))
+        from .tensor_printing import format_element_impl
+
+        return format_element_impl(self, flat_idx)
 
     def _format_nd_slice(self, dim: Int, base_offset: Int) -> String:
         """Format a slice of the N-dimensional tensor with nested brackets.
@@ -3263,32 +2634,9 @@ struct AnyTensor(
         Returns:
             String with nested brackets representing the N-D structure.
         """
-        var ndim = len(self._shape)
+        from .tensor_printing import format_nd_slice_impl
 
-        # Base case: innermost dimension (last dim)
-        if dim == ndim - 1:
-            var result = String("[")
-            for i in range(self._shape[dim]):
-                if i > 0:
-                    result += ", "
-                result += self._format_element(base_offset + i)
-            result += "]"
-            return result
-
-        # Compute stride for current dimension (product of all inner dims)
-        var stride = 1
-        for d in range(dim + 1, ndim):
-            stride *= self._shape[d]
-
-        # Recursive case: format sub-array
-        var result = String("[")
-        for i in range(self._shape[dim]):
-            if i > 0:
-                result += ", "
-            result += self._format_nd_slice(dim + 1, base_offset + i * stride)
-
-        result += "]"
-        return result
+        return format_nd_slice_impl(self, dim, base_offset)
 
     def __repr__(self) -> String:
         """Detailed representation for debugging.
@@ -3297,34 +2645,9 @@ struct AnyTensor(
             String in the format: AnyTensor(shape=[...], dtype=<dtype>, numel=N, data=[...]).
             For large tensors: AnyTensor(shape=[...], dtype=<dtype>, numel=N, data=[v0, v1, v2, ..., vN-2, vN-1, vN]).
         """
-        comptime TRUNCATE_THRESHOLD = 1000
-        comptime SHOW_ELEMENTS = 3
+        from .tensor_printing import write_repr_impl
 
-        var shape_str = String("[")
-        for i in range(len(self._shape)):
-            if i > 0:
-                shape_str += ", "
-            shape_str += String(self._shape[i])
-        shape_str += "]"
-        var result = String("AnyTensor(shape=") + shape_str
-        result += ", dtype=" + String(self._dtype)
-        result += ", numel=" + String(self._numel)
-        result += ", data=["
-        if self._numel > TRUNCATE_THRESHOLD:
-            for i in range(SHOW_ELEMENTS):
-                if i > 0:
-                    result += ", "
-                result += String(self._get_float64(i))
-            result += ", ..."
-            for i in range(self._numel - SHOW_ELEMENTS, self._numel):
-                result += ", " + String(self._get_float64(i))
-        else:
-            for i in range(self._numel):
-                if i > 0:
-                    result += ", "
-                result += String(self._get_float64(i))
-        result += "])"
-        return result
+        return write_repr_impl(self)
 
     def write_repr_to[W: Writer](self, mut writer: W):
         """Write the repr representation to a Writer (required for Writable trait).
@@ -3480,81 +2803,9 @@ struct AnyTensor(
             var y = x.clone()  # Independent copy
             ```
         """
-        var shape_copy = self._shape.copy()
-        var result = AnyTensor(shape_copy, self._dtype)
+        from .tensor_views import clone_impl
 
-        # Iterate through all elements using multi-dimensional indexing
-        # to correctly handle non-contiguous source tensors with stride-aware access
-        var nd_idx = List[Int]()
-        for _ in range(len(self._shape)):
-            nd_idx.append(0)
-
-        var dtype_size = self._get_dtype_size()
-
-        for out_idx in range(self._numel):
-            # Compute flat offset in source tensor using strides
-            var src_offset = 0
-            for d in range(len(self._shape)):
-                src_offset += nd_idx[d] * self._strides[d]
-
-            # Read from source using stride-aware byte offset
-            var offset_bytes = src_offset * dtype_size
-            var val: Float64
-
-            if self._dtype == DType.float16:
-                var ptr = (self._data + offset_bytes).bitcast[Float16]()
-                val = ptr[].cast[DType.float64]()
-            elif self._dtype == DType.bfloat16:
-                var ptr = (self._data + offset_bytes).bitcast[BFloat16]()
-                val = Float64(Float32(ptr[]))
-            elif self._dtype == DType.float32:
-                var ptr = (self._data + offset_bytes).bitcast[Float32]()
-                val = ptr[].cast[DType.float64]()
-            elif self._dtype == DType.float64:
-                var ptr = (self._data + offset_bytes).bitcast[Float64]()
-                val = ptr[]
-            else:
-                # For integer types, use _get_int64 via byte offset
-                if self._dtype == DType.int8:
-                    var ptr = (self._data + offset_bytes).bitcast[Int8]()
-                    val = Float64(ptr[])
-                elif self._dtype == DType.int16:
-                    var ptr = (self._data + offset_bytes).bitcast[Int16]()
-                    val = Float64(ptr[])
-                elif self._dtype == DType.int32:
-                    var ptr = (self._data + offset_bytes).bitcast[Int32]()
-                    val = Float64(ptr[])
-                elif self._dtype == DType.int64:
-                    var ptr = (self._data + offset_bytes).bitcast[Int64]()
-                    val = Float64(ptr[])
-                elif self._dtype == DType.uint8:
-                    var ptr = (self._data + offset_bytes).bitcast[UInt8]()
-                    val = Float64(Int(ptr[]))
-                elif self._dtype == DType.uint16:
-                    var ptr = (self._data + offset_bytes).bitcast[UInt16]()
-                    val = Float64(Int(ptr[]))
-                elif self._dtype == DType.uint32:
-                    var ptr = (self._data + offset_bytes).bitcast[UInt32]()
-                    val = Float64(Int(ptr[]))
-                elif self._dtype == DType.uint64:
-                    var ptr = (self._data + offset_bytes).bitcast[UInt64]()
-                    val = Float64(Int(ptr[]))
-                else:
-                    val = 0.0
-
-            # Write to output tensor at flat index
-            result._set_float64(out_idx, val)
-
-            # Increment multi-dimensional index
-            var d = len(self._shape) - 1
-            while d >= 0:
-                nd_idx[d] += 1
-                if nd_idx[d] < self._shape[d]:
-                    break
-                nd_idx[d] = 0
-                d -= 1
-
-        return result^
+        return clone_impl(self)
 
     def item(self) raises -> Float64:
         """Extract the value from a single-element tensor.
@@ -3616,30 +2867,9 @@ struct AnyTensor(
             var d = x.diff()  # [1.0, 1.0, 1.0, 1.0]
             ```
         """
-        if n <= 0:
-            raise Error("diff order n must be positive, got " + String(n))
-        if n >= self._numel:
-            raise Error(
-                "diff order n="
-                + String(n)
-                + " exceeds tensor size "
-                + String(self._numel)
-            )
+        from .tensor_views import diff_impl
 
-        var current = self
-        for _ in range(n):
-            var new_size = current._numel - 1
-            var new_shape = List[Int]()
-            new_shape.append(new_size)
-            var result = AnyTensor(new_shape, current._dtype)
-
-            for i in range(new_size):
-                var val = current._get_float64(i + 1) - current._get_float64(i)
-                result._set_float64(i, val)
-
-            current = result^
-
-        return current^
+        return diff_impl(self, n)
 
     def save(self, path: String, name: String = "") raises:
         """Save tensor to file in hex-encoded binary format.
@@ -3701,9 +2931,9 @@ struct AnyTensor(
     def split(self, num_splits: Int, axis: Int = 0) raises -> List[AnyTensor]:
         """Split tensor into equal-sized parts along an axis.
 
-        Method wrapper for the module-level `split()` function, providing
+        Method wrapper for the module-level `split_impl()` function, providing
         convenient object syntax: `tensor.split(3)` instead of
-        `split(tensor, 3)`.
+        `split_impl(tensor, 3)`.
 
         Args:
             num_splits: Number of equal parts to split into.
@@ -3723,94 +2953,17 @@ struct AnyTensor(
             var parts = a.split(3)  # 3 parts of size 4 each
         ```
         """
-        if num_splits <= 0:
-            raise Error(
-                "split: num_splits must be positive, got " + String(num_splits)
-            )
-        if axis < 0 or axis >= len(self._shape):
-            raise Error(
-                "split: axis "
-                + String(axis)
-                + " out of range for "
-                + String(len(self._shape))
-                + "-D tensor"
-            )
-        var dim_size = self._shape[axis]
-        if dim_size % num_splits != 0:
-            raise Error(
-                "split: dimension "
-                + String(dim_size)
-                + " not divisible by "
-                + String(num_splits)
-            )
-        var chunk_size = dim_size // num_splits
-        var parts = List[AnyTensor]()
-        for i in range(num_splits):
-            var start = i * chunk_size
-            var end = start + chunk_size
-            # slice returns a view; clone to get independent memory
-            var part = self.slice(start, end, axis).clone()
-            parts.append(part^)
-        return parts^
+        from .tensor_split import split_impl
+
+        return split_impl(self, num_splits, axis)
 
     def split_with_indices(
         self, split_indices: List[Int], axis: Int = 0
     ) raises -> List[AnyTensor]:
-        """Split tensor at specified indices along an axis.
+        """Split tensor at specified indices along an axis."""
+        from .tensor_split import split_with_indices_impl
 
-        Method wrapper for the module-level `split_with_indices()` function,
-        providing convenient object syntax:
-        `tensor.split_with_indices([3, 7])` instead of
-        `split_with_indices(tensor, [3, 7])`.
-
-        Args:
-            split_indices: List of indices where to split (e.g., [3, 7]
-                creates 3 sections: [0-2], [3-6], [7-end]).
-            axis: Axis along which to split (default: 0).
-
-        Returns:
-            List of AnyTensor objects resulting from splits.
-
-        Raises:
-            Error: If axis is invalid or indices are out of bounds/unordered.
-
-        Example:
-        ```mojo
-            var a = arange(0.0, 10.0, 1.0, DType.float32)
-            var parts = a.split_with_indices([3, 7])
-            # parts[0].shape() = (3,)  # indices 0-2
-            # parts[1].shape() = (4,)  # indices 3-6
-            # parts[2].shape() = (3,)  # indices 7-9
-        ```
-        """
-        if axis < 0 or axis >= len(self._shape):
-            raise Error(
-                "split_with_indices: axis "
-                + String(axis)
-                + " out of range for "
-                + String(len(self._shape))
-                + "-D tensor"
-            )
-        var dim_size = self._shape[axis]
-        var parts = List[AnyTensor]()
-        var prev = 0
-        for i in range(len(split_indices)):
-            var idx = split_indices[i]
-            if idx < prev or idx > dim_size:
-                raise Error(
-                    "split_with_indices: index "
-                    + String(idx)
-                    + " out of bounds or unordered"
-                )
-            if idx > prev:
-                var part = self.slice(prev, idx, axis).clone()
-                parts.append(part^)
-            prev = idx
-        # Final segment from last index to end
-        if prev < dim_size:
-            var part = self.slice(prev, dim_size, axis).clone()
-            parts.append(part^)
-        return parts^
+        return split_with_indices_impl(self, split_indices, axis)
 
     def broadcast_to(self, target_shape: List[Int]) raises -> AnyTensor:
         """Broadcast tensor to target shape.
@@ -3818,289 +2971,6 @@ struct AnyTensor(
         Provides convenient object syntax: `tensor.broadcast_to([4, 3])`.
         Uses module-level broadcasting utilities (no circular import).
         """
-        # Inline broadcast_to to avoid circular import via projectodyssey.core.shape.
-        # Uses module-level are_shapes_broadcastable and compute_broadcast_strides.
-        # See Issue #4513.
-        var shape = self.shape()
+        from .tensor_ops import broadcast_to_impl
 
-        if len(target_shape) < len(shape):
-            raise Error("broadcast_to: cannot broadcast to fewer dimensions")
-
-        if not are_shapes_broadcastable(shape, target_shape):
-            raise Error("broadcast_to: shapes are not broadcast-compatible")
-
-        var broadcast_strides = compute_broadcast_strides(shape, target_shape)
-        var result = AnyTensor(target_shape, self.dtype())
-        var result_numel = result.numel()
-
-        for i in range(result_numel):
-            var coords = List[Int]()
-            var temp_i = i
-            for j in range(len(target_shape)):
-                var stride = 1
-                for k in range(j + 1, len(target_shape)):
-                    stride *= target_shape[k]
-                var coord = temp_i // stride
-                coords.append(coord)
-                temp_i = temp_i % stride
-
-            var src_idx = 0
-            for j in range(len(target_shape)):
-                src_idx += coords[j] * broadcast_strides[j]
-
-            var val = self._get_float64(src_idx)
-            result._set_float64(i, val)
-
-        return result^
-
-
-# ============================================================================
-# Private Broadcasting Helpers
-# ============================================================================
-# Binary, unary, and comparison helpers implement element-wise operations with
-# NumPy-style broadcasting for use by AnyTensor's operator overloads.
-# Defined here (rather than in arithmetic/comparison modules) to break circular
-# import chains. Both files are now siblings in src/projectodyssey/tensor/.
-# See Issue #4513.
-
-
-def _anytensor_binary_op[
-    op: def[T: DType](Scalar[T], Scalar[T]) thin -> Scalar[T]
-](a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
-    """Apply a compile-time-typed binary arithmetic op with broadcasting."""
-    if a._dtype != b._dtype:
-        raise Error("Cannot operate on tensors with different dtypes")
-
-    var result_shape = broadcast_shapes(a.shape(), b.shape())
-    var strides_a = compute_broadcast_strides(a.shape(), result_shape)
-    var strides_b = compute_broadcast_strides(b.shape(), result_shape)
-
-    var total_elems = 1
-    for i in range(len(result_shape)):
-        total_elems *= result_shape[i]
-
-    var result = AnyTensor(result_shape, a._dtype)
-    var ordinal = dtype_to_ordinal(a._dtype)
-
-    @parameter
-    def _apply[dtype: DType]():
-        var a_ptr = a._data.bitcast[Scalar[dtype]]()
-        var b_ptr = b._data.bitcast[Scalar[dtype]]()
-        var r_ptr = result._data.bitcast[Scalar[dtype]]()
-        var result_strides = List[Int]()
-        var s = 1
-        for i in range(len(result_shape) - 1, -1, -1):
-            result_strides.append(s)
-            s *= result_shape[i]
-        var result_strides_final = List[Int]()
-        for i in range(len(result_strides) - 1, -1, -1):
-            result_strides_final.append(result_strides[i])
-        for result_idx in range(total_elems):
-            var idx_a = 0
-            var idx_b = 0
-            var remaining = result_idx
-            for d in range(len(result_shape) - 1, -1, -1):
-                var coord = remaining % result_shape[d]
-                remaining //= result_shape[d]
-                idx_a += coord * strides_a[d]
-                idx_b += coord * strides_b[d]
-            r_ptr[result_idx] = op[dtype](a_ptr[idx_a], b_ptr[idx_b])
-
-    if ordinal == DTYPE_FLOAT16:
-        _apply[DType.float16]()
-    elif ordinal == DTYPE_FLOAT32:
-        _apply[DType.float32]()
-    elif ordinal == DTYPE_FLOAT64:
-        _apply[DType.float64]()
-    elif ordinal == DTYPE_INT8:
-        _apply[DType.int8]()
-    elif ordinal == DTYPE_INT16:
-        _apply[DType.int16]()
-    elif ordinal == DTYPE_INT32:
-        _apply[DType.int32]()
-    elif ordinal == DTYPE_INT64:
-        _apply[DType.int64]()
-    elif ordinal == DTYPE_UINT8:
-        _apply[DType.uint8]()
-    elif ordinal == DTYPE_UINT16:
-        _apply[DType.uint16]()
-    elif ordinal == DTYPE_UINT32:
-        _apply[DType.uint32]()
-    elif ordinal == DTYPE_UINT64:
-        _apply[DType.uint64]()
-
-    return result^
-
-
-def _anytensor_unary_op[
-    op: def[T: DType](Scalar[T]) thin -> Scalar[T]
-](tensor: AnyTensor) raises -> AnyTensor:
-    """Apply a compile-time-typed unary op element-wise."""
-    var shape = tensor.shape()
-    var result = AnyTensor(shape, tensor._dtype)
-    var ordinal = dtype_to_ordinal(tensor._dtype)
-
-    @parameter
-    def _apply[dtype: DType]():
-        var src_ptr = tensor._data.bitcast[Scalar[dtype]]()
-        var dst_ptr = result._data.bitcast[Scalar[dtype]]()
-        for i in range(tensor._numel):
-            dst_ptr[i] = op[dtype](src_ptr[i])
-
-    if ordinal == DTYPE_FLOAT16:
-        _apply[DType.float16]()
-    elif ordinal == DTYPE_FLOAT32:
-        _apply[DType.float32]()
-    elif ordinal == DTYPE_FLOAT64:
-        _apply[DType.float64]()
-    elif ordinal == DTYPE_INT8:
-        _apply[DType.int8]()
-    elif ordinal == DTYPE_INT16:
-        _apply[DType.int16]()
-    elif ordinal == DTYPE_INT32:
-        _apply[DType.int32]()
-    elif ordinal == DTYPE_INT64:
-        _apply[DType.int64]()
-    elif ordinal == DTYPE_UINT8:
-        _apply[DType.uint8]()
-    elif ordinal == DTYPE_UINT16:
-        _apply[DType.uint16]()
-    elif ordinal == DTYPE_UINT32:
-        _apply[DType.uint32]()
-    elif ordinal == DTYPE_UINT64:
-        _apply[DType.uint64]()
-
-    return result^
-
-
-def _anytensor_compare_op[
-    op: def[T: DType](Scalar[T], Scalar[T]) thin -> Bool
-](a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
-    """Apply a compile-time-typed binary comparison op with broadcasting."""
-    if a._dtype != b._dtype:
-        raise Error("Cannot compare tensors with different dtypes")
-
-    var result_shape = broadcast_shapes(a.shape(), b.shape())
-    var strides_a = compute_broadcast_strides(a.shape(), result_shape)
-    var strides_b = compute_broadcast_strides(b.shape(), result_shape)
-
-    var total_elems = 1
-    for i in range(len(result_shape)):
-        total_elems *= result_shape[i]
-
-    var result = AnyTensor(result_shape, DType.bool)
-    var ordinal = dtype_to_ordinal(a._dtype)
-
-    @parameter
-    def _apply[dtype: DType]():
-        var a_ptr = a._data.bitcast[Scalar[dtype]]()
-        var b_ptr = b._data.bitcast[Scalar[dtype]]()
-        var r_ptr = result._data.bitcast[Scalar[DType.bool]]()
-        var result_strides = List[Int]()
-        var s = 1
-        for i in range(len(result_shape) - 1, -1, -1):
-            result_strides.append(s)
-            s *= result_shape[i]
-        var result_strides_final = List[Int]()
-        for i in range(len(result_strides) - 1, -1, -1):
-            result_strides_final.append(result_strides[i])
-        for result_idx in range(total_elems):
-            var idx_a = 0
-            var idx_b = 0
-            var remaining = result_idx
-            for d in range(len(result_shape) - 1, -1, -1):
-                var coord = remaining % result_shape[d]
-                remaining //= result_shape[d]
-                idx_a += coord * strides_a[d]
-                idx_b += coord * strides_b[d]
-            r_ptr[result_idx] = op[dtype](a_ptr[idx_a], b_ptr[idx_b])
-
-    if ordinal == DTYPE_FLOAT16:
-        _apply[DType.float16]()
-    elif ordinal == DTYPE_FLOAT32:
-        _apply[DType.float32]()
-    elif ordinal == DTYPE_FLOAT64:
-        _apply[DType.float64]()
-    elif ordinal == DTYPE_INT8:
-        _apply[DType.int8]()
-    elif ordinal == DTYPE_INT16:
-        _apply[DType.int16]()
-    elif ordinal == DTYPE_INT32:
-        _apply[DType.int32]()
-    elif ordinal == DTYPE_INT64:
-        _apply[DType.int64]()
-    elif ordinal == DTYPE_UINT8:
-        _apply[DType.uint8]()
-    elif ordinal == DTYPE_UINT16:
-        _apply[DType.uint16]()
-    elif ordinal == DTYPE_UINT32:
-        _apply[DType.uint32]()
-    elif ordinal == DTYPE_UINT64:
-        _apply[DType.uint64]()
-
-    return result^
-
-
-def _anytensor_matmul(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
-    """Basic matrix multiplication (2D x 2D) for AnyTensor.__matmul__.
-
-    Note: For full matmul with batching and contiguity handling, use
-    projectodyssey.core.matrix.matmul. This implementation handles the common 2D case
-    to avoid the circular import: any_tensor <- matrix <- shape <- any_tensor.
-    """
-    var a_ndim = len(a._shape)
-    var b_ndim = len(b._shape)
-
-    # 2D x 2D: (m, k) @ (k, n) -> (m, n)
-    if a_ndim == 2 and b_ndim == 2:
-        var m = a._shape[0]
-        var k = a._shape[1]
-        var n = b._shape[1]
-        if k != b._shape[0]:
-            raise Error(
-                "matmul: incompatible dimensions "
-                + String(k)
-                + " vs "
-                + String(b._shape[0])
-            )
-        if a._dtype != b._dtype:
-            raise Error("matmul: tensors must have the same dtype")
-        var result = AnyTensor([m, n], a._dtype)
-        var ordinal = dtype_to_ordinal(a._dtype)
-
-        @parameter
-        def _mm[dtype: DType]():
-            var a_ptr = a._data.bitcast[Scalar[dtype]]()
-            var b_ptr = b._data.bitcast[Scalar[dtype]]()
-            var r_ptr = result._data.bitcast[Scalar[dtype]]()
-            for i in range(m):
-                for j in range(n):
-                    var acc = Scalar[dtype](0)
-                    for p in range(k):
-                        acc += a_ptr[i * k + p] * b_ptr[p * n + j]
-                    r_ptr[i * n + j] = acc
-
-        if ordinal == DTYPE_FLOAT16:
-            _mm[DType.float16]()
-        elif ordinal == DTYPE_FLOAT32:
-            _mm[DType.float32]()
-        elif ordinal == DTYPE_FLOAT64:
-            _mm[DType.float64]()
-        elif ordinal == DTYPE_INT8:
-            _mm[DType.int8]()
-        elif ordinal == DTYPE_INT16:
-            _mm[DType.int16]()
-        elif ordinal == DTYPE_INT32:
-            _mm[DType.int32]()
-        elif ordinal == DTYPE_INT64:
-            _mm[DType.int64]()
-        else:
-            raise Error("matmul: unsupported dtype")
-        return result^
-
-    # 1D x 2D or 2D x 1D: delegate to the local arithmetic for now
-    # by raising a helpful error pointing to matrix.matmul
-    raise Error(
-        "AnyTensor.__matmul__ only supports 2D x 2D. "
-        "For 1D/batched matmul use projectodyssey.core.matrix.matmul directly."
-    )
+        return broadcast_to_impl(self, target_shape)
