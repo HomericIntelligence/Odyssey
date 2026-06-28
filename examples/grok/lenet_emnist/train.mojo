@@ -611,7 +611,6 @@ def main() raises:
             optimizer_name,
             global_step,
         )
-        var train_loss = epoch_result[0]
         global_step = epoch_result[1]
 
         # Evaluate every epoch using shared evaluation module
