@@ -21,11 +21,11 @@ been resolved as of 2026-06-20.
   `_convert_to_block_quant`) to eliminate ~267 lines of duplicated dtype dispatch across 12
   `to_*` methods in `AnyTensor`. (PR #5502)
 
-- **#5182**: Split `any_tensor.mojo` (4,373 lines) into 6 focused sibling modules to reach
-  ≤3,000 lines: `tensor_ops`, `tensor_printing`, `tensor_split`, `tensor_indexing`,
+- **#5182**: Split `any_tensor.mojo` from 4,106 down to 2,976 lines by extracting 6 focused
+  sibling modules: `tensor_ops`, `tensor_printing`, `tensor_split`, `tensor_indexing`,
   `tensor_dtype_conv`, `tensor_views`. Cross-module private-field access is valid Mojo
   (package-scoped privacy); 22+ existing call sites in `tensor_io/creation/utils` establish
-  the pattern. (PR #5503)
+  the pattern. (PR #5503 — merged to main)
 
 ### Reliability
 
@@ -52,8 +52,8 @@ been resolved as of 2026-06-20.
 
 ## Consequences
 
-- `any_tensor.mojo` is now ≤3,000 lines with a clear module decomposition pattern
-  that can be extended as the file grows.
+- `any_tensor.mojo` is now 2,976 lines (≤3,000 target met) following the PR #5503 split, with
+  a clear module decomposition pattern that can be extended as the file grows.
 - Training loops have checkpoint recovery, enabling resumable long-running experiments.
 - The audit B+/87% baseline is documented here; future audits can diff against it.
 - The 6-module tensor decomposition (`tensor_ops`, `tensor_printing`, etc.) establishes
