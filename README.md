@@ -8,10 +8,17 @@ maximum performance and type safety.
 [![Mojo](https://img.shields.io/badge/Mojo-1.0.0b2-orange.svg)](https://mojolang.org/)
 [![License](https://img.shields.io/badge/License-BSD_3--Clause-blue.svg)](LICENSE)
 [![Tests](https://img.shields.io/badge/tests-298%2B-brightgreen.svg)](tests/)
+[![Coverage](https://img.shields.io/badge/coverage-pending-lightgrey.svg)](#coverage-status)
 [![CI](https://github.com/HomericIntelligence/ProjectOdyssey/actions/workflows/comprehensive-tests.yml/badge.svg?branch=main)](https://github.com/HomericIntelligence/ProjectOdyssey/actions/workflows/comprehensive-tests.yml)
+[![Build](https://github.com/HomericIntelligence/ProjectOdyssey/actions/workflows/build-validation.yml/badge.svg?branch=main)](https://github.com/HomericIntelligence/ProjectOdyssey/actions/workflows/build-validation.yml)
+[![ASan Tests](https://github.com/HomericIntelligence/ProjectOdyssey/actions/workflows/asan-tests.yml/badge.svg?branch=main)](https://github.com/HomericIntelligence/ProjectOdyssey/actions/workflows/asan-tests.yml)
+[![Benchmark](https://github.com/HomericIntelligence/ProjectOdyssey/actions/workflows/benchmark.yml/badge.svg?branch=main)](https://github.com/HomericIntelligence/ProjectOdyssey/actions/workflows/benchmark.yml)
 [![Pre-commit](https://github.com/HomericIntelligence/ProjectOdyssey/actions/workflows/pre-commit.yml/badge.svg?branch=main)](https://github.com/HomericIntelligence/ProjectOdyssey/actions/workflows/pre-commit.yml)
 [![Security](https://github.com/HomericIntelligence/ProjectOdyssey/actions/workflows/security.yml/badge.svg?branch=main)](https://github.com/HomericIntelligence/ProjectOdyssey/actions/workflows/security.yml)
-[![Build](https://github.com/HomericIntelligence/ProjectOdyssey/actions/workflows/build-validation.yml/badge.svg?branch=main)](https://github.com/HomericIntelligence/ProjectOdyssey/actions/workflows/build-validation.yml)
+[![Release](https://github.com/HomericIntelligence/ProjectOdyssey/actions/workflows/release.yml/badge.svg?branch=main)](https://github.com/HomericIntelligence/ProjectOdyssey/actions/workflows/release.yml)
+[![Container Publish](https://github.com/HomericIntelligence/ProjectOdyssey/actions/workflows/container-publish.yml/badge.svg?branch=main)](https://github.com/HomericIntelligence/ProjectOdyssey/actions/workflows/container-publish.yml)
+[![Docs](https://github.com/HomericIntelligence/ProjectOdyssey/actions/workflows/docs.yml/badge.svg?branch=main)](https://github.com/HomericIntelligence/ProjectOdyssey/actions/workflows/docs.yml)
+[![Validate Configs](https://github.com/HomericIntelligence/ProjectOdyssey/actions/workflows/validate-configs.yml/badge.svg?branch=main)](https://github.com/HomericIntelligence/ProjectOdyssey/actions/workflows/validate-configs.yml)
 
 ## What This Is
 
