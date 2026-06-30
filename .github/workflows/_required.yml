@@ -529,3 +529,141 @@ jobs:
       - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
       - name: Run symlink check
         run: bash scripts/check-symlinks.sh
+
+  # ── 10. test ─────────────────────────────────────────────────────────────────
+  # Canonical aggregate for the **test** category of the Odysseus Ecosystem CI
+  # board (docs/ci-naming-convention.md). The repo's Python suites already emit
+  # `unit-tests` and `integration-tests`; this thin job aggregates them into the
+  # single canonical `test` check-run the board targets. The descriptive Mojo
+  # suites (Comprehensive Mojo Tests, Python Tests, …) stay as their own custom
+  # checks in comprehensive-tests.yml. No `|| true`: if either suite fails, the
+  # `needs:` gate fails this job.
+  test:
+    name: test
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    needs: [unit-tests, integration-tests]
+    permissions:
+      contents: read
+    steps:
+      - name: Aggregate test result
+        run: echo "unit-tests and integration-tests passed — aggregate test gate green"
+
+  # ── 11. package ──────────────────────────────────────────────────────────────
+  # Canonical **package** category. Builds the Python distributable (sdist +
+  # wheel) and validates the artifacts with `twine check`. The Mojo .mojopkg /
+  # .conda artifacts are built in release.yml on tags and surface as their own
+  # custom checks; the Python package is the canonical, renameable one here.
+  package:
+    name: package
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6
+
+      - name: Set up Python
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6
+        with:
+          python-version: '3.11'
+
+      - name: Build sdist + wheel
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade pip
+          pip install build twine
+          python -m build
+          ls -lh dist/
+
+      - name: twine check distributables
+        run: |
+          set -euo pipefail
+          twine check dist/*
+
+  # ── 12. install ──────────────────────────────────────────────────────────────
+  # Canonical **install** category. Builds the wheel, then verifies a clean-venv
+  # install of that wheel works and the installed distribution is resolvable
+  # (install smoke test). `scripts*` ships without an __init__.py, so the smoke
+  # test asserts on the installed distribution metadata rather than importing a
+  # package object.
+  install:
+    name: install
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6
+
+      - name: Set up Python
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6
+        with:
+          python-version: '3.11'
+
+      - name: Build wheel
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade pip
+          pip install build
+          python -m build --wheel
+          ls -lh dist/
+
+      - name: Clean-venv install + smoke test
+        run: |
+          set -euo pipefail
+          wheel="$(ls dist/*.whl | head -n1)"
+          echo "Installing wheel: $wheel"
+          python -m venv /tmp/odyssey-install-venv
+          # shellcheck disable=SC1091
+          . /tmp/odyssey-install-venv/bin/activate
+          pip install --upgrade pip
+          pip install "$wheel"
+          # Install smoke test: the distribution must be resolvable by metadata.
+          python -c "from importlib.metadata import version; v = version('ProjectOdyssey'); print('Installed ProjectOdyssey', v); assert v"
+          pip show ProjectOdyssey
+
+  # ── 13. release ──────────────────────────────────────────────────────────────
+  # Canonical **release** category — DRY-RUN only. The real publish pipeline
+  # lives in release.yml and fires on `v*` tags (creating the GitHub release,
+  # container, conda, wheel). That workflow emits no check-run on `main`, so the
+  # board's release cell would be blank. This job runs on every PR / push to
+  # main and validates release *readiness* — version format + changelog entry —
+  # without publishing or deploying anything. It does NOT touch release.yml's
+  # `deploy` custom check.
+  release:
+    name: release
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6
+
+      - name: Validate release readiness (dry-run, no publish)
+        run: |
+          set -euo pipefail
+
+          # 1. Version must be present and semver-valid in pyproject.toml.
+          version="$(python3 -c "import tomllib; print(tomllib.load(open('pyproject.toml','rb'))['project']['version'])")"
+          echo "pyproject.toml version: $version"
+          if ! echo "$version" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+([.-][a-zA-Z0-9.-]+)?$'; then
+            echo "::error::Invalid project version '$version' — expected semver X.Y.Z[-suffix]"
+            exit 1
+          fi
+
+          # 2. Version must agree with pixi.toml (single-source-of-truth guard).
+          pixi_version="$(python3 -c "import tomllib; d=tomllib.load(open('pixi.toml','rb')); print(d.get('workspace',{}).get('version') or d.get('package',{}).get('version') or '')")"
+          echo "pixi.toml version: $pixi_version"
+          if [ -n "$pixi_version" ] && [ "$pixi_version" != "$version" ]; then
+            echo "::error::Version mismatch: pyproject.toml=$version pixi.toml=$pixi_version"
+            exit 1
+          fi
+
+          # 3. A changelog must exist and be non-empty (release notes source).
+          if [ ! -s CHANGELOG.md ]; then
+            echo "::error::CHANGELOG.md missing or empty — required for release notes"
+            exit 1
+          fi
+
+          echo "Release readiness OK (dry-run): version=$version, CHANGELOG.md present. No artifacts published."
