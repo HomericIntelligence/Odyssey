@@ -77,6 +77,278 @@ from projectodyssey.utils.serialization import save_tensor, load_tensor
 from std.collections import List
 
 
+@fieldwise_init
+struct IdentityCache(Movable):
+    """Per-block activation cache for identity-shortcut residual blocks.
+
+    Fields hold intermediate activations the backward pass needs. bn1/bn2
+    running-mean/var snapshots capture pre-update stats — safe under AnyTensor
+    refcounting (see docstring at any_tensor.mojo:96).
+    """
+
+    var block_input: AnyTensor
+    var conv1_pre_bn: AnyTensor
+    var bn1_pre_relu: AnyTensor
+    var relu1_out: AnyTensor
+    var conv2_pre_bn: AnyTensor
+    var bn2_pre_relu: AnyTensor
+    var skip_sum: AnyTensor
+    var block_out: AnyTensor
+    var bn1_running_mean_snapshot: AnyTensor
+    var bn1_running_var_snapshot: AnyTensor
+    var bn2_running_mean_snapshot: AnyTensor
+    var bn2_running_var_snapshot: AnyTensor
+
+
+@fieldwise_init
+struct ProjectionCache(Movable):
+    """Per-block cache for projection-shortcut residual blocks (stride-2 stages).
+
+    Adds the 1×1 projection branch tensors on top of IdentityCache's fields.
+    """
+
+    var block_input: AnyTensor
+    var conv1_pre_bn: AnyTensor
+    var bn1_pre_relu: AnyTensor
+    var relu1_out: AnyTensor
+    var conv2_pre_bn: AnyTensor
+    var bn2_pre_relu: AnyTensor
+    var proj_conv_pre_bn: AnyTensor
+    var proj_bn_out: AnyTensor
+    var skip_sum: AnyTensor
+    var block_out: AnyTensor
+    var bn1_running_mean_snapshot: AnyTensor
+    var bn1_running_var_snapshot: AnyTensor
+    var bn2_running_mean_snapshot: AnyTensor
+    var bn2_running_var_snapshot: AnyTensor
+    var proj_bn_running_mean_snapshot: AnyTensor
+    var proj_bn_running_var_snapshot: AnyTensor
+
+
+@fieldwise_init
+struct ResNet18ForwardCache(Movable):
+    """Complete activation cache from forward_with_cache — one named field per
+    intermediate value backward will need. Replaces the previously-planned
+    16-element Tuple to avoid POLA violations and Mojo Tuple size uncertainty.
+    """
+
+    var logits: AnyTensor
+    # Initial stem
+    var conv1_pre_bn: AnyTensor
+    var bn1_pre_relu: AnyTensor
+    var relu1_out: AnyTensor
+    var initial_bn_running_mean_snapshot: AnyTensor
+    var initial_bn_running_var_snapshot: AnyTensor
+    # 8 residual blocks (identity for s1b1/s1b2/s2b2/s3b2/s4b2, projection for s2b1/s3b1/s4b1)
+    var s1b1_cache: IdentityCache
+    var s1b2_cache: IdentityCache
+    var s2b1_cache: ProjectionCache
+    var s2b2_cache: IdentityCache
+    var s3b1_cache: ProjectionCache
+    var s3b2_cache: IdentityCache
+    var s4b1_cache: ProjectionCache
+    var s4b2_cache: IdentityCache
+    # GAP + flatten (pre-FC)
+    var gap: AnyTensor
+    var flattened: AnyTensor
+
+
+@fieldwise_init
+struct ResNet18Velocities(Movable):
+    """SGD-momentum velocity buffers, one field per trainable ResNet-18 parameter.
+
+    Total: 82 trainable parameter fields (grep-verified against model.mojo;
+    comment "84" at ResNet18 docstring line 105 is off by two — it incorrectly
+    counts bn1_running_mean/var, which are non-trainable statistics).
+    """
+
+    var conv1_kernel: AnyTensor
+    var conv1_bias: AnyTensor
+    var bn1_gamma: AnyTensor
+    var bn1_beta: AnyTensor
+    # Stage 1 — no projection
+    var s1b1_conv1_kernel: AnyTensor
+    var s1b1_conv1_bias: AnyTensor
+    var s1b1_bn1_gamma: AnyTensor
+    var s1b1_bn1_beta: AnyTensor
+    var s1b1_conv2_kernel: AnyTensor
+    var s1b1_conv2_bias: AnyTensor
+    var s1b1_bn2_gamma: AnyTensor
+    var s1b1_bn2_beta: AnyTensor
+    var s1b2_conv1_kernel: AnyTensor
+    var s1b2_conv1_bias: AnyTensor
+    var s1b2_bn1_gamma: AnyTensor
+    var s1b2_bn1_beta: AnyTensor
+    var s1b2_conv2_kernel: AnyTensor
+    var s1b2_conv2_bias: AnyTensor
+    var s1b2_bn2_gamma: AnyTensor
+    var s1b2_bn2_beta: AnyTensor
+    # Stage 2 (block1 has projection)
+    var s2b1_conv1_kernel: AnyTensor
+    var s2b1_conv1_bias: AnyTensor
+    var s2b1_bn1_gamma: AnyTensor
+    var s2b1_bn1_beta: AnyTensor
+    var s2b1_conv2_kernel: AnyTensor
+    var s2b1_conv2_bias: AnyTensor
+    var s2b1_bn2_gamma: AnyTensor
+    var s2b1_bn2_beta: AnyTensor
+    var s2b1_proj_kernel: AnyTensor
+    var s2b1_proj_bias: AnyTensor
+    var s2b1_proj_bn_gamma: AnyTensor
+    var s2b1_proj_bn_beta: AnyTensor
+    var s2b2_conv1_kernel: AnyTensor
+    var s2b2_conv1_bias: AnyTensor
+    var s2b2_bn1_gamma: AnyTensor
+    var s2b2_bn1_beta: AnyTensor
+    var s2b2_conv2_kernel: AnyTensor
+    var s2b2_conv2_bias: AnyTensor
+    var s2b2_bn2_gamma: AnyTensor
+    var s2b2_bn2_beta: AnyTensor
+    # Stage 3 (block1 has projection)
+    var s3b1_conv1_kernel: AnyTensor
+    var s3b1_conv1_bias: AnyTensor
+    var s3b1_bn1_gamma: AnyTensor
+    var s3b1_bn1_beta: AnyTensor
+    var s3b1_conv2_kernel: AnyTensor
+    var s3b1_conv2_bias: AnyTensor
+    var s3b1_bn2_gamma: AnyTensor
+    var s3b1_bn2_beta: AnyTensor
+    var s3b1_proj_kernel: AnyTensor
+    var s3b1_proj_bias: AnyTensor
+    var s3b1_proj_bn_gamma: AnyTensor
+    var s3b1_proj_bn_beta: AnyTensor
+    var s3b2_conv1_kernel: AnyTensor
+    var s3b2_conv1_bias: AnyTensor
+    var s3b2_bn1_gamma: AnyTensor
+    var s3b2_bn1_beta: AnyTensor
+    var s3b2_conv2_kernel: AnyTensor
+    var s3b2_conv2_bias: AnyTensor
+    var s3b2_bn2_gamma: AnyTensor
+    var s3b2_bn2_beta: AnyTensor
+    # Stage 4 (block1 has projection)
+    var s4b1_conv1_kernel: AnyTensor
+    var s4b1_conv1_bias: AnyTensor
+    var s4b1_bn1_gamma: AnyTensor
+    var s4b1_bn1_beta: AnyTensor
+    var s4b1_conv2_kernel: AnyTensor
+    var s4b1_conv2_bias: AnyTensor
+    var s4b1_bn2_gamma: AnyTensor
+    var s4b1_bn2_beta: AnyTensor
+    var s4b1_proj_kernel: AnyTensor
+    var s4b1_proj_bias: AnyTensor
+    var s4b1_proj_bn_gamma: AnyTensor
+    var s4b1_proj_bn_beta: AnyTensor
+    var s4b2_conv1_kernel: AnyTensor
+    var s4b2_conv1_bias: AnyTensor
+    var s4b2_bn1_gamma: AnyTensor
+    var s4b2_bn1_beta: AnyTensor
+    var s4b2_conv2_kernel: AnyTensor
+    var s4b2_conv2_bias: AnyTensor
+    var s4b2_bn2_gamma: AnyTensor
+    var s4b2_bn2_beta: AnyTensor
+    # FC head
+    var fc_weights: AnyTensor
+    var fc_bias: AnyTensor
+
+
+def initialize_velocities(model: ResNet18) raises -> ResNet18Velocities:
+    """Zero-fill velocity buffers matching every ResNet18 trainable parameter shape.
+
+    Uses keyword-argument construction, which @fieldwise_init supports (verified
+    against src/projectodyssey/training/precision_config.mojo:fp32() factory).
+    """
+    return ResNet18Velocities(
+        conv1_kernel=zeros(model.conv1_kernel.shape(), DType.float32),
+        conv1_bias=zeros(model.conv1_bias.shape(), DType.float32),
+        bn1_gamma=zeros(model.bn1_gamma.shape(), DType.float32),
+        bn1_beta=zeros(model.bn1_beta.shape(), DType.float32),
+        s1b1_conv1_kernel=zeros(model.s1b1_conv1_kernel.shape(), DType.float32),
+        s1b1_conv1_bias=zeros(model.s1b1_conv1_bias.shape(), DType.float32),
+        s1b1_bn1_gamma=zeros(model.s1b1_bn1_gamma.shape(), DType.float32),
+        s1b1_bn1_beta=zeros(model.s1b1_bn1_beta.shape(), DType.float32),
+        s1b1_conv2_kernel=zeros(model.s1b1_conv2_kernel.shape(), DType.float32),
+        s1b1_conv2_bias=zeros(model.s1b1_conv2_bias.shape(), DType.float32),
+        s1b1_bn2_gamma=zeros(model.s1b1_bn2_gamma.shape(), DType.float32),
+        s1b1_bn2_beta=zeros(model.s1b1_bn2_beta.shape(), DType.float32),
+        s1b2_conv1_kernel=zeros(model.s1b2_conv1_kernel.shape(), DType.float32),
+        s1b2_conv1_bias=zeros(model.s1b2_conv1_bias.shape(), DType.float32),
+        s1b2_bn1_gamma=zeros(model.s1b2_bn1_gamma.shape(), DType.float32),
+        s1b2_bn1_beta=zeros(model.s1b2_bn1_beta.shape(), DType.float32),
+        s1b2_conv2_kernel=zeros(model.s1b2_conv2_kernel.shape(), DType.float32),
+        s1b2_conv2_bias=zeros(model.s1b2_conv2_bias.shape(), DType.float32),
+        s1b2_bn2_gamma=zeros(model.s1b2_bn2_gamma.shape(), DType.float32),
+        s1b2_bn2_beta=zeros(model.s1b2_bn2_beta.shape(), DType.float32),
+        s2b1_conv1_kernel=zeros(model.s2b1_conv1_kernel.shape(), DType.float32),
+        s2b1_conv1_bias=zeros(model.s2b1_conv1_bias.shape(), DType.float32),
+        s2b1_bn1_gamma=zeros(model.s2b1_bn1_gamma.shape(), DType.float32),
+        s2b1_bn1_beta=zeros(model.s2b1_bn1_beta.shape(), DType.float32),
+        s2b1_conv2_kernel=zeros(model.s2b1_conv2_kernel.shape(), DType.float32),
+        s2b1_conv2_bias=zeros(model.s2b1_conv2_bias.shape(), DType.float32),
+        s2b1_bn2_gamma=zeros(model.s2b1_bn2_gamma.shape(), DType.float32),
+        s2b1_bn2_beta=zeros(model.s2b1_bn2_beta.shape(), DType.float32),
+        s2b1_proj_kernel=zeros(model.s2b1_proj_kernel.shape(), DType.float32),
+        s2b1_proj_bias=zeros(model.s2b1_proj_bias.shape(), DType.float32),
+        s2b1_proj_bn_gamma=zeros(
+            model.s2b1_proj_bn_gamma.shape(), DType.float32
+        ),
+        s2b1_proj_bn_beta=zeros(model.s2b1_proj_bn_beta.shape(), DType.float32),
+        s2b2_conv1_kernel=zeros(model.s2b2_conv1_kernel.shape(), DType.float32),
+        s2b2_conv1_bias=zeros(model.s2b2_conv1_bias.shape(), DType.float32),
+        s2b2_bn1_gamma=zeros(model.s2b2_bn1_gamma.shape(), DType.float32),
+        s2b2_bn1_beta=zeros(model.s2b2_bn1_beta.shape(), DType.float32),
+        s2b2_conv2_kernel=zeros(model.s2b2_conv2_kernel.shape(), DType.float32),
+        s2b2_conv2_bias=zeros(model.s2b2_conv2_bias.shape(), DType.float32),
+        s2b2_bn2_gamma=zeros(model.s2b2_bn2_gamma.shape(), DType.float32),
+        s2b2_bn2_beta=zeros(model.s2b2_bn2_beta.shape(), DType.float32),
+        s3b1_conv1_kernel=zeros(model.s3b1_conv1_kernel.shape(), DType.float32),
+        s3b1_conv1_bias=zeros(model.s3b1_conv1_bias.shape(), DType.float32),
+        s3b1_bn1_gamma=zeros(model.s3b1_bn1_gamma.shape(), DType.float32),
+        s3b1_bn1_beta=zeros(model.s3b1_bn1_beta.shape(), DType.float32),
+        s3b1_conv2_kernel=zeros(model.s3b1_conv2_kernel.shape(), DType.float32),
+        s3b1_conv2_bias=zeros(model.s3b1_conv2_bias.shape(), DType.float32),
+        s3b1_bn2_gamma=zeros(model.s3b1_bn2_gamma.shape(), DType.float32),
+        s3b1_bn2_beta=zeros(model.s3b1_bn2_beta.shape(), DType.float32),
+        s3b1_proj_kernel=zeros(model.s3b1_proj_kernel.shape(), DType.float32),
+        s3b1_proj_bias=zeros(model.s3b1_proj_bias.shape(), DType.float32),
+        s3b1_proj_bn_gamma=zeros(
+            model.s3b1_proj_bn_gamma.shape(), DType.float32
+        ),
+        s3b1_proj_bn_beta=zeros(model.s3b1_proj_bn_beta.shape(), DType.float32),
+        s3b2_conv1_kernel=zeros(model.s3b2_conv1_kernel.shape(), DType.float32),
+        s3b2_conv1_bias=zeros(model.s3b2_conv1_bias.shape(), DType.float32),
+        s3b2_bn1_gamma=zeros(model.s3b2_bn1_gamma.shape(), DType.float32),
+        s3b2_bn1_beta=zeros(model.s3b2_bn1_beta.shape(), DType.float32),
+        s3b2_conv2_kernel=zeros(model.s3b2_conv2_kernel.shape(), DType.float32),
+        s3b2_conv2_bias=zeros(model.s3b2_conv2_bias.shape(), DType.float32),
+        s3b2_bn2_gamma=zeros(model.s3b2_bn2_gamma.shape(), DType.float32),
+        s3b2_bn2_beta=zeros(model.s3b2_bn2_beta.shape(), DType.float32),
+        s4b1_conv1_kernel=zeros(model.s4b1_conv1_kernel.shape(), DType.float32),
+        s4b1_conv1_bias=zeros(model.s4b1_conv1_bias.shape(), DType.float32),
+        s4b1_bn1_gamma=zeros(model.s4b1_bn1_gamma.shape(), DType.float32),
+        s4b1_bn1_beta=zeros(model.s4b1_bn1_beta.shape(), DType.float32),
+        s4b1_conv2_kernel=zeros(model.s4b1_conv2_kernel.shape(), DType.float32),
+        s4b1_conv2_bias=zeros(model.s4b1_conv2_bias.shape(), DType.float32),
+        s4b1_bn2_gamma=zeros(model.s4b1_bn2_gamma.shape(), DType.float32),
+        s4b1_bn2_beta=zeros(model.s4b1_bn2_beta.shape(), DType.float32),
+        s4b1_proj_kernel=zeros(model.s4b1_proj_kernel.shape(), DType.float32),
+        s4b1_proj_bias=zeros(model.s4b1_proj_bias.shape(), DType.float32),
+        s4b1_proj_bn_gamma=zeros(
+            model.s4b1_proj_bn_gamma.shape(), DType.float32
+        ),
+        s4b1_proj_bn_beta=zeros(model.s4b1_proj_bn_beta.shape(), DType.float32),
+        s4b2_conv1_kernel=zeros(model.s4b2_conv1_kernel.shape(), DType.float32),
+        s4b2_conv1_bias=zeros(model.s4b2_conv1_bias.shape(), DType.float32),
+        s4b2_bn1_gamma=zeros(model.s4b2_bn1_gamma.shape(), DType.float32),
+        s4b2_bn1_beta=zeros(model.s4b2_bn1_beta.shape(), DType.float32),
+        s4b2_conv2_kernel=zeros(model.s4b2_conv2_kernel.shape(), DType.float32),
+        s4b2_conv2_bias=zeros(model.s4b2_conv2_bias.shape(), DType.float32),
+        s4b2_bn2_gamma=zeros(model.s4b2_bn2_gamma.shape(), DType.float32),
+        s4b2_bn2_beta=zeros(model.s4b2_bn2_beta.shape(), DType.float32),
+        fc_weights=zeros(model.fc_weights.shape(), DType.float32),
+        fc_bias=zeros(model.fc_bias.shape(), DType.float32),
+    )
+
+
 struct ResNet18(Movable):
     """ResNet-18 model for CIFAR-10 classification.
 
@@ -984,6 +1256,634 @@ struct ResNet18(Movable):
         var logits = linear(flattened, self.fc_weights, self.fc_bias)
 
         return logits
+
+    def forward_with_cache(
+        mut self, input: AnyTensor, training: Bool = True
+    ) raises -> ResNet18ForwardCache:
+        """Same computation as forward(), but returns all intermediate activations.
+
+        BN running_mean/var snapshots are captured BEFORE batch_norm2d mutates
+        the model's fields. Safe under AnyTensor refcounting (any_tensor.mojo:96):
+        `var snap = self.field` bumps refcount; reassigning `self.field` preserves
+        the old buffer via `snap`'s reference.
+        """
+        # ========== Initial conv + BN + ReLU (snapshot BEFORE BN) ====
+        var conv1 = conv2d(
+            input, self.conv1_kernel, self.conv1_bias, stride=1, padding=1
+        )
+        var bn1_rm_snap = self.bn1_running_mean
+        var bn1_rv_snap = self.bn1_running_var
+        var bn1_result = batch_norm2d(
+            conv1,
+            self.bn1_gamma,
+            self.bn1_beta,
+            self.bn1_running_mean,
+            self.bn1_running_var,
+            training=training,
+        )
+        var bn1 = bn1_result[0]
+        self.bn1_running_mean = bn1_result[1]
+        self.bn1_running_var = bn1_result[2]
+        var relu1 = relu(bn1)
+
+        # ========== Stage 1, Block 1 (identity shortcut) ==========
+        var s1b1_conv1 = conv2d(
+            relu1,
+            self.s1b1_conv1_kernel,
+            self.s1b1_conv1_bias,
+            stride=1,
+            padding=1,
+        )
+        var s1b1_bn1_rm_snap = self.s1b1_bn1_running_mean
+        var s1b1_bn1_rv_snap = self.s1b1_bn1_running_var
+        var s1b1_bn1_result = batch_norm2d(
+            s1b1_conv1,
+            self.s1b1_bn1_gamma,
+            self.s1b1_bn1_beta,
+            self.s1b1_bn1_running_mean,
+            self.s1b1_bn1_running_var,
+            training=training,
+        )
+        var s1b1_bn1 = s1b1_bn1_result[0]
+        self.s1b1_bn1_running_mean = s1b1_bn1_result[1]
+        self.s1b1_bn1_running_var = s1b1_bn1_result[2]
+        var s1b1_relu1 = relu(s1b1_bn1)
+
+        var s1b1_conv2 = conv2d(
+            s1b1_relu1,
+            self.s1b1_conv2_kernel,
+            self.s1b1_conv2_bias,
+            stride=1,
+            padding=1,
+        )
+        var s1b1_bn2_rm_snap = self.s1b1_bn2_running_mean
+        var s1b1_bn2_rv_snap = self.s1b1_bn2_running_var
+        var s1b1_bn2_result = batch_norm2d(
+            s1b1_conv2,
+            self.s1b1_bn2_gamma,
+            self.s1b1_bn2_beta,
+            self.s1b1_bn2_running_mean,
+            self.s1b1_bn2_running_var,
+            training=training,
+        )
+        var s1b1_bn2 = s1b1_bn2_result[0]
+        self.s1b1_bn2_running_mean = s1b1_bn2_result[1]
+        self.s1b1_bn2_running_var = s1b1_bn2_result[2]
+
+        var s1b1_skip = add(s1b1_bn2, relu1)
+        var s1b1_out = relu(s1b1_skip)
+        var s1b1_cache = IdentityCache(
+            block_input=relu1,
+            conv1_pre_bn=s1b1_conv1,
+            bn1_pre_relu=s1b1_bn1,
+            relu1_out=s1b1_relu1,
+            conv2_pre_bn=s1b1_conv2,
+            bn2_pre_relu=s1b1_bn2,
+            skip_sum=s1b1_skip,
+            block_out=s1b1_out,
+            bn1_running_mean_snapshot=s1b1_bn1_rm_snap,
+            bn1_running_var_snapshot=s1b1_bn1_rv_snap,
+            bn2_running_mean_snapshot=s1b1_bn2_rm_snap,
+            bn2_running_var_snapshot=s1b1_bn2_rv_snap,
+        )
+
+        # ========== Stage 1, Block 2 (identity shortcut) ==========
+        var s1b2_conv1 = conv2d(
+            s1b1_out,
+            self.s1b2_conv1_kernel,
+            self.s1b2_conv1_bias,
+            stride=1,
+            padding=1,
+        )
+        var s1b2_bn1_rm_snap = self.s1b2_bn1_running_mean
+        var s1b2_bn1_rv_snap = self.s1b2_bn1_running_var
+        var s1b2_bn1_result = batch_norm2d(
+            s1b2_conv1,
+            self.s1b2_bn1_gamma,
+            self.s1b2_bn1_beta,
+            self.s1b2_bn1_running_mean,
+            self.s1b2_bn1_running_var,
+            training=training,
+        )
+        var s1b2_bn1 = s1b2_bn1_result[0]
+        self.s1b2_bn1_running_mean = s1b2_bn1_result[1]
+        self.s1b2_bn1_running_var = s1b2_bn1_result[2]
+        var s1b2_relu1 = relu(s1b2_bn1)
+
+        var s1b2_conv2 = conv2d(
+            s1b2_relu1,
+            self.s1b2_conv2_kernel,
+            self.s1b2_conv2_bias,
+            stride=1,
+            padding=1,
+        )
+        var s1b2_bn2_rm_snap = self.s1b2_bn2_running_mean
+        var s1b2_bn2_rv_snap = self.s1b2_bn2_running_var
+        var s1b2_bn2_result = batch_norm2d(
+            s1b2_conv2,
+            self.s1b2_bn2_gamma,
+            self.s1b2_bn2_beta,
+            self.s1b2_bn2_running_mean,
+            self.s1b2_bn2_running_var,
+            training=training,
+        )
+        var s1b2_bn2 = s1b2_bn2_result[0]
+        self.s1b2_bn2_running_mean = s1b2_bn2_result[1]
+        self.s1b2_bn2_running_var = s1b2_bn2_result[2]
+
+        var s1b2_skip = add(s1b2_bn2, s1b1_out)
+        var s1b2_out = relu(s1b2_skip)
+        var s1b2_cache = IdentityCache(
+            block_input=s1b1_out,
+            conv1_pre_bn=s1b2_conv1,
+            bn1_pre_relu=s1b2_bn1,
+            relu1_out=s1b2_relu1,
+            conv2_pre_bn=s1b2_conv2,
+            bn2_pre_relu=s1b2_bn2,
+            skip_sum=s1b2_skip,
+            block_out=s1b2_out,
+            bn1_running_mean_snapshot=s1b2_bn1_rm_snap,
+            bn1_running_var_snapshot=s1b2_bn1_rv_snap,
+            bn2_running_mean_snapshot=s1b2_bn2_rm_snap,
+            bn2_running_var_snapshot=s1b2_bn2_rv_snap,
+        )
+
+        # ========== Stage 2, Block 1 (projection shortcut, stride=2) ==========
+        var s2b1_conv1 = conv2d(
+            s1b2_out,
+            self.s2b1_conv1_kernel,
+            self.s2b1_conv1_bias,
+            stride=2,
+            padding=1,
+        )
+        var s2b1_bn1_rm_snap = self.s2b1_bn1_running_mean
+        var s2b1_bn1_rv_snap = self.s2b1_bn1_running_var
+        var s2b1_bn1_result = batch_norm2d(
+            s2b1_conv1,
+            self.s2b1_bn1_gamma,
+            self.s2b1_bn1_beta,
+            self.s2b1_bn1_running_mean,
+            self.s2b1_bn1_running_var,
+            training=training,
+        )
+        var s2b1_bn1 = s2b1_bn1_result[0]
+        self.s2b1_bn1_running_mean = s2b1_bn1_result[1]
+        self.s2b1_bn1_running_var = s2b1_bn1_result[2]
+        var s2b1_relu1 = relu(s2b1_bn1)
+
+        var s2b1_conv2 = conv2d(
+            s2b1_relu1,
+            self.s2b1_conv2_kernel,
+            self.s2b1_conv2_bias,
+            stride=1,
+            padding=1,
+        )
+        var s2b1_bn2_rm_snap = self.s2b1_bn2_running_mean
+        var s2b1_bn2_rv_snap = self.s2b1_bn2_running_var
+        var s2b1_bn2_result = batch_norm2d(
+            s2b1_conv2,
+            self.s2b1_bn2_gamma,
+            self.s2b1_bn2_beta,
+            self.s2b1_bn2_running_mean,
+            self.s2b1_bn2_running_var,
+            training=training,
+        )
+        var s2b1_bn2 = s2b1_bn2_result[0]
+        self.s2b1_bn2_running_mean = s2b1_bn2_result[1]
+        self.s2b1_bn2_running_var = s2b1_bn2_result[2]
+
+        # Projection shortcut: 1×1 conv, stride=2
+        var s2b1_proj_conv = conv2d(
+            s1b2_out,
+            self.s2b1_proj_kernel,
+            self.s2b1_proj_bias,
+            stride=2,
+            padding=0,
+        )
+        var s2b1_proj_bn_rm_snap = self.s2b1_proj_bn_running_mean
+        var s2b1_proj_bn_rv_snap = self.s2b1_proj_bn_running_var
+        var s2b1_proj_bn_result = batch_norm2d(
+            s2b1_proj_conv,
+            self.s2b1_proj_bn_gamma,
+            self.s2b1_proj_bn_beta,
+            self.s2b1_proj_bn_running_mean,
+            self.s2b1_proj_bn_running_var,
+            training=training,
+        )
+        var s2b1_proj_bn = s2b1_proj_bn_result[0]
+        self.s2b1_proj_bn_running_mean = s2b1_proj_bn_result[1]
+        self.s2b1_proj_bn_running_var = s2b1_proj_bn_result[2]
+
+        var s2b1_skip = add(s2b1_bn2, s2b1_proj_bn)
+        var s2b1_out = relu(s2b1_skip)
+        var s2b1_cache = ProjectionCache(
+            block_input=s1b2_out,
+            conv1_pre_bn=s2b1_conv1,
+            bn1_pre_relu=s2b1_bn1,
+            relu1_out=s2b1_relu1,
+            conv2_pre_bn=s2b1_conv2,
+            bn2_pre_relu=s2b1_bn2,
+            proj_conv_pre_bn=s2b1_proj_conv,
+            proj_bn_out=s2b1_proj_bn,
+            skip_sum=s2b1_skip,
+            block_out=s2b1_out,
+            bn1_running_mean_snapshot=s2b1_bn1_rm_snap,
+            bn1_running_var_snapshot=s2b1_bn1_rv_snap,
+            bn2_running_mean_snapshot=s2b1_bn2_rm_snap,
+            bn2_running_var_snapshot=s2b1_bn2_rv_snap,
+            proj_bn_running_mean_snapshot=s2b1_proj_bn_rm_snap,
+            proj_bn_running_var_snapshot=s2b1_proj_bn_rv_snap,
+        )
+
+        # ========== Stage 2, Block 2 (identity shortcut) ==========
+        var s2b2_conv1 = conv2d(
+            s2b1_out,
+            self.s2b2_conv1_kernel,
+            self.s2b2_conv1_bias,
+            stride=1,
+            padding=1,
+        )
+        var s2b2_bn1_rm_snap = self.s2b2_bn1_running_mean
+        var s2b2_bn1_rv_snap = self.s2b2_bn1_running_var
+        var s2b2_bn1_result = batch_norm2d(
+            s2b2_conv1,
+            self.s2b2_bn1_gamma,
+            self.s2b2_bn1_beta,
+            self.s2b2_bn1_running_mean,
+            self.s2b2_bn1_running_var,
+            training=training,
+        )
+        var s2b2_bn1 = s2b2_bn1_result[0]
+        self.s2b2_bn1_running_mean = s2b2_bn1_result[1]
+        self.s2b2_bn1_running_var = s2b2_bn1_result[2]
+        var s2b2_relu1 = relu(s2b2_bn1)
+
+        var s2b2_conv2 = conv2d(
+            s2b2_relu1,
+            self.s2b2_conv2_kernel,
+            self.s2b2_conv2_bias,
+            stride=1,
+            padding=1,
+        )
+        var s2b2_bn2_rm_snap = self.s2b2_bn2_running_mean
+        var s2b2_bn2_rv_snap = self.s2b2_bn2_running_var
+        var s2b2_bn2_result = batch_norm2d(
+            s2b2_conv2,
+            self.s2b2_bn2_gamma,
+            self.s2b2_bn2_beta,
+            self.s2b2_bn2_running_mean,
+            self.s2b2_bn2_running_var,
+            training=training,
+        )
+        var s2b2_bn2 = s2b2_bn2_result[0]
+        self.s2b2_bn2_running_mean = s2b2_bn2_result[1]
+        self.s2b2_bn2_running_var = s2b2_bn2_result[2]
+
+        var s2b2_skip = add(s2b2_bn2, s2b1_out)
+        var s2b2_out = relu(s2b2_skip)
+        var s2b2_cache = IdentityCache(
+            block_input=s2b1_out,
+            conv1_pre_bn=s2b2_conv1,
+            bn1_pre_relu=s2b2_bn1,
+            relu1_out=s2b2_relu1,
+            conv2_pre_bn=s2b2_conv2,
+            bn2_pre_relu=s2b2_bn2,
+            skip_sum=s2b2_skip,
+            block_out=s2b2_out,
+            bn1_running_mean_snapshot=s2b2_bn1_rm_snap,
+            bn1_running_var_snapshot=s2b2_bn1_rv_snap,
+            bn2_running_mean_snapshot=s2b2_bn2_rm_snap,
+            bn2_running_var_snapshot=s2b2_bn2_rv_snap,
+        )
+
+        # ========== Stage 3, Block 1 (projection shortcut, stride=2) ==========
+        var s3b1_conv1 = conv2d(
+            s2b2_out,
+            self.s3b1_conv1_kernel,
+            self.s3b1_conv1_bias,
+            stride=2,
+            padding=1,
+        )
+        var s3b1_bn1_rm_snap = self.s3b1_bn1_running_mean
+        var s3b1_bn1_rv_snap = self.s3b1_bn1_running_var
+        var s3b1_bn1_result = batch_norm2d(
+            s3b1_conv1,
+            self.s3b1_bn1_gamma,
+            self.s3b1_bn1_beta,
+            self.s3b1_bn1_running_mean,
+            self.s3b1_bn1_running_var,
+            training=training,
+        )
+        var s3b1_bn1 = s3b1_bn1_result[0]
+        self.s3b1_bn1_running_mean = s3b1_bn1_result[1]
+        self.s3b1_bn1_running_var = s3b1_bn1_result[2]
+        var s3b1_relu1 = relu(s3b1_bn1)
+
+        var s3b1_conv2 = conv2d(
+            s3b1_relu1,
+            self.s3b1_conv2_kernel,
+            self.s3b1_conv2_bias,
+            stride=1,
+            padding=1,
+        )
+        var s3b1_bn2_rm_snap = self.s3b1_bn2_running_mean
+        var s3b1_bn2_rv_snap = self.s3b1_bn2_running_var
+        var s3b1_bn2_result = batch_norm2d(
+            s3b1_conv2,
+            self.s3b1_bn2_gamma,
+            self.s3b1_bn2_beta,
+            self.s3b1_bn2_running_mean,
+            self.s3b1_bn2_running_var,
+            training=training,
+        )
+        var s3b1_bn2 = s3b1_bn2_result[0]
+        self.s3b1_bn2_running_mean = s3b1_bn2_result[1]
+        self.s3b1_bn2_running_var = s3b1_bn2_result[2]
+
+        # Projection shortcut: 1×1 conv, stride=2
+        var s3b1_proj_conv = conv2d(
+            s2b2_out,
+            self.s3b1_proj_kernel,
+            self.s3b1_proj_bias,
+            stride=2,
+            padding=0,
+        )
+        var s3b1_proj_bn_rm_snap = self.s3b1_proj_bn_running_mean
+        var s3b1_proj_bn_rv_snap = self.s3b1_proj_bn_running_var
+        var s3b1_proj_bn_result = batch_norm2d(
+            s3b1_proj_conv,
+            self.s3b1_proj_bn_gamma,
+            self.s3b1_proj_bn_beta,
+            self.s3b1_proj_bn_running_mean,
+            self.s3b1_proj_bn_running_var,
+            training=training,
+        )
+        var s3b1_proj_bn = s3b1_proj_bn_result[0]
+        self.s3b1_proj_bn_running_mean = s3b1_proj_bn_result[1]
+        self.s3b1_proj_bn_running_var = s3b1_proj_bn_result[2]
+
+        var s3b1_skip = add(s3b1_bn2, s3b1_proj_bn)
+        var s3b1_out = relu(s3b1_skip)
+        var s3b1_cache = ProjectionCache(
+            block_input=s2b2_out,
+            conv1_pre_bn=s3b1_conv1,
+            bn1_pre_relu=s3b1_bn1,
+            relu1_out=s3b1_relu1,
+            conv2_pre_bn=s3b1_conv2,
+            bn2_pre_relu=s3b1_bn2,
+            proj_conv_pre_bn=s3b1_proj_conv,
+            proj_bn_out=s3b1_proj_bn,
+            skip_sum=s3b1_skip,
+            block_out=s3b1_out,
+            bn1_running_mean_snapshot=s3b1_bn1_rm_snap,
+            bn1_running_var_snapshot=s3b1_bn1_rv_snap,
+            bn2_running_mean_snapshot=s3b1_bn2_rm_snap,
+            bn2_running_var_snapshot=s3b1_bn2_rv_snap,
+            proj_bn_running_mean_snapshot=s3b1_proj_bn_rm_snap,
+            proj_bn_running_var_snapshot=s3b1_proj_bn_rv_snap,
+        )
+
+        # ========== Stage 3, Block 2 (identity shortcut) ==========
+        var s3b2_conv1 = conv2d(
+            s3b1_out,
+            self.s3b2_conv1_kernel,
+            self.s3b2_conv1_bias,
+            stride=1,
+            padding=1,
+        )
+        var s3b2_bn1_rm_snap = self.s3b2_bn1_running_mean
+        var s3b2_bn1_rv_snap = self.s3b2_bn1_running_var
+        var s3b2_bn1_result = batch_norm2d(
+            s3b2_conv1,
+            self.s3b2_bn1_gamma,
+            self.s3b2_bn1_beta,
+            self.s3b2_bn1_running_mean,
+            self.s3b2_bn1_running_var,
+            training=training,
+        )
+        var s3b2_bn1 = s3b2_bn1_result[0]
+        self.s3b2_bn1_running_mean = s3b2_bn1_result[1]
+        self.s3b2_bn1_running_var = s3b2_bn1_result[2]
+        var s3b2_relu1 = relu(s3b2_bn1)
+
+        var s3b2_conv2 = conv2d(
+            s3b2_relu1,
+            self.s3b2_conv2_kernel,
+            self.s3b2_conv2_bias,
+            stride=1,
+            padding=1,
+        )
+        var s3b2_bn2_rm_snap = self.s3b2_bn2_running_mean
+        var s3b2_bn2_rv_snap = self.s3b2_bn2_running_var
+        var s3b2_bn2_result = batch_norm2d(
+            s3b2_conv2,
+            self.s3b2_bn2_gamma,
+            self.s3b2_bn2_beta,
+            self.s3b2_bn2_running_mean,
+            self.s3b2_bn2_running_var,
+            training=training,
+        )
+        var s3b2_bn2 = s3b2_bn2_result[0]
+        self.s3b2_bn2_running_mean = s3b2_bn2_result[1]
+        self.s3b2_bn2_running_var = s3b2_bn2_result[2]
+
+        var s3b2_skip = add(s3b2_bn2, s3b1_out)
+        var s3b2_out = relu(s3b2_skip)
+        var s3b2_cache = IdentityCache(
+            block_input=s3b1_out,
+            conv1_pre_bn=s3b2_conv1,
+            bn1_pre_relu=s3b2_bn1,
+            relu1_out=s3b2_relu1,
+            conv2_pre_bn=s3b2_conv2,
+            bn2_pre_relu=s3b2_bn2,
+            skip_sum=s3b2_skip,
+            block_out=s3b2_out,
+            bn1_running_mean_snapshot=s3b2_bn1_rm_snap,
+            bn1_running_var_snapshot=s3b2_bn1_rv_snap,
+            bn2_running_mean_snapshot=s3b2_bn2_rm_snap,
+            bn2_running_var_snapshot=s3b2_bn2_rv_snap,
+        )
+
+        # ========== Stage 4, Block 1 (projection shortcut, stride=2) ==========
+        var s4b1_conv1 = conv2d(
+            s3b2_out,
+            self.s4b1_conv1_kernel,
+            self.s4b1_conv1_bias,
+            stride=2,
+            padding=1,
+        )
+        var s4b1_bn1_rm_snap = self.s4b1_bn1_running_mean
+        var s4b1_bn1_rv_snap = self.s4b1_bn1_running_var
+        var s4b1_bn1_result = batch_norm2d(
+            s4b1_conv1,
+            self.s4b1_bn1_gamma,
+            self.s4b1_bn1_beta,
+            self.s4b1_bn1_running_mean,
+            self.s4b1_bn1_running_var,
+            training=training,
+        )
+        var s4b1_bn1 = s4b1_bn1_result[0]
+        self.s4b1_bn1_running_mean = s4b1_bn1_result[1]
+        self.s4b1_bn1_running_var = s4b1_bn1_result[2]
+        var s4b1_relu1 = relu(s4b1_bn1)
+
+        var s4b1_conv2 = conv2d(
+            s4b1_relu1,
+            self.s4b1_conv2_kernel,
+            self.s4b1_conv2_bias,
+            stride=1,
+            padding=1,
+        )
+        var s4b1_bn2_rm_snap = self.s4b1_bn2_running_mean
+        var s4b1_bn2_rv_snap = self.s4b1_bn2_running_var
+        var s4b1_bn2_result = batch_norm2d(
+            s4b1_conv2,
+            self.s4b1_bn2_gamma,
+            self.s4b1_bn2_beta,
+            self.s4b1_bn2_running_mean,
+            self.s4b1_bn2_running_var,
+            training=training,
+        )
+        var s4b1_bn2 = s4b1_bn2_result[0]
+        self.s4b1_bn2_running_mean = s4b1_bn2_result[1]
+        self.s4b1_bn2_running_var = s4b1_bn2_result[2]
+
+        # Projection shortcut: 1×1 conv, stride=2
+        var s4b1_proj_conv = conv2d(
+            s3b2_out,
+            self.s4b1_proj_kernel,
+            self.s4b1_proj_bias,
+            stride=2,
+            padding=0,
+        )
+        var s4b1_proj_bn_rm_snap = self.s4b1_proj_bn_running_mean
+        var s4b1_proj_bn_rv_snap = self.s4b1_proj_bn_running_var
+        var s4b1_proj_bn_result = batch_norm2d(
+            s4b1_proj_conv,
+            self.s4b1_proj_bn_gamma,
+            self.s4b1_proj_bn_beta,
+            self.s4b1_proj_bn_running_mean,
+            self.s4b1_proj_bn_running_var,
+            training=training,
+        )
+        var s4b1_proj_bn = s4b1_proj_bn_result[0]
+        self.s4b1_proj_bn_running_mean = s4b1_proj_bn_result[1]
+        self.s4b1_proj_bn_running_var = s4b1_proj_bn_result[2]
+
+        var s4b1_skip = add(s4b1_bn2, s4b1_proj_bn)
+        var s4b1_out = relu(s4b1_skip)
+        var s4b1_cache = ProjectionCache(
+            block_input=s3b2_out,
+            conv1_pre_bn=s4b1_conv1,
+            bn1_pre_relu=s4b1_bn1,
+            relu1_out=s4b1_relu1,
+            conv2_pre_bn=s4b1_conv2,
+            bn2_pre_relu=s4b1_bn2,
+            proj_conv_pre_bn=s4b1_proj_conv,
+            proj_bn_out=s4b1_proj_bn,
+            skip_sum=s4b1_skip,
+            block_out=s4b1_out,
+            bn1_running_mean_snapshot=s4b1_bn1_rm_snap,
+            bn1_running_var_snapshot=s4b1_bn1_rv_snap,
+            bn2_running_mean_snapshot=s4b1_bn2_rm_snap,
+            bn2_running_var_snapshot=s4b1_bn2_rv_snap,
+            proj_bn_running_mean_snapshot=s4b1_proj_bn_rm_snap,
+            proj_bn_running_var_snapshot=s4b1_proj_bn_rv_snap,
+        )
+
+        # ========== Stage 4, Block 2 (identity shortcut) ==========
+        var s4b2_conv1 = conv2d(
+            s4b1_out,
+            self.s4b2_conv1_kernel,
+            self.s4b2_conv1_bias,
+            stride=1,
+            padding=1,
+        )
+        var s4b2_bn1_rm_snap = self.s4b2_bn1_running_mean
+        var s4b2_bn1_rv_snap = self.s4b2_bn1_running_var
+        var s4b2_bn1_result = batch_norm2d(
+            s4b2_conv1,
+            self.s4b2_bn1_gamma,
+            self.s4b2_bn1_beta,
+            self.s4b2_bn1_running_mean,
+            self.s4b2_bn1_running_var,
+            training=training,
+        )
+        var s4b2_bn1 = s4b2_bn1_result[0]
+        self.s4b2_bn1_running_mean = s4b2_bn1_result[1]
+        self.s4b2_bn1_running_var = s4b2_bn1_result[2]
+        var s4b2_relu1 = relu(s4b2_bn1)
+
+        var s4b2_conv2 = conv2d(
+            s4b2_relu1,
+            self.s4b2_conv2_kernel,
+            self.s4b2_conv2_bias,
+            stride=1,
+            padding=1,
+        )
+        var s4b2_bn2_rm_snap = self.s4b2_bn2_running_mean
+        var s4b2_bn2_rv_snap = self.s4b2_bn2_running_var
+        var s4b2_bn2_result = batch_norm2d(
+            s4b2_conv2,
+            self.s4b2_bn2_gamma,
+            self.s4b2_bn2_beta,
+            self.s4b2_bn2_running_mean,
+            self.s4b2_bn2_running_var,
+            training=training,
+        )
+        var s4b2_bn2 = s4b2_bn2_result[0]
+        self.s4b2_bn2_running_mean = s4b2_bn2_result[1]
+        self.s4b2_bn2_running_var = s4b2_bn2_result[2]
+
+        var s4b2_skip = add(s4b2_bn2, s4b1_out)
+        var s4b2_out = relu(s4b2_skip)
+        var s4b2_cache = IdentityCache(
+            block_input=s4b1_out,
+            conv1_pre_bn=s4b2_conv1,
+            bn1_pre_relu=s4b2_bn1,
+            relu1_out=s4b2_relu1,
+            conv2_pre_bn=s4b2_conv2,
+            bn2_pre_relu=s4b2_bn2,
+            skip_sum=s4b2_skip,
+            block_out=s4b2_out,
+            bn1_running_mean_snapshot=s4b2_bn1_rm_snap,
+            bn1_running_var_snapshot=s4b2_bn1_rv_snap,
+            bn2_running_mean_snapshot=s4b2_bn2_rm_snap,
+            bn2_running_var_snapshot=s4b2_bn2_rv_snap,
+        )
+
+        # ========== Global Average Pooling: (batch, 512, 4, 4) → (batch, 512, 1, 1) ==========
+        var gap = avgpool2d(s4b2_out, kernel_size=4, stride=1, padding=0)
+
+        # ========== Flatten: (batch, 512, 1, 1) → (batch, 512) ==========
+        var gap_shape = gap.shape()
+        var batch_size = gap_shape[0]
+        var flatten_shape = List[Int]()
+        flatten_shape.append(batch_size)
+        flatten_shape.append(512)
+        var flattened = gap.reshape(flatten_shape)
+
+        # ========== FC layer: (batch, 512) → (batch, num_classes) ==========
+        var logits = linear(flattened, self.fc_weights, self.fc_bias)
+
+        return ResNet18ForwardCache(
+            logits=logits^,
+            conv1_pre_bn=conv1^,
+            bn1_pre_relu=bn1^,
+            relu1_out=relu1^,
+            initial_bn_running_mean_snapshot=bn1_rm_snap^,
+            initial_bn_running_var_snapshot=bn1_rv_snap^,
+            s1b1_cache=s1b1_cache^,
+            s1b2_cache=s1b2_cache^,
+            s2b1_cache=s2b1_cache^,
+            s2b2_cache=s2b2_cache^,
+            s3b1_cache=s3b1_cache^,
+            s3b2_cache=s3b2_cache^,
+            s4b1_cache=s4b1_cache^,
+            s4b2_cache=s4b2_cache^,
+            gap=gap^,
+            flattened=flattened^,
+        )
 
     def predict(mut self, input: AnyTensor) raises -> Int:
         """Predict class for a single input.
