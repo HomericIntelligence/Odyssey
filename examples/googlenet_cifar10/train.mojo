@@ -41,13 +41,14 @@ from projectodyssey.core.pooling import (
     global_avgpool2d,
     global_avgpool2d_backward,
 )
-from projectodyssey.core.normalization import batch_norm2d, batch_norm2d_backward
+from projectodyssey.core.normalization import (
+    batch_norm2d,
+    batch_norm2d_backward,
+)
 from projectodyssey.core.activation import relu, relu_backward
 from projectodyssey.core.linear import linear, linear_backward
 from projectodyssey.core.dropout import dropout, dropout_backward
 from projectodyssey.core.loss import cross_entropy, cross_entropy_backward
-from projectodyssey.core.shape import split_with_indices
-from projectodyssey.core.arithmetic import add, add_backward
 from projectodyssey.training.schedulers import step_lr
 from projectodyssey.data.batch_utils import (
     compute_num_batches,
@@ -146,6 +147,9 @@ def _flatten_gap(gap_out: AnyTensor) raises -> Tuple[AnyTensor, List[Int]]:
     return (flat^, gap_shape)
 
 
+# Paired helper for backward slice (issue #3184) — not called in forward pass.
+# Defined alongside _flatten_gap for API consistency; will be used by backward-pass backward
+# implementation.
 def _unflatten_gap_grad(
     grad_flat: AnyTensor, gap_shape: List[Int]
 ) raises -> AnyTensor:
@@ -171,8 +175,12 @@ def train_epoch(
     var num_batches = compute_num_batches(num_samples, batch_size)
     var total_loss = Float32(0.0)
     print(
-        "Epoch " + String(epoch + 1) + "/" + String(total_epochs)
-        + ": lr=" + String(learning_rate)
+        "Epoch "
+        + String(epoch + 1)
+        + "/"
+        + String(total_epochs)
+        + ": lr="
+        + String(learning_rate)
     )
     for batch_idx in range(num_batches):
         var start_idx = batch_idx * batch_size
@@ -182,15 +190,23 @@ def train_epoch(
         var batch_images = batch_pair[0]
         var batch_labels = batch_pair[1]
         var batch_loss = compute_gradients(
-            model, batch_images, batch_labels,
-            learning_rate, momentum, velocities,
+            model,
+            batch_images,
+            batch_labels,
+            learning_rate,
+            momentum,
+            velocities,
         )
         total_loss += batch_loss
         if (batch_idx + 1) % 100 == 0:
             var avg = total_loss / Float32(batch_idx + 1)
             print(
-                "  Batch " + String(batch_idx + 1) + "/"
-                + String(num_batches) + " - Loss: " + String(avg)
+                "  Batch "
+                + String(batch_idx + 1)
+                + "/"
+                + String(num_batches)
+                + " - Loss: "
+                + String(avg)
             )
     var avg_loss = total_loss / Float32(num_batches)
     print("  Average Loss: " + String(avg_loss))
@@ -213,13 +229,17 @@ def compute_gradients(
     # ---- Initial block: conv3x3 -> BN -> ReLU -> MaxPool ----
     var init_conv_out = conv2d(
         input,
-        model.initial_conv_weights, model.initial_conv_bias,
-        stride=1, padding=1,
+        model.initial_conv_weights,
+        model.initial_conv_bias,
+        stride=1,
+        padding=1,
     )
     var init_bn_out, _, _ = batch_norm2d(
         init_conv_out,
-        model.initial_bn_gamma, model.initial_bn_beta,
-        model.initial_bn_running_mean, model.initial_bn_running_var,
+        model.initial_bn_gamma,
+        model.initial_bn_beta,
+        model.initial_bn_running_mean,
+        model.initial_bn_running_var,
         True,
     )
     var init_relu_out = relu(init_bn_out)
@@ -231,65 +251,80 @@ def compute_gradients(
         init_pool_out,
         model.inception_3a.conv1x1_1_weights,
         model.inception_3a.conv1x1_1_bias,
-        stride=1, padding=0,
+        stride=1,
+        padding=0,
     )
     var inc3a_b1_bn, _, _ = batch_norm2d(
         inc3a_b1_conv,
-        model.inception_3a.bn1x1_1_gamma, model.inception_3a.bn1x1_1_beta,
+        model.inception_3a.bn1x1_1_gamma,
+        model.inception_3a.bn1x1_1_beta,
         model.inception_3a.bn1x1_1_running_mean,
-        model.inception_3a.bn1x1_1_running_var, True,
+        model.inception_3a.bn1x1_1_running_var,
+        True,
     )
     var inc3a_b1_relu = relu(inc3a_b1_bn)
     var inc3a_b2_conv1 = conv2d(
         init_pool_out,
         model.inception_3a.conv1x1_2_weights,
         model.inception_3a.conv1x1_2_bias,
-        stride=1, padding=0,
+        stride=1,
+        padding=0,
     )
     var inc3a_b2_bn1, _, _ = batch_norm2d(
         inc3a_b2_conv1,
-        model.inception_3a.bn1x1_2_gamma, model.inception_3a.bn1x1_2_beta,
+        model.inception_3a.bn1x1_2_gamma,
+        model.inception_3a.bn1x1_2_beta,
         model.inception_3a.bn1x1_2_running_mean,
-        model.inception_3a.bn1x1_2_running_var, True,
+        model.inception_3a.bn1x1_2_running_var,
+        True,
     )
     var inc3a_b2_relu1 = relu(inc3a_b2_bn1)
     var inc3a_b2_conv2 = conv2d(
         inc3a_b2_relu1,
         model.inception_3a.conv3x3_weights,
         model.inception_3a.conv3x3_bias,
-        stride=1, padding=1,
+        stride=1,
+        padding=1,
     )
     var inc3a_b2_bn2, _, _ = batch_norm2d(
         inc3a_b2_conv2,
-        model.inception_3a.bn3x3_gamma, model.inception_3a.bn3x3_beta,
+        model.inception_3a.bn3x3_gamma,
+        model.inception_3a.bn3x3_beta,
         model.inception_3a.bn3x3_running_mean,
-        model.inception_3a.bn3x3_running_var, True,
+        model.inception_3a.bn3x3_running_var,
+        True,
     )
     var inc3a_b2_relu2 = relu(inc3a_b2_bn2)
     var inc3a_b3_conv1 = conv2d(
         init_pool_out,
         model.inception_3a.conv1x1_3_weights,
         model.inception_3a.conv1x1_3_bias,
-        stride=1, padding=0,
+        stride=1,
+        padding=0,
     )
     var inc3a_b3_bn1, _, _ = batch_norm2d(
         inc3a_b3_conv1,
-        model.inception_3a.bn1x1_3_gamma, model.inception_3a.bn1x1_3_beta,
+        model.inception_3a.bn1x1_3_gamma,
+        model.inception_3a.bn1x1_3_beta,
         model.inception_3a.bn1x1_3_running_mean,
-        model.inception_3a.bn1x1_3_running_var, True,
+        model.inception_3a.bn1x1_3_running_var,
+        True,
     )
     var inc3a_b3_relu1 = relu(inc3a_b3_bn1)
     var inc3a_b3_conv2 = conv2d(
         inc3a_b3_relu1,
         model.inception_3a.conv5x5_weights,
         model.inception_3a.conv5x5_bias,
-        stride=1, padding=2,
+        stride=1,
+        padding=2,
     )
     var inc3a_b3_bn2, _, _ = batch_norm2d(
         inc3a_b3_conv2,
-        model.inception_3a.bn5x5_gamma, model.inception_3a.bn5x5_beta,
+        model.inception_3a.bn5x5_gamma,
+        model.inception_3a.bn5x5_beta,
         model.inception_3a.bn5x5_running_mean,
-        model.inception_3a.bn5x5_running_var, True,
+        model.inception_3a.bn5x5_running_var,
+        True,
     )
     var inc3a_b3_relu2 = relu(inc3a_b3_bn2)
     var inc3a_b4_pool = maxpool2d(
@@ -299,13 +334,16 @@ def compute_gradients(
         inc3a_b4_pool,
         model.inception_3a.conv1x1_4_weights,
         model.inception_3a.conv1x1_4_bias,
-        stride=1, padding=0,
+        stride=1,
+        padding=0,
     )
     var inc3a_b4_bn, _, _ = batch_norm2d(
         inc3a_b4_conv,
-        model.inception_3a.bn1x1_4_gamma, model.inception_3a.bn1x1_4_beta,
+        model.inception_3a.bn1x1_4_gamma,
+        model.inception_3a.bn1x1_4_beta,
         model.inception_3a.bn1x1_4_running_mean,
-        model.inception_3a.bn1x1_4_running_var, True,
+        model.inception_3a.bn1x1_4_running_var,
+        True,
     )
     var inc3a_b4_relu = relu(inc3a_b4_bn)
     var inc3a_out = concatenate_depthwise(
@@ -316,81 +354,97 @@ def compute_gradients(
         inc3a_out,
         model.inception_3b.conv1x1_1_weights,
         model.inception_3b.conv1x1_1_bias,
-        stride=1, padding=0,
+        stride=1,
+        padding=0,
     )
     var inc3b_b1_bn, _, _ = batch_norm2d(
         inc3b_b1_conv,
-        model.inception_3b.bn1x1_1_gamma, model.inception_3b.bn1x1_1_beta,
+        model.inception_3b.bn1x1_1_gamma,
+        model.inception_3b.bn1x1_1_beta,
         model.inception_3b.bn1x1_1_running_mean,
-        model.inception_3b.bn1x1_1_running_var, True,
+        model.inception_3b.bn1x1_1_running_var,
+        True,
     )
     var inc3b_b1_relu = relu(inc3b_b1_bn)
     var inc3b_b2_conv1 = conv2d(
         inc3a_out,
         model.inception_3b.conv1x1_2_weights,
         model.inception_3b.conv1x1_2_bias,
-        stride=1, padding=0,
+        stride=1,
+        padding=0,
     )
     var inc3b_b2_bn1, _, _ = batch_norm2d(
         inc3b_b2_conv1,
-        model.inception_3b.bn1x1_2_gamma, model.inception_3b.bn1x1_2_beta,
+        model.inception_3b.bn1x1_2_gamma,
+        model.inception_3b.bn1x1_2_beta,
         model.inception_3b.bn1x1_2_running_mean,
-        model.inception_3b.bn1x1_2_running_var, True,
+        model.inception_3b.bn1x1_2_running_var,
+        True,
     )
     var inc3b_b2_relu1 = relu(inc3b_b2_bn1)
     var inc3b_b2_conv2 = conv2d(
         inc3b_b2_relu1,
         model.inception_3b.conv3x3_weights,
         model.inception_3b.conv3x3_bias,
-        stride=1, padding=1,
+        stride=1,
+        padding=1,
     )
     var inc3b_b2_bn2, _, _ = batch_norm2d(
         inc3b_b2_conv2,
-        model.inception_3b.bn3x3_gamma, model.inception_3b.bn3x3_beta,
+        model.inception_3b.bn3x3_gamma,
+        model.inception_3b.bn3x3_beta,
         model.inception_3b.bn3x3_running_mean,
-        model.inception_3b.bn3x3_running_var, True,
+        model.inception_3b.bn3x3_running_var,
+        True,
     )
     var inc3b_b2_relu2 = relu(inc3b_b2_bn2)
     var inc3b_b3_conv1 = conv2d(
         inc3a_out,
         model.inception_3b.conv1x1_3_weights,
         model.inception_3b.conv1x1_3_bias,
-        stride=1, padding=0,
+        stride=1,
+        padding=0,
     )
     var inc3b_b3_bn1, _, _ = batch_norm2d(
         inc3b_b3_conv1,
-        model.inception_3b.bn1x1_3_gamma, model.inception_3b.bn1x1_3_beta,
+        model.inception_3b.bn1x1_3_gamma,
+        model.inception_3b.bn1x1_3_beta,
         model.inception_3b.bn1x1_3_running_mean,
-        model.inception_3b.bn1x1_3_running_var, True,
+        model.inception_3b.bn1x1_3_running_var,
+        True,
     )
     var inc3b_b3_relu1 = relu(inc3b_b3_bn1)
     var inc3b_b3_conv2 = conv2d(
         inc3b_b3_relu1,
         model.inception_3b.conv5x5_weights,
         model.inception_3b.conv5x5_bias,
-        stride=1, padding=2,
+        stride=1,
+        padding=2,
     )
     var inc3b_b3_bn2, _, _ = batch_norm2d(
         inc3b_b3_conv2,
-        model.inception_3b.bn5x5_gamma, model.inception_3b.bn5x5_beta,
+        model.inception_3b.bn5x5_gamma,
+        model.inception_3b.bn5x5_beta,
         model.inception_3b.bn5x5_running_mean,
-        model.inception_3b.bn5x5_running_var, True,
+        model.inception_3b.bn5x5_running_var,
+        True,
     )
     var inc3b_b3_relu2 = relu(inc3b_b3_bn2)
-    var inc3b_b4_pool = maxpool2d(
-        inc3a_out, kernel_size=3, stride=1, padding=1
-    )
+    var inc3b_b4_pool = maxpool2d(inc3a_out, kernel_size=3, stride=1, padding=1)
     var inc3b_b4_conv = conv2d(
         inc3b_b4_pool,
         model.inception_3b.conv1x1_4_weights,
         model.inception_3b.conv1x1_4_bias,
-        stride=1, padding=0,
+        stride=1,
+        padding=0,
     )
     var inc3b_b4_bn, _, _ = batch_norm2d(
         inc3b_b4_conv,
-        model.inception_3b.bn1x1_4_gamma, model.inception_3b.bn1x1_4_beta,
+        model.inception_3b.bn1x1_4_gamma,
+        model.inception_3b.bn1x1_4_beta,
         model.inception_3b.bn1x1_4_running_mean,
-        model.inception_3b.bn1x1_4_running_var, True,
+        model.inception_3b.bn1x1_4_running_var,
+        True,
     )
     var inc3b_b4_relu = relu(inc3b_b4_bn)
     var inc3b_out = concatenate_depthwise(
@@ -402,81 +456,97 @@ def compute_gradients(
         mid1_pool,
         model.inception_4a.conv1x1_1_weights,
         model.inception_4a.conv1x1_1_bias,
-        stride=1, padding=0,
+        stride=1,
+        padding=0,
     )
     var inc4a_b1_bn, _, _ = batch_norm2d(
         inc4a_b1_conv,
-        model.inception_4a.bn1x1_1_gamma, model.inception_4a.bn1x1_1_beta,
+        model.inception_4a.bn1x1_1_gamma,
+        model.inception_4a.bn1x1_1_beta,
         model.inception_4a.bn1x1_1_running_mean,
-        model.inception_4a.bn1x1_1_running_var, True,
+        model.inception_4a.bn1x1_1_running_var,
+        True,
     )
     var inc4a_b1_relu = relu(inc4a_b1_bn)
     var inc4a_b2_conv1 = conv2d(
         mid1_pool,
         model.inception_4a.conv1x1_2_weights,
         model.inception_4a.conv1x1_2_bias,
-        stride=1, padding=0,
+        stride=1,
+        padding=0,
     )
     var inc4a_b2_bn1, _, _ = batch_norm2d(
         inc4a_b2_conv1,
-        model.inception_4a.bn1x1_2_gamma, model.inception_4a.bn1x1_2_beta,
+        model.inception_4a.bn1x1_2_gamma,
+        model.inception_4a.bn1x1_2_beta,
         model.inception_4a.bn1x1_2_running_mean,
-        model.inception_4a.bn1x1_2_running_var, True,
+        model.inception_4a.bn1x1_2_running_var,
+        True,
     )
     var inc4a_b2_relu1 = relu(inc4a_b2_bn1)
     var inc4a_b2_conv2 = conv2d(
         inc4a_b2_relu1,
         model.inception_4a.conv3x3_weights,
         model.inception_4a.conv3x3_bias,
-        stride=1, padding=1,
+        stride=1,
+        padding=1,
     )
     var inc4a_b2_bn2, _, _ = batch_norm2d(
         inc4a_b2_conv2,
-        model.inception_4a.bn3x3_gamma, model.inception_4a.bn3x3_beta,
+        model.inception_4a.bn3x3_gamma,
+        model.inception_4a.bn3x3_beta,
         model.inception_4a.bn3x3_running_mean,
-        model.inception_4a.bn3x3_running_var, True,
+        model.inception_4a.bn3x3_running_var,
+        True,
     )
     var inc4a_b2_relu2 = relu(inc4a_b2_bn2)
     var inc4a_b3_conv1 = conv2d(
         mid1_pool,
         model.inception_4a.conv1x1_3_weights,
         model.inception_4a.conv1x1_3_bias,
-        stride=1, padding=0,
+        stride=1,
+        padding=0,
     )
     var inc4a_b3_bn1, _, _ = batch_norm2d(
         inc4a_b3_conv1,
-        model.inception_4a.bn1x1_3_gamma, model.inception_4a.bn1x1_3_beta,
+        model.inception_4a.bn1x1_3_gamma,
+        model.inception_4a.bn1x1_3_beta,
         model.inception_4a.bn1x1_3_running_mean,
-        model.inception_4a.bn1x1_3_running_var, True,
+        model.inception_4a.bn1x1_3_running_var,
+        True,
     )
     var inc4a_b3_relu1 = relu(inc4a_b3_bn1)
     var inc4a_b3_conv2 = conv2d(
         inc4a_b3_relu1,
         model.inception_4a.conv5x5_weights,
         model.inception_4a.conv5x5_bias,
-        stride=1, padding=2,
+        stride=1,
+        padding=2,
     )
     var inc4a_b3_bn2, _, _ = batch_norm2d(
         inc4a_b3_conv2,
-        model.inception_4a.bn5x5_gamma, model.inception_4a.bn5x5_beta,
+        model.inception_4a.bn5x5_gamma,
+        model.inception_4a.bn5x5_beta,
         model.inception_4a.bn5x5_running_mean,
-        model.inception_4a.bn5x5_running_var, True,
+        model.inception_4a.bn5x5_running_var,
+        True,
     )
     var inc4a_b3_relu2 = relu(inc4a_b3_bn2)
-    var inc4a_b4_pool = maxpool2d(
-        mid1_pool, kernel_size=3, stride=1, padding=1
-    )
+    var inc4a_b4_pool = maxpool2d(mid1_pool, kernel_size=3, stride=1, padding=1)
     var inc4a_b4_conv = conv2d(
         inc4a_b4_pool,
         model.inception_4a.conv1x1_4_weights,
         model.inception_4a.conv1x1_4_bias,
-        stride=1, padding=0,
+        stride=1,
+        padding=0,
     )
     var inc4a_b4_bn, _, _ = batch_norm2d(
         inc4a_b4_conv,
-        model.inception_4a.bn1x1_4_gamma, model.inception_4a.bn1x1_4_beta,
+        model.inception_4a.bn1x1_4_gamma,
+        model.inception_4a.bn1x1_4_beta,
         model.inception_4a.bn1x1_4_running_mean,
-        model.inception_4a.bn1x1_4_running_var, True,
+        model.inception_4a.bn1x1_4_running_var,
+        True,
     )
     var inc4a_b4_relu = relu(inc4a_b4_bn)
     var inc4a_out = concatenate_depthwise(
@@ -487,81 +557,97 @@ def compute_gradients(
         inc4a_out,
         model.inception_4b.conv1x1_1_weights,
         model.inception_4b.conv1x1_1_bias,
-        stride=1, padding=0,
+        stride=1,
+        padding=0,
     )
     var inc4b_b1_bn, _, _ = batch_norm2d(
         inc4b_b1_conv,
-        model.inception_4b.bn1x1_1_gamma, model.inception_4b.bn1x1_1_beta,
+        model.inception_4b.bn1x1_1_gamma,
+        model.inception_4b.bn1x1_1_beta,
         model.inception_4b.bn1x1_1_running_mean,
-        model.inception_4b.bn1x1_1_running_var, True,
+        model.inception_4b.bn1x1_1_running_var,
+        True,
     )
     var inc4b_b1_relu = relu(inc4b_b1_bn)
     var inc4b_b2_conv1 = conv2d(
         inc4a_out,
         model.inception_4b.conv1x1_2_weights,
         model.inception_4b.conv1x1_2_bias,
-        stride=1, padding=0,
+        stride=1,
+        padding=0,
     )
     var inc4b_b2_bn1, _, _ = batch_norm2d(
         inc4b_b2_conv1,
-        model.inception_4b.bn1x1_2_gamma, model.inception_4b.bn1x1_2_beta,
+        model.inception_4b.bn1x1_2_gamma,
+        model.inception_4b.bn1x1_2_beta,
         model.inception_4b.bn1x1_2_running_mean,
-        model.inception_4b.bn1x1_2_running_var, True,
+        model.inception_4b.bn1x1_2_running_var,
+        True,
     )
     var inc4b_b2_relu1 = relu(inc4b_b2_bn1)
     var inc4b_b2_conv2 = conv2d(
         inc4b_b2_relu1,
         model.inception_4b.conv3x3_weights,
         model.inception_4b.conv3x3_bias,
-        stride=1, padding=1,
+        stride=1,
+        padding=1,
     )
     var inc4b_b2_bn2, _, _ = batch_norm2d(
         inc4b_b2_conv2,
-        model.inception_4b.bn3x3_gamma, model.inception_4b.bn3x3_beta,
+        model.inception_4b.bn3x3_gamma,
+        model.inception_4b.bn3x3_beta,
         model.inception_4b.bn3x3_running_mean,
-        model.inception_4b.bn3x3_running_var, True,
+        model.inception_4b.bn3x3_running_var,
+        True,
     )
     var inc4b_b2_relu2 = relu(inc4b_b2_bn2)
     var inc4b_b3_conv1 = conv2d(
         inc4a_out,
         model.inception_4b.conv1x1_3_weights,
         model.inception_4b.conv1x1_3_bias,
-        stride=1, padding=0,
+        stride=1,
+        padding=0,
     )
     var inc4b_b3_bn1, _, _ = batch_norm2d(
         inc4b_b3_conv1,
-        model.inception_4b.bn1x1_3_gamma, model.inception_4b.bn1x1_3_beta,
+        model.inception_4b.bn1x1_3_gamma,
+        model.inception_4b.bn1x1_3_beta,
         model.inception_4b.bn1x1_3_running_mean,
-        model.inception_4b.bn1x1_3_running_var, True,
+        model.inception_4b.bn1x1_3_running_var,
+        True,
     )
     var inc4b_b3_relu1 = relu(inc4b_b3_bn1)
     var inc4b_b3_conv2 = conv2d(
         inc4b_b3_relu1,
         model.inception_4b.conv5x5_weights,
         model.inception_4b.conv5x5_bias,
-        stride=1, padding=2,
+        stride=1,
+        padding=2,
     )
     var inc4b_b3_bn2, _, _ = batch_norm2d(
         inc4b_b3_conv2,
-        model.inception_4b.bn5x5_gamma, model.inception_4b.bn5x5_beta,
+        model.inception_4b.bn5x5_gamma,
+        model.inception_4b.bn5x5_beta,
         model.inception_4b.bn5x5_running_mean,
-        model.inception_4b.bn5x5_running_var, True,
+        model.inception_4b.bn5x5_running_var,
+        True,
     )
     var inc4b_b3_relu2 = relu(inc4b_b3_bn2)
-    var inc4b_b4_pool = maxpool2d(
-        inc4a_out, kernel_size=3, stride=1, padding=1
-    )
+    var inc4b_b4_pool = maxpool2d(inc4a_out, kernel_size=3, stride=1, padding=1)
     var inc4b_b4_conv = conv2d(
         inc4b_b4_pool,
         model.inception_4b.conv1x1_4_weights,
         model.inception_4b.conv1x1_4_bias,
-        stride=1, padding=0,
+        stride=1,
+        padding=0,
     )
     var inc4b_b4_bn, _, _ = batch_norm2d(
         inc4b_b4_conv,
-        model.inception_4b.bn1x1_4_gamma, model.inception_4b.bn1x1_4_beta,
+        model.inception_4b.bn1x1_4_gamma,
+        model.inception_4b.bn1x1_4_beta,
         model.inception_4b.bn1x1_4_running_mean,
-        model.inception_4b.bn1x1_4_running_var, True,
+        model.inception_4b.bn1x1_4_running_var,
+        True,
     )
     var inc4b_b4_relu = relu(inc4b_b4_bn)
     var inc4b_out = concatenate_depthwise(
@@ -572,81 +658,97 @@ def compute_gradients(
         inc4b_out,
         model.inception_4c.conv1x1_1_weights,
         model.inception_4c.conv1x1_1_bias,
-        stride=1, padding=0,
+        stride=1,
+        padding=0,
     )
     var inc4c_b1_bn, _, _ = batch_norm2d(
         inc4c_b1_conv,
-        model.inception_4c.bn1x1_1_gamma, model.inception_4c.bn1x1_1_beta,
+        model.inception_4c.bn1x1_1_gamma,
+        model.inception_4c.bn1x1_1_beta,
         model.inception_4c.bn1x1_1_running_mean,
-        model.inception_4c.bn1x1_1_running_var, True,
+        model.inception_4c.bn1x1_1_running_var,
+        True,
     )
     var inc4c_b1_relu = relu(inc4c_b1_bn)
     var inc4c_b2_conv1 = conv2d(
         inc4b_out,
         model.inception_4c.conv1x1_2_weights,
         model.inception_4c.conv1x1_2_bias,
-        stride=1, padding=0,
+        stride=1,
+        padding=0,
     )
     var inc4c_b2_bn1, _, _ = batch_norm2d(
         inc4c_b2_conv1,
-        model.inception_4c.bn1x1_2_gamma, model.inception_4c.bn1x1_2_beta,
+        model.inception_4c.bn1x1_2_gamma,
+        model.inception_4c.bn1x1_2_beta,
         model.inception_4c.bn1x1_2_running_mean,
-        model.inception_4c.bn1x1_2_running_var, True,
+        model.inception_4c.bn1x1_2_running_var,
+        True,
     )
     var inc4c_b2_relu1 = relu(inc4c_b2_bn1)
     var inc4c_b2_conv2 = conv2d(
         inc4c_b2_relu1,
         model.inception_4c.conv3x3_weights,
         model.inception_4c.conv3x3_bias,
-        stride=1, padding=1,
+        stride=1,
+        padding=1,
     )
     var inc4c_b2_bn2, _, _ = batch_norm2d(
         inc4c_b2_conv2,
-        model.inception_4c.bn3x3_gamma, model.inception_4c.bn3x3_beta,
+        model.inception_4c.bn3x3_gamma,
+        model.inception_4c.bn3x3_beta,
         model.inception_4c.bn3x3_running_mean,
-        model.inception_4c.bn3x3_running_var, True,
+        model.inception_4c.bn3x3_running_var,
+        True,
     )
     var inc4c_b2_relu2 = relu(inc4c_b2_bn2)
     var inc4c_b3_conv1 = conv2d(
         inc4b_out,
         model.inception_4c.conv1x1_3_weights,
         model.inception_4c.conv1x1_3_bias,
-        stride=1, padding=0,
+        stride=1,
+        padding=0,
     )
     var inc4c_b3_bn1, _, _ = batch_norm2d(
         inc4c_b3_conv1,
-        model.inception_4c.bn1x1_3_gamma, model.inception_4c.bn1x1_3_beta,
+        model.inception_4c.bn1x1_3_gamma,
+        model.inception_4c.bn1x1_3_beta,
         model.inception_4c.bn1x1_3_running_mean,
-        model.inception_4c.bn1x1_3_running_var, True,
+        model.inception_4c.bn1x1_3_running_var,
+        True,
     )
     var inc4c_b3_relu1 = relu(inc4c_b3_bn1)
     var inc4c_b3_conv2 = conv2d(
         inc4c_b3_relu1,
         model.inception_4c.conv5x5_weights,
         model.inception_4c.conv5x5_bias,
-        stride=1, padding=2,
+        stride=1,
+        padding=2,
     )
     var inc4c_b3_bn2, _, _ = batch_norm2d(
         inc4c_b3_conv2,
-        model.inception_4c.bn5x5_gamma, model.inception_4c.bn5x5_beta,
+        model.inception_4c.bn5x5_gamma,
+        model.inception_4c.bn5x5_beta,
         model.inception_4c.bn5x5_running_mean,
-        model.inception_4c.bn5x5_running_var, True,
+        model.inception_4c.bn5x5_running_var,
+        True,
     )
     var inc4c_b3_relu2 = relu(inc4c_b3_bn2)
-    var inc4c_b4_pool = maxpool2d(
-        inc4b_out, kernel_size=3, stride=1, padding=1
-    )
+    var inc4c_b4_pool = maxpool2d(inc4b_out, kernel_size=3, stride=1, padding=1)
     var inc4c_b4_conv = conv2d(
         inc4c_b4_pool,
         model.inception_4c.conv1x1_4_weights,
         model.inception_4c.conv1x1_4_bias,
-        stride=1, padding=0,
+        stride=1,
+        padding=0,
     )
     var inc4c_b4_bn, _, _ = batch_norm2d(
         inc4c_b4_conv,
-        model.inception_4c.bn1x1_4_gamma, model.inception_4c.bn1x1_4_beta,
+        model.inception_4c.bn1x1_4_gamma,
+        model.inception_4c.bn1x1_4_beta,
         model.inception_4c.bn1x1_4_running_mean,
-        model.inception_4c.bn1x1_4_running_var, True,
+        model.inception_4c.bn1x1_4_running_var,
+        True,
     )
     var inc4c_b4_relu = relu(inc4c_b4_bn)
     var inc4c_out = concatenate_depthwise(
@@ -657,81 +759,97 @@ def compute_gradients(
         inc4c_out,
         model.inception_4d.conv1x1_1_weights,
         model.inception_4d.conv1x1_1_bias,
-        stride=1, padding=0,
+        stride=1,
+        padding=0,
     )
     var inc4d_b1_bn, _, _ = batch_norm2d(
         inc4d_b1_conv,
-        model.inception_4d.bn1x1_1_gamma, model.inception_4d.bn1x1_1_beta,
+        model.inception_4d.bn1x1_1_gamma,
+        model.inception_4d.bn1x1_1_beta,
         model.inception_4d.bn1x1_1_running_mean,
-        model.inception_4d.bn1x1_1_running_var, True,
+        model.inception_4d.bn1x1_1_running_var,
+        True,
     )
     var inc4d_b1_relu = relu(inc4d_b1_bn)
     var inc4d_b2_conv1 = conv2d(
         inc4c_out,
         model.inception_4d.conv1x1_2_weights,
         model.inception_4d.conv1x1_2_bias,
-        stride=1, padding=0,
+        stride=1,
+        padding=0,
     )
     var inc4d_b2_bn1, _, _ = batch_norm2d(
         inc4d_b2_conv1,
-        model.inception_4d.bn1x1_2_gamma, model.inception_4d.bn1x1_2_beta,
+        model.inception_4d.bn1x1_2_gamma,
+        model.inception_4d.bn1x1_2_beta,
         model.inception_4d.bn1x1_2_running_mean,
-        model.inception_4d.bn1x1_2_running_var, True,
+        model.inception_4d.bn1x1_2_running_var,
+        True,
     )
     var inc4d_b2_relu1 = relu(inc4d_b2_bn1)
     var inc4d_b2_conv2 = conv2d(
         inc4d_b2_relu1,
         model.inception_4d.conv3x3_weights,
         model.inception_4d.conv3x3_bias,
-        stride=1, padding=1,
+        stride=1,
+        padding=1,
     )
     var inc4d_b2_bn2, _, _ = batch_norm2d(
         inc4d_b2_conv2,
-        model.inception_4d.bn3x3_gamma, model.inception_4d.bn3x3_beta,
+        model.inception_4d.bn3x3_gamma,
+        model.inception_4d.bn3x3_beta,
         model.inception_4d.bn3x3_running_mean,
-        model.inception_4d.bn3x3_running_var, True,
+        model.inception_4d.bn3x3_running_var,
+        True,
     )
     var inc4d_b2_relu2 = relu(inc4d_b2_bn2)
     var inc4d_b3_conv1 = conv2d(
         inc4c_out,
         model.inception_4d.conv1x1_3_weights,
         model.inception_4d.conv1x1_3_bias,
-        stride=1, padding=0,
+        stride=1,
+        padding=0,
     )
     var inc4d_b3_bn1, _, _ = batch_norm2d(
         inc4d_b3_conv1,
-        model.inception_4d.bn1x1_3_gamma, model.inception_4d.bn1x1_3_beta,
+        model.inception_4d.bn1x1_3_gamma,
+        model.inception_4d.bn1x1_3_beta,
         model.inception_4d.bn1x1_3_running_mean,
-        model.inception_4d.bn1x1_3_running_var, True,
+        model.inception_4d.bn1x1_3_running_var,
+        True,
     )
     var inc4d_b3_relu1 = relu(inc4d_b3_bn1)
     var inc4d_b3_conv2 = conv2d(
         inc4d_b3_relu1,
         model.inception_4d.conv5x5_weights,
         model.inception_4d.conv5x5_bias,
-        stride=1, padding=2,
+        stride=1,
+        padding=2,
     )
     var inc4d_b3_bn2, _, _ = batch_norm2d(
         inc4d_b3_conv2,
-        model.inception_4d.bn5x5_gamma, model.inception_4d.bn5x5_beta,
+        model.inception_4d.bn5x5_gamma,
+        model.inception_4d.bn5x5_beta,
         model.inception_4d.bn5x5_running_mean,
-        model.inception_4d.bn5x5_running_var, True,
+        model.inception_4d.bn5x5_running_var,
+        True,
     )
     var inc4d_b3_relu2 = relu(inc4d_b3_bn2)
-    var inc4d_b4_pool = maxpool2d(
-        inc4c_out, kernel_size=3, stride=1, padding=1
-    )
+    var inc4d_b4_pool = maxpool2d(inc4c_out, kernel_size=3, stride=1, padding=1)
     var inc4d_b4_conv = conv2d(
         inc4d_b4_pool,
         model.inception_4d.conv1x1_4_weights,
         model.inception_4d.conv1x1_4_bias,
-        stride=1, padding=0,
+        stride=1,
+        padding=0,
     )
     var inc4d_b4_bn, _, _ = batch_norm2d(
         inc4d_b4_conv,
-        model.inception_4d.bn1x1_4_gamma, model.inception_4d.bn1x1_4_beta,
+        model.inception_4d.bn1x1_4_gamma,
+        model.inception_4d.bn1x1_4_beta,
         model.inception_4d.bn1x1_4_running_mean,
-        model.inception_4d.bn1x1_4_running_var, True,
+        model.inception_4d.bn1x1_4_running_var,
+        True,
     )
     var inc4d_b4_relu = relu(inc4d_b4_bn)
     var inc4d_out = concatenate_depthwise(
@@ -742,81 +860,97 @@ def compute_gradients(
         inc4d_out,
         model.inception_4e.conv1x1_1_weights,
         model.inception_4e.conv1x1_1_bias,
-        stride=1, padding=0,
+        stride=1,
+        padding=0,
     )
     var inc4e_b1_bn, _, _ = batch_norm2d(
         inc4e_b1_conv,
-        model.inception_4e.bn1x1_1_gamma, model.inception_4e.bn1x1_1_beta,
+        model.inception_4e.bn1x1_1_gamma,
+        model.inception_4e.bn1x1_1_beta,
         model.inception_4e.bn1x1_1_running_mean,
-        model.inception_4e.bn1x1_1_running_var, True,
+        model.inception_4e.bn1x1_1_running_var,
+        True,
     )
     var inc4e_b1_relu = relu(inc4e_b1_bn)
     var inc4e_b2_conv1 = conv2d(
         inc4d_out,
         model.inception_4e.conv1x1_2_weights,
         model.inception_4e.conv1x1_2_bias,
-        stride=1, padding=0,
+        stride=1,
+        padding=0,
     )
     var inc4e_b2_bn1, _, _ = batch_norm2d(
         inc4e_b2_conv1,
-        model.inception_4e.bn1x1_2_gamma, model.inception_4e.bn1x1_2_beta,
+        model.inception_4e.bn1x1_2_gamma,
+        model.inception_4e.bn1x1_2_beta,
         model.inception_4e.bn1x1_2_running_mean,
-        model.inception_4e.bn1x1_2_running_var, True,
+        model.inception_4e.bn1x1_2_running_var,
+        True,
     )
     var inc4e_b2_relu1 = relu(inc4e_b2_bn1)
     var inc4e_b2_conv2 = conv2d(
         inc4e_b2_relu1,
         model.inception_4e.conv3x3_weights,
         model.inception_4e.conv3x3_bias,
-        stride=1, padding=1,
+        stride=1,
+        padding=1,
     )
     var inc4e_b2_bn2, _, _ = batch_norm2d(
         inc4e_b2_conv2,
-        model.inception_4e.bn3x3_gamma, model.inception_4e.bn3x3_beta,
+        model.inception_4e.bn3x3_gamma,
+        model.inception_4e.bn3x3_beta,
         model.inception_4e.bn3x3_running_mean,
-        model.inception_4e.bn3x3_running_var, True,
+        model.inception_4e.bn3x3_running_var,
+        True,
     )
     var inc4e_b2_relu2 = relu(inc4e_b2_bn2)
     var inc4e_b3_conv1 = conv2d(
         inc4d_out,
         model.inception_4e.conv1x1_3_weights,
         model.inception_4e.conv1x1_3_bias,
-        stride=1, padding=0,
+        stride=1,
+        padding=0,
     )
     var inc4e_b3_bn1, _, _ = batch_norm2d(
         inc4e_b3_conv1,
-        model.inception_4e.bn1x1_3_gamma, model.inception_4e.bn1x1_3_beta,
+        model.inception_4e.bn1x1_3_gamma,
+        model.inception_4e.bn1x1_3_beta,
         model.inception_4e.bn1x1_3_running_mean,
-        model.inception_4e.bn1x1_3_running_var, True,
+        model.inception_4e.bn1x1_3_running_var,
+        True,
     )
     var inc4e_b3_relu1 = relu(inc4e_b3_bn1)
     var inc4e_b3_conv2 = conv2d(
         inc4e_b3_relu1,
         model.inception_4e.conv5x5_weights,
         model.inception_4e.conv5x5_bias,
-        stride=1, padding=2,
+        stride=1,
+        padding=2,
     )
     var inc4e_b3_bn2, _, _ = batch_norm2d(
         inc4e_b3_conv2,
-        model.inception_4e.bn5x5_gamma, model.inception_4e.bn5x5_beta,
+        model.inception_4e.bn5x5_gamma,
+        model.inception_4e.bn5x5_beta,
         model.inception_4e.bn5x5_running_mean,
-        model.inception_4e.bn5x5_running_var, True,
+        model.inception_4e.bn5x5_running_var,
+        True,
     )
     var inc4e_b3_relu2 = relu(inc4e_b3_bn2)
-    var inc4e_b4_pool = maxpool2d(
-        inc4d_out, kernel_size=3, stride=1, padding=1
-    )
+    var inc4e_b4_pool = maxpool2d(inc4d_out, kernel_size=3, stride=1, padding=1)
     var inc4e_b4_conv = conv2d(
         inc4e_b4_pool,
         model.inception_4e.conv1x1_4_weights,
         model.inception_4e.conv1x1_4_bias,
-        stride=1, padding=0,
+        stride=1,
+        padding=0,
     )
     var inc4e_b4_bn, _, _ = batch_norm2d(
         inc4e_b4_conv,
-        model.inception_4e.bn1x1_4_gamma, model.inception_4e.bn1x1_4_beta,
+        model.inception_4e.bn1x1_4_gamma,
+        model.inception_4e.bn1x1_4_beta,
         model.inception_4e.bn1x1_4_running_mean,
-        model.inception_4e.bn1x1_4_running_var, True,
+        model.inception_4e.bn1x1_4_running_var,
+        True,
     )
     var inc4e_b4_relu = relu(inc4e_b4_bn)
     var inc4e_out = concatenate_depthwise(
@@ -828,81 +962,97 @@ def compute_gradients(
         mid2_pool,
         model.inception_5a.conv1x1_1_weights,
         model.inception_5a.conv1x1_1_bias,
-        stride=1, padding=0,
+        stride=1,
+        padding=0,
     )
     var inc5a_b1_bn, _, _ = batch_norm2d(
         inc5a_b1_conv,
-        model.inception_5a.bn1x1_1_gamma, model.inception_5a.bn1x1_1_beta,
+        model.inception_5a.bn1x1_1_gamma,
+        model.inception_5a.bn1x1_1_beta,
         model.inception_5a.bn1x1_1_running_mean,
-        model.inception_5a.bn1x1_1_running_var, True,
+        model.inception_5a.bn1x1_1_running_var,
+        True,
     )
     var inc5a_b1_relu = relu(inc5a_b1_bn)
     var inc5a_b2_conv1 = conv2d(
         mid2_pool,
         model.inception_5a.conv1x1_2_weights,
         model.inception_5a.conv1x1_2_bias,
-        stride=1, padding=0,
+        stride=1,
+        padding=0,
     )
     var inc5a_b2_bn1, _, _ = batch_norm2d(
         inc5a_b2_conv1,
-        model.inception_5a.bn1x1_2_gamma, model.inception_5a.bn1x1_2_beta,
+        model.inception_5a.bn1x1_2_gamma,
+        model.inception_5a.bn1x1_2_beta,
         model.inception_5a.bn1x1_2_running_mean,
-        model.inception_5a.bn1x1_2_running_var, True,
+        model.inception_5a.bn1x1_2_running_var,
+        True,
     )
     var inc5a_b2_relu1 = relu(inc5a_b2_bn1)
     var inc5a_b2_conv2 = conv2d(
         inc5a_b2_relu1,
         model.inception_5a.conv3x3_weights,
         model.inception_5a.conv3x3_bias,
-        stride=1, padding=1,
+        stride=1,
+        padding=1,
     )
     var inc5a_b2_bn2, _, _ = batch_norm2d(
         inc5a_b2_conv2,
-        model.inception_5a.bn3x3_gamma, model.inception_5a.bn3x3_beta,
+        model.inception_5a.bn3x3_gamma,
+        model.inception_5a.bn3x3_beta,
         model.inception_5a.bn3x3_running_mean,
-        model.inception_5a.bn3x3_running_var, True,
+        model.inception_5a.bn3x3_running_var,
+        True,
     )
     var inc5a_b2_relu2 = relu(inc5a_b2_bn2)
     var inc5a_b3_conv1 = conv2d(
         mid2_pool,
         model.inception_5a.conv1x1_3_weights,
         model.inception_5a.conv1x1_3_bias,
-        stride=1, padding=0,
+        stride=1,
+        padding=0,
     )
     var inc5a_b3_bn1, _, _ = batch_norm2d(
         inc5a_b3_conv1,
-        model.inception_5a.bn1x1_3_gamma, model.inception_5a.bn1x1_3_beta,
+        model.inception_5a.bn1x1_3_gamma,
+        model.inception_5a.bn1x1_3_beta,
         model.inception_5a.bn1x1_3_running_mean,
-        model.inception_5a.bn1x1_3_running_var, True,
+        model.inception_5a.bn1x1_3_running_var,
+        True,
     )
     var inc5a_b3_relu1 = relu(inc5a_b3_bn1)
     var inc5a_b3_conv2 = conv2d(
         inc5a_b3_relu1,
         model.inception_5a.conv5x5_weights,
         model.inception_5a.conv5x5_bias,
-        stride=1, padding=2,
+        stride=1,
+        padding=2,
     )
     var inc5a_b3_bn2, _, _ = batch_norm2d(
         inc5a_b3_conv2,
-        model.inception_5a.bn5x5_gamma, model.inception_5a.bn5x5_beta,
+        model.inception_5a.bn5x5_gamma,
+        model.inception_5a.bn5x5_beta,
         model.inception_5a.bn5x5_running_mean,
-        model.inception_5a.bn5x5_running_var, True,
+        model.inception_5a.bn5x5_running_var,
+        True,
     )
     var inc5a_b3_relu2 = relu(inc5a_b3_bn2)
-    var inc5a_b4_pool = maxpool2d(
-        mid2_pool, kernel_size=3, stride=1, padding=1
-    )
+    var inc5a_b4_pool = maxpool2d(mid2_pool, kernel_size=3, stride=1, padding=1)
     var inc5a_b4_conv = conv2d(
         inc5a_b4_pool,
         model.inception_5a.conv1x1_4_weights,
         model.inception_5a.conv1x1_4_bias,
-        stride=1, padding=0,
+        stride=1,
+        padding=0,
     )
     var inc5a_b4_bn, _, _ = batch_norm2d(
         inc5a_b4_conv,
-        model.inception_5a.bn1x1_4_gamma, model.inception_5a.bn1x1_4_beta,
+        model.inception_5a.bn1x1_4_gamma,
+        model.inception_5a.bn1x1_4_beta,
         model.inception_5a.bn1x1_4_running_mean,
-        model.inception_5a.bn1x1_4_running_var, True,
+        model.inception_5a.bn1x1_4_running_var,
+        True,
     )
     var inc5a_b4_relu = relu(inc5a_b4_bn)
     var inc5a_out = concatenate_depthwise(
@@ -913,81 +1063,97 @@ def compute_gradients(
         inc5a_out,
         model.inception_5b.conv1x1_1_weights,
         model.inception_5b.conv1x1_1_bias,
-        stride=1, padding=0,
+        stride=1,
+        padding=0,
     )
     var inc5b_b1_bn, _, _ = batch_norm2d(
         inc5b_b1_conv,
-        model.inception_5b.bn1x1_1_gamma, model.inception_5b.bn1x1_1_beta,
+        model.inception_5b.bn1x1_1_gamma,
+        model.inception_5b.bn1x1_1_beta,
         model.inception_5b.bn1x1_1_running_mean,
-        model.inception_5b.bn1x1_1_running_var, True,
+        model.inception_5b.bn1x1_1_running_var,
+        True,
     )
     var inc5b_b1_relu = relu(inc5b_b1_bn)
     var inc5b_b2_conv1 = conv2d(
         inc5a_out,
         model.inception_5b.conv1x1_2_weights,
         model.inception_5b.conv1x1_2_bias,
-        stride=1, padding=0,
+        stride=1,
+        padding=0,
     )
     var inc5b_b2_bn1, _, _ = batch_norm2d(
         inc5b_b2_conv1,
-        model.inception_5b.bn1x1_2_gamma, model.inception_5b.bn1x1_2_beta,
+        model.inception_5b.bn1x1_2_gamma,
+        model.inception_5b.bn1x1_2_beta,
         model.inception_5b.bn1x1_2_running_mean,
-        model.inception_5b.bn1x1_2_running_var, True,
+        model.inception_5b.bn1x1_2_running_var,
+        True,
     )
     var inc5b_b2_relu1 = relu(inc5b_b2_bn1)
     var inc5b_b2_conv2 = conv2d(
         inc5b_b2_relu1,
         model.inception_5b.conv3x3_weights,
         model.inception_5b.conv3x3_bias,
-        stride=1, padding=1,
+        stride=1,
+        padding=1,
     )
     var inc5b_b2_bn2, _, _ = batch_norm2d(
         inc5b_b2_conv2,
-        model.inception_5b.bn3x3_gamma, model.inception_5b.bn3x3_beta,
+        model.inception_5b.bn3x3_gamma,
+        model.inception_5b.bn3x3_beta,
         model.inception_5b.bn3x3_running_mean,
-        model.inception_5b.bn3x3_running_var, True,
+        model.inception_5b.bn3x3_running_var,
+        True,
     )
     var inc5b_b2_relu2 = relu(inc5b_b2_bn2)
     var inc5b_b3_conv1 = conv2d(
         inc5a_out,
         model.inception_5b.conv1x1_3_weights,
         model.inception_5b.conv1x1_3_bias,
-        stride=1, padding=0,
+        stride=1,
+        padding=0,
     )
     var inc5b_b3_bn1, _, _ = batch_norm2d(
         inc5b_b3_conv1,
-        model.inception_5b.bn1x1_3_gamma, model.inception_5b.bn1x1_3_beta,
+        model.inception_5b.bn1x1_3_gamma,
+        model.inception_5b.bn1x1_3_beta,
         model.inception_5b.bn1x1_3_running_mean,
-        model.inception_5b.bn1x1_3_running_var, True,
+        model.inception_5b.bn1x1_3_running_var,
+        True,
     )
     var inc5b_b3_relu1 = relu(inc5b_b3_bn1)
     var inc5b_b3_conv2 = conv2d(
         inc5b_b3_relu1,
         model.inception_5b.conv5x5_weights,
         model.inception_5b.conv5x5_bias,
-        stride=1, padding=2,
+        stride=1,
+        padding=2,
     )
     var inc5b_b3_bn2, _, _ = batch_norm2d(
         inc5b_b3_conv2,
-        model.inception_5b.bn5x5_gamma, model.inception_5b.bn5x5_beta,
+        model.inception_5b.bn5x5_gamma,
+        model.inception_5b.bn5x5_beta,
         model.inception_5b.bn5x5_running_mean,
-        model.inception_5b.bn5x5_running_var, True,
+        model.inception_5b.bn5x5_running_var,
+        True,
     )
     var inc5b_b3_relu2 = relu(inc5b_b3_bn2)
-    var inc5b_b4_pool = maxpool2d(
-        inc5a_out, kernel_size=3, stride=1, padding=1
-    )
+    var inc5b_b4_pool = maxpool2d(inc5a_out, kernel_size=3, stride=1, padding=1)
     var inc5b_b4_conv = conv2d(
         inc5b_b4_pool,
         model.inception_5b.conv1x1_4_weights,
         model.inception_5b.conv1x1_4_bias,
-        stride=1, padding=0,
+        stride=1,
+        padding=0,
     )
     var inc5b_b4_bn, _, _ = batch_norm2d(
         inc5b_b4_conv,
-        model.inception_5b.bn1x1_4_gamma, model.inception_5b.bn1x1_4_beta,
+        model.inception_5b.bn1x1_4_gamma,
+        model.inception_5b.bn1x1_4_beta,
         model.inception_5b.bn1x1_4_running_mean,
-        model.inception_5b.bn1x1_4_running_var, True,
+        model.inception_5b.bn1x1_4_running_var,
+        True,
     )
     var inc5b_b4_relu = relu(inc5b_b4_bn)
     var inc5b_out = concatenate_depthwise(
@@ -995,13 +1161,17 @@ def compute_gradients(
     )
 
     # ---- Global avg pool -> flatten -> dropout(0.4) -> linear -> CE ----
-    var gap_out = global_avgpool2d(inc5b_out)              # (N, 1024, 1, 1)
-    var flat_result = _flatten_gap(gap_out)                # (N, 1024)
+    var gap_out = global_avgpool2d(inc5b_out)  # (N, 1024, 1, 1)
+    var flat_result = _flatten_gap(gap_out)  # (N, 1024)
     var flat_out = flat_result[0]
-    var gap_shape = flat_result[1]
+    var gap_shape = flat_result[
+        1
+    ]  # Captured for backward slice (#3184) to unflatten gradients
     var drop_result = dropout(flat_out, Float64(0.4), training=True)
     var drop_out = drop_result[0]
-    var drop_mask = drop_result[1]
+    var drop_mask = drop_result[
+        1
+    ]  # Captured for backward slice (#3184) to compute dropout gradients
     var logits = linear(drop_out, model.fc_weights, model.fc_bias)
     var loss_tensor = cross_entropy(logits, labels)
     var loss = loss_tensor._data.bitcast[Float32]()[0]
@@ -1136,7 +1306,8 @@ def main() raises:
 
     var velocities = initialize_velocities(model)
     print(
-        "  Momentum velocities: " + String(len(velocities))
+        "  Momentum velocities: "
+        + String(len(velocities))
         + " tensors initialized"
     )
     print()
@@ -1150,8 +1321,15 @@ def main() raises:
                 gamma=lr_decay_factor,
             )
         var train_loss = train_epoch(
-            model, train_images, train_labels,
-            batch_size, lr, momentum, velocities, epoch, epochs,
+            model,
+            train_images,
+            train_labels,
+            batch_size,
+            lr,
+            momentum,
+            velocities,
+            epoch,
+            epochs,
         )
 
         print(
