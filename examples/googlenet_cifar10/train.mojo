@@ -217,8 +217,8 @@ def compute_gradients(
     mut model: GoogLeNet,
     input: AnyTensor,
     labels: AnyTensor,
-    learning_rate: Float32,
-    momentum: Float32,
+    learning_rate: Float32,  # Threaded in for backward slice (#3184) — unused in forward-only slice
+    momentum: Float32,  # Threaded in for backward slice (#3184) — unused in forward-only slice
     mut velocities: List[AnyTensor],
 ) raises -> Float32:
     """One-batch forward pass with full activation caching.
