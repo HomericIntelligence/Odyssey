@@ -106,6 +106,14 @@ def test_initialize_velocities_returns_expected_fields() raises:
     ):
         raise Error("fc_weights shape mismatch")
 
+    # Verify zero-fill contract: at least one velocity field has zero values
+    var fc_weights_data = velocities.fc_weights._data.bitcast[Float32]()
+    if fc_weights_data[0] != Float32(0.0):
+        raise Error(
+            "fc_weights velocity not zero-filled: expected 0.0 at [0], got "
+            + String(fc_weights_data[0])
+        )
+
     print("✓ test_initialize_velocities_returns_expected_fields passed")
 
 
@@ -146,7 +154,7 @@ def test_forward_with_cache_matches_forward_logits() raises:
     model_b.bn1_running_mean = model_a.bn1_running_mean
     model_b.bn1_running_var = model_a.bn1_running_var
 
-    # BN running stats intentionally not copied — both models initialize identically (zeros/ones), so training=False is bit-equal.
+    # Per-stage BN running stats (s1b1, s1b2, ...) intentionally not copied — both models initialize identically (zeros/ones), so training=False is bit-equal.
 
     # Stage 1
     model_b.s1b1_conv1_kernel = model_a.s1b1_conv1_kernel
