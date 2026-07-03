@@ -109,9 +109,12 @@ def test_losses_finite_positive_and_decreasing() raises:
         + ")",
     )
 
-    # Second training step on the same fixed batch.
+    # Second training step on a fresh batch to avoid use-after-move
+    var batch2 = _make_batch()
+    var input2 = batch2[0]
+    var labels_onehot2 = batch2[1]
     var loss2 = compute_gradients(
-        model, input, labels_onehot, learning_rate, momentum, velocities
+        model, input2, labels_onehot2, learning_rate, momentum, velocities
     )
 
     # Both losses finite and strictly positive (criterion 2).
