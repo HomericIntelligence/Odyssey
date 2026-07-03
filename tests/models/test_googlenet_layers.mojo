@@ -31,6 +31,7 @@ from projectodyssey.core.initializers import (
     xavier_normal,
     constant,
 )
+from projectodyssey.core.shape import split_with_indices
 
 
 struct InceptionModule:
@@ -897,6 +898,82 @@ def test_concatenate_gradient_preservation() raises:
     assert_equal(grad_result.shape()[3], width)
 
 
+def test_split_with_indices_inverse_of_concatenate_depthwise() raises:
+    """Test that split_with_indices is the inverse of concatenate_depthwise.
+
+    This test verifies the round-trip property:
+    concatenate(t1, t2, t3, t4) -> split -> (t1', t2', t3', t4')
+    where t1' == t1, t2' == t2, t3' == t3, t4' == t4 (element-wise)
+    """
+    var batch_size = 2
+    var height = 4
+    var width = 4
+
+    # Create 4 input tensors with different channel counts
+    var t1 = ones([batch_size, 2, height, width], DType.float32)
+    var t2 = ones([batch_size, 3, height, width], DType.float32)
+    var t3 = ones([batch_size, 1, height, width], DType.float32)
+    var t4 = ones([batch_size, 4, height, width], DType.float32)
+
+    # Fill tensors with unique values for verification
+    var t1_data = t1._data.bitcast[Float32]()
+    var t2_data = t2._data.bitcast[Float32]()
+    var t3_data = t3._data.bitcast[Float32]()
+    var t4_data = t4._data.bitcast[Float32]()
+
+    for i in range(t1.numel()):
+        t1_data[i] = Float32(1.0)
+    for i in range(t2.numel()):
+        t2_data[i] = Float32(2.0)
+    for i in range(t3.numel()):
+        t3_data[i] = Float32(3.0)
+    for i in range(t4.numel()):
+        t4_data[i] = Float32(4.0)
+
+    # Forward pass: concatenate
+    var concatenated = concatenate_depthwise(t1, t2, t3, t4)
+
+    # Verify concatenated shape
+    var expected_channels = 2 + 3 + 1 + 4  # 10
+    assert_equal(concatenated.shape()[0], batch_size)
+    assert_equal(concatenated.shape()[1], expected_channels)
+    assert_equal(concatenated.shape()[2], height)
+    assert_equal(concatenated.shape()[3], width)
+
+    # Split using indices: [2, 5, 6] means split at cumsum positions
+    var split_indices = List[Int]()
+    split_indices.append(2)
+    split_indices.append(5)
+    split_indices.append(6)
+
+    # Backward pass: split
+    var parts = split_with_indices(concatenated, split_indices, axis=1)
+
+    # Verify we got 4 parts
+    assert_equal(len(parts), 4)
+
+    # Verify shapes match originals
+    assert_shape(parts[0], t1.shape())
+    assert_shape(parts[1], t2.shape())
+    assert_shape(parts[2], t3.shape())
+    assert_shape(parts[3], t4.shape())
+
+    # Verify values match (element-wise comparison)
+    var parts_0_data = parts[0]._data.bitcast[Float32]()
+    var parts_1_data = parts[1]._data.bitcast[Float32]()
+    var parts_2_data = parts[2]._data.bitcast[Float32]()
+    var parts_3_data = parts[3]._data.bitcast[Float32]()
+
+    for i in range(t1.numel()):
+        assert_close_float(parts_0_data[i], t1_data[i], "parts[0] mismatch")
+    for i in range(t2.numel()):
+        assert_close_float(parts_1_data[i], t2_data[i], "parts[1] mismatch")
+    for i in range(t3.numel()):
+        assert_close_float(parts_2_data[i], t3_data[i], "parts[2] mismatch")
+    for i in range(t4.numel()):
+        assert_close_float(parts_3_data[i], t4_data[i], "parts[3] mismatch")
+
+
 def main() raises:
     """Run all test_googlenet_layers tests."""
     print("Running test_googlenet_layers tests...")
@@ -954,5 +1031,8 @@ def main() raises:
 
     test_concatenate_gradient_preservation()
     print("✓ test_concatenate_gradient_preservation")
+
+    test_split_with_indices_inverse_of_concatenate_depthwise()
+    print("✓ test_split_with_indices_inverse_of_concatenate_depthwise")
 
     print("\nAll test_googlenet_layers tests passed!")
