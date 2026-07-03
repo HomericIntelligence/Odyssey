@@ -147,6 +147,7 @@ def _flatten_gap(gap_out: AnyTensor) raises -> Tuple[AnyTensor, List[Int]]:
     return (flat^, gap_shape)
 
 
+# TODO(#3184): Called by backward slice for gradient reshaping.
 # Paired helper for backward slice (issue #3184) — not called in forward pass.
 # Defined alongside _flatten_gap for API consistency; will be used by backward-pass backward
 # implementation.
