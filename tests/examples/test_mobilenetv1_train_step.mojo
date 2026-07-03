@@ -1,37 +1,185 @@
-"""Smoke test for MobileNetV1 train_step (issue #5525).
+"""Functional smoke test for MobileNetV1 train_step (issue #5525).
 
-Acceptance criteria from the issue:
-- velocity count == 110
-- two successive losses on a fixed 2-sample batch are finite-positive and strictly decreasing
-- at least one parameter tensor changed after training
-- post-train forward returns (2, 10) logits
+Exercises the real training machinery from the example package and verifies
+the four acceptance criteria from #5525:
 
-Note: This test is located in tests/examples/ but needs to import from examples/mobilenetv1_cifar10/,
-which requires running from the repo root with proper module path configuration.
-The actual test assertions are in examples/mobilenetv1_cifar10/train.mojo in the compute_gradients
-and initialize_velocities functions, which are exercised during training.
+  1. ``initialize_velocities(model)`` returns exactly 110 velocity buffers
+     (initial 4 + 13 blocks x 8 + fc 2).
+  2. Two successive ``compute_gradients`` calls on a fixed batch produce
+     finite, strictly-positive losses that strictly decrease.
+  3. At least one model parameter changes after a training step.
+  4. A post-training forward pass returns logits of shape (2, 10).
 
-Runs as: pixi run mojo ./tests/examples/test_mobilenetv1_train_step.mojo
-Or from examples directory: mojo run train.mojo --epochs 1 --batch-size 128
+Runs as: pixi run mojo -I src -I . ./tests/examples/test_mobilenetv1_train_step.mojo
+
+The example modules are imported as package submodules (examples has an
+__init__.mojo, as does examples/mobilenetv1_cifar10), so the compiler resolves
+them via the repository-root include path used by the test group runner.
 """
+
+from std.math import isnan, isinf
+
 from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros, ones
+from projectodyssey.tensor.tensor_creation import ones, zeros
+
+from examples.mobilenetv1_cifar10.model import MobileNetV1
+from examples.mobilenetv1_cifar10.train import (
+    compute_gradients,
+    initialize_velocities,
+)
+
+
+# ---------------------------------------------------------------------------
+# Helpers
+# ---------------------------------------------------------------------------
+
+
+def _make_batch() raises -> Tuple[AnyTensor, AnyTensor]:
+    """Build a small fixed batch: ones input + deterministic one-hot labels.
+
+    Returns:
+        (input, labels_onehot) where
+            input:          (2, 3, 32, 32) filled with 1.0
+            labels_onehot:  (2, 10), sample 0 -> class 0, sample 1 -> class 1.
+    """
+    var batch_size = 2
+    var num_classes = 10
+
+    var input_shape: List[Int] = [batch_size, 3, 32, 32]
+    var input = ones(input_shape, DType.float32)
+
+    var labels_shape: List[Int] = [batch_size, num_classes]
+    var labels_onehot = zeros(labels_shape, DType.float32)
+    # Sample 0 -> class 0, sample 1 -> class 1 (rows sum to 1 for cross-entropy).
+    labels_onehot.store[DType.float32](0 * num_classes + 0, Float32(1.0))
+    labels_onehot.store[DType.float32](1 * num_classes + 1, Float32(1.0))
+
+    return (input^, labels_onehot^)
+
+
+def _assert_true(cond: Bool, message: String) raises:
+    if not cond:
+        raise Error("Assertion failed: " + message)
+
+
+# ---------------------------------------------------------------------------
+# Acceptance-criteria tests
+# ---------------------------------------------------------------------------
+
+
+def test_velocity_count_is_110() raises:
+    """Criterion 1: velocity buffer count == 110."""
+    var model = MobileNetV1(num_classes=10)
+    var velocities = initialize_velocities(model)
+    _assert_true(
+        len(velocities) == 110,
+        "expected 110 velocity buffers, got " + String(len(velocities)),
+    )
+
+
+def test_losses_finite_positive_and_decreasing() raises:
+    """Criterion 2 + 3: two losses finite/positive & strictly decreasing,
+    and at least one parameter changes after a step."""
+    var model = MobileNetV1(num_classes=10)
+    var velocities = initialize_velocities(model)
+
+    var batch = _make_batch()
+    var input = batch[0]
+    var labels_onehot = batch[1]
+
+    var learning_rate = Float32(0.05)
+    var momentum = Float32(0.9)
+
+    # Snapshot a parameter element before any update (fc_bias starts at 0).
+    var fc_bias_before = model.fc_bias.load[DType.float32](0)
+
+    # First training step.
+    var loss1 = compute_gradients(
+        model, input, labels_onehot, learning_rate, momentum, velocities
+    )
+
+    # Parameter must have changed (criterion 3).
+    var fc_bias_after = model.fc_bias.load[DType.float32](0)
+    _assert_true(
+        fc_bias_after != fc_bias_before,
+        "expected fc_bias[0] to change after a training step (before="
+        + String(fc_bias_before)
+        + ", after="
+        + String(fc_bias_after)
+        + ")",
+    )
+
+    # Second training step on the same fixed batch.
+    var loss2 = compute_gradients(
+        model, input, labels_onehot, learning_rate, momentum, velocities
+    )
+
+    # Both losses finite and strictly positive (criterion 2).
+    _assert_true(
+        not isnan(loss1) and not isinf(loss1),
+        "loss1 must be finite, got " + String(loss1),
+    )
+    _assert_true(
+        not isnan(loss2) and not isinf(loss2),
+        "loss2 must be finite, got " + String(loss2),
+    )
+    _assert_true(
+        loss1 > Float32(0.0), "loss1 must be positive, got " + String(loss1)
+    )
+    _assert_true(
+        loss2 > Float32(0.0), "loss2 must be positive, got " + String(loss2)
+    )
+
+    # Strictly decreasing.
+    _assert_true(
+        loss2 < loss1,
+        "expected loss2 < loss1, got loss1="
+        + String(loss1)
+        + ", loss2="
+        + String(loss2),
+    )
+
+
+def test_post_train_forward_shape() raises:
+    """Criterion 4: forward returns (2, 10) logits after training."""
+    var model = MobileNetV1(num_classes=10)
+    var velocities = initialize_velocities(model)
+
+    var batch = _make_batch()
+    var input = batch[0]
+    var labels_onehot = batch[1]
+
+    # Run one training step so the forward pass exercises trained weights.
+    _ = compute_gradients(
+        model, input, labels_onehot, Float32(0.05), Float32(0.9), velocities
+    )
+
+    var logits = model.forward(input, training=False)
+    var shape = logits.shape()
+    _assert_true(
+        len(shape) == 2,
+        "expected rank-2 logits, got rank " + String(len(shape)),
+    )
+    _assert_true(
+        shape[0] == 2,
+        "expected batch dimension 2, got " + String(shape[0]),
+    )
+    _assert_true(
+        shape[1] == 10,
+        "expected 10 classes, got " + String(shape[1]),
+    )
 
 
 def main() raises:
-    print("MobileNetV1 Training Test")
-    print("=" * 60)
-    print("Test infrastructure for issue #5525 acceptance criteria:")
-    print("  (1) velocity count == 110")
-    print("  (2) two successive losses finite-positive and strictly decreasing")
-    print("  (3) at least one parameter tensor changed after training")
-    print("  (4) post-train forward returns (2, 10) logits")
-    print()
-    print("Implementation: compute_gradients() in train.mojo")
-    print("Acceptance verified by:")
-    print("  - initialize_velocities() returns List[AnyTensor] with 110 items")
-    print("  - compute_gradients() performs forward + backward + SGD update")
-    print("  - Model parameters are mutated during training")
-    print("  - Output shape matches (batch_size, num_classes)")
-    print()
+    print("Running test_mobilenetv1_train_step tests...")
+
+    test_velocity_count_is_110()
+    print("[PASS] test_velocity_count_is_110")
+
+    test_losses_finite_positive_and_decreasing()
+    print("[PASS] test_losses_finite_positive_and_decreasing")
+
+    test_post_train_forward_shape()
+    print("[PASS] test_post_train_forward_shape")
+
     print("PASSED")
