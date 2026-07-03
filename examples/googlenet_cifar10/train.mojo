@@ -149,10 +149,6 @@ def _flatten_gap(gap_out: AnyTensor) raises -> Tuple[AnyTensor, List[Int]]:
     return (flat^, gap_shape)
 
 
-# TODO(#3184): Called by backward slice for gradient reshaping.
-# Paired helper for backward slice (issue #3184) — not called in forward pass.
-# Defined alongside _flatten_gap for API consistency; will be used by backward-pass backward
-# implementation.
 def _unflatten_gap_grad(
     grad_flat: AnyTensor, gap_shape: List[Int]
 ) raises -> AnyTensor:
@@ -229,6 +225,11 @@ def compute_gradients(
     Backward + SGD momentum updates are the next slice of #3184.
     The velocities buffer is threaded in NOW so the signature is stable.
     """
+    # Suppress unused parameter warnings; these are consumed by backward slice (#3184)
+    _ = learning_rate
+    _ = momentum
+    _ = velocities
+
     # ---- Initial block: conv3x3 -> BN -> ReLU -> MaxPool ----
     var init_conv_out = conv2d(
         input,
