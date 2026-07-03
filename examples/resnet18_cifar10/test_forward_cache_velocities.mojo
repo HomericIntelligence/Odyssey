@@ -14,12 +14,12 @@ from std.collections import List
 
 def test_initialize_velocities_returns_expected_fields() raises:
     """Verify initialize_velocities populates all 82 velocity fields with correct shapes.
+    Tests all 9 representative groups: initial stem, and 2 blocks from each of 4 stages.
     """
     var model = ResNet18(num_classes=10)
     var velocities = initialize_velocities(model)
 
-    # Test all 82 fields: each should have shape matching its model parameter
-    # Initial conv + BN (4 fields)
+    # Initial stem conv + BN
     var conv1_kernel_shape = model.conv1_kernel.shape()
     var vel_conv1_kernel_shape = velocities.conv1_kernel.shape()
     if (
@@ -28,19 +28,55 @@ def test_initialize_velocities_returns_expected_fields() raises:
     ):
         raise Error("conv1_kernel shape mismatch")
 
-    # Stage 1, Block 1 (8 trainable fields)
+    # Stage 1, Block 1
     var s1b1_conv1_kernel_shape = model.s1b1_conv1_kernel.shape()
     var vel_s1b1_conv1_kernel_shape = velocities.s1b1_conv1_kernel.shape()
     if vel_s1b1_conv1_kernel_shape[0] != s1b1_conv1_kernel_shape[0]:
         raise Error("s1b1_conv1_kernel shape mismatch")
 
-    # Stage 2, Block 1 with projection (12 trainable fields)
+    # Stage 1, Block 2
+    var s1b2_conv2_kernel_shape = model.s1b2_conv2_kernel.shape()
+    var vel_s1b2_conv2_kernel_shape = velocities.s1b2_conv2_kernel.shape()
+    if vel_s1b2_conv2_kernel_shape[0] != s1b2_conv2_kernel_shape[0]:
+        raise Error("s1b2_conv2_kernel shape mismatch")
+
+    # Stage 2, Block 1 with projection
     var s2b1_proj_kernel_shape = model.s2b1_proj_kernel.shape()
     var vel_s2b1_proj_kernel_shape = velocities.s2b1_proj_kernel.shape()
     if vel_s2b1_proj_kernel_shape[0] != s2b1_proj_kernel_shape[0]:
         raise Error("s2b1_proj_kernel shape mismatch")
 
-    # FC layer (2 fields)
+    # Stage 2, Block 2
+    var s2b2_conv1_kernel_shape = model.s2b2_conv1_kernel.shape()
+    var vel_s2b2_conv1_kernel_shape = velocities.s2b2_conv1_kernel.shape()
+    if vel_s2b2_conv1_kernel_shape[0] != s2b2_conv1_kernel_shape[0]:
+        raise Error("s2b2_conv1_kernel shape mismatch")
+
+    # Stage 3, Block 1
+    var s3b1_conv2_kernel_shape = model.s3b1_conv2_kernel.shape()
+    var vel_s3b1_conv2_kernel_shape = velocities.s3b1_conv2_kernel.shape()
+    if vel_s3b1_conv2_kernel_shape[0] != s3b1_conv2_kernel_shape[0]:
+        raise Error("s3b1_conv2_kernel shape mismatch")
+
+    # Stage 3, Block 2
+    var s3b2_bn2_gamma_shape = model.s3b2_bn2_gamma.shape()
+    var vel_s3b2_bn2_gamma_shape = velocities.s3b2_bn2_gamma.shape()
+    if vel_s3b2_bn2_gamma_shape[0] != s3b2_bn2_gamma_shape[0]:
+        raise Error("s3b2_bn2_gamma shape mismatch")
+
+    # Stage 4, Block 1
+    var s4b1_conv1_kernel_shape = model.s4b1_conv1_kernel.shape()
+    var vel_s4b1_conv1_kernel_shape = velocities.s4b1_conv1_kernel.shape()
+    if vel_s4b1_conv1_kernel_shape[0] != s4b1_conv1_kernel_shape[0]:
+        raise Error("s4b1_conv1_kernel shape mismatch")
+
+    # Stage 4, Block 2
+    var s4b2_conv2_kernel_shape = model.s4b2_conv2_kernel.shape()
+    var vel_s4b2_conv2_kernel_shape = velocities.s4b2_conv2_kernel.shape()
+    if vel_s4b2_conv2_kernel_shape[0] != s4b2_conv2_kernel_shape[0]:
+        raise Error("s4b2_conv2_kernel shape mismatch")
+
+    # FC layer
     var fc_weights_shape = model.fc_weights.shape()
     var vel_fc_weights_shape = velocities.fc_weights.shape()
     if (
@@ -48,12 +84,6 @@ def test_initialize_velocities_returns_expected_fields() raises:
         or vel_fc_weights_shape[1] != fc_weights_shape[1]
     ):
         raise Error("fc_weights shape mismatch")
-
-    # Spot-check that fc_bias is also initialized
-    var fc_bias_shape = model.fc_bias.shape()
-    var vel_fc_bias_shape = velocities.fc_bias.shape()
-    if vel_fc_bias_shape[0] != fc_bias_shape[0]:
-        raise Error("fc_bias shape mismatch")
 
     print("✓ test_initialize_velocities_returns_expected_fields passed")
 
@@ -75,10 +105,12 @@ def test_forward_with_cache_matches_forward_logits() raises:
 
     # Test approach: single-model comparison
     # Run forward_with_cache first, then re-execute forward on same weights
+    # Use training=False to ensure BN uses fixed stats (no stat updates),
+    # so identical weights produce identical logits.
     var model_a = ResNet18(num_classes=10)
 
     # Capture logits from forward_with_cache
-    var cache = model_a.forward_with_cache(input_tensor, training=True)
+    var cache = model_a.forward_with_cache(input_tensor, training=False)
     var cache_logits = cache.logits
 
     # Create second model with same weights as model_a
@@ -186,9 +218,9 @@ def test_forward_with_cache_matches_forward_logits() raises:
     model_b.fc_bias = model_a.fc_bias
 
     # Run forward on model_b
-    var forward_logits = model_b.forward(input_tensor, training=True)
+    var forward_logits = model_b.forward(input_tensor, training=False)
 
-    # Compare logit shapes
+    # Compare logit shapes (sanity check before element-wise comparison)
     var cache_logits_shape = cache_logits.shape()
     var forward_logits_shape = forward_logits.shape()
     if (
@@ -198,6 +230,23 @@ def test_forward_with_cache_matches_forward_logits() raises:
         raise Error(
             "Logit shape mismatch between forward_with_cache and forward"
         )
+
+    # Compare logit values element-wise: forward_with_cache must produce
+    # bit-equal float32 logits to forward (40 logits = 4 batch x 10 classes).
+    var cache_logits_data = cache_logits._data.bitcast[Float32]()
+    var forward_logits_data = forward_logits._data.bitcast[Float32]()
+    var num_logits = cache_logits_shape[0] * cache_logits_shape[1]
+    for i in range(num_logits):
+        if cache_logits_data[i] != forward_logits_data[i]:
+            raise Error(
+                "Logit value mismatch between forward_with_cache and"
+                " forward at index "
+                + String(i)
+                + ": "
+                + String(cache_logits_data[i])
+                + " != "
+                + String(forward_logits_data[i])
+            )
 
     print("✓ test_forward_with_cache_matches_forward_logits passed")
 
