@@ -56,6 +56,7 @@ def find_test_files(root_dir: Path) -> List[Path]:
         "examples/googlenet_cifar10/test_model.mojo",
         "examples/mobilenetv1_cifar10/test_model.mojo",
         "examples/resnet18_cifar10/test_model.mojo",
+        "examples/resnet18_cifar10/test_forward_cache_velocities.mojo",
         # Conda recipe smoke test — executed by rattler-build's `tests:`
         # block when the package is built (see conda.recipe/recipe.yaml),
         # not by the per-PR CI test matrix.

@@ -31,7 +31,10 @@ def test_initialize_velocities_returns_expected_fields() raises:
     # Stage 1, Block 1
     var s1b1_conv1_kernel_shape = model.s1b1_conv1_kernel.shape()
     var vel_s1b1_conv1_kernel_shape = velocities.s1b1_conv1_kernel.shape()
-    if vel_s1b1_conv1_kernel_shape[0] != s1b1_conv1_kernel_shape[0]:
+    if (
+        vel_s1b1_conv1_kernel_shape[0] != s1b1_conv1_kernel_shape[0]
+        or vel_s1b1_conv1_kernel_shape[1] != s1b1_conv1_kernel_shape[1]
+    ):
         raise Error("s1b1_conv1_kernel shape mismatch")
 
     # Stage 1, Block 2
