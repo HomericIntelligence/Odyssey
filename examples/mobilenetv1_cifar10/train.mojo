@@ -692,7 +692,7 @@ def compute_gradients(
     var grad_b12_dw_w = b12_dw_grads.grad_weights
     var grad_b12_dw_b = b12_dw_grads.grad_bias
 
-    # ---- Block 11 backward (in=512, out=1024, stride=2) ----
+    # ---- Block 11 backward (in=512, out=512, stride=1) ----
     var grad_b11_out = grad_b12_in
     var grad_b11_pw_bn_out = relu_backward(grad_b11_out, b11_pw_bn_out)
     var b11_pw_bn_bwd = batch_norm2d_backward(

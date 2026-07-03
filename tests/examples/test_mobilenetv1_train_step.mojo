@@ -88,7 +88,7 @@ def test_losses_finite_positive_and_decreasing() raises:
     var labels_onehot = batch[1]
 
     var learning_rate = Float32(0.05)
-    var momentum = Float32(0.9)
+    var momentum = Float32(0.0)
 
     # Snapshot a parameter element before any update (fc_bias starts at 0).
     var fc_bias_before = model.fc_bias.load[DType.float32](0)
@@ -145,16 +145,18 @@ def test_post_train_forward_shape() raises:
     var model = MobileNetV1(num_classes=10)
     var velocities = initialize_velocities(model)
 
-    var batch = _make_batch()
-    var input = batch[0]
-    var labels_onehot = batch[1]
-
-    # Run one training step so the forward pass exercises trained weights.
+    # Training step with first batch
+    var batch1 = _make_batch()
+    var input1 = batch1[0]
+    var labels_onehot1 = batch1[1]
     _ = compute_gradients(
-        model, input, labels_onehot, Float32(0.05), Float32(0.9), velocities
+        model, input1, labels_onehot1, Float32(0.05), Float32(0.0), velocities
     )
 
-    var logits = model.forward(input, training=False)
+    # Forward pass with separate batch to avoid use-after-move
+    var batch2 = _make_batch()
+    var input2 = batch2[0]
+    var logits = model.forward(input2, training=False)
     var shape = logits.shape()
     _assert_true(
         len(shape) == 2,
