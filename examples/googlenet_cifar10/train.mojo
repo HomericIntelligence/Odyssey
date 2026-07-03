@@ -49,6 +49,8 @@ from projectodyssey.core.activation import relu, relu_backward
 from projectodyssey.core.linear import linear, linear_backward
 from projectodyssey.core.dropout import dropout, dropout_backward
 from projectodyssey.core.loss import cross_entropy, cross_entropy_backward
+from projectodyssey.core.shape import split_with_indices
+from projectodyssey.core.arithmetic import add, add_backward
 from projectodyssey.training.schedulers import step_lr
 from projectodyssey.data.batch_utils import (
     compute_num_batches,
