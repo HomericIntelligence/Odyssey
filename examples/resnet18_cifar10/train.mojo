@@ -324,7 +324,7 @@ def train_step(
     var batch = images.shape()[0]
     var dGap4D = fc.grad_input.reshape(List[Int](batch, 512, 1, 1))
     var d_s4b2_out = avgpool2d_backward(
-        dGap4D, fwd.gap, kernel_size=4, stride=1, padding=0
+        dGap4D, fwd.s4b2_cache.block_out, kernel_size=4, stride=1, padding=0
     )
 
     # Stage 4 (reverse: b2 identity, then b1 projection)
@@ -466,7 +466,7 @@ def train_step(
     )
 
     # Initial conv + BN + ReLU
-    var dInitBn = relu_backward(g_s1b1.grad_input, fwd.relu1_out)
+    var dInitBn = relu_backward(g_s1b1.grad_input, fwd.bn1_pre_relu)
     var init_bn = batch_norm2d_backward(
         dInitBn,
         fwd.conv1_pre_bn,
@@ -478,54 +478,6 @@ def train_step(
     var init_c = conv2d_backward(
         init_bn[0], images, model.conv1_kernel, stride=1, padding=1
     )
-
-    # Update BN running stats (deferred after backward completes)
-    model.bn1_running_mean = fwd.initial_bn_running_mean_snapshot
-    model.bn1_running_var = fwd.initial_bn_running_var_snapshot
-    model.s1b1_bn1_running_mean = fwd.s1b1_cache.bn1_running_mean_snapshot
-    model.s1b1_bn1_running_var = fwd.s1b1_cache.bn1_running_var_snapshot
-    model.s1b1_bn2_running_mean = fwd.s1b1_cache.bn2_running_mean_snapshot
-    model.s1b1_bn2_running_var = fwd.s1b1_cache.bn2_running_var_snapshot
-    model.s1b2_bn1_running_mean = fwd.s1b2_cache.bn1_running_mean_snapshot
-    model.s1b2_bn1_running_var = fwd.s1b2_cache.bn1_running_var_snapshot
-    model.s1b2_bn2_running_mean = fwd.s1b2_cache.bn2_running_mean_snapshot
-    model.s1b2_bn2_running_var = fwd.s1b2_cache.bn2_running_var_snapshot
-    model.s2b1_bn1_running_mean = fwd.s2b1_cache.bn1_running_mean_snapshot
-    model.s2b1_bn1_running_var = fwd.s2b1_cache.bn1_running_var_snapshot
-    model.s2b1_bn2_running_mean = fwd.s2b1_cache.bn2_running_mean_snapshot
-    model.s2b1_bn2_running_var = fwd.s2b1_cache.bn2_running_var_snapshot
-    model.s2b1_proj_bn_running_mean = (
-        fwd.s2b1_cache.proj_bn_running_mean_snapshot
-    )
-    model.s2b1_proj_bn_running_var = fwd.s2b1_cache.proj_bn_running_var_snapshot
-    model.s2b2_bn1_running_mean = fwd.s2b2_cache.bn1_running_mean_snapshot
-    model.s2b2_bn1_running_var = fwd.s2b2_cache.bn1_running_var_snapshot
-    model.s2b2_bn2_running_mean = fwd.s2b2_cache.bn2_running_mean_snapshot
-    model.s2b2_bn2_running_var = fwd.s2b2_cache.bn2_running_var_snapshot
-    model.s3b1_bn1_running_mean = fwd.s3b1_cache.bn1_running_mean_snapshot
-    model.s3b1_bn1_running_var = fwd.s3b1_cache.bn1_running_var_snapshot
-    model.s3b1_bn2_running_mean = fwd.s3b1_cache.bn2_running_mean_snapshot
-    model.s3b1_bn2_running_var = fwd.s3b1_cache.bn2_running_var_snapshot
-    model.s3b1_proj_bn_running_mean = (
-        fwd.s3b1_cache.proj_bn_running_mean_snapshot
-    )
-    model.s3b1_proj_bn_running_var = fwd.s3b1_cache.proj_bn_running_var_snapshot
-    model.s3b2_bn1_running_mean = fwd.s3b2_cache.bn1_running_mean_snapshot
-    model.s3b2_bn1_running_var = fwd.s3b2_cache.bn1_running_var_snapshot
-    model.s3b2_bn2_running_mean = fwd.s3b2_cache.bn2_running_mean_snapshot
-    model.s3b2_bn2_running_var = fwd.s3b2_cache.bn2_running_var_snapshot
-    model.s4b1_bn1_running_mean = fwd.s4b1_cache.bn1_running_mean_snapshot
-    model.s4b1_bn1_running_var = fwd.s4b1_cache.bn1_running_var_snapshot
-    model.s4b1_bn2_running_mean = fwd.s4b1_cache.bn2_running_mean_snapshot
-    model.s4b1_bn2_running_var = fwd.s4b1_cache.bn2_running_var_snapshot
-    model.s4b1_proj_bn_running_mean = (
-        fwd.s4b1_cache.proj_bn_running_mean_snapshot
-    )
-    model.s4b1_proj_bn_running_var = fwd.s4b1_cache.proj_bn_running_var_snapshot
-    model.s4b2_bn1_running_mean = fwd.s4b2_cache.bn1_running_mean_snapshot
-    model.s4b2_bn1_running_var = fwd.s4b2_cache.bn1_running_var_snapshot
-    model.s4b2_bn2_running_mean = fwd.s4b2_cache.bn2_running_mean_snapshot
-    model.s4b2_bn2_running_var = fwd.s4b2_cache.bn2_running_var_snapshot
 
     # SGD momentum updates (82 parameters total)
     sgd_momentum_update_inplace(

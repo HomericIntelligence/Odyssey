@@ -15,12 +15,14 @@ from examples.resnet18_cifar10.train import train_step
 def _make_non_uniform_batch() raises -> Tuple[AnyTensor, AnyTensor]:
     var img_shape = List[Int](4, 3, 32, 32)
     var images = randn(img_shape, DType.float32, seed=42)
-    var lbl_shape = List[Int](4)
+    # One-hot encoded labels: cross_entropy requires targets to have the
+    # same shape as logits (batch=4, num_classes=10) — see loss.mojo:309.
+    var lbl_shape = List[Int](4, 10)
     var labels = zeros(lbl_shape, DType.float32)
-    labels.set(0, Float32(3.0))
-    labels.set(1, Float32(7.0))
-    labels.set(2, Float32(1.0))
-    labels.set(3, Float32(9.0))
+    labels.set(0 * 10 + 3, Float32(1.0))  # class 3 for sample 0
+    labels.set(1 * 10 + 7, Float32(1.0))  # class 7 for sample 1
+    labels.set(2 * 10 + 1, Float32(1.0))  # class 1 for sample 2
+    labels.set(3 * 10 + 9, Float32(1.0))  # class 9 for sample 3
     return (images^, labels^)
 
 
