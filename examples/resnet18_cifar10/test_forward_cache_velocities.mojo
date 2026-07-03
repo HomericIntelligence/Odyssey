@@ -154,7 +154,11 @@ def test_forward_with_cache_matches_forward_logits() raises:
     model_b.bn1_running_mean = model_a.bn1_running_mean
     model_b.bn1_running_var = model_a.bn1_running_var
 
-    # Per-stage BN running stats (s1b1, s1b2, ...) intentionally not copied — both models initialize identically (zeros/ones), so training=False is bit-equal.
+    # Per-stage BN running stats (s1b1, s1b2, ...) intentionally not copied.
+    # Robustness guarantee: ResNet18.__init__ zero-initializes all running_mean fields
+    # and ones-initializes all running_var fields (model.mojo lines 576-577, 583-584, etc.).
+    # With training=False, BN stats remain frozen at this init state, so both models' outputs
+    # are bit-equal despite not copying per-stage BN stats. This test depends on that invariant.
 
     # Stage 1
     model_b.s1b1_conv1_kernel = model_a.s1b1_conv1_kernel
