@@ -313,7 +313,7 @@ def train_step(
     var loss = cross_entropy(fwd.logits, labels)
 
     # Backward: loss → logits
-    var grad_out = zeros(List[Int](1), fwd.logits.dtype())
+    var grad_out = zeros([1], fwd.logits.dtype())
     grad_out.set(0, Float32(1.0))
     var dLogits = cross_entropy_backward(grad_out, fwd.logits, labels)
 
