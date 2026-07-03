@@ -17,7 +17,7 @@ __init__.mojo, as does examples/mobilenetv1_cifar10), so the compiler resolves
 them via the repository-root include path used by the test group runner.
 """
 
-from std.math import isnan, isinf
+from math import isnan, isinf
 
 from projectodyssey.tensor.any_tensor import AnyTensor
 from projectodyssey.tensor.tensor_creation import ones, zeros
