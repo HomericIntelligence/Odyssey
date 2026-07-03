@@ -43,7 +43,10 @@ def test_initialize_velocities_returns_expected_fields() raises:
     # Stage 2, Block 1 with projection
     var s2b1_proj_kernel_shape = model.s2b1_proj_kernel.shape()
     var vel_s2b1_proj_kernel_shape = velocities.s2b1_proj_kernel.shape()
-    if vel_s2b1_proj_kernel_shape[0] != s2b1_proj_kernel_shape[0]:
+    if (
+        vel_s2b1_proj_kernel_shape[0] != s2b1_proj_kernel_shape[0]
+        or vel_s2b1_proj_kernel_shape[1] != s2b1_proj_kernel_shape[1]
+    ):
         raise Error("s2b1_proj_kernel shape mismatch")
 
     # Stage 2, Block 2
@@ -58,6 +61,15 @@ def test_initialize_velocities_returns_expected_fields() raises:
     if vel_s3b1_conv2_kernel_shape[0] != s3b1_conv2_kernel_shape[0]:
         raise Error("s3b1_conv2_kernel shape mismatch")
 
+    # Stage 3, Block 1 projection
+    var s3b1_proj_kernel_shape = model.s3b1_proj_kernel.shape()
+    var vel_s3b1_proj_kernel_shape = velocities.s3b1_proj_kernel.shape()
+    if (
+        vel_s3b1_proj_kernel_shape[0] != s3b1_proj_kernel_shape[0]
+        or vel_s3b1_proj_kernel_shape[1] != s3b1_proj_kernel_shape[1]
+    ):
+        raise Error("s3b1_proj_kernel shape mismatch")
+
     # Stage 3, Block 2
     var s3b2_bn2_gamma_shape = model.s3b2_bn2_gamma.shape()
     var vel_s3b2_bn2_gamma_shape = velocities.s3b2_bn2_gamma.shape()
@@ -69,6 +81,15 @@ def test_initialize_velocities_returns_expected_fields() raises:
     var vel_s4b1_conv1_kernel_shape = velocities.s4b1_conv1_kernel.shape()
     if vel_s4b1_conv1_kernel_shape[0] != s4b1_conv1_kernel_shape[0]:
         raise Error("s4b1_conv1_kernel shape mismatch")
+
+    # Stage 4, Block 1 projection
+    var s4b1_proj_kernel_shape = model.s4b1_proj_kernel.shape()
+    var vel_s4b1_proj_kernel_shape = velocities.s4b1_proj_kernel.shape()
+    if (
+        vel_s4b1_proj_kernel_shape[0] != s4b1_proj_kernel_shape[0]
+        or vel_s4b1_proj_kernel_shape[1] != s4b1_proj_kernel_shape[1]
+    ):
+        raise Error("s4b1_proj_kernel shape mismatch")
 
     # Stage 4, Block 2
     var s4b2_conv2_kernel_shape = model.s4b2_conv2_kernel.shape()
