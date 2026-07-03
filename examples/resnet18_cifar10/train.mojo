@@ -322,7 +322,7 @@ def train_step(
 
     # Backward: GAP (reshape (batch,512) → (batch,512,1,1), then avgpool_backward)
     var batch = images.shape()[0]
-    var dGap4D = fc.grad_input.reshape(List[Int](batch, 512, 1, 1))
+    var dGap4D = fc.grad_input.reshape([batch, 512, 1, 1])
     var d_s4b2_out = avgpool2d_backward(
         dGap4D, fwd.s4b2_cache.block_out, kernel_size=4, stride=1, padding=0
     )
@@ -1204,8 +1204,8 @@ def main() raises:
     print()
 
     # Run training loop (minimal: just 1 epoch for demonstration)
-    var model_mut: ResNet18 = model
-    var vel_mut: ResNet18Velocities = velocities
+    var model_mut: ResNet18 = model^
+    var vel_mut: ResNet18Velocities = velocities^
     var epoch_loss = train_epoch(
         model_mut,
         train_images,
