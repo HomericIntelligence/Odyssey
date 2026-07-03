@@ -580,7 +580,7 @@ def compute_gradients(
     var flat = gap_out.reshape(flat_shape)
     var logits = linear(flat, model.fc_weights, model.fc_bias)
     var loss_t = cross_entropy(logits, labels_onehot)
-    var loss = loss_t._data.bitcast[Float32]()[0]
+    var loss = loss_t.load[DType.float32](0)
 
     # ===== Backward pass (reverse; mirrors VGG16 template style) =====
 
@@ -2257,7 +2257,7 @@ def validate(
         var logits = model.forward(batch_images, training=False)
 
         for i in range(current_batch_size):
-            var logits_data = logits._data.bitcast[Float32]()
+            var logits_data = logits.data_ptr[DType.float32]()
             var pred_class = 0
             var max_logit = logits_data[i * 10]
             for j in range(1, 10):
