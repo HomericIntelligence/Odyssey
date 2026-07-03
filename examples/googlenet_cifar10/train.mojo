@@ -1167,7 +1167,7 @@ def compute_gradients(
     # ---- Global avg pool -> flatten -> dropout(0.4) -> linear -> CE ----
     var gap_out = global_avgpool2d(inc5b_out)  # (N, 1024, 1, 1)
     var flat_result = _flatten_gap(gap_out)  # (N, 1024)
-    var flat_out = flat_result[0]
+    var flat_out = flat_result[0]^
     var gap_shape = (
         flat_result[1]^
     )  # Captured for backward slice (#3184) to unflatten gradients
