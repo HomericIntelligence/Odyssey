@@ -146,7 +146,7 @@ def _flatten_gap(gap_out: AnyTensor) raises -> Tuple[AnyTensor, List[Int]]:
     var gap_shape = gap_out.shape()
     var flat_shape: List[Int] = [gap_shape[0], gap_shape[1]]
     var flat = gap_out.reshape(flat_shape)
-    return (flat^, gap_shape)
+    return (flat^, gap_shape^)
 
 
 def _unflatten_gap_grad(
@@ -1168,9 +1168,9 @@ def compute_gradients(
     var gap_out = global_avgpool2d(inc5b_out)  # (N, 1024, 1, 1)
     var flat_result = _flatten_gap(gap_out)  # (N, 1024)
     var flat_out = flat_result[0]
-    var gap_shape = flat_result[
-        1
-    ]  # Captured for backward slice (#3184) to unflatten gradients
+    var gap_shape = (
+        flat_result[1]^
+    )  # Captured for backward slice (#3184) to unflatten gradients
     var drop_result = dropout(flat_out, Float64(0.4), training=True)
     var drop_out = drop_result[0]
     var drop_mask = drop_result[
