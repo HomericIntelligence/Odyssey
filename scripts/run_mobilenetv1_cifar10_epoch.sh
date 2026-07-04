@@ -30,7 +30,7 @@ run_in_container() {
 # Ensure dataset is present (CIFAR-10 is ~170MB; download once).
 if [ ! -d "datasets/cifar10" ] || [ -z "$(ls -A datasets/cifar10 2>/dev/null)" ]; then
     echo "# Downloading CIFAR-10 to datasets/cifar10/..." | tee -a "$LOG"
-    run_in_container "cd /workspace && pixi run python3 examples/mobilenetv1_cifar10/download_cifar10.py cifar10 datasets/cifar10" 2>&1 | tee -a "$LOG"
+    run_in_container "cd /workspace && pixi run python3 examples/mobilenetv1_cifar10/download_cifar10.py --output-dir datasets/cifar10" 2>&1 | tee -a "$LOG"
 fi
 
 # Run one epoch — tee stdout+stderr, preserve Mojo exit code via PIPESTATUS.
