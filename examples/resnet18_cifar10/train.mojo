@@ -161,7 +161,7 @@ def backward_identity_block(
 
     # BN2 backward — training-mode impl (normalization.mojo:371) re-derives batch stats from x,
     # so passing model's running_mean/var is inert. Included for signature compliance.
-    var bn2 = batch_norm2d_backward(
+    var bn2_input, bn2_gamma_grad, bn2_beta_grad = batch_norm2d_backward(
         dMain,
         cache.conv2_pre_bn,
         bn2_gamma,
@@ -170,10 +170,10 @@ def backward_identity_block(
         training=True,
     )
     var c2 = conv2d_backward(
-        bn2[0], cache.relu1_out, conv2_kernel, stride=1, padding=1
+        bn2_input, cache.relu1_out, conv2_kernel, stride=1, padding=1
     )
     var dReLU1 = relu_backward(c2.grad_input, cache.bn1_pre_relu)
-    var bn1 = batch_norm2d_backward(
+    var bn1_input, bn1_gamma_grad, bn1_beta_grad = batch_norm2d_backward(
         dReLU1,
         cache.conv1_pre_bn,
         bn1_gamma,
@@ -182,15 +182,10 @@ def backward_identity_block(
         training=True,
     )
     var c1 = conv2d_backward(
-        bn1[0], cache.block_input, conv1_kernel, stride=1, padding=1
+        bn1_input, cache.block_input, conv1_kernel, stride=1, padding=1
     )
     # Residual sum at block_input: main-path gradient + identity-skip gradient.
     var grad_input = add(c1.grad_input, dSkip)
-
-    var bn1_gamma_grad = bn1[1]^
-    var bn1_beta_grad = bn1[2]^
-    var bn2_gamma_grad = bn2[1]^
-    var bn2_beta_grad = bn2[2]^
 
     return IdentityBlockGradients(
         grad_input^,
@@ -237,7 +232,7 @@ def backward_projection_block(
     var dProj = pair.grad_b
 
     # Main path: BN2 → conv2 → ReLU1 → BN1 → conv1
-    var bn2 = batch_norm2d_backward(
+    var bn2_input, bn2_gamma_grad, bn2_beta_grad = batch_norm2d_backward(
         dMain,
         cache.conv2_pre_bn,
         bn2_gamma,
@@ -246,10 +241,10 @@ def backward_projection_block(
         training=True,
     )
     var c2 = conv2d_backward(
-        bn2[0], cache.relu1_out, conv2_kernel, stride=1, padding=1
+        bn2_input, cache.relu1_out, conv2_kernel, stride=1, padding=1
     )
     var dReLU1 = relu_backward(c2.grad_input, cache.bn1_pre_relu)
-    var bn1 = batch_norm2d_backward(
+    var bn1_input, bn1_gamma_grad, bn1_beta_grad = batch_norm2d_backward(
         dReLU1,
         cache.conv1_pre_bn,
         bn1_gamma,
@@ -258,11 +253,15 @@ def backward_projection_block(
         training=True,
     )
     var c1 = conv2d_backward(
-        bn1[0], cache.block_input, conv1_kernel, stride=main_stride, padding=1
+        bn1_input,
+        cache.block_input,
+        conv1_kernel,
+        stride=main_stride,
+        padding=1,
     )
 
     # Projection path: proj_bn → proj_conv
-    var pbn = batch_norm2d_backward(
+    var pbn_input, pbn_gamma_grad, pbn_beta_grad = batch_norm2d_backward(
         dProj,
         cache.proj_conv_pre_bn,
         proj_bn_gamma,
@@ -271,16 +270,9 @@ def backward_projection_block(
         training=True,
     )
     var pc = conv2d_backward(
-        pbn[0], cache.block_input, proj_kernel, stride=main_stride, padding=0
+        pbn_input, cache.block_input, proj_kernel, stride=main_stride, padding=0
     )
     var grad_input = add(c1.grad_input, pc.grad_input)
-
-    var bn1_gamma_grad = bn1[1]^
-    var bn1_beta_grad = bn1[2]^
-    var bn2_gamma_grad = bn2[1]^
-    var bn2_beta_grad = bn2[2]^
-    var pbn_gamma_grad = pbn[1]^
-    var pbn_beta_grad = pbn[2]^
 
     return ProjectionBlockGradients(
         grad_input^,
