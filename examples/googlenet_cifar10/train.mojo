@@ -138,15 +138,14 @@ def initialize_velocities(model: GoogLeNet) raises -> List[AnyTensor]:
     return velocities^
 
 
-def _flatten_gap(gap_out: AnyTensor) raises -> Tuple[AnyTensor, List[Int]]:
+def _flatten_gap(gap_out: AnyTensor) raises -> AnyTensor:
     """Flatten global-avgpool output (N, C, 1, 1) -> (N, C) using
     AnyTensor.reshape (src/projectodyssey/tensor/any_tensor.mojo:655).
-    Returns the original 4-D shape so _unflatten_gap_grad can undo it.
     """
     var gap_shape = gap_out.shape()
     var flat_shape: List[Int] = [gap_shape[0], gap_shape[1]]
     var flat = gap_out.reshape(flat_shape)
-    return (flat^, gap_shape)
+    return flat^
 
 
 def _unflatten_gap_grad(
@@ -1166,11 +1165,10 @@ def compute_gradients(
 
     # ---- Global avg pool -> flatten -> dropout(0.4) -> linear -> CE ----
     var gap_out = global_avgpool2d(inc5b_out)  # (N, 1024, 1, 1)
-    var flat_result = _flatten_gap(gap_out)  # (N, 1024)
-    var flat_out = flat_result[0]
-    var gap_shape = flat_result[
-        1
-    ]  # Captured for backward slice (#3184) to unflatten gradients
+    var gap_shape = (
+        gap_out.shape()
+    )  # Captured for backward slice (#3184) to unflatten gradients
+    var flat_out = _flatten_gap(gap_out)  # (N, 1024)
     var drop_result = dropout(flat_out, Float64(0.4), training=True)
     var drop_out = drop_result[0]
     var drop_mask = drop_result[
