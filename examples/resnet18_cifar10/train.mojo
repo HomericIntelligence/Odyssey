@@ -172,10 +172,7 @@ def backward_identity_block(
     var c2 = conv2d_backward(
         bn2_input, cache.relu1_out, conv2_kernel, stride=1, padding=1
     )
-    var c2_gi = c2.grad_input^
-    var c2_w = c2.grad_weights^
-    var c2_b = c2.grad_bias^
-    var dReLU1 = relu_backward(c2_gi, cache.bn1_pre_relu)
+    var dReLU1 = relu_backward(c2.grad_input, cache.bn1_pre_relu)
     var bn1_input, bn1_gamma_grad, bn1_beta_grad = batch_norm2d_backward(
         dReLU1,
         cache.conv1_pre_bn,
@@ -187,20 +184,17 @@ def backward_identity_block(
     var c1 = conv2d_backward(
         bn1_input, cache.block_input, conv1_kernel, stride=1, padding=1
     )
-    var c1_gi = c1.grad_input^
-    var c1_w = c1.grad_weights^
-    var c1_b = c1.grad_bias^
     # Residual sum at block_input: main-path gradient + identity-skip gradient.
-    var grad_input = add(c1_gi, dSkip)
+    var grad_input = add(c1.grad_input, dSkip)
 
     return IdentityBlockGradients(
         grad_input^,
-        c1_w^,
-        c1_b^,
+        c1.grad_weights,
+        c1.grad_bias,
         bn1_gamma_grad,
         bn1_beta_grad,
-        c2_w^,
-        c2_b^,
+        c2.grad_weights,
+        c2.grad_bias,
         bn2_gamma_grad,
         bn2_beta_grad,
     )
@@ -249,10 +243,7 @@ def backward_projection_block(
     var c2 = conv2d_backward(
         bn2_input, cache.relu1_out, conv2_kernel, stride=1, padding=1
     )
-    var c2_gi = c2.grad_input^
-    var c2_w = c2.grad_weights^
-    var c2_b = c2.grad_bias^
-    var dReLU1 = relu_backward(c2_gi, cache.bn1_pre_relu)
+    var dReLU1 = relu_backward(c2.grad_input, cache.bn1_pre_relu)
     var bn1_input, bn1_gamma_grad, bn1_beta_grad = batch_norm2d_backward(
         dReLU1,
         cache.conv1_pre_bn,
@@ -268,9 +259,6 @@ def backward_projection_block(
         stride=main_stride,
         padding=1,
     )
-    var c1_gi = c1.grad_input^
-    var c1_w = c1.grad_weights^
-    var c1_b = c1.grad_bias^
 
     # Projection path: proj_bn → proj_conv
     var pbn_input, pbn_gamma_grad, pbn_beta_grad = batch_norm2d_backward(
@@ -284,23 +272,20 @@ def backward_projection_block(
     var pc = conv2d_backward(
         pbn_input, cache.block_input, proj_kernel, stride=main_stride, padding=0
     )
-    var pc_gi = pc.grad_input^
-    var pc_w = pc.grad_weights^
-    var pc_b = pc.grad_bias^
-    var grad_input = add(c1_gi, pc_gi)
+    var grad_input = add(c1.grad_input, pc.grad_input)
 
     return ProjectionBlockGradients(
         grad_input^,
-        c1_w^,
-        c1_b^,
+        c1.grad_weights,
+        c1.grad_bias,
         bn1_gamma_grad,
         bn1_beta_grad,
-        c2_w^,
-        c2_b^,
+        c2.grad_weights,
+        c2.grad_bias,
         bn2_gamma_grad,
         bn2_beta_grad,
-        pc_w^,
-        pc_b^,
+        pc.grad_weights,
+        pc.grad_bias,
         pbn_gamma_grad,
         pbn_beta_grad,
     )
@@ -1203,9 +1188,14 @@ def main() raises:
     train_shape.append(32)
     var train_images = zeros(train_shape, DType.float32)
 
+    # One-hot encoded labels: cross_entropy requires targets to have the
+    # same (batch, num_classes) shape as the logits.
     var label_shape = List[Int]()
     label_shape.append(10)
+    label_shape.append(10)
     var train_labels = zeros(label_shape, DType.float32)
+    for i in range(10):
+        train_labels.set(i * 10 + (i % 10), Float32(1.0))
 
     # Initialize model
     print("Initializing ResNet-18 model...")

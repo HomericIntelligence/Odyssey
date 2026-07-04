@@ -1,15 +1,19 @@
 """Backward-pass integration tests for ResNet-18 CIFAR-10 example (#5515)."""
 
-from tests.projectodyssey.conftest import assert_true
 from projectodyssey.tensor.any_tensor import AnyTensor
 from projectodyssey.tensor.tensor_creation import zeros, randn
-from math import isnan, isinf
-from examples.resnet18_cifar10.model import (
+from std.math import isnan, isinf
+from model import (
     ResNet18,
     ResNet18Velocities,
     initialize_velocities,
 )
-from examples.resnet18_cifar10.train import train_step
+from train import train_step
+
+
+def assert_true(cond: Bool, msg: String) raises:
+    if not cond:
+        raise Error("assertion failed: " + msg)
 
 
 def _make_non_uniform_batch() raises -> Tuple[AnyTensor, AnyTensor]:
