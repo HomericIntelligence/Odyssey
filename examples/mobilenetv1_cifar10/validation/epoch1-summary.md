@@ -28,7 +28,7 @@ training epoch of MobileNetV1 on CIFAR-10, executed with
 
 Summarizer verdict (`scripts/summarize_epoch_log.py`):
 
-```
+```text
 SUMMARY status=SUCCESS parsed=3 first=2.33088 last=2.05441 decreased=True nan_or_inf=False avg=1.9744526
 ```
 
@@ -37,8 +37,11 @@ weights were saved to `weights/` at completion.
 
 ## Evidence
 
-The verbatim runner output is committed alongside this file as `epoch1.log`
+The runner output is committed alongside this file as `epoch1.log`
 (force-added past the repo `*.log` ignore rule, as validation evidence is the
-deliverable of this issue). The same content exists as the gitignored
-operational log `logs/mobilenetv1-cifar10-epoch-2026-07-04.log` on the
-execution host for cross-checking.
+deliverable of this issue). The file is a copy of the gitignored operational
+log `logs/mobilenetv1-cifar10-epoch-2026-07-04.log` from the execution host
+(which remains there for cross-checking), including the `SUMMARY` verdict
+lines that `scripts/summarize_epoch_log.py` appends to the log on each
+invocation — it appears twice because the summarizer was run twice against
+the finished log. No line of program output was added, removed, or edited.
