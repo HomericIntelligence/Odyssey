@@ -1,0 +1,75 @@
+# MobileNetV1 CIFAR-10 — one-epoch validation for issue #5526
+# Date: 2026-07-04
+# Command: pixi run mojo run -I src -I . examples/mobilenetv1_cifar10/train.mojo --epochs 1 --batch-size 128 --lr 0.01 --data-dir datasets/cifar10
+# Subset: full epoch (num_batches = ceil(50000/128) = 391)
+# Started: 2026-07-04T13:05:59-07:00
+# ---
+[4m>>>> Executing external compose provider "/usr/libexec/docker/cli-plugins/docker-compose". Please see podman-compose(1) for how to disable this message. <<<<
+
+[0mtime="2026-07-04T13:05:59-07:00" level=warning msg="The \"USER_ID\" variable is not set. Defaulting to a blank string."
+time="2026-07-04T13:05:59-07:00" level=warning msg="The \"GROUP_ID\" variable is not set. Defaulting to a blank string."
+time="2026-07-04T13:05:59-07:00" level=warning msg="The \"USER_ID\" variable is not set. Defaulting to a blank string."
+time="2026-07-04T13:05:59-07:00" level=warning msg="The \"GROUP_ID\" variable is not set. Defaulting to a blank string."
+time="2026-07-04T13:05:59-07:00" level=warning msg="The \"USER_ID\" variable is not set. Defaulting to a blank string."
+time="2026-07-04T13:05:59-07:00" level=warning msg="The \"GROUP_ID\" variable is not set. Defaulting to a blank string."
+time="2026-07-04T13:05:59-07:00" level=warning msg="The \"USER_ID\" variable is not set. Defaulting to a blank string."
+time="2026-07-04T13:05:59-07:00" level=warning msg="The \"GROUP_ID\" variable is not set. Defaulting to a blank string."
+time="2026-07-04T13:05:59-07:00" level=warning msg="The \"USER_ID\" variable is not set. Defaulting to a blank string."
+time="2026-07-04T13:05:59-07:00" level=warning msg="The \"GROUP_ID\" variable is not set. Defaulting to a blank string."
+time="2026-07-04T13:05:59-07:00" level=warning msg="The \"GROUP_ID\" variable is not set. Defaulting to a blank string."
+time="2026-07-04T13:05:59-07:00" level=warning msg="The \"USER_ID\" variable is not set. Defaulting to a blank string."
+time="2026-07-04T13:05:59-07:00" level=warning msg="The \"USER_ID\" variable is not set. Defaulting to a blank string."
+time="2026-07-04T13:05:59-07:00" level=warning msg="The \"GROUP_ID\" variable is not set. Defaulting to a blank string."
+time="2026-07-04T13:05:59-07:00" level=warning msg="The \"USER_ID\" variable is not set. Defaulting to a blank string."
+time="2026-07-04T13:05:59-07:00" level=warning msg="The \"GROUP_ID\" variable is not set. Defaulting to a blank string."
+time="2026-07-04T13:05:59-07:00" level=warning msg="The \"USER_ID\" variable is not set. Defaulting to a blank string."
+time="2026-07-04T13:05:59-07:00" level=warning msg="The \"GROUP_ID\" variable is not set. Defaulting to a blank string."
+============================================================
+MobileNetV1 Training on CIFAR-10
+============================================================
+
+Configuration:
+  Epochs: 1
+  Batch size: 128
+  Initial learning rate: 0.01
+  Momentum: 0.9
+  Data directory: datasets/cifar10
+  Weights directory: weights
+
+Loading CIFAR-10 training set...
+Warning: Large tensor allocation: 614400000 bytes
+  Training samples: 50000
+
+Initializing MobileNetV1 model...
+  Model architecture: MobileNetV1
+  Parameters: ~4.2M
+  Depthwise separable blocks: 13
+
+Initializing momentum velocities...
+  Velocities initialized for 110 parameters
+
+Starting training...
+
+Epoch 1
+  Batch 100/391 - Loss: 2.330883
+  Batch 200/391 - Loss: 2.1634257
+  Batch 300/391 - Loss: 2.054407
+  Average Loss: 1.9744526
+Epoch 1/1 - Loss: 1.9744526
+
+Training complete!
+
+Saving weights to weights/...
+  ✓ Weights saved successfully
+
+============================================================
+Training Summary
+============================================================
+Total epochs: 1
+Final learning rate: 0.01
+Model saved to: weights/
+============================================================
+# Mojo exit code: 0
+# Finished: 2026-07-04T13:39:06-07:00
+SUMMARY status=SUCCESS parsed=3 first=2.33088 last=2.05441 decreased=True nan_or_inf=False avg=1.9744526
+SUMMARY status=SUCCESS parsed=3 first=2.33088 last=2.05441 decreased=True nan_or_inf=False avg=1.9744526
