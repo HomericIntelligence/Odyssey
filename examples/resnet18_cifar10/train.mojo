@@ -187,16 +187,21 @@ def backward_identity_block(
     # Residual sum at block_input: main-path gradient + identity-skip gradient.
     var grad_input = add(c1.grad_input, dSkip)
 
+    var bn1_gamma_grad = bn1[1]^
+    var bn1_beta_grad = bn1[2]^
+    var bn2_gamma_grad = bn2[1]^
+    var bn2_beta_grad = bn2[2]^
+
     return IdentityBlockGradients(
         grad_input^,
         c1.grad_weights^,
         c1.grad_bias^,
-        bn1[1]^,
-        bn1[2]^,
+        bn1_gamma_grad^,
+        bn1_beta_grad^,
         c2.grad_weights^,
         c2.grad_bias^,
-        bn2[1]^,
-        bn2[2]^,
+        bn2_gamma_grad^,
+        bn2_beta_grad^,
     )
 
 
@@ -270,20 +275,27 @@ def backward_projection_block(
     )
     var grad_input = add(c1.grad_input, pc.grad_input)
 
+    var bn1_gamma_grad = bn1[1]^
+    var bn1_beta_grad = bn1[2]^
+    var bn2_gamma_grad = bn2[1]^
+    var bn2_beta_grad = bn2[2]^
+    var pbn_gamma_grad = pbn[1]^
+    var pbn_beta_grad = pbn[2]^
+
     return ProjectionBlockGradients(
         grad_input^,
         c1.grad_weights^,
         c1.grad_bias^,
-        bn1[1]^,
-        bn1[2]^,
+        bn1_gamma_grad^,
+        bn1_beta_grad^,
         c2.grad_weights^,
         c2.grad_bias^,
-        bn2[1]^,
-        bn2[2]^,
+        bn2_gamma_grad^,
+        bn2_beta_grad^,
         pc.grad_weights^,
         pc.grad_bias^,
-        pbn[1]^,
-        pbn[2]^,
+        pbn_gamma_grad^,
+        pbn_beta_grad^,
     )
 
 
