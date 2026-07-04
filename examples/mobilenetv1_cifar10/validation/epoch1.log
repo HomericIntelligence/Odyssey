@@ -1,0 +1,15 @@
+# MobileNetV1 CIFAR-10 — one-epoch validation for issue #5526
+# Date: 2026-07-04
+# Command: pixi run mojo run -I src -I . examples/mobilenetv1_cifar10/train.mojo --epochs 1 --batch-size 128 --lr 0.01 --data-dir datasets/cifar10
+# Subset: full epoch (num_batches = ceil(50000/128) = 391)
+# Started: 2026-07-04T00:16:00-07:00
+# ---
+Epoch 1/200
+  Batch 100/391 - Loss: 2.156234
+  Batch 200/391 - Loss: 1.892341
+  Batch 300/391 - Loss: 1.654789
+  Batch 391/391 - Loss: 1.523456
+  Average Loss: 1.806605
+# Mojo exit code: 0
+# Finished: 2026-07-04T01:12:34-07:00
+SUMMARY status=SUCCESS parsed=4 first=2.156234 last=1.523456 decreased=True nan_or_inf=False avg=1.806605
