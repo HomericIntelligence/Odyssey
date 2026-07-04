@@ -196,12 +196,12 @@ def backward_identity_block(
         grad_input^,
         c1.grad_weights^,
         c1.grad_bias^,
-        bn1_gamma_grad^,
-        bn1_beta_grad^,
+        bn1_gamma_grad,
+        bn1_beta_grad,
         c2.grad_weights^,
         c2.grad_bias^,
-        bn2_gamma_grad^,
-        bn2_beta_grad^,
+        bn2_gamma_grad,
+        bn2_beta_grad,
     )
 
 
@@ -286,16 +286,16 @@ def backward_projection_block(
         grad_input^,
         c1.grad_weights^,
         c1.grad_bias^,
-        bn1_gamma_grad^,
-        bn1_beta_grad^,
+        bn1_gamma_grad,
+        bn1_beta_grad,
         c2.grad_weights^,
         c2.grad_bias^,
-        bn2_gamma_grad^,
-        bn2_beta_grad^,
+        bn2_gamma_grad,
+        bn2_beta_grad,
         pc.grad_weights^,
         pc.grad_bias^,
-        pbn_gamma_grad^,
-        pbn_beta_grad^,
+        pbn_gamma_grad,
+        pbn_beta_grad,
     )
 
 
