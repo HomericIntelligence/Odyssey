@@ -3,7 +3,7 @@
 This script loads a trained MobileNetV1 model and evaluates it on the CIFAR-10 test set.
 
 Usage:
-    mojo run examples/mobilenetv1_cifar10/inference.mojo --weights-dir mobilenetv1_weights
+    mojo run examples/mobilenetv1_cifar10/inference.mojo  # loads from weights/ (train.mojo save dir)
 
 Features:
     - Loads saved model weights
@@ -162,7 +162,7 @@ def main() raises:
     print("=" * 60)
     print()
 
-    var weights_dir = "mobilenetv1_weights"
+    var weights_dir = "weights"
     var batch_size = 100
 
     print("Configuration:")
