@@ -8,6 +8,7 @@ Exit codes:
   4  LOSS_NOT_DECREASING   — mojo exited 0, parse OK, but last_loss >= first_loss
   5  NUMERIC_INSTABILITY   — mojo exited 0, parse OK, but any NaN or inf loss seen
 """
+
 import argparse
 import math
 import re
@@ -15,6 +16,7 @@ import sys
 
 BATCH_RE = re.compile(r"^\s+Batch (\d+)/(\d+) - Loss: (.+)$")
 AVG_RE = re.compile(r"^\s+Average Loss: (.+)$")
+
 
 def main() -> int:
     ap = argparse.ArgumentParser()
@@ -39,17 +41,23 @@ def main() -> int:
                 avg = float(m.group(1))
 
     if len(losses) < 3:
-        print(f"SUMMARY status=LOG_FORMAT_MISMATCH parsed={len(losses)} "
-              f"(expected >=3 'Batch N/M - Loss: X' lines from train.mojo:117-126)")
+        print(
+            f"SUMMARY status=LOG_FORMAT_MISMATCH parsed={len(losses)} "
+            f"(expected >=3 'Batch N/M - Loss: X' lines from train.mojo:117-126)"
+        )
         return 3
 
-    nan_or_inf = any(math.isnan(x) or math.isinf(x) for x in losses) or \
-                 (avg is not None and (math.isnan(avg) or math.isinf(avg)))
+    nan_or_inf = any(math.isnan(x) or math.isinf(x) for x in losses) or (
+        avg is not None and (math.isnan(avg) or math.isinf(avg))
+    )
     first, last = losses[0], losses[-1]
     decreased = last < first
 
-    verdict = "SUCCESS" if (decreased and not nan_or_inf) else \
-              ("NUMERIC_INSTABILITY" if nan_or_inf else "LOSS_NOT_DECREASING")
+    verdict = (
+        "SUCCESS"
+        if (decreased and not nan_or_inf)
+        else ("NUMERIC_INSTABILITY" if nan_or_inf else "LOSS_NOT_DECREASING")
+    )
 
     # Append machine-parseable summary line (also greppable in CI).
     with open(args.log, "a") as fh:
@@ -58,14 +66,17 @@ def main() -> int:
             f"last={last:.6g} decreased={decreased} nan_or_inf={nan_or_inf} "
             f"avg={avg if avg is not None else 'NA'}\n"
         )
-    print(f"SUMMARY status={verdict} parsed={len(losses)} first={first:.6g} "
-          f"last={last:.6g} decreased={decreased} nan_or_inf={nan_or_inf}")
+    print(
+        f"SUMMARY status={verdict} parsed={len(losses)} first={first:.6g} "
+        f"last={last:.6g} decreased={decreased} nan_or_inf={nan_or_inf}"
+    )
 
     if nan_or_inf:
         return 5
     if not decreased:
         return 4
     return 0
+
 
 if __name__ == "__main__":
     sys.exit(main())
