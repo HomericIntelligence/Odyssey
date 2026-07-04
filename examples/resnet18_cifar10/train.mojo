@@ -169,10 +169,10 @@ def backward_identity_block(
         bn2_running_var,
         training=True,
     )
-    var c2 = conv2d_backward(
+    var c2_input, c2_weights, c2_bias = conv2d_backward(
         bn2_input, cache.relu1_out, conv2_kernel, stride=1, padding=1
     )
-    var dReLU1 = relu_backward(c2.grad_input, cache.bn1_pre_relu)
+    var dReLU1 = relu_backward(c2_input, cache.bn1_pre_relu)
     var bn1_input, bn1_gamma_grad, bn1_beta_grad = batch_norm2d_backward(
         dReLU1,
         cache.conv1_pre_bn,
@@ -181,20 +181,20 @@ def backward_identity_block(
         bn1_running_var,
         training=True,
     )
-    var c1 = conv2d_backward(
+    var c1_input, c1_weights, c1_bias = conv2d_backward(
         bn1_input, cache.block_input, conv1_kernel, stride=1, padding=1
     )
     # Residual sum at block_input: main-path gradient + identity-skip gradient.
-    var grad_input = add(c1.grad_input, dSkip)
+    var grad_input = add(c1_input, dSkip)
 
     return IdentityBlockGradients(
         grad_input^,
-        c1.grad_weights^,
-        c1.grad_bias^,
+        c1_weights,
+        c1_bias,
         bn1_gamma_grad,
         bn1_beta_grad,
-        c2.grad_weights^,
-        c2.grad_bias^,
+        c2_weights,
+        c2_bias,
         bn2_gamma_grad,
         bn2_beta_grad,
     )
@@ -240,10 +240,10 @@ def backward_projection_block(
         bn2_running_var,
         training=True,
     )
-    var c2 = conv2d_backward(
+    var c2_input, c2_weights, c2_bias = conv2d_backward(
         bn2_input, cache.relu1_out, conv2_kernel, stride=1, padding=1
     )
-    var dReLU1 = relu_backward(c2.grad_input, cache.bn1_pre_relu)
+    var dReLU1 = relu_backward(c2_input, cache.bn1_pre_relu)
     var bn1_input, bn1_gamma_grad, bn1_beta_grad = batch_norm2d_backward(
         dReLU1,
         cache.conv1_pre_bn,
@@ -252,7 +252,7 @@ def backward_projection_block(
         bn1_running_var,
         training=True,
     )
-    var c1 = conv2d_backward(
+    var c1_input, c1_weights, c1_bias = conv2d_backward(
         bn1_input,
         cache.block_input,
         conv1_kernel,
@@ -269,23 +269,23 @@ def backward_projection_block(
         proj_bn_running_var,
         training=True,
     )
-    var pc = conv2d_backward(
+    var pc_input, pc_weights, pc_bias = conv2d_backward(
         pbn_input, cache.block_input, proj_kernel, stride=main_stride, padding=0
     )
-    var grad_input = add(c1.grad_input, pc.grad_input)
+    var grad_input = add(c1_input, pc_input)
 
     return ProjectionBlockGradients(
         grad_input^,
-        c1.grad_weights^,
-        c1.grad_bias^,
+        c1_weights,
+        c1_bias,
         bn1_gamma_grad,
         bn1_beta_grad,
-        c2.grad_weights^,
-        c2.grad_bias^,
+        c2_weights,
+        c2_bias,
         bn2_gamma_grad,
         bn2_beta_grad,
-        pc.grad_weights^,
-        pc.grad_bias^,
+        pc_weights,
+        pc_bias,
         pbn_gamma_grad,
         pbn_beta_grad,
     )
