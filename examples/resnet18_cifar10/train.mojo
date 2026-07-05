@@ -104,11 +104,14 @@ def evaluate_test_set(
 
         # Compute loss
         var batch_loss = cross_entropy(logits, batch_labels)
-        total_loss = total_loss + batch_loss
+        var loss_scalar = batch_loss._data.bitcast[Float32]()[0]
+        total_loss = total_loss + loss_scalar
 
         # Compute batch accuracy
         var batch_acc_fraction = evaluate_logits_batch(logits, batch_labels_raw)
-        var batch_correct = Int(batch_acc_fraction * Float32(current_batch_size))
+        var batch_correct = Int(
+            batch_acc_fraction * Float32(current_batch_size)
+        )
         total_correct += batch_correct
 
     var avg_loss = total_loss / Float32(num_batches)
