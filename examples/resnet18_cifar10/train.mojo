@@ -50,11 +50,10 @@ from projectodyssey.data.batch_utils import (
     extract_batch_pair,
 )
 from projectodyssey.data.constants import DatasetInfo
-
-# CIFAR-10 dataset loading blocked on Python↔Mojo interop (#3076).
-# from projectodyssey.data.datasets import load_cifar10_train, load_cifar10_test
+from projectodyssey.data.datasets import CIFAR10Dataset
+from projectodyssey.data import one_hot_encode
 from projectodyssey.training.optimizers import sgd_momentum_update_inplace
-from projectodyssey.training.metrics import evaluate_with_predict, top1_accuracy
+from projectodyssey.training.metrics import evaluate_logits_batch
 from projectodyssey.utils.training_args import parse_training_args_with_defaults
 from model import (
     ResNet18,
@@ -66,63 +65,56 @@ from model import (
 )
 
 
-def compute_accuracy(
-    mut model: ResNet18, images: AnyTensor, labels: AnyTensor
-) raises -> Float32:
-    """Compute classification accuracy on a dataset.
+def evaluate_test_set(
+    mut model: ResNet18,
+    test_images: AnyTensor,
+    test_labels_raw: AnyTensor,
+    batch_size: Int = 100,
+) raises -> Tuple[Float32, Float32]:
+    """Evaluate model on test set and return loss and accuracy.
 
     Args:
         model: ResNet-18 model.
-        images: Input images (N, 3, 32, 32).
-        labels: Ground truth labels (N,).
+        test_images: Test images (N, 3, 32, 32).
+        test_labels_raw: Test labels (N,) with class indices.
+        batch_size: Batch size for evaluation.
 
     Returns:
-        Accuracy as percentage (0-100).
+        Tuple of (test_loss, top1_accuracy).
     """
-    var num_samples = images.shape()[0]
-    var correct = 0
-
-    # Evaluate in batches to avoid memory issues
-    var batch_size = 100
+    var num_samples = test_images.shape()[0]
     var num_batches = compute_num_batches(num_samples, batch_size)
+    var total_loss = Float32(0.0)
+    var total_correct = 0
 
     for batch_idx in range(num_batches):
         var start_idx = batch_idx * batch_size
         var batch_pair = extract_batch_pair(
-            images, labels, start_idx, batch_size
+            test_images, test_labels_raw, start_idx, batch_size
         )
         var batch_images = batch_pair[0]
-        var batch_labels = batch_pair[1]
+        var batch_labels_raw = batch_pair[1]
         var current_batch_size = batch_images.shape()[0]
+
+        # One-hot encode labels
+        var batch_labels = one_hot_encode(batch_labels_raw, 10)
 
         # Forward pass (inference mode)
         var logits = model.forward(batch_images, training=False)
 
-        # Count correct predictions
-        for i in range(current_batch_size):
-            # Extract single sample
-            var sample_shape = List[Int]()
-            sample_shape.append(1)
-            sample_shape.append(3)
-            sample_shape.append(32)
-            sample_shape.append(32)
+        # Compute loss
+        var batch_loss = cross_entropy(logits, batch_labels)
+        total_loss = total_loss + batch_loss
 
-            # Create slice for this sample
-            var sample = zeros(sample_shape, DType.float32)
-            var sample_data = sample._data.bitcast[Float32]()
-            var images_data = batch_images._data.bitcast[Float32]()
-            var offset = i * 3 * 32 * 32
-            for j in range(3 * 32 * 32):
-                sample_data[j] = images_data[offset + j]
+        # Compute batch accuracy
+        var batch_acc_fraction = evaluate_logits_batch(logits, batch_labels_raw)
+        var batch_correct = Int(batch_acc_fraction * Float32(current_batch_size))
+        total_correct += batch_correct
 
-            # Predict
-            var pred = model.predict(sample)
-            var true_label = Int(batch_labels[i])
+    var avg_loss = total_loss / Float32(num_batches)
+    var accuracy = Float32(total_correct) / Float32(num_samples) * 100.0
 
-            if pred == true_label:
-                correct += 1
-
-    return Float32(correct) / Float32(num_samples) * 100.0
+    return (avg_loss, accuracy)
 
 
 def backward_identity_block(
@@ -1096,7 +1088,10 @@ def train_epoch(
             train_images, train_labels, start_idx, batch_size
         )
         var batch_images = batch_pair[0]
-        var batch_labels = batch_pair[1]
+        var batch_labels_raw = batch_pair[1]
+
+        # One-hot encode labels for cross_entropy loss
+        var batch_labels = one_hot_encode(batch_labels_raw, 10)
 
         # Forward, backward, and SGD update for this batch
         var batch_loss = train_step(
@@ -1169,36 +1164,14 @@ def main() raises:
     print()
 
     # Load CIFAR-10 dataset
-    # CIFAR-10 loading blocked on Python↔Mojo interop (#3076).
-    # print("Loading CIFAR-10 dataset...")
-    # var train_data = load_cifar10_train("datasets/cifar10")
-    # var train_images = train_data[0]
-    # var train_labels = train_data[1]
+    print("Loading CIFAR-10 dataset...")
+    var dataset = CIFAR10Dataset(data_dir)
+    var train_images, train_labels_raw = dataset.get_train_data()
+    var test_images, test_labels_raw = dataset.get_test_data()
 
-    # var test_data = load_cifar10_test("datasets/cifar10")
-    # var test_images = test_data[0]
-    # var test_labels = test_data[1]
-
-    # print("  Training samples: " + String(train_images.shape()[0]))
-    # print("  Test samples: " + String(test_images.shape()[0]))
-    # print()
-
-    # Create placeholder data for demonstration
-    var train_shape = List[Int]()
-    train_shape.append(10)  # Small batch for demo
-    train_shape.append(3)
-    train_shape.append(32)
-    train_shape.append(32)
-    var train_images = zeros(train_shape, DType.float32)
-
-    # One-hot encoded labels: cross_entropy requires targets to have the
-    # same (batch, num_classes) shape as the logits.
-    var label_shape = List[Int]()
-    label_shape.append(10)
-    label_shape.append(10)
-    var train_labels = zeros(label_shape, DType.float32)
-    for i in range(10):
-        train_labels.set(i * 10 + (i % 10), Float32(1.0))
+    print("  Training samples: " + String(train_images.shape()[0]))
+    print("  Test samples: " + String(test_images.shape()[0]))
+    print()
 
     # Initialize model
     print("Initializing ResNet-18 model...")
@@ -1214,14 +1187,14 @@ def main() raises:
     var velocities = initialize_velocities(model)
     print()
 
-    # Run training loop (minimal: just 1 epoch for demonstration)
+    # Run training loop (1 epoch on real CIFAR-10 data)
     var model_mut: ResNet18 = model^
     var vel_mut: ResNet18Velocities = velocities^
     var loss_history: List[Float32] = []
     var epoch_loss = train_epoch(
         model_mut,
         train_images,
-        train_labels,
+        train_labels_raw,
         batch_size=Int(batch_size),
         learning_rate=initial_lr,
         momentum=momentum,
@@ -1232,3 +1205,13 @@ def main() raises:
     )
     print()
     print("Training complete. Epoch loss: " + String(epoch_loss))
+    print()
+
+    # Evaluate on test set
+    print("Evaluating on test set...")
+    var test_loss, test_accuracy = evaluate_test_set(
+        model_mut, test_images, test_labels_raw, batch_size=100
+    )
+    print("Test loss: " + String(test_loss))
+    print("Test accuracy: " + String(test_accuracy) + "%")
+    print()
