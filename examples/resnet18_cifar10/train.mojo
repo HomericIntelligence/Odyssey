@@ -1110,8 +1110,8 @@ def train_epoch(
         loss_history.append(batch_loss)
         total_loss = total_loss + batch_loss
 
-        # Log progress every 5 batches
-        if (batch_idx + 1) % 5 == 0:
+        # Log progress every 100 batches
+        if (batch_idx + 1) % 100 == 0:
             var avg_loss = total_loss / Float32(batch_idx + 1)
             print(
                 "  Batch "

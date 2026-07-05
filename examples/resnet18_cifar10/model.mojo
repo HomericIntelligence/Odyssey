@@ -157,9 +157,9 @@ struct ResNet18ForwardCache(Movable):
 struct ResNet18Velocities(Movable):
     """SGD-momentum velocity buffers, one field per trainable ResNet-18 parameter.
 
-    Total: 82 trainable parameter fields (grep-verified against model.mojo;
-    comment "84" at ResNet18 docstring line 105 is off by two — it incorrectly
-    counts bn1_running_mean/var, which are non-trainable statistics).
+    Total: 82 trainable parameter fields (matches the ResNet18 struct docstring's
+    "82 parameters" count; bn1_running_mean/var are non-trainable BatchNorm
+    statistics and are excluded from this total).
     """
 
     var conv1_kernel: AnyTensor
