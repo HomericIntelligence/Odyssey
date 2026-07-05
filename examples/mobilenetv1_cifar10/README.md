@@ -33,7 +33,7 @@ mojo run examples/mobilenetv1_cifar10/train.mojo --epochs 200 --batch-size 128 -
 ### 3. Run Inference
 
 ```bash
-mojo run examples/mobilenetv1_cifar10/inference.mojo --weights-dir mobilenetv1_weights
+mojo run examples/mobilenetv1_cifar10/inference.mojo  # loads from weights/ (train.mojo save dir)
 ```text
 
 ## Key Innovation: Depthwise Separable Convolutions
@@ -378,7 +378,7 @@ mojo run examples/mobilenetv1_cifar10/train.mojo \
     --lr 0.01 \
     --momentum 0.9 \
     --data-dir datasets/cifar10 \
-    --weights-dir mobilenetv1_weights
+    --weights-dir weights
 ```text
 
 **Arguments**:
@@ -388,19 +388,19 @@ mojo run examples/mobilenetv1_cifar10/train.mojo \
 - `--lr`: Initial learning rate for SGD (default: 0.01)
 - `--momentum`: Momentum factor for SGD (default: 0.9)
 - `--data-dir`: Path to CIFAR-10 dataset directory (default: `datasets/cifar10`)
-- `--weights-dir`: Directory to save model weights (default: `mobilenetv1_weights`)
+- `--weights-dir`: Directory to save model weights (default: `weights`)
 
 ### Inference Options
 
 ```bash
 mojo run examples/mobilenetv1_cifar10/inference.mojo \
-    --weights-dir mobilenetv1_weights \
+    --weights-dir weights \
     --data-dir datasets/cifar10
 ```text
 
 **Arguments**:
 
-- `--weights-dir`: Directory containing saved model weights (default: `mobilenetv1_weights`)
+- `--weights-dir`: Directory containing saved model weights (default: `weights`; note inference.mojo does not parse CLI flags — it always loads `weights/`)
 - `--data-dir`: Path to CIFAR-10 dataset for test set evaluation (default: `datasets/cifar10`)
 
 ## References

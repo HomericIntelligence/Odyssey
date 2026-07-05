@@ -2341,7 +2341,7 @@ def main() raises:
         default_lr=0.01,
         default_momentum=0.9,
         default_data_dir="datasets/cifar10",
-        default_weights_dir="mobilenetv1_weights",
+        default_weights_dir="weights",
         default_lr_decay_epochs=60,
         default_lr_decay_factor=0.2,
     )
