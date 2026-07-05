@@ -316,3 +316,45 @@ struct DepthwiseSeparableConv2dGradient(Copyable, Movable):
         self.grad_depthwise_kernel = grad_depthwise_kernel^
         self.grad_pointwise_kernel = grad_pointwise_kernel^
         self.grad_bias = grad_bias^
+
+
+@fieldwise_init
+struct IdentityBlockGradients(Copyable, Movable):
+    """Named gradients from a ResNet-18 identity residual block.
+
+    Returns 9 gradients: block_input plus 8 parameter gradients
+    (conv1/conv2 kernels+biases, BN1/BN2 gamma+beta).
+    """
+
+    var grad_input: AnyTensor
+    var grad_conv1_kernel: AnyTensor
+    var grad_conv1_bias: AnyTensor
+    var grad_bn1_gamma: AnyTensor
+    var grad_bn1_beta: AnyTensor
+    var grad_conv2_kernel: AnyTensor
+    var grad_conv2_bias: AnyTensor
+    var grad_bn2_gamma: AnyTensor
+    var grad_bn2_beta: AnyTensor
+
+
+@fieldwise_init
+struct ProjectionBlockGradients(Copyable, Movable):
+    """Named gradients from a ResNet-18 projection residual block.
+
+    Returns 13 gradients: block_input plus 12 parameter gradients
+    (identity block's 8 + projection conv/bias + projection BN gamma/beta).
+    """
+
+    var grad_input: AnyTensor
+    var grad_conv1_kernel: AnyTensor
+    var grad_conv1_bias: AnyTensor
+    var grad_bn1_gamma: AnyTensor
+    var grad_bn1_beta: AnyTensor
+    var grad_conv2_kernel: AnyTensor
+    var grad_conv2_bias: AnyTensor
+    var grad_bn2_gamma: AnyTensor
+    var grad_bn2_beta: AnyTensor
+    var grad_proj_kernel: AnyTensor
+    var grad_proj_bias: AnyTensor
+    var grad_proj_bn_gamma: AnyTensor
+    var grad_proj_bn_beta: AnyTensor

@@ -41,6 +41,10 @@ from projectodyssey.core.normalization import (
     batch_norm2d_backward,
 )
 from projectodyssey.core.arithmetic import add, add_backward
+from projectodyssey.core.gradient_types import (
+    IdentityBlockGradients,
+    ProjectionBlockGradients,
+)
 from projectodyssey.data.batch_utils import (
     compute_num_batches,
     extract_batch_pair,
@@ -52,7 +56,14 @@ from projectodyssey.data.constants import DatasetInfo
 from projectodyssey.training.optimizers import sgd_momentum_update_inplace
 from projectodyssey.training.metrics import evaluate_with_predict, top1_accuracy
 from projectodyssey.utils.training_args import parse_training_args_with_defaults
-from model import ResNet18
+from model import (
+    ResNet18,
+    ResNet18Velocities,
+    initialize_velocities,
+    ResNet18ForwardCache,
+    IdentityCache,
+    ProjectionCache,
+)
 
 
 def compute_accuracy(
@@ -114,51 +125,934 @@ def compute_accuracy(
     return Float32(correct) / Float32(num_samples) * 100.0
 
 
-def compute_batch_gradients(
+def backward_identity_block(
+    dY: AnyTensor,
+    cache: IdentityCache,
+    conv1_kernel: AnyTensor,
+    conv1_bias: AnyTensor,
+    bn1_gamma: AnyTensor,
+    bn1_running_mean: AnyTensor,
+    bn1_running_var: AnyTensor,
+    conv2_kernel: AnyTensor,
+    conv2_bias: AnyTensor,
+    bn2_gamma: AnyTensor,
+    bn2_running_mean: AnyTensor,
+    bn2_running_var: AnyTensor,
+) raises -> IdentityBlockGradients:
+    """Backward pass through identity (non-projection) residual block.
+
+    Reverse order: y_out = relu(bn2_out + block_input)
+        → relu_backward
+        → add_backward (split main/skip paths)
+        → BN2 backward
+        → conv2 backward
+        → ReLU1 backward
+        → BN1 backward
+        → conv1 backward
+        → add main + skip gradients at block_input
+    """
+    # Reverse: y_out = relu(bn2_out + block_input)
+    var dPreRelu = relu_backward(dY, cache.skip_sum)
+    # add_backward for shape-matching inputs returns (grad_output, grad_output) unchanged.
+    # Both are the two path-gradients reconverging on block_input (standard residual backward).
+    var pair = add_backward(dPreRelu, cache.conv2_pre_bn, cache.block_input)
+    var dMain = pair.grad_a
+    var dSkip = pair.grad_b
+
+    # BN2 backward — training-mode impl (normalization.mojo:371) re-derives batch stats from x,
+    # so passing model's running_mean/var is inert. Included for signature compliance.
+    var bn2_input, bn2_gamma_grad, bn2_beta_grad = batch_norm2d_backward(
+        dMain,
+        cache.conv2_pre_bn,
+        bn2_gamma,
+        bn2_running_mean,
+        bn2_running_var,
+        training=True,
+    )
+    var c2 = conv2d_backward(
+        bn2_input, cache.relu1_out, conv2_kernel, stride=1, padding=1
+    )
+    var dReLU1 = relu_backward(c2.grad_input, cache.bn1_pre_relu)
+    var bn1_input, bn1_gamma_grad, bn1_beta_grad = batch_norm2d_backward(
+        dReLU1,
+        cache.conv1_pre_bn,
+        bn1_gamma,
+        bn1_running_mean,
+        bn1_running_var,
+        training=True,
+    )
+    var c1 = conv2d_backward(
+        bn1_input, cache.block_input, conv1_kernel, stride=1, padding=1
+    )
+    # Residual sum at block_input: main-path gradient + identity-skip gradient.
+    var grad_input = add(c1.grad_input, dSkip)
+
+    return IdentityBlockGradients(
+        grad_input^,
+        c1.grad_weights,
+        c1.grad_bias,
+        bn1_gamma_grad,
+        bn1_beta_grad,
+        c2.grad_weights,
+        c2.grad_bias,
+        bn2_gamma_grad,
+        bn2_beta_grad,
+    )
+
+
+def backward_projection_block(
+    dY: AnyTensor,
+    cache: ProjectionCache,
+    conv1_kernel: AnyTensor,
+    conv1_bias: AnyTensor,
+    bn1_gamma: AnyTensor,
+    bn1_running_mean: AnyTensor,
+    bn1_running_var: AnyTensor,
+    conv2_kernel: AnyTensor,
+    conv2_bias: AnyTensor,
+    bn2_gamma: AnyTensor,
+    bn2_running_mean: AnyTensor,
+    bn2_running_var: AnyTensor,
+    proj_kernel: AnyTensor,
+    proj_bias: AnyTensor,
+    proj_bn_gamma: AnyTensor,
+    proj_bn_running_mean: AnyTensor,
+    proj_bn_running_var: AnyTensor,
+    main_stride: Int,
+) raises -> ProjectionBlockGradients:
+    """Backward pass through projection (stride-2, channel-change) residual block.
+
+    Handles both main path (stride=main_stride) and projection skip path (1x1 conv
+    with stride=main_stride). Main block uses stride=main_stride for first conv.
+    """
+    var dPreRelu = relu_backward(dY, cache.skip_sum)
+    # Split into main and projection path gradients
+    var pair = add_backward(dPreRelu, cache.conv2_pre_bn, cache.proj_bn_out)
+    var dMain = pair.grad_a
+    var dProj = pair.grad_b
+
+    # Main path: BN2 → conv2 → ReLU1 → BN1 → conv1
+    var bn2_input, bn2_gamma_grad, bn2_beta_grad = batch_norm2d_backward(
+        dMain,
+        cache.conv2_pre_bn,
+        bn2_gamma,
+        bn2_running_mean,
+        bn2_running_var,
+        training=True,
+    )
+    var c2 = conv2d_backward(
+        bn2_input, cache.relu1_out, conv2_kernel, stride=1, padding=1
+    )
+    var dReLU1 = relu_backward(c2.grad_input, cache.bn1_pre_relu)
+    var bn1_input, bn1_gamma_grad, bn1_beta_grad = batch_norm2d_backward(
+        dReLU1,
+        cache.conv1_pre_bn,
+        bn1_gamma,
+        bn1_running_mean,
+        bn1_running_var,
+        training=True,
+    )
+    var c1 = conv2d_backward(
+        bn1_input,
+        cache.block_input,
+        conv1_kernel,
+        stride=main_stride,
+        padding=1,
+    )
+
+    # Projection path: proj_bn → proj_conv
+    var pbn_input, pbn_gamma_grad, pbn_beta_grad = batch_norm2d_backward(
+        dProj,
+        cache.proj_conv_pre_bn,
+        proj_bn_gamma,
+        proj_bn_running_mean,
+        proj_bn_running_var,
+        training=True,
+    )
+    var pc = conv2d_backward(
+        pbn_input, cache.block_input, proj_kernel, stride=main_stride, padding=0
+    )
+    var grad_input = add(c1.grad_input, pc.grad_input)
+
+    return ProjectionBlockGradients(
+        grad_input^,
+        c1.grad_weights,
+        c1.grad_bias,
+        bn1_gamma_grad,
+        bn1_beta_grad,
+        c2.grad_weights,
+        c2.grad_bias,
+        bn2_gamma_grad,
+        bn2_beta_grad,
+        pc.grad_weights,
+        pc.grad_bias,
+        pbn_gamma_grad,
+        pbn_beta_grad,
+    )
+
+
+def train_step(
     mut model: ResNet18,
-    batch_images: AnyTensor,
-    batch_labels: AnyTensor,
+    images: AnyTensor,
+    labels: AnyTensor,
+    mut vel: ResNet18Velocities,
+    lr: Float64 = 0.01,
+    momentum: Float64 = 0.9,
 ) raises -> Float32:
-    """Compute gradients and loss for one batch.
+    """Full forward, backward, and SGD-momentum update for one batch.
 
     Args:
         model: ResNet-18 model.
-        batch_images: Batch of images (batch_size, 3, 32, 32).
-        batch_labels: Batch of labels (batch_size,).
+        images: Batch images (batch_size, 3, 32, 32).
+        labels: Batch labels (batch_size,).
+        vel: SGD momentum velocities (82 fields, one per trainable param).
+        lr: Learning rate.
+        momentum: Momentum factor.
 
     Returns:
         Loss value for this batch.
     """
-    # Forward pass (training mode - updates BN running stats)
-    var logits = model.forward(batch_images, training=True)
+    # Forward with caching (does NOT mutate model.bn*_running_*)
+    var fwd = model.forward_with_cache(images, training=True)
+    var loss = cross_entropy(fwd.logits, labels)
 
-    # Compute loss
-    var loss_value = cross_entropy(logits, batch_labels)
+    # Backward: loss → logits
+    var grad_out = zeros([1], fwd.logits.dtype())
+    grad_out.set(0, Float32(1.0))
+    var dLogits = cross_entropy_backward(grad_out, fwd.logits, labels)
 
-    # ========== BACKWARD PASS DEMONSTRATION ==========
-    # Compute gradient of loss w.r.t. logits
-    var grad_output_shape = List[Int]()
-    grad_output_shape.append(1)
-    var grad_output = zeros(grad_output_shape, logits.dtype())
-    grad_output.set(0, Float32(1.0))
-    var grad_logits = cross_entropy_backward(grad_output, logits, batch_labels)
+    # Backward: FC layer
+    var fc = linear_backward(dLogits, fwd.flattened, model.fc_weights)
 
-    # The full backward pass would flow as documented in the original implementation.
-    # Key steps for complete implementation:
-    # 1. Cache all intermediate activations (conv, BN, ReLU, skip connections)
-    # 2. Backprop through FC layer
-    # 3. Backprop through global average pool
-    # 4. Backprop through 4 stages (8 residual blocks total)
-    # 5. Handle skip connections with add_backward for gradient splitting
-    # 6. Update all 84 parameters with momentum
+    # Backward: GAP (reshape (batch,512) → (batch,512,1,1), then avgpool_backward)
+    var batch = images.shape()[0]
+    var dGap4D = fc.grad_input.reshape([batch, 512, 1, 1])
+    var d_s4b2_out = avgpool2d_backward(
+        dGap4D, fwd.s4b2_cache.block_out, kernel_size=4, stride=1, padding=0
+    )
 
-    # Note: For now, this demonstrates the structure. Production code needs:
-    # - ~2000 lines of backward pass code
-    # - Careful activation caching during forward
-    # - Gradient accumulation for all 84 parameters
-    # - Momentum velocity updates
+    # Stage 4 (reverse: b2 identity, then b1 projection)
+    var g_s4b2 = backward_identity_block(
+        d_s4b2_out,
+        fwd.s4b2_cache,
+        model.s4b2_conv1_kernel,
+        model.s4b2_conv1_bias,
+        model.s4b2_bn1_gamma,
+        model.s4b2_bn1_running_mean,
+        model.s4b2_bn1_running_var,
+        model.s4b2_conv2_kernel,
+        model.s4b2_conv2_bias,
+        model.s4b2_bn2_gamma,
+        model.s4b2_bn2_running_mean,
+        model.s4b2_bn2_running_var,
+    )
+    var g_s4b1 = backward_projection_block(
+        g_s4b2.grad_input,
+        fwd.s4b1_cache,
+        model.s4b1_conv1_kernel,
+        model.s4b1_conv1_bias,
+        model.s4b1_bn1_gamma,
+        model.s4b1_bn1_running_mean,
+        model.s4b1_bn1_running_var,
+        model.s4b1_conv2_kernel,
+        model.s4b1_conv2_bias,
+        model.s4b1_bn2_gamma,
+        model.s4b1_bn2_running_mean,
+        model.s4b1_bn2_running_var,
+        model.s4b1_proj_kernel,
+        model.s4b1_proj_bias,
+        model.s4b1_proj_bn_gamma,
+        model.s4b1_proj_bn_running_mean,
+        model.s4b1_proj_bn_running_var,
+        main_stride=2,
+    )
 
-    return loss_value._data.bitcast[Float32]()[0]
+    # Stage 3 (b2 identity, b1 projection stride=2)
+    var g_s3b2 = backward_identity_block(
+        g_s4b1.grad_input,
+        fwd.s3b2_cache,
+        model.s3b2_conv1_kernel,
+        model.s3b2_conv1_bias,
+        model.s3b2_bn1_gamma,
+        model.s3b2_bn1_running_mean,
+        model.s3b2_bn1_running_var,
+        model.s3b2_conv2_kernel,
+        model.s3b2_conv2_bias,
+        model.s3b2_bn2_gamma,
+        model.s3b2_bn2_running_mean,
+        model.s3b2_bn2_running_var,
+    )
+    var g_s3b1 = backward_projection_block(
+        g_s3b2.grad_input,
+        fwd.s3b1_cache,
+        model.s3b1_conv1_kernel,
+        model.s3b1_conv1_bias,
+        model.s3b1_bn1_gamma,
+        model.s3b1_bn1_running_mean,
+        model.s3b1_bn1_running_var,
+        model.s3b1_conv2_kernel,
+        model.s3b1_conv2_bias,
+        model.s3b1_bn2_gamma,
+        model.s3b1_bn2_running_mean,
+        model.s3b1_bn2_running_var,
+        model.s3b1_proj_kernel,
+        model.s3b1_proj_bias,
+        model.s3b1_proj_bn_gamma,
+        model.s3b1_proj_bn_running_mean,
+        model.s3b1_proj_bn_running_var,
+        main_stride=2,
+    )
+
+    # Stage 2 (b2 identity, b1 projection stride=2)
+    var g_s2b2 = backward_identity_block(
+        g_s3b1.grad_input,
+        fwd.s2b2_cache,
+        model.s2b2_conv1_kernel,
+        model.s2b2_conv1_bias,
+        model.s2b2_bn1_gamma,
+        model.s2b2_bn1_running_mean,
+        model.s2b2_bn1_running_var,
+        model.s2b2_conv2_kernel,
+        model.s2b2_conv2_bias,
+        model.s2b2_bn2_gamma,
+        model.s2b2_bn2_running_mean,
+        model.s2b2_bn2_running_var,
+    )
+    var g_s2b1 = backward_projection_block(
+        g_s2b2.grad_input,
+        fwd.s2b1_cache,
+        model.s2b1_conv1_kernel,
+        model.s2b1_conv1_bias,
+        model.s2b1_bn1_gamma,
+        model.s2b1_bn1_running_mean,
+        model.s2b1_bn1_running_var,
+        model.s2b1_conv2_kernel,
+        model.s2b1_conv2_bias,
+        model.s2b1_bn2_gamma,
+        model.s2b1_bn2_running_mean,
+        model.s2b1_bn2_running_var,
+        model.s2b1_proj_kernel,
+        model.s2b1_proj_bias,
+        model.s2b1_proj_bn_gamma,
+        model.s2b1_proj_bn_running_mean,
+        model.s2b1_proj_bn_running_var,
+        main_stride=2,
+    )
+
+    # Stage 1 (both identity, no projection, stride=1)
+    var g_s1b2 = backward_identity_block(
+        g_s2b1.grad_input,
+        fwd.s1b2_cache,
+        model.s1b2_conv1_kernel,
+        model.s1b2_conv1_bias,
+        model.s1b2_bn1_gamma,
+        model.s1b2_bn1_running_mean,
+        model.s1b2_bn1_running_var,
+        model.s1b2_conv2_kernel,
+        model.s1b2_conv2_bias,
+        model.s1b2_bn2_gamma,
+        model.s1b2_bn2_running_mean,
+        model.s1b2_bn2_running_var,
+    )
+    var g_s1b1 = backward_identity_block(
+        g_s1b2.grad_input,
+        fwd.s1b1_cache,
+        model.s1b1_conv1_kernel,
+        model.s1b1_conv1_bias,
+        model.s1b1_bn1_gamma,
+        model.s1b1_bn1_running_mean,
+        model.s1b1_bn1_running_var,
+        model.s1b1_conv2_kernel,
+        model.s1b1_conv2_bias,
+        model.s1b1_bn2_gamma,
+        model.s1b1_bn2_running_mean,
+        model.s1b1_bn2_running_var,
+    )
+
+    # Initial conv + BN + ReLU
+    var dInitBn = relu_backward(g_s1b1.grad_input, fwd.bn1_pre_relu)
+    var init_bn = batch_norm2d_backward(
+        dInitBn,
+        fwd.conv1_pre_bn,
+        model.bn1_gamma,
+        model.bn1_running_mean,
+        model.bn1_running_var,
+        training=True,
+    )
+    var init_c = conv2d_backward(
+        init_bn[0], images, model.conv1_kernel, stride=1, padding=1
+    )
+
+    # SGD momentum updates (82 parameters total)
+    sgd_momentum_update_inplace(
+        model.conv1_kernel, init_c.grad_weights, vel.conv1_kernel, lr, momentum
+    )
+    sgd_momentum_update_inplace(
+        model.conv1_bias, init_c.grad_bias, vel.conv1_bias, lr, momentum
+    )
+    sgd_momentum_update_inplace(
+        model.bn1_gamma, init_bn[1], vel.bn1_gamma, lr, momentum
+    )
+    sgd_momentum_update_inplace(
+        model.bn1_beta, init_bn[2], vel.bn1_beta, lr, momentum
+    )
+
+    # Stage 1 identity blocks (8 params × 2 = 16)
+    sgd_momentum_update_inplace(
+        model.s1b1_conv1_kernel,
+        g_s1b1.grad_conv1_kernel,
+        vel.s1b1_conv1_kernel,
+        lr,
+        momentum,
+    )
+    sgd_momentum_update_inplace(
+        model.s1b1_conv1_bias,
+        g_s1b1.grad_conv1_bias,
+        vel.s1b1_conv1_bias,
+        lr,
+        momentum,
+    )
+    sgd_momentum_update_inplace(
+        model.s1b1_bn1_gamma,
+        g_s1b1.grad_bn1_gamma,
+        vel.s1b1_bn1_gamma,
+        lr,
+        momentum,
+    )
+    sgd_momentum_update_inplace(
+        model.s1b1_bn1_beta,
+        g_s1b1.grad_bn1_beta,
+        vel.s1b1_bn1_beta,
+        lr,
+        momentum,
+    )
+    sgd_momentum_update_inplace(
+        model.s1b1_conv2_kernel,
+        g_s1b1.grad_conv2_kernel,
+        vel.s1b1_conv2_kernel,
+        lr,
+        momentum,
+    )
+    sgd_momentum_update_inplace(
+        model.s1b1_conv2_bias,
+        g_s1b1.grad_conv2_bias,
+        vel.s1b1_conv2_bias,
+        lr,
+        momentum,
+    )
+    sgd_momentum_update_inplace(
+        model.s1b1_bn2_gamma,
+        g_s1b1.grad_bn2_gamma,
+        vel.s1b1_bn2_gamma,
+        lr,
+        momentum,
+    )
+    sgd_momentum_update_inplace(
+        model.s1b1_bn2_beta,
+        g_s1b1.grad_bn2_beta,
+        vel.s1b1_bn2_beta,
+        lr,
+        momentum,
+    )
+
+    sgd_momentum_update_inplace(
+        model.s1b2_conv1_kernel,
+        g_s1b2.grad_conv1_kernel,
+        vel.s1b2_conv1_kernel,
+        lr,
+        momentum,
+    )
+    sgd_momentum_update_inplace(
+        model.s1b2_conv1_bias,
+        g_s1b2.grad_conv1_bias,
+        vel.s1b2_conv1_bias,
+        lr,
+        momentum,
+    )
+    sgd_momentum_update_inplace(
+        model.s1b2_bn1_gamma,
+        g_s1b2.grad_bn1_gamma,
+        vel.s1b2_bn1_gamma,
+        lr,
+        momentum,
+    )
+    sgd_momentum_update_inplace(
+        model.s1b2_bn1_beta,
+        g_s1b2.grad_bn1_beta,
+        vel.s1b2_bn1_beta,
+        lr,
+        momentum,
+    )
+    sgd_momentum_update_inplace(
+        model.s1b2_conv2_kernel,
+        g_s1b2.grad_conv2_kernel,
+        vel.s1b2_conv2_kernel,
+        lr,
+        momentum,
+    )
+    sgd_momentum_update_inplace(
+        model.s1b2_conv2_bias,
+        g_s1b2.grad_conv2_bias,
+        vel.s1b2_conv2_bias,
+        lr,
+        momentum,
+    )
+    sgd_momentum_update_inplace(
+        model.s1b2_bn2_gamma,
+        g_s1b2.grad_bn2_gamma,
+        vel.s1b2_bn2_gamma,
+        lr,
+        momentum,
+    )
+    sgd_momentum_update_inplace(
+        model.s1b2_bn2_beta,
+        g_s1b2.grad_bn2_beta,
+        vel.s1b2_bn2_beta,
+        lr,
+        momentum,
+    )
+
+    # Stage 2 projection block (12 params)
+    sgd_momentum_update_inplace(
+        model.s2b1_conv1_kernel,
+        g_s2b1.grad_conv1_kernel,
+        vel.s2b1_conv1_kernel,
+        lr,
+        momentum,
+    )
+    sgd_momentum_update_inplace(
+        model.s2b1_conv1_bias,
+        g_s2b1.grad_conv1_bias,
+        vel.s2b1_conv1_bias,
+        lr,
+        momentum,
+    )
+    sgd_momentum_update_inplace(
+        model.s2b1_bn1_gamma,
+        g_s2b1.grad_bn1_gamma,
+        vel.s2b1_bn1_gamma,
+        lr,
+        momentum,
+    )
+    sgd_momentum_update_inplace(
+        model.s2b1_bn1_beta,
+        g_s2b1.grad_bn1_beta,
+        vel.s2b1_bn1_beta,
+        lr,
+        momentum,
+    )
+    sgd_momentum_update_inplace(
+        model.s2b1_conv2_kernel,
+        g_s2b1.grad_conv2_kernel,
+        vel.s2b1_conv2_kernel,
+        lr,
+        momentum,
+    )
+    sgd_momentum_update_inplace(
+        model.s2b1_conv2_bias,
+        g_s2b1.grad_conv2_bias,
+        vel.s2b1_conv2_bias,
+        lr,
+        momentum,
+    )
+    sgd_momentum_update_inplace(
+        model.s2b1_bn2_gamma,
+        g_s2b1.grad_bn2_gamma,
+        vel.s2b1_bn2_gamma,
+        lr,
+        momentum,
+    )
+    sgd_momentum_update_inplace(
+        model.s2b1_bn2_beta,
+        g_s2b1.grad_bn2_beta,
+        vel.s2b1_bn2_beta,
+        lr,
+        momentum,
+    )
+    sgd_momentum_update_inplace(
+        model.s2b1_proj_kernel,
+        g_s2b1.grad_proj_kernel,
+        vel.s2b1_proj_kernel,
+        lr,
+        momentum,
+    )
+    sgd_momentum_update_inplace(
+        model.s2b1_proj_bias,
+        g_s2b1.grad_proj_bias,
+        vel.s2b1_proj_bias,
+        lr,
+        momentum,
+    )
+    sgd_momentum_update_inplace(
+        model.s2b1_proj_bn_gamma,
+        g_s2b1.grad_proj_bn_gamma,
+        vel.s2b1_proj_bn_gamma,
+        lr,
+        momentum,
+    )
+    sgd_momentum_update_inplace(
+        model.s2b1_proj_bn_beta,
+        g_s2b1.grad_proj_bn_beta,
+        vel.s2b1_proj_bn_beta,
+        lr,
+        momentum,
+    )
+
+    # Stage 2 identity block (8 params)
+    sgd_momentum_update_inplace(
+        model.s2b2_conv1_kernel,
+        g_s2b2.grad_conv1_kernel,
+        vel.s2b2_conv1_kernel,
+        lr,
+        momentum,
+    )
+    sgd_momentum_update_inplace(
+        model.s2b2_conv1_bias,
+        g_s2b2.grad_conv1_bias,
+        vel.s2b2_conv1_bias,
+        lr,
+        momentum,
+    )
+    sgd_momentum_update_inplace(
+        model.s2b2_bn1_gamma,
+        g_s2b2.grad_bn1_gamma,
+        vel.s2b2_bn1_gamma,
+        lr,
+        momentum,
+    )
+    sgd_momentum_update_inplace(
+        model.s2b2_bn1_beta,
+        g_s2b2.grad_bn1_beta,
+        vel.s2b2_bn1_beta,
+        lr,
+        momentum,
+    )
+    sgd_momentum_update_inplace(
+        model.s2b2_conv2_kernel,
+        g_s2b2.grad_conv2_kernel,
+        vel.s2b2_conv2_kernel,
+        lr,
+        momentum,
+    )
+    sgd_momentum_update_inplace(
+        model.s2b2_conv2_bias,
+        g_s2b2.grad_conv2_bias,
+        vel.s2b2_conv2_bias,
+        lr,
+        momentum,
+    )
+    sgd_momentum_update_inplace(
+        model.s2b2_bn2_gamma,
+        g_s2b2.grad_bn2_gamma,
+        vel.s2b2_bn2_gamma,
+        lr,
+        momentum,
+    )
+    sgd_momentum_update_inplace(
+        model.s2b2_bn2_beta,
+        g_s2b2.grad_bn2_beta,
+        vel.s2b2_bn2_beta,
+        lr,
+        momentum,
+    )
+
+    # Stage 3 projection block (12 params)
+    sgd_momentum_update_inplace(
+        model.s3b1_conv1_kernel,
+        g_s3b1.grad_conv1_kernel,
+        vel.s3b1_conv1_kernel,
+        lr,
+        momentum,
+    )
+    sgd_momentum_update_inplace(
+        model.s3b1_conv1_bias,
+        g_s3b1.grad_conv1_bias,
+        vel.s3b1_conv1_bias,
+        lr,
+        momentum,
+    )
+    sgd_momentum_update_inplace(
+        model.s3b1_bn1_gamma,
+        g_s3b1.grad_bn1_gamma,
+        vel.s3b1_bn1_gamma,
+        lr,
+        momentum,
+    )
+    sgd_momentum_update_inplace(
+        model.s3b1_bn1_beta,
+        g_s3b1.grad_bn1_beta,
+        vel.s3b1_bn1_beta,
+        lr,
+        momentum,
+    )
+    sgd_momentum_update_inplace(
+        model.s3b1_conv2_kernel,
+        g_s3b1.grad_conv2_kernel,
+        vel.s3b1_conv2_kernel,
+        lr,
+        momentum,
+    )
+    sgd_momentum_update_inplace(
+        model.s3b1_conv2_bias,
+        g_s3b1.grad_conv2_bias,
+        vel.s3b1_conv2_bias,
+        lr,
+        momentum,
+    )
+    sgd_momentum_update_inplace(
+        model.s3b1_bn2_gamma,
+        g_s3b1.grad_bn2_gamma,
+        vel.s3b1_bn2_gamma,
+        lr,
+        momentum,
+    )
+    sgd_momentum_update_inplace(
+        model.s3b1_bn2_beta,
+        g_s3b1.grad_bn2_beta,
+        vel.s3b1_bn2_beta,
+        lr,
+        momentum,
+    )
+    sgd_momentum_update_inplace(
+        model.s3b1_proj_kernel,
+        g_s3b1.grad_proj_kernel,
+        vel.s3b1_proj_kernel,
+        lr,
+        momentum,
+    )
+    sgd_momentum_update_inplace(
+        model.s3b1_proj_bias,
+        g_s3b1.grad_proj_bias,
+        vel.s3b1_proj_bias,
+        lr,
+        momentum,
+    )
+    sgd_momentum_update_inplace(
+        model.s3b1_proj_bn_gamma,
+        g_s3b1.grad_proj_bn_gamma,
+        vel.s3b1_proj_bn_gamma,
+        lr,
+        momentum,
+    )
+    sgd_momentum_update_inplace(
+        model.s3b1_proj_bn_beta,
+        g_s3b1.grad_proj_bn_beta,
+        vel.s3b1_proj_bn_beta,
+        lr,
+        momentum,
+    )
+
+    # Stage 3 identity block (8 params)
+    sgd_momentum_update_inplace(
+        model.s3b2_conv1_kernel,
+        g_s3b2.grad_conv1_kernel,
+        vel.s3b2_conv1_kernel,
+        lr,
+        momentum,
+    )
+    sgd_momentum_update_inplace(
+        model.s3b2_conv1_bias,
+        g_s3b2.grad_conv1_bias,
+        vel.s3b2_conv1_bias,
+        lr,
+        momentum,
+    )
+    sgd_momentum_update_inplace(
+        model.s3b2_bn1_gamma,
+        g_s3b2.grad_bn1_gamma,
+        vel.s3b2_bn1_gamma,
+        lr,
+        momentum,
+    )
+    sgd_momentum_update_inplace(
+        model.s3b2_bn1_beta,
+        g_s3b2.grad_bn1_beta,
+        vel.s3b2_bn1_beta,
+        lr,
+        momentum,
+    )
+    sgd_momentum_update_inplace(
+        model.s3b2_conv2_kernel,
+        g_s3b2.grad_conv2_kernel,
+        vel.s3b2_conv2_kernel,
+        lr,
+        momentum,
+    )
+    sgd_momentum_update_inplace(
+        model.s3b2_conv2_bias,
+        g_s3b2.grad_conv2_bias,
+        vel.s3b2_conv2_bias,
+        lr,
+        momentum,
+    )
+    sgd_momentum_update_inplace(
+        model.s3b2_bn2_gamma,
+        g_s3b2.grad_bn2_gamma,
+        vel.s3b2_bn2_gamma,
+        lr,
+        momentum,
+    )
+    sgd_momentum_update_inplace(
+        model.s3b2_bn2_beta,
+        g_s3b2.grad_bn2_beta,
+        vel.s3b2_bn2_beta,
+        lr,
+        momentum,
+    )
+
+    # Stage 4 projection block (12 params)
+    sgd_momentum_update_inplace(
+        model.s4b1_conv1_kernel,
+        g_s4b1.grad_conv1_kernel,
+        vel.s4b1_conv1_kernel,
+        lr,
+        momentum,
+    )
+    sgd_momentum_update_inplace(
+        model.s4b1_conv1_bias,
+        g_s4b1.grad_conv1_bias,
+        vel.s4b1_conv1_bias,
+        lr,
+        momentum,
+    )
+    sgd_momentum_update_inplace(
+        model.s4b1_bn1_gamma,
+        g_s4b1.grad_bn1_gamma,
+        vel.s4b1_bn1_gamma,
+        lr,
+        momentum,
+    )
+    sgd_momentum_update_inplace(
+        model.s4b1_bn1_beta,
+        g_s4b1.grad_bn1_beta,
+        vel.s4b1_bn1_beta,
+        lr,
+        momentum,
+    )
+    sgd_momentum_update_inplace(
+        model.s4b1_conv2_kernel,
+        g_s4b1.grad_conv2_kernel,
+        vel.s4b1_conv2_kernel,
+        lr,
+        momentum,
+    )
+    sgd_momentum_update_inplace(
+        model.s4b1_conv2_bias,
+        g_s4b1.grad_conv2_bias,
+        vel.s4b1_conv2_bias,
+        lr,
+        momentum,
+    )
+    sgd_momentum_update_inplace(
+        model.s4b1_bn2_gamma,
+        g_s4b1.grad_bn2_gamma,
+        vel.s4b1_bn2_gamma,
+        lr,
+        momentum,
+    )
+    sgd_momentum_update_inplace(
+        model.s4b1_bn2_beta,
+        g_s4b1.grad_bn2_beta,
+        vel.s4b1_bn2_beta,
+        lr,
+        momentum,
+    )
+    sgd_momentum_update_inplace(
+        model.s4b1_proj_kernel,
+        g_s4b1.grad_proj_kernel,
+        vel.s4b1_proj_kernel,
+        lr,
+        momentum,
+    )
+    sgd_momentum_update_inplace(
+        model.s4b1_proj_bias,
+        g_s4b1.grad_proj_bias,
+        vel.s4b1_proj_bias,
+        lr,
+        momentum,
+    )
+    sgd_momentum_update_inplace(
+        model.s4b1_proj_bn_gamma,
+        g_s4b1.grad_proj_bn_gamma,
+        vel.s4b1_proj_bn_gamma,
+        lr,
+        momentum,
+    )
+    sgd_momentum_update_inplace(
+        model.s4b1_proj_bn_beta,
+        g_s4b1.grad_proj_bn_beta,
+        vel.s4b1_proj_bn_beta,
+        lr,
+        momentum,
+    )
+
+    # Stage 4 identity block (8 params)
+    sgd_momentum_update_inplace(
+        model.s4b2_conv1_kernel,
+        g_s4b2.grad_conv1_kernel,
+        vel.s4b2_conv1_kernel,
+        lr,
+        momentum,
+    )
+    sgd_momentum_update_inplace(
+        model.s4b2_conv1_bias,
+        g_s4b2.grad_conv1_bias,
+        vel.s4b2_conv1_bias,
+        lr,
+        momentum,
+    )
+    sgd_momentum_update_inplace(
+        model.s4b2_bn1_gamma,
+        g_s4b2.grad_bn1_gamma,
+        vel.s4b2_bn1_gamma,
+        lr,
+        momentum,
+    )
+    sgd_momentum_update_inplace(
+        model.s4b2_bn1_beta,
+        g_s4b2.grad_bn1_beta,
+        vel.s4b2_bn1_beta,
+        lr,
+        momentum,
+    )
+    sgd_momentum_update_inplace(
+        model.s4b2_conv2_kernel,
+        g_s4b2.grad_conv2_kernel,
+        vel.s4b2_conv2_kernel,
+        lr,
+        momentum,
+    )
+    sgd_momentum_update_inplace(
+        model.s4b2_conv2_bias,
+        g_s4b2.grad_conv2_bias,
+        vel.s4b2_conv2_bias,
+        lr,
+        momentum,
+    )
+    sgd_momentum_update_inplace(
+        model.s4b2_bn2_gamma,
+        g_s4b2.grad_bn2_gamma,
+        vel.s4b2_bn2_gamma,
+        lr,
+        momentum,
+    )
+    sgd_momentum_update_inplace(
+        model.s4b2_bn2_beta,
+        g_s4b2.grad_bn2_beta,
+        vel.s4b2_bn2_beta,
+        lr,
+        momentum,
+    )
+
+    # FC (2 params)
+    sgd_momentum_update_inplace(
+        model.fc_weights, fc.grad_weights, vel.fc_weights, lr, momentum
+    )
+    sgd_momentum_update_inplace(
+        model.fc_bias, fc.grad_bias, vel.fc_bias, lr, momentum
+    )
+
+    return Float32(loss.load[DType.float32](0))
 
 
 def train_epoch(
@@ -168,11 +1062,11 @@ def train_epoch(
     batch_size: Int,
     learning_rate: Float32,
     momentum: Float32,
-    mut velocities: List[AnyTensor],
+    mut velocities: ResNet18Velocities,
     epoch: Int,
     total_epochs: Int,
 ) raises -> Float32:
-    """Train for one epoch (demonstration only - no actual training).
+    """Train for one epoch with full backprop and SGD momentum.
 
     Args:
         model: ResNet-18 model.
@@ -181,22 +1075,12 @@ def train_epoch(
         batch_size: Mini-batch size.
         learning_rate: Learning rate for SGD.
         momentum: Momentum factor.
-        velocities: Momentum velocity tensors (84 total - one per parameter).
+        velocities: SGD momentum velocities (82 fields, one per trainable parameter).
         epoch: Current epoch number (1-indexed).
         total_epochs: Total number of epochs.
 
     Returns:
         Average training loss for the epoch.
-
-    Note:
-        Due to the complexity of implementing full backprop through 18 layers with
-        batch norm, this demonstrates the structure. A complete implementation would
-        cache all intermediate activations during forward pass and compute all
-        gradients during backward pass.
-
-        For production use, consider implementing a computational graph or using
-        automatic differentiation instead of manual backpropagation for such
-        deep networks.
     """
     var num_samples = train_images.shape()[0]
     var num_batches = compute_num_batches(num_samples, batch_size)
@@ -212,9 +1096,14 @@ def train_epoch(
         var batch_images = batch_pair[0]
         var batch_labels = batch_pair[1]
 
-        # Compute loss for this batch
-        var batch_loss = compute_batch_gradients(
-            model, batch_images, batch_labels
+        # Forward, backward, and SGD update for this batch
+        var batch_loss = train_step(
+            model,
+            batch_images,
+            batch_labels,
+            velocities,
+            lr=Float64(learning_rate),
+            momentum=Float64(momentum),
         )
         total_loss = total_loss + batch_loss
 
@@ -299,80 +1188,43 @@ def main() raises:
     train_shape.append(32)
     var train_images = zeros(train_shape, DType.float32)
 
+    # One-hot encoded labels: cross_entropy requires targets to have the
+    # same (batch, num_classes) shape as the logits.
     var label_shape = List[Int]()
     label_shape.append(10)
+    label_shape.append(10)
     var train_labels = zeros(label_shape, DType.float32)
+    for i in range(10):
+        train_labels.set(i * 10 + (i % 10), Float32(1.0))
 
     # Initialize model
     print("Initializing ResNet-18 model...")
     var dataset_info = DatasetInfo("cifar10")
     var num_classes = dataset_info.num_classes()
     var model = ResNet18(num_classes=num_classes)
-    print("  Total trainable parameters: 84")
+    print("  Total trainable parameters: 82")
     print("  Model size: ~11M parameters (actual tensor elements)")
     print()
 
-    # Initialize momentum velocities (one per trainable parameter)
+    # Initialize momentum velocities (82 parameters, one per trainable param)
     print("Initializing momentum velocities...")
-    var velocities: List[AnyTensor] = []
-
-    # Note: In a complete implementation, initialize 84 velocity tensors
-    # matching the shape of each parameter. For this demonstration:
-    print(
-        "  STATUS: Backward pass is a documented placeholder (full"
-        " implementation tracked in GitHub issue #3181)"
-    )
-    print("  This script demonstrates the structure and patterns")
+    var velocities = initialize_velocities(model)
+    print("  Velocities initialized for 82 parameters")
     print()
 
-    # STATUS UPDATE
-    print("=" * 60)
-    print("IMPLEMENTATION STATUS")
-    print("=" * 60)
-    print()
-    print("✅ batch_norm2d_backward is now available in shared library!")
-    print()
-    print("The backward pass structure is fully documented above.")
-    print("To complete training, implement:")
-    print("  1. Cache all activations during forward pass")
-    print("  2. Implement full backward pass (~2000 lines)")
-    print("  3. Initialize 84 velocity tensors")
-    print("  4. Update all parameters with SGD + momentum")
-    print()
-    print("Key patterns demonstrated:")
-    print("  - Batch norm backward: batch_norm2d_backward(...)")
-    print("  - Skip connections: add_backward splits gradients")
-    print("  - Projection shortcuts: 1×1 conv + BN backward")
-    print("  - Identity shortcuts: direct gradient addition")
-    print()
-    print("Expected implementation size:")
-    print("  - Forward caching: ~500 lines")
-    print("  - Backward pass: ~2000 lines")
-    print("  - Parameter updates: ~200 lines")
-    print("  - Total: ~2700 lines for full manual backprop")
-    print()
-    print("=" * 60)
-    print()
-
-    # Demonstration forward pass
-    print("Running demonstration forward pass...")
-    var demo_logits = model.forward(train_images, training=True)
-    var demo_loss = cross_entropy(demo_logits, train_labels)
-    var demo_loss_scalar = demo_loss._data.bitcast[Float32]()[0]
-
-    print("  Forward pass successful")
-    print("  Batch shape: (10, 3, 32, 32)")
-    print("  Output logits shape: (10, 10)")
-    print("  Loss value: " + String(demo_loss_scalar))
-    print()
-
-    print("ResNet-18 forward pass is complete.")
-    print(
-        "To enable training, implement the full backward pass as documented"
-        " above."
+    # Run training loop (minimal: just 1 epoch for demonstration)
+    var model_mut: ResNet18 = model^
+    var vel_mut: ResNet18Velocities = velocities^
+    var epoch_loss = train_epoch(
+        model_mut,
+        train_images,
+        train_labels,
+        batch_size=Int(batch_size),
+        learning_rate=initial_lr,
+        momentum=momentum,
+        velocities=vel_mut,
+        epoch=1,
+        total_epochs=1,
     )
     print()
-    print(
-        "Alternative: Consider using automatic differentiation for such deep"
-        " networks."
-    )
+    print("Training complete. Epoch loss: " + String(epoch_loss))
