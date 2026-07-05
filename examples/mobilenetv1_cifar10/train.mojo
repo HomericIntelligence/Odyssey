@@ -68,9 +68,9 @@ def compute_gradients(
 ) raises -> Float32:
     """Forward + backward + SGD-momentum update for one batch.
 
-    NOTE: BN running_mean/running_var are DISCARDED this pass. Inference via
-    model.forward(training=False) will use stale init values (0, 1). See #5525
-    follow-up for persisting running stats.
+    BN running_mean/running_var from every batch_norm2d call are written back
+    to the model (#5543), so inference via model.forward(training=False) uses
+    statistics accumulated during training rather than init values.
     """
     # ===== Forward pass (caches: <name>_out per stage; block inputs bN_in) =====
 
@@ -90,6 +90,8 @@ def compute_gradients(
         model.initial_bn_running_var,
         True,
     )
+    model.initial_bn_running_mean = init_bn_tuple[1]
+    model.initial_bn_running_var = init_bn_tuple[2]
     var init_bn_out = init_bn_tuple[0]
     var init_relu_out = relu(init_bn_out)
 
@@ -110,6 +112,8 @@ def compute_gradients(
         model.ds_block_1.dw_bn_running_var,
         True,
     )
+    model.ds_block_1.dw_bn_running_mean = b1_dw_bn_tuple[1]
+    model.ds_block_1.dw_bn_running_var = b1_dw_bn_tuple[2]
     var b1_dw_bn_out = b1_dw_bn_tuple[0]
     var b1_dw_relu_out = relu(b1_dw_bn_out)
     var b1_pw_out = conv2d(
@@ -127,6 +131,8 @@ def compute_gradients(
         model.ds_block_1.pw_bn_running_var,
         True,
     )
+    model.ds_block_1.pw_bn_running_mean = b1_pw_bn_tuple[1]
+    model.ds_block_1.pw_bn_running_var = b1_pw_bn_tuple[2]
     var b1_pw_bn_out = b1_pw_bn_tuple[0]
     var b1_out = relu(b1_pw_bn_out)
 
@@ -147,6 +153,8 @@ def compute_gradients(
         model.ds_block_2.dw_bn_running_var,
         True,
     )
+    model.ds_block_2.dw_bn_running_mean = b2_dw_bn_tuple[1]
+    model.ds_block_2.dw_bn_running_var = b2_dw_bn_tuple[2]
     var b2_dw_bn_out = b2_dw_bn_tuple[0]
     var b2_dw_relu_out = relu(b2_dw_bn_out)
     var b2_pw_out = conv2d(
@@ -164,6 +172,8 @@ def compute_gradients(
         model.ds_block_2.pw_bn_running_var,
         True,
     )
+    model.ds_block_2.pw_bn_running_mean = b2_pw_bn_tuple[1]
+    model.ds_block_2.pw_bn_running_var = b2_pw_bn_tuple[2]
     var b2_pw_bn_out = b2_pw_bn_tuple[0]
     var b2_out = relu(b2_pw_bn_out)
 
@@ -184,6 +194,8 @@ def compute_gradients(
         model.ds_block_3.dw_bn_running_var,
         True,
     )
+    model.ds_block_3.dw_bn_running_mean = b3_dw_bn_tuple[1]
+    model.ds_block_3.dw_bn_running_var = b3_dw_bn_tuple[2]
     var b3_dw_bn_out = b3_dw_bn_tuple[0]
     var b3_dw_relu_out = relu(b3_dw_bn_out)
     var b3_pw_out = conv2d(
@@ -201,6 +213,8 @@ def compute_gradients(
         model.ds_block_3.pw_bn_running_var,
         True,
     )
+    model.ds_block_3.pw_bn_running_mean = b3_pw_bn_tuple[1]
+    model.ds_block_3.pw_bn_running_var = b3_pw_bn_tuple[2]
     var b3_pw_bn_out = b3_pw_bn_tuple[0]
     var b3_out = relu(b3_pw_bn_out)
 
@@ -221,6 +235,8 @@ def compute_gradients(
         model.ds_block_4.dw_bn_running_var,
         True,
     )
+    model.ds_block_4.dw_bn_running_mean = b4_dw_bn_tuple[1]
+    model.ds_block_4.dw_bn_running_var = b4_dw_bn_tuple[2]
     var b4_dw_bn_out = b4_dw_bn_tuple[0]
     var b4_dw_relu_out = relu(b4_dw_bn_out)
     var b4_pw_out = conv2d(
@@ -238,6 +254,8 @@ def compute_gradients(
         model.ds_block_4.pw_bn_running_var,
         True,
     )
+    model.ds_block_4.pw_bn_running_mean = b4_pw_bn_tuple[1]
+    model.ds_block_4.pw_bn_running_var = b4_pw_bn_tuple[2]
     var b4_pw_bn_out = b4_pw_bn_tuple[0]
     var b4_out = relu(b4_pw_bn_out)
 
@@ -258,6 +276,8 @@ def compute_gradients(
         model.ds_block_5.dw_bn_running_var,
         True,
     )
+    model.ds_block_5.dw_bn_running_mean = b5_dw_bn_tuple[1]
+    model.ds_block_5.dw_bn_running_var = b5_dw_bn_tuple[2]
     var b5_dw_bn_out = b5_dw_bn_tuple[0]
     var b5_dw_relu_out = relu(b5_dw_bn_out)
     var b5_pw_out = conv2d(
@@ -275,6 +295,8 @@ def compute_gradients(
         model.ds_block_5.pw_bn_running_var,
         True,
     )
+    model.ds_block_5.pw_bn_running_mean = b5_pw_bn_tuple[1]
+    model.ds_block_5.pw_bn_running_var = b5_pw_bn_tuple[2]
     var b5_pw_bn_out = b5_pw_bn_tuple[0]
     var b5_out = relu(b5_pw_bn_out)
 
@@ -295,6 +317,8 @@ def compute_gradients(
         model.ds_block_6.dw_bn_running_var,
         True,
     )
+    model.ds_block_6.dw_bn_running_mean = b6_dw_bn_tuple[1]
+    model.ds_block_6.dw_bn_running_var = b6_dw_bn_tuple[2]
     var b6_dw_bn_out = b6_dw_bn_tuple[0]
     var b6_dw_relu_out = relu(b6_dw_bn_out)
     var b6_pw_out = conv2d(
@@ -312,6 +336,8 @@ def compute_gradients(
         model.ds_block_6.pw_bn_running_var,
         True,
     )
+    model.ds_block_6.pw_bn_running_mean = b6_pw_bn_tuple[1]
+    model.ds_block_6.pw_bn_running_var = b6_pw_bn_tuple[2]
     var b6_pw_bn_out = b6_pw_bn_tuple[0]
     var b6_out = relu(b6_pw_bn_out)
 
@@ -332,6 +358,8 @@ def compute_gradients(
         model.ds_block_7.dw_bn_running_var,
         True,
     )
+    model.ds_block_7.dw_bn_running_mean = b7_dw_bn_tuple[1]
+    model.ds_block_7.dw_bn_running_var = b7_dw_bn_tuple[2]
     var b7_dw_bn_out = b7_dw_bn_tuple[0]
     var b7_dw_relu_out = relu(b7_dw_bn_out)
     var b7_pw_out = conv2d(
@@ -349,6 +377,8 @@ def compute_gradients(
         model.ds_block_7.pw_bn_running_var,
         True,
     )
+    model.ds_block_7.pw_bn_running_mean = b7_pw_bn_tuple[1]
+    model.ds_block_7.pw_bn_running_var = b7_pw_bn_tuple[2]
     var b7_pw_bn_out = b7_pw_bn_tuple[0]
     var b7_out = relu(b7_pw_bn_out)
 
@@ -369,6 +399,8 @@ def compute_gradients(
         model.ds_block_8.dw_bn_running_var,
         True,
     )
+    model.ds_block_8.dw_bn_running_mean = b8_dw_bn_tuple[1]
+    model.ds_block_8.dw_bn_running_var = b8_dw_bn_tuple[2]
     var b8_dw_bn_out = b8_dw_bn_tuple[0]
     var b8_dw_relu_out = relu(b8_dw_bn_out)
     var b8_pw_out = conv2d(
@@ -386,6 +418,8 @@ def compute_gradients(
         model.ds_block_8.pw_bn_running_var,
         True,
     )
+    model.ds_block_8.pw_bn_running_mean = b8_pw_bn_tuple[1]
+    model.ds_block_8.pw_bn_running_var = b8_pw_bn_tuple[2]
     var b8_pw_bn_out = b8_pw_bn_tuple[0]
     var b8_out = relu(b8_pw_bn_out)
 
@@ -406,6 +440,8 @@ def compute_gradients(
         model.ds_block_9.dw_bn_running_var,
         True,
     )
+    model.ds_block_9.dw_bn_running_mean = b9_dw_bn_tuple[1]
+    model.ds_block_9.dw_bn_running_var = b9_dw_bn_tuple[2]
     var b9_dw_bn_out = b9_dw_bn_tuple[0]
     var b9_dw_relu_out = relu(b9_dw_bn_out)
     var b9_pw_out = conv2d(
@@ -423,6 +459,8 @@ def compute_gradients(
         model.ds_block_9.pw_bn_running_var,
         True,
     )
+    model.ds_block_9.pw_bn_running_mean = b9_pw_bn_tuple[1]
+    model.ds_block_9.pw_bn_running_var = b9_pw_bn_tuple[2]
     var b9_pw_bn_out = b9_pw_bn_tuple[0]
     var b9_out = relu(b9_pw_bn_out)
 
@@ -443,6 +481,8 @@ def compute_gradients(
         model.ds_block_10.dw_bn_running_var,
         True,
     )
+    model.ds_block_10.dw_bn_running_mean = b10_dw_bn_tuple[1]
+    model.ds_block_10.dw_bn_running_var = b10_dw_bn_tuple[2]
     var b10_dw_bn_out = b10_dw_bn_tuple[0]
     var b10_dw_relu_out = relu(b10_dw_bn_out)
     var b10_pw_out = conv2d(
@@ -460,6 +500,8 @@ def compute_gradients(
         model.ds_block_10.pw_bn_running_var,
         True,
     )
+    model.ds_block_10.pw_bn_running_mean = b10_pw_bn_tuple[1]
+    model.ds_block_10.pw_bn_running_var = b10_pw_bn_tuple[2]
     var b10_pw_bn_out = b10_pw_bn_tuple[0]
     var b10_out = relu(b10_pw_bn_out)
 
@@ -480,6 +522,8 @@ def compute_gradients(
         model.ds_block_11.dw_bn_running_var,
         True,
     )
+    model.ds_block_11.dw_bn_running_mean = b11_dw_bn_tuple[1]
+    model.ds_block_11.dw_bn_running_var = b11_dw_bn_tuple[2]
     var b11_dw_bn_out = b11_dw_bn_tuple[0]
     var b11_dw_relu_out = relu(b11_dw_bn_out)
     var b11_pw_out = conv2d(
@@ -497,6 +541,8 @@ def compute_gradients(
         model.ds_block_11.pw_bn_running_var,
         True,
     )
+    model.ds_block_11.pw_bn_running_mean = b11_pw_bn_tuple[1]
+    model.ds_block_11.pw_bn_running_var = b11_pw_bn_tuple[2]
     var b11_pw_bn_out = b11_pw_bn_tuple[0]
     var b11_out = relu(b11_pw_bn_out)
 
@@ -517,6 +563,8 @@ def compute_gradients(
         model.ds_block_12.dw_bn_running_var,
         True,
     )
+    model.ds_block_12.dw_bn_running_mean = b12_dw_bn_tuple[1]
+    model.ds_block_12.dw_bn_running_var = b12_dw_bn_tuple[2]
     var b12_dw_bn_out = b12_dw_bn_tuple[0]
     var b12_dw_relu_out = relu(b12_dw_bn_out)
     var b12_pw_out = conv2d(
@@ -534,6 +582,8 @@ def compute_gradients(
         model.ds_block_12.pw_bn_running_var,
         True,
     )
+    model.ds_block_12.pw_bn_running_mean = b12_pw_bn_tuple[1]
+    model.ds_block_12.pw_bn_running_var = b12_pw_bn_tuple[2]
     var b12_pw_bn_out = b12_pw_bn_tuple[0]
     var b12_out = relu(b12_pw_bn_out)
 
@@ -554,6 +604,8 @@ def compute_gradients(
         model.ds_block_13.dw_bn_running_var,
         True,
     )
+    model.ds_block_13.dw_bn_running_mean = b13_dw_bn_tuple[1]
+    model.ds_block_13.dw_bn_running_var = b13_dw_bn_tuple[2]
     var b13_dw_bn_out = b13_dw_bn_tuple[0]
     var b13_dw_relu_out = relu(b13_dw_bn_out)
     var b13_pw_out = conv2d(
@@ -571,6 +623,8 @@ def compute_gradients(
         model.ds_block_13.pw_bn_running_var,
         True,
     )
+    model.ds_block_13.pw_bn_running_mean = b13_pw_bn_tuple[1]
+    model.ds_block_13.pw_bn_running_var = b13_pw_bn_tuple[2]
     var b13_pw_bn_out = b13_pw_bn_tuple[0]
     var b13_out = relu(b13_pw_bn_out)
 
@@ -2287,7 +2341,7 @@ def main() raises:
         default_lr=0.01,
         default_momentum=0.9,
         default_data_dir="datasets/cifar10",
-        default_weights_dir="mobilenetv1_weights",
+        default_weights_dir="weights",
         default_lr_decay_epochs=60,
         default_lr_decay_factor=0.2,
     )

@@ -7,7 +7,7 @@ training epoch of MobileNetV1 on CIFAR-10, executed with
 ## Run provenance
 
 | Field | Value |
-|---|---|
+| --- | --- |
 | Date | 2026-07-04 |
 | Command | `pixi run mojo run -I src -I . examples/mobilenetv1_cifar10/train.mojo --epochs 1 --batch-size 128 --lr 0.01 --data-dir datasets/cifar10` |
 | Started | 2026-07-04T13:05:59-07:00 |
@@ -20,7 +20,7 @@ training epoch of MobileNetV1 on CIFAR-10, executed with
 ## Results
 
 | Checkpoint | Loss |
-|---|---|
+| --- | --- |
 | Batch 100/391 | 2.330883 |
 | Batch 200/391 | 2.1634257 |
 | Batch 300/391 | 2.054407 |
