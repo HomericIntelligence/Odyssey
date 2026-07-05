@@ -362,7 +362,7 @@ struct ResNet18(Movable):
     Attributes:
         num_classes: Number of output classes (10 for CIFAR-10)
 
-        # Initial convolution (6 params including BN)
+        # Initial convolution (4 trainable params; BN running stats are buffers)
         conv1_kernel, conv1_bias: (64, 3, 3, 3)
         bn1_gamma, bn1_beta, bn1_running_mean, bn1_running_var: (64,)
 
@@ -374,7 +374,9 @@ struct ResNet18(Movable):
         # Fully connected (2 params)
         fc_weights, fc_bias: (num_classes, 512)
 
-        Total trainable params: 6 + 16 + 20 + 20 + 20 + 2 = 84 parameters.
+        # Note: bn1_running_mean/bn1_running_var are non-trainable BatchNorm
+        # statistics, so the initial block contributes 4 trainable params (not 6).
+        Total trainable params: 4 + 16 + 20 + 20 + 20 + 2 = 82 parameters.
     """
 
     var num_classes: Int

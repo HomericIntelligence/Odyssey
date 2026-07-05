@@ -30,7 +30,7 @@ Usage:
 """
 
 from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros, ones, randn
+from projectodyssey.tensor.tensor_creation import zeros, ones
 from projectodyssey.core.loss import cross_entropy, cross_entropy_backward
 from projectodyssey.core.conv import conv2d, conv2d_backward
 from projectodyssey.core.pooling import avgpool2d, avgpool2d_backward
