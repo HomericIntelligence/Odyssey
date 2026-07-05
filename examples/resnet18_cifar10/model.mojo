@@ -157,9 +157,9 @@ struct ResNet18ForwardCache(Movable):
 struct ResNet18Velocities(Movable):
     """SGD-momentum velocity buffers, one field per trainable ResNet-18 parameter.
 
-    Total: 82 trainable parameter fields (grep-verified against model.mojo;
-    comment "84" at ResNet18 docstring line 105 is off by two — it incorrectly
-    counts bn1_running_mean/var, which are non-trainable statistics).
+    Total: 82 trainable parameter fields (matches the ResNet18 struct docstring's
+    "82 parameters" count; bn1_running_mean/var are non-trainable BatchNorm
+    statistics and are excluded from this total).
     """
 
     var conv1_kernel: AnyTensor
@@ -362,7 +362,7 @@ struct ResNet18(Movable):
     Attributes:
         num_classes: Number of output classes (10 for CIFAR-10)
 
-        # Initial convolution (6 params including BN)
+        # Initial convolution (4 trainable params; BN running stats are buffers)
         conv1_kernel, conv1_bias: (64, 3, 3, 3)
         bn1_gamma, bn1_beta, bn1_running_mean, bn1_running_var: (64,)
 
@@ -374,7 +374,9 @@ struct ResNet18(Movable):
         # Fully connected (2 params)
         fc_weights, fc_bias: (num_classes, 512)
 
-        Total trainable params: 6 + 16 + 20 + 20 + 20 + 2 = 84 parameters.
+        # Note: bn1_running_mean/bn1_running_var are non-trainable BatchNorm
+        # statistics, so the initial block contributes 4 trainable params (not 6).
+        Total trainable params: 4 + 16 + 20 + 20 + 20 + 2 = 82 parameters.
     """
 
     var num_classes: Int

@@ -1063,6 +1063,7 @@ def train_epoch(
     learning_rate: Float32,
     momentum: Float32,
     mut velocities: ResNet18Velocities,
+    mut loss_history: List[Float32],
     epoch: Int,
     total_epochs: Int,
 ) raises -> Float32:
@@ -1076,6 +1077,7 @@ def train_epoch(
         learning_rate: Learning rate for SGD.
         momentum: Momentum factor.
         velocities: SGD momentum velocities (82 fields, one per trainable parameter).
+        loss_history: Mutable list to record per-batch loss for convergence testing.
         epoch: Current epoch number (1-indexed).
         total_epochs: Total number of epochs.
 
@@ -1105,6 +1107,7 @@ def train_epoch(
             lr=Float64(learning_rate),
             momentum=Float64(momentum),
         )
+        loss_history.append(batch_loss)
         total_loss = total_loss + batch_loss
 
         # Log progress every 100 batches
@@ -1209,12 +1212,12 @@ def main() raises:
     # Initialize momentum velocities (82 parameters, one per trainable param)
     print("Initializing momentum velocities...")
     var velocities = initialize_velocities(model)
-    print("  Velocities initialized for 82 parameters")
     print()
 
     # Run training loop (minimal: just 1 epoch for demonstration)
     var model_mut: ResNet18 = model^
     var vel_mut: ResNet18Velocities = velocities^
+    var loss_history: List[Float32] = []
     var epoch_loss = train_epoch(
         model_mut,
         train_images,
@@ -1223,6 +1226,7 @@ def main() raises:
         learning_rate=initial_lr,
         momentum=momentum,
         velocities=vel_mut,
+        loss_history=loss_history,
         epoch=1,
         total_epochs=1,
     )
