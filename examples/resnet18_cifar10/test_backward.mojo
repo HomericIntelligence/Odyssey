@@ -119,7 +119,9 @@ def _build_separable_batch(
             1.0
         )
         for s in range(samples_per_class):
-            var idx = s * num_classes + c  # interleave: every batch sees all classes
+            var idx = (
+                s * num_classes + c
+            )  # interleave: every batch sees all classes
             labels_int.set(idx, UInt8(c))
             var base = idx * pixels_per_sample
             for k in range(pixels_per_sample):
