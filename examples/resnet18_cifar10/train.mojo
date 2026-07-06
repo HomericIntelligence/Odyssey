@@ -86,6 +86,7 @@ def evaluate_test_set(
     var num_batches = compute_num_batches(num_samples, batch_size)
     var total_loss = Float32(0.0)
     var total_correct = 0
+    var total_samples_processed = 0
 
     for batch_idx in range(num_batches):
         var start_idx = batch_idx * batch_size
@@ -102,10 +103,9 @@ def evaluate_test_set(
         # Forward pass (inference mode)
         var logits = model.forward(batch_images, training=False)
 
-        # Compute loss
+        # Compute loss (weighted by batch size)
         var batch_loss = cross_entropy(logits, batch_labels)
-        var loss_scalar = batch_loss._data.bitcast[Float32]()[0]
-        total_loss = total_loss + loss_scalar
+        total_loss = total_loss + Float32(batch_loss.load[DType.float32](0)) * Float32(current_batch_size)
 
         # Compute batch accuracy
         var batch_acc_fraction = evaluate_logits_batch(logits, batch_labels_raw)
@@ -113,8 +113,9 @@ def evaluate_test_set(
             batch_acc_fraction * Float32(current_batch_size)
         )
         total_correct += batch_correct
+        total_samples_processed += current_batch_size
 
-    var avg_loss = total_loss / Float32(num_batches)
+    var avg_loss = total_loss / Float32(total_samples_processed)
     var accuracy = Float32(total_correct) / Float32(num_samples) * 100.0
 
     return (avg_loss, accuracy)
@@ -1212,9 +1213,11 @@ def main() raises:
 
     # Evaluate on test set
     print("Evaluating on test set...")
-    var test_loss, test_accuracy = evaluate_test_set(
+    var eval_result = evaluate_test_set(
         model_mut, test_images, test_labels_raw, batch_size=100
     )
+    var test_loss = eval_result[0]
+    var test_accuracy = eval_result[1]
     print("Test loss: " + String(test_loss))
     print("Test accuracy: " + String(test_accuracy) + "%")
     print()
