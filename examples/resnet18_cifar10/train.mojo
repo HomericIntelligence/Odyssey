@@ -105,7 +105,9 @@ def evaluate_test_set(
 
         # Compute loss (weighted by batch size)
         var batch_loss = cross_entropy(logits, batch_labels)
-        total_loss = total_loss + Float32(batch_loss.load[DType.float32](0)) * Float32(current_batch_size)
+        total_loss = total_loss + Float32(
+            batch_loss.load[DType.float32](0)
+        ) * Float32(current_batch_size)
 
         # Compute batch accuracy
         var batch_acc_fraction = evaluate_logits_batch(logits, batch_labels_raw)
