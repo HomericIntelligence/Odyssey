@@ -58,6 +58,11 @@ def find_test_files(root_dir: Path) -> List[Path]:
         "examples/resnet18_cifar10/test_model.mojo",
         "examples/resnet18_cifar10/test_forward_cache_velocities.mojo",
         "examples/resnet18_cifar10/test_backward.mojo",
+        # GoogLeNet backward convergence test (#3184): full 9-module
+        # forward+backward, too heavy for the per-PR matrix; same handling
+        # as the ResNet-18 test_backward above. Runs standalone (synthetic
+        # interleaved-class data, no dataset download).
+        "examples/googlenet_cifar10/test_backward.mojo",
         # Conda recipe smoke test — executed by rattler-build's `tests:`
         # block when the package is built (see conda.recipe/recipe.yaml),
         # not by the per-PR CI test matrix.
