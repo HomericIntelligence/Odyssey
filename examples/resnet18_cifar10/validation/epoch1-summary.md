@@ -14,7 +14,7 @@ Verbatim training + test-eval output is in [`epoch1.log`](epoch1.log).
 ## Measured metrics (verbatim from the run)
 
 | Metric | Value |
-|--------|-------|
+| --- | --- |
 | Batch 100 loss | `1.7856864` |
 | Batch 200 loss | `1.5843451` |
 | Batch 300 loss | `1.4652044` |
