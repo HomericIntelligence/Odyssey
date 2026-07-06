@@ -23,14 +23,19 @@ from projectodyssey.tensor.any_tensor import AnyTensor
 from projectodyssey.tensor.tensor_creation import zeros
 from projectodyssey.core import (
     conv2d,
+    conv2d_backward,
     maxpool2d,
+    maxpool2d_backward,
     global_avgpool2d,
     batch_norm2d,
+    batch_norm2d_backward,
     relu,
+    relu_backward,
     kaiming_normal,
     xavier_normal,
     constant,
 )
+from projectodyssey.core.arithmetic import add
 from projectodyssey.core.linear import linear
 from projectodyssey.core.dropout import dropout
 from projectodyssey.utils.serialization import save_tensor, load_tensor
@@ -586,6 +591,459 @@ def concatenate_depthwise(
                 result_data[dst_idx] = t4_data[src_idx]
 
     return result
+
+
+def concatenate_depthwise_backward(
+    grad_output: AnyTensor, c1: Int, c2: Int, c3: Int, c4: Int
+) raises -> Tuple[AnyTensor, AnyTensor, AnyTensor, AnyTensor]:
+    """Backward pass for concatenate_depthwise (channel-dim split).
+
+    concatenate_depthwise stacks 4 tensors along axis=1, so the gradient
+    w.r.t. each input is simply the corresponding channel slice of
+    grad_output. This is the exact inverse of the forward copy loops above.
+
+    Args:
+        grad_output: Gradient w.r.t. the concatenated output
+            (batch, c1+c2+c3+c4, H, W).
+        c1: Channel count of branch 1.
+        c2: Channel count of branch 2.
+        c3: Channel count of branch 3.
+        c4: Channel count of branch 4.
+
+    Returns:
+        Tuple of gradients (g1, g2, g3, g4) with shapes
+        (batch, c1, H, W), (batch, c2, H, W), (batch, c3, H, W),
+        (batch, c4, H, W).
+    """
+    var batch_size = grad_output.shape()[0]
+    var total_channels = grad_output.shape()[1]
+    var height = grad_output.shape()[2]
+    var width = grad_output.shape()[3]
+    var hw = height * width
+
+    var g1 = zeros([batch_size, c1, height, width], grad_output.dtype())
+    var g2 = zeros([batch_size, c2, height, width], grad_output.dtype())
+    var g3 = zeros([batch_size, c3, height, width], grad_output.dtype())
+    var g4 = zeros([batch_size, c4, height, width], grad_output.dtype())
+
+    var go_data = grad_output._data.bitcast[Float32]()
+    var g1_data = g1._data.bitcast[Float32]()
+    var g2_data = g2._data.bitcast[Float32]()
+    var g3_data = g3._data.bitcast[Float32]()
+    var g4_data = g4._data.bitcast[Float32]()
+
+    for b in range(batch_size):
+        # Branch 1 channels: [0, c1)
+        for c in range(c1):
+            for i in range(hw):
+                var src_idx = ((b * total_channels + c) * hw) + i
+                var dst_idx = ((b * c1 + c) * hw) + i
+                g1_data[dst_idx] = go_data[src_idx]
+
+        # Branch 2 channels: [c1, c1+c2)
+        for c in range(c2):
+            for i in range(hw):
+                var src_idx = ((b * total_channels + (c1 + c)) * hw) + i
+                var dst_idx = ((b * c2 + c) * hw) + i
+                g2_data[dst_idx] = go_data[src_idx]
+
+        # Branch 3 channels: [c1+c2, c1+c2+c3)
+        for c in range(c3):
+            for i in range(hw):
+                var src_idx = ((b * total_channels + (c1 + c2 + c)) * hw) + i
+                var dst_idx = ((b * c3 + c) * hw) + i
+                g3_data[dst_idx] = go_data[src_idx]
+
+        # Branch 4 channels: [c1+c2+c3, total)
+        for c in range(c4):
+            for i in range(hw):
+                var src_idx = (
+                    (b * total_channels + (c1 + c2 + c3 + c)) * hw
+                ) + i
+                var dst_idx = ((b * c4 + c) * hw) + i
+                g4_data[dst_idx] = go_data[src_idx]
+
+    return (g1^, g2^, g3^, g4^)
+
+
+@fieldwise_init
+struct InceptionCache(Movable):
+    """Cached forward activations for one Inception module's backward pass.
+
+    Stores the pre-BN (conv output) and pre-ReLU (BN output) activations of
+    every conv/BN stage in all four branches, plus the module input and the
+    branch channel counts. These are exactly the tensors the backward
+    primitives (conv2d_backward, batch_norm2d_backward, relu_backward,
+    maxpool2d_backward) consume.
+    """
+
+    var block_input: AnyTensor  # x into the module
+
+    # Branch 1: conv1x1_1 -> bn -> relu
+    var b1_conv_out: AnyTensor  # pre-BN (conv output)
+    var b1_bn_out: AnyTensor  # pre-ReLU (BN output)
+
+    # Branch 2: conv1x1_2 -> bn -> relu -> conv3x3 -> bn -> relu
+    var b2_conv1_out: AnyTensor
+    var b2_bn1_out: AnyTensor
+    var b2_relu1_out: AnyTensor  # input to conv3x3
+    var b2_conv2_out: AnyTensor
+    var b2_bn2_out: AnyTensor
+
+    # Branch 3: conv1x1_3 -> bn -> relu -> conv5x5 -> bn -> relu
+    var b3_conv1_out: AnyTensor
+    var b3_bn1_out: AnyTensor
+    var b3_relu1_out: AnyTensor  # input to conv5x5
+    var b3_conv2_out: AnyTensor
+    var b3_bn2_out: AnyTensor
+
+    # Branch 4: maxpool -> conv1x1_4 -> bn -> relu
+    var b4_pool_out: AnyTensor  # input to conv1x1_4
+    var b4_conv_out: AnyTensor
+    var b4_bn_out: AnyTensor
+
+    # Branch channel counts (for the concat split)
+    var c1: Int
+    var c2: Int
+    var c3: Int
+    var c4: Int
+
+
+@fieldwise_init
+struct InceptionGradients(Movable):
+    """Gradient bundle for one Inception module.
+
+    grad_input is the gradient w.r.t. the module input x (summed over the four
+    branches). The remaining fields are gradients for every trainable weight,
+    in the same order the velocities buffer stores them.
+    """
+
+    var grad_input: AnyTensor
+
+    # Branch 1
+    var g_conv1x1_1_w: AnyTensor
+    var g_conv1x1_1_b: AnyTensor
+    var g_bn1x1_1_gamma: AnyTensor
+    var g_bn1x1_1_beta: AnyTensor
+
+    # Branch 2
+    var g_conv1x1_2_w: AnyTensor
+    var g_conv1x1_2_b: AnyTensor
+    var g_bn1x1_2_gamma: AnyTensor
+    var g_bn1x1_2_beta: AnyTensor
+    var g_conv3x3_w: AnyTensor
+    var g_conv3x3_b: AnyTensor
+    var g_bn3x3_gamma: AnyTensor
+    var g_bn3x3_beta: AnyTensor
+
+    # Branch 3
+    var g_conv1x1_3_w: AnyTensor
+    var g_conv1x1_3_b: AnyTensor
+    var g_bn1x1_3_gamma: AnyTensor
+    var g_bn1x1_3_beta: AnyTensor
+    var g_conv5x5_w: AnyTensor
+    var g_conv5x5_b: AnyTensor
+    var g_bn5x5_gamma: AnyTensor
+    var g_bn5x5_beta: AnyTensor
+
+    # Branch 4
+    var g_conv1x1_4_w: AnyTensor
+    var g_conv1x1_4_b: AnyTensor
+    var g_bn1x1_4_gamma: AnyTensor
+    var g_bn1x1_4_beta: AnyTensor
+
+
+def inception_forward_cached(
+    module: InceptionModule, x: AnyTensor
+) raises -> Tuple[AnyTensor, InceptionCache]:
+    """Forward pass through one Inception module, caching every activation.
+
+    Training-mode BatchNorm (write-backs of running stats are handled by the
+    caller / eval path; here we only need the forward output + cache).
+
+    Returns:
+        (output, cache) where output is the depth-wise concatenation of the
+        four branches and cache holds the intermediate activations.
+    """
+    # Branch 1: conv1x1_1 -> BN -> ReLU
+    var b1_conv = conv2d(
+        x, module.conv1x1_1_weights, module.conv1x1_1_bias, stride=1, padding=0
+    )
+    var b1_bn, _, _ = batch_norm2d(
+        b1_conv,
+        module.bn1x1_1_gamma,
+        module.bn1x1_1_beta,
+        module.bn1x1_1_running_mean,
+        module.bn1x1_1_running_var,
+        True,
+    )
+    var b1 = relu(b1_bn)
+
+    # Branch 2: conv1x1_2 -> BN -> ReLU -> conv3x3 -> BN -> ReLU
+    var b2_conv1 = conv2d(
+        x, module.conv1x1_2_weights, module.conv1x1_2_bias, stride=1, padding=0
+    )
+    var b2_bn1, _, _ = batch_norm2d(
+        b2_conv1,
+        module.bn1x1_2_gamma,
+        module.bn1x1_2_beta,
+        module.bn1x1_2_running_mean,
+        module.bn1x1_2_running_var,
+        True,
+    )
+    var b2_relu1 = relu(b2_bn1)
+    var b2_conv2 = conv2d(
+        b2_relu1,
+        module.conv3x3_weights,
+        module.conv3x3_bias,
+        stride=1,
+        padding=1,
+    )
+    var b2_bn2, _, _ = batch_norm2d(
+        b2_conv2,
+        module.bn3x3_gamma,
+        module.bn3x3_beta,
+        module.bn3x3_running_mean,
+        module.bn3x3_running_var,
+        True,
+    )
+    var b2 = relu(b2_bn2)
+
+    # Branch 3: conv1x1_3 -> BN -> ReLU -> conv5x5 -> BN -> ReLU
+    var b3_conv1 = conv2d(
+        x, module.conv1x1_3_weights, module.conv1x1_3_bias, stride=1, padding=0
+    )
+    var b3_bn1, _, _ = batch_norm2d(
+        b3_conv1,
+        module.bn1x1_3_gamma,
+        module.bn1x1_3_beta,
+        module.bn1x1_3_running_mean,
+        module.bn1x1_3_running_var,
+        True,
+    )
+    var b3_relu1 = relu(b3_bn1)
+    var b3_conv2 = conv2d(
+        b3_relu1,
+        module.conv5x5_weights,
+        module.conv5x5_bias,
+        stride=1,
+        padding=2,
+    )
+    var b3_bn2, _, _ = batch_norm2d(
+        b3_conv2,
+        module.bn5x5_gamma,
+        module.bn5x5_beta,
+        module.bn5x5_running_mean,
+        module.bn5x5_running_var,
+        True,
+    )
+    var b3 = relu(b3_bn2)
+
+    # Branch 4: maxpool -> conv1x1_4 -> BN -> ReLU
+    var b4_pool = maxpool2d(x, kernel_size=3, stride=1, padding=1)
+    var b4_conv = conv2d(
+        b4_pool,
+        module.conv1x1_4_weights,
+        module.conv1x1_4_bias,
+        stride=1,
+        padding=0,
+    )
+    var b4_bn, _, _ = batch_norm2d(
+        b4_conv,
+        module.bn1x1_4_gamma,
+        module.bn1x1_4_beta,
+        module.bn1x1_4_running_mean,
+        module.bn1x1_4_running_var,
+        True,
+    )
+    var b4 = relu(b4_bn)
+
+    var c1 = b1.shape()[1]
+    var c2 = b2.shape()[1]
+    var c3 = b3.shape()[1]
+    var c4 = b4.shape()[1]
+    var out = concatenate_depthwise(b1, b2, b3, b4)
+
+    var cache = InceptionCache(
+        x,
+        b1_conv^,
+        b1_bn^,
+        b2_conv1^,
+        b2_bn1^,
+        b2_relu1^,
+        b2_conv2^,
+        b2_bn2^,
+        b3_conv1^,
+        b3_bn1^,
+        b3_relu1^,
+        b3_conv2^,
+        b3_bn2^,
+        b4_pool^,
+        b4_conv^,
+        b4_bn^,
+        c1,
+        c2,
+        c3,
+        c4,
+    )
+    return (out^, cache^)
+
+
+def inception_backward(
+    module: InceptionModule, grad_output: AnyTensor, cache: InceptionCache
+) raises -> InceptionGradients:
+    """Backward pass through one Inception module.
+
+    Splits grad_output into 4 branch gradients (channel-dim), runs each branch
+    backward (relu -> BN -> conv chains), and sums the four input gradients at x.
+    """
+    var splits = concatenate_depthwise_backward(
+        grad_output, cache.c1, cache.c2, cache.c3, cache.c4
+    )
+    var d_b1 = splits[0]
+    var d_b2 = splits[1]
+    var d_b3 = splits[2]
+    var d_b4 = splits[3]
+
+    # ---- Branch 1: relu <- BN <- conv1x1_1 ----
+    var d_b1_bn = relu_backward(d_b1, cache.b1_bn_out)
+    var b1_bn_in, g_bn1_gamma, g_bn1_beta = batch_norm2d_backward(
+        d_b1_bn,
+        cache.b1_conv_out,
+        module.bn1x1_1_gamma,
+        module.bn1x1_1_running_mean,
+        module.bn1x1_1_running_var,
+        training=True,
+    )
+    var b1c = conv2d_backward(
+        b1_bn_in,
+        cache.block_input,
+        module.conv1x1_1_weights,
+        stride=1,
+        padding=0,
+    )
+
+    # ---- Branch 2: relu <- BN <- conv3x3 <- relu <- BN <- conv1x1_2 ----
+    var d_b2_bn2 = relu_backward(d_b2, cache.b2_bn2_out)
+    var b2_bn2_in, g_bn3x3_gamma, g_bn3x3_beta = batch_norm2d_backward(
+        d_b2_bn2,
+        cache.b2_conv2_out,
+        module.bn3x3_gamma,
+        module.bn3x3_running_mean,
+        module.bn3x3_running_var,
+        training=True,
+    )
+    var b2c2 = conv2d_backward(
+        b2_bn2_in,
+        cache.b2_relu1_out,
+        module.conv3x3_weights,
+        stride=1,
+        padding=1,
+    )
+    var d_b2_bn1 = relu_backward(b2c2.grad_input, cache.b2_bn1_out)
+    var b2_bn1_in, g_bn1x1_2_gamma, g_bn1x1_2_beta = batch_norm2d_backward(
+        d_b2_bn1,
+        cache.b2_conv1_out,
+        module.bn1x1_2_gamma,
+        module.bn1x1_2_running_mean,
+        module.bn1x1_2_running_var,
+        training=True,
+    )
+    var b2c1 = conv2d_backward(
+        b2_bn1_in,
+        cache.block_input,
+        module.conv1x1_2_weights,
+        stride=1,
+        padding=0,
+    )
+
+    # ---- Branch 3: relu <- BN <- conv5x5 <- relu <- BN <- conv1x1_3 ----
+    var d_b3_bn2 = relu_backward(d_b3, cache.b3_bn2_out)
+    var b3_bn2_in, g_bn5x5_gamma, g_bn5x5_beta = batch_norm2d_backward(
+        d_b3_bn2,
+        cache.b3_conv2_out,
+        module.bn5x5_gamma,
+        module.bn5x5_running_mean,
+        module.bn5x5_running_var,
+        training=True,
+    )
+    var b3c2 = conv2d_backward(
+        b3_bn2_in,
+        cache.b3_relu1_out,
+        module.conv5x5_weights,
+        stride=1,
+        padding=2,
+    )
+    var d_b3_bn1 = relu_backward(b3c2.grad_input, cache.b3_bn1_out)
+    var b3_bn1_in, g_bn1x1_3_gamma, g_bn1x1_3_beta = batch_norm2d_backward(
+        d_b3_bn1,
+        cache.b3_conv1_out,
+        module.bn1x1_3_gamma,
+        module.bn1x1_3_running_mean,
+        module.bn1x1_3_running_var,
+        training=True,
+    )
+    var b3c1 = conv2d_backward(
+        b3_bn1_in,
+        cache.block_input,
+        module.conv1x1_3_weights,
+        stride=1,
+        padding=0,
+    )
+
+    # ---- Branch 4: relu <- BN <- conv1x1_4 <- maxpool ----
+    var d_b4_bn = relu_backward(d_b4, cache.b4_bn_out)
+    var b4_bn_in, g_bn1x1_4_gamma, g_bn1x1_4_beta = batch_norm2d_backward(
+        d_b4_bn,
+        cache.b4_conv_out,
+        module.bn1x1_4_gamma,
+        module.bn1x1_4_running_mean,
+        module.bn1x1_4_running_var,
+        training=True,
+    )
+    var b4c = conv2d_backward(
+        b4_bn_in,
+        cache.b4_pool_out,
+        module.conv1x1_4_weights,
+        stride=1,
+        padding=0,
+    )
+    var d_b4_pool = maxpool2d_backward(
+        b4c.grad_input, cache.block_input, kernel_size=3, stride=1, padding=1
+    )
+
+    # ---- Sum the four branch input-gradients at x ----
+    var grad_input = add(b1c.grad_input, b2c1.grad_input)
+    grad_input = add(grad_input, b3c1.grad_input)
+    grad_input = add(grad_input, d_b4_pool)
+
+    return InceptionGradients(
+        grad_input^,
+        b1c.grad_weights,
+        b1c.grad_bias,
+        g_bn1_gamma,
+        g_bn1_beta,
+        b2c1.grad_weights,
+        b2c1.grad_bias,
+        g_bn1x1_2_gamma,
+        g_bn1x1_2_beta,
+        b2c2.grad_weights,
+        b2c2.grad_bias,
+        g_bn3x3_gamma,
+        g_bn3x3_beta,
+        b3c1.grad_weights,
+        b3c1.grad_bias,
+        g_bn1x1_3_gamma,
+        g_bn1x1_3_beta,
+        b3c2.grad_weights,
+        b3c2.grad_bias,
+        g_bn5x5_gamma,
+        g_bn5x5_beta,
+        b4c.grad_weights,
+        b4c.grad_bias,
+        g_bn1x1_4_gamma,
+        g_bn1x1_4_beta,
+    )
 
 
 struct GoogLeNet:
