@@ -31,4 +31,3 @@ Training complete. Epoch loss: 1.3781426
 Evaluating on test set...
 Test loss: 1.0901253
 Test accuracy: 60.02%
-
