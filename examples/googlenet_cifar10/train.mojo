@@ -752,6 +752,15 @@ def main() raises:
     print("Training complete!")
     print()
 
+    # Evaluate on the held-out TEST set (not the training set) for an honest
+    # generalization metric. validate() runs forward inference (training=False)
+    # and returns top-1 accuracy.
+    print("Evaluating on test set...")
+    var (test_images, test_labels) = cifar10_dataset.get_test_data()
+    var test_acc = validate(model, test_images, test_labels, batch_size)
+    print("Test accuracy: " + String(test_acc) + "%")
+    print()
+
     # Save weights
     print("Saving weights to " + String(weights_dir) + "/...")
     try:
