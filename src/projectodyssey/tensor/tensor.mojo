@@ -471,7 +471,7 @@ struct Tensor[dtype: DType = DType.float32](
         (data freed, refcount freed) before fields are replaced with shared
         pointers from this Tensor.
 
-        TODO(#5005): Replace with AnyTensor internal constructor once available,
+        TODO(#5566): Replace with AnyTensor internal constructor once available,
         eliminating the allocate-then-free overhead and fragile field surgery.
 
         Returns:

@@ -842,9 +842,10 @@ struct AnyTensor(
     # ===----------------------------------------------------------------------===#
     # set() — type-safe element assignment
     #
-    # TODO: Remove these set() overloads once Tensor[dtype] with proper typed
-    # __setitem__ is used everywhere. Currently still needed because AnyTensor
-    # is used in metrics, normalization, dropout, attention, and other modules.
+    # TODO(#5565): Remove these set() overloads once Tensor[dtype] with proper
+    # typed __setitem__ is used everywhere. Currently still needed because
+    # AnyTensor is used in metrics, normalization, dropout, attention, and
+    # other modules.
     #
     # Mojo does NOT dispatch `obj[i] = val` to __setitem__; it treats
     # `obj[i]` as an lvalue via __getitem__ (returns Float32), so
@@ -2171,7 +2172,7 @@ struct AnyTensor(
 
         Note: bfloat16 passes the outer guard but raises in the inner dispatch.
         This asymmetry is a pre-existing bug preserved verbatim.
-        TODO(#5181-followup): fix bfloat16 guard for block-quant methods.
+        TODO(#5564): fix bfloat16 guard for block-quant methods.
         """
         from .tensor_dtype_conv import _convert_to_block_quant_impl
 
