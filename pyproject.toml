@@ -7,7 +7,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ProjectOdyssey"
-version = "0.1.0"
+version = "0.2.0"
 description = "Mojo-based AI research platform for reproducing classic research papers"
 readme = "README.md"
 requires-python = ">=3.11"

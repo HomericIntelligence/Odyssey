@@ -7,8 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-07-09
+
 ### Added
 
+- **Full manual backward passes + real CIFAR-10 training** for three CNN examples,
+  each with genuine measured epoch validation (no synthetic placeholders):
+  - MobileNetV1 ([#3187](https://github.com/HomericIntelligence/ProjectOdyssey/issues/3187)):
+    depthwise-separable forward/backward; fixed a BatchNorm running-stats persistence
+    bug ([#5544](https://github.com/HomericIntelligence/ProjectOdyssey/pull/5544)) and
+    committed genuine epoch evidence ([#5541](https://github.com/HomericIntelligence/ProjectOdyssey/pull/5541)).
+  - ResNet-18 ([#3181](https://github.com/HomericIntelligence/ProjectOdyssey/issues/3181)):
+    backward pass + SGD momentum ([#5538](https://github.com/HomericIntelligence/ProjectOdyssey/pull/5538)),
+    convergence validation ([#5546](https://github.com/HomericIntelligence/ProjectOdyssey/pull/5546)),
+    real `CIFAR10Dataset` loading + sample-weighted test eval with a genuine one-epoch
+    result (test acc 60.02%) ([#5548](https://github.com/HomericIntelligence/ProjectOdyssey/pull/5548)).
+  - GoogLeNet ([#3184](https://github.com/HomericIntelligence/ProjectOdyssey/issues/3184)):
+    full backward through all 9 Inception modules (4-way concat-split, per-branch
+    BN/conv/relu chains) + SGD momentum over 222 parameters, execution-verified
+    convergence ([#5552](https://github.com/HomericIntelligence/ProjectOdyssey/pull/5552));
+    layerwise unit tests ([#5536](https://github.com/HomericIntelligence/ProjectOdyssey/pull/5536)).
+- Real CIFAR-10 `CIFAR10Dataset` IDX loading wired into training examples, resolving the
+  Python-interop blocker ([#3076](https://github.com/HomericIntelligence/ProjectOdyssey/issues/3076)).
 - **Typed tensor system**: Native `Tensor[dtype]` with elementwise, activation, matrix,
   reduction, convolution, shape, comparison, norm, and loss operations
 - Enhanced `AnyTensor.__str__` with multi-dimensional and dtype-aware formatting
