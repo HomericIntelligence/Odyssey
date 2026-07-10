@@ -1314,14 +1314,24 @@ _test-example-backward-inner:
         echo "=================================================="
         echo "Running example backward test: $f"
         echo "=================================================="
-        # Strip AVX-512 from the JIT target (modular/modular#6413). `mojo run`
-        # JIT-compiles then executes; on AVX-512-masked GHA runners (Azure Zen4,
-        # Hyper-V masks the AVX-512 CPUID bits) the JIT still emits AVX-512
-        # encodings via --target-cpu fingerprinting and SIGILLs ("execution
-        # crashed" in libKGENCompilerRTShared.so). The driver-path fix only
-        # covers `mojo build`; this run path needs the same strip already
-        # applied to MOJO_ASAN/MOJO_TSAN (justfile:40-52). Harmless on hosts
-        # without AVX-512 (features are simply disabled).
+        # Strip AVX-512 from the target (modular/modular#6413). The "Example
+        # Backward Tests" job flakes with "execution crashed" inside
+        # libKGENCompilerRTShared.so on AVX-512-masked GHA runners (Azure Zen4:
+        # Hyper-V masks the AVX-512 CPUID bits, but --target-cpu fingerprinting
+        # sees a Zen4 name and emits AVX-512 anyway → SIGILL). The MOJO_TARGET_CPU
+        # strip (defined justfile:52, wired into MOJO_ASAN/MOJO_TSAN at :54-55)
+        # is the repo's fix for the same crash under sanitizers.
+        #
+        # Whether `mojo run` (JIT) honors --target-features is not fully settled
+        # in-repo: notes/mojo-cpu-detection-source-review.md is internally
+        # uncertain (its abstract says the flag "only helps for AOT builds", its
+        # §4 says a `mojo run` inherits the driver-derived !kgen.target so it
+        # "would propagate — worth testing"). `--print-effective-target` confirms
+        # the strip removes every avx512* feature from the target; the strip is
+        # accepted by `mojo run` and both tests pass locally. This is the
+        # cheapest correct-direction fix; if the JIT ignores it and the flake
+        # persists, escalate to the coredump-capture path (comprehensive-tests
+        # workflow_dispatch input) / upstream. Harmless where AVX-512 is absent.
         if ! pixi run mojo run --Werror {{MOJO_TARGET_CPU}} \
                 -I "$REPO_ROOT/src" -I "$REPO_ROOT" \
                 -I "$REPO_ROOT/examples/$ex" -Xlinker -lm "$f"; then
