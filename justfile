@@ -1285,3 +1285,36 @@ bump-version new_version:
     sed -i 's/^\(version\s*=\s*\)"[^"]*"/\1"{{new_version}}"/' mojo.toml
     echo "All files updated. Verifying sync..."
     python3 scripts/check_version_sync.py
+
+# Run example backward-pass tests (GoogLeNet + ResNet-18) from their example
+# dirs. These live under examples/<model>/ (import `from model`/`from train`),
+# so they cannot run via `test-group` (which targets tests/). They are excluded
+# from the src coverage validator but MUST execute somewhere — this recipe is
+# the per-PR runner wired into comprehensive-tests.yml. Synthetic data only, no
+# dataset download. Fails (non-zero exit) if any test's assertions fail.
+test-example-backward:
+    @just _run "just _test-example-backward-inner"
+
+[private]
+_test-example-backward-inner:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    REPO_ROOT="$(pwd)"
+    fail=0
+    for ex in googlenet_cifar10 resnet18_cifar10; do
+        f="examples/$ex/test_backward.mojo"
+        if [ ! -f "$f" ]; then
+            echo "skip: $f not found"
+            continue
+        fi
+        echo "=================================================="
+        echo "Running example backward test: $f"
+        echo "=================================================="
+        if ! pixi run mojo run --Werror \
+                -I "$REPO_ROOT/src" -I "$REPO_ROOT" \
+                -I "$REPO_ROOT/examples/$ex" -Xlinker -lm "$f"; then
+            echo "FAILED: $f"
+            fail=1
+        fi
+    done
+    exit $fail

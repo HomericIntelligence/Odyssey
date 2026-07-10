@@ -615,6 +615,15 @@ def concatenate_depthwise_backward(
         (batch, c1, H, W), (batch, c2, H, W), (batch, c3, H, W),
         (batch, c4, H, W).
     """
+    # Float32-only contract: the copy loops below reinterpret memory via
+    # bitcast[Float32]. A non-float32 grad_output would be silently
+    # type-confused, so fail loudly instead.
+    if grad_output.dtype() != DType.float32:
+        raise Error(
+            "concatenate_depthwise_backward requires float32 grad_output, got "
+            + String(grad_output.dtype())
+        )
+
     var batch_size = grad_output.shape()[0]
     var total_channels = grad_output.shape()[1]
     var height = grad_output.shape()[2]

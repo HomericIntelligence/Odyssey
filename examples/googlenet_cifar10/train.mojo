@@ -49,8 +49,6 @@ from projectodyssey.core.activation import relu, relu_backward
 from projectodyssey.core.linear import linear, linear_backward
 from projectodyssey.core.dropout import dropout, dropout_backward
 from projectodyssey.core.loss import cross_entropy, cross_entropy_backward
-from projectodyssey.core.shape import split_with_indices
-from projectodyssey.core.arithmetic import add, add_backward
 from projectodyssey.training.schedulers import step_lr
 from projectodyssey.data.batch_utils import (
     compute_num_batches,
@@ -64,10 +62,8 @@ from projectodyssey.training.optimizers import sgd_momentum_update_inplace
 from model import (
     GoogLeNet,
     InceptionModule,
-    concatenate_depthwise,
     inception_forward_cached,
     inception_backward,
-    InceptionCache,
     InceptionGradients,
 )
 
@@ -464,6 +460,14 @@ def compute_gradients(
     var drop_out = drop_result[0]
     var drop_mask = drop_result[1]
     var logits = linear(drop_out, model.fc_weights, model.fc_bias)
+    # Float32-only contract: the scalar-loss read and grad_ones write below
+    # reinterpret memory via bitcast[Float32]. Guard so a non-float32 logits
+    # tensor fails loudly instead of silently miscomputing.
+    if logits.dtype() != DType.float32:
+        raise Error(
+            "compute_gradients requires float32 logits, got "
+            + String(logits.dtype())
+        )
     var loss_tensor = cross_entropy(logits, labels)
     var loss = loss_tensor._data.bitcast[Float32]()[0]
 

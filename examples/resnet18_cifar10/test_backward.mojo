@@ -9,7 +9,6 @@ from model import (
     initialize_velocities,
 )
 from train import train_step, train_epoch
-from projectodyssey.data.formats.idx_loader import one_hot_encode
 
 
 def assert_true(cond: Bool, msg: String) raises:
@@ -96,10 +95,16 @@ def test_every_stage_receives_nonzero_gradient() raises:
 def _build_separable_batch(
     samples_per_class: Int, num_classes: Int, seed: Int
 ) raises -> Tuple[AnyTensor, AnyTensor]:
-    """Build (images, one_hot_labels) with strong per-class channel bias.
+    """Build (images, raw_uint8_labels) with strong per-class channel bias.
 
     Bias = 2.0 * c/num_classes - 1.0 ∈ [-1.0, +0.8], added to every pixel.
     Dominates N(0,1) noise → linearly separable at conv1+BN.
+
+    Labels are returned RAW (shape [N], uint8), NOT one-hot: `train_epoch`
+    one-hot-encodes each batch internally (train.mojo:1100). Passing already-
+    one-hot labels here makes it re-encode one-hot rows as raw indices and
+    crash with "Label index out of range". `train_step` (used by the other
+    tests) takes one-hot directly, so those build labels separately.
     """
     var total = num_classes * samples_per_class
     var img_shape = List[Int]()
@@ -128,8 +133,7 @@ def _build_separable_batch(
                 var cur = images.load[DType.float32](base + k)
                 images.store[DType.float32](base + k, cur + bias)
 
-    var labels_one_hot = one_hot_encode(labels_int, num_classes=num_classes)
-    return (images, labels_one_hot)
+    return (images, labels_int^)
 
 
 def test_loss_decreases_over_steps() raises:

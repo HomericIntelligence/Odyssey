@@ -153,6 +153,32 @@ jobs:
           retention-days: 7
 
   # ============================================================================
+  # Example backward-pass tests - RUN (not just compile) the hand-written
+  # backward passes so a numerically-wrong gradient is caught, not just a
+  # syntax error. These live under examples/<model>/ and are excluded from the
+  # src coverage validator, so without this job they would execute nowhere.
+  # Synthetic data only (no dataset download); ~a few minutes.
+  # ============================================================================
+  example-backward-tests:
+    needs: [mojo-compilation]
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    name: "Example Backward Tests"
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+
+      - name: Set up container
+        uses: ./.github/actions/setup-container
+
+      - name: Install Just
+        uses: extractions/setup-just@53165ef7e734c5c07cb06b3c8e7b647c5aa16db3  # v4.0.0
+
+      - name: Run example backward-pass tests
+        run: just test-example-backward
+
+  # ============================================================================
   # Test Coverage Validation - Ensure all tests are discovered
   # ============================================================================
   validate-test-coverage:
