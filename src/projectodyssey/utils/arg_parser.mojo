@@ -197,50 +197,60 @@ struct ParsedArgs(Copyable, Movable):
         one exists), this honors the caller's `default` unless the user
         explicitly passed the flag on the command line — the correct behavior
         when a script supplies its own per-script default (#5545).
+
+        Args:
+            name: Argument name.
+            default: Caller's default, used unless the user passed the flag.
+
+        Returns:
+            The user-supplied value, or `default`.
+
+        Raises:
+            Error: If the stored value cannot be read.
         """
-        if name in self._user_supplied:
-            return self.values[name]
-        return default
+        if name not in self._user_supplied:
+            return default
+        return self.get_string(name, default)
 
     def resolve_int(self, name: String, default: Int) raises -> Int:
         """Return the CLI value if user-supplied, else the caller's default.
 
         Honors the caller's `default` unless the user explicitly passed the
         flag; see `resolve_string` (#5545).
+
+        Args:
+            name: Argument name.
+            default: Caller's default, used unless the user passed the flag.
+
+        Returns:
+            The user-supplied value parsed as Int, or `default`.
+
+        Raises:
+            Error: If a user-supplied value cannot be parsed as integer.
         """
         if name not in self._user_supplied:
             return default
-        var value = self.values[name]
-        try:
-            return Int(value)
-        except e:
-            raise Error(
-                "Cannot parse '"
-                + value
-                + "' as integer for argument '"
-                + name
-                + "'"
-            )
+        return self.get_int(name, default)
 
     def resolve_float(self, name: String, default: Float64) raises -> Float64:
         """Return the CLI value if user-supplied, else the caller's default.
 
         Honors the caller's `default` unless the user explicitly passed the
         flag; see `resolve_string` (#5545).
+
+        Args:
+            name: Argument name.
+            default: Caller's default, used unless the user passed the flag.
+
+        Returns:
+            The user-supplied value parsed as Float64, or `default`.
+
+        Raises:
+            Error: If a user-supplied value cannot be parsed as float.
         """
         if name not in self._user_supplied:
             return default
-        var value = self.values[name]
-        try:
-            return Float64(value)
-        except e:
-            raise Error(
-                "Cannot parse '"
-                + value
-                + "' as float for argument '"
-                + name
-                + "'"
-            )
+        return self.get_float(name, default)
 
     def get_bool(self, name: String) -> Bool:
         """Get boolean flag status.
