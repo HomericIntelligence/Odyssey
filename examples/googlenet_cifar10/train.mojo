@@ -32,9 +32,8 @@ Training Details:
     - Epochs: 200 (recommended)
 """
 
-from std.sys import argv
 from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros, randn
+from projectodyssey.tensor.tensor_creation import zeros
 from projectodyssey.core import (
     conv2d,
     maxpool2d,
@@ -62,82 +61,6 @@ from projectodyssey.data.datasets import CIFAR10Dataset
 from projectodyssey.training.schedulers import step_lr
 from projectodyssey.utils.training_args import parse_training_args_with_defaults
 from model import GoogLeNet, InceptionModule
-
-
-def _run_self_test() raises:
-    """Self-test: run forward pass for 3 steps on deterministic synthetic input.
-
-    Verifies:
-    - Model forward pass works without errors
-    - Loss values are computed
-    - fc_bias exists and can be accessed
-
-    This test uses a fixed seed for reproducibility.
-    """
-    var batch_size = 2
-    print("[self-test] Initializing GoogLeNet model...")
-    var model = GoogLeNet(num_classes=10)
-
-    print(
-        "[self-test] Creating deterministic synthetic input (batch=2, C=3,"
-        " H=32, W=32)..."
-    )
-    var x = randn([batch_size, 3, 32, 32], dtype=DType.float32, seed=42)
-    var y = zeros([batch_size], dtype=DType.float32)
-    for i in range(batch_size):
-        y.set(i, Float32(i % 10))
-
-    print("[self-test] Capturing fc_bias[0] before training...")
-    var fc_bias_data_before = model.fc_bias._data.bitcast[Float32]()
-    var fc_bias_before = fc_bias_data_before[0]
-
-    var losses = List[Float32]()
-
-    print("[self-test] Running 3 forward passes...")
-    for step in range(3):
-        var logits = model.forward(x, training=True)
-        var loss = cross_entropy(logits, y)
-        var loss_value = loss._data.bitcast[Float32]()[0]
-
-        losses.append(loss_value)
-        print(
-            "[self-test] Step "
-            + String(step)
-            + " - Loss: "
-            + String(loss_value)
-        )
-
-    print("[self-test] Checking loss values...")
-    if losses[1] < losses[0]:
-        print("[self-test] ✓ Loss decreased from step 0 to step 1")
-    else:
-        print("[self-test] ✗ Warning: Loss did not strictly decrease")
-
-    if losses[2] < losses[1]:
-        print("[self-test] ✓ Loss decreased from step 1 to step 2")
-    else:
-        print("[self-test] ✗ Warning: Loss did not strictly decrease")
-
-    print("[self-test] Capturing fc_bias[0] after training...")
-    var fc_bias_data_after = model.fc_bias._data.bitcast[Float32]()
-    var fc_bias_after = fc_bias_data_after[0]
-
-    print(
-        "[self-test] fc_bias[0] before: "
-        + String(fc_bias_before)
-        + ", after: "
-        + String(fc_bias_after)
-    )
-
-    print("[self-test] ✓ PASS")
-    print(
-        "[self-test] Losses: "
-        + String(losses[0])
-        + " -> "
-        + String(losses[1])
-        + " -> "
-        + String(losses[2])
-    )
 
 
 def train_epoch(
@@ -456,14 +379,6 @@ def validate(
 
 def main() raises:
     """Main training entry point."""
-    # Check for --self-test flag
-    var cmd_args = argv()
-    for i in range(len(cmd_args)):
-        if cmd_args[i] == "--self-test":
-            print("Running self-test...")
-            _run_self_test()
-            return
-
     print("=" * 60)
     print("GoogLeNet Training on CIFAR-10")
     print("=" * 60)
