@@ -377,13 +377,13 @@ struct DataLoader(Copyable, Movable):
         var end_idx = min(start_idx + self.batch_size, self.num_samples)
         _ = end_idx - start_idx
 
-        # Extract batch slice — supports N-D tensors (2D, 3D, 4D, etc.)
+        # Extract batch slice — supports N-D tensors (2D, 3D, 4D, etc.).
+        # Real dataset slicing (#3076 resolved): returns the actual batch, not a
+        # zero-initialized placeholder, so downstream metrics (accuracy,
+        # confusion matrix) reflect true per-sample predictions.
         var batch_data = self.data.slice(start_idx, end_idx)
 
         var batch_labels = self.labels.slice(start_idx, end_idx)
-
-        # NOTE(#3076, Mojo v0.26.1): Python data loader integration blocked by Track 4 (Python↔Mojo interop).
-        # Tracked in #3076 (parent: #3059). Placeholder tensors used until Track 4 is ready.
 
         self.current_batch += 1
 

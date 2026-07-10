@@ -51,6 +51,18 @@ def simple_loss(pred: AnyTensor, labels: AnyTensor) raises -> AnyTensor:
     return ones([1], DType.float32)
 
 
+def passthrough_forward(data: AnyTensor) raises -> AnyTensor:
+    """Identity forward: returns the input logits unchanged.
+
+    Unlike simple_forward (which returns a constant ones tensor whose argmax
+    is always class 0), this preserves per-row logits so the confusion matrix
+    reflects the crafted predictions. Required for the exact-count assertions
+    in test_validation_loop_confusion_matrix_basic — with a constant forward,
+    every prediction collapses to class 0 and the counts would be wrong.
+    """
+    return data
+
+
 def create_val_loader(n_batches: Int = 3) raises -> DataLoader:
     """Create a DataLoader with n_batches * 4 samples, batch_size=4, feature_dim=10.
     """
@@ -333,16 +345,25 @@ def test_validation_loop_no_weight_updates() raises:
 
 
 def test_validation_loop_confusion_matrix_basic() raises:
-    """Test ValidationLoop(compute_confusion=True, num_classes=2) runs without error.
+    """Test ValidationLoop(compute_confusion=True) produces exact TP/TN/FP/FN.
 
-    Constructs a 2-class ValidationLoop with confusion matrix enabled, runs
-    validation with 2-column logit predictions, and asserts the returned loss
-    is non-negative (smoke test: no crash, metrics updated).
+    Upgraded per #3684: DataLoader.next() now slices the real dataset
+    (self.data.slice(...)) instead of returning zero-initialized placeholder
+    batches, so per-sample predictions are meaningful end-to-end and the
+    confusion-matrix cell counts can be asserted exactly (not just smoke-tested
+    for a non-negative loss).
+
+    Fixture (4 samples, 2 logit columns, identity forward):
+        data rows -> argmax predictions:
+            [1,0] -> 0,  [0,1] -> 1,  [0,1] -> 1,  [1,0] -> 0   => pred=[0,1,1,0]
+        labels:                                                    => true=[0,1,0,1]
+    Confusion matrix (row=true, col=pred), layout idx = true*2 + pred:
+                pred=0   pred=1
+        true=0    1        1      ([0,0]=TN=1, [0,1]=FP=1)
+        true=1    1        1      ([1,0]=FN=1, [1,1]=TP=1)
     """
     var vloop = ValidationLoop(compute_confusion=True, num_classes=2)
 
-    # 4 samples, 2 logit columns: argmax -> [0, 1, 1, 0]
-    # labels: [0, 1, 0, 1] -> TP=1, TN=1, FP=1, FN=1
     var n_samples = 4
     var data_shape = List[Int]()
     data_shape.append(n_samples)
@@ -371,8 +392,18 @@ def test_validation_loop_confusion_matrix_basic() raises:
 
     var loader = DataLoader(data^, labels^, batch_size=4)
     var metrics = TrainingMetrics()
-    var val_loss = vloop.run(simple_forward, simple_loss, loader, metrics)
+    # Identity forward preserves logits so argmax matches the crafted rows.
+    var val_loss = vloop.run(passthrough_forward, simple_loss, loader, metrics)
     assert_greater(val_loss, Float64(-1e-10))
+
+    # ValidationLoop.run() populates vloop.confusion_matrix when
+    # compute_confusion=True. Assert exact cell counts (matrix is int32,
+    # layout idx = true*num_classes + pred).
+    var cm = vloop.confusion_matrix.matrix
+    assert_equal_int(Int(cm.load[DType.int32](0)), 1)  # [0,0] TN
+    assert_equal_int(Int(cm.load[DType.int32](1)), 1)  # [0,1] FP
+    assert_equal_int(Int(cm.load[DType.int32](2)), 1)  # [1,0] FN
+    assert_equal_int(Int(cm.load[DType.int32](3)), 1)  # [1,1] TP
     print("  test_validation_loop_confusion_matrix_basic: PASSED")
 
 
