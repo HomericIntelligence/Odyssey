@@ -145,6 +145,7 @@ from projectodyssey.utils.training_args import (
     TrainingArgs,  # Training hyperparameters container
     parse_training_args,  # Parse common training arguments
     parse_training_args_with_defaults,  # Parse with custom defaults
+    resolve_training_args,  # Resolve pre-parsed args (argv-free, testable)
 )
 
 # Inference utilities

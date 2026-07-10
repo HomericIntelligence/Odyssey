@@ -23,7 +23,7 @@ Example:
 """
 
 from std.sys import argv
-from std.collections import Dict
+from std.collections import Dict, Set
 
 
 # ============================================================================
@@ -61,12 +61,12 @@ struct ParsedArgs(Copyable, Movable):
     """
 
     var values: Dict[String, String]
-    var _user_supplied: Dict[String, Bool]
+    var _user_supplied: Set[String]
 
     def __init__(out self):
         """Initialize empty parsed arguments."""
         self.values = Dict[String, String]()
-        self._user_supplied = Dict[String, Bool]()
+        self._user_supplied = Set[String]()
 
     def set(mut self, name: String, value: String):
         """Set an argument value (from a registered default).
@@ -92,7 +92,7 @@ struct ParsedArgs(Copyable, Movable):
             value: Value as string.
         """
         self.values[name] = value
-        self._user_supplied[name] = True
+        self._user_supplied.add(name)
 
     def has(self, name: String) -> Bool:
         """Check if an argument was provided.
@@ -177,6 +177,58 @@ struct ParsedArgs(Copyable, Movable):
             Error: If value cannot be parsed as float.
         """
         if name not in self.values:
+            return default
+        var value = self.values[name]
+        try:
+            return Float64(value)
+        except e:
+            raise Error(
+                "Cannot parse '"
+                + value
+                + "' as float for argument '"
+                + name
+                + "'"
+            )
+
+    def resolve_string(self, name: String, default: String) raises -> String:
+        """Return the CLI value if user-supplied, else the caller's default.
+
+        Unlike get_string (which returns a pre-populated registered default when
+        one exists), this honors the caller's `default` unless the user
+        explicitly passed the flag on the command line — the correct behavior
+        when a script supplies its own per-script default (#5545).
+        """
+        if name in self._user_supplied:
+            return self.values[name]
+        return default
+
+    def resolve_int(self, name: String, default: Int) raises -> Int:
+        """Return the CLI value if user-supplied, else the caller's default.
+
+        Honors the caller's `default` unless the user explicitly passed the
+        flag; see `resolve_string` (#5545).
+        """
+        if name not in self._user_supplied:
+            return default
+        var value = self.values[name]
+        try:
+            return Int(value)
+        except e:
+            raise Error(
+                "Cannot parse '"
+                + value
+                + "' as integer for argument '"
+                + name
+                + "'"
+            )
+
+    def resolve_float(self, name: String, default: Float64) raises -> Float64:
+        """Return the CLI value if user-supplied, else the caller's default.
+
+        Honors the caller's `default` unless the user explicitly passed the
+        flag; see `resolve_string` (#5545).
+        """
+        if name not in self._user_supplied:
             return default
         var value = self.values[name]
         try:

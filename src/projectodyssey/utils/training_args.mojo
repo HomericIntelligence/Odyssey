@@ -27,6 +27,7 @@ from projectodyssey.utils.arg_parser import (
     validate_positive_int,
     validate_positive_float,
     validate_range_float,
+    ParsedArgs,
 )
 
 
@@ -165,42 +166,73 @@ def parse_training_args_with_defaults(
     """
     var parser = create_training_parser()
     var parsed = parser.parse()
+    return resolve_training_args(
+        parsed,
+        default_epochs=default_epochs,
+        default_batch_size=default_batch_size,
+        default_lr=default_lr,
+        default_momentum=default_momentum,
+        default_data_dir=default_data_dir,
+        default_weights_dir=default_weights_dir,
+        default_lr_decay_epochs=default_lr_decay_epochs,
+        default_lr_decay_factor=default_lr_decay_factor,
+    )
 
-    # Extract values, honoring each CALLER-supplied default over the parser's
-    # registered default. `create_training_parser` pre-populates every argument
-    # with a hardcoded registered default (e.g. weights-dir -> "weights", see
-    # arg_parser.mojo:394), so `parsed.has(name)` is always True and a plain
-    # `get_*(name, default_*)` would never fall back to `default_*` — the
-    # per-script default params would be dead code (#5545). Use the caller's
-    # default unless the user EXPLICITLY passed the flag on the command line.
-    var epochs = parsed.get_int(
-        "epochs", default_epochs
-    ) if parsed.was_user_supplied("epochs") else default_epochs
-    var batch_size = parsed.get_int(
-        "batch-size", default_batch_size
-    ) if parsed.was_user_supplied("batch-size") else default_batch_size
-    var learning_rate = parsed.get_float(
-        "lr", default_lr
-    ) if parsed.was_user_supplied("lr") else default_lr
-    var momentum = parsed.get_float(
-        "momentum", default_momentum
-    ) if parsed.was_user_supplied("momentum") else default_momentum
-    var data_dir = parsed.get_string(
-        "data-dir", default_data_dir
-    ) if parsed.was_user_supplied("data-dir") else default_data_dir
-    var weights_dir = parsed.get_string(
-        "weights-dir", default_weights_dir
-    ) if parsed.was_user_supplied("weights-dir") else default_weights_dir
-    var lr_decay_epochs = parsed.get_int(
+
+def resolve_training_args(
+    parsed: ParsedArgs,
+    default_epochs: Int = 10,
+    default_batch_size: Int = 32,
+    default_lr: Float64 = 0.01,
+    default_momentum: Float64 = 0.9,
+    default_data_dir: String = "datasets",
+    default_weights_dir: String = "weights",
+    default_lr_decay_epochs: Int = 0,
+    default_lr_decay_factor: Float64 = 0.1,
+) raises -> TrainingArgs:
+    """Resolve already-parsed args into a validated TrainingArgs.
+
+    Split from `parse_training_args_with_defaults` so the resolution logic is
+    testable WITHOUT controlling `argv()`: callers can pass a hand-built
+    `ParsedArgs`.
+
+    Honors each CALLER-supplied default over the parser's registered default.
+    `create_training_parser` pre-populates every argument with a hardcoded
+    registered default (e.g. weights-dir -> "weights", arg_parser.mojo:394), so
+    `parsed.has(name)` is always True and a plain `get_*(name, default_*)` would
+    never fall back to `default_*` — the per-script default params would be dead
+    code (#5545). `resolve_*` returns the caller's default unless the user
+    EXPLICITLY passed the flag on the command line.
+
+    Args:
+        parsed: Already-parsed arguments (from ArgumentParser.parse()).
+        default_epochs: Default number of epochs (must be positive).
+        default_batch_size: Default batch size (must be positive).
+        default_lr: Default learning rate (must be positive).
+        default_momentum: Default momentum (must be in [0.0, 1.0]).
+        default_data_dir: Default dataset directory.
+        default_weights_dir: Default weights directory.
+        default_lr_decay_epochs: Default LR decay interval (0 = disabled).
+        default_lr_decay_factor: Default LR decay multiplier (in (0.0, 1.0]).
+
+    Returns:
+        TrainingArgs struct with resolved and validated values.
+
+    Raises:
+        Error if argument validation fails.
+    """
+    var epochs = parsed.resolve_int("epochs", default_epochs)
+    var batch_size = parsed.resolve_int("batch-size", default_batch_size)
+    var learning_rate = parsed.resolve_float("lr", default_lr)
+    var momentum = parsed.resolve_float("momentum", default_momentum)
+    var data_dir = parsed.resolve_string("data-dir", default_data_dir)
+    var weights_dir = parsed.resolve_string("weights-dir", default_weights_dir)
+    var lr_decay_epochs = parsed.resolve_int(
         "lr-decay-epochs", default_lr_decay_epochs
-    ) if parsed.was_user_supplied(
-        "lr-decay-epochs"
-    ) else default_lr_decay_epochs
-    var lr_decay_factor = parsed.get_float(
+    )
+    var lr_decay_factor = parsed.resolve_float(
         "lr-decay-factor", default_lr_decay_factor
-    ) if parsed.was_user_supplied(
-        "lr-decay-factor"
-    ) else default_lr_decay_factor
+    )
     var verbose = parsed.get_bool("verbose")
 
     # Validate numeric arguments
