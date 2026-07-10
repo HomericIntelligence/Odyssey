@@ -51,18 +51,6 @@ def simple_loss(pred: AnyTensor, labels: AnyTensor) raises -> AnyTensor:
     return ones([1], DType.float32)
 
 
-def passthrough_forward(data: AnyTensor) raises -> AnyTensor:
-    """Identity forward: returns the input logits unchanged.
-
-    Unlike simple_forward (which returns a constant ones tensor whose argmax
-    is always class 0), this preserves per-row logits so the confusion matrix
-    reflects the crafted predictions. Required for the exact-count assertions
-    in test_validation_loop_confusion_matrix_basic — with a constant forward,
-    every prediction collapses to class 0 and the counts would be wrong.
-    """
-    return data
-
-
 def create_val_loader(n_batches: Int = 3) raises -> DataLoader:
     """Create a DataLoader with n_batches * 4 samples, batch_size=4, feature_dim=10.
     """
@@ -345,65 +333,72 @@ def test_validation_loop_no_weight_updates() raises:
 
 
 def test_validation_loop_confusion_matrix_basic() raises:
-    """Test ValidationLoop(compute_confusion=True) produces exact TP/TN/FP/FN.
+    """Exact TP/TN/FP/FN across MULTIPLE batches with an asymmetric matrix.
 
     Upgraded per #3684: DataLoader.next() now slices the real dataset
-    (self.data.slice(...)) instead of returning zero-initialized placeholder
-    batches, so per-sample predictions are meaningful end-to-end and the
-    confusion-matrix cell counts can be asserted exactly (not just smoke-tested
-    for a non-negative loss).
+    (self.data.slice(...) / self.labels.slice(...)) instead of returning
+    zero-initialized placeholder batches, so per-sample predictions are
+    meaningful end-to-end and confusion-matrix cell counts can be asserted
+    exactly (not just smoke-tested for a non-negative loss).
 
-    Fixture (4 samples, 2 logit columns, identity forward):
-        data rows -> argmax predictions:
-            [1,0] -> 0,  [0,1] -> 1,  [0,1] -> 1,  [1,0] -> 0   => pred=[0,1,1,0]
-        labels:                                                    => true=[0,1,0,1]
+    This complements test_validation_loop_confusion_matrix_integration
+    (single balanced batch, #3185) by exercising the parts that only real
+    slicing makes testable:
+      - the multi-batch offset path (start_idx = current_batch * batch_size),
+      - data/label slice ALIGNMENT across a batch boundary — an off-by-one
+        between data.slice and labels.slice would corrupt an asymmetric matrix,
+      - an asymmetric count fixture (2,1,1,2), so a degenerate all-class-0
+        forward or a slice misalignment cannot accidentally satisfy it.
+
+    Fixture (6 samples, 2 logit columns, identity forward, batch_size=3 => 2 batches):
+        idx  logits    argmax(pred)  label   cell
+         0   [1,0]        0            0      [0,0] TN   -- batch 0
+         1   [1,0]        0            1      [1,0] FN
+         2   [0,1]        1            1      [1,1] TP
+         3   [0,1]        1            0      [0,1] FP   -- batch 1
+         4   [0,1]        1            1      [1,1] TP
+         5   [1,0]        0            0      [0,0] TN
     Confusion matrix (row=true, col=pred), layout idx = true*2 + pred:
                 pred=0   pred=1
-        true=0    1        1      ([0,0]=TN=1, [0,1]=FP=1)
-        true=1    1        1      ([1,0]=FN=1, [1,1]=TP=1)
+        true=0    2        1      ([0,0]=TN=2, [0,1]=FP=1)
+        true=1    1        2      ([1,0]=FN=1, [1,1]=TP=2)
     """
     var vloop = ValidationLoop(compute_confusion=True, num_classes=2)
 
-    var n_samples = 4
+    var n_samples = 6
     var data_shape = List[Int]()
     data_shape.append(n_samples)
     data_shape.append(2)
     var data = AnyTensor(data_shape, DType.float32)
-    # Row 0: [1.0, 0.0] -> argmax=0
-    data.set(0, Float32(1.0))
-    data.set(1, Float32(0.0))
-    # Row 1: [0.0, 1.0] -> argmax=1
-    data.set(2, Float32(0.0))
-    data.set(3, Float32(1.0))
-    # Row 2: [0.0, 1.0] -> argmax=1
-    data.set(4, Float32(0.0))
-    data.set(5, Float32(1.0))
-    # Row 3: [1.0, 0.0] -> argmax=0
-    data.set(6, Float32(1.0))
-    data.set(7, Float32(0.0))
+    # Per-row logits [c0, c1]; argmax picks the larger column.
+    var rows: List[Int] = [0, 0, 1, 1, 1, 0]  # desired argmax per sample
+    for i in range(n_samples):
+        var hot = rows[i]
+        data.set(i * 2 + 0, Float32(1.0) if hot == 0 else Float32(0.0))
+        data.set(i * 2 + 1, Float32(1.0) if hot == 1 else Float32(0.0))
 
     var labels_shape = List[Int]()
     labels_shape.append(n_samples)
     var labels = AnyTensor(labels_shape, DType.int32)
-    labels.set(0, Int32(0))
-    labels.set(1, Int32(1))
-    labels.set(2, Int32(0))
-    labels.set(3, Int32(1))
+    var label_vals: List[Int] = [0, 1, 1, 0, 1, 0]
+    for i in range(n_samples):
+        labels.set(i, Int32(label_vals[i]))
 
-    var loader = DataLoader(data^, labels^, batch_size=4)
+    # batch_size=3 with 6 samples => 2 batches, exercising the start_idx advance.
+    var loader = DataLoader(data^, labels^, batch_size=3)
     var metrics = TrainingMetrics()
-    # Identity forward preserves logits so argmax matches the crafted rows.
-    var val_loss = vloop.run(passthrough_forward, simple_loss, loader, metrics)
+    # identity_forward preserves logits so argmax matches the crafted rows.
+    var val_loss = vloop.run(identity_forward, simple_loss, loader, metrics)
     assert_greater(val_loss, Float64(-1e-10))
 
     # ValidationLoop.run() populates vloop.confusion_matrix when
     # compute_confusion=True. Assert exact cell counts (matrix is int32,
-    # layout idx = true*num_classes + pred).
+    # layout idx = true*num_classes + pred). Positive class = 1.
     var cm = vloop.confusion_matrix.matrix
-    assert_equal_int(Int(cm.load[DType.int32](0)), 1)  # [0,0] TN
+    assert_equal_int(Int(cm.load[DType.int32](0)), 2)  # [0,0] TN
     assert_equal_int(Int(cm.load[DType.int32](1)), 1)  # [0,1] FP
     assert_equal_int(Int(cm.load[DType.int32](2)), 1)  # [1,0] FN
-    assert_equal_int(Int(cm.load[DType.int32](3)), 1)  # [1,1] TP
+    assert_equal_int(Int(cm.load[DType.int32](3)), 2)  # [1,1] TP
     print("  test_validation_loop_confusion_matrix_basic: PASSED")
 
 
