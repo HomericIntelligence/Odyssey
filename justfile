@@ -1314,7 +1314,15 @@ _test-example-backward-inner:
         echo "=================================================="
         echo "Running example backward test: $f"
         echo "=================================================="
-        if ! pixi run mojo run --Werror \
+        # Strip AVX-512 from the JIT target (modular/modular#6413). `mojo run`
+        # JIT-compiles then executes; on AVX-512-masked GHA runners (Azure Zen4,
+        # Hyper-V masks the AVX-512 CPUID bits) the JIT still emits AVX-512
+        # encodings via --target-cpu fingerprinting and SIGILLs ("execution
+        # crashed" in libKGENCompilerRTShared.so). The driver-path fix only
+        # covers `mojo build`; this run path needs the same strip already
+        # applied to MOJO_ASAN/MOJO_TSAN (justfile:40-52). Harmless on hosts
+        # without AVX-512 (features are simply disabled).
+        if ! pixi run mojo run --Werror {{MOJO_TARGET_CPU}} \
                 -I "$REPO_ROOT/src" -I "$REPO_ROOT" \
                 -I "$REPO_ROOT/examples/$ex" -Xlinker -lm "$f"; then
             echo "FAILED: $f"
