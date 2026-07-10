@@ -9,6 +9,7 @@ Tests basic argument parsing functionality including:
 
 from std.testing import assert_true, assert_equal
 from projectodyssey.utils import ArgumentParser, ArgumentSpec, ParsedArgs
+from projectodyssey.utils import resolve_training_args
 
 
 def test_argument_spec_creation() raises:
@@ -176,6 +177,97 @@ def test_parser_populates_defaults() raises:
     print("PASS: test_parser_populates_defaults")
 
 
+def test_parsed_args_user_supplied_vs_default() raises:
+    """User-supplied values are distinguished from registered defaults (#5545).
+
+    `set` records a registered default; `set_user_supplied` records a value the
+    user passed on the command line. `has` is True for both, but
+    `was_user_supplied` must be True only for the latter — this is what lets
+    parse_training_args_with_defaults honor a caller default only when the user
+    did not pass the flag.
+    """
+    var args = ParsedArgs()
+    args.set("weights-dir", "weights")  # registered default
+    args.set_user_supplied("epochs", "50")  # user passed --epochs 50
+
+    # Both are visible via has()...
+    assert_true(args.has("weights-dir"))
+    assert_true(args.has("epochs"))
+
+    # ...but only the user-supplied one is flagged as such.
+    assert_true(not args.was_user_supplied("weights-dir"))
+    assert_true(args.was_user_supplied("epochs"))
+    # An argument never set at all is neither.
+    assert_true(not args.has("missing"))
+    assert_true(not args.was_user_supplied("missing"))
+
+
+def test_registered_defaults_not_user_supplied() raises:
+    """Empty argv marks nothing as user-supplied even with defaults (#5545 guard).
+
+    The parser pre-populates every argument's registered default, so has() is
+    True for each; but since the user passed nothing, was_user_supplied() must
+    be False for all — proving a caller default would take effect.
+    """
+    var parser = ArgumentParser()
+    parser.add_argument("weights-dir", "string", "weights")
+    parser.add_argument("epochs", "int", "100")
+
+    var result = parser.parse()  # empty argv (test harness passes no flags)
+
+    assert_true(result.has("weights-dir"))
+    assert_true(result.has("epochs"))
+    # The regression: neither should count as user-supplied.
+    assert_true(not result.was_user_supplied("weights-dir"))
+    assert_true(not result.was_user_supplied("epochs"))
+
+
+def test_resolve_honors_caller_default_when_absent() raises:
+    """Caller default is returned when the user omits the flag (#5545).
+
+    Simulates `parse_training_args_with_defaults(default_weights_dir="custom")`
+    with NO user-supplied flags: every registered default is present in the
+    ParsedArgs (via set), but since none was user-supplied, the caller's
+    per-script defaults must win — the exact regression #5545 describes.
+    """
+    var parsed = ParsedArgs()
+    # Registered defaults, as parse() would pre-populate them.
+    parsed.set("weights-dir", "weights")
+    parsed.set("epochs", "10")
+    parsed.set("lr", "0.01")
+
+    var args = resolve_training_args(
+        parsed,
+        default_epochs=100,
+        default_lr=0.005,
+        default_weights_dir="custom_weights",
+    )
+
+    # Caller defaults win because nothing was user-supplied.
+    assert_equal(args.weights_dir, "custom_weights")
+    assert_equal(args.epochs, 100)
+    assert_true(args.learning_rate > 0.0049 and args.learning_rate < 0.0051)
+
+
+def test_resolve_user_value_overrides_caller_default() raises:
+    """A user-supplied flag beats the caller's default in resolve_training_args.
+    """
+    var parsed = ParsedArgs()
+    parsed.set("weights-dir", "weights")  # registered default
+    parsed.set_user_supplied("weights-dir", "user_dir")  # user passed the flag
+    parsed.set_user_supplied("epochs", "7")
+
+    var args = resolve_training_args(
+        parsed,
+        default_epochs=100,
+        default_weights_dir="custom_weights",
+    )
+
+    # User-supplied values win over caller defaults.
+    assert_equal(args.weights_dir, "user_dir")
+    assert_equal(args.epochs, 7)
+
+
 def main() raises:
     """Run all test_arg_parser tests."""
     print("Running test_arg_parser tests...")
@@ -218,5 +310,17 @@ def main() raises:
 
     test_parser_populates_defaults()
     print("✓ test_parser_populates_defaults")
+
+    test_parsed_args_user_supplied_vs_default()
+    print("✓ test_parsed_args_user_supplied_vs_default")
+
+    test_registered_defaults_not_user_supplied()
+    print("✓ test_registered_defaults_not_user_supplied")
+
+    test_resolve_honors_caller_default_when_absent()
+    print("✓ test_resolve_honors_caller_default_when_absent")
+
+    test_resolve_user_value_overrides_caller_default()
+    print("✓ test_resolve_user_value_overrides_caller_default")
 
     print("\nAll test_arg_parser tests passed!")

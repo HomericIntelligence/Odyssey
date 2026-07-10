@@ -23,7 +23,7 @@ Example:
 """
 
 from std.sys import argv
-from std.collections import Dict
+from std.collections import Dict, Set
 
 
 # ============================================================================
@@ -61,19 +61,38 @@ struct ParsedArgs(Copyable, Movable):
     """
 
     var values: Dict[String, String]
+    var _user_supplied: Set[String]
 
     def __init__(out self):
         """Initialize empty parsed arguments."""
         self.values = Dict[String, String]()
+        self._user_supplied = Set[String]()
 
     def set(mut self, name: String, value: String):
-        """Set an argument value.
+        """Set an argument value (from a registered default).
+
+        Use `set_user_supplied` for values parsed from the command line so
+        callers can distinguish an explicit value from a pre-populated default.
 
         Args:
             name: Argument name.
             value: Value as string.
         """
         self.values[name] = value
+
+    def set_user_supplied(mut self, name: String, value: String):
+        """Set an argument value that the user passed on the command line.
+
+        Marks the argument as user-supplied so `was_user_supplied` returns True
+        for it, which lets helpers honor a caller-provided default only when the
+        user did not explicitly pass the flag.
+
+        Args:
+            name: Argument name.
+            value: Value as string.
+        """
+        self.values[name] = value
+        self._user_supplied.add(name)
 
     def has(self, name: String) -> Bool:
         """Check if an argument was provided.
@@ -85,6 +104,20 @@ struct ParsedArgs(Copyable, Movable):
             True if argument exists, False otherwise.
         """
         return name in self.values
+
+    def was_user_supplied(self, name: String) -> Bool:
+        """Check if an argument was explicitly supplied on the command line.
+
+        Distinct from `has`, which is also True for pre-populated registered
+        defaults. Only True when the value came from argv.
+
+        Args:
+            name: Argument name.
+
+        Returns:
+            True if the user passed the argument on the command line.
+        """
+        return name in self._user_supplied
 
     def get_string(self, name: String, default: String = "") raises -> String:
         """Get argument value as string.
@@ -156,6 +189,68 @@ struct ParsedArgs(Copyable, Movable):
                 + name
                 + "'"
             )
+
+    def resolve_string(self, name: String, default: String) raises -> String:
+        """Return the CLI value if user-supplied, else the caller's default.
+
+        Unlike get_string (which returns a pre-populated registered default when
+        one exists), this honors the caller's `default` unless the user
+        explicitly passed the flag on the command line — the correct behavior
+        when a script supplies its own per-script default (#5545).
+
+        Args:
+            name: Argument name.
+            default: Caller's default, used unless the user passed the flag.
+
+        Returns:
+            The user-supplied value, or `default`.
+
+        Raises:
+            Error: If the stored value cannot be read.
+        """
+        if name not in self._user_supplied:
+            return default
+        return self.get_string(name, default)
+
+    def resolve_int(self, name: String, default: Int) raises -> Int:
+        """Return the CLI value if user-supplied, else the caller's default.
+
+        Honors the caller's `default` unless the user explicitly passed the
+        flag; see `resolve_string` (#5545).
+
+        Args:
+            name: Argument name.
+            default: Caller's default, used unless the user passed the flag.
+
+        Returns:
+            The user-supplied value parsed as Int, or `default`.
+
+        Raises:
+            Error: If a user-supplied value cannot be parsed as integer.
+        """
+        if name not in self._user_supplied:
+            return default
+        return self.get_int(name, default)
+
+    def resolve_float(self, name: String, default: Float64) raises -> Float64:
+        """Return the CLI value if user-supplied, else the caller's default.
+
+        Honors the caller's `default` unless the user explicitly passed the
+        flag; see `resolve_string` (#5545).
+
+        Args:
+            name: Argument name.
+            default: Caller's default, used unless the user passed the flag.
+
+        Returns:
+            The user-supplied value parsed as Float64, or `default`.
+
+        Raises:
+            Error: If a user-supplied value cannot be parsed as float.
+        """
+        if name not in self._user_supplied:
+            return default
+        return self.get_float(name, default)
 
     def get_bool(self, name: String) -> Bool:
         """Get boolean flag status.
@@ -284,7 +379,7 @@ struct ArgumentParser(Copyable, Movable):
 
             # Handle flag arguments (early continue)
             if self.arguments[arg_name].is_flag:
-                result.set(arg_name, "true")
+                result.set_user_supplied(arg_name, "true")
                 i += 1
                 continue
 
@@ -292,7 +387,7 @@ struct ArgumentParser(Copyable, Movable):
             if i + 1 >= len(args):
                 raise Error("Missing value for argument: --" + arg_name)
 
-            result.set(arg_name, String(args[i + 1]))
+            result.set_user_supplied(arg_name, String(args[i + 1]))
             i += 2
 
         return result^
