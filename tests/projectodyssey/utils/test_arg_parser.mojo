@@ -176,6 +176,51 @@ def test_parser_populates_defaults() raises:
     print("PASS: test_parser_populates_defaults")
 
 
+def test_parsed_args_user_supplied_vs_default() raises:
+    """User-supplied values are distinguished from registered defaults (#5545).
+
+    `set` records a registered default; `set_user_supplied` records a value the
+    user passed on the command line. `has` is True for both, but
+    `was_user_supplied` must be True only for the latter — this is what lets
+    parse_training_args_with_defaults honor a caller default only when the user
+    did not pass the flag.
+    """
+    var args = ParsedArgs()
+    args.set("weights-dir", "weights")  # registered default
+    args.set_user_supplied("epochs", "50")  # user passed --epochs 50
+
+    # Both are visible via has()...
+    assert_true(args.has("weights-dir"))
+    assert_true(args.has("epochs"))
+
+    # ...but only the user-supplied one is flagged as such.
+    assert_true(not args.was_user_supplied("weights-dir"))
+    assert_true(args.was_user_supplied("epochs"))
+    # An argument never set at all is neither.
+    assert_true(not args.has("missing"))
+    assert_true(not args.was_user_supplied("missing"))
+
+
+def test_registered_defaults_not_user_supplied() raises:
+    """Empty argv marks nothing as user-supplied even with defaults (#5545 guard).
+
+    The parser pre-populates every argument's registered default, so has() is
+    True for each; but since the user passed nothing, was_user_supplied() must
+    be False for all — proving a caller default would take effect.
+    """
+    var parser = ArgumentParser()
+    parser.add_argument("weights-dir", "string", "weights")
+    parser.add_argument("epochs", "int", "100")
+
+    var result = parser.parse()  # empty argv (test harness passes no flags)
+
+    assert_true(result.has("weights-dir"))
+    assert_true(result.has("epochs"))
+    # The regression: neither should count as user-supplied.
+    assert_true(not result.was_user_supplied("weights-dir"))
+    assert_true(not result.was_user_supplied("epochs"))
+
+
 def main() raises:
     """Run all test_arg_parser tests."""
     print("Running test_arg_parser tests...")
@@ -218,5 +263,11 @@ def main() raises:
 
     test_parser_populates_defaults()
     print("✓ test_parser_populates_defaults")
+
+    test_parsed_args_user_supplied_vs_default()
+    print("✓ test_parsed_args_user_supplied_vs_default")
+
+    test_registered_defaults_not_user_supplied()
+    print("✓ test_registered_defaults_not_user_supplied")
 
     print("\nAll test_arg_parser tests passed!")

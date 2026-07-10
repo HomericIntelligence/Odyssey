@@ -61,19 +61,38 @@ struct ParsedArgs(Copyable, Movable):
     """
 
     var values: Dict[String, String]
+    var _user_supplied: Dict[String, Bool]
 
     def __init__(out self):
         """Initialize empty parsed arguments."""
         self.values = Dict[String, String]()
+        self._user_supplied = Dict[String, Bool]()
 
     def set(mut self, name: String, value: String):
-        """Set an argument value.
+        """Set an argument value (from a registered default).
+
+        Use `set_user_supplied` for values parsed from the command line so
+        callers can distinguish an explicit value from a pre-populated default.
 
         Args:
             name: Argument name.
             value: Value as string.
         """
         self.values[name] = value
+
+    def set_user_supplied(mut self, name: String, value: String):
+        """Set an argument value that the user passed on the command line.
+
+        Marks the argument as user-supplied so `was_user_supplied` returns True
+        for it, which lets helpers honor a caller-provided default only when the
+        user did not explicitly pass the flag.
+
+        Args:
+            name: Argument name.
+            value: Value as string.
+        """
+        self.values[name] = value
+        self._user_supplied[name] = True
 
     def has(self, name: String) -> Bool:
         """Check if an argument was provided.
@@ -85,6 +104,20 @@ struct ParsedArgs(Copyable, Movable):
             True if argument exists, False otherwise.
         """
         return name in self.values
+
+    def was_user_supplied(self, name: String) -> Bool:
+        """Check if an argument was explicitly supplied on the command line.
+
+        Distinct from `has`, which is also True for pre-populated registered
+        defaults. Only True when the value came from argv.
+
+        Args:
+            name: Argument name.
+
+        Returns:
+            True if the user passed the argument on the command line.
+        """
+        return name in self._user_supplied
 
     def get_string(self, name: String, default: String = "") raises -> String:
         """Get argument value as string.
@@ -284,7 +317,7 @@ struct ArgumentParser(Copyable, Movable):
 
             # Handle flag arguments (early continue)
             if self.arguments[arg_name].is_flag:
-                result.set(arg_name, "true")
+                result.set_user_supplied(arg_name, "true")
                 i += 1
                 continue
 
@@ -292,7 +325,7 @@ struct ArgumentParser(Copyable, Movable):
             if i + 1 >= len(args):
                 raise Error("Missing value for argument: --" + arg_name)
 
-            result.set(arg_name, String(args[i + 1]))
+            result.set_user_supplied(arg_name, String(args[i + 1]))
             i += 2
 
         return result^

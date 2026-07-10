@@ -166,19 +166,41 @@ def parse_training_args_with_defaults(
     var parser = create_training_parser()
     var parsed = parser.parse()
 
-    # Extract values with defaults
-    var epochs = parsed.get_int("epochs", default_epochs)
-    var batch_size = parsed.get_int("batch-size", default_batch_size)
-    var learning_rate = parsed.get_float("lr", default_lr)
-    var momentum = parsed.get_float("momentum", default_momentum)
-    var data_dir = parsed.get_string("data-dir", default_data_dir)
-    var weights_dir = parsed.get_string("weights-dir", default_weights_dir)
+    # Extract values, honoring each CALLER-supplied default over the parser's
+    # registered default. `create_training_parser` pre-populates every argument
+    # with a hardcoded registered default (e.g. weights-dir -> "weights", see
+    # arg_parser.mojo:394), so `parsed.has(name)` is always True and a plain
+    # `get_*(name, default_*)` would never fall back to `default_*` — the
+    # per-script default params would be dead code (#5545). Use the caller's
+    # default unless the user EXPLICITLY passed the flag on the command line.
+    var epochs = parsed.get_int(
+        "epochs", default_epochs
+    ) if parsed.was_user_supplied("epochs") else default_epochs
+    var batch_size = parsed.get_int(
+        "batch-size", default_batch_size
+    ) if parsed.was_user_supplied("batch-size") else default_batch_size
+    var learning_rate = parsed.get_float(
+        "lr", default_lr
+    ) if parsed.was_user_supplied("lr") else default_lr
+    var momentum = parsed.get_float(
+        "momentum", default_momentum
+    ) if parsed.was_user_supplied("momentum") else default_momentum
+    var data_dir = parsed.get_string(
+        "data-dir", default_data_dir
+    ) if parsed.was_user_supplied("data-dir") else default_data_dir
+    var weights_dir = parsed.get_string(
+        "weights-dir", default_weights_dir
+    ) if parsed.was_user_supplied("weights-dir") else default_weights_dir
     var lr_decay_epochs = parsed.get_int(
         "lr-decay-epochs", default_lr_decay_epochs
-    )
+    ) if parsed.was_user_supplied(
+        "lr-decay-epochs"
+    ) else default_lr_decay_epochs
     var lr_decay_factor = parsed.get_float(
         "lr-decay-factor", default_lr_decay_factor
-    )
+    ) if parsed.was_user_supplied(
+        "lr-decay-factor"
+    ) else default_lr_decay_factor
     var verbose = parsed.get_bool("verbose")
 
     # Validate numeric arguments
