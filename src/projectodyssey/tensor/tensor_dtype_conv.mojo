@@ -252,10 +252,10 @@ def _convert_to_block_quant_impl[
 
     Note: bfloat16 passes the outer guard but raises in the inner dispatch.
     This asymmetry is a pre-existing bug preserved verbatim.
-    TODO(#5181-followup): fix bfloat16 guard for block-quant methods.
+    TODO(#5564): fix bfloat16 guard for block-quant methods.
     """
     # Verify source is floating point (bfloat16 outer guard passes; inner raises).
-    # TODO(#5181-followup): the bfloat16 outer guard accepts but inner raises;
+    # TODO(#5564): the bfloat16 outer guard accepts but inner raises;
     # this asymmetry is preserved verbatim as a pre-existing bug.
     if not (
         tensor._dtype == DType.float16
