@@ -1301,10 +1301,14 @@ _test-example-backward-inner:
     set -euo pipefail
     REPO_ROOT="$(pwd)"
     fail=0
+    # Expected backward tests — each MUST exist and run. A missing file is a
+    # hard failure (regression signal), not a silent skip: if a test is
+    # renamed or deleted, this job must go red rather than pass green.
     for ex in googlenet_cifar10 resnet18_cifar10; do
         f="examples/$ex/test_backward.mojo"
         if [ ! -f "$f" ]; then
-            echo "skip: $f not found"
+            echo "MISSING (expected): $f"
+            fail=1
             continue
         fi
         echo "=================================================="

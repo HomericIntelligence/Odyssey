@@ -10,17 +10,22 @@ Two independent layers of evidence for the hand-written 222-parameter backward:
    though the convergence loop below might still trend downhill.
 
 2. A convergence test: several SGD-momentum steps on a fixed synthetic batch
-   spanning all 10 classes, asserting the loss is finite at every step, that a
-   representative weight actually changes, and that the final loss drops below
-   0.95 * the first (the same threshold the ResNet-18 sibling test uses) — not
-   just a bare `last < first` that a rounding jitter could satisfy.
+   spanning all 10 classes, asserting the loss is finite at every step, that
+   BOTH the last layer (fc) and the first layer (initial conv) weights change
+   — so gradients demonstrably flow end-to-end — and that the final loss drops
+   below 0.95 * the first (the same threshold the ResNet-18 sibling test uses)
+   — not just a bare `last < first` that a rounding jitter could satisfy.
 """
 
 from std.math import isnan, isinf
 from projectodyssey.tensor.any_tensor import AnyTensor
 from projectodyssey.tensor.tensor_creation import zeros
 from projectodyssey.data import one_hot_encode
-from model import GoogLeNet, concatenate_depthwise, concatenate_depthwise_backward
+from model import (
+    GoogLeNet,
+    concatenate_depthwise,
+    concatenate_depthwise_backward,
+)
 from train import compute_gradients, initialize_velocities
 
 
@@ -34,7 +39,9 @@ def _snapshot(t: AnyTensor) raises -> Float32:
     return Float32(t.load[DType.float32](0))
 
 
-def _make_sentinel(batch: Int, c: Int, hw: Int, base: Float32) raises -> AnyTensor:
+def _make_sentinel(
+    batch: Int, c: Int, hw: Int, base: Float32
+) raises -> AnyTensor:
     """Build a (batch, c, 1, hw)-shaped tensor with a UNIQUE value per element.
 
     value(b, ch, i) = base + b*1000 + ch*10 + i, so any misrouting of a
@@ -47,7 +54,9 @@ def _make_sentinel(batch: Int, c: Int, hw: Int, base: Float32) raises -> AnyTens
         for ch in range(c):
             for i in range(hw):
                 var idx = ((b * c + ch) * hw) + i
-                d[idx] = base + Float32(b) * 1000.0 + Float32(ch) * 10.0 + Float32(i)
+                d[idx] = (
+                    base + Float32(b) * 1000.0 + Float32(ch) * 10.0 + Float32(i)
+                )
     return t^
 
 
@@ -71,7 +80,9 @@ def test_concat_backward_split_exact() raises:
     var t4 = _make_sentinel(batch, c4, hw, base=4.0)
 
     var cat = concatenate_depthwise(t1, t2, t3, t4)
-    assert_true(cat.shape()[1] == c1 + c2 + c3 + c4, "concat channel count wrong")
+    assert_true(
+        cat.shape()[1] == c1 + c2 + c3 + c4, "concat channel count wrong"
+    )
 
     var grads = concatenate_depthwise_backward(cat, c1, c2, c3, c4)
     var g1 = grads[0]
@@ -138,7 +149,12 @@ def test_concat_backward_rejects_non_float32() raises:
 
 
 def test_backward_converges() raises:
-    """Several SGD steps reduce loss by >5% with finite losses and changing weights."""
+    """Reduce loss by >5% with finite losses and both end-layers updating.
+
+    Runs several SGD-momentum steps: asserts finite loss each step, that the
+    final loss is < 0.95 * the first, and that BOTH fc (last) and initial-conv
+    (first) weights changed — proving gradients reach both ends of the net.
+    """
     var num_classes = 10
     var batch = 10  # one sample per class, interleaved
     var model = GoogLeNet(num_classes=num_classes)
@@ -164,8 +180,12 @@ def test_backward_converges() raises:
     var lr = Float32(0.01)
     var momentum = Float32(0.9)
 
-    # Snapshot one representative weight to prove SGD actually updates params.
-    var w_before = _snapshot(model.fc_weights)
+    # Snapshot one weight from the LAST layer (fc) and one from the FIRST
+    # (initial conv) so the check proves gradients flow end-to-end. A backward
+    # bug that zeroes early-stage gradients while still updating fc would pass
+    # an fc-only check but fail the initial-conv one.
+    var fc_before = _snapshot(model.fc_weights)
+    var conv_before = _snapshot(model.initial_conv_weights)
 
     var first_loss = Float32(0.0)
     var last_loss = Float32(0.0)
@@ -180,14 +200,24 @@ def test_backward_converges() raises:
             first_loss = loss
         last_loss = loss
         print(
-            "  Step " + String(step + 1) + "/" + String(steps)
-            + ", Loss: " + String(loss)
+            "  Step "
+            + String(step + 1)
+            + "/"
+            + String(steps)
+            + ", Loss: "
+            + String(loss)
         )
 
-    var w_after = _snapshot(model.fc_weights)
     assert_true(
-        w_before != w_after,
-        "fc_weights did not change — SGD update not applied",
+        _snapshot(model.fc_weights) != fc_before,
+        "fc_weights did not change — SGD update not applied to last layer",
+    )
+    assert_true(
+        _snapshot(model.initial_conv_weights) != conv_before,
+        (
+            "initial_conv_weights did not change — gradient did not reach the"
+            " first layer"
+        ),
     )
 
     print("first=" + String(first_loss) + " last=" + String(last_loss))
