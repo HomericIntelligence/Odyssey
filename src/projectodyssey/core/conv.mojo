@@ -550,7 +550,7 @@ def _conv2d_grad_input[
     """Fill grad_input for conv2d backward (the input-gradient block, #5573).
 
     Extracted so `_conv2d_backward_kernel` can compile it out (via
-    `@parameter if compute_grad_input`) when the caller does not need input
+    `comptime if compute_grad_input`) when the caller does not need input
     gradients — this is the most expensive loop nest in the backward pass.
     """
     # For each input position, sum contributions from all output positions it
