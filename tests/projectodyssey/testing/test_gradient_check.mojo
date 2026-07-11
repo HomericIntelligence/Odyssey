@@ -1,16 +1,16 @@
-"""Tests for gradient checking utilities in projectodyssey.testing.gradient_checker.
+"""Tests for gradient checking utilities in odyssey.testing.gradient_checker.
 
 Tests relative_error and assert_gradients_close functions.
 Gradient checking with check_gradients is tested in test_gradient_checking.mojo.
 """
 
 from std.testing import assert_true, assert_equal
-from projectodyssey.testing.gradient_checker import (
+from odyssey.testing.gradient_checker import (
     assert_gradients_close,
     relative_error,
 )
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros, ones, full
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros, ones, full
 
 
 # ============================================================================

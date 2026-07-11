@@ -69,13 +69,13 @@ from tests.shared.conftest import (
     assert_true,
 )
 from tests.shared.conftest import TestFixtures
-from projectodyssey.core.extensor import ExTensor, zeros, ones, full, randn
-from projectodyssey.core.conv import conv2d, conv2d_backward
-from projectodyssey.core.linear import linear, linear_backward
-from projectodyssey.core.activation import relu, relu_backward
-from projectodyssey.core.pooling import maxpool2d, maxpool2d_backward
-from projectodyssey.core.loss import cross_entropy
-from projectodyssey.core import mean
+from odyssey.core.extensor import ExTensor, zeros, ones, full, randn
+from odyssey.core.conv import conv2d, conv2d_backward
+from odyssey.core.linear import linear, linear_backward
+from odyssey.core.activation import relu, relu_backward
+from odyssey.core.pooling import maxpool2d, maxpool2d_backward
+from odyssey.core.loss import cross_entropy
+from odyssey.core import mean
 
 
 # ============================================================================

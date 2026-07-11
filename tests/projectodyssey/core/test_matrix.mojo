@@ -10,7 +10,7 @@ Tests cover:
 """
 
 
-from tests.projectodyssey.conftest import (
+from tests.odyssey.conftest import (
     TestFixtures,
     assert_all_close,
     assert_all_values,
@@ -25,8 +25,8 @@ from tests.projectodyssey.conftest import (
     assert_true,
     assert_value_at,
 )
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import (
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import (
     zeros,
     ones,
     zeros_like,
@@ -35,7 +35,7 @@ from projectodyssey.tensor.tensor_creation import (
     arange,
     eye,
 )
-from projectodyssey.core.matrix import (
+from odyssey.core.matrix import (
     matmul,
     transpose,
     dot,
@@ -43,7 +43,7 @@ from projectodyssey.core.matrix import (
     matmul_backward,
     transpose_backward,
 )
-from projectodyssey.testing.gradient_checker import (
+from odyssey.testing.gradient_checker import (
     check_gradient,
     compute_numerical_gradient,
     assert_gradients_close,

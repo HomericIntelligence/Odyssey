@@ -1,4 +1,4 @@
-# GitHub Sponsors configuration for ProjectOdyssey
+# GitHub Sponsors configuration for Odyssey
 # Documentation: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/displaying-a-sponsor-button-in-your-repository
 #
 # Purpose:
@@ -42,7 +42,7 @@ github: [mvillmow]  # Replace with GitHub Sponsors username once enrolled
 # - Fiscal hosting available
 # - Good for project-level funding (not individual)
 # - Setup: https://opencollective.com/
-# open_collective: ProjectOdyssey  # Uncomment after Open Collective setup
+# open_collective: Odyssey  # Uncomment after Open Collective setup
 
 # Ko-fi
 # - Simple one-time and monthly donations

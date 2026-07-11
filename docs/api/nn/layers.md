@@ -20,7 +20,7 @@ trait Layer:
 Fully connected layer: `y = xW^T + b`
 
 ```mojo
-from projectodyssey.core.layers import Linear
+from odyssey.core.layers import Linear
 ```
 
 **Constructor:**
@@ -38,8 +38,8 @@ fn __init__(out self, in_features: Int, out_features: Int, bias: Bool = True) ra
 **Example:**
 
 ```mojo
-from projectodyssey.core.layers import Linear
-from projectodyssey.core import randn
+from odyssey.core.layers import Linear
+from odyssey.core import randn
 
 var linear = Linear(784, 128)  # 784 -> 128
 var x = randn[DType.float32](32, 784)  # Batch of 32
@@ -53,7 +53,7 @@ var y = linear.forward(x)  # Shape: (32, 128)
 2D convolution layer for image processing.
 
 ```mojo
-from projectodyssey.core.layers import Conv2d
+from odyssey.core.layers import Conv2d
 ```
 
 **Constructor:**
@@ -86,8 +86,8 @@ fn __init__(
 **Example:**
 
 ```mojo
-from projectodyssey.core.layers import Conv2d
-from projectodyssey.core import randn
+from odyssey.core.layers import Conv2d
+from odyssey.core import randn
 
 # 3 input channels, 64 output channels, 3x3 kernel
 var conv = Conv2d(3, 64, kernel_size=3, padding=1)
@@ -111,7 +111,7 @@ W_out = floor((W_in + 2*padding - dilation*(kernel_size-1) - 1) / stride + 1)
 2D batch normalization for convolutional layers.
 
 ```mojo
-from projectodyssey.core.layers import BatchNorm2d
+from odyssey.core.layers import BatchNorm2d
 ```
 
 **Constructor:**
@@ -136,8 +136,8 @@ fn __init__(
 **Example:**
 
 ```mojo
-from projectodyssey.core.layers import BatchNorm2d, Conv2d
-from projectodyssey.core import randn
+from odyssey.core.layers import BatchNorm2d, Conv2d
+from odyssey.core import randn
 
 var conv = Conv2d(3, 64, kernel_size=3, padding=1)
 var bn = BatchNorm2d(64)
@@ -166,7 +166,7 @@ y = bn.forward(x)
 2D max pooling layer.
 
 ```mojo
-from projectodyssey.core.layers import MaxPool2d
+from odyssey.core.layers import MaxPool2d
 ```
 
 **Constructor:**
@@ -189,8 +189,8 @@ fn __init__(
 **Example:**
 
 ```mojo
-from projectodyssey.core.layers import MaxPool2d
-from projectodyssey.core import randn
+from odyssey.core.layers import MaxPool2d
+from odyssey.core import randn
 
 var pool = MaxPool2d(kernel_size=2, stride=2)
 var x = randn[DType.float32](32, 64, 28, 28)
@@ -202,7 +202,7 @@ var y = pool.forward(x)  # Shape: (32, 64, 14, 14)
 2D average pooling layer.
 
 ```mojo
-from projectodyssey.core.layers import AvgPool2d
+from odyssey.core.layers import AvgPool2d
 
 var pool = AvgPool2d(kernel_size=2, stride=2)
 var x = randn[DType.float32](32, 64, 28, 28)
@@ -214,7 +214,7 @@ var y = pool.forward(x)  # Shape: (32, 64, 14, 14)
 Adaptive average pooling to target output size.
 
 ```mojo
-from projectodyssey.core.layers import AdaptiveAvgPool2d
+from odyssey.core.layers import AdaptiveAvgPool2d
 
 var pool = AdaptiveAvgPool2d(output_size=(1, 1))  # Global average pooling
 var x = randn[DType.float32](32, 512, 7, 7)
@@ -228,7 +228,7 @@ var y = pool.forward(x)  # Shape: (32, 512, 1, 1)
 Randomly zero elements during training.
 
 ```mojo
-from projectodyssey.core.layers import Dropout
+from odyssey.core.layers import Dropout
 ```
 
 **Constructor:**
@@ -244,8 +244,8 @@ fn __init__(out self, p: Float = 0.5) raises
 **Example:**
 
 ```mojo
-from projectodyssey.core.layers import Dropout
-from projectodyssey.core import randn
+from odyssey.core.layers import Dropout
+from odyssey.core import randn
 
 var dropout = Dropout(p=0.5)
 
@@ -266,7 +266,7 @@ y = dropout.forward(x)  # Identity function
 Lookup table for discrete tokens.
 
 ```mojo
-from projectodyssey.core.layers import Embedding
+from odyssey.core.layers import Embedding
 ```
 
 **Constructor:**
@@ -283,8 +283,8 @@ fn __init__(out self, num_embeddings: Int, embedding_dim: Int) raises
 **Example:**
 
 ```mojo
-from projectodyssey.core.layers import Embedding
-from projectodyssey.core import zeros
+from odyssey.core.layers import Embedding
+from odyssey.core import zeros
 
 var embed = Embedding(10000, 256)  # 10K vocab, 256-dim embeddings
 
@@ -300,7 +300,7 @@ var embeddings = embed.forward(tokens)  # Shape: (32, 100, 256)
 Flatten all dimensions except batch.
 
 ```mojo
-from projectodyssey.core.layers import Flatten
+from odyssey.core.layers import Flatten
 
 var flatten = Flatten()
 var x = randn[DType.float32](32, 64, 7, 7)
@@ -312,7 +312,7 @@ var y = flatten.forward(x)  # Shape: (32, 3136)
 Combine layers into a sequential model.
 
 ```mojo
-from projectodyssey.core.layers import Sequential, Linear, ReLU, Dropout
+from odyssey.core.layers import Sequential, Linear, ReLU, Dropout
 
 var model = Sequential()
 model.add(Linear(784, 256))

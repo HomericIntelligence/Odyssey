@@ -40,7 +40,7 @@ Reference:
 
 from std.math import isnan, isinf
 from std.memory import bitcast
-from projectodyssey.core.types.dtype_aliases import FP4, E8M0
+from odyssey.core.types.dtype_aliases import FP4, E8M0
 
 
 # ============================================================================

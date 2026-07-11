@@ -9,13 +9,13 @@ Tests:
 - Flatten operation: float32, float16
 """
 
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.testing.assertions import (
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.testing.assertions import (
     assert_shape,
     assert_dtype,
     assert_false,
 )
-from projectodyssey.testing.special_values import (
+from odyssey.testing.special_values import (
     create_special_value_tensor,
     SPECIAL_VALUE_ONE,
 )

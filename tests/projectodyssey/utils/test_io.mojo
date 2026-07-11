@@ -6,14 +6,14 @@ This module tests model checkpoint functionality including:
 """
 
 
-from tests.projectodyssey.conftest import (
+from tests.odyssey.conftest import (
     assert_true,
     assert_false,
     assert_equal,
     assert_not_equal,
     TestFixtures,
 )
-from projectodyssey.utils.file_io import (
+from odyssey.utils.file_io import (
     Checkpoint,
     _serialize_checkpoint,
     file_exists,

@@ -5,7 +5,7 @@ and formatters. It supports file and console output with configurable
 log levels.
 
 Example:
-    from projectodyssey.utils import Logger, StreamHandler, FileHandler
+    from odyssey.utils import Logger, StreamHandler, FileHandler
 
     var logger = Logger("training")
     logger.add_handler(StreamHandler())

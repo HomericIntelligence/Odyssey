@@ -6,9 +6,9 @@ Tests verify:
 """
 
 
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros, ones, full
-from tests.projectodyssey.conftest import assert_true, assert_equal_int
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros, ones, full
+from tests.odyssey.conftest import assert_true, assert_equal_int
 
 
 def _copy_and_check_refcount(tensor1: AnyTensor) -> Int:

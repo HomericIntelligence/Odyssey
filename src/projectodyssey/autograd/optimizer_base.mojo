@@ -13,11 +13,11 @@ This reduces code duplication and provides a consistent interface across all opt
 
 Design Note:
     This is designed for the class-based autograd optimizer API.
-    For the modern functional optimizer API, see src/projectodyssey/training/optimizers/.
+    For the modern functional optimizer API, see src/odyssey/training/optimizers/.
 """
 
-from projectodyssey.autograd.tape import GradientTape
-from projectodyssey.autograd.variable import Variable
+from odyssey.autograd.tape import GradientTape
+from odyssey.autograd.variable import Variable
 from std.math import sqrt
 
 
@@ -158,7 +158,7 @@ def clip_gradients_by_global_norm(
         This is particularly useful for training RNNs and prevents
         exploding gradients. It's recommended to clip before calling step().
     """
-    from projectodyssey.tensor.any_tensor import AnyTensor
+    from odyssey.tensor.any_tensor import AnyTensor
 
     if max_norm < 0.0:
         raise Error("max_norm must be non-negative, got: " + String(max_norm))

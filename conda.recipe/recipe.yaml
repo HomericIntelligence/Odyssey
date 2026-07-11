@@ -3,7 +3,7 @@ context:
   mojo_version: ">=1.0.0b1"
 
 package:
-  name: "projectodyssey"
+  name: "odyssey"
   version: ${{ version }}
 
 source:
@@ -21,7 +21,7 @@ build:
   number: 0
   script:
     - mkdir -p ${PREFIX}/lib/mojo
-    - mojo package -I src src/projectodyssey -o ${PREFIX}/lib/mojo/projectodyssey.mojopkg
+    - mojo package -I src src/odyssey -o ${PREFIX}/lib/mojo/odyssey.mojopkg
 
 requirements:
   build:
@@ -51,6 +51,6 @@ about:
   repository: https://github.com/HomericIntelligence/Odyssey.git
 
 extra:
-  project_name: projectodyssey
+  project_name: odyssey
   maintainers:
     - mvillmow

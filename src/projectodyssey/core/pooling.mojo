@@ -7,9 +7,9 @@ All operations are stateless - caller provides all inputs.
 from std.algorithm import parallelize
 from std.collections import List
 
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros
-from projectodyssey.core.parallel_utils import should_parallelize
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros
+from odyssey.core.parallel_utils import should_parallelize
 
 # max and min are now builtins in Mojo - no import needed
 
@@ -42,7 +42,7 @@ def maxpool2d(
 
         Example:
             ```mojo
-            from projectodyssey.core import AnyTensor, maxpool2d
+            from odyssey.core import AnyTensor, maxpool2d
 
             # Pure function call - no state to manage
             var pooled = maxpool2d(input, kernel_size=2, stride=2)
@@ -71,7 +71,7 @@ def maxpool2d(
     var actual_stride = stride if stride > 0 else kernel_size
 
     # Compute output dimensions using shape computation helper
-    from projectodyssey.core.shape import pool_output_shape
+    from odyssey.core.shape import pool_output_shape
 
     var (out_h, out_w) = pool_output_shape(
         in_height, in_width, kernel_size, actual_stride, padding
@@ -318,7 +318,7 @@ def avgpool2d(
 
         Example:
             ```mojo
-            from projectodyssey.core import AnyTensor, avgpool2d
+            from odyssey.core import AnyTensor, avgpool2d
 
             # Pure function call - no state to manage
             var pooled = avgpool2d(input, kernel_size=2, stride=2)
@@ -347,7 +347,7 @@ def avgpool2d(
     var actual_stride = stride if stride > 0 else kernel_size
 
     # Compute output dimensions using shape computation helper
-    from projectodyssey.core.shape import pool_output_shape
+    from odyssey.core.shape import pool_output_shape
 
     var (out_h, out_w) = pool_output_shape(
         in_height, in_width, kernel_size, actual_stride, padding
@@ -434,7 +434,7 @@ def global_avgpool2d(
 
         Example:
             ```mojo
-            from projectodyssey.core import AnyTensor, global_avgpool2d
+            from odyssey.core import AnyTensor, global_avgpool2d
 
             # Pure function call
             var pooled = global_avgpool2d(input)  # (B, C, H, W) -> Tuple[B, C, 1, 1]
@@ -524,7 +524,7 @@ def maxpool2d_backward(
 
     Example:
         ```mojo
-        from projectodyssey.core import maxpool2d, maxpool2d_backward
+        from odyssey.core import maxpool2d, maxpool2d_backward
 
         # Forward pass
         var output = maxpool2d(x, kernel_size=2, stride=2)
@@ -658,7 +658,7 @@ def avgpool2d_backward(
 
     Example:
         ```mojo
-        from projectodyssey.core import avgpool2d, avgpool2d_backward
+        from odyssey.core import avgpool2d, avgpool2d_backward
 
         # Forward pass
         var output = avgpool2d(x, kernel_size=2, stride=2)
@@ -779,7 +779,7 @@ def global_avgpool2d_backward(
 
     Example:
         ```mojo
-        from projectodyssey.core import global_avgpool2d, global_avgpool2d_backward
+        from odyssey.core import global_avgpool2d, global_avgpool2d_backward
 
         # Forward pass
         var output = global_avgpool2d(x)

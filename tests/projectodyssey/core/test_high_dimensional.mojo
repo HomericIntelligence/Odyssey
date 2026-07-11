@@ -4,11 +4,11 @@ Tests 5D tensor creation and arithmetic operations.
 """
 
 
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros, ones, full, arange
-from projectodyssey.core.arithmetic import add, multiply, subtract
-from projectodyssey.core.reduction import sum, mean, max_reduce, min_reduce
-from tests.projectodyssey.conftest import (
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros, ones, full, arange
+from odyssey.core.arithmetic import add, multiply, subtract
+from odyssey.core.reduction import sum, mean, max_reduce, min_reduce
+from tests.odyssey.conftest import (
     assert_dtype,
     assert_numel,
     assert_dim,

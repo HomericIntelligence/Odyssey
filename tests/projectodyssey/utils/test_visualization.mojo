@@ -5,13 +5,13 @@ and initial training curve plotting functionality.
 """
 
 
-from tests.projectodyssey.conftest import (
+from tests.odyssey.conftest import (
     assert_true,
     assert_false,
     assert_equal,
     assert_not_equal,
 )
-from projectodyssey.utils.visualization import (
+from odyssey.utils.visualization import (
     ConfusionMatrixData,
     PlotData,
     PlotSeries,

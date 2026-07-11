@@ -44,16 +44,16 @@ achieving a **72% reduction** in warning count.
 
 ### Top 10 Files by Remaining Warnings
 
-1. `src/projectodyssey/utils/config.mojo` - 45 warnings
-2. `src/projectodyssey/core/extensor.mojo` - 43 warnings
-3. `src/projectodyssey/core/dtype_dispatch.mojo` - 37 warnings
-4. `src/projectodyssey/core/elementwise.mojo` - 34 warnings
-5. `src/projectodyssey/core/activation.mojo` - 30 warnings
-6. `src/projectodyssey/testing/assertions.mojo` - 26 warnings
-7. `src/projectodyssey/core/shape.mojo` - 24 warnings
-8. `src/projectodyssey/core/arithmetic.mojo` - 23 warnings
-9. `src/projectodyssey/core/conv.mojo` - 23 warnings
-10. `src/projectodyssey/core/loss.mojo` - 23 warnings
+1. `src/odyssey/utils/config.mojo` - 45 warnings
+2. `src/odyssey/core/extensor.mojo` - 43 warnings
+3. `src/odyssey/core/dtype_dispatch.mojo` - 37 warnings
+4. `src/odyssey/core/elementwise.mojo` - 34 warnings
+5. `src/odyssey/core/activation.mojo` - 30 warnings
+6. `src/odyssey/testing/assertions.mojo` - 26 warnings
+7. `src/odyssey/core/shape.mojo` - 24 warnings
+8. `src/odyssey/core/arithmetic.mojo` - 23 warnings
+9. `src/odyssey/core/conv.mojo` - 23 warnings
+10. `src/odyssey/core/loss.mojo` - 23 warnings
 
 ## Build Verification
 
@@ -78,7 +78,7 @@ Automated fixer for common docstring patterns.
 
 ```bash
 # Fix specific file
-python3 scripts/fix_docstring_warnings.py --file src/projectodyssey/core/shape.mojo
+python3 scripts/fix_docstring_warnings.py --file src/odyssey/core/shape.mojo
 
 # Fix all files
 python3 scripts/fix_docstring_warnings.py --all

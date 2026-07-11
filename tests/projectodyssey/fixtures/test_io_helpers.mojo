@@ -6,13 +6,13 @@ Test Coverage:
 """
 
 
-from tests.projectodyssey.conftest import (
+from tests.odyssey.conftest import (
     assert_true,
     assert_false,
     assert_equal,
     assert_not_equal,
 )
-from tests.projectodyssey.fixtures.io_helpers import (
+from tests.odyssey.fixtures.io_helpers import (
     file_exists,
     dir_exists,
     create_temp_dir,
@@ -21,12 +21,12 @@ from tests.projectodyssey.fixtures.io_helpers import (
     create_mock_text_file,
     temp_file_path,
 )
-from tests.projectodyssey.conftest import (
+from tests.odyssey.conftest import (
     assert_true,
     assert_false,
     assert_equal,
 )
-from tests.projectodyssey.fixtures.io_helpers import (
+from tests.odyssey.fixtures.io_helpers import (
     file_exists,
     dir_exists,
     create_temp_dir,
@@ -326,7 +326,7 @@ def test_get_test_data_path() raises:
     var path = get_test_data_path("sample.txt")
 
     # Test: path should start with fixtures directory
-    var expected_prefix = "tests/projectodyssey/fixtures/"
+    var expected_prefix = "tests/odyssey/fixtures/"
     var starts_correctly = path.startswith(expected_prefix)
     assert_true(starts_correctly, "Path should start with fixtures directory")
 

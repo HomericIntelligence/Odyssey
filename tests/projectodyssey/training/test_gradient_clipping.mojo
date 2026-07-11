@@ -10,16 +10,16 @@ Test Coverage:
 - compute_gradient_statistics: Gradient monitoring and health checks
 """
 
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros, ones, full
-from projectodyssey.training.gradient_clipping import (
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros, ones, full
+from odyssey.training.gradient_clipping import (
     compute_gradient_norm_list,
     clip_gradients_by_global_norm,
     clip_gradients_per_param,
     clip_gradients_by_value_list,
     compute_gradient_statistics,
 )
-from projectodyssey.testing.assertions import (
+from odyssey.testing.assertions import (
     assert_true,
     assert_close_float,
     assert_equal_int,

@@ -13,7 +13,7 @@ Custom types (FP4, FP8, BF8) are not available in Mojo stdlib v0.26.1 and are
 not included. When support is added, extend get_test_dtypes() to include them.
 
 Usage:
-    from projectodyssey.testing.dtype_utils import get_test_dtypes
+    from odyssey.testing.dtype_utils import get_test_dtypes
 
     # Get all dtypes to test
     var dtypes = get_test_dtypes()
@@ -53,11 +53,11 @@ def get_test_dtypes() -> List[DType]:
         - These are the dtypes available in Mojo stdlib v0.26.1
         - FP4, FP8, BF8 are documented in requirements but not available yet
         - Custom dtypes should be added here once implemented
-        - See src/projectodyssey/types/ for future custom dtype implementations
+        - See src/odyssey/types/ for future custom dtype implementations
 
     Example:
         ```mojo
-        from projectodyssey.testing.dtype_utils import get_test_dtypes
+        from odyssey.testing.dtype_utils import get_test_dtypes
 
         var dtypes = get_test_dtypes()
         for dtype in dtypes:
@@ -84,7 +84,7 @@ def get_float_dtypes() -> List[DType]:
 
     Usage:
         ```mojo
-        from projectodyssey.testing.dtype_utils import get_float_dtypes
+        from odyssey.testing.dtype_utils import get_float_dtypes
 
         # For operations that require floating-point arithmetic
         var float_dtypes = get_float_dtypes()
@@ -108,7 +108,7 @@ def get_precision_dtypes() -> List[DType]:
 
     Usage:
         ```mojo
-        from projectodyssey.testing.dtype_utils import get_precision_dtypes
+        from odyssey.testing.dtype_utils import get_precision_dtypes
 
         # Test precision-dependent behavior
         var dtypes = get_precision_dtypes()
@@ -135,7 +135,7 @@ def get_float32_only() -> List[DType]:
 
     Usage:
         ```mojo
-        from projectodyssey.testing.dtype_utils import get_float32_only
+        from odyssey.testing.dtype_utils import get_float32_only
 
         # For quick tests during development
         var dtypes = get_float32_only()

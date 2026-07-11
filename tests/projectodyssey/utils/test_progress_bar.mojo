@@ -6,7 +6,7 @@ This module tests basic progress bar and metrics functionality:
 """
 
 
-from projectodyssey.utils.progress_bar import (
+from odyssey.utils.progress_bar import (
     ProgressBar,
     ProgressBarWithMetrics,
     ProgressBarWithETA,

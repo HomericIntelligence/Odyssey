@@ -8,14 +8,14 @@ Tests cover:
 
 from std.testing import assert_true, assert_equal
 from std.collections import Dict
-from projectodyssey.training.base import (
+from odyssey.training.base import (
     Callback,
     CallbackSignal,
     CONTINUE,
     STOP,
     TrainingState,
 )
-from projectodyssey.training.callbacks import (
+from odyssey.training.callbacks import (
     EarlyStopping,
     ModelCheckpoint,
     LoggingCallback,

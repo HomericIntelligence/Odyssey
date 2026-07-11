@@ -15,23 +15,23 @@ References:
     - Issue #2644: Add Numerical Stability Tests for Gradients
 """
 
-from projectodyssey.core.activation import relu, sigmoid, tanh, gelu
-from projectodyssey.core.activation import (
+from odyssey.core.activation import relu, sigmoid, tanh, gelu
+from odyssey.core.activation import (
     relu_backward,
     sigmoid_backward,
     tanh_backward,
     gelu_backward,
 )
-from projectodyssey.core.conv import conv2d, conv2d_backward
-from projectodyssey.core.linear import linear, linear_backward
-from projectodyssey.core.extensor import ExTensor, zeros, ones_like, full
-from projectodyssey.core.initializers import kaiming_uniform
-from projectodyssey.testing.gradient_checker import check_gradients
-from projectodyssey.testing.special_values import (
+from odyssey.core.conv import conv2d, conv2d_backward
+from odyssey.core.linear import linear, linear_backward
+from odyssey.core.extensor import ExTensor, zeros, ones_like, full
+from odyssey.core.initializers import kaiming_uniform
+from odyssey.testing.gradient_checker import check_gradients
+from odyssey.testing.special_values import (
     create_seeded_random_tensor,
     create_special_value_tensor,
 )
-from projectodyssey.testing.assertions import assert_true
+from odyssey.testing.assertions import assert_true
 
 
 # ============================================================================

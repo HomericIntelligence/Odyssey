@@ -34,9 +34,9 @@ Usage:
 See mixed precision training examples in examples/mixed_precision/
 """
 
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import full
-from projectodyssey.core.numerical_safety import has_nan, has_inf
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import full
+from odyssey.core.numerical_safety import has_nan, has_inf
 from std.math import log2
 from std.algorithm import vectorize
 from std.sys.info import simd_width_of
@@ -411,7 +411,7 @@ def clip_gradients_by_norm(
     if gradients._numel == 0:
         return gradients  # No clipping needed for empty tensor
 
-    from projectodyssey.core.reduction import sum as tensor_sum
+    from odyssey.core.reduction import sum as tensor_sum
     from std.math import sqrt as math_sqrt
 
     # Compute L2 norm: sqrt(sum(grad^2))

@@ -3,14 +3,14 @@
 Implements Strassen's divide-and-conquer algorithm reducing O(n^3) to O(n^2.807)
 by performing 7 multiplications instead of 8.
 
-Typed helper cores live in src/projectodyssey/tensor/typed/strassen.mojo.
+Typed helper cores live in src/odyssey/tensor/typed/strassen.mojo.
 """
 
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros
-from projectodyssey.core.arithmetic import add, subtract
-from projectodyssey.core.matmul import matmul_tiled
-from projectodyssey.base.dtype_ordinal import (
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros
+from odyssey.core.arithmetic import add, subtract
+from odyssey.core.matmul import matmul_tiled
+from odyssey.base.dtype_ordinal import (
     dtype_to_ordinal,
     DTYPE_FLOAT16,
     DTYPE_FLOAT32,
@@ -41,7 +41,7 @@ def next_power_of_2(n: Int) -> Int:
 
 def _strassen_recursive(A: AnyTensor, B: AnyTensor) raises -> AnyTensor:
     """Recursive core of Strassen's algorithm using 7 products."""
-    from projectodyssey.tensor.typed.strassen import (
+    from odyssey.tensor.typed.strassen import (
         _extract_quadrants_typed,
         _combine_quadrants_typed,
     )
@@ -169,7 +169,7 @@ def _strassen_recursive(A: AnyTensor, B: AnyTensor) raises -> AnyTensor:
 
 def matmul_strassen(A: AnyTensor, B: AnyTensor, mut C: AnyTensor) raises:
     """Matrix multiplication using Strassen's algorithm."""
-    from projectodyssey.tensor.typed.strassen import (
+    from odyssey.tensor.typed.strassen import (
         _matmul_strassen_copy_result,
     )
 

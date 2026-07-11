@@ -7,16 +7,16 @@ Tests edge cases for matmul and shape operations on matrices including:
 """
 
 
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import (
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import (
     zeros,
     ones,
     full,
     zeros_like,
     eye,
 )
-from projectodyssey.core.matrix import matmul
-from tests.projectodyssey.conftest import (
+from odyssey.core.matrix import matmul
+from tests.odyssey.conftest import (
     assert_dtype,
     assert_numel,
     assert_dim,

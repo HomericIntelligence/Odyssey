@@ -4,8 +4,8 @@ This module provides utilities for extracting mini-batches from datasets
 for training and evaluation.
 """
 
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros
 
 
 def extract_batch(
@@ -32,7 +32,7 @@ def extract_batch(
 
     Example:
         ```mojo
-        from projectodyssey.data import extract_batch
+        from odyssey.data import extract_batch
 
         # Extract batch of 128 images from dataset (zero-copy view)
         var images = load_dataset()  # Shape: (50000, 3, 32, 32)
@@ -97,7 +97,7 @@ def extract_batch_pair(
 
     Example:
         ```mojo
-        from projectodyssey.data import extract_batch_pair
+        from odyssey.data import extract_batch_pair
 
         var images = load_images()      # Shape: (50000, 3, 32, 32)
         var labels = load_labels()      # Shape: (50000,)
@@ -153,7 +153,7 @@ def compute_num_batches(num_samples: Int, batch_size: Int) -> Int:
 
         Example:
             ```mojo
-            from projectodyssey.data import compute_num_batches
+            from odyssey.data import compute_num_batches
 
             var num_batches = compute_num_batches(50000, 128)
             # Returns: 391 batches (50000 / 128 = 390.625 → 391)
@@ -187,7 +187,7 @@ def get_batch_indices(
 
     Example:
         ```mojo
-        from projectodyssey.data import get_batch_indices
+        from odyssey.data import get_batch_indices
 
         # Get indices for batch 390 of size 128 from 50000 samples
         var (start, end, size) = get_batch_indices(390, 128, 50000)

@@ -12,7 +12,7 @@ All tests use small batches and synthetic data for fast execution (< 90 seconds)
 """
 
 
-from tests.projectodyssey.conftest import (
+from tests.odyssey.conftest import (
     assert_almost_equal,
     assert_close_float,
     assert_equal,
@@ -20,14 +20,14 @@ from tests.projectodyssey.conftest import (
     assert_shape,
     assert_true,
 )
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros, ones, full
-from projectodyssey.core.activation import relu
-from projectodyssey.core.pooling import maxpool2d, global_avgpool2d
-from projectodyssey.core.normalization import batch_norm2d
-from projectodyssey.core.conv import conv2d
-from projectodyssey.core.linear import linear
-from projectodyssey.core.initializers import (
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros, ones, full
+from odyssey.core.activation import relu
+from odyssey.core.pooling import maxpool2d, global_avgpool2d
+from odyssey.core.normalization import batch_norm2d
+from odyssey.core.conv import conv2d
+from odyssey.core.linear import linear
+from odyssey.core.initializers import (
     kaiming_normal,
     xavier_normal,
     constant,

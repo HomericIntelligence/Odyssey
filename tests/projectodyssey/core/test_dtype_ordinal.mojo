@@ -4,7 +4,7 @@ Tests DType to ordinal conversion and dtype name formatting.
 """
 
 from std.testing import assert_equal, assert_true, assert_false
-from projectodyssey.base.dtype_ordinal import (
+from odyssey.base.dtype_ordinal import (
     dtype_to_ordinal,
     format_dtype_name,
     DTYPE_FLOAT16,

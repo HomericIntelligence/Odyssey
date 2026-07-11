@@ -5,7 +5,7 @@ This module provides gradient computation capabilities for training neural netwo
 Note:
     Mojo v0.26.1+ automatically exports all imported symbols to package consumers.
     No __all__ equivalent is needed. Any symbol imported in this module is
-    automatically available to users of the projectodyssey.autograd package.
+    automatically available to users of the odyssey.autograd package.
 
 Core Components:
 - Variable: Tensor wrapper with gradient tracking
@@ -19,8 +19,8 @@ Core Components:
 - Functional helpers: Practical gradient computation for common patterns
 
 Tape-Based Autograd API (Recommended for full automatic differentiation):
-    from projectodyssey.autograd import Variable, GradientTape
-    from projectodyssey.autograd import variable_add, variable_multiply, variable_sum
+    from odyssey.autograd import Variable, GradientTape
+    from odyssey.autograd import variable_add, variable_multiply, variable_sum
 
     # Create gradient tape
     var tape = GradientTape()
@@ -42,7 +42,7 @@ Tape-Based Autograd API (Recommended for full automatic differentiation):
     var grad_y = tape.get_grad(y.id)
 
 Functional Helpers API (For simple gradient patterns):
-    from projectodyssey.autograd import mse_loss_and_grad, SGD
+    from odyssey.autograd import mse_loss_and_grad, SGD
 
     # Compute loss and gradient in one call
     var result = mse_loss_and_grad(predictions, targets)
@@ -96,7 +96,7 @@ References:
 """
 
 # Core autograd components
-from projectodyssey.autograd.variable import (
+from odyssey.autograd.variable import (
     Variable,
     variable_add,
     variable_subtract,
@@ -120,13 +120,13 @@ from projectodyssey.autograd.variable import (
     variable_batch_norm,
 )
 
-from projectodyssey.autograd.tape_types import (
+from odyssey.autograd.tape_types import (
     TapeNode,
     SavedTensors,
     VariableRegistry,
 )
 
-from projectodyssey.autograd.tape import (
+from odyssey.autograd.tape import (
     GradientTape,
     NoGradContext,
     disable_gradient_tracking,
@@ -158,7 +158,7 @@ from projectodyssey.autograd.tape import (
     OP_CONCAT,
 )
 
-from projectodyssey.autograd.optimizers import (
+from odyssey.autograd.optimizers import (
     SGD,
     Adam,
     AdaGrad,
@@ -166,12 +166,12 @@ from projectodyssey.autograd.optimizers import (
     AdamW,
 )
 
-from projectodyssey.autograd.schedulers import (
+from odyssey.autograd.schedulers import (
     StepLR,
     ExponentialLR,
 )
 
-from projectodyssey.autograd.functional import (
+from odyssey.autograd.functional import (
     LossAndGrad,
     mse_loss_and_grad,
     bce_loss_and_grad,
@@ -186,19 +186,19 @@ from projectodyssey.autograd.functional import (
 )
 
 # ============================================================================
-# Re-export Backward Functions from projectodyssey.core
+# Re-export Backward Functions from odyssey.core
 # ============================================================================
 # These are the underlying backward implementations used by the tape.
 
 # Pooling backward passes
-from projectodyssey.core.pooling import (
+from odyssey.core.pooling import (
     maxpool2d_backward,
     avgpool2d_backward,
     global_avgpool2d_backward,
 )
 
 # Dropout backward passes
-from projectodyssey.core.dropout import (
+from odyssey.core.dropout import (
     dropout_backward,
     dropout2d_backward,
 )

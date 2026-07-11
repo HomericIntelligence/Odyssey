@@ -4,8 +4,8 @@ This module provides standardized InferenceConfig struct and helper functions
 for consistent inference and evaluation across different models.
 
 Example:
-    from projectodyssey.utils.inference_utils import InferenceConfig, parse_inference_args
-    from projectodyssey.utils.inference_utils import evaluate_accuracy
+    from odyssey.utils.inference_utils import InferenceConfig, parse_inference_args
+    from odyssey.utils.inference_utils import evaluate_accuracy
 
     def main() raises:
         var config = parse_inference_args()
@@ -20,7 +20,7 @@ Example:
 
 from std.sys import argv
 
-from projectodyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.any_tensor import AnyTensor
 
 
 # ============================================================================
@@ -187,7 +187,7 @@ def evaluate_accuracy(
 
         Example:
             ```mojo
-            from projectodyssey.utils.inference_utils import evaluate_accuracy
+            from odyssey.utils.inference_utils import evaluate_accuracy
 
             # predictions: [0, 1, 2, 1] (predicted classes)
             # labels: [0, 1, 2, 0] (ground truth)
@@ -271,7 +271,7 @@ def count_correct(predictions: AnyTensor, labels: AnyTensor) raises -> Int:
 
         Example:
             ```mojo
-            from projectodyssey.utils.inference_utils import count_correct
+            from odyssey.utils.inference_utils import count_correct
 
             var total_correct = 0
             var total_samples = 0

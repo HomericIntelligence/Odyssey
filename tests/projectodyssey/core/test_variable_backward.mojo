@@ -9,21 +9,21 @@ Tests cover:
 - Chain rule gradient computation
 """
 
-from tests.projectodyssey.conftest import (
+from tests.odyssey.conftest import (
     assert_almost_equal,
     assert_equal,
     assert_equal_int,
     assert_true,
 )
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros, ones, ones_like
-from projectodyssey.autograd.variable import (
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros, ones, ones_like
+from odyssey.autograd.variable import (
     Variable,
     variable_add,
     variable_multiply,
     variable_sum,
 )
-from projectodyssey.autograd.tape import GradientTape
+from odyssey.autograd.tape import GradientTape
 
 
 # ============================================================================

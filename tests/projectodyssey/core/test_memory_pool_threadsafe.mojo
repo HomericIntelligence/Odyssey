@@ -8,7 +8,7 @@ inconsistent statistics.
 from std.algorithm import parallelize
 from std.atomic import Atomic
 
-from projectodyssey.base.memory_pool import (
+from odyssey.base.memory_pool import (
     TensorMemoryPool,
     PoolConfig,
     PoolStats,

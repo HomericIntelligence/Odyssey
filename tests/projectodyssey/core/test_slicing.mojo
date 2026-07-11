@@ -10,10 +10,10 @@ Total: 8 tests.
 """
 
 
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros, ones
-from tests.projectodyssey.conftest import assert_equal, assert_almost_equal
-from projectodyssey.data.batch_utils import extract_batch, extract_batch_pair
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros, ones
+from tests.odyssey.conftest import assert_equal, assert_almost_equal
+from odyssey.data.batch_utils import extract_batch, extract_batch_pair
 
 
 def test_slice_basic_1d() raises:

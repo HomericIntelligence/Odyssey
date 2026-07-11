@@ -1,1 +1,1 @@
-"""Tests for the projectodyssey.tensor package."""
+"""Tests for the odyssey.tensor package."""

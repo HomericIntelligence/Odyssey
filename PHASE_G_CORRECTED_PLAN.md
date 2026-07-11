@@ -6,11 +6,11 @@ The previous plan contained factual errors that have been corrected:
 
 1. **PR #5445 Status**: ✅ Already MERGED on 2026-05-24 — no unblocking work needed. Issue #5061 is resolved.
 2. **Open Issue Count**: 30 (not 28) — PR #5445 merging closed one issue post-plan.
-3. **File Paths**: Corrected to include `src/projectodyssey/` prefix
-   - `src/projectodyssey/tensor/typed/numerical_safety.mojo` (was missing prefix)
-   - `src/projectodyssey/core/numerical_safety.mojo` (was missing prefix)
-   - `src/projectodyssey/training/gradient_clipping.mojo` (was missing prefix)
-4. **Function Location**: `compute_gradient_statistics()` at line 438 in `src/projectodyssey/training/gradient_clipping.mojo`
+3. **File Paths**: Corrected to include `src/odyssey/` prefix
+   - `src/odyssey/tensor/typed/numerical_safety.mojo` (was missing prefix)
+   - `src/odyssey/core/numerical_safety.mojo` (was missing prefix)
+   - `src/odyssey/training/gradient_clipping.mojo` (was missing prefix)
+4. **Function Location**: `compute_gradient_statistics()` at line 438 in `src/odyssey/training/gradient_clipping.mojo`
 
 ## Actual Phase G Work (Corrected Scope)
 
@@ -39,13 +39,13 @@ The previous plan contained factual errors that have been corrected:
 
 For dispatch agents (corrected paths):
 
-- **#5134**: `src/projectodyssey/tensor/typed/numerical_safety.mojo` — SIMD-vectorize
+- **#5134**: `src/odyssey/tensor/typed/numerical_safety.mojo` — SIMD-vectorize
   `_tensor_min_core`, `_tensor_max_core`, `_compute_l2_norm_core`
-- **#5135**: `src/projectodyssey/core/numerical_safety.mojo` — SIMD-vectorize `clip_grad_value_`, `clip_grad_norm_`, `clip_grad_global_norm_`
-- **#5141**: `src/projectodyssey/training/gradient_clipping.mojo:438-515` — SIMD-vectorize `compute_gradient_statistics()`
-- **#5132**: `src/projectodyssey/core/` — Wire `pooled_alloc`/`pooled_free` to `TensorMemoryPool`
-- **#5157**: `src/projectodyssey/core/any_tensor.mojo` — Consolidate 5 `__init__` constructors
-- **#3684**: `src/projectodyssey/data/dataloader.mojo` — Fix `DataLoader.next()` placeholder
+- **#5135**: `src/odyssey/core/numerical_safety.mojo` — SIMD-vectorize `clip_grad_value_`, `clip_grad_norm_`, `clip_grad_global_norm_`
+- **#5141**: `src/odyssey/training/gradient_clipping.mojo:438-515` — SIMD-vectorize `compute_gradient_statistics()`
+- **#5132**: `src/odyssey/core/` — Wire `pooled_alloc`/`pooled_free` to `TensorMemoryPool`
+- **#5157**: `src/odyssey/core/any_tensor.mojo` — Consolidate 5 `__init__` constructors
+- **#3684**: `src/odyssey/data/dataloader.mojo` — Fix `DataLoader.next()` placeholder
 - **#3740**: `tests/shared/model/test_sequential*.mojo` — Verify Sequential2/3 compile in CI
 - **#5153**: Audit report (doc-only, no code change)
 

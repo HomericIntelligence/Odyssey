@@ -606,7 +606,7 @@ All CI workflows use justfile recipes for consistent command execution between l
   run: just build
 
 - name: Run test group
-  run: just test-group "tests/projectodyssey/core" "test_*.mojo"
+  run: just test-group "tests/odyssey/core" "test_*.mojo"
 
 - name: Run all tests
   run: just test-mojo
@@ -683,7 +683,7 @@ on:
   push:
     paths:             # ✅ 'paths:' (plural) with array supports glob patterns
       - "tests/**"
-      - "src/projectodyssey/**/*.mojo"
+      - "src/odyssey/**/*.mojo"
 ```
 
 If you need to trigger on a single path without globs, still use the `paths:` array form:

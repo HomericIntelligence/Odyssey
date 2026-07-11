@@ -15,13 +15,13 @@ Design principles:
 """
 
 from std.collections import List
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.training.metrics import (
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.training.metrics import (
     AccuracyMetric,
     LossTracker,
     ConfusionMatrix,
 )
-from projectodyssey.training.trainer_interface import (
+from odyssey.training.trainer_interface import (
     DataLoader,
     DataBatch,
     TrainingMetrics,

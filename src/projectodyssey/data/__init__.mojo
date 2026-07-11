@@ -12,27 +12,27 @@ Architecture:
     - All data is returned as AnyTensor for consistency with core library
 
 Example:
-    from projectodyssey.data import load_emnist_train, load_emnist_test
+    from odyssey.data import load_emnist_train, load_emnist_test
 
     # Load EMNIST
     images, labels = load_emnist_train("/path/to/emnist", split="balanced")
 
     # Or use the EMNISTDataset class directly
-    from projectodyssey.data import EMNISTDataset
+    from odyssey.data import EMNISTDataset
     dataset = EMNISTDataset("/path/to/emnist", split="balanced", train=True)
     sample_img, sample_label = dataset[0]
     ```
 """
 
 # Package version
-from projectodyssey.version import VERSION
+from odyssey.version import VERSION
 
 # ============================================================================
 # Format Loaders (Low-Level File I/O)
 # ============================================================================
 
 # IDX format utilities
-from projectodyssey.data.formats import (
+from odyssey.data.formats import (
     read_uint32_be,  # Read big-endian uint32
     load_idx_labels,  # Load IDX label file
     load_idx_images,  # Load IDX grayscale images
@@ -48,7 +48,7 @@ from projectodyssey.data.formats import (
 # ============================================================================
 
 # Dataset-specific constants and metadata
-from projectodyssey.data.constants import (
+from odyssey.data.constants import (
     CIFAR10_IMAGE_SIZE,  # CIFAR-10 image size (32x32)
     CIFAR10_CHANNELS,  # CIFAR-10 color channels (3)
     CIFAR10_BYTES_PER_IMAGE,  # CIFAR-10 bytes per image (3073)
@@ -72,7 +72,7 @@ from projectodyssey.data.constants import (
 # ============================================================================
 
 # Dataset classes and loaders
-from projectodyssey.data.datasets import (
+from odyssey.data.datasets import (
     Dataset,  # Base dataset interface
     AnyTensorDataset,  # In-memory tensor dataset wrapper
     FileDataset,  # File-based lazy-loading dataset
@@ -81,12 +81,12 @@ from projectodyssey.data.datasets import (
 )
 
 # Dataset wrappers and utilities
-from projectodyssey.data.dataset_with_transform import (
+from odyssey.data.dataset_with_transform import (
     TransformedDataset,  # Wrapper that applies transforms to data
 )
 
 # EMNIST dataset is defined in _datasets_core.mojo
-from projectodyssey.data._datasets_core import (
+from odyssey.data._datasets_core import (
     EMNISTDataset,  # EMNIST dataset with multiple splits
     load_emnist_train,  # Load EMNIST training set
     load_emnist_test,  # Load EMNIST test set
@@ -100,24 +100,24 @@ from projectodyssey.data._datasets_core import (
 # All imported symbols are automatically available to package consumers.
 #
 # High-level usage:
-#   from projectodyssey.data import load_emnist_train, EMNISTDataset
+#   from odyssey.data import load_emnist_train, EMNISTDataset
 #   images, labels = load_emnist_train("/path/to/emnist", split="balanced")
 #
 # Low-level usage:
-#   from projectodyssey.data import load_idx_images, load_idx_labels, read_uint32_be
+#   from odyssey.data import load_idx_images, load_idx_labels, read_uint32_be
 #   images = load_idx_images("/path/to/custom-images-idx3-ubyte")
 
 # ============================================================================
 # Transform Base Classes and Utilities
 # ============================================================================
 
-from projectodyssey.data.random_transform_base import (
+from odyssey.data.random_transform_base import (
     RandomTransformBase,  # Base for probabilistic transforms
     random_float,  # Random float generation utility
 )
 
 # Core transforms (most commonly used)
-from projectodyssey.data.transforms import (
+from odyssey.data.transforms import (
     Normalize,  # Normalize tensor values: (x - mean) / std
     Compose,  # Chain multiple transforms into a single transform
 )
@@ -127,13 +127,13 @@ from projectodyssey.data.transforms import (
 # ============================================================================
 
 # Core data loading infrastructure
-from projectodyssey.data.loaders import (
+from odyssey.data.loaders import (
     Batch,  # Batch container with data, labels, and indices
     BatchLoader,  # Main data loader with shuffling and batching
 )
 
 # Sampling strategies for data iteration
-from projectodyssey.data.samplers import (
+from odyssey.data.samplers import (
     Sampler,  # Base sampler interface
     SequentialSampler,  # Sequential ordering without shuffling
     RandomSampler,  # Random permutation with shuffling
@@ -141,13 +141,13 @@ from projectodyssey.data.samplers import (
 )
 
 # Prefetching utilities
-from projectodyssey.data.prefetch import (
+from odyssey.data.prefetch import (
     PrefetchBuffer,  # Ring buffer for batches
     PrefetchDataLoader,  # Loader with prefetching
 )
 
 # Caching utilities
-from projectodyssey.data.cache import (
+from odyssey.data.cache import (
     CachedDataset,  # Dataset wrapper with caching
 )
 
@@ -155,7 +155,7 @@ from projectodyssey.data.cache import (
 # Batch Processing Utilities
 # ============================================================================
 
-from projectodyssey.data.batch_utils import (
+from odyssey.data.batch_utils import (
     extract_batch,
     extract_batch_pair,
     compute_num_batches,

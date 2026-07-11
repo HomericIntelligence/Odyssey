@@ -11,7 +11,7 @@ Tests the CIFAR10Dataset struct including:
 """
 
 from std.testing import assert_true, assert_equal
-from projectodyssey.data.datasets import CIFAR10Dataset
+from odyssey.data.datasets import CIFAR10Dataset
 
 
 def test_cifar10_initialization() raises:

@@ -15,7 +15,7 @@ This test:
 """
 
 from std.testing import assert_true
-from projectodyssey.base.memory_pool import SpinLock
+from odyssey.base.memory_pool import SpinLock
 
 
 def test_spinlock_list_no_double_free() raises:

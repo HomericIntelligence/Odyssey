@@ -10,16 +10,16 @@ All tests use pure functional API - no internal state.
 """
 
 
-from tests.projectodyssey.conftest import (
+from tests.odyssey.conftest import (
     assert_almost_equal,
     assert_equal,
     assert_greater_or_equal,
     assert_less_or_equal,
     assert_true,
 )
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros, ones, full
-from projectodyssey.core.activation import (
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros, ones, full
+from odyssey.core.activation import (
     leaky_relu,
     leaky_relu_backward,
     relu,

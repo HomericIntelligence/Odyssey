@@ -9,7 +9,7 @@ All callbacks implement the Callback trait from base.mojo
 """
 
 from std.collections import Dict
-from projectodyssey.training.base import (
+from odyssey.training.base import (
     Callback,
     CallbackSignal,
     CONTINUE,

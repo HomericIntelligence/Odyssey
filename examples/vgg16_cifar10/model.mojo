@@ -54,17 +54,17 @@ References:
     - CIFAR-10 Dataset: https://www.cs.toronto.edu/~kriz/cifar.html
 """
 
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros
-from projectodyssey.core.conv import conv2d, conv2d_backward
-from projectodyssey.core.pooling import maxpool2d, maxpool2d_backward
-from projectodyssey.core.linear import linear, linear_backward
-from projectodyssey.core.activation import relu, relu_backward
-from projectodyssey.core.dropout import dropout, dropout_backward
-from projectodyssey.core.initializers import he_uniform
-from projectodyssey.core.shape import conv2d_output_shape, pool_output_shape
-from projectodyssey.training.optimizers import sgd_momentum_update_inplace
-from projectodyssey.training.model_utils import (
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros
+from odyssey.core.conv import conv2d, conv2d_backward
+from odyssey.core.pooling import maxpool2d, maxpool2d_backward
+from odyssey.core.linear import linear, linear_backward
+from odyssey.core.activation import relu, relu_backward
+from odyssey.core.dropout import dropout, dropout_backward
+from odyssey.core.initializers import he_uniform
+from odyssey.core.shape import conv2d_output_shape, pool_output_shape
+from odyssey.training.optimizers import sgd_momentum_update_inplace
+from odyssey.training.model_utils import (
     save_model_weights,
     load_model_weights,
     get_model_parameter_names,

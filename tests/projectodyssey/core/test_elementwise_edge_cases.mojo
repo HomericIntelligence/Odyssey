@@ -18,14 +18,14 @@ from std.math import (
     sqrt,
     tanh,
 )
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros, ones, full
-from projectodyssey.core.elementwise import (
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros, ones, full
+from odyssey.core.elementwise import (
     exp as exp_op,
     log as log_op,
     sqrt as sqrt_op,
 )
-from tests.projectodyssey.conftest import (
+from tests.odyssey.conftest import (
     assert_dtype,
     assert_numel,
     assert_dim,
@@ -34,7 +34,7 @@ from tests.projectodyssey.conftest import (
     assert_all_close,
     assert_true,
 )
-from projectodyssey.core.activation import tanh as tanh_op
+from odyssey.core.activation import tanh as tanh_op
 
 
 def test_sqrt_of_zero() raises:

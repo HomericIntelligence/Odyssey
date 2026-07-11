@@ -8,9 +8,9 @@ These tests verify both import functionality and basic component behavior.
 
 
 from std.testing import assert_true
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import ones, randn, zeros
-from projectodyssey.core import (
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import ones, randn, zeros
+from odyssey.core import (
     BF8,
     FP8,
     avgpool2d,
@@ -30,12 +30,12 @@ from projectodyssey.core import (
     tanh,
 )
 
-# projectodyssey.training.TrainingLoopSGD is a thin Optimizer-trait adapter
-# for the generic TrainingLoop, distinct from projectodyssey.autograd's real
-# SGD optimizer (which projectodyssey.SGD re-exports). They were renamed apart
+# odyssey.training.TrainingLoopSGD is a thin Optimizer-trait adapter
+# for the generic TrainingLoop, distinct from odyssey.autograd's real
+# SGD optimizer (which odyssey.SGD re-exports). They were renamed apart
 # in issue #5392 — both used to be named `SGD`, which made the top-level
-# `from projectodyssey import SGD` an ambiguous import.
-from projectodyssey.training import (
+# `from odyssey import SGD` an ambiguous import.
+from odyssey.training import (
     Callback,
     CosineAnnealingLR,
     EarlyStopping,
@@ -51,7 +51,7 @@ from projectodyssey.training import (
     WarmupLR,
     base,
 )
-from projectodyssey import (
+from odyssey import (
     AUTHOR,
     AdaGrad,
     Adam,
@@ -64,16 +64,16 @@ from projectodyssey import (
     training,
     utils,
 )
-from projectodyssey.training.base import (
+from odyssey.training.base import (
     Callback,
     TrainingState,
 )
-from projectodyssey.data.datasets import (
+from odyssey.data.datasets import (
     AnyTensorDataset,
     CIFAR10Dataset,
     Dataset,
 )
-from projectodyssey.data import (
+from odyssey.data import (
     AnyTensorDataset,
     Batch,
     Dataset,
@@ -81,7 +81,7 @@ from projectodyssey.data import (
     normalize_images,
     one_hot_encode,
 )
-from projectodyssey.utils import (
+from odyssey.utils import (
     Config,
     ConfigValidator,
     FileHandler,
@@ -131,33 +131,33 @@ def test_core_types_imports() raises:
 
 
 def test_core_activations_direct_imports() raises:
-    """Test activations are importable directly from projectodyssey.core.activation sub-module.
+    """Test activations are importable directly from odyssey.core.activation sub-module.
     """
-    from projectodyssey.core.activation import relu, sigmoid, tanh, gelu
+    from odyssey.core.activation import relu, sigmoid, tanh, gelu
 
     print("✓ Core activations direct imports test passed")
 
 
 def test_core_layers_direct_imports() raises:
-    """Test layers are importable directly from their projectodyssey.core sub-modules.
+    """Test layers are importable directly from their odyssey.core sub-modules.
 
-    Note: linear, conv2d, flatten are pure functions in projectodyssey.core (not in
-    projectodyssey.core.layers which contains struct-based layer wrappers like Linear).
+    Note: linear, conv2d, flatten are pure functions in odyssey.core (not in
+    odyssey.core.layers which contains struct-based layer wrappers like Linear).
     """
-    from projectodyssey.core.linear import linear
-    from projectodyssey.core.conv import conv2d
-    from projectodyssey.core.shape import flatten
+    from odyssey.core.linear import linear
+    from odyssey.core.conv import conv2d
+    from odyssey.core.shape import flatten
 
     print("✓ Core layers direct imports test passed")
 
 
 def test_core_types_direct_imports() raises:
-    """Test types are importable directly from their projectodyssey.core sub-modules.
+    """Test types are importable directly from their odyssey.core sub-modules.
 
-    Note: AnyTensor lives in projectodyssey.core.any_tensor (not projectodyssey.core.types which
+    Note: AnyTensor lives in odyssey.core.any_tensor (not odyssey.core.types which
     contains dtype aliases like FP8, BF8, BF16).
     """
-    from projectodyssey.core.types import FP8, BF8
+    from odyssey.core.types import FP8, BF8
 
     print("✓ Core types direct imports test passed")
 
@@ -173,12 +173,12 @@ def test_training_optimizers_imports() raises:
 
 
 def test_shared_optimizer_imports() raises:
-    """Test that Adam, AdamW, AdaGrad, RMSprop are importable from projectodyssey package.
+    """Test that Adam, AdamW, AdaGrad, RMSprop are importable from odyssey package.
 
     Covers Issue #3745: AdaGrad and RMSprop exposed as top-level shared imports.
-    Note: SGD is intentionally imported via `projectodyssey.training` instead — the
+    Note: SGD is intentionally imported via `odyssey.training` instead — the
     `shared` package surfaces two `SGD` declarations (autograd's optimizer
-    struct and training's wrapper), so a bare `from projectodyssey import SGD`
+    struct and training's wrapper), so a bare `from odyssey import SGD`
     is ambiguous under --Werror.
     """
     print("✓ Shared optimizer imports test passed")
@@ -191,7 +191,7 @@ def test_training_schedulers_imports() raises:
 
 def test_training_metrics_imports() raises:
     """Test training metrics imports."""
-    # Metrics are in projectodyssey.training for now
+    # Metrics are in odyssey.training for now
     print("✓ Training metrics imports test passed")
 
 
@@ -201,25 +201,25 @@ def test_training_callbacks_imports() raises:
 
 
 def test_training_optimizers_direct_imports() raises:
-    """Test optimizers are importable directly from projectodyssey.training.optimizers sub-module.
+    """Test optimizers are importable directly from odyssey.training.optimizers sub-module.
 
     Validates the canonical import path for optimizers sub-module.
 
-    Note: The SGD struct is defined in projectodyssey.training (importable from there).
-    The projectodyssey.training.optimizers sub-module provides functional step functions
+    Note: The SGD struct is defined in odyssey.training (importable from there).
+    The odyssey.training.optimizers sub-module provides functional step functions
     (sgd_step, adam_step, etc.) rather than struct-based optimizers.
     """
-    from projectodyssey.training.optimizers import sgd_step, adam_step
+    from odyssey.training.optimizers import sgd_step, adam_step
 
     print("✓ Training optimizers direct imports test passed")
 
 
 def test_training_schedulers_direct_imports() raises:
-    """Test schedulers are importable directly from projectodyssey.training.schedulers sub-module.
+    """Test schedulers are importable directly from odyssey.training.schedulers sub-module.
 
     Validates the canonical import path for schedulers sub-module.
     """
-    from projectodyssey.training.schedulers import (
+    from odyssey.training.schedulers import (
         StepLR,
         CosineAnnealingLR,
         ExponentialLR,
@@ -229,7 +229,7 @@ def test_training_schedulers_direct_imports() raises:
 
 
 def test_training_base_direct_imports() raises:
-    """Test base classes are importable directly from projectodyssey.training.base sub-module.
+    """Test base classes are importable directly from odyssey.training.base sub-module.
 
     Validates the canonical import path for base sub-module.
     """
@@ -241,19 +241,19 @@ def test_training_loops_direct_imports() raises:
 
     Validates the canonical import paths for loops and base sub-modules.
 
-    Note: TrainingState is defined in projectodyssey.training.base (not projectodyssey.training.loops).
+    Note: TrainingState is defined in odyssey.training.base (not odyssey.training.loops).
     The loops sub-module provides TrainingLoop and ValidationLoop.
     """
-    from projectodyssey.training.loops import TrainingLoop
+    from odyssey.training.loops import TrainingLoop
 
     print("✓ Training loops direct imports test passed")
 
 
 def test_training_callbacks_direct_imports() raises:
-    """Test callbacks are importable directly from projectodyssey.training.callbacks sub-module.
+    """Test callbacks are importable directly from odyssey.training.callbacks sub-module.
 
         This validates the canonical import path documented in Issue #3211:
-    from projectodyssey.training.callbacks import (
+    from odyssey.training.callbacks import (
         EarlyStopping,
         LoggingCallback,
         ModelCheckpoint,
@@ -329,15 +329,15 @@ def test_data_transforms_imports() raises:
 
 
 def test_data_datasets_direct_imports() raises:
-    """Test datasets are importable directly from projectodyssey.data.datasets sub-module.
+    """Test datasets are importable directly from odyssey.data.datasets sub-module.
     """
     print("✓ Data datasets direct imports test passed")
 
 
 def test_data_loaders_direct_imports() raises:
-    """Test loaders are importable directly from projectodyssey.data.loaders sub-module.
+    """Test loaders are importable directly from odyssey.data.loaders sub-module.
     """
-    from projectodyssey.data.loaders import Batch
+    from odyssey.data.loaders import Batch
 
     print("✓ Data loaders direct imports test passed")
 
@@ -388,7 +388,7 @@ def test_nested_scheduler_imports() raises:
 
 def test_nested_metric_imports() raises:
     """Test nested imports from metrics subpackages."""
-    # Metrics are in projectodyssey.training
+    # Metrics are in odyssey.training
     print("✓ Nested metric imports test passed")
 
 
@@ -440,9 +440,9 @@ def test_training_dataloader_imports() raises:
     """Test DataLoader and DataBatch are importable from trainer_interface.
 
     Verifies Issue #3851: DataLoader and DataBatch defined in
-    src/projectodyssey/training/trainer_interface.mojo.
+    src/odyssey/training/trainer_interface.mojo.
     """
-    from projectodyssey.training.trainer_interface import DataLoader, DataBatch
+    from odyssey.training.trainer_interface import DataLoader, DataBatch
 
     print("✓ Training DataLoader/DataBatch package imports test passed")
 

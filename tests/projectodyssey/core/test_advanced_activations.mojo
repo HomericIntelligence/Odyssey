@@ -8,7 +8,7 @@ All tests use pure functional API.
 """
 
 
-from tests.projectodyssey.conftest import (
+from tests.odyssey.conftest import (
     TestFixtures,
     assert_almost_equal,
     assert_close_float,
@@ -17,9 +17,9 @@ from tests.projectodyssey.conftest import (
     assert_shape,
     assert_true,
 )
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros, ones
-from projectodyssey.core.activation import (
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros, ones
+from odyssey.core.activation import (
     elu,
     elu_backward,
     mish,
@@ -27,8 +27,8 @@ from projectodyssey.core.activation import (
     swish,
     swish_backward,
 )
-from projectodyssey.core.elementwise import exp
-from projectodyssey.core.arithmetic import add, multiply
+from odyssey.core.elementwise import exp
+from odyssey.core.arithmetic import add, multiply
 from std.math import sqrt
 
 

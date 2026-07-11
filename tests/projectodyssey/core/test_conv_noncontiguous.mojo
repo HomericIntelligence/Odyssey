@@ -15,21 +15,21 @@ Follow-up from #3236.
 """
 
 
-from tests.projectodyssey.conftest import (
+from tests.odyssey.conftest import (
     assert_almost_equal,
     assert_equal_int,
     assert_false,
     assert_true,
 )
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import arange, full, ones, zeros
-from projectodyssey.core.conv import (
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import arange, full, ones, zeros
+from odyssey.core.conv import (
     conv2d,
     conv2d_backward,
     conv2d_no_bias,
     conv2d_no_bias_backward,
 )
-from projectodyssey.core.shape import as_contiguous
+from odyssey.core.shape import as_contiguous
 
 
 def _make_nc_nchw_symmetric() raises -> AnyTensor:

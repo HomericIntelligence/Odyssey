@@ -5,14 +5,14 @@ enabling class balancing and importance sampling for imbalanced datasets.
 """
 
 
-from tests.projectodyssey.conftest import (
+from tests.odyssey.conftest import (
     assert_true,
     assert_equal,
     assert_almost_equal,
     assert_greater,
     TestFixtures,
 )
-from projectodyssey.data.samplers import WeightedSampler
+from odyssey.data.samplers import WeightedSampler
 
 
 def test_weighted_sampler_creation() raises:

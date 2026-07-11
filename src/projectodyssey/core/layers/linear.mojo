@@ -9,10 +9,10 @@ Key components:
   Implements: y = xW + b (with broadcasting support for batched inputs).
 """
 
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros, randn, zeros_like
-from projectodyssey.core.module import Module
-from projectodyssey.tensor.tensor import Tensor
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros, randn, zeros_like
+from odyssey.core.module import Module
+from odyssey.tensor.tensor import Tensor
 
 
 struct Linear[dtype: DType = DType.float32](Copyable, Module, Movable):
@@ -89,7 +89,7 @@ struct Linear[dtype: DType = DType.float32](Copyable, Module, Movable):
         """
         # Compute: output = input @ weight + bias
         # Matrix multiplication: input @ weight
-        from projectodyssey.core.matrix import matmul
+        from odyssey.core.matrix import matmul
 
         var matmul_result = matmul(input, self.weight)
 

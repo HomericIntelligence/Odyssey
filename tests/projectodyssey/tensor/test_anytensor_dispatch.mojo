@@ -10,21 +10,21 @@ Tests cover:
 """
 
 from std.testing import assert_true, assert_almost_equal
-from projectodyssey.tensor.tensor import Tensor
-from projectodyssey.tensor.factories import (
+from odyssey.tensor.tensor import Tensor
+from odyssey.tensor.factories import (
     ones as typed_ones,
     full as typed_full,
 )
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import (
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import (
     zeros as any_zeros,
     ones as any_ones,
     full as any_full,
 )
-from projectodyssey.core.arithmetic import add, subtract, multiply
-from projectodyssey.core.elementwise import exp, log
-from projectodyssey.core.matrix import matmul
-from projectodyssey.core.reduction import sum
+from odyssey.core.arithmetic import add, subtract, multiply
+from odyssey.core.elementwise import exp, log
+from odyssey.core.matrix import matmul
+from odyssey.core.reduction import sum
 
 
 def test_anytensor_add_dispatch() raises:

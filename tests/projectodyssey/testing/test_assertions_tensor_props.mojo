@@ -3,14 +3,14 @@
 """
 
 from std.testing import assert_true
-from projectodyssey.testing.assertions import (
+from odyssey.testing.assertions import (
     assert_dtype,
     assert_numel,
     assert_dim,
     assert_value_at,
     assert_all_values,
 )
-from projectodyssey.tensor.tensor_creation import ones
+from odyssey.tensor.tensor_creation import ones
 
 
 def test_assert_dtype_tensor_passes() raises:

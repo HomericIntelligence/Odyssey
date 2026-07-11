@@ -15,9 +15,9 @@ Non-contiguous setup pattern (transpose_view):
 """
 
 # Import AnyTensor and shape operations
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import arange
-from projectodyssey.core.shape import (
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import arange
+from odyssey.core.shape import (
     reshape,
     flatten,
     concatenate,
@@ -26,10 +26,10 @@ from projectodyssey.core.shape import (
     tile,
     repeat,
 )
-from projectodyssey.core.matrix import transpose_view
+from odyssey.core.matrix import transpose_view
 
 # Import test helpers
-from tests.projectodyssey.conftest import (
+from tests.odyssey.conftest import (
     assert_value_at,
     assert_dim,
     assert_numel,

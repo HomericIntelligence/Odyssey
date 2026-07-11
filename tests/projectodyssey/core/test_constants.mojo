@@ -1,10 +1,10 @@
-"""Unit tests for constants in projectodyssey.core and related modules.
+"""Unit tests for constants in odyssey.core and related modules.
 
 Tests verify that all constants are properly defined with correct values
 and that they match their documented usage throughout the codebase.
 """
 
-from projectodyssey.base.numerical_constants import (
+from odyssey.base.numerical_constants import (
     EPSILON_DIV,
     EPSILON_LOSS,
     EPSILON_NORM,
@@ -16,7 +16,7 @@ from projectodyssey.base.numerical_constants import (
     EPSILON_NUMERICAL_GRAD,
     EPSILON_RELATIVE_ERROR,
 )
-from projectodyssey.core.activation_constants import (
+from odyssey.core.activation_constants import (
     RELU6_UPPER_BOUND,
     SIGMOID_CLIP_THRESHOLD,
     HARD_SIGMOID_OFFSET,
@@ -24,7 +24,7 @@ from projectodyssey.core.activation_constants import (
     HARD_TANH_LOWER_BOUND,
     HARD_TANH_UPPER_BOUND,
 )
-from projectodyssey.core.optimizer_constants import (
+from odyssey.core.optimizer_constants import (
     DEFAULT_LEARNING_RATE_SGD,
     DEFAULT_LEARNING_RATE_ADAM,
     DEFAULT_MOMENTUM,
@@ -35,7 +35,7 @@ from projectodyssey.core.optimizer_constants import (
     DEFAULT_RMSPROP_EPSILON,
     DEFAULT_ADAGRAD_EPSILON,
 )
-from projectodyssey.core.types.fp_constants import (
+from odyssey.core.types.fp_constants import (
     FP8_E4M3_MIN_NORMAL,
     FP8_E4M3_MAX_NORMAL,
     FP4_E2M1_MAX_NORMAL,
@@ -45,7 +45,7 @@ from projectodyssey.core.types.fp_constants import (
     BF8_E5M2_MANTISSA_SCALE,
     STOCHASTIC_ROUNDING_SCALE,
 )
-from projectodyssey.testing.tolerance_constants import (
+from odyssey.testing.tolerance_constants import (
     TOLERANCE_DEFAULT,
     TOLERANCE_FLOAT16,
     TOLERANCE_FLOAT32,

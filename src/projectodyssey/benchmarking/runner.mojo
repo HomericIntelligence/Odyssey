@@ -6,7 +6,7 @@ percentiles, throughput).
 
 Example:
    ```mojo
-    from projectodyssey.benchmarking import benchmark_function, print_benchmark_report
+    from odyssey.benchmarking import benchmark_function, print_benchmark_report
 
     def compute_operation():
         var result = expensive_operation()
@@ -20,7 +20,7 @@ Example:
 from std.time import perf_counter_ns
 from std.math import sqrt
 from std.collections import List
-from projectodyssey.benchmarking.result import (
+from odyssey.benchmarking.result import (
     BenchmarkResult as LowLevelBenchmarkResult,
 )
 

@@ -1,11 +1,11 @@
 """Basic tests for lazy expression evaluation."""
 
 from std.collections import List
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros, ones, full
-from projectodyssey.core.lazy_expression import expr, TensorExpr
-from projectodyssey.core.lazy_eval import evaluate
-from projectodyssey.core.arithmetic import add, subtract, multiply, divide
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros, ones, full
+from odyssey.core.lazy_expression import expr, TensorExpr
+from odyssey.core.lazy_eval import evaluate
+from odyssey.core.arithmetic import add, subtract, multiply, divide
 
 
 def test_lazy_single_tensor() raises -> None:

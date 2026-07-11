@@ -18,7 +18,7 @@ Design Note:
 Architecture:
     Each backward function follows the same pattern:
     1. Extract saved tensors from the node at the given index
-    2. Call the core backward function from projectodyssey.core
+    2. Call the core backward function from odyssey.core
     3. Store computed gradients in the registry for each input variable
 
 Example:
@@ -30,29 +30,29 @@ Example:
     # 3. Stores gradients in registry for the input variables
 """
 
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.core.arithmetic import (
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.core.arithmetic import (
     add_backward,
     subtract_backward,
     multiply_backward,
     divide_backward,
 )
-from projectodyssey.core.reduction import sum_backward, mean_backward
-from projectodyssey.core.matrix import matmul_backward
-from projectodyssey.core.activation import (
+from odyssey.core.reduction import sum_backward, mean_backward
+from odyssey.core.matrix import matmul_backward
+from odyssey.core.activation import (
     relu_backward,
     sigmoid_backward,
     tanh_backward,
 )
-from projectodyssey.core.linear import linear_backward
-from projectodyssey.core.conv import conv2d_backward, depthwise_conv2d_backward
-from projectodyssey.core.shape import as_contiguous
-from projectodyssey.core.pooling import maxpool2d_backward
-from projectodyssey.core.loss import cross_entropy_backward
-from projectodyssey.core.normalization import batch_norm2d_backward
+from odyssey.core.linear import linear_backward
+from odyssey.core.conv import conv2d_backward, depthwise_conv2d_backward
+from odyssey.core.shape import as_contiguous
+from odyssey.core.pooling import maxpool2d_backward
+from odyssey.core.loss import cross_entropy_backward
+from odyssey.core.normalization import batch_norm2d_backward
 
 # Import types from tape_types (avoids circular import with tape.mojo)
-from projectodyssey.autograd.tape_types import TapeNode, VariableRegistry
+from odyssey.autograd.tape_types import TapeNode, VariableRegistry
 
 
 # ============================================================================

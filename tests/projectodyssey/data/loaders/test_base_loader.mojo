@@ -4,7 +4,7 @@ Tests the DataLoader interface that all loaders must implement,
 ensuring consistent API for batch iteration during training.
 """
 
-from tests.projectodyssey.conftest import (
+from tests.odyssey.conftest import (
     assert_true,
     assert_equal,
     TestFixtures,

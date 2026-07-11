@@ -76,7 +76,7 @@ version = "0.1.0"
 description = "Shared library for ML Odyssey paper implementations"
 authors = ["ML Odyssey Team"]
 license = "BSD"
-readme = "src/projectodyssey/README.md"
+readme = "src/odyssey/README.md"
 
 [dependencies]
 # Mojo standard library dependencies will be listed here
@@ -99,14 +99,14 @@ The build system expects this structure:
 ```text
 Odyssey/
 ├── mojo.toml                  # Package configuration
-├── src/projectodyssey/                    # Source directory
+├── src/odyssey/                    # Source directory
 │   ├── __init__.mojo          # Package root
 │   ├── core/                  # Core module
 │   ├── training/              # Training module
 │   ├── data/                  # Data module
 │   └── utils/                 # Utils module
 ├── tests/                     # Test directory
-│   └── src/projectodyssey/                # Shared library tests
+│   └── src/odyssey/                # Shared library tests
 ├── build/                     # Build artifacts (gitignored)
 └── dist/                      # Distribution packages (gitignored)
 ```text
@@ -198,13 +198,13 @@ mojo package shared -j auto
 
 ```bash
 # Run all tests
-mojo test tests/projectodyssey/
+mojo test tests/odyssey/
 
 # Run specific test file
-mojo test tests/projectodyssey/test_imports.mojo
+mojo test tests/odyssey/test_imports.mojo
 
 # Run tests with verbose output
-mojo test tests/projectodyssey/ -v
+mojo test tests/odyssey/ -v
 ```text
 
 ### Verify Installation
@@ -239,9 +239,9 @@ sha256sum dist/ml_odyssey_shared-0.1.0.mojopkg > dist/checksums.txt
 tar -czf dist/ml_odyssey_shared-0.1.0.tar.gz \
     dist/ml_odyssey_shared-0.1.0.mojopkg \
     dist/checksums.txt \
-    src/projectodyssey/README.md \
-    src/projectodyssey/INSTALL.md \
-    src/projectodyssey/EXAMPLES.md
+    src/odyssey/README.md \
+    src/odyssey/INSTALL.md \
+    src/odyssey/EXAMPLES.md
 ```text
 
 ### Publishing (Future)
@@ -371,7 +371,7 @@ pixi install
 pixi run mojo package shared --release -o dist/ml_odyssey_shared.mojopkg
 
 # Run tests
-pixi run mojo test tests/projectodyssey/
+pixi run mojo test tests/odyssey/
 
 # Verify installation
 pixi run mojo package shared --install
@@ -402,7 +402,7 @@ jobs:
         run: mojo package shared --release -o dist/shared.mojopkg
 
       - name: Run Tests
-        run: mojo test tests/projectodyssey/
+        run: mojo test tests/odyssey/
 
       - name: Verify Installation
         run: |
@@ -464,14 +464,14 @@ jobs:
 1. **Test frequently**: Run tests after each significant change
 
    ```bash
-   mojo test tests/projectodyssey/
+   mojo test tests/odyssey/
    ```text
 
 1. **Release validation**: Build release mode before commits
 
    ```bash
    mojo package shared --release
-   mojo test tests/projectodyssey/
+   mojo test tests/odyssey/
    ```text
 
 ### Version Management

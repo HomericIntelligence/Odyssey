@@ -5,7 +5,7 @@
 - Mojo version: 0.26.3.0.dev2026040705 (69cac1bd)
 - OS: Ubuntu 24.04.3 LTS (Noble Numbat)
 - GLIBC: 2.39 (Ubuntu GLIBC 2.39-0ubuntu8.7)
-- Container: projectodyssey:dev (Podman rootless, UID 1001 on CI runners, UID 1000 locally)
+- Container: odyssey:dev (Podman rootless, UID 1001 on CI runners, UID 1000 locally)
 - CI runner: GitHub Actions `ubuntu-latest`
 
 ## Description
@@ -91,7 +91,7 @@ Three factors present in CI but absent locally:
    Locally UID matches the container image (both 1000).
 
 3. **No TTY (`-T` flag)** — `just _run` routes all commands through
-   `podman compose exec -T projectodyssey-dev bash -c "..."`. The `-T` flag disables TTY
+   `podman compose exec -T odyssey-dev bash -c "..."`. The `-T` flag disables TTY
    allocation. Some JIT compiler code paths differ when stdin/stdout are not a terminal
    (e.g., signal handling, SIGPIPE disposition, terminal query sequences in LLVM/MLIR).
 

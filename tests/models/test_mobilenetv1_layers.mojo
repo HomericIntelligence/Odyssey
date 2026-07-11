@@ -7,7 +7,7 @@ Tests cover:
 """
 
 
-from tests.projectodyssey.conftest import (
+from tests.odyssey.conftest import (
     assert_almost_equal,
     assert_close_float,
     assert_equal,
@@ -15,24 +15,24 @@ from tests.projectodyssey.conftest import (
     assert_shape,
     assert_true,
 )
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import (
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import (
     zeros,
     ones,
     full,
     zeros_like,
     ones_like,
 )
-from projectodyssey.core.conv import (
+from odyssey.core.conv import (
     depthwise_conv2d,
     depthwise_conv2d_backward,
     depthwise_conv2d_no_bias,
     conv2d,
     conv2d_backward,
 )
-from projectodyssey.core.activation import relu, relu_backward
-from projectodyssey.core.layers.batchnorm import BatchNorm2dLayer
-from projectodyssey.core.pooling import (
+from odyssey.core.activation import relu, relu_backward
+from odyssey.core.layers.batchnorm import BatchNorm2dLayer
+from odyssey.core.pooling import (
     global_avgpool2d,
     global_avgpool2d_backward,
 )

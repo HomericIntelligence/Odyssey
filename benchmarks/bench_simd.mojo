@@ -16,10 +16,10 @@ Output:
     SIMD time, and speedup factor.
 """
 
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros, ones
-from projectodyssey.core.arithmetic import add, subtract, multiply, divide
-from projectodyssey.core.arithmetic_simd import (
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros, ones
+from odyssey.core.arithmetic import add, subtract, multiply, divide
+from odyssey.core.arithmetic_simd import (
     add_simd,
     subtract_simd,
     multiply_simd,

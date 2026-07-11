@@ -7,15 +7,15 @@ Test coverage:
 """
 
 
-from tests.projectodyssey.conftest import (
+from tests.odyssey.conftest import (
     assert_true,
     assert_false,
     assert_equal,
     assert_almost_equal,
 )
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros, ones, full
-from projectodyssey.training.metrics import (
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros, ones, full
+from odyssey.training.metrics import (
     LossTracker,
     Statistics,
     ComponentTracker,

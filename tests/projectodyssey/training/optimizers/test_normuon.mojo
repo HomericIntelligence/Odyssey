@@ -9,7 +9,7 @@ Tests cover:
 - Gradient checking (numerical vs analytical)
 """
 
-from projectodyssey.tensor.any_tensor import (
+from odyssey.tensor.any_tensor import (
     AnyTensor,
     zeros,
     zeros_like,
@@ -18,11 +18,11 @@ from projectodyssey.tensor.any_tensor import (
     full_like,
     ones_like,
 )
-from projectodyssey.training.optimizers.normuon import (
+from odyssey.training.optimizers.normuon import (
     normuon_step,
     normuon_step_simple,
 )
-from projectodyssey.core.elementwise import sqrt
+from odyssey.core.elementwise import sqrt
 from std.math import sqrt as math_sqrt, abs as math_abs
 
 

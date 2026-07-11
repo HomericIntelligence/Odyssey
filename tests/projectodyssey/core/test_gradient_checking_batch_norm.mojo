@@ -12,19 +12,19 @@ Note: Split from test_gradient_checking.mojo due to Mojo 0.26.1 heap
 corruption bug that occurs after ~15 cumulative tests.
 """
 
-from projectodyssey.testing.gradient_checker import (
+from odyssey.testing.gradient_checker import (
     check_gradient,
     NumericalForward,
     NumericalBackward,
 )
-from projectodyssey.testing.assertions import assert_true
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros, ones
-from projectodyssey.core.normalization import (
+from odyssey.testing.assertions import assert_true
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros, ones
+from odyssey.core.normalization import (
     batch_norm2d,
     batch_norm2d_backward,
 )
-from projectodyssey.core.arithmetic import multiply
+from odyssey.core.arithmetic import multiply
 
 
 # ---- Batch norm input gradient (captures gamma, beta, running_mean, running_var) ----

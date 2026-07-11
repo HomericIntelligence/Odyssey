@@ -9,10 +9,10 @@ Key components:
   Implements: y = max(0, x) forward, dL/dx = grad * (x > 0) backward
 """
 
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros_like
-from projectodyssey.core.activation import relu, relu_backward
-from projectodyssey.core.module import Module
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros_like
+from odyssey.core.activation import relu, relu_backward
+from odyssey.core.module import Module
 
 
 struct ReLULayer(Copyable, Module, Movable):

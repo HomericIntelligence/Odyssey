@@ -8,10 +8,10 @@ Usage:
 See documentation: docs/core/mojo-patterns.md
 """
 
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import ones, full
-from projectodyssey.tensor.tensor_utils import item
-from projectodyssey.core import sum, mean, multiply
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import ones, full
+from odyssey.tensor.tensor_utils import item
+from odyssey.core import sum, mean, multiply
 
 
 # Borrowed: read-only access (no ownership transfer)

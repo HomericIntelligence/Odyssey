@@ -42,7 +42,7 @@ on:
 env:
   REGISTRY: ghcr.io
   # Container image names must be lowercase - github.repository preserves case
-  IMAGE_NAME: homericintelligence/projectodyssey
+  IMAGE_NAME: homericintelligence/odyssey
 
 permissions:
   contents: read

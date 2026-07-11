@@ -15,18 +15,18 @@ All metrics implement the Metric trait for consistent interface
 
 Note:
     All symbols in this module are re-exported cleanly through the parent
-    `projectodyssey.training` package. You may import directly from either location:
+    `odyssey.training` package. You may import directly from either location:
 
     ```mojo
-    from projectodyssey.training.metrics import AccuracyMetric
-    from projectodyssey.training import AccuracyMetric  # also works
+    from odyssey.training.metrics import AccuracyMetric
+    from odyssey.training import AccuracyMetric  # also works
     ```
 
-    No Mojo re-export limitation applies here (unlike `projectodyssey.training.callbacks`).
+    No Mojo re-export limitation applies here (unlike `odyssey.training.callbacks`).
 """
 
 # Export base metric interface and utilities
-from projectodyssey.training.metrics.base import (
+from odyssey.training.metrics.base import (
     Metric,
     MetricResult,
     MetricCollection,
@@ -35,28 +35,28 @@ from projectodyssey.training.metrics.base import (
 )
 
 # Export metric implementations
-from projectodyssey.training.metrics.accuracy import (
+from odyssey.training.metrics.accuracy import (
     top1_accuracy,
     topk_accuracy,
     per_class_accuracy,
     AccuracyMetric,
 )
-from projectodyssey.training.metrics.loss_tracker import (
+from odyssey.training.metrics.loss_tracker import (
     LossTracker,
     Statistics,
     ComponentTracker,
 )
-from projectodyssey.training.metrics.confusion_matrix import ConfusionMatrix
+from odyssey.training.metrics.confusion_matrix import ConfusionMatrix
 
 # Consolidated evaluation utilities
-from projectodyssey.training.metrics.evaluate import (
+from odyssey.training.metrics.evaluate import (
     evaluate_with_predict,
     evaluate_logits_batch,
     compute_accuracy_on_batch,
 )
 
 # Results printing utilities
-from projectodyssey.training.metrics.results_printer import (
+from odyssey.training.metrics.results_printer import (
     print_evaluation_summary,
     print_per_class_accuracy,
     print_confusion_matrix,
@@ -65,7 +65,7 @@ from projectodyssey.training.metrics.results_printer import (
 )
 
 # CSV-based training metrics logging
-from projectodyssey.training.metrics.csv_metrics_logger import CSVMetricsLogger
+from odyssey.training.metrics.csv_metrics_logger import CSVMetricsLogger
 
 # Future exports (to be implemented):
 # from .precision import Precision

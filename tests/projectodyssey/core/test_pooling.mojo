@@ -9,16 +9,16 @@ All tests use pure functional API - no internal state.
 """
 
 
-from tests.projectodyssey.conftest import (
+from tests.odyssey.conftest import (
     assert_almost_equal,
     assert_equal,
     assert_equal_int,
     assert_shape,
     assert_true,
 )
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros, ones, full
-from projectodyssey.core.pooling import (
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros, ones, full
+from odyssey.core.pooling import (
     maxpool2d,
     maxpool2d_backward,
     avgpool2d,

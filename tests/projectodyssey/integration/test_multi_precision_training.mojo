@@ -11,7 +11,7 @@ across all supported dtypes.
 """
 
 
-from tests.projectodyssey.conftest import (
+from tests.odyssey.conftest import (
     assert_true,
     assert_false,
     assert_equal_int,
@@ -21,14 +21,14 @@ from tests.projectodyssey.conftest import (
     assert_dtype,
     TestFixtures,
 )
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros, ones, full
-from projectodyssey.training.precision_config import (
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros, ones, full
+from odyssey.training.precision_config import (
     PrecisionConfig,
     PrecisionMode,
 )
-from projectodyssey.training.mixed_precision import GradientScaler
-from projectodyssey.training.dtype_utils import (
+from odyssey.training.mixed_precision import GradientScaler
+from odyssey.training.dtype_utils import (
     float16_dtype,
     float32_dtype,
     bfloat16_dtype,
@@ -375,7 +375,7 @@ def test_training_with_toml_config() raises:
     - initial scale for gradient scaler
     - batch size, learning rate, etc.
     """
-    from projectodyssey.utils.toml_loader import load_toml_config
+    from odyssey.utils.toml_loader import load_toml_config
 
     # Load FP16 config from TOML file
     var config = load_toml_config("configs/lenet5/emnist/fp16.toml")

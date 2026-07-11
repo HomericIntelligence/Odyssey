@@ -7,12 +7,12 @@ Tests cover:
 """
 
 from std.testing import assert_true, assert_almost_equal
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import (
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import (
     full as any_full,
     zeros as any_zeros,
 )
-from projectodyssey.core.elementwise import (
+from odyssey.core.elementwise import (
     exp,
     log,
     sqrt,

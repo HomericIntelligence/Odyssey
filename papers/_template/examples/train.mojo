@@ -12,17 +12,17 @@ Usage:
     mojo train.mojo --paper lenet5 --experiment augmented
 """
 
-from projectodyssey.utils.config_loader import (
+from odyssey.utils.config_loader import (
     load_experiment_config,
     validate_experiment_config,
 )
-from projectodyssey.utils.config import Config
-from projectodyssey.utils.arg_parser import (
+from odyssey.utils.config import Config
+from odyssey.utils.arg_parser import (
     create_training_parser,
     ArgumentParser,
     ParsedArgs,
 )
-from projectodyssey.training.trainer_interface import (
+from odyssey.training.trainer_interface import (
     TrainerConfig,
     TrainingMetrics,
 )

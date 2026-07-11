@@ -3,22 +3,22 @@
 Provides common tensor creation utilities for tests, including
 random tensors, sequential tensors, and special value tensors.
 
-These fixtures wrap the comprehensive infrastructure in projectodyssey.testing
+These fixtures wrap the comprehensive infrastructure in odyssey.testing
 with convenient test-specific APIs.
 """
 
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros, ones
-from projectodyssey.tensor.tensor_creation import (
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros, ones
+from odyssey.tensor.tensor_creation import (
     nan_tensor as shared_nan_tensor,
 )
-from projectodyssey.tensor.tensor_creation import (
+from odyssey.tensor.tensor_creation import (
     inf_tensor as shared_inf_tensor,
 )
-from projectodyssey.testing.data_generators import (
+from odyssey.testing.data_generators import (
     random_tensor as shared_random_tensor,
 )
-from projectodyssey.testing.data_generators import random_uniform
+from odyssey.testing.data_generators import random_uniform
 
 
 def random_tensor(

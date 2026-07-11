@@ -4,7 +4,7 @@ ML Odyssey Version Module.
 Provides centralized version information for all Mojo modules
 
 Usage:
-    from projectodyssey.version import VERSION, get_version
+    from odyssey.version import VERSION, get_version
 
     def main():
         print("ML Odyssey version:", VERSION)

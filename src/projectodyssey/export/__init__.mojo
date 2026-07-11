@@ -1,4 +1,4 @@
-# src/projectodyssey/export/__init__.mojo
+# src/odyssey/export/__init__.mojo
 """
 Model export utilities for ML Odyssey.
 
@@ -7,7 +7,7 @@ Provides export functionality for deploying models to production:
 - Model tracing for operation capture
 
 Usage:
-    from projectodyssey.export import ONNXExporter, trace_model
+    from odyssey.export import ONNXExporter, trace_model
 
     var exporter = ONNXExporter()
     var graph = trace_model(model, sample_input)

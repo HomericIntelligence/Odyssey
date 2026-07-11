@@ -12,13 +12,13 @@ from std.testing import (
     assert_equal,
     assert_true,
 )
-from tests.projectodyssey.conftest import assert_almost_equal
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros
-from projectodyssey.autograd.variable import Variable
-from projectodyssey.autograd.tape import GradientTape
-from projectodyssey.autograd.optimizers import SGD, Adam, AdaGrad, RMSprop
-from projectodyssey.autograd.optimizer_base import (
+from tests.odyssey.conftest import assert_almost_equal
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros
+from odyssey.autograd.variable import Variable
+from odyssey.autograd.tape import GradientTape
+from odyssey.autograd.optimizers import SGD, Adam, AdaGrad, RMSprop
+from odyssey.autograd.optimizer_base import (
     clip_gradients_by_global_norm,
     count_parameters_with_gradients,
     validate_learning_rate,

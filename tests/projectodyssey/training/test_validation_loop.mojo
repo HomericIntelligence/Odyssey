@@ -13,7 +13,7 @@ Issue #3082: Re-enable validation loop tests after ValidationLoop implementation
 Blockers resolved: ValidationLoop (Issue #34), DataLoader, TrainingMetrics all implemented.
 """
 
-from tests.projectodyssey.conftest import (
+from tests.odyssey.conftest import (
     assert_true,
     assert_equal,
     assert_equal_int,
@@ -22,19 +22,19 @@ from tests.projectodyssey.conftest import (
     assert_greater,
     assert_not_equal_tensor,
 )
-from projectodyssey.training.loops.validation_loop import (
+from odyssey.training.loops.validation_loop import (
     ValidationLoop,
     validation_step,
     validate,
 )
-from projectodyssey.training.trainer_interface import (
+from odyssey.training.trainer_interface import (
     DataLoader,
     DataBatch,
     TrainingMetrics,
 )
-from projectodyssey.training.metrics import ConfusionMatrix
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import ones, randn, zeros
+from odyssey.training.metrics import ConfusionMatrix
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import ones, randn, zeros
 
 # ============================================================================
 # Helper functions

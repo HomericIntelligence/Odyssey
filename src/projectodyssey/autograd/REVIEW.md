@@ -9,7 +9,7 @@
 **Lines 12, 94-98**:
 
 ```mojo
-from projectodyssey.autograd import mse_loss_and_grad, SGD  # Imported but not used!
+from odyssey.autograd import mse_loss_and_grad, SGD  # Imported but not used!
 
 # Manual update instead:
 var lr_tensor = AnyTensor(DynamicVector[Int](1), DType.float32)
@@ -133,7 +133,7 @@ var update = multiply(lr_tensor, grad)
 
 ### Solution 1: Add Scalar Operations
 
-**File**: `src/projectodyssey/core/arithmetic.mojo` (or new `src/projectodyssey/core/scalar_ops.mojo`)
+**File**: `src/odyssey/core/arithmetic.mojo` (or new `src/odyssey/core/scalar_ops.mojo`)
 
 ```mojo
 fn multiply_scalar(tensor: AnyTensor, scalar: Float64) raises -> AnyTensor:
@@ -172,7 +172,7 @@ var b = Variable(b_data, requires_grad=True)
 
 ### Solution 3: Add Gradient Application Helper
 
-**File**: `src/projectodyssey/autograd/functional.mojo`
+**File**: `src/odyssey/autograd/functional.mojo`
 
 ```mojo
 fn apply_gradients(

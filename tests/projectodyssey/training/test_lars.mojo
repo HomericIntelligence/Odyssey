@@ -13,7 +13,7 @@ learning rate must be carefully adapted to the parameter and gradient norms.
 """
 
 
-from tests.projectodyssey.conftest import (
+from tests.odyssey.conftest import (
     TestFixtures,
     assert_almost_equal,
     assert_equal,
@@ -24,10 +24,10 @@ from tests.projectodyssey.conftest import (
     assert_true,
     create_test_vector,
 )
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros, ones, zeros_like
-from projectodyssey.core.numerical_safety import compute_tensor_l2_norm
-from projectodyssey.training.optimizers.lars import lars_step, lars_step_simple
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros, ones, zeros_like
+from odyssey.core.numerical_safety import compute_tensor_l2_norm
+from odyssey.training.optimizers.lars import lars_step, lars_step_simple
 
 
 def test_lars_initialization() raises:

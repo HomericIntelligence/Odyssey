@@ -37,7 +37,7 @@ See notes/issues/elementwise-dispatch-design.md for complete design.
 """
 
 from std.collections import List
-from projectodyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.any_tensor import AnyTensor
 from std.math import sqrt as math_sqrt, exp as math_exp, log as math_log
 from std.math import sin as math_sin, cos as math_cos, tanh as math_tanh
 

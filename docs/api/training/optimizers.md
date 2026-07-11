@@ -7,7 +7,7 @@ Optimization algorithms for training neural networks.
 Optimizers update model parameters based on computed gradients:
 
 ```mojo
-from projectodyssey.training.optimizers import SGD, Adam, AdamW
+from odyssey.training.optimizers import SGD, Adam, AdamW
 ```
 
 All optimizers share a common interface:
@@ -23,7 +23,7 @@ trait Optimizer:
 Stochastic Gradient Descent with optional momentum.
 
 ```mojo
-from projectodyssey.training.optimizers import SGD
+from odyssey.training.optimizers import SGD
 ```
 
 **Constructor:**
@@ -50,7 +50,7 @@ fn __init__(
 **Example:**
 
 ```mojo
-from projectodyssey.training.optimizers import SGD
+from odyssey.training.optimizers import SGD
 
 var model = create_model()
 var optimizer = SGD(
@@ -75,7 +75,7 @@ for epoch in range(num_epochs):
 Adaptive Moment Estimation optimizer.
 
 ```mojo
-from projectodyssey.training.optimizers import Adam
+from odyssey.training.optimizers import Adam
 ```
 
 **Constructor:**
@@ -102,7 +102,7 @@ fn __init__(
 **Example:**
 
 ```mojo
-from projectodyssey.training.optimizers import Adam
+from odyssey.training.optimizers import Adam
 
 var optimizer = Adam(
     model.parameters(),
@@ -122,7 +122,7 @@ var optimizer = Adam(
 Adam with decoupled weight decay (recommended over Adam).
 
 ```mojo
-from projectodyssey.training.optimizers import AdamW
+from odyssey.training.optimizers import AdamW
 ```
 
 **Constructor:**
@@ -141,7 +141,7 @@ fn __init__(
 **Example:**
 
 ```mojo
-from projectodyssey.training.optimizers import AdamW
+from odyssey.training.optimizers import AdamW
 
 var optimizer = AdamW(
     model.parameters(),
@@ -160,7 +160,7 @@ var optimizer = AdamW(
 Root Mean Square Propagation.
 
 ```mojo
-from projectodyssey.training.optimizers import RMSprop
+from odyssey.training.optimizers import RMSprop
 ```
 
 **Constructor:**
@@ -180,7 +180,7 @@ fn __init__(
 **Example:**
 
 ```mojo
-from projectodyssey.training.optimizers import RMSprop
+from odyssey.training.optimizers import RMSprop
 
 var optimizer = RMSprop(
     model.parameters(),
@@ -194,7 +194,7 @@ var optimizer = RMSprop(
 Layer-wise Adaptive Rate Scaling (for large batch training).
 
 ```mojo
-from projectodyssey.training.optimizers import LARS
+from odyssey.training.optimizers import LARS
 ```
 
 **Constructor:**
@@ -213,7 +213,7 @@ fn __init__(
 **Example:**
 
 ```mojo
-from projectodyssey.training.optimizers import LARS
+from odyssey.training.optimizers import LARS
 
 # For large batch sizes (e.g., 4096+)
 var optimizer = LARS(
@@ -265,7 +265,7 @@ Adjust learning rate during training.
 Decay LR by factor every N steps.
 
 ```mojo
-from projectodyssey.training.schedulers import StepLR
+from odyssey.training.schedulers import StepLR
 
 var scheduler = StepLR(optimizer, step_size=30, gamma=0.1)
 
@@ -279,7 +279,7 @@ for epoch in range(100):
 Cosine annealing schedule.
 
 ```mojo
-from projectodyssey.training.schedulers import CosineAnnealingLR
+from odyssey.training.schedulers import CosineAnnealingLR
 
 var scheduler = CosineAnnealingLR(optimizer, T_max=100)
 ```
@@ -289,7 +289,7 @@ var scheduler = CosineAnnealingLR(optimizer, T_max=100)
 One-cycle learning rate policy.
 
 ```mojo
-from projectodyssey.training.schedulers import OneCycleLR
+from odyssey.training.schedulers import OneCycleLR
 
 var scheduler = OneCycleLR(
     optimizer,
@@ -307,7 +307,7 @@ for step in range(1000):
 Prevent exploding gradients.
 
 ```mojo
-from projectodyssey.training import clip_grad_norm, clip_grad_value
+from odyssey.training import clip_grad_norm, clip_grad_value
 
 # Clip by global L2 norm
 clip_grad_norm(model.parameters(), max_norm=1.0)
@@ -319,10 +319,10 @@ clip_grad_value(model.parameters(), clip_value=0.5)
 ## Complete Training Loop
 
 ```mojo
-from projectodyssey.training.optimizers import AdamW
-from projectodyssey.training.schedulers import CosineAnnealingLR
-from projectodyssey.training import clip_grad_norm
-from projectodyssey.autograd import Tape
+from odyssey.training.optimizers import AdamW
+from odyssey.training.schedulers import CosineAnnealingLR
+from odyssey.training import clip_grad_norm
+from odyssey.autograd import Tape
 
 var model = create_model()
 var optimizer = AdamW(model.parameters(), lr=0.001)

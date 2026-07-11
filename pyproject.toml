@@ -6,7 +6,7 @@ requires = ["setuptools>=82.0.1", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "ProjectOdyssey"
+name = "Odyssey"
 version = "0.2.0"
 description = "Mojo-based AI research platform for reproducing classic research papers"
 readme = "README.md"

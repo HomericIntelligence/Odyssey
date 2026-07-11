@@ -16,11 +16,11 @@ References:
 """
 
 from model import AlexNet
-from projectodyssey.data.datasets import CIFAR10Dataset
-from projectodyssey.data.constants import DatasetInfo
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.utils.arg_parser import ArgumentParser
-from projectodyssey.training.metrics import evaluate_with_predict
+from odyssey.data.datasets import CIFAR10Dataset
+from odyssey.data.constants import DatasetInfo
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.utils.arg_parser import ArgumentParser
+from odyssey.training.metrics import evaluate_with_predict
 
 
 def parse_args() raises -> Tuple[String, String]:

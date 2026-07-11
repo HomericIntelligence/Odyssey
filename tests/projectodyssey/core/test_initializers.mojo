@@ -12,13 +12,13 @@ Tests:
 """
 
 
-from tests.projectodyssey.conftest import (
+from tests.odyssey.conftest import (
     assert_almost_equal,
     assert_equal,
     assert_true,
 )
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.core.initializers import (
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.core.initializers import (
     constant,
     kaiming_normal,
     kaiming_uniform,

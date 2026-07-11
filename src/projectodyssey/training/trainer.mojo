@@ -17,25 +17,25 @@ Design principles:
 """
 
 from std.collections import List
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.training.trainer_interface import (
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.training.trainer_interface import (
     Trainer,
     TrainerConfig,
     TrainingMetrics,
     DataLoader,
 )
-from projectodyssey.training.loops.training_loop import TrainingLoop
-from projectodyssey.training.loops.validation_loop import ValidationLoop
-from projectodyssey.training.metrics import MetricLogger, MetricResult
-from projectodyssey.training.mixed_precision import (
+from odyssey.training.loops.training_loop import TrainingLoop
+from odyssey.training.loops.validation_loop import ValidationLoop
+from odyssey.training.metrics import MetricLogger, MetricResult
+from odyssey.training.mixed_precision import (
     GradientScaler,
     check_gradients_finite,
     clip_gradients_by_norm,
 )
-from projectodyssey.core.numerical_safety import has_nan, has_inf
-from projectodyssey.utils.serialization import NamedTensor
-from projectodyssey.training.callbacks import EarlyStopping
-from projectodyssey.training.base import TrainingState, CallbackSignal
+from odyssey.core.numerical_safety import has_nan, has_inf
+from odyssey.utils.serialization import NamedTensor
+from odyssey.training.callbacks import EarlyStopping
+from odyssey.training.base import TrainingState, CallbackSignal
 
 
 struct BaseTrainer(Trainer):
@@ -362,7 +362,7 @@ struct BaseTrainer(Trainer):
             Full checkpointing would also save model weights and optimizer state.
             See issue #2726 for complete checkpoint system.
         """
-        from projectodyssey.utils.serialization import save_named_checkpoint
+        from odyssey.utils.serialization import save_named_checkpoint
         from std.collections import Dict
 
         # Create metadata dictionary with training state
@@ -408,7 +408,7 @@ struct BaseTrainer(Trainer):
             Full checkpointing would also load model weights and optimizer state.
             See issue #2726 for complete checkpoint system.
         """
-        from projectodyssey.utils.serialization import load_named_checkpoint
+        from odyssey.utils.serialization import load_named_checkpoint
 
         # Load checkpoint
         var result = load_named_checkpoint(path)

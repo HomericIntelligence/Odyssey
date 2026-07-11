@@ -26,8 +26,8 @@ Usage:
 
 from std.algorithm import vectorize
 from std.sys.info import simd_width_of
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.core.dtype_dispatch import dispatch_binary_tensor
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.core.dtype_dispatch import dispatch_binary_tensor
 
 
 # ============================================================================
@@ -162,7 +162,7 @@ def _add_contiguous[
     dtype: DType
 ](a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     """AnyTensor contiguous addition -- delegates to typed core."""
-    from projectodyssey.tensor.typed.arithmetic_contiguous import (
+    from odyssey.tensor.typed.arithmetic_contiguous import (
         _add_contiguous_typed,
     )
 
@@ -176,7 +176,7 @@ def _subtract_contiguous[
     dtype: DType
 ](a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     """AnyTensor contiguous subtraction -- delegates to typed core."""
-    from projectodyssey.tensor.typed.arithmetic_contiguous import (
+    from odyssey.tensor.typed.arithmetic_contiguous import (
         _subtract_contiguous_typed,
     )
 
@@ -190,7 +190,7 @@ def _multiply_contiguous[
     dtype: DType
 ](a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     """AnyTensor contiguous multiplication -- delegates to typed core."""
-    from projectodyssey.tensor.typed.arithmetic_contiguous import (
+    from odyssey.tensor.typed.arithmetic_contiguous import (
         _multiply_contiguous_typed,
     )
 
@@ -204,7 +204,7 @@ def _divide_contiguous[
     dtype: DType
 ](a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     """AnyTensor contiguous division -- delegates to typed core."""
-    from projectodyssey.tensor.typed.arithmetic_contiguous import (
+    from odyssey.tensor.typed.arithmetic_contiguous import (
         _divide_contiguous_typed,
     )
 

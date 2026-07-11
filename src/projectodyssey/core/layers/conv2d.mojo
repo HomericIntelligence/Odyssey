@@ -9,10 +9,10 @@ Key components:
   Implements: y = conv2d(x, weight, bias, stride, padding)
 """
 
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros, randn, zeros_like
-from projectodyssey.core.initializers import kaiming_uniform
-from projectodyssey.core.conv import conv2d, conv2d_backward
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros, randn, zeros_like
+from odyssey.core.initializers import kaiming_uniform
+from odyssey.core.conv import conv2d, conv2d_backward
 
 
 struct Conv2dLayer[dtype: DType = DType.float32](Copyable, Movable):

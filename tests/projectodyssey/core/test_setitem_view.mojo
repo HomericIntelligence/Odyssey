@@ -10,9 +10,9 @@ Issue: #4076 — Verify multi-dim __setitem__ works with non-contiguous (view) t
 """
 
 
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros, ones, arange
-from tests.projectodyssey.conftest import (
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros, ones, arange
+from tests.odyssey.conftest import (
     assert_true,
     assert_almost_equal,
     assert_equal,

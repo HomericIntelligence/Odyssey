@@ -13,8 +13,8 @@ Factory functions:
 """
 
 from std.collections import List
-from projectodyssey.tensor.tensor import Tensor
-from projectodyssey.tensor.tensor_creation import (
+from odyssey.tensor.tensor import Tensor
+from odyssey.tensor.tensor_creation import (
     zeros as _zeros,
     ones as _ones,
     full as _full,

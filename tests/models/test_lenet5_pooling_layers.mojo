@@ -10,7 +10,7 @@ Tests:
 - MaxPool2 (2x2, stride 2): forward float32, float16
 """
 
-from projectodyssey.testing.layer_testers import LayerTester
+from odyssey.testing.layer_testers import LayerTester
 
 
 # ============================================================================

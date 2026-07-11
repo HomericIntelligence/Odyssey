@@ -10,7 +10,7 @@ Tests benchmarking functionality including:
 """
 
 from std.testing import assert_true, assert_equal
-from projectodyssey.benchmarking import (
+from odyssey.benchmarking import (
     BenchmarkResult,
     BenchmarkConfig,
     benchmark_function,

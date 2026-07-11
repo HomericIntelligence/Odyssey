@@ -18,14 +18,14 @@ Includes:
 
 from std.collections import List
 from std.memory import memcpy
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.core.gradient_types import GradientPair
-from projectodyssey.core.dtype_dispatch import (
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.core.gradient_types import GradientPair
+from odyssey.core.dtype_dispatch import (
     dispatch_kernel_3t1i,
     dispatch_kernel_3t2i,
     dispatch_kernel_3t3i,
 )
-from projectodyssey.base.dtype_ordinal import (
+from odyssey.base.dtype_ordinal import (
     dtype_to_ordinal,
     format_dtype_name,
     DTYPE_FLOAT16,
@@ -641,7 +641,7 @@ def matmul(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     # use direct flat-buffer indexing. For already-contiguous tensors we take
     # a shared-ownership copy (view) to avoid allocation; for non-contiguous
     # tensors (e.g. transpose views) we materialize a fresh contiguous copy.
-    from projectodyssey.core.shape import as_contiguous
+    from odyssey.core.shape import as_contiguous
 
     var a_cont: AnyTensor
     var b_cont: AnyTensor

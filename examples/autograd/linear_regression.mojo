@@ -10,15 +10,15 @@ Model: y = w * x + b
 Training: Learn w and b to fit the data y = 2x + 1
 """
 
-from projectodyssey.autograd import (
+from odyssey.autograd import (
     mse_loss_and_grad,
     apply_gradient,
     multiply_scalar,
 )
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros
-from projectodyssey.core.arithmetic import add, multiply
-from projectodyssey.core.reduction import sum as tensor_sum
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros
+from odyssey.core.arithmetic import add, multiply
+from odyssey.core.reduction import sum as tensor_sum
 
 
 def linear_regression_functional() raises:

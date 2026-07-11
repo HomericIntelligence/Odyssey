@@ -21,7 +21,7 @@ Naming conventions:
 from std.random import random_float64, random_si64, seed as random_seed
 from std.math import sqrt, log, cos, sin
 from std.collections import List
-from projectodyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.any_tensor import AnyTensor
 
 
 # ============================================================================

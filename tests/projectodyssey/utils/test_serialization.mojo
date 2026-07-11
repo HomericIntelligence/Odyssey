@@ -4,10 +4,10 @@ Tests checkpoint save/load operations with named tensors and metadata.
 Covers both single tensor and collection operations.
 """
 
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros, ones
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros, ones
 from std.python import Python
-from projectodyssey.utils import (
+from odyssey.utils import (
     NamedTensor,
     save_named_tensors,
     load_named_tensors,

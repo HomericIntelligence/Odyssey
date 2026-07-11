@@ -8,15 +8,15 @@ Tests cover:
 """
 
 
-from projectodyssey.base.memory_pool import (
+from odyssey.base.memory_pool import (
     TensorMemoryPool,
     PoolConfig,
     PoolStats,
     pooled_alloc,
     pooled_free,
 )
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros
 
 
 def test_pool_default_init() raises:

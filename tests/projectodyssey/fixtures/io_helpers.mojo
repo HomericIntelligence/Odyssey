@@ -208,7 +208,7 @@ def create_mock_checkpoint(
     if num_params <= 0:
         raise Error("num_params must be positive")
 
-    # Create simplified checkpoint format matching src/projectodyssey/utils/io.mojo:86-125
+    # Create simplified checkpoint format matching src/odyssey/utils/io.mojo:86-125
     var content = "EPOCH:0\n"
     content += "LOSS:0.0\n"
     content += "ACCURACY:0.0\n"
@@ -270,21 +270,21 @@ def get_test_data_path(filename: String) -> String:
         filename: Name of test data file.
 
     Returns:
-        Absolute path to file in tests/projectodyssey/fixtures/ directory.
+        Absolute path to file in tests/odyssey/fixtures/ directory.
 
     Example:
         ```mojo
         var image_path = get_test_data_path("sample_image.png")
-        # image_path = "/path/to/tests/projectodyssey/fixtures/images/sample_image.png"
+        # image_path = "/path/to/tests/odyssey/fixtures/images/sample_image.png"
         ```
 
     Note:
-        Assumes test data is stored in tests/projectodyssey/fixtures/ subdirectories.
+        Assumes test data is stored in tests/odyssey/fixtures/ subdirectories.
         Create subdirectories as needed: `images/`, `tensors/`, `models/`, `reference/`.
     """
     # Get test fixtures directory
     # Assumes tests run from repository root
-    var fixtures_dir = "tests/projectodyssey/fixtures/"
+    var fixtures_dir = "tests/odyssey/fixtures/"
     return fixtures_dir + filename
 
 
@@ -292,7 +292,7 @@ def get_fixtures_dir() -> String:
     """Get path to fixtures directory.
 
     Returns:
-        Absolute path to tests/projectodyssey/fixtures/ directory.
+        Absolute path to tests/odyssey/fixtures/ directory.
 
     Example:
         ```mojo
@@ -300,7 +300,7 @@ def get_fixtures_dir() -> String:
         var images_dir = fixtures + "images/"
         ```
     """
-    return "tests/projectodyssey/fixtures/"
+    return "tests/odyssey/fixtures/"
 
 
 # ============================================================================

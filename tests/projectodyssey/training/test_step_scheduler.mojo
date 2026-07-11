@@ -9,7 +9,7 @@ All tests use the real StepLR implementation.
 """
 
 
-from tests.projectodyssey.conftest import (
+from tests.odyssey.conftest import (
     assert_true,
     assert_equal,
     assert_almost_equal,
@@ -17,7 +17,7 @@ from tests.projectodyssey.conftest import (
     assert_less_or_equal,
     TestFixtures,
 )
-from projectodyssey.training.schedulers import StepLR
+from odyssey.training.schedulers import StepLR
 
 
 def test_step_scheduler_initialization() raises:

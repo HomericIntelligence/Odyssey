@@ -17,44 +17,44 @@ Training Strategy:
     - Cross-entropy loss
 
 Shared Modules Used:
-    - projectodyssey.core: Tensor operations (conv2d, relu, batch_norm2d, etc.)
-    - projectodyssey.core.loss: cross_entropy loss functions
-    - projectodyssey.data: Data loading and batch extraction
-    - projectodyssey.data.datasets: CIFAR-10 dataset loading
-    - projectodyssey.training.optimizers: SGD with momentum
-    - projectodyssey.training.metrics: Evaluation utilities
-    - projectodyssey.utils.arg_parser: Command-line argument parsing
+    - odyssey.core: Tensor operations (conv2d, relu, batch_norm2d, etc.)
+    - odyssey.core.loss: cross_entropy loss functions
+    - odyssey.data: Data loading and batch extraction
+    - odyssey.data.datasets: CIFAR-10 dataset loading
+    - odyssey.training.optimizers: SGD with momentum
+    - odyssey.training.metrics: Evaluation utilities
+    - odyssey.utils.arg_parser: Command-line argument parsing
 
 Usage:
     mojo run examples/resnet18_cifar10/train.mojo --epochs 200 --batch-size 128 --lr 0.01
 """
 
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros, ones
-from projectodyssey.core.loss import cross_entropy, cross_entropy_backward
-from projectodyssey.core.conv import conv2d, conv2d_backward
-from projectodyssey.core.pooling import avgpool2d, avgpool2d_backward
-from projectodyssey.core.linear import linear, linear_backward
-from projectodyssey.core.activation import relu, relu_backward
-from projectodyssey.core.normalization import (
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros, ones
+from odyssey.core.loss import cross_entropy, cross_entropy_backward
+from odyssey.core.conv import conv2d, conv2d_backward
+from odyssey.core.pooling import avgpool2d, avgpool2d_backward
+from odyssey.core.linear import linear, linear_backward
+from odyssey.core.activation import relu, relu_backward
+from odyssey.core.normalization import (
     batch_norm2d,
     batch_norm2d_backward,
 )
-from projectodyssey.core.arithmetic import add, add_backward
-from projectodyssey.core.gradient_types import (
+from odyssey.core.arithmetic import add, add_backward
+from odyssey.core.gradient_types import (
     IdentityBlockGradients,
     ProjectionBlockGradients,
 )
-from projectodyssey.data.batch_utils import (
+from odyssey.data.batch_utils import (
     compute_num_batches,
     extract_batch_pair,
 )
-from projectodyssey.data.constants import DatasetInfo
-from projectodyssey.data.datasets import CIFAR10Dataset
-from projectodyssey.data import one_hot_encode
-from projectodyssey.training.optimizers import sgd_momentum_update_inplace
-from projectodyssey.training.metrics import evaluate_logits_batch
-from projectodyssey.utils.training_args import parse_training_args_with_defaults
+from odyssey.data.constants import DatasetInfo
+from odyssey.data.datasets import CIFAR10Dataset
+from odyssey.data import one_hot_encode
+from odyssey.training.optimizers import sgd_momentum_update_inplace
+from odyssey.training.metrics import evaluate_logits_batch
+from odyssey.utils.training_args import parse_training_args_with_defaults
 from model import (
     ResNet18,
     ResNet18Velocities,

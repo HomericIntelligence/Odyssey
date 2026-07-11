@@ -6,7 +6,7 @@ Tests cover:
 """
 
 
-from tests.projectodyssey.conftest import (
+from tests.odyssey.conftest import (
     assert_all_close,
     assert_all_values,
     assert_almost_equal,
@@ -21,8 +21,8 @@ from tests.projectodyssey.conftest import (
     assert_true,
     assert_value_at,
 )
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import (
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import (
     zeros,
     ones,
     zeros_like,
@@ -31,7 +31,7 @@ from projectodyssey.tensor.tensor_creation import (
     arange,
     eye,
 )
-from projectodyssey.core.matrix import matmul
+from odyssey.core.matrix import matmul
 
 
 def test_matmul_baseline_2x2() raises:

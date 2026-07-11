@@ -10,8 +10,8 @@ Layer 3 (core): Tensor[dtype] native implementation via parametric kernels
 """
 
 from std.collections import List
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.base.dtype_ordinal import (
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.base.dtype_ordinal import (
     dtype_to_ordinal,
     DTYPE_FLOAT16,
     DTYPE_FLOAT32,
@@ -19,7 +19,7 @@ from projectodyssey.base.dtype_ordinal import (
     DTYPE_INT32,
     DTYPE_INT64,
 )
-from projectodyssey.core.reduction_utils import (
+from odyssey.core.reduction_utils import (
     compute_strides,
     linear_to_coords,
     coords_to_linear,
@@ -28,7 +28,7 @@ from projectodyssey.core.reduction_utils import (
     compute_axis_strides,
     build_reduced_shape,
 )
-from projectodyssey.core.reduction_ops import (
+from odyssey.core.reduction_ops import (
     ReduceOp,
     ReduceBackwardOp,
     SumOp,
@@ -76,7 +76,7 @@ def _dispatch_reduce_all[
 ](result: AnyTensor, tensor: AnyTensor, numel: Int) raises:
     """Generic runtime dispatch for reduction over all elements."""
     # Ensure input is contiguous before flat-buffer kernel access.
-    from projectodyssey.core.shape import as_contiguous
+    from odyssey.core.shape import as_contiguous
 
     var t = tensor if tensor.is_contiguous() else as_contiguous(tensor)
     var dt = t.dtype()
@@ -141,7 +141,7 @@ def _dispatch_reduce_axis[
 ) raises:
     """Generic runtime dispatch for reduction along axis."""
     # Ensure input is contiguous before flat-buffer kernel access.
-    from projectodyssey.core.shape import as_contiguous
+    from odyssey.core.shape import as_contiguous
 
     var t = tensor if tensor.is_contiguous() else as_contiguous(tensor)
     var dt = t.dtype()

@@ -10,8 +10,8 @@ Layer 3 (core): Tensor[dtype] native implementation (_exp_typed, etc.)
 """
 
 from std.collections import List
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.core.dtype_dispatch import (
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.core.dtype_dispatch import (
     dispatch_unary,
     dispatch_binary,
     dispatch_float_unary,
@@ -19,7 +19,7 @@ from projectodyssey.core.dtype_dispatch import (
     dispatch_tensor_all_dtypes,
     dispatch_float3,
 )
-from projectodyssey.base.dtype_ordinal import (
+from odyssey.base.dtype_ordinal import (
     dtype_to_ordinal,
     DTYPE_FLOAT16,
     DTYPE_FLOAT32,
@@ -33,7 +33,7 @@ from projectodyssey.base.dtype_ordinal import (
     DTYPE_UINT32,
     DTYPE_UINT64,
 )
-from projectodyssey.base.broadcasting import (
+from odyssey.base.broadcasting import (
     broadcast_shapes,
     compute_broadcast_strides,
 )
@@ -139,7 +139,7 @@ def abs(tensor: AnyTensor) raises -> AnyTensor:
             var b = abs(a)  # All values become 3.0
     ```
     """
-    from projectodyssey.tensor.typed.elementwise import _dispatch_unary_typed
+    from odyssey.tensor.typed.elementwise import _dispatch_unary_typed
 
     return _dispatch_unary_typed[_abs_op](tensor)
 
@@ -170,7 +170,7 @@ def sign(tensor: AnyTensor) raises -> AnyTensor:
             var b = sign(a)  # [-1.0, 0.0, 1.0]
     ```
     """
-    from projectodyssey.tensor.typed.elementwise import _dispatch_unary_typed
+    from odyssey.tensor.typed.elementwise import _dispatch_unary_typed
 
     return _dispatch_unary_typed[_sign_op](tensor)
 
@@ -199,7 +199,7 @@ def exp(tensor: AnyTensor) raises -> AnyTensor:
             var b = exp(a)  # All values become 1.0 (e^0)
     ```
     """
-    from projectodyssey.tensor.typed.elementwise import (
+    from odyssey.tensor.typed.elementwise import (
         _dispatch_float_unary_typed,
     )
 
@@ -233,7 +233,7 @@ def log(tensor: AnyTensor) raises -> AnyTensor:
             var b = log(a)  # All values become 0.0 (ln(1))
     ```
     """
-    from projectodyssey.tensor.typed.elementwise import (
+    from odyssey.tensor.typed.elementwise import (
         _dispatch_float_unary_typed,
     )
 
@@ -267,7 +267,7 @@ def sqrt(tensor: AnyTensor) raises -> AnyTensor:
             var b = sqrt(a)  # All values become 2.0
     ```
     """
-    from projectodyssey.tensor.typed.elementwise import (
+    from odyssey.tensor.typed.elementwise import (
         _dispatch_float_unary_typed,
     )
 
@@ -298,7 +298,7 @@ def sin(tensor: AnyTensor) raises -> AnyTensor:
             var b = sin(a)  # All values become 0.0 (sin(0))
     ```
     """
-    from projectodyssey.tensor.typed.elementwise import (
+    from odyssey.tensor.typed.elementwise import (
         _dispatch_float_unary_typed,
     )
 
@@ -329,7 +329,7 @@ def cos(tensor: AnyTensor) raises -> AnyTensor:
             var b = cos(a)  # All values become 1.0 (cos(0))
     ```
     """
-    from projectodyssey.tensor.typed.elementwise import (
+    from odyssey.tensor.typed.elementwise import (
         _dispatch_float_unary_typed,
     )
 
@@ -360,7 +360,7 @@ def tanh(tensor: AnyTensor) raises -> AnyTensor:
             var b = tanh(a)  # All values become 0.0 (tanh(0))
     ```
     """
-    from projectodyssey.tensor.typed.elementwise import (
+    from odyssey.tensor.typed.elementwise import (
         _dispatch_float_unary_typed,
     )
 
@@ -714,7 +714,7 @@ def ceil(tensor: AnyTensor) raises -> AnyTensor:
             var b = ceil(a)  # [2.0, 3.0, 4.0]
     ```
     """
-    from projectodyssey.tensor.typed.elementwise import (
+    from odyssey.tensor.typed.elementwise import (
         _dispatch_float_unary_typed,
     )
 
@@ -745,7 +745,7 @@ def floor(tensor: AnyTensor) raises -> AnyTensor:
             var b = floor(a)  # [1.0, 2.0, 3.0]
     ```
     """
-    from projectodyssey.tensor.typed.elementwise import (
+    from odyssey.tensor.typed.elementwise import (
         _dispatch_float_unary_typed,
     )
 
@@ -776,7 +776,7 @@ def round(tensor: AnyTensor) raises -> AnyTensor:
             var b = round(a)  # [1.0, 2.0, 4.0] (or [1.0, 3.0, 4.0] depending on rounding mode)
     ```
     """
-    from projectodyssey.tensor.typed.elementwise import (
+    from odyssey.tensor.typed.elementwise import (
         _dispatch_float_unary_typed,
     )
 
@@ -807,7 +807,7 @@ def trunc(tensor: AnyTensor) raises -> AnyTensor:
             var b = trunc(a)  # [1.0, -2.0, 3.0]
     ```
     """
-    from projectodyssey.tensor.typed.elementwise import (
+    from odyssey.tensor.typed.elementwise import (
         _dispatch_float_unary_typed,
     )
 

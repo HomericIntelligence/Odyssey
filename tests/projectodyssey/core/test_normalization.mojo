@@ -14,7 +14,7 @@ All tests use pure functional API.
 """
 
 
-from tests.projectodyssey.conftest import (
+from tests.odyssey.conftest import (
     TestFixtures,
     assert_almost_equal,
     assert_close_float,
@@ -24,7 +24,7 @@ from tests.projectodyssey.conftest import (
     assert_shape_equal,
     assert_true,
 )
-from projectodyssey.testing.gradient_checker import (
+from odyssey.testing.gradient_checker import (
     compute_numerical_gradient,
     assert_gradients_close,
     NumericalForward,
@@ -127,25 +127,25 @@ struct _LayerNormInputFwd(NumericalForward):
         return result_inner
 
 
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import (
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import (
     ones,
     ones_like,
     zeros,
     zeros_like,
 )
-from projectodyssey.core.normalization import (
+from odyssey.core.normalization import (
     batch_norm2d,
     batch_norm2d_backward,
     layer_norm,
     layer_norm_backward,
 )
-from projectodyssey.core.arithmetic import (
+from odyssey.core.arithmetic import (
     add,
     multiply,
     subtract,
 )
-from projectodyssey.core.reduction import sum as reduce_sum
+from odyssey.core.reduction import sum as reduce_sum
 
 
 def _check_grad_input_batch_size(batch_size: Int) raises:

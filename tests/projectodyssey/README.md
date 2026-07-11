@@ -11,32 +11,32 @@ Development (TDD) principles and was designed to guide implementation in Issue #
 
 ```bash
 # Run all shared library tests
-mojo test tests/projectodyssey/
+mojo test tests/odyssey/
 
 # Run specific module tests
-mojo test tests/projectodyssey/core/
-mojo test tests/projectodyssey/training/
-mojo test tests/projectodyssey/data/
-mojo test tests/projectodyssey/utils/
+mojo test tests/odyssey/core/
+mojo test tests/odyssey/training/
+mojo test tests/odyssey/data/
+mojo test tests/odyssey/utils/
 
 # Run specific test file
-mojo test tests/projectodyssey/core/test_layers.mojo
+mojo test tests/odyssey/core/test_layers.mojo
 
 # Run with coverage
-mojo test --coverage tests/projectodyssey/
+mojo test --coverage tests/odyssey/
 
 # Run integration tests
-mojo test tests/projectodyssey/integration/
+mojo test tests/odyssey/integration/
 
 # Run benchmarks
-mojo test tests/projectodyssey/benchmarks/
+mojo test tests/odyssey/benchmarks/
 ```text
 
 ### Running Tests in CI
 
 Tests run automatically on:
 
-- Pull requests affecting `src/projectodyssey/` or `tests/projectodyssey/`
+- Pull requests affecting `src/odyssey/` or `tests/odyssey/`
 - Pushes to `main` branch
 - Scheduled nightly builds
 
@@ -45,7 +45,7 @@ See `.github/workflows/test-shared.yml` for CI configuration.
 ## Directory Structure
 
 ```text
-tests/projectodyssey/
+tests/odyssey/
 ├── README.md (this file)
 ├── conftest.mojo                    # Shared test fixtures
 ├── __init__.mojo                    # Test package root
@@ -299,13 +299,13 @@ TestFixtures.synthetic_dataset(n=100)        # Synthetic data
 
 ```bash
 # Run tests with coverage
-mojo test --coverage tests/projectodyssey/
+mojo test --coverage tests/odyssey/
 
 # Check coverage threshold
-python scripts/check_coverage.py --threshold 90 --path src/projectodyssey/
+python scripts/check_coverage.py --threshold 90 --path src/odyssey/
 
 # Generate HTML report
-mojo test --coverage --html tests/projectodyssey/
+mojo test --coverage --html tests/odyssey/
 open coverage_html_report/index.html
 ```text
 
@@ -488,7 +488,7 @@ fn bench_sgd_update_speed():
 
 ```bash
 # Run specific failing test for debugging
-mojo test tests/projectodyssey/core/test_layers.mojo::test_linear_forward
+mojo test tests/odyssey/core/test_layers.mojo::test_linear_forward
 
 # Add debug output in test
 fn test_my_feature():
@@ -501,7 +501,7 @@ fn test_my_feature():
 
 ```bash
 # Identify uncovered lines
-mojo test --coverage --show-missing tests/projectodyssey/
+mojo test --coverage --show-missing tests/odyssey/
 
 # Exclude files from coverage
 # Add to .coveragerc
@@ -513,10 +513,10 @@ mojo test --coverage --show-missing tests/projectodyssey/
 
 ```bash
 # Identify slow tests
-mojo test --profile tests/projectodyssey/
+mojo test --profile tests/odyssey/
 
 # Run only fast tests
-mojo test -m "not slow" tests/projectodyssey/
+mojo test -m "not slow" tests/odyssey/
 ```text
 
 ## Contributing

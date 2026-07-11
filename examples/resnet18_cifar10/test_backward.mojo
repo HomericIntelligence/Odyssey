@@ -1,7 +1,7 @@
 """Backward-pass integration tests for ResNet-18 CIFAR-10 example (#5515)."""
 
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros, randn
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros, randn
 from std.math import isnan, isinf
 from model import (
     ResNet18,

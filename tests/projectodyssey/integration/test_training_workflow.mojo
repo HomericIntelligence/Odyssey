@@ -16,7 +16,7 @@ layers) do not yet exist in the shared library; those are honest `pass`
 placeholders rather than fake-passing bodies.
 """
 
-from tests.projectodyssey.conftest import (
+from tests.odyssey.conftest import (
     assert_true,
     assert_less,
     assert_greater,
@@ -24,9 +24,9 @@ from tests.projectodyssey.conftest import (
     create_simple_dataset,
     TestFixtures,
 )
-from projectodyssey.tensor.any_tensor import AnyTensor, zeros, ones
-from projectodyssey.core.linear import linear_no_bias
-from projectodyssey.training.optimizers.sgd import sgd_step_simple
+from odyssey.tensor.any_tensor import AnyTensor, zeros, ones
+from odyssey.core.linear import linear_no_bias
+from odyssey.training.optimizers.sgd import sgd_step_simple
 
 
 # ============================================================================

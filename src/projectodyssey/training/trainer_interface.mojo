@@ -16,7 +16,7 @@ Design principles:
 """
 
 from std.collections import List
-from projectodyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.any_tensor import AnyTensor
 
 
 struct TrainerConfig(Copyable, Movable):

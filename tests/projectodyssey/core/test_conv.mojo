@@ -9,7 +9,7 @@ Tests cover:
 """
 
 
-from tests.projectodyssey.conftest import (
+from tests.odyssey.conftest import (
     TestFixtures,
     assert_almost_equal,
     assert_close_float,
@@ -18,16 +18,16 @@ from tests.projectodyssey.conftest import (
     assert_shape,
     assert_true,
 )
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import full, ones, ones_like, zeros
-from projectodyssey.core.conv import (
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import full, ones, ones_like, zeros
+from odyssey.core.conv import (
     conv2d,
     conv2d_no_bias,
     conv2d_backward,
     conv2d_backward_weights_only,
     conv2d_no_bias_backward,
 )
-from projectodyssey.testing.gradient_checker import (
+from odyssey.testing.gradient_checker import (
     compute_numerical_gradient,
     assert_gradients_close,
     NumericalForward,
@@ -62,7 +62,7 @@ struct _ConvKernelFwd(NumericalForward):
         return reduced
 
 
-from projectodyssey.core.reduction import sum as reduce_sum
+from odyssey.core.reduction import sum as reduce_sum
 
 
 def test_conv2d_initialization() raises:

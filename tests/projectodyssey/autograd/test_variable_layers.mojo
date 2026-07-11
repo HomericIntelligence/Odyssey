@@ -12,8 +12,8 @@ SavedTensors round-tripping, dtype-correct copy/accumulate, and grad
 routing for each new op type.
 """
 
-from projectodyssey.autograd import Variable, GradientTape
-from projectodyssey.autograd.variable import (
+from odyssey.autograd import Variable, GradientTape
+from odyssey.autograd.variable import (
     variable_flatten,
     variable_linear,
     variable_conv2d,
@@ -22,8 +22,8 @@ from projectodyssey.autograd.variable import (
     variable_sum,
     variable_relu,
 )
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros
 
 
 def _abs(x: Float64) -> Float64:

@@ -30,32 +30,32 @@ from model import (
     POOL2_STRIDE,
     POOL2_PADDING,
 )
-from projectodyssey.data.formats import (
+from odyssey.data.formats import (
     load_idx_images,
     load_idx_labels,
     normalize_images,
     one_hot_encode,
 )
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros
-from projectodyssey.core.conv import conv2d, conv2d_backward
-from projectodyssey.core.pooling import maxpool2d, maxpool2d_backward
-from projectodyssey.core.linear import linear, linear_backward
-from projectodyssey.core.activation import relu, relu_backward
-from projectodyssey.core.loss import cross_entropy, cross_entropy_backward
-from projectodyssey.utils.arg_parser import create_training_parser
-from projectodyssey.training.loops import TrainingLoop
-from projectodyssey.training.optimizers import (
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros
+from odyssey.core.conv import conv2d, conv2d_backward
+from odyssey.core.pooling import maxpool2d, maxpool2d_backward
+from odyssey.core.linear import linear, linear_backward
+from odyssey.core.activation import relu, relu_backward
+from odyssey.core.loss import cross_entropy, cross_entropy_backward
+from odyssey.utils.arg_parser import create_training_parser
+from odyssey.training.loops import TrainingLoop
+from odyssey.training.optimizers import (
     sgd_step_simple,
     lion_step,
     shampoo_step,
 )
-from projectodyssey.training.metrics import (
+from odyssey.training.metrics import (
     top1_accuracy,
     AccuracyMetric,
     LossTracker,
 )
-from projectodyssey.training.evaluation import evaluate_model_simple
+from odyssey.training.evaluation import evaluate_model_simple
 from std.collections import List
 
 # Default number of classes for EMNIST Balanced dataset
@@ -337,7 +337,7 @@ def compute_gradients(
         # NOTE: this fallback uses momentum-free `sgd_step_simple`, which differs
         # from the default `--optimizer sgd` path below (model.update_parameters,
         # SGD with momentum 0.9).  See the "Fallback divergence" note in
-        # src/projectodyssey/training/optimizers/README.md before smoke-comparing
+        # src/odyssey/training/optimizers/README.md before smoke-comparing
         # optimizer runs.
 
         # Conv kernels and biases: SGD fallback (Shampoo-ineligible)

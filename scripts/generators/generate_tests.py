@@ -5,12 +5,12 @@ Generate test boilerplate for Mojo modules.
 Usage:
     python scripts/generators/generate_tests.py \\
         --module shared.core.tensor \\
-        --output tests/projectodyssey/core/test_tensor.mojo
+        --output tests/odyssey/core/test_tensor.mojo
 
     python scripts/generators/generate_tests.py \\
         --module shared.nn.linear \\
         --test-type layer \\
-        --output tests/projectodyssey/nn/test_linear.mojo
+        --output tests/odyssey/nn/test_linear.mojo
 
 Template Placeholders:
     The generated Mojo test files contain TEMPLATE: markers indicating sections
@@ -144,8 +144,8 @@ Generated: {timestamp}
 
 from testing import assert_equal, assert_true, assert_almost_equal
 from {module_path} import *
-from projectodyssey.core import AnyTensor
-from projectodyssey.testing import gradient_check, LayerTester
+from odyssey.core import AnyTensor
+from odyssey.testing import gradient_check, LayerTester
 
 
 # =============================================================================
@@ -360,8 +360,8 @@ Generated: {timestamp}
 
 from testing import assert_equal, assert_true, assert_almost_equal
 from {module_path} import *
-from projectodyssey.core import AnyTensor
-from projectodyssey.training import SGD, CrossEntropyLoss
+from odyssey.core import AnyTensor
+from odyssey.training import SGD, CrossEntropyLoss
 
 
 # =============================================================================
@@ -645,13 +645,13 @@ Examples:
     # Generate unit tests
     python scripts/generators/generate_tests.py \\
         --module shared.core.tensor \\
-        --output tests/projectodyssey/core/test_tensor.mojo
+        --output tests/odyssey/core/test_tensor.mojo
 
     # Generate layer tests
     python scripts/generators/generate_tests.py \\
         --module shared.nn.linear \\
         --test-type layer \\
-        --output tests/projectodyssey/nn/test_linear.mojo
+        --output tests/odyssey/nn/test_linear.mojo
 
     # Generate model tests
     python scripts/generators/generate_tests.py \\

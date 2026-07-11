@@ -22,7 +22,7 @@ The `AnyTensor` struct is the fundamental data structure in ML Odyssey. It suppo
 - SIMD-optimized operations
 
 ```mojo
-from projectodyssey.core import AnyTensor, zeros, ones, randn
+from odyssey.core import AnyTensor, zeros, ones, randn
 
 # Create tensors
 var x = zeros[DType.float32](2, 3)        # Shape: (2, 3)
@@ -40,7 +40,7 @@ var matmul_result = x @ y.T               # Matrix multiplication
 ML Odyssey uses tape-based automatic differentiation for computing gradients:
 
 ```mojo
-from projectodyssey.autograd import Tape, no_grad
+from odyssey.autograd import Tape, no_grad
 
 # Record operations on tape
 var tape = Tape()
@@ -61,7 +61,7 @@ var dw = grads.get(w)
 Build neural networks using composable layers:
 
 ```mojo
-from projectodyssey.core.layers import Linear, Conv2d, BatchNorm2d, ReLU
+from odyssey.core.layers import Linear, Conv2d, BatchNorm2d, ReLU
 
 # Define layers
 var linear = Linear(784, 128)
@@ -79,7 +79,7 @@ out = relu.forward(out)
 ## Module Structure
 
 ```text
-src/projectodyssey/
+src/odyssey/
 ├── core/                    # Core tensor library
 │   ├── any_tensor.mojo       # AnyTensor struct
 │   ├── arithmetic.mojo     # +, -, *, /, etc.

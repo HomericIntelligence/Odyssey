@@ -1,19 +1,19 @@
 """Tensor I/O utilities: save/load AnyTensor to/from hex-encoded text files.
 
 This module provides the core save/load implementation for AnyTensor. It is
-defined in projectodyssey.core (rather than projectodyssey.utils) to avoid a circular type
+defined in odyssey.core (rather than odyssey.utils) to avoid a circular type
 resolution issue in Mojo v0.26.1:
 
-    Problem: projectodyssey.utils.serialization imports AnyTensor from projectodyssey.core.any_tensor.
-    When any_tensor.mojo has a method that imports from projectodyssey.utils.serialization,
+    Problem: odyssey.utils.serialization imports AnyTensor from odyssey.core.any_tensor.
+    When any_tensor.mojo has a method that imports from odyssey.utils.serialization,
     the package compiler compiles any_tensor.mojo twice with distinct type identities,
     breaking all operator overloads with 'AnyTensor cannot convert from AnyTensor' errors.
 
-    Fix: Move save/load core implementation here (projectodyssey.core.tensor_io) so
+    Fix: Move save/load core implementation here (odyssey.core.tensor_io) so
     any_tensor.mojo can use a relative import (from .tensor_io import save_tensor)
     instead of a cross-package import.
 
-    projectodyssey.utils.serialization re-exports these functions for backward compatibility.
+    odyssey.utils.serialization re-exports these functions for backward compatibility.
 
 File format (hex-encoded text):
     Line 1: tensor name (may be empty)

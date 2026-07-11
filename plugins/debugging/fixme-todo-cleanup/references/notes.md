@@ -12,13 +12,13 @@
 
 ### Trigger
 
-Ralph-loop with prompt: "Fix all FIXME/TODO items in src/projectodyssey/ directory with proper planning"
+Ralph-loop with prompt: "Fix all FIXME/TODO items in src/odyssey/ directory with proper planning"
 
 ## Discovery Commands
 
 ```bash
-# Find all FIXME/TODO items in src/projectodyssey/
-grep -rn "FIXME\|TODO" src/projectodyssey/ --include="*.mojo"
+# Find all FIXME/TODO items in src/odyssey/
+grep -rn "FIXME\|TODO" src/odyssey/ --include="*.mojo"
 
 # Results breakdown:
 # - 15 total items found
@@ -38,39 +38,39 @@ grep -rn "FIXME\|TODO" src/projectodyssey/ --include="*.mojo"
 ### PR #3036: Remove MXFP4 FIXME
 
 - Branch: `3031-remove-stale-mxfp4-fixme`
-- Files: `src/projectodyssey/core/types/mxfp4.mojo`
+- Files: `src/odyssey/core/types/mxfp4.mojo`
 - Change: Removed stale FIXME - tests already existed
 
 ### PR #3037: Implement conftest fixtures
 
 - Branch: `3033-conftest-fixtures`
-- Files: `tests/projectodyssey/conftest.mojo`
+- Files: `tests/odyssey/conftest.mojo`
 - Change: Replaced placeholder fixtures with real implementations
 
 ### PR #3038: Implement script_runner
 
 - Branch: `3034-script-runner`
-- Files: `src/projectodyssey/training/script_runner.mojo`
+- Files: `src/odyssey/training/script_runner.mojo`
 - Change: Implemented TrainingCallbacks and helpers
 - Error fixed: Removed `@value` decorator
 
 ### PR #3039: Implement dataset_loaders
 
 - Branch: `3034-dataset-loaders`
-- Files: `src/projectodyssey/training/dataset_loaders.mojo`
+- Files: `src/odyssey/training/dataset_loaders.mojo`
 - Change: Implemented DatasetSplit and loaders
 - Error fixed: Removed `@fieldwise_init` decorator
 
 ### PR #3040: Export script utilities
 
 - Branch: `3034-export-utilities`
-- Files: `src/projectodyssey/training/__init__.mojo`
+- Files: `src/odyssey/training/__init__.mojo`
 - Change: Uncommented export statements
 
 ### PR #3041: Update AnyTensor Array API
 
 - Branch: `3032-extensor-matrix-ops`
-- Files: `src/projectodyssey/core/extensor.mojo`
+- Files: `src/odyssey/core/extensor.mojo`
 - Change: Updated docstring to reflect implemented API
 
 ## Error Log

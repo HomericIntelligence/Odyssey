@@ -1,13 +1,13 @@
 """Tests for loss function backward passes (cross-entropy, BCE, MSE)."""
 
-from tests.projectodyssey.conftest import (
+from tests.odyssey.conftest import (
     assert_almost_equal,
     assert_equal,
     assert_true,
 )
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros, ones, ones_like
-from projectodyssey.core.loss import (
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros, ones, ones_like
+from odyssey.core.loss import (
     cross_entropy,
     cross_entropy_backward,
     binary_cross_entropy,
@@ -15,7 +15,7 @@ from projectodyssey.core.loss import (
     mean_squared_error,
     mean_squared_error_backward,
 )
-from projectodyssey.testing.gradient_checker import (
+from odyssey.testing.gradient_checker import (
     check_gradient,
     NumericalForward,
     NumericalBackward,

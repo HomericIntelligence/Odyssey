@@ -2,7 +2,7 @@
 Base Library - Zero-dependency modules for ML Odyssey.
 
 This package contains modules with no tensor dependencies, providing
-foundational utilities used by both src/projectodyssey/tensor/ and src/projectodyssey/core/.
+foundational utilities used by both src/odyssey/tensor/ and src/odyssey/core/.
 Extracting these breaks the circular dependency between those packages.
 
 Modules:
@@ -15,14 +15,14 @@ Modules:
     numerical_constants: Numerical stability constants (constants only)
 
 Dependency graph:
-    src/projectodyssey/base/ <- src/projectodyssey/tensor/ <- src/projectodyssey/core/  (clean DAG)
+    src/odyssey/base/ <- src/odyssey/tensor/ <- src/odyssey/core/  (clean DAG)
 """
 
 # ============================================================================
 # Memory Pool
 # ============================================================================
 
-from projectodyssey.base.memory_pool import (
+from odyssey.base.memory_pool import (
     TensorMemoryPool,
     PoolConfig,
     PoolStats,
@@ -36,7 +36,7 @@ from projectodyssey.base.memory_pool import (
 # Broadcasting Utilities
 # ============================================================================
 
-from projectodyssey.base.broadcasting import (
+from odyssey.base.broadcasting import (
     broadcast_shapes,
     are_shapes_broadcastable,
     compute_broadcast_strides,
@@ -47,7 +47,7 @@ from projectodyssey.base.broadcasting import (
 # DType Ordinal Mapping
 # ============================================================================
 
-from projectodyssey.base.dtype_ordinal import (
+from odyssey.base.dtype_ordinal import (
     dtype_to_ordinal,
     format_dtype_name,
     DTYPE_FLOAT16,
@@ -69,13 +69,13 @@ from projectodyssey.base.dtype_ordinal import (
 # Shape Utilities
 # ============================================================================
 
-from projectodyssey.base.shape_utils import _resolve_shape
+from odyssey.base.shape_utils import _resolve_shape
 
 # ============================================================================
 # Default Hyperparameters
 # ============================================================================
 
-from projectodyssey.base.defaults import (
+from odyssey.base.defaults import (
     DEFAULT_LEAKY_RELU_ALPHA,
     DEFAULT_ELU_ALPHA,
     DEFAULT_HARD_TANH_MIN,
@@ -93,7 +93,7 @@ from projectodyssey.base.defaults import (
 # Mathematical Constants
 # ============================================================================
 
-from projectodyssey.base.math_constants import (
+from odyssey.base.math_constants import (
     PI,
     SQRT_2,
     SQRT_2_OVER_PI,
@@ -107,7 +107,7 @@ from projectodyssey.base.math_constants import (
 # Numerical Stability Constants
 # ============================================================================
 
-from projectodyssey.base.numerical_constants import (
+from odyssey.base.numerical_constants import (
     EPSILON_DIV,
     EPSILON_LOSS,
     EPSILON_NORM,

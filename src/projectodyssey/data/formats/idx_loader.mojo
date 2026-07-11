@@ -18,8 +18,8 @@ References:
     - IDX Format: http://yann.lecun.com/exdb/mnist/
 """
 
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros
 from std.memory import UnsafePointer
 
 

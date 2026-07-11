@@ -512,7 +512,7 @@ struct RandomRotation(Transform):
 ### Basic Usage with Modern Architecture
 
 ```mojo
-from projectodyssey.data import (
+from odyssey.data import (
     AnyTensorDataset, BatchLoader, RandomSampler, Normalize,
     TransformedDataset
 )
@@ -546,7 +546,7 @@ for batch in batches:
 ### Complete Pipeline with Caching and Prefetching
 
 ```mojo
-from projectodyssey.data import (
+from odyssey.data import (
     AnyTensorDataset, BatchLoader, RandomSampler, CachedDataset,
     TransformedDataset, PrefetchDataLoader, Normalize
 )
@@ -586,7 +586,7 @@ for epoch in range(num_epochs):
 ### With Transform Composition
 
 ```mojo
-from projectodyssey.data import (
+from odyssey.data import (
     AnyTensorDataset, TransformedDataset, RandomHorizontalFlip,
     RandomCrop, Normalize, Compose
 )
@@ -612,7 +612,7 @@ var loader = BatchLoader(augmented, sampler, batch_size=128)
 ### Custom Dataset
 
 ```mojo
-from projectodyssey.data import Dataset, DataLoader
+from odyssey.data import Dataset, DataLoader
 
 struct MyDataset(Dataset):
     """Custom dataset implementation."""
@@ -704,8 +704,8 @@ See `tests/shared/data/` for comprehensive test suite.
 Data loaders integrate seamlessly with training loops:
 
 ```mojo
-from projectodyssey.data import DataLoader
-from projectodyssey.training import train_epoch, validate_epoch
+from odyssey.data import DataLoader
+from odyssey.training import train_epoch, validate_epoch
 
 # Create loaders
 var train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True)

@@ -42,9 +42,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Moved `AnyTensor` from `src/projectodyssey/core/` to `src/projectodyssey/tensor/` to eliminate circular imports
+- Moved `AnyTensor` from `src/odyssey/core/` to `src/odyssey/tensor/` to eliminate circular imports
 - `AnyTensor` operators now delegate to typed implementations
-- Extracted `src/projectodyssey/base/` package to break circular dependency
+- Extracted `src/odyssey/base/` package to break circular dependency
 - **Mojo 1.0.0b2 migration**: updated all source to 1.0 syntax (`out self`, `thin` fn values,
   `capturing[_]` closures) ([#5353](https://github.com/HomericIntelligence/Odyssey/pull/5353))
 - Separated host/container pixi envs (detached-environments) to prevent bind-mount collisions;

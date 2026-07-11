@@ -3,20 +3,20 @@
 Tests PrefetchBuffer and PrefetchDataLoader for batch prefetching.
 """
 
-from tests.projectodyssey.conftest import (
+from tests.odyssey.conftest import (
     assert_true,
     assert_equal,
 )
-from projectodyssey.data.datasets import AnyTensorDataset
-from projectodyssey.data.loaders import (
+from odyssey.data.datasets import AnyTensorDataset
+from odyssey.data.loaders import (
     Batch,
     BatchLoader,
 )
-from projectodyssey.data.samplers import RandomSampler
-from projectodyssey.data.dataset_with_transform import TransformedDataset
-from projectodyssey.data.prefetch import PrefetchBuffer, PrefetchDataLoader
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import ones, zeros
+from odyssey.data.samplers import RandomSampler
+from odyssey.data.dataset_with_transform import TransformedDataset
+from odyssey.data.prefetch import PrefetchBuffer, PrefetchDataLoader
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import ones, zeros
 from std.collections import List
 
 

@@ -7,7 +7,7 @@ models, layers, datasets, training scripts, and tests.
 
 Usage:
     python -m scripts.generators.mojo_gen model ResNet18 --type classification -o models/
-    python -m scripts.generators.mojo_gen layer Attention --inputs "q,k,v" -o src/projectodyssey/nn/
+    python -m scripts.generators.mojo_gen layer Attention --inputs "q,k,v" -o src/odyssey/nn/
     python -m scripts.generators.mojo_gen dataset ImageFolder --format directory -o datasets/
     python -m scripts.generators.mojo_gen training --model MyModel --dataset MyDataset -o examples/
     python -m scripts.generators.mojo_gen tests --module shared.nn.linear --type layer -o tests/
@@ -193,7 +193,7 @@ def cmd_list(args):
     print("Examples:")
     print()
     print("  python -m scripts.generators.mojo_gen model ResNet18 --type classification -o models/")
-    print("  python -m scripts.generators.mojo_gen layer Attention --inputs 'q,k,v' -o src/projectodyssey/nn/")
+    print("  python -m scripts.generators.mojo_gen layer Attention --inputs 'q,k,v' -o src/odyssey/nn/")
     print("  python -m scripts.generators.mojo_gen dataset CIFAR10 --format image -o datasets/")
     print("  python -m scripts.generators.mojo_gen training --model LeNet5 --dataset MNIST -o examples/")
     print("  python -m scripts.generators.mojo_gen tests --module shared.nn.linear --type layer -o tests/")

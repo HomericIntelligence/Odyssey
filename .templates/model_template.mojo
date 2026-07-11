@@ -21,10 +21,10 @@ RENDERING CONVENTION (mojo-1.0):
     num_classes default    -> {{num_classes}}
 """
 
-from projectodyssey.core.module import Module
+from odyssey.core.module import Module
 # TEMPLATE: imports_PLACEHOLDER -> {{imports}} (additional layer imports)
-# Example: from projectodyssey.core.layers.linear import Linear
-from projectodyssey.tensor.any_tensor import AnyTensor
+# Example: from odyssey.core.layers.linear import Linear
+from odyssey.tensor.any_tensor import AnyTensor
 
 
 struct Model_PLACEHOLDER(Module):

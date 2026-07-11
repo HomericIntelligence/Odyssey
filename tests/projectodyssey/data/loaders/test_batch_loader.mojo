@@ -3,16 +3,16 @@
 """
 
 
-from tests.projectodyssey.conftest import (
+from tests.odyssey.conftest import (
     assert_true,
     assert_equal,
     assert_not_equal,
     TestFixtures,
 )
-from projectodyssey.data.datasets import TensorDataset
-from projectodyssey.data.loaders import BatchLoader
-from projectodyssey.data.samplers import SequentialSampler, RandomSampler
-from projectodyssey.tensor.any_tensor import AnyTensor
+from odyssey.data.datasets import TensorDataset
+from odyssey.data.loaders import BatchLoader
+from odyssey.data.samplers import SequentialSampler, RandomSampler
+from odyssey.tensor.any_tensor import AnyTensor
 
 
 def test_batch_loader_fixed_batch_size() raises:

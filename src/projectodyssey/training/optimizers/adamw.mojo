@@ -23,22 +23,22 @@ Reference:
     arXiv preprint arXiv:1711.05101
 """
 
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.core.arithmetic import (
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.core.arithmetic import (
     subtract,
     multiply,
     add,
     divide,
     power,
 )
-from projectodyssey.core.arithmetic_simd import (
+from odyssey.core.arithmetic_simd import (
     subtract_simd,
     multiply_simd,
     add_simd,
     divide_simd,
 )
-from projectodyssey.core.elementwise import sqrt
-from projectodyssey.tensor.tensor_creation import full_like, ones_like
+from odyssey.core.elementwise import sqrt
+from odyssey.tensor.tensor_creation import full_like, ones_like
 
 
 def adamw_step(
@@ -78,8 +78,8 @@ def adamw_step(
 
         Example (basic AdamW):
             ```mojo
-            from projectodyssey.core import AnyTensor, zeros_like
-            from projectodyssey.training.optimizers import adamw_step
+            from odyssey.core import AnyTensor, zeros_like
+            from odyssey.training.optimizers import adamw_step
 
             var W = xavier_uniform(784, 128, DType.float32)
             var m = zeros_like(W)

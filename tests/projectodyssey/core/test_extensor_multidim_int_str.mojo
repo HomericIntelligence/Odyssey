@@ -6,9 +6,9 @@ non-float dtypes, alongside integer formatting via _format_element().
 Related: issue #4048, issue #3376
 """
 
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros, full
-from tests.projectodyssey.conftest import assert_true
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros, full
+from tests.odyssey.conftest import assert_true
 
 
 def test_str_int32_2d_tensor() raises:

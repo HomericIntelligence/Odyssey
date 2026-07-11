@@ -7,7 +7,7 @@ Tests cover:
 - TrainingResult struct initialization and formatting
 """
 
-from projectodyssey.training.interruption import (
+from odyssey.training.interruption import (
     ShutdownReason,
     WallClockTimer,
     TrainingResult,

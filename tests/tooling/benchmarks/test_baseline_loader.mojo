@@ -20,7 +20,7 @@ Following TDD principles:
 - Test error conditions explicitly
 """
 
-from tests.projectodyssey.conftest import (
+from tests.odyssey.conftest import (
     assert_true,
     assert_false,
     assert_equal,

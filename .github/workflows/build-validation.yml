@@ -4,7 +4,7 @@ on:
   # Run on pull requests when source files change
   pull_request:
     paths:
-      - 'src/projectodyssey/**/*.mojo'
+      - 'src/odyssey/**/*.mojo'
       - 'pixi.toml'
       - 'justfile'
       - '.github/workflows/build-validation.yml'
@@ -14,7 +14,7 @@ on:
     branches:
       - main
     paths:
-      - 'src/projectodyssey/**/*.mojo'
+      - 'src/odyssey/**/*.mojo'
       - 'pixi.toml'
       - 'justfile'
       - '.github/workflows/build-validation.yml'
@@ -47,13 +47,13 @@ jobs:
       # Fast type-check gate (#5142): runs before the full ci-build so
       # contributors get sub-minute feedback on library compilation errors
       # without waiting for the full executable build.
-      - name: Type-check src/projectodyssey/ library (fast feedback)
+      - name: Type-check src/odyssey/ library (fast feedback)
         run: |
           echo "Running fast type-check..."
           just check
           echo "✓ Type-check passed"
 
-      - name: Build and validate src/projectodyssey package
+      - name: Build and validate src/odyssey package
         run: |
           echo "Running CI build validation..."
           just ci-build

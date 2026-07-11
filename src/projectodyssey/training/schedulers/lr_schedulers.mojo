@@ -9,7 +9,7 @@ All schedulers implement the LRScheduler trait from base.mojo.
 """
 
 from std.math import pi, cos
-from projectodyssey.training.base import LRScheduler
+from odyssey.training.base import LRScheduler
 
 
 # ============================================================================

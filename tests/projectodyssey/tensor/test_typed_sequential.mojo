@@ -15,11 +15,11 @@ Tests cover:
 """
 
 from std.testing import assert_true, assert_almost_equal
-from projectodyssey.core.sequential import Sequential2, Sequential3
-from projectodyssey.core.layers.linear import Linear
-from projectodyssey.core.layers.relu import ReLULayer
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros, ones
+from odyssey.core.sequential import Sequential2, Sequential3
+from odyssey.core.layers.linear import Linear
+from odyssey.core.layers.relu import ReLULayer
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros, ones
 
 
 def test_sequential2_forward_linear_relu() raises:

@@ -47,28 +47,28 @@ Examples:
     print(x.grad)  # Chain rule: dLoss/dx
 """
 
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import ones_like, zeros_like
-from projectodyssey.core.arithmetic import (
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import ones_like, zeros_like
+from odyssey.core.arithmetic import (
     add_backward,
     subtract_backward,
     multiply_backward,
     divide_backward,
 )
-from projectodyssey.core.reduction import sum_backward, mean_backward
-from projectodyssey.core.matrix import matmul_backward
-from projectodyssey.core.activation import (
+from odyssey.core.reduction import sum_backward, mean_backward
+from odyssey.core.matrix import matmul_backward
+from odyssey.core.activation import (
     relu_backward,
     sigmoid_backward,
     tanh_backward,
     softmax_backward,
 )
-from projectodyssey.autograd.tape_types import (
+from odyssey.autograd.tape_types import (
     SavedTensors,
     TapeNode,
     VariableRegistry,
 )
-from projectodyssey.autograd.backward_ops import (
+from odyssey.autograd.backward_ops import (
     backward_add,
     backward_subtract,
     backward_multiply,

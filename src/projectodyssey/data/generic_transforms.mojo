@@ -39,8 +39,8 @@ Example:
     ```
 """
 
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.data.transforms import Transform
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.data.transforms import Transform
 from std.collections import Optional
 
 

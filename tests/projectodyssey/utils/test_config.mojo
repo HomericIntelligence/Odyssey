@@ -8,14 +8,14 @@ This module tests configuration loading functionality including:
 """
 
 
-from tests.projectodyssey.conftest import (
+from tests.odyssey.conftest import (
     assert_true,
     assert_false,
     assert_equal,
     assert_not_equal,
     TestFixtures,
 )
-from projectodyssey.utils.config import ConfigValue
+from odyssey.utils.config import ConfigValue
 
 
 def test_configvalue_as_int_correct_type() raises:

@@ -25,14 +25,14 @@ Note:
 
 from std.random import seed as random_seed
 from std.math import isnan, isinf
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros, ones, full
-from projectodyssey.core.arithmetic import add, subtract, multiply, divide
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros, ones, full
+from odyssey.core.arithmetic import add, subtract, multiply, divide
 
 comptime DEFAULT_SEED: Int = 42
 comptime DEFAULT_ITERATIONS: Int = 50
 
-from projectodyssey.testing.fuzz_core import (
+from odyssey.testing.fuzz_core import (
     FuzzConfig,
     FuzzResult,
     SeededRNG,
@@ -46,7 +46,7 @@ from projectodyssey.testing.fuzz_core import (
     verify_dtype_preserved,
     format_failure_message,
 )
-from projectodyssey.testing.fuzz_shapes import (
+from odyssey.testing.fuzz_shapes import (
     ShapeFuzzer,
     generate_broadcast_shapes,
     generate_same_shape_pair,
@@ -55,7 +55,7 @@ from projectodyssey.testing.fuzz_shapes import (
     compute_numel,
     shape_to_string,
 )
-from projectodyssey.testing.fuzz_dtypes import (
+from odyssey.testing.fuzz_dtypes import (
     DTypeFuzzer,
     get_float_dtypes,
     get_edge_values,
@@ -63,7 +63,7 @@ from projectodyssey.testing.fuzz_dtypes import (
     supports_nan_inf,
     dtype_to_string,
 )
-from tests.projectodyssey.conftest import assert_true, assert_equal_int
+from tests.odyssey.conftest import assert_true, assert_equal_int
 
 
 def test_fuzz_tensor_creation_random_shapes() raises:

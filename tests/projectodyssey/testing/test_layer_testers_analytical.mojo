@@ -7,10 +7,10 @@ Example usage:
     pixi run mojo tests/shared/testing/test_layer_testers_analytical.mojo
 """
 
-from projectodyssey.testing import LayerTester
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros
-from projectodyssey.core.initializers import kaiming_uniform
+from odyssey.testing import LayerTester
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros
+from odyssey.core.initializers import kaiming_uniform
 
 
 def test_conv_backward_with_analytical_validation() raises:

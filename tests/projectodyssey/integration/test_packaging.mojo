@@ -7,9 +7,9 @@ Tests that verify the shared library package structure and import hierarchy.
 
 
 from std.testing import assert_true, assert_equal
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import full, ones, randn, zeros
-from projectodyssey.training import (
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import full, ones, randn, zeros
+from odyssey.training import (
     AccuracyMetric,
     CosineAnnealingLR,
     EarlyStopping,
@@ -19,25 +19,25 @@ from projectodyssey.training import (
     SGD,
     StepLR,
 )
-from projectodyssey.data import (
+from odyssey.data import (
     AnyTensorDataset,
     Batch,
     Compose,
     Dataset,
     Normalize,
 )
-from projectodyssey.utils import (
+from odyssey.utils import (
     Config,
     Logger,
 )
-from projectodyssey.core import (
+from odyssey.core import (
     conv2d,
     flatten,
     linear,
     relu,
 )
-from projectodyssey.core.matrix import matmul
-from projectodyssey import (
+from odyssey.core.matrix import matmul
+from odyssey import (
     AUTHOR,
     Accuracy,
     AccuracyMetric,
@@ -123,18 +123,18 @@ def test_root_level_imports() raises:
 
 
 def test_layer_root_level_imports() raises:
-    """Test that layer symbols activated in src/projectodyssey/__init__.mojo are importable directly.
+    """Test that layer symbols activated in src/odyssey/__init__.mojo are importable directly.
 
     Verifies Issue #3759: confirmed-ready layer exports are accessible via
-    `from projectodyssey import <Symbol>` after uncommenting in __init__.mojo.
+    `from odyssey import <Symbol>` after uncommenting in __init__.mojo.
     """
     # Core layer structs — original names
     # Core layer aliases matching documented public API names
     # Core activation functions
     # Core module trait
     # Core tensors and creation functions
-    # AnyTensor is NOT re-exported from projectodyssey (avoids circular imports)
-    from projectodyssey.tensor.tensor import Tensor
+    # AnyTensor is NOT re-exported from odyssey (avoids circular imports)
+    from odyssey.tensor.tensor import Tensor
 
     # Training schedulers
     # Training callbacks
@@ -322,12 +322,12 @@ def test_no_private_exports() raises:
 
 
 def test_normalize_compose_from_shared_data() raises:
-    """Test that Normalize and Compose are accessible via projectodyssey.data.
+    """Test that Normalize and Compose are accessible via odyssey.data.
     """
     # Verify Normalize can be instantiated
     var _normalizer = Normalize(Float64(0.5), Float64(0.5))
 
-    print("✓ Normalize and Compose importable from projectodyssey.data")
+    print("✓ Normalize and Compose importable from odyssey.data")
 
 
 def test_losstracker_from_shared() raises:
@@ -335,7 +335,7 @@ def test_losstracker_from_shared() raises:
     # Verify LossTracker can be instantiated
     var _tracker = LossTracker()
 
-    print("✓ LossTracker importable from projectodyssey")
+    print("✓ LossTracker importable from odyssey")
 
 
 def test_accuracymetric_from_shared() raises:
@@ -343,7 +343,7 @@ def test_accuracymetric_from_shared() raises:
     # Verify AccuracyMetric can be instantiated
     var _metric = AccuracyMetric()
 
-    print("✓ AccuracyMetric importable from projectodyssey")
+    print("✓ AccuracyMetric importable from odyssey")
 
 
 def test_accuracy_alias_from_shared() raises:
@@ -354,25 +354,25 @@ def test_accuracy_alias_from_shared() raises:
 
     # Both should be instantiable - verifying the alias works
     print(
-        "✓ Accuracy alias importable from projectodyssey and matches"
+        "✓ Accuracy alias importable from odyssey and matches"
         " AccuracyMetric"
     )
 
 
 def test_losstracker_from_shared_training() raises:
-    """Test that LossTracker is accessible via projectodyssey.training."""
+    """Test that LossTracker is accessible via odyssey.training."""
     # Verify LossTracker can be instantiated
     var _tracker = LossTracker()
 
-    print("✓ LossTracker importable from projectodyssey.training")
+    print("✓ LossTracker importable from odyssey.training")
 
 
 def test_accuracymetric_from_shared_training() raises:
-    """Test that AccuracyMetric is accessible via projectodyssey.training."""
+    """Test that AccuracyMetric is accessible via odyssey.training."""
     # Verify AccuracyMetric can be instantiated
     var _metric = AccuracyMetric()
 
-    print("✓ AccuracyMetric importable from projectodyssey.training")
+    print("✓ AccuracyMetric importable from odyssey.training")
 
 
 def test_deprecated_imports() raises:
@@ -386,13 +386,13 @@ def test_deprecated_imports() raises:
     # Example of what this test should do when deprecated APIs exist:
     # ```mojo
     # # Test deprecated import still works
-    # from projectodyssey.deprecated import old_function  # Should still work
+    # from odyssey.deprecated import old_function  # Should still work
     #
     # # Test that replacement is available
-    # from projectodyssey.new import new_function  # Should work as replacement
+    # from odyssey.new import new_function  # Should work as replacement
     # ```
 
-    # For now, we verify the test framework itself works by importing from projectodyssey
+    # For now, we verify the test framework itself works by importing from odyssey
     assert_true(VERSION != "", "Version should be accessible")
 
     print(

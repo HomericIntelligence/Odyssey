@@ -6,13 +6,13 @@ with emphasis on reproducibility and proper randomization.
 """
 
 
-from tests.projectodyssey.conftest import (
+from tests.odyssey.conftest import (
     assert_true,
     assert_equal,
     assert_false,
     TestFixtures,
 )
-from projectodyssey.data.transforms import (
+from odyssey.data.transforms import (
     RandomHorizontalFlip,
     RandomVerticalFlip,
     RandomRotation,
@@ -20,7 +20,7 @@ from projectodyssey.data.transforms import (
     CenterCrop,
     RandomErasing,
 )
-from projectodyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.any_tensor import AnyTensor
 
 
 def test_random_augmentation_deterministic() raises:

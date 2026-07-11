@@ -42,21 +42,21 @@ Architecture (12 layer operations):
 All tests use small tensor sizes to keep runtime under 60 seconds.
 """
 
-from projectodyssey.core.extensor import ExTensor, zeros, ones, full
-from projectodyssey.core.conv import conv2d
-from projectodyssey.core.pooling import maxpool2d
-from projectodyssey.core.linear import linear
-from projectodyssey.core.activation import relu
-from projectodyssey.core.shape import conv2d_output_shape, pool_output_shape
-from projectodyssey.core.initializers import kaiming_uniform
-from projectodyssey.testing.layer_params import ConvFixture, LinearFixture
-from projectodyssey.testing.assertions import (
+from odyssey.core.extensor import ExTensor, zeros, ones, full
+from odyssey.core.conv import conv2d
+from odyssey.core.pooling import maxpool2d
+from odyssey.core.linear import linear
+from odyssey.core.activation import relu
+from odyssey.core.shape import conv2d_output_shape, pool_output_shape
+from odyssey.core.initializers import kaiming_uniform
+from odyssey.testing.layer_params import ConvFixture, LinearFixture
+from odyssey.testing.assertions import (
     assert_shape,
     assert_dtype,
     assert_true,
     assert_false,
 )
-from projectodyssey.testing.special_values import (
+from odyssey.testing.special_values import (
     create_special_value_tensor,
     create_alternating_pattern_tensor,
     create_seeded_random_tensor,
@@ -64,7 +64,7 @@ from projectodyssey.testing.special_values import (
     SPECIAL_VALUE_NEG_ONE,
     SPECIAL_VALUE_HALF,
 )
-from projectodyssey.testing.layer_testers import LayerTester
+from odyssey.testing.layer_testers import LayerTester
 from math import isnan, isinf
 
 

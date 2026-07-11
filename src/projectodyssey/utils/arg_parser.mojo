@@ -4,7 +4,7 @@ This module provides a simple argument parser for command-line applications,
 with support for typed arguments (int, float, string, bool) and flags.
 
 Example:
-    from projectodyssey.utils import ArgumentParser
+    from odyssey.utils import ArgumentParser
 
     var parser = ArgumentParser()
     parser.add_argument("epochs", "int", "100")

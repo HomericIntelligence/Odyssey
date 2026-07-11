@@ -45,7 +45,7 @@ jobs:
       - name: Get installed Mojo version
         id: installed
         run: |
-          INSTALLED=$(podman compose exec -T projectodyssey-dev pixi run mojo --version 2>/dev/null | head -1 | awk '{print $2}')
+          INSTALLED=$(podman compose exec -T odyssey-dev pixi run mojo --version 2>/dev/null | head -1 | awk '{print $2}')
           echo "version=$INSTALLED" >> "$GITHUB_OUTPUT"
           echo "Installed version: $INSTALLED"
 
@@ -53,7 +53,7 @@ jobs:
         id: latest
         run: |
           # Query conda for latest mojo version from max-nightly channel
-          LATEST=$(podman compose exec -T projectodyssey-dev pixi search mojo --channel https://conda.modular.com/max-nightly 2>/dev/null | grep -E '^mojo\s+' | head -1 | awk '{print $2}' || echo "")
+          LATEST=$(podman compose exec -T odyssey-dev pixi search mojo --channel https://conda.modular.com/max-nightly 2>/dev/null | grep -E '^mojo\s+' | head -1 | awk '{print $2}' || echo "")
 
           if [ -z "$LATEST" ]; then
             echo "Could not fetch latest version from conda"

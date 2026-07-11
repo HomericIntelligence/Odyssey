@@ -6,12 +6,12 @@ in Mojo (package-scoped privacy). See tensor_io.mojo for precedent.
 """
 
 from std.collections import List
-from projectodyssey.base.broadcasting import (
+from odyssey.base.broadcasting import (
     broadcast_shapes,
     compute_broadcast_strides,
     are_shapes_broadcastable,
 )
-from projectodyssey.base.dtype_ordinal import (
+from odyssey.base.dtype_ordinal import (
     dtype_to_ordinal,
     DTYPE_FLOAT16,
     DTYPE_FLOAT32,
@@ -33,7 +33,7 @@ def broadcast_to_impl(
 ) raises -> AnyTensor:
     """Broadcast tensor to target shape (extracted from AnyTensor.broadcast_to per #5182).
     """
-    # Inline broadcast_to to avoid circular import via projectodyssey.core.shape.
+    # Inline broadcast_to to avoid circular import via odyssey.core.shape.
     # Uses module-level are_shapes_broadcastable and compute_broadcast_strides.
     # See Issue #4513.
     var shape = tensor.shape()
@@ -75,7 +75,7 @@ def broadcast_to_impl(
 # Binary, unary, and comparison helpers implement element-wise operations with
 # NumPy-style broadcasting for use by AnyTensor's operator overloads.
 # Defined here (rather than in arithmetic/comparison modules) to break circular
-# import chains. Both files are now siblings in src/projectodyssey/tensor/.
+# import chains. Both files are now siblings in src/odyssey/tensor/.
 # See Issue #4513.
 
 
@@ -260,7 +260,7 @@ def _anytensor_matmul(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     """Basic matrix multiplication (2D x 2D) for AnyTensor.__matmul__.
 
     Note: For full matmul with batching and contiguity handling, use
-    projectodyssey.core.matrix.matmul. This implementation handles the common 2D case
+    odyssey.core.matrix.matmul. This implementation handles the common 2D case
     to avoid the circular import: any_tensor <- matrix <- shape <- any_tensor.
     """
     var a_ndim = len(a._shape)
@@ -317,5 +317,5 @@ def _anytensor_matmul(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     # by raising a helpful error pointing to matrix.matmul
     raise Error(
         "AnyTensor.__matmul__ only supports 2D x 2D. "
-        "For 1D/batched matmul use projectodyssey.core.matrix.matmul directly."
+        "For 1D/batched matmul use odyssey.core.matrix.matmul directly."
     )

@@ -6,10 +6,10 @@ Tests cover:
 - grad_input correctness per batch item
 """
 
-from tests.projectodyssey.conftest import assert_almost_equal, assert_equal
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros, ones
-from projectodyssey.core.conv import conv2d, conv2d_backward
+from tests.odyssey.conftest import assert_almost_equal, assert_equal
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros, ones
+from odyssey.core.conv import conv2d, conv2d_backward
 
 
 def test_conv2d_backward_batched_grad_bias() raises:

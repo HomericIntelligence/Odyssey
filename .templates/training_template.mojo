@@ -21,8 +21,8 @@ RENDERING CONVENTION (mojo-1.0):
 
 # TEMPLATE: model_snake_PLACEHOLDER -> {{model_snake}} (module path filled during code generation)
 # Example real import: from models.lenet5 import LeNet5
-from projectodyssey.core.module import Module
-from projectodyssey.tensor.any_tensor import AnyTensor
+from odyssey.core.module import Module
+from odyssey.tensor.any_tensor import AnyTensor
 
 # Hyperparameters (concrete values; scaffold replaces these with {{epochs}} etc.)
 alias NUM_EPOCHS: Int = 10      # TEMPLATE: replace value with {{epochs}}

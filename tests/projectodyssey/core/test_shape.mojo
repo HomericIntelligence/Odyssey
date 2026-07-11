@@ -3,9 +3,9 @@
 """
 
 
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import arange, full, ones, zeros
-from projectodyssey.core.shape import (
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import arange, full, ones, zeros
+from odyssey.core.shape import (
     as_contiguous,
     broadcast_to,
     concatenate,
@@ -23,7 +23,7 @@ from projectodyssey.core.shape import (
     tile,
     unsqueeze,
 )
-from tests.projectodyssey.conftest import (
+from tests.odyssey.conftest import (
     assert_all_values,
     assert_dim,
     assert_dtype,

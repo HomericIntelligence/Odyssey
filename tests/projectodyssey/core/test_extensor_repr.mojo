@@ -6,9 +6,9 @@ show first 3 and last 3 elements with '...' in between.
 Related: issue #4038, follow-up from #3375
 """
 
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros, ones, full, arange
-from tests.projectodyssey.conftest import assert_true, assert_equal
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros, ones, full, arange
+from tests.odyssey.conftest import assert_true, assert_equal
 
 
 def test_repr_empty_tensor() raises:

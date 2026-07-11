@@ -22,7 +22,7 @@ Functions:
     validate_matching_dtype: Validate two tensors have matching dtype
 """
 
-from projectodyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.any_tensor import AnyTensor
 
 
 def validate_tensor_shape(

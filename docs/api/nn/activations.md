@@ -14,8 +14,8 @@ to learn complex patterns. All activations support both functional and layer for
 Rectified Linear Unit: `max(0, x)`
 
 ```mojo
-from projectodyssey.core import relu
-from projectodyssey.core.layers import ReLU
+from odyssey.core import relu
+from odyssey.core.layers import ReLU
 ```
 
 **Functional:**
@@ -42,8 +42,8 @@ var y = activation.forward(x)
 Leaky ReLU: `max(alpha*x, x)` where alpha is small (default 0.01)
 
 ```mojo
-from projectodyssey.core import leaky_relu
-from projectodyssey.core.layers import LeakyReLU
+from odyssey.core import leaky_relu
+from odyssey.core.layers import LeakyReLU
 
 # Functional
 var y = leaky_relu(x, alpha=0.01)
@@ -62,8 +62,8 @@ var y = activation.forward(x)
 Exponential Linear Unit.
 
 ```mojo
-from projectodyssey.core import elu
-from projectodyssey.core.layers import ELU
+from odyssey.core import elu
+from odyssey.core.layers import ELU
 
 # Functional
 var y = elu(x, alpha=1.0)
@@ -83,8 +83,8 @@ var y = activation.forward(x)
 Gaussian Error Linear Unit (used in transformers).
 
 ```mojo
-from projectodyssey.core import gelu
-from projectodyssey.core.layers import GELU
+from odyssey.core import gelu
+from odyssey.core.layers import GELU
 
 var y = gelu(x)
 ```
@@ -101,8 +101,8 @@ var y = gelu(x)
 Sigmoid Linear Unit: `x * sigmoid(x)`
 
 ```mojo
-from projectodyssey.core import silu
-from projectodyssey.core.layers import SiLU
+from odyssey.core import silu
+from odyssey.core.layers import SiLU
 
 var y = silu(x)
 ```
@@ -119,8 +119,8 @@ var y = silu(x)
 Logistic sigmoid: `1 / (1 + exp(-x))`
 
 ```mojo
-from projectodyssey.core import sigmoid
-from projectodyssey.core.layers import Sigmoid
+from odyssey.core import sigmoid
+from odyssey.core.layers import Sigmoid
 
 # Functional
 var y = sigmoid(x)
@@ -141,8 +141,8 @@ var y = activation.forward(x)
 Hyperbolic tangent: `(exp(x) - exp(-x)) / (exp(x) + exp(-x))`
 
 ```mojo
-from projectodyssey.core import tanh
-from projectodyssey.core.layers import Tanh
+from odyssey.core import tanh
+from odyssey.core.layers import Tanh
 
 var y = tanh(x)
 ```
@@ -160,8 +160,8 @@ var y = tanh(x)
 Normalize to probability distribution: `exp(x_i) / sum(exp(x_j))`
 
 ```mojo
-from projectodyssey.core import softmax
-from projectodyssey.core.layers import Softmax
+from odyssey.core import softmax
+from odyssey.core.layers import Softmax
 
 # Along last dimension (default)
 var probs = softmax(logits, dim=-1)
@@ -186,8 +186,8 @@ var probs = activation.forward(logits)
 Log of softmax: `log(softmax(x))`
 
 ```mojo
-from projectodyssey.core import log_softmax
-from projectodyssey.core.layers import LogSoftmax
+from odyssey.core import log_softmax
+from odyssey.core.layers import LogSoftmax
 
 var log_probs = log_softmax(logits, dim=-1)
 ```

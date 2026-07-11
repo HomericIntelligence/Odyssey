@@ -4,16 +4,16 @@ Issue #3683: Verify that validate() returns average validation loss
 as a Float64 scalar, consistent with the validation_loop API.
 """
 
-from tests.projectodyssey.conftest import (
+from tests.odyssey.conftest import (
     assert_true,
     assert_almost_equal,
     assert_less,
     assert_greater,
 )
-from projectodyssey.training.loops.validation_loop import validate
-from projectodyssey.training.trainer_interface import DataLoader
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import ones, zeros
+from odyssey.training.loops.validation_loop import validate
+from odyssey.training.trainer_interface import DataLoader
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import ones, zeros
 
 # ============================================================================
 # Helper functions

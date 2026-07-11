@@ -13,8 +13,8 @@ Features:
 
 from std.collections import List
 from std.math import sqrt
-from projectodyssey.training.metrics.base import Metric
-from projectodyssey.tensor.any_tensor import AnyTensor
+from odyssey.training.metrics.base import Metric
+from odyssey.tensor.any_tensor import AnyTensor
 
 # min and max are now builtins in Mojo - no import needed
 

@@ -9,14 +9,14 @@ Key differences from functional API:
 - No transpose of weights needed (stored in correct order)
 """
 
-from tests.projectodyssey.conftest import (
+from tests.odyssey.conftest import (
     assert_almost_equal,
     assert_equal,
     assert_true,
 )
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import ones, zeros, zeros_like
-from projectodyssey.core.layers.linear import Linear
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import ones, zeros, zeros_like
+from odyssey.core.layers.linear import Linear
 
 
 def test_linear_struct_initialization() raises:

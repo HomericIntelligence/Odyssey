@@ -10,7 +10,7 @@ Implemented techniques:
 
 Usage Example:
         ```
-    from projectodyssey.autograd import clip_grad_value_, clip_grad_norm_, clip_grad_global_norm_
+    from odyssey.autograd import clip_grad_value_, clip_grad_norm_, clip_grad_global_norm_
 
     # Clip individual gradient elements
     clip_grad_value_(grad, max_value=1.0)
@@ -29,7 +29,7 @@ References:
 """
 
 from std.math import sqrt
-from projectodyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.any_tensor import AnyTensor
 
 
 def clip_grad_value_(mut grad: AnyTensor, max_value: Float64) raises:

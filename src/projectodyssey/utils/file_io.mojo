@@ -5,7 +5,7 @@
 # backup creation, and compression.
 #
 # Example:
-#     from projectodyssey.utils import save_checkpoint, load_checkpoint
+#     from odyssey.utils import save_checkpoint, load_checkpoint
 #
 #     # Save checkpoint with model state
 #     save_checkpoint("checkpoint.pt", model, optimizer, epoch=10)
@@ -25,9 +25,9 @@
 
 from std.python import Python, PythonObject
 from std.memory import UnsafePointer
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros
-from projectodyssey.utils.serialization import dtype_to_string
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros
+from odyssey.utils.serialization import dtype_to_string
 
 
 # ============================================================================

@@ -1,7 +1,7 @@
 #!/bin/bash
 # run_all_experiments.sh — validates every claim in the Day 53 blog post
 #
-# Usage: cd ProjectOdyssey && bash repro/run_all_experiments.sh
+# Usage: cd Odyssey && bash repro/run_all_experiments.sh
 #
 # Runs each experiment and prints the command, expected outcome, and PASS/FAIL.
 
@@ -193,7 +193,7 @@ echo ""
 # The original 24-test monolithic file from Dec 2025 (Issue #2942).
 # This requires the shared library to be built. If not available, skip gracefully.
 echo "  Note: This test requires 'pixi run just build' to have been run first."
-echo "  The monolithic file uses project imports (from projectodyssey.core.*)."
+echo "  The monolithic file uses project imports (from odyssey.core.*)."
 echo ""
 
 run_test \

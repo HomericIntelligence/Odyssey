@@ -18,10 +18,10 @@ Each test asserts loss decreases monotonically (or at least by >=50%
 across N steps), guaranteeing the whole tape→registry→optimizer pipeline
 moves parameters in a direction that reduces loss for that op stack.
 
-Run with: pixi run mojo run -I src tests/projectodyssey/autograd/test_autograd_convergence.mojo
+Run with: pixi run mojo run -I src tests/odyssey/autograd/test_autograd_convergence.mojo
 """
 
-from projectodyssey.autograd import (
+from odyssey.autograd import (
     Variable,
     GradientTape,
     SGD,
@@ -32,8 +32,8 @@ from projectodyssey.autograd import (
     variable_linear,
     variable_cross_entropy,
 )
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros
 
 
 def _make_tensor(shape: List[Int], fill: Float64) raises -> AnyTensor:

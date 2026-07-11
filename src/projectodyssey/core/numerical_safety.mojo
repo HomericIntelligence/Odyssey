@@ -14,7 +14,7 @@ runtime overhead when safety mode is disabled.
 
 Example:
     ```mojo
-    from projectodyssey.core import AnyTensor, check_tensor_safety
+    from odyssey.core import AnyTensor, check_tensor_safety
 
     # Enable safety checks at compile time
     var output = model_forward(x)
@@ -25,12 +25,12 @@ Example:
     ```
 """
 
-from projectodyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.any_tensor import AnyTensor
 from std.math import isnan, isinf, sqrt
 from std.collections import List
 from std.algorithm import vectorize
 from std.sys.info import simd_width_of
-from projectodyssey.base.dtype_ordinal import (
+from odyssey.base.dtype_ordinal import (
     dtype_to_ordinal,
     DTYPE_FLOAT16,
     DTYPE_FLOAT32,
@@ -77,7 +77,7 @@ def has_nan(tensor: AnyTensor) -> Bool:
     Note:
             Checks all elements regardless of dtype. Supports all floating-point types.
     """
-    from projectodyssey.tensor.typed.numerical_safety import _has_nan_core
+    from odyssey.tensor.typed.numerical_safety import _has_nan_core
 
     # Only float types can have NaN - fast path for integers
     var dtype = tensor.dtype()
@@ -124,7 +124,7 @@ def has_inf(tensor: AnyTensor) -> Bool:
     Note:
             Checks all elements regardless of dtype. Supports all floating-point types.
     """
-    from projectodyssey.tensor.typed.numerical_safety import _has_inf_core
+    from odyssey.tensor.typed.numerical_safety import _has_inf_core
 
     var dtype = tensor.dtype()
     if dtype == DType.float32:
@@ -166,7 +166,7 @@ def count_nan(tensor: AnyTensor) -> Int:
             assert_equal(count_nan(x), 2)
             ```
     """
-    from projectodyssey.tensor.typed.numerical_safety import _count_nan_core
+    from odyssey.tensor.typed.numerical_safety import _count_nan_core
 
     var dtype = tensor.dtype()
     if dtype == DType.float32:
@@ -208,7 +208,7 @@ def count_inf(tensor: AnyTensor) -> Int:
             assert_equal(count_inf(x), 2)
             ```
     """
-    from projectodyssey.tensor.typed.numerical_safety import _count_inf_core
+    from odyssey.tensor.typed.numerical_safety import _count_inf_core
 
     var dtype = tensor.dtype()
     if dtype == DType.float32:
@@ -289,7 +289,7 @@ def tensor_min(tensor: AnyTensor) -> Float64:
             assert_equal(tensor_min(x), -5.0)
             ```
     """
-    from projectodyssey.tensor.typed.numerical_safety import _tensor_min_core
+    from odyssey.tensor.typed.numerical_safety import _tensor_min_core
 
     var dtype = tensor.dtype()
     if dtype == DType.float32:
@@ -331,7 +331,7 @@ def tensor_max(tensor: AnyTensor) -> Float64:
             assert_equal(tensor_max(x), 10.0)
             ```
     """
-    from projectodyssey.tensor.typed.numerical_safety import _tensor_max_core
+    from odyssey.tensor.typed.numerical_safety import _tensor_max_core
 
     var dtype = tensor.dtype()
     if dtype == DType.float32:
@@ -415,7 +415,7 @@ def compute_tensor_l2_norm(tensor: AnyTensor) -> Float64:
             assert_equal(compute_tensor_l2_norm(x), 5.0)  # sqrt(9 + 16)
             ```
     """
-    from projectodyssey.tensor.typed.numerical_safety import (
+    from odyssey.tensor.typed.numerical_safety import (
         _compute_l2_norm_core,
     )
 
@@ -567,8 +567,8 @@ def check_gradient_safety[
 # ============================================================================
 # Gradient Clipping Utilities
 # ============================================================================
-# Moved from projectodyssey/autograd/grad_utils.mojo to break the circular type
-# resolution between projectodyssey.core and projectodyssey.autograd that prevented
+# Moved from odyssey/autograd/grad_utils.mojo to break the circular type
+# resolution between odyssey.core and odyssey.autograd that prevented
 # `mojo package shared` from compiling. (Issue #4513)
 
 

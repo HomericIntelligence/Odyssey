@@ -8,13 +8,13 @@ Tests random_tensor function:
 """
 
 
-from projectodyssey.testing import (
+from odyssey.testing import (
     random_normal,
     random_tensor,
     random_uniform,
     synthetic_classification_data,
 )
-from tests.projectodyssey.conftest import (
+from tests.odyssey.conftest import (
     assert_dim,
     assert_dtype,
     assert_equal_int,

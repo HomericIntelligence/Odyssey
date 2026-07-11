@@ -11,15 +11,15 @@ All tests use the real ModelCheckpoint implementation.
 """
 
 
-from tests.projectodyssey.conftest import (
+from tests.odyssey.conftest import (
     assert_true,
     assert_equal,
     assert_almost_equal,
     assert_greater,
     TestFixtures,
 )
-from projectodyssey.training.callbacks import ModelCheckpoint
-from projectodyssey.training.base import TrainingState
+from odyssey.training.callbacks import ModelCheckpoint
+from odyssey.training.base import TrainingState
 
 
 def test_checkpointing_initialization() raises:

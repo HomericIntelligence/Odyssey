@@ -24,18 +24,18 @@ See examples/mixed_precision_training.mojo for complete usage
 from std.sys import is_defined
 from std.io import Writer
 
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import full, zeros
-from projectodyssey.core.dtype_cast import cast_tensor
-from projectodyssey.core.numerical_safety import has_nan, has_inf
-from projectodyssey.training.mixed_precision import (
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import full, zeros
+from odyssey.core.dtype_cast import cast_tensor
+from odyssey.core.numerical_safety import has_nan, has_inf
+from odyssey.training.mixed_precision import (
     GradientScaler,
     convert_to_fp32_master,
     update_model_from_master,
     check_gradients_finite,
     clip_gradients_by_norm,
 )
-from projectodyssey.training.dtype_utils import (
+from odyssey.training.dtype_utils import (
     float16_dtype,
     float32_dtype,
     float64_dtype,

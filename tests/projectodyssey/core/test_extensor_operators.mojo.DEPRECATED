@@ -8,7 +8,7 @@ Tests cover:
 Following TDD principles - these tests verify operator implementation correctness.
 """
 
-from projectodyssey.core.extensor import ExTensor, zeros, ones, full
+from odyssey.core.extensor import ExTensor, zeros, ones, full
 from tests.shared.conftest import assert_true, assert_almost_equal, assert_equal
 
 

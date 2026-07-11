@@ -2,7 +2,7 @@
 
 This document describes the recommended strategy for backing up training
 checkpoints and recovering from data loss events. The training infrastructure
-under `src/projectodyssey/training/` writes checkpoints to local disk; persistence and
+under `src/odyssey/training/` writes checkpoints to local disk; persistence and
 backup are the operator's responsibility.
 
 ## Backup recommendation
@@ -44,4 +44,4 @@ This loses the optimizer state.
 
 - #5184 — Add training checkpoint save/load and recovery mechanism
 - #5183 — Add training operation timeouts and graceful shutdown
-- `src/projectodyssey/training/checkpoint.mojo` — checkpoint serialization primitives
+- `src/odyssey/training/checkpoint.mojo` — checkpoint serialization primitives

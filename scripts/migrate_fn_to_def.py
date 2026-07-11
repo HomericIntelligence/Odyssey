@@ -70,8 +70,8 @@ def migrate_fn_to_def_in_file(filepath: Path) -> tuple[int, list[str]]:
 
 
 def main():
-    """Process all .mojo files in src/projectodyssey/, tests/, and scripts/."""
-    mojo_files = list(Path("/home/mvillmow/ProjectOdyssey").glob("**/*.mojo"))
+    """Process all .mojo files in src/odyssey/, tests/, and scripts/."""
+    mojo_files = list(Path("/home/mvillmow/Odyssey").glob("**/*.mojo"))
 
     if not mojo_files:
         print("No .mojo files found")
@@ -90,7 +90,7 @@ def main():
         if num_changes > 0:
             files_modified += 1
             total_changes += num_changes
-            rel_path = filepath.relative_to("/home/mvillmow/ProjectOdyssey")
+            rel_path = filepath.relative_to("/home/mvillmow/Odyssey")
             print(f"✓ {rel_path}")
             for desc in descriptions:
                 print(f"  - {desc}")

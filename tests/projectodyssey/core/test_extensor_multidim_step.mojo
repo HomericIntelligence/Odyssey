@@ -5,9 +5,9 @@ dimensions, consistent with the 1D __getitem__(Slice) overload.  These
 tests verify that step slicing produces correct shapes and values.
 """
 
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros, arange
-from tests.projectodyssey.conftest import assert_true, assert_equal
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros, arange
+from tests.odyssey.conftest import assert_true, assert_equal
 
 
 # ============================================================================

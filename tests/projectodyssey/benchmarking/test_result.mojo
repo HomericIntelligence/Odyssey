@@ -11,7 +11,7 @@ Tests cover:
 
 
 from std.testing import assert_true, assert_almost_equal
-from projectodyssey.benchmarking.result import BenchmarkResult
+from odyssey.benchmarking.result import BenchmarkResult
 
 
 def test_initialization() raises:

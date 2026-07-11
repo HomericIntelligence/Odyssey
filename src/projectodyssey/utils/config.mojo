@@ -5,7 +5,7 @@ from YAML and JSON files. Supports nested configurations, environment
 variable substitution, and validation rules.
 
 Example:
-    from projectodyssey.utils import Config.
+    from odyssey.utils import Config.
 
     var config = Config.from_yaml("config.yaml").
     var lr = config.get_float("learning_rate").

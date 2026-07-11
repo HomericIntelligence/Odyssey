@@ -6,15 +6,15 @@ All operations are stateless - caller manages running statistics and parameters.
 
 from std.algorithm import parallelize
 
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import (
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import (
     zeros,
     zeros_like,
     ones_like,
     full_like,
 )
-from projectodyssey.core.parallel_utils import should_parallelize
-from projectodyssey.core.dtype_dispatch import dispatch_float3
+from odyssey.core.parallel_utils import should_parallelize
+from odyssey.core.dtype_dispatch import dispatch_float3
 
 
 # ============================================================================
@@ -212,7 +212,7 @@ def batch_norm2d(
 
         Example:
             ```mojo
-            from projectodyssey.core import batch_norm2d, zeros, ones
+            from odyssey.core import batch_norm2d, zeros, ones
 
             var gamma = ones([channels])
             var beta = zeros([channels])
@@ -549,7 +549,7 @@ def batch_norm2d_backward(
 
         Example:
             ```mojo
-            from projectodyssey.core import batch_norm2d_backward
+            from odyssey.core import batch_norm2d_backward
 
             # Forward pass (save x for backward)
             var (output, new_mean, new_var) = batch_norm2d(
@@ -789,7 +789,7 @@ def layer_norm(
 
         Example:
             ```mojo
-            from projectodyssey.core import layer_norm, zeros, ones
+            from odyssey.core import layer_norm, zeros, ones
 
             # For 2D input (batch, features)
             var gamma = ones([features])
@@ -1087,7 +1087,7 @@ def layer_norm_backward(
 
         Example:
             ```mojo
-            from projectodyssey.core import layer_norm, layer_norm_backward
+            from odyssey.core import layer_norm, layer_norm_backward
 
             # Forward pass
             var output = layer_norm(x, gamma, beta)
@@ -1285,7 +1285,7 @@ def group_norm(
 
         Example:
             ```mojo
-            from projectodyssey.core import group_norm, zeros, ones
+            from odyssey.core import group_norm, zeros, ones
 
             # Divide 32 channels into 8 groups of 4 channels each
             var gamma = ones([32])
@@ -1504,7 +1504,7 @@ def group_norm_backward(
 
         Example:
             ```mojo
-            from projectodyssey.core import group_norm, group_norm_backward
+            from odyssey.core import group_norm, group_norm_backward
 
             # Forward pass
             var output = group_norm(x, num_groups=8, gamma=gamma, beta=beta)
@@ -1646,7 +1646,7 @@ def instance_norm(
 
         Example:
             ```mojo
-            from projectodyssey.core import instance_norm, zeros, ones
+            from odyssey.core import instance_norm, zeros, ones
 
             var gamma = ones([channels])
             var beta = zeros([channels])
@@ -1829,7 +1829,7 @@ def instance_norm_backward(
 
         Example:
             ```mojo
-            from projectodyssey.core import instance_norm, instance_norm_backward
+            from odyssey.core import instance_norm, instance_norm_backward
 
             # Forward pass
             var output = instance_norm(x, gamma=gamma, beta=beta)

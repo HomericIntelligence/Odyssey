@@ -11,7 +11,7 @@ from std.testing import (
     assert_equal,
     assert_true,
 )
-from projectodyssey.autograd import (
+from odyssey.autograd import (
     GradientTape,
     NoGradContext,
     disable_gradient_tracking,

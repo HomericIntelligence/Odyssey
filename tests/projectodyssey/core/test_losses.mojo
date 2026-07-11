@@ -7,21 +7,21 @@ This module tests:
 """
 
 
-from tests.projectodyssey.conftest import (
+from tests.odyssey.conftest import (
     assert_true,
     assert_false,
     assert_equal_int,
     assert_almost_equal,
     assert_close_float,
 )
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import (
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import (
     zeros,
     ones,
     zeros_like,
     ones_like,
 )
-from projectodyssey.core.loss import (
+from odyssey.core.loss import (
     binary_cross_entropy,
     binary_cross_entropy_backward,
     focal_loss,
@@ -35,8 +35,8 @@ from projectodyssey.core.loss import (
     smooth_l1_loss,
     smooth_l1_loss_backward,
 )
-from projectodyssey.core.reduction import mean
-from projectodyssey.testing.gradient_checker import (
+from odyssey.core.reduction import mean
+from odyssey.testing.gradient_checker import (
     check_gradient,
     NumericalForward,
     NumericalBackward,

@@ -24,14 +24,14 @@ Reference:
     https://github.com/google/automl/tree/master/lion
 """
 
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import full_like
-from projectodyssey.core.arithmetic_simd import (
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import full_like
+from odyssey.core.arithmetic_simd import (
     subtract_simd,
     multiply_simd,
     add_simd,
 )
-from projectodyssey.core.elementwise import sign
+from odyssey.core.elementwise import sign
 
 
 def lion_step(

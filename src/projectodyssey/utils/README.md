@@ -142,7 +142,7 @@ struct FileHandler(Handler):
 ### Usage
 
 ```mojo
-from projectodyssey.utils import Logger, StreamHandler, FileHandler
+from odyssey.utils import Logger, StreamHandler, FileHandler
 
 # Create logger
 var logger = Logger("training")
@@ -405,7 +405,7 @@ fn merge_configs(base: Config, override: Config) -> Config:
 ### Usage
 
 ```mojo
-from projectodyssey.utils import load_config, save_config
+from odyssey.utils import load_config, save_config
 
 # Load config
 var config = load_config("configs/lenet5.yaml")
@@ -471,7 +471,7 @@ fn set_random_state(state: RandomState):
 ### Usage
 
 ```mojo
-from projectodyssey.utils import set_seed, get_random_state, set_random_state
+from odyssey.utils import set_seed, get_random_state, set_random_state
 
 # Set seed at start of experiment
 set_seed(42)
@@ -516,7 +516,7 @@ struct Timer:
 ### Usage
 
 ```mojo
-from projectodyssey.utils import Timer
+from odyssey.utils import Timer
 
 with Timer("Forward pass"):
     var output = model.forward(batch.inputs)
@@ -578,7 +578,7 @@ fn memory_usage() -> MemoryStats:
 ### Complete Training Setup
 
 ```mojo
-from projectodyssey.utils import (
+from odyssey.utils import (
     Logger, StreamHandler, FileHandler,
     load_config, set_seed,
     Timer, plot_training_curves
@@ -641,7 +641,7 @@ data:
 ### Debugging with Logging
 
 ```mojo
-from projectodyssey.utils import Logger, LogLevel
+from odyssey.utils import Logger, LogLevel
 
 # Create debug logger
 var logger = Logger("debug", level=LogLevel.DEBUG)
@@ -708,18 +708,18 @@ Utilities are used throughout the library:
 
 ```mojo
 # In training loops
-from projectodyssey.utils import Logger, Timer
+from odyssey.utils import Logger, Timer
 var logger = Logger("training")
 with Timer("Epoch"):
     loss = train_epoch(model, loader, optimizer)
     logger.info(f"Loss: {loss}")
 
 # In data loading
-from projectodyssey.utils import set_seed
+from odyssey.utils import set_seed
 set_seed(42)  # For reproducible data shuffling
 
 # In model development
-from projectodyssey.utils import plot_training_curves
+from odyssey.utils import plot_training_curves
 plot_training_curves(history.train_loss, history.val_loss)
 ```text
 

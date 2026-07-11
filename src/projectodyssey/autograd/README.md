@@ -14,8 +14,8 @@ The autograd system consists of three main components:
 ## Quick Start
 
 ```mojo
-from projectodyssey.autograd import Variable, GradientTape, SGD
-from projectodyssey.core import zeros, ones
+from odyssey.autograd import Variable, GradientTape, SGD
+from odyssey.core import zeros, ones
 
 # Create variables with gradient tracking
 var x = Variable(zeros(shape, dtype), requires_grad=True)
@@ -44,8 +44,8 @@ print(y.grad)  # ∂loss/∂y
 `Variable` wraps an `AnyTensor` and adds gradient tracking:
 
 ```mojo
-from projectodyssey.autograd import Variable
-from projectodyssey.core import zeros
+from odyssey.autograd import Variable
+from odyssey.core import zeros
 
 # Create Variable from AnyTensor
 var data = zeros(DynamicVector[Int](3, 4), DType.float32)
@@ -76,7 +76,7 @@ var y = x.detach()  # y shares data but doesn't track gradients
 `GradientTape` records operations for automatic differentiation:
 
 ```mojo
-from projectodyssey.autograd import GradientTape
+from odyssey.autograd import GradientTape
 
 # Create tape
 var tape = GradientTape()
@@ -112,7 +112,7 @@ tape.clear()
 Basic gradient descent with optional momentum:
 
 ```mojo
-from projectodyssey.autograd import SGD
+from odyssey.autograd import SGD
 
 # Create optimizer
 var optimizer = SGD(learning_rate=0.01)
@@ -144,7 +144,7 @@ for epoch in range(num_epochs):
 
 ## Integration with Existing Code
 
-The autograd system integrates with the 27 existing backward pass functions in `src/projectodyssey/core/`:
+The autograd system integrates with the 27 existing backward pass functions in `src/odyssey/core/`:
 
 ### Arithmetic Operations
 
@@ -188,10 +188,10 @@ The autograd system integrates with the 27 existing backward pass functions in `
 
 ### Loss Functions
 
-The autograd system works with existing loss functions in `src/projectodyssey/core/loss.mojo`:
+The autograd system works with existing loss functions in `src/odyssey/core/loss.mojo`:
 
 ```mojo
-from projectodyssey.core.loss import binary_cross_entropy, mean_squared_error, cross_entropy
+from odyssey.core.loss import binary_cross_entropy, mean_squared_error, cross_entropy
 
 # Binary classification
 var loss = binary_cross_entropy(predictions, targets)
@@ -210,9 +210,9 @@ Each loss function has a corresponding `_backward` function for gradient computa
 Complete training loop example:
 
 ```mojo
-from projectodyssey.autograd import Variable, GradientTape, SGD
-from projectodyssey.core import zeros, ones
-from projectodyssey.core.loss import mean_squared_error, mean_squared_error_backward
+from odyssey.autograd import Variable, GradientTape, SGD
+from odyssey.core import zeros, ones
+from odyssey.core.loss import mean_squared_error, mean_squared_error_backward
 
 # Hyperparameters
 var learning_rate = 0.01
@@ -288,7 +288,7 @@ for epoch in range(num_epochs):
 `variable_batch_norm`, and `variable_concat` enable end-to-end convnet training
 (LeNet/AlexNet/VGG/ResNet, plus depthwise-separable MobileNet and Inception
 depth-concat) forward+backward via `loss.backward(tape)`. See
-`tests/projectodyssey/autograd/test_variable_layers.mojo`,
+`tests/odyssey/autograd/test_variable_layers.mojo`,
 `test_variable_batch_norm.mojo`, `test_variable_depthwise_conv2d.mojo`, and
 `test_variable_concat.mojo` for FD-validated gradient checks.
 
@@ -337,10 +337,10 @@ The autograd system **wraps** AnyTensor rather than modifying it because:
 
 When adding new operations to autograd:
 
-1. Implement the forward function in `src/projectodyssey/core/`
+1. Implement the forward function in `src/odyssey/core/`
 2. Implement the backward function in the same file
 3. Add operation recording in Variable (TODO: not yet implemented)
 4. Add dispatch case in tape.backward() (TODO: not yet implemented)
 5. Write tests comparing autograd vs manual gradients
 
-See existing backward passes in `src/projectodyssey/core/` for examples.
+See existing backward passes in `src/odyssey/core/` for examples.

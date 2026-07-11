@@ -13,8 +13,8 @@ This module re-exports the consolidated test models from models.mojo
 for backward compatibility and provides additional fixture utilities.
 
 Example:
-    from projectodyssey.testing.fixtures import create_test_cnn, create_linear_model
-    from projectodyssey.core import zeros, ones
+    from odyssey.testing.fixtures import create_test_cnn, create_linear_model
+    from odyssey.core import zeros, ones
 
     def test_forward_pass():
         var model = create_test_cnn(1, 8, 10)
@@ -30,9 +30,9 @@ Example:
     ```
 """
 
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros, ones, full, zeros_like
-from projectodyssey.testing.models import SimpleCNN, LinearModel
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros, ones, full, zeros_like
+from odyssey.testing.models import SimpleCNN, LinearModel
 
 
 def create_test_cnn(

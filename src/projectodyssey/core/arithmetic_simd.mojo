@@ -19,7 +19,7 @@ Design:
 - @always_inline for hot path optimization
 
 Usage:
-    from projectodyssey.core.arithmetic_simd import add_simd, multiply_simd
+    from odyssey.core.arithmetic_simd import add_simd, multiply_simd
 
     var a = ones([1024, 1024], DType.float32)
     var b = ones([1024, 1024], DType.float32)
@@ -28,7 +28,7 @@ Usage:
 
 from std.algorithm import vectorize
 from std.sys.info import simd_width_of
-from projectodyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.any_tensor import AnyTensor
 
 
 # ============================================================================
@@ -70,8 +70,8 @@ def add_simd(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
             var z = add_simd(x, y)  # Scalar broadcasting
             ```
     """
-    from projectodyssey.core.arithmetic import add
-    from projectodyssey.tensor.typed.arithmetic_simd import _add_simd_typed
+    from odyssey.core.arithmetic import add
+    from odyssey.tensor.typed.arithmetic_simd import _add_simd_typed
 
     if a.dtype() != b.dtype():
         raise Error("Cannot add tensors with different dtypes")
@@ -108,8 +108,8 @@ def subtract_simd(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     Raises:
             Error if dtypes don't match.
     """
-    from projectodyssey.core.arithmetic import subtract
-    from projectodyssey.tensor.typed.arithmetic_simd import _subtract_simd_typed
+    from odyssey.core.arithmetic import subtract
+    from odyssey.tensor.typed.arithmetic_simd import _subtract_simd_typed
 
     if a.dtype() != b.dtype():
         raise Error("Cannot subtract tensors with different dtypes")
@@ -142,8 +142,8 @@ def multiply_simd(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     Raises:
             Error if dtypes don't match.
     """
-    from projectodyssey.core.arithmetic import multiply
-    from projectodyssey.tensor.typed.arithmetic_simd import _multiply_simd_typed
+    from odyssey.core.arithmetic import multiply
+    from odyssey.tensor.typed.arithmetic_simd import _multiply_simd_typed
 
     if a.dtype() != b.dtype():
         raise Error("Cannot multiply tensors with different dtypes")
@@ -176,8 +176,8 @@ def divide_simd(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     Raises:
             Error if dtypes don't match or division by zero.
     """
-    from projectodyssey.core.arithmetic import divide
-    from projectodyssey.tensor.typed.arithmetic_simd import _divide_simd_typed
+    from odyssey.core.arithmetic import divide
+    from odyssey.tensor.typed.arithmetic_simd import _divide_simd_typed
 
     if a.dtype() != b.dtype():
         raise Error("Cannot divide tensors with different dtypes")

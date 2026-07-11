@@ -15,7 +15,7 @@ Performance Benefits:
 - 20-30% faster gradient updates vs naive implementations
 
 Example:
-    from projectodyssey.training.gradient_ops import accumulate_gradient_inplace
+    from odyssey.training.gradient_ops import accumulate_gradient_inplace
 
     # Accumulate gradients across mini-batches
     var accumulated_grad = zeros_like(parameters)
@@ -24,8 +24,8 @@ Example:
         accumulate_gradient_inplace(accumulated_grad, grad)  # No allocation!
 """
 
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.core.types.dtype_aliases import BF16
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.core.types.dtype_aliases import BF16
 
 
 def accumulate_gradient_inplace(

@@ -17,7 +17,7 @@ Components:
 
 Example:
     ```mojo
-    from projectodyssey.core.layers import Linear, ReLU
+    from odyssey.core.layers import Linear, ReLU
 
     struct MLP:
         var fc1: Linear
@@ -32,11 +32,11 @@ Example:
 """
 
 # Layer exports
-from projectodyssey.core.layers.linear import Linear
-from projectodyssey.core.layers.conv2d import Conv2dLayer
-from projectodyssey.core.layers.batchnorm import BatchNorm2dLayer
-from projectodyssey.core.layers.relu import ReLULayer
-from projectodyssey.core.layers.dropout import DropoutLayer
+from odyssey.core.layers.linear import Linear
+from odyssey.core.layers.conv2d import Conv2dLayer
+from odyssey.core.layers.batchnorm import BatchNorm2dLayer
+from odyssey.core.layers.relu import ReLULayer
+from odyssey.core.layers.dropout import DropoutLayer
 
 # from .activation import ReLU, Sigmoid, Tanh
 # from .pooling import MaxPool2D, AvgPool2D

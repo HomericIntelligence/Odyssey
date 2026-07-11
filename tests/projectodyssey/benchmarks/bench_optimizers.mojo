@@ -12,16 +12,16 @@ This file implements real benchmarks using perf_counter_ns() for high-resolution
 timing measurements with warmup iterations before actual measurement.
 """
 
-from tests.projectodyssey.conftest import (
+from tests.odyssey.conftest import (
     BenchmarkResult,
     print_benchmark_results,
     measure_time,
     TestFixtures,
 )
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import randn, zeros_like
-from projectodyssey.training.optimizers.sgd import sgd_step, sgd_step_simple
-from projectodyssey.training.optimizers.adam import adam_step, adam_step_simple
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import randn, zeros_like
+from odyssey.training.optimizers.sgd import sgd_step, sgd_step_simple
+from odyssey.training.optimizers.adam import adam_step, adam_step_simple
 from std.time import perf_counter_ns
 from std.collections import List
 

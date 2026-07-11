@@ -14,14 +14,14 @@ With weight decay (L2 regularization):
     params = params - learning_rate * (gradients + weight_decay * params)
 """
 
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.core.arithmetic import subtract, multiply, add
-from projectodyssey.core.arithmetic_simd import (
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.core.arithmetic import subtract, multiply, add
+from odyssey.core.arithmetic_simd import (
     subtract_simd,
     multiply_simd,
     add_simd,
 )
-from projectodyssey.tensor.tensor_creation import full_like
+from odyssey.tensor.tensor_creation import full_like
 
 
 def sgd_step(
@@ -52,8 +52,8 @@ def sgd_step(
 
         Example (basic SGD without momentum):
             ```mojo
-            from projectodyssey.core import AnyTensor, zeros_like
-            from projectodyssey.training.optimizers import sgd_step
+            from odyssey.core import AnyTensor, zeros_like
+            from odyssey.training.optimizers import sgd_step
 
             var W = xavier_uniform(784, 128, DType.float32)
             var W_vel = zeros_like(W)  # Not used, but required
@@ -190,8 +190,8 @@ def sgd_momentum_update_inplace(
 
         Example:
             ```mojo
-            from projectodyssey.core import AnyTensor, zeros_like
-            from projectodyssey.training.optimizers import sgd_momentum_update_inplace
+            from odyssey.core import AnyTensor, zeros_like
+            from odyssey.training.optimizers import sgd_momentum_update_inplace
 
             var W = xavier_uniform([784, 128], DType.float32)
             var W_vel = zeros_like(W)
@@ -273,7 +273,7 @@ def initialize_velocities(
 
         Example:
             ```mojo
-            from projectodyssey.training.optimizers import initialize_velocities
+            from odyssey.training.optimizers import initialize_velocities
 
             # Get shapes from model parameters
             var shapes = List[List[Int]]()
@@ -291,7 +291,7 @@ def initialize_velocities(
             The order of velocities matches the order of shapes provided.
             Ensure you use the same ordering when calling sgd_momentum_update_inplace.
     """
-    from projectodyssey.tensor.tensor_creation import zeros
+    from odyssey.tensor.tensor_creation import zeros
 
     var velocities: List[AnyTensor] = []
 
@@ -324,7 +324,7 @@ def initialize_velocities_from_params(
 
         Example:
             ```mojo
-            from projectodyssey.training.optimizers import initialize_velocities_from_params
+            from odyssey.training.optimizers import initialize_velocities_from_params
 
             # Collect all model parameters
             var params : List[AnyTensor] = []
@@ -336,7 +336,7 @@ def initialize_velocities_from_params(
             var velocities = initialize_velocities_from_params(params)
             ```
     """
-    from projectodyssey.tensor.tensor_creation import zeros
+    from odyssey.tensor.tensor_creation import zeros
 
     var velocities: List[AnyTensor] = []
 

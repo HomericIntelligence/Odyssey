@@ -4,13 +4,13 @@ Internal module -- not part of the public API.
 """
 
 from std.collections import List
-from projectodyssey.tensor.tensor import Tensor
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.base.broadcasting import (
+from odyssey.tensor.tensor import Tensor
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.base.broadcasting import (
     broadcast_shapes,
     compute_broadcast_strides,
 )
-from projectodyssey.base.dtype_ordinal import (
+from odyssey.base.dtype_ordinal import (
     dtype_to_ordinal,
     DTYPE_FLOAT16,
     DTYPE_FLOAT32,

@@ -12,7 +12,7 @@ Tests cover:
 
 
 from std.testing import assert_true, assert_almost_equal
-from projectodyssey.tensor.factories import (
+from odyssey.tensor.factories import (
     arange,
     empty,
     eye,

@@ -11,20 +11,20 @@ Note:
     This example uses the fully-automated tape-based autograd path. Operations
     on Variables are recorded by the tape; loss.backward(tape) computes all
     gradients via the chain rule and the SGD optimizer updates parameters
-    in-place. See tests/projectodyssey/autograd/test_variable_layers.mojo
+    in-place. See tests/odyssey/autograd/test_variable_layers.mojo
     for finite-difference-validated gradient checks on the Phase 2 ops
     (linear, conv2d, maxpool2d, flatten, cross_entropy).
 """
 
-from projectodyssey.autograd import Variable, GradientTape, SGD
-from projectodyssey.autograd.variable import (
+from odyssey.autograd import Variable, GradientTape, SGD
+from odyssey.autograd.variable import (
     variable_add,
     variable_multiply,
     variable_subtract,
     variable_mean,
 )
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros, ones
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros, ones
 
 
 def simple_linear_regression() raises:

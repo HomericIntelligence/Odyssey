@@ -86,7 +86,7 @@ It orthogonalizes the momentum buffer before each update, which:
 ### Example: Hybrid Muon+AdamW Optimizer
 
 ```mojo
-from projectodyssey.training.optimizers import (
+from odyssey.training.optimizers import (
     muon_step, adamw_step,
     is_muon_eligible,
 )
@@ -192,16 +192,16 @@ Run optimizer tests:
 
 ```bash
 # Test all optimizers
-pixi run mojo test tests/projectodyssey/training/
+pixi run mojo test tests/odyssey/training/
 
 # Test Lion (in the shared optimizer suite)
-pixi run mojo test tests/projectodyssey/training/test_optimizers.mojo
+pixi run mojo test tests/odyssey/training/test_optimizers.mojo
 
 # Test Muon specifically
-pixi run mojo test tests/projectodyssey/training/test_muon.mojo
+pixi run mojo test tests/odyssey/training/test_muon.mojo
 
 # Test a single Muon test
-pixi run mojo test tests/projectodyssey/training/test_muon.mojo::test_muon_step_quadratic_descent
+pixi run mojo test tests/odyssey/training/test_muon.mojo::test_muon_step_quadratic_descent
 ```
 
 Tests verify:
@@ -244,7 +244,7 @@ a single momentum buffer (half the memory of AdamW) and applies the *sign* of an
 momentum/gradient term as the update direction.
 
 ```mojo
-from projectodyssey.training.optimizers import lion_step
+from odyssey.training.optimizers import lion_step
 
 var (new_params, new_momentum) = lion_step(
     params, gradients, momentum,
@@ -286,7 +286,7 @@ conv/bias trajectories to this fallback rather than to the Shampoo preconditione
 ### State Initialization
 
 ```mojo
-from projectodyssey.training.optimizers import (
+from odyssey.training.optimizers import (
     initialize_shampoo_state,
     shampoo_step,
     is_shampoo_eligible,

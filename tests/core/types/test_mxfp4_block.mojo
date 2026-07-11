@@ -9,8 +9,8 @@ All tests use pure functional API.
 """
 
 
-from projectodyssey.core.types.mxfp4 import MXFP4, MXFP4Block
-from tests.projectodyssey.conftest import (
+from odyssey.core.types.mxfp4 import MXFP4, MXFP4Block
+from tests.odyssey.conftest import (
     assert_true,
     assert_equal,
     assert_almost_equal,

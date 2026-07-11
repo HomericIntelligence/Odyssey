@@ -10,8 +10,8 @@ All tests use pure functional API.
 """
 
 
-from projectodyssey.core.types.nvfp4 import NVFP4, NVFP4Block
-from tests.projectodyssey.conftest import (
+from odyssey.core.types.nvfp4 import NVFP4, NVFP4Block
+from tests.odyssey.conftest import (
     assert_true,
     assert_equal,
     assert_almost_equal,
@@ -175,7 +175,7 @@ def test_nvfp4_block_scale_computation() raises:
 
 def test_nvfp4_better_accuracy_than_mxfp4() raises:
     """Test that smaller blocks (16) provide better accuracy."""
-    from projectodyssey.core.types.mxfp4 import MXFP4Block
+    from odyssey.core.types.mxfp4 import MXFP4Block
 
     # Create 16 values in a narrow range
     var values = List[Float32]()

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Check that every src/projectodyssey/**/*.mojo has a corresponding test_*.mojo.
+"""Check that every src/odyssey/**/*.mojo has a corresponding test_*.mojo.
 
 This is a FILE-LEVEL workaround for the absence of Mojo coverage tooling
 (ADR-008). It flags source files with no discoverable test file. It does NOT
@@ -25,8 +25,8 @@ SOURCE_EXCLUSIONS: Set[str] = set()
 
 
 def find_source_files(repo_root: Path) -> List[Path]:
-    """All non-__init__ .mojo files under src/projectodyssey/."""
-    src = repo_root / "src" / "projectodyssey"
+    """All non-__init__ .mojo files under src/odyssey/."""
+    src = repo_root / "src" / "odyssey"
     return sorted(
         p.relative_to(repo_root)
         for p in src.rglob("*.mojo")
@@ -37,22 +37,22 @@ def find_source_files(repo_root: Path) -> List[Path]:
 def expected_test_paths(source: Path) -> List[Path]:
     """Candidate test file locations for a given src path.
 
-    For src/projectodyssey/core/foo.mojo, candidates are:
-      tests/projectodyssey/core/test_foo.mojo            (mirror layout, primary)
-      tests/projectodyssey/core/test_foo_part1.mojo      (split-file pattern)
+    For src/odyssey/core/foo.mojo, candidates are:
+      tests/odyssey/core/test_foo.mojo            (mirror layout, primary)
+      tests/odyssey/core/test_foo_part1.mojo      (split-file pattern)
       tests/core/test_foo.mojo                            (legacy flat layout)
       tests/models/test_foo.mojo                          (model-specific layout)
       tests/shared/<subpath>/test_foo.mojo                (shared-library layout)
     """
-    # source like src/projectodyssey/core/foo.mojo -> subpath = core/foo.mojo
+    # source like src/odyssey/core/foo.mojo -> subpath = core/foo.mojo
     parts = source.parts
-    assert parts[:2] == ("src", "projectodyssey"), source
+    assert parts[:2] == ("src", "odyssey"), source
     subpath = Path(*parts[2:])
     stem = subpath.stem  # "foo"
     parent = subpath.parent  # "core"
     return [
-        Path("tests/projectodyssey") / parent / f"test_{stem}.mojo",
-        Path("tests/projectodyssey") / parent / f"test_{stem}_part1.mojo",
+        Path("tests/odyssey") / parent / f"test_{stem}.mojo",
+        Path("tests/odyssey") / parent / f"test_{stem}_part1.mojo",
         Path("tests") / parent / f"test_{stem}.mojo",
         Path("tests/models") / f"test_{stem}.mojo",
         Path("tests/shared") / parent / f"test_{stem}.mojo",
@@ -78,9 +78,9 @@ def generate_report(uncovered: List[Path], total_sources: int) -> str:
     ]
     lines.extend(f"   • {p}" for p in uncovered)
     lines.append("")
-    lines.append("Expected test paths for src/projectodyssey/X/Y.mojo (any one):")
-    lines.append("   • tests/projectodyssey/X/test_Y.mojo")
-    lines.append("   • tests/projectodyssey/X/test_Y_part1.mojo  (split-file)")
+    lines.append("Expected test paths for src/odyssey/X/Y.mojo (any one):")
+    lines.append("   • tests/odyssey/X/test_Y.mojo")
+    lines.append("   • tests/odyssey/X/test_Y_part1.mojo  (split-file)")
     lines.append("   • tests/X/test_Y.mojo  (legacy)")
     lines.append("   • tests/models/test_Y.mojo  (model-specific)")
     lines.append("   • tests/shared/X/test_Y.mojo  (shared-library)")

@@ -11,15 +11,15 @@ All functions are pure functional - they process inputs to produce outputs witho
 maintaining internal state.
 """
 
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import (
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import (
     ones_like,
     zeros_like,
     full_like,
 )
-from projectodyssey.core.arithmetic import add, subtract, multiply, divide
-from projectodyssey.core.comparison import less, greater
-from projectodyssey.core.dtype_cast import cast_tensor
+from odyssey.core.arithmetic import add, subtract, multiply, divide
+from odyssey.core.comparison import less, greater
+from odyssey.core.dtype_cast import cast_tensor
 
 
 def clip_predictions(
@@ -50,7 +50,7 @@ def clip_predictions(
             var log_pred = log(clipped)  # Safe to take log now
             ```
     """
-    from projectodyssey.core.elementwise import clip
+    from odyssey.core.elementwise import clip
 
     return clip(predictions, epsilon, 1.0 - epsilon)
 

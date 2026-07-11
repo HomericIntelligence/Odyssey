@@ -16,7 +16,7 @@ rest and propagates that signal.
 
 Example:
     ```mojo
-    from projectodyssey.training.layer_hooks import (
+    from odyssey.training.layer_hooks import (
         HookRegistry, ActivationStatsHook
     )
 
@@ -30,8 +30,8 @@ Example:
     ```
 """
 
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.training.base import CallbackSignal, CONTINUE
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.training.base import CallbackSignal, CONTINUE
 
 
 trait LayerHook(Copyable, ImplicitlyDeletable, Movable):

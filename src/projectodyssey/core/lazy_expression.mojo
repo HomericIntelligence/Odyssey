@@ -22,8 +22,8 @@ Example:
 """
 
 from std.collections import List
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.base.broadcasting import (
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.base.broadcasting import (
     broadcast_shapes,
     compute_broadcast_strides,
 )

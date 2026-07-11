@@ -18,16 +18,16 @@ from std.testing import (
     assert_equal,
     assert_almost_equal,
 )
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.training.trainer_interface import (
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.training.trainer_interface import (
     DataBatch,
     DataLoader,
     TrainerConfig,
     TrainingMetrics,
 )
-from projectodyssey.training.loops.training_loop import TrainingLoop
-from projectodyssey.training.loops.validation_loop import ValidationLoop
-from projectodyssey.training.trainer import (
+from odyssey.training.loops.training_loop import TrainingLoop
+from odyssey.training.loops.validation_loop import ValidationLoop
+from odyssey.training.trainer import (
     BaseTrainer,
     create_default_trainer,
     create_trainer,

@@ -6,20 +6,20 @@ Tests: test_relu_basic, test_relu_non_negativity, test_relu_backward,
 """
 
 
-from tests.projectodyssey.conftest import (
+from tests.odyssey.conftest import (
     assert_almost_equal,
     assert_equal,
     assert_true,
 )
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import (
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import (
     full,
     ones,
     ones_like,
     zeros,
     zeros_like,
 )
-from projectodyssey.core.activation import (
+from odyssey.core.activation import (
     elu,
     elu_backward,
     gelu,
@@ -41,7 +41,7 @@ from projectodyssey.core.activation import (
     tanh,
     tanh_backward,
 )
-from projectodyssey.testing.gradient_checker import (
+from odyssey.testing.gradient_checker import (
     check_gradient,
     NumericalForward,
     NumericalBackward,

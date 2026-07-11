@@ -7,7 +7,7 @@ Tests cover:
 """
 
 
-from tests.projectodyssey.conftest import (
+from tests.odyssey.conftest import (
     TestFixtures,
     assert_almost_equal,
     assert_close_float,
@@ -16,11 +16,11 @@ from tests.projectodyssey.conftest import (
     assert_shape,
     assert_true,
 )
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros, ones, randn
-from projectodyssey.core.linear import linear, linear_no_bias
-from projectodyssey.core.activation import relu, sigmoid, tanh, softmax
-from projectodyssey.core.layers.conv2d import Conv2dLayer
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros, ones, randn
+from odyssey.core.linear import linear, linear_no_bias
+from odyssey.core.activation import relu, sigmoid, tanh, softmax
+from odyssey.core.layers.conv2d import Conv2dLayer
 
 
 def test_linear_initialization() raises:

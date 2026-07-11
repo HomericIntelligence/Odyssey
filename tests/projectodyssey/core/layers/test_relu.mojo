@@ -7,9 +7,9 @@ Tests cover:
 """
 
 from std.testing import assert_true, assert_false
-from projectodyssey.core.layers.relu import ReLULayer
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros, ones, full
+from odyssey.core.layers.relu import ReLULayer
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros, ones, full
 
 
 def test_relu_forward_basic() raises:

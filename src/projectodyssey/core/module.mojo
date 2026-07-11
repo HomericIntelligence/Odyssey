@@ -21,8 +21,8 @@ Example:
     ```mojo
     from .module import Module
     from .layers import Linear
-    from projectodyssey.tensor.any_tensor import AnyTensor
-    from projectodyssey.tensor.tensor_creation import zeros
+    from odyssey.tensor.any_tensor import AnyTensor
+    from odyssey.tensor.tensor_creation import zeros
 
     # Linear layer implements Module trait
     var layer = Linear(10, 5)
@@ -42,8 +42,8 @@ Sequential Usage Example:
     ```mojo
     from .module import Module
     from .layers import Linear, ReLU
-    from projectodyssey.tensor.any_tensor import AnyTensor
-    from projectodyssey.tensor.tensor_creation import zeros
+    from odyssey.tensor.any_tensor import AnyTensor
+    from odyssey.tensor.tensor_creation import zeros
 
     # Compose layers using Sequential2
     from .sequential import Sequential2
@@ -62,10 +62,10 @@ Sequential Usage Example:
     ```
 
 See Also:
-    - projectodyssey.core.layers.linear: Linear layer implementation example
+    - odyssey.core.layers.linear: Linear layer implementation example
 """
 
-from projectodyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.any_tensor import AnyTensor
 
 
 trait Module(ImplicitlyDestructible):

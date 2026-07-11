@@ -14,7 +14,7 @@ Key Concepts:
 - Gradients accumulate across multiple backward passes (call tape.clear() to reset)
 
 Examples:
-    from projectodyssey.autograd import Variable, GradientTape
+    from odyssey.autograd import Variable, GradientTape
 
     # Create gradient tape
     var tape = GradientTape()
@@ -36,24 +36,24 @@ Examples:
     print(tape.get_grad(y.id))  # dLoss/dy
 """
 
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import ones_like, zeros_like
-from projectodyssey.core.arithmetic import add, subtract, multiply, divide
-from projectodyssey.core.activation import relu, sigmoid, tanh
-from projectodyssey.core.reduction import sum, mean
-from projectodyssey.core.matrix import matmul
-from projectodyssey.core.linear import linear as _linear
-from projectodyssey.core.conv import conv2d as _conv2d
-from projectodyssey.core.conv import depthwise_conv2d as _depthwise_conv2d
-from projectodyssey.core.shape import concatenate as _concatenate
-from projectodyssey.core.pooling import maxpool2d as _maxpool2d
-from projectodyssey.core.loss import cross_entropy as _cross_entropy
-from projectodyssey.core.normalization import batch_norm2d as _batch_norm2d
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import ones_like, zeros_like
+from odyssey.core.arithmetic import add, subtract, multiply, divide
+from odyssey.core.activation import relu, sigmoid, tanh
+from odyssey.core.reduction import sum, mean
+from odyssey.core.matrix import matmul
+from odyssey.core.linear import linear as _linear
+from odyssey.core.conv import conv2d as _conv2d
+from odyssey.core.conv import depthwise_conv2d as _depthwise_conv2d
+from odyssey.core.shape import concatenate as _concatenate
+from odyssey.core.pooling import maxpool2d as _maxpool2d
+from odyssey.core.loss import cross_entropy as _cross_entropy
+from odyssey.core.normalization import batch_norm2d as _batch_norm2d
 
 comptime tensor_sum = sum
 comptime tensor_mean = mean
 
-from projectodyssey.autograd.tape import (
+from odyssey.autograd.tape import (
     GradientTape,
     SavedTensors,
     OP_ADD,

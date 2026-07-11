@@ -35,11 +35,11 @@ pure **virtual address space exhaustion**.
 git clone https://github.com/HomericIntelligence/Odyssey.git
 cd Odyssey && REPO_ROOT="$(pwd)"
 pixi install
-podman build -t projectodyssey:repro .
+podman build -t odyssey:repro .
 # Crash:
-podman run --rm -v "$REPO_ROOT:$REPO_ROOT:z" --user "$(id -u):$(id -g)" projectodyssey:repro bash -c "ulimit -v 3500000 && MODULAR_HOME=$REPO_ROOT/.pixi/envs/default/share/max $REPO_ROOT/.pixi/envs/default/bin/mojo run $REPO_ROOT/repro/repro_hello.mojo"
+podman run --rm -v "$REPO_ROOT:$REPO_ROOT:z" --user "$(id -u):$(id -g)" odyssey:repro bash -c "ulimit -v 3500000 && MODULAR_HOME=$REPO_ROOT/.pixi/envs/default/share/max $REPO_ROOT/.pixi/envs/default/bin/mojo run $REPO_ROOT/repro/repro_hello.mojo"
 # Pass:
-podman run --rm -v "$REPO_ROOT:$REPO_ROOT:z" --user "$(id -u):$(id -g)" projectodyssey:repro bash -c "ulimit -v 4000000 && MODULAR_HOME=$REPO_ROOT/.pixi/envs/default/share/max $REPO_ROOT/.pixi/envs/default/bin/mojo run $REPO_ROOT/repro/repro_hello.mojo"
+podman run --rm -v "$REPO_ROOT:$REPO_ROOT:z" --user "$(id -u):$(id -g)" odyssey:repro bash -c "ulimit -v 4000000 && MODULAR_HOME=$REPO_ROOT/.pixi/envs/default/share/max $REPO_ROOT/.pixi/envs/default/bin/mojo run $REPO_ROOT/repro/repro_hello.mojo"
 ```
 
 Filed upstream: [modular/modular#6433](https://github.com/modular/modular/issues/6433)
@@ -80,11 +80,11 @@ test output was produced. This timing — before output — is the hallmark of a
 failure rather than a runtime failure. The working theory was:
 
 > Long module-level import chains force the JIT to compile a large transitive closure of
-> symbols before executing any test. Files with `from projectodyssey.core.loss_utils import ...`
+> symbols before executing any test. Files with `from odyssey.core.loss_utils import ...`
 > at module level trigger `elementwise.mojo` (1650 lines) and `dtype_dispatch.mojo`
 > (1520 lines) to be compiled upfront. This compilation volume overwhelms the JIT.
 
-The fix was per-function imports: move all `from projectodyssey.core import ...` statements into
+The fix was per-function imports: move all `from odyssey.core import ...` statements into
 function bodies so they are compiled on-demand rather than all at once.
 
 This fix was applied to `reduction.mojo`, `conv.mojo`, `pooling.mojo`, `matrix.mojo`,

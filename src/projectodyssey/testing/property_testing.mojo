@@ -4,7 +4,7 @@ Provides utilities for property-based testing, where instead of testing
 specific examples, we test properties that should hold for all inputs.
 
 Example:
-    from projectodyssey.testing.property_testing import (
+    from odyssey.testing.property_testing import (
         random_shape,
         random_compatible_shape,
         run_property_test,
@@ -30,10 +30,10 @@ Features:
 
 from std.random import random_float64, seed
 from std.math import sqrt
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros, ones
-from projectodyssey.core.shape import reshape
-from projectodyssey.testing.data_generators import random_tensor
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros, ones
+from odyssey.core.shape import reshape
+from odyssey.testing.data_generators import random_tensor
 
 
 # ============================================================================
@@ -382,7 +382,7 @@ def test_reshape_preserves_numel() raises:
 
 def test_addition_commutative() raises:
     """Property: Addition is commutative (a + b == b + a)."""
-    from projectodyssey.core.arithmetic import add
+    from odyssey.core.arithmetic import add
 
     def property_fn() raises -> Bool:
         var shape = random_shape(max_dims=2, max_size=5)
@@ -401,7 +401,7 @@ def test_addition_commutative() raises:
 
 def test_multiplication_commutative() raises:
     """Property: Multiplication is commutative (a * b == b * a)."""
-    from projectodyssey.core.arithmetic import multiply
+    from odyssey.core.arithmetic import multiply
 
     def property_fn() raises -> Bool:
         var shape = random_shape(max_dims=2, max_size=5)
@@ -420,7 +420,7 @@ def test_multiplication_commutative() raises:
 
 def test_addition_identity() raises:
     """Property: Adding zero is identity (a + 0 == a)."""
-    from projectodyssey.core.arithmetic import add
+    from odyssey.core.arithmetic import add
 
     def property_fn() raises -> Bool:
         var shape = random_shape(max_dims=2, max_size=5)
@@ -436,7 +436,7 @@ def test_addition_identity() raises:
 
 def test_multiplication_identity() raises:
     """Property: Multiplying by one is identity (a * 1 == a)."""
-    from projectodyssey.core.arithmetic import multiply
+    from odyssey.core.arithmetic import multiply
 
     def property_fn() raises -> Bool:
         var shape = random_shape(max_dims=2, max_size=5)

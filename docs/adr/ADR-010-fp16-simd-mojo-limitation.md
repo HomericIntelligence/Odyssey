@@ -2,7 +2,7 @@
 
 > ⚠️ **SUPERSEDED** — `SIMD[DType.float16, N]` is fully supported in Mojo 0.26.3.
 > The scalar workaround has been replaced with vectorized `load + cast` in
-> `src/projectodyssey/training/mixed_precision.mojo`. This ADR is retained for historical context only.
+> `src/odyssey/training/mixed_precision.mojo`. This ADR is retained for historical context only.
 
 **Status**: Superseded (by Mojo 0.26.3 FP16 SIMD support, 2026-04-11)
 
@@ -64,7 +64,7 @@ Both functions branch on `dtype()`:
 - **FP16↔FP32**: Scalar loop (`for i in range(size): dst_ptr[i] = cast(src_ptr[i])`)
 - **Other dtypes**: Generic scalar path via `_get_float64` / `_set_float64`
 
-The scalar FP16 paths are in `src/projectodyssey/training/mixed_precision.mojo`.
+The scalar FP16 paths are in `src/odyssey/training/mixed_precision.mojo`.
 
 ### Technical Details
 
@@ -207,7 +207,7 @@ to proceed.
 
 ### Affected Files
 
-- `src/projectodyssey/training/mixed_precision.mojo` — `convert_to_fp32_master()` and `update_model_from_master()`
+- `src/odyssey/training/mixed_precision.mojo` — `convert_to_fp32_master()` and `update_model_from_master()`
 
 ### Related ADRs
 

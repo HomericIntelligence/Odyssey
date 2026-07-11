@@ -57,7 +57,7 @@ Guidelines for Implementation:
     5. Add docstrings with concrete examples showing usage.
 """
 
-from projectodyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.any_tensor import AnyTensor
 
 
 struct GradientPair(Copyable, Movable):

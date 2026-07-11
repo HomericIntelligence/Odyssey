@@ -8,7 +8,7 @@ Supports ${VAR} and ${VAR:-default} syntax.
 
 
 from std.testing import assert_true, assert_false, assert_equal
-from projectodyssey.utils.config import Config, load_config
+from odyssey.utils.config import Config, load_config
 from std.python import Python
 
 

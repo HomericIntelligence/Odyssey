@@ -19,7 +19,7 @@ Shape Categories:
     6. Edge: [1, 1, 1, 1], [1000000] - boundary cases
 
 Usage:
-    from projectodyssey.testing.fuzz_shapes import (
+    from odyssey.testing.fuzz_shapes import (
         ShapeFuzzer,
         generate_random_shape,
         generate_edge_case_shapes,
@@ -46,7 +46,7 @@ Example:
 """
 
 from std.random import random_float64, seed as random_seed
-from projectodyssey.testing.fuzz_core import SeededRNG
+from odyssey.testing.fuzz_core import SeededRNG
 
 
 # ============================================================================

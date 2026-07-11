@@ -9,9 +9,9 @@ Tests cover:
 
 
 from std.testing import assert_equal, assert_true, assert_false, assert_raises
-from projectodyssey.data._datasets_core import EMNISTDataset
-from projectodyssey.data.datasets import AnyTensorDataset, Dataset
-from projectodyssey.tensor.any_tensor import AnyTensor
+from odyssey.data._datasets_core import EMNISTDataset
+from odyssey.data.datasets import AnyTensorDataset, Dataset
+from odyssey.tensor.any_tensor import AnyTensor
 
 
 def create_mock_idx_files(temp_dir: String) raises:

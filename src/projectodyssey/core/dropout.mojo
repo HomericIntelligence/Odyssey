@@ -7,14 +7,14 @@ Dropout randomly zeros some elements of the input tensor with probability p duri
 This helps prevent overfitting by randomly "dropping out" neurons.
 """
 
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import (
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import (
     zeros,
     zeros_like,
     ones_like,
     full_like,
 )
-from projectodyssey.core.arithmetic import multiply, divide
+from odyssey.core.arithmetic import multiply, divide
 from std import random
 
 
@@ -42,7 +42,7 @@ def dropout(
 
         Example:
             ```mojo
-            from projectodyssey.core import AnyTensor, dropout, dropout_backward
+            from odyssey.core import AnyTensor, dropout, dropout_backward
 
             # Training mode
             var (output, mask) = dropout(x, p=0.5, training=True, seed=42)
@@ -125,7 +125,7 @@ def dropout2d(
 
         Example:
             ```mojo
-            from projectodyssey.core import dropout2d, dropout2d_backward
+            from odyssey.core import dropout2d, dropout2d_backward
 
             # Training mode - drops entire feature maps
             var (output, mask) = dropout2d(x, p=0.2, training=True, seed=42)

@@ -83,7 +83,7 @@ def fix_file(filepath: Path) -> tuple[bool, list[str]]:
 
 def main():
     """Process all .mojo files."""
-    base = Path("/home/mvillmow/ProjectOdyssey")
+    base = Path("/home/mvillmow/Odyssey")
 
     if not base.exists():
         print(f"ERROR: Directory {base} does not exist", file=sys.stderr)

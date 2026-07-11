@@ -10,17 +10,17 @@ Integration Points:
 - Edge cases: drop_last, batch_size > dataset, single sample
 """
 
-from tests.projectodyssey.conftest import (
+from tests.odyssey.conftest import (
     assert_true,
     assert_equal,
     assert_not_equal,
     assert_greater,
     TestFixtures,
 )
-from projectodyssey.data.datasets import AnyTensorDataset
-from projectodyssey.data.loaders import BatchLoader
-from projectodyssey.data.samplers import SequentialSampler, RandomSampler
-from projectodyssey.tensor.any_tensor import AnyTensor
+from odyssey.data.datasets import AnyTensorDataset
+from odyssey.data.loaders import BatchLoader
+from odyssey.data.samplers import SequentialSampler, RandomSampler
+from odyssey.tensor.any_tensor import AnyTensor
 
 
 # ============================================================================

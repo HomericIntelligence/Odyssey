@@ -20,7 +20,7 @@ BF16 Support Status (as of Mojo v0.26.1):
     should be updated and the guard removed. Track hardware support status upstream.
 """
 
-from projectodyssey.training.precision_config import (
+from odyssey.training.precision_config import (
     PrecisionConfig,
     _check_bf16_platform_support,
 )

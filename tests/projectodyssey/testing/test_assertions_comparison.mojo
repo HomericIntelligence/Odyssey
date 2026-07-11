@@ -3,7 +3,7 @@
 """
 
 from std.testing import assert_true
-from projectodyssey.testing.assertions import (
+from odyssey.testing.assertions import (
     assert_close_float,
     assert_greater,
     assert_less,

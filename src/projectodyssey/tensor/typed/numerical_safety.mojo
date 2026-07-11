@@ -10,7 +10,7 @@ count_nan/count_inf use vectorize[] with lane reduction.
 from std.math import isnan, isinf, sqrt, nan
 from std.sys import simd_width_of
 from std.algorithm import vectorize
-from projectodyssey.tensor.tensor import Tensor
+from odyssey.tensor.tensor import Tensor
 
 
 def _has_nan_core[dtype: DType](tensor: Tensor[dtype]) -> Bool:

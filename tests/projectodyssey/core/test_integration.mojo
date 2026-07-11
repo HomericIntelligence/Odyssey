@@ -5,8 +5,8 @@ Tests chained arithmetic operations and creation + arithmetic patterns.
 """
 
 
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import (
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import (
     zeros,
     ones,
     full,
@@ -14,8 +14,8 @@ from projectodyssey.tensor.tensor_creation import (
     eye,
     linspace,
 )
-from projectodyssey.core.arithmetic import add, subtract, multiply
-from tests.projectodyssey.conftest import (
+from odyssey.core.arithmetic import add, subtract, multiply
+from tests.odyssey.conftest import (
     assert_dtype,
     assert_numel,
     assert_dim,

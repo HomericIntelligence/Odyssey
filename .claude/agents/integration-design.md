@@ -79,4 +79,4 @@ to support future changes.
 
 ---
 
-**References**: [src/projectodyssey/common-constraints](../shared/common-constraints.md), [src/projectodyssey/documentation-rules](../shared/documentation-rules.md)
+**References**: [src/odyssey/common-constraints](../shared/common-constraints.md), [src/odyssey/documentation-rules](../shared/documentation-rules.md)
