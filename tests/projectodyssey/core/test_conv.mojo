@@ -24,6 +24,7 @@ from projectodyssey.core.conv import (
     conv2d,
     conv2d_no_bias,
     conv2d_backward,
+    conv2d_backward_weights_only,
     conv2d_no_bias_backward,
 )
 from projectodyssey.testing.gradient_checker import (
@@ -738,6 +739,136 @@ def test_conv2d_backward_bias_gradient() raises:
             expected_grad_bias,
             tolerance=1e-4,
         )
+
+
+def test_conv2d_backward_weights_only_matches_full() raises:
+    """Weights-only backward yields identical grad_weights/grad_bias (#5573).
+
+    conv2d_backward_weights_only skips the grad_input computation but must
+    produce byte-identical grad_weights and grad_bias to conv2d_backward, and
+    return an all-zero grad_input.
+    """
+    var batch = 2
+    var in_channels = 3
+    var in_height = 5
+    var in_width = 5
+    var out_channels = 4
+    var kH = 3
+    var kW = 3
+    var stride = 1
+    var padding = 1
+
+    var input_shape: List[Int] = [batch, in_channels, in_height, in_width]
+    var x = zeros(input_shape, DType.float32)
+    var xd = x._data.bitcast[Float32]()
+    for i in range(batch * in_channels * in_height * in_width):
+        xd[i] = Float32(i % 11) * 0.3 - 1.5
+
+    var kernel_shape: List[Int] = [out_channels, in_channels, kH, kW]
+    var kernel = zeros(kernel_shape, DType.float32)
+    var kd = kernel._data.bitcast[Float32]()
+    for i in range(out_channels * in_channels * kH * kW):
+        kd[i] = Float32(i % 7) * 0.2 - 0.5
+
+    var bias_shape: List[Int] = [out_channels]
+    var bias = zeros(bias_shape, DType.float32)
+    var output = conv2d(x, kernel, bias, stride, padding)
+
+    var grad_output = zeros(output.shape(), DType.float32)
+    var god = grad_output._data.bitcast[Float32]()
+    for i in range(grad_output._numel):
+        god[i] = Float32(i % 5) * 0.4 - 0.8
+
+    var full = conv2d_backward(grad_output, x, kernel, stride, padding)
+    var wonly = conv2d_backward_weights_only(
+        grad_output, x, kernel, stride, padding
+    )
+
+    # grad_weights identical element-for-element.
+    var fk = full.grad_weights._data.bitcast[Float32]()
+    var wk = wonly.grad_weights._data.bitcast[Float32]()
+    for i in range(full.grad_weights._numel):
+        assert_almost_equal(wk[i], fk[i], tolerance=1e-6)
+
+    # grad_bias identical.
+    var fb = full.grad_bias._data.bitcast[Float32]()
+    var wb = wonly.grad_bias._data.bitcast[Float32]()
+    for i in range(full.grad_bias._numel):
+        assert_almost_equal(wb[i], fb[i], tolerance=1e-6)
+
+    # grad_input is zeroed in the weights-only variant (skipped).
+    var wi = wonly.grad_input._data.bitcast[Float32]()
+    for i in range(wonly.grad_input._numel):
+        assert_almost_equal(wi[i], Float32(0.0), tolerance=1e-9)
+
+    # And the full variant's grad_input is NOT all-zero (sanity: proves the
+    # weights-only zeroing is a real skip, not a degenerate input).
+    var fi = full.grad_input._data.bitcast[Float32]()
+    var any_nonzero = False
+    for i in range(full.grad_input._numel):
+        if fi[i] != Float32(0.0):
+            any_nonzero = True
+            break
+    assert_true(
+        any_nonzero, "full grad_input must be nonzero for a meaningful test"
+    )
+
+
+def test_conv2d_backward_weights_only_float64_stride2() raises:
+    """Weights-only parity holds for float64 and stride=2 (#5573).
+
+    Exercises the float64 compute_grad_input=False kernel instantiation and a
+    strided geometry, which the float32/stride=1 parity test does not cover.
+    """
+    var batch = 2
+    var in_channels = 2
+    var in_height = 7
+    var in_width = 7
+    var out_channels = 3
+    var kH = 3
+    var kW = 3
+    var stride = 2
+    var padding = 1
+
+    var input_shape: List[Int] = [batch, in_channels, in_height, in_width]
+    var x = zeros(input_shape, DType.float64)
+    var xd = x._data.bitcast[Float64]()
+    for i in range(batch * in_channels * in_height * in_width):
+        xd[i] = Float64(i % 13) * 0.25 - 1.0
+
+    var kernel_shape: List[Int] = [out_channels, in_channels, kH, kW]
+    var kernel = zeros(kernel_shape, DType.float64)
+    var kd = kernel._data.bitcast[Float64]()
+    for i in range(out_channels * in_channels * kH * kW):
+        kd[i] = Float64(i % 5) * 0.3 - 0.6
+
+    var bias_shape: List[Int] = [out_channels]
+    var bias = zeros(bias_shape, DType.float64)
+    var output = conv2d(x, kernel, bias, stride, padding)
+
+    var grad_output = zeros(output.shape(), DType.float64)
+    var god = grad_output._data.bitcast[Float64]()
+    for i in range(grad_output._numel):
+        god[i] = Float64(i % 4) * 0.5 - 0.5
+
+    var full = conv2d_backward(grad_output, x, kernel, stride, padding)
+    var wonly = conv2d_backward_weights_only(
+        grad_output, x, kernel, stride, padding
+    )
+
+    var fk = full.grad_weights._data.bitcast[Float64]()
+    var wk = wonly.grad_weights._data.bitcast[Float64]()
+    for i in range(full.grad_weights._numel):
+        assert_almost_equal(Float32(wk[i]), Float32(fk[i]), tolerance=1e-6)
+
+    var fb = full.grad_bias._data.bitcast[Float64]()
+    var wb = wonly.grad_bias._data.bitcast[Float64]()
+    for i in range(full.grad_bias._numel):
+        assert_almost_equal(Float32(wb[i]), Float32(fb[i]), tolerance=1e-6)
+
+    var wi = wonly.grad_input._data.bitcast[Float64]()
+    for i in range(wonly.grad_input._numel):
+        assert_almost_equal(Float32(wi[i]), Float32(0.0), tolerance=1e-9)
 
 
 def test_conv2d_no_bias_backward_shapes() raises:
@@ -1582,6 +1713,8 @@ def main() raises:
     print("✓ test_conv2d_backward_shapes")
 
     test_conv2d_backward_bias_gradient()
+    test_conv2d_backward_weights_only_matches_full()
+    test_conv2d_backward_weights_only_float64_stride2()
     print("✓ test_conv2d_backward_bias_gradient")
 
     test_conv2d_no_bias_backward_shapes()

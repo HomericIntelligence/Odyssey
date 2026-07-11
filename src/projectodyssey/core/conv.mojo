@@ -529,8 +529,81 @@ def conv2d_no_bias(
     return conv2d(x, kernel, bias, stride, padding)
 
 
-def _conv2d_backward_kernel[
+def _conv2d_grad_input[
     dtype: DType
+](
+    mut grad_input: AnyTensor,
+    grad_output: AnyTensor,
+    kernel: AnyTensor,
+    stride: Int,
+    padding: Int,
+    batch: Int,
+    in_channels: Int,
+    in_height: Int,
+    in_width: Int,
+    out_channels: Int,
+    out_height: Int,
+    out_width: Int,
+    kH: Int,
+    kW: Int,
+) raises:
+    """Fill grad_input for conv2d backward (the input-gradient block, #5573).
+
+    Extracted so `_conv2d_backward_kernel` can compile it out (via
+    `comptime if compute_grad_input`) when the caller does not need input
+    gradients — this is the most expensive loop nest in the backward pass.
+    """
+    # For each input position, sum contributions from all output positions it
+    # affected. Forward: in_h = oh*stride - padding + kh; backward solves
+    # kh = ih - oh*stride + padding (correct for all strides).
+    for b in range(batch):
+        for ic in range(in_channels):
+            for ih in range(in_height):
+                for iw in range(in_width):
+                    var grad_sum = Scalar[dtype](0.0)
+                    for oh in range(out_height):
+                        for ow in range(out_width):
+                            var kh = ih - oh * stride + padding
+                            var kw = iw - ow * stride + padding
+                            if kh >= 0 and kh < kH and kw >= 0 and kw < kW:
+                                for oc in range(out_channels):
+                                    var grad_out_idx = (
+                                        b
+                                        * (
+                                            out_channels
+                                            * out_height
+                                            * out_width
+                                        )
+                                        + oc * (out_height * out_width)
+                                        + oh * out_width
+                                        + ow
+                                    )
+                                    var grad_out_val = (
+                                        grad_output._data.bitcast[
+                                            Scalar[dtype]
+                                        ]()[grad_out_idx]
+                                    )
+                                    var k_idx = (
+                                        oc * (in_channels * kH * kW)
+                                        + ic * (kH * kW)
+                                        + kh * kW
+                                        + kw
+                                    )
+                                    var k_val = kernel._data.bitcast[
+                                        Scalar[dtype]
+                                    ]()[k_idx]
+                                    grad_sum += grad_out_val * k_val
+                    var grad_in_idx = (
+                        b * (in_channels * in_height * in_width)
+                        + ic * (in_height * in_width)
+                        + ih * in_width
+                        + iw
+                    )
+                    grad_input._set_float64(grad_in_idx, Float64(grad_sum))
+
+
+def _conv2d_backward_kernel[
+    dtype: DType, compute_grad_input: Bool = True
 ](
     grad_output: AnyTensor,
     x: AnyTensor,
@@ -548,6 +621,11 @@ def _conv2d_backward_kernel[
     kW: Int,
 ) raises -> GradientTriple:
     """Dtype-generic conv2d backward kernel - handles gradient accumulation in correct precision.
+
+    When compute_grad_input is False the grad_input block is compiled out and
+    the returned grad_input is a zero tensor of the input shape (#5573). This
+    skips the most expensive loop nest — useful at a network's first conv, where
+    grad_input has no consumer, or for frozen-backbone / local-learning setups.
     """
     # Get shapes for gradient tensors
     var x_shape = x.shape()
@@ -557,74 +635,25 @@ def _conv2d_backward_kernel[
     var grad_input = zeros(x_shape, dtype)
     var grad_kernel = zeros(k_shape, dtype)
 
-    # Compute grad_input
-    # For each input position, sum contributions from all output positions it affected
-    #
-    # Derivation:
-    #   Forward: in_h = oh * stride - padding + kh
-    #   Backward: For input position ih, find (oh, kh) pairs where ih = oh * stride - padding + kh
-    #   Solving: kh = ih - (oh * stride - padding) = ih - oh * stride + padding
-    #
-    # This correctly handles all stride values including stride > 1
-    for b in range(batch):
-        for ic in range(in_channels):
-            for ih in range(in_height):
-                for iw in range(in_width):
-                    var grad_sum = Scalar[dtype](0.0)
-
-                    # This input position (ih, iw) contributed to output positions (oh, ow)
-                    # where: ih = oh * stride - padding + kh
-                    # Solving for kh: kh = ih - oh * stride + padding
-                    for oh in range(out_height):
-                        for ow in range(out_width):
-                            # Compute kernel offsets that would access this input position
-                            # from this output position in the forward pass
-                            var kh = ih - oh * stride + padding
-                            var kw = iw - ow * stride + padding
-
-                            # Check if kernel offsets are valid
-                            if kh >= 0 and kh < kH and kw >= 0 and kw < kW:
-                                # Sum over output channels
-                                for oc in range(out_channels):
-                                    # Get grad_output value
-                                    var grad_out_idx = (
-                                        b
-                                        * (
-                                            out_channels
-                                            * out_height
-                                            * out_width
-                                        )
-                                        + oc * (out_height * out_width)
-                                        + oh * out_width
-                                        + ow
-                                    )
-                                    var grad_out_val = (
-                                        grad_output._data.bitcast[
-                                            Scalar[dtype]
-                                        ]()[grad_out_idx]
-                                    )
-
-                                    # Get kernel value
-                                    var k_idx = (
-                                        oc * (in_channels * kH * kW)
-                                        + ic * (kH * kW)
-                                        + kh * kW
-                                        + kw
-                                    )
-                                    var k_val = kernel._data.bitcast[
-                                        Scalar[dtype]
-                                    ]()[k_idx]
-
-                                    grad_sum += grad_out_val * k_val
-
-                    # Write to grad_input
-                    var grad_in_idx = (
-                        b * (in_channels * in_height * in_width)
-                        + ic * (in_height * in_width)
-                        + ih * in_width
-                        + iw
-                    )
-                    grad_input._set_float64(grad_in_idx, Float64(grad_sum))
+    # Compute grad_input — skipped (compiled out) when the caller does not need
+    # input gradients (#5573). grad_input stays zero-initialized in that case.
+    comptime if compute_grad_input:
+        _conv2d_grad_input[dtype](
+            grad_input,
+            grad_output,
+            kernel,
+            stride,
+            padding,
+            batch,
+            in_channels,
+            in_height,
+            in_width,
+            out_channels,
+            out_height,
+            out_width,
+            kH,
+            kW,
+        )
 
     # Compute grad_kernel
     # For each kernel position, sum input * grad_output over all valid positions
@@ -717,54 +746,17 @@ def _conv2d_backward_kernel[
     return GradientTriple(grad_input^, grad_kernel^, grad_bias^)
 
 
-def conv2d_backward(
+def _conv2d_backward_impl[
+    compute_grad_input: Bool
+](
     grad_output: AnyTensor,
     x: AnyTensor,
     kernel: AnyTensor,
-    stride: Int = 1,
-    padding: Int = 0,
+    stride: Int,
+    padding: Int,
 ) raises -> GradientTriple:
-    """Backward pass for 2D convolution.
-
-        Computes gradients with respect to input, kernel, and bias.
-
-        Math:
-            Given: y = conv2d(x, kernel, bias, stride, padding).
-            This function computes:
-            - grad_input: Gradient w.r.t. input.
-            - grad_kernel: Gradient w.r.t. kernel.
-            - grad_bias: Gradient w.r.t. bias.
-
-    Args:
-            grad_output: Gradient w.r.t. output, shape (batch, out_channels, out_H, out_W).
-            x: Input from forward pass, shape (batch, in_channels, in_H, in_W).
-            kernel: Kernel from forward pass, shape (out_channels, in_channels, kH, kW).
-            stride: Stride used in forward pass.
-            padding: Padding used in forward pass.
-
-    Returns:
-            GradientTriple containing:
-                - grad_input: Gradient w.r.t. input, shape (batch, in_channels, in_H, in_W).
-                - grad_kernel: Gradient w.r.t. kernel, shape (out_channels, in_channels, kH, kW).
-                - grad_bias: Gradient w.r.t. bias, shape (out_channels,).
-
-        Example:
-            ```mojo
-            from projectodyssey.core import conv2d, conv2d_backward
-
-            # Forward pass
-            var output = conv2d(x, kernel, bias, stride, padding)
-            # ... compute loss and grad_output ...
-
-            # Backward pass
-            var result = conv2d_backward(grad_output, x, kernel, stride, padding)
-            var grad_x = result.grad_input
-            var grad_k = result.grad_weights
-            var grad_b = result.grad_bias
-            ```
-
-    Raises:
-            Error: If tensor shapes are incompatible.
+    """Shared conv2d backward body; compute_grad_input gates the input-gradient
+    block at compile time (#5573). See conv2d_backward / conv2d_backward_weights_only.
     """
     # Get dimensions
     var x_shape = x.shape()
@@ -799,7 +791,7 @@ def conv2d_backward(
     # Dispatch to dtype-generic kernel based on input dtype
     var input_dtype = x_cont.dtype()
     if input_dtype == DType.float16:
-        return _conv2d_backward_kernel[DType.float16](
+        return _conv2d_backward_kernel[DType.float16, compute_grad_input](
             grad_output_cont,
             x_cont,
             kernel_cont,
@@ -816,7 +808,7 @@ def conv2d_backward(
             kW,
         )
     elif input_dtype == DType.float32:
-        return _conv2d_backward_kernel[DType.float32](
+        return _conv2d_backward_kernel[DType.float32, compute_grad_input](
             grad_output_cont,
             x_cont,
             kernel_cont,
@@ -833,7 +825,7 @@ def conv2d_backward(
             kW,
         )
     elif input_dtype == DType.float64:
-        return _conv2d_backward_kernel[DType.float64](
+        return _conv2d_backward_kernel[DType.float64, compute_grad_input](
             grad_output_cont,
             x_cont,
             kernel_cont,
@@ -854,6 +846,53 @@ def conv2d_backward(
             "Unsupported dtype for conv2d_backward: only float16, float32,"
             " float64 supported"
         )
+
+
+def conv2d_backward(
+    grad_output: AnyTensor,
+    x: AnyTensor,
+    kernel: AnyTensor,
+    stride: Int = 1,
+    padding: Int = 0,
+) raises -> GradientTriple:
+    """Backward pass for 2D convolution (all three gradients).
+
+    Computes grad_input, grad_kernel (grad_weights), and grad_bias.
+
+    Args:
+        grad_output: Gradient w.r.t. output (batch, out_channels, out_H, out_W).
+        x: Input from forward pass (batch, in_channels, in_H, in_W).
+        kernel: Kernel from forward pass (out_channels, in_channels, kH, kW).
+        stride: Stride used in forward pass.
+        padding: Padding used in forward pass.
+
+    Returns:
+        GradientTriple with grad_input, grad_weights, grad_bias.
+
+    Raises:
+        Error: If tensor shapes are incompatible.
+    """
+    return _conv2d_backward_impl[True](grad_output, x, kernel, stride, padding)
+
+
+def conv2d_backward_weights_only(
+    grad_output: AnyTensor,
+    x: AnyTensor,
+    kernel: AnyTensor,
+    stride: Int = 1,
+    padding: Int = 0,
+) raises -> GradientTriple:
+    """Backward pass computing only grad_weights and grad_bias (#5573).
+
+    Identical to conv2d_backward but SKIPS the grad_input computation — the most
+    expensive loop nest in the backward pass. Use at a network's first conv,
+    where grad_input has no consumer, or for frozen-backbone / local-learning
+    setups. The returned GradientTriple's grad_input is a zero tensor of the
+    input shape (present for API compatibility; do not consume it).
+
+    Args / Returns: same as conv2d_backward, except grad_input is all zeros.
+    """
+    return _conv2d_backward_impl[False](grad_output, x, kernel, stride, padding)
 
 
 def conv2d_no_bias_backward(
