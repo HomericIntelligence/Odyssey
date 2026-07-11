@@ -8,7 +8,7 @@ grouping for parallelism/timeout management only.
 
 **Date**: 2025-12-30
 
-**Issue Reference**: [Issue #3120](https://github.com/HomericIntelligence/ProjectOdyssey/issues/3120)
+**Issue Reference**: [Issue #3120](https://github.com/HomericIntelligence/Odyssey/issues/3120)
 
 **Decision Owner**: Development Team
 

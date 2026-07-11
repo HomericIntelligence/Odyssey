@@ -231,7 +231,7 @@ examples/resnet18_cifar10/
   - Critical missing component in shared library
   - See [GAP_ANALYSIS.md](GAP_ANALYSIS.md) for implementation details
   - Estimated: 4-6 hours of development time
-- [ ] **Full backward pass**: Intentional placeholder — tracked in [GitHub issue #3181](https://github.com/HomericIntelligence/ProjectOdyssey/issues/3181)
+- [ ] **Full backward pass**: Intentional placeholder — tracked in [GitHub issue #3181](https://github.com/HomericIntelligence/Odyssey/issues/3181)
 
 **Current Limitation**: The forward pass is complete and functional, but training is blocked by the missing batch
 normalization backward pass. Once `batch_norm2d_backward` is implemented in `src/projectodyssey/core/normalization.mojo`, the

@@ -4,7 +4,7 @@
 
 **Date**: 2025-11-10
 
-**Issue Reference**: [Issue #8](https://github.com/HomericIntelligence/ProjectOdyssey/issues/8)
+**Issue Reference**: [Issue #8](https://github.com/HomericIntelligence/Odyssey/issues/8)
 
 **Decision Owner**: Chief Architect
 
@@ -679,7 +679,7 @@ This implementation is successful when:
 
 ### Issue #8 Findings
 
-**Comprehensive Assessment**: [Issue #8: Mojo Script Conversion Feasibility Assessment](https://github.com/HomericIntelligence/ProjectOdyssey/issues/8)
+**Comprehensive Assessment**: [Issue #8: Mojo Script Conversion Feasibility Assessment](https://github.com/HomericIntelligence/Odyssey/issues/8)
 
 ### Key Findings
 
@@ -709,8 +709,8 @@ This implementation is successful when:
 
 ### Project Guidelines
 
-- [CLAUDE.md](https://github.com/HomericIntelligence/ProjectOdyssey/blob/main/CLAUDE.md) - Project-wide guidelines
-- [Chief Architect Guidelines](https://github.com/HomericIntelligence/ProjectOdyssey/blob/main/.claude/agents/chief-architect.md) - Strategic decisions
+- [CLAUDE.md](https://github.com/HomericIntelligence/Odyssey/blob/main/CLAUDE.md) - Project-wide guidelines
+- [Chief Architect Guidelines](https://github.com/HomericIntelligence/Odyssey/blob/main/.claude/agents/chief-architect.md) - Strategic decisions
 
 ### Mojo Documentation
 

@@ -1,6 +1,6 @@
 # Monitoring & Divergence Detection Strategy
 
-> **Scope**: Training observability for the ProjectOdyssey ML library.
+> **Scope**: Training observability for the Odyssey ML library.
 > This is a *library*, not a daemon — there are no service-level health checks
 > or Prometheus push targets. All monitoring is done by the training loop and
 > surfaced to the caller.
@@ -91,7 +91,7 @@ Recommended retention: keep the last 5 run directories; archive older runs.
 
 ### Export to Prometheus / External Systems
 
-ProjectOdyssey does not ship a Prometheus exporter — it is a library, not a server.
+Odyssey does not ship a Prometheus exporter — it is a library, not a server.
 If you need time-series dashboards, read the CSV files with a sidecar scraper
 (e.g., `prometheus-csv-exporter`) or write a thin Python wrapper around `CSVMetricsLogger`.
 

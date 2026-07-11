@@ -16,8 +16,8 @@
 
 **Issue Reference**: [Issue #2583][issue-2583], [Issue #5040][issue-5040] (audit)
 
-[issue-2583]: https://github.com/HomericIntelligence/ProjectOdyssey/issues/2583
-[issue-5040]: https://github.com/HomericIntelligence/ProjectOdyssey/issues/5040
+[issue-2583]: https://github.com/HomericIntelligence/Odyssey/issues/2583
+[issue-5040]: https://github.com/HomericIntelligence/Odyssey/issues/5040
 
 ## Executive Summary
 

@@ -13,32 +13,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Full manual backward passes + real CIFAR-10 training** for three CNN examples,
   each with genuine measured epoch validation (no synthetic placeholders):
-  - MobileNetV1 ([#3187](https://github.com/HomericIntelligence/ProjectOdyssey/issues/3187)):
+  - MobileNetV1 ([#3187](https://github.com/HomericIntelligence/Odyssey/issues/3187)):
     depthwise-separable forward/backward; fixed a BatchNorm running-stats persistence
-    bug ([#5544](https://github.com/HomericIntelligence/ProjectOdyssey/pull/5544)) and
-    committed genuine epoch evidence ([#5541](https://github.com/HomericIntelligence/ProjectOdyssey/pull/5541)).
-  - ResNet-18 ([#3181](https://github.com/HomericIntelligence/ProjectOdyssey/issues/3181)):
-    backward pass + SGD momentum ([#5538](https://github.com/HomericIntelligence/ProjectOdyssey/pull/5538)),
-    convergence validation ([#5546](https://github.com/HomericIntelligence/ProjectOdyssey/pull/5546)),
+    bug ([#5544](https://github.com/HomericIntelligence/Odyssey/pull/5544)) and
+    committed genuine epoch evidence ([#5541](https://github.com/HomericIntelligence/Odyssey/pull/5541)).
+  - ResNet-18 ([#3181](https://github.com/HomericIntelligence/Odyssey/issues/3181)):
+    backward pass + SGD momentum ([#5538](https://github.com/HomericIntelligence/Odyssey/pull/5538)),
+    convergence validation ([#5546](https://github.com/HomericIntelligence/Odyssey/pull/5546)),
     real `CIFAR10Dataset` loading + sample-weighted test eval with a genuine one-epoch
-    result (test acc 60.02%) ([#5548](https://github.com/HomericIntelligence/ProjectOdyssey/pull/5548)).
-  - GoogLeNet ([#3184](https://github.com/HomericIntelligence/ProjectOdyssey/issues/3184)):
+    result (test acc 60.02%) ([#5548](https://github.com/HomericIntelligence/Odyssey/pull/5548)).
+  - GoogLeNet ([#3184](https://github.com/HomericIntelligence/Odyssey/issues/3184)):
     full backward through all 9 Inception modules (4-way concat-split, per-branch
     BN/conv/relu chains) + SGD momentum over 222 parameters, execution-verified
-    convergence ([#5552](https://github.com/HomericIntelligence/ProjectOdyssey/pull/5552));
-    layerwise unit tests ([#5536](https://github.com/HomericIntelligence/ProjectOdyssey/pull/5536)).
+    convergence ([#5552](https://github.com/HomericIntelligence/Odyssey/pull/5552));
+    layerwise unit tests ([#5536](https://github.com/HomericIntelligence/Odyssey/pull/5536)).
 - Real CIFAR-10 `CIFAR10Dataset` IDX loading wired into training examples, resolving the
-  Python-interop blocker ([#3076](https://github.com/HomericIntelligence/ProjectOdyssey/issues/3076)).
+  Python-interop blocker ([#3076](https://github.com/HomericIntelligence/Odyssey/issues/3076)).
 - **Typed tensor system**: Native `Tensor[dtype]` with elementwise, activation, matrix,
   reduction, convolution, shape, comparison, norm, and loss operations
 - Enhanced `AnyTensor.__str__` with multi-dimensional and dtype-aware formatting
 - Parametric `load[dtype]`/`store[dtype]`/`data_ptr[dtype]` accessors on `AnyTensor`
 - `hephaestus` package integration replacing local utility code
-- Test Configuration Loading test suite validating agent config discovery and YAML parsing ([#5344](https://github.com/HomericIntelligence/ProjectOdyssey/pull/5344))
-- Paper implementation validation tests covering forward-pass shapes and dtype contracts ([#5350](https://github.com/HomericIntelligence/ProjectOdyssey/pull/5350))
-- Unified `required-checks` CI workflow consolidating all gate jobs ([#5276](https://github.com/HomericIntelligence/ProjectOdyssey/pull/5276))
-- markdownlint, pixi, justfile, and symlink validation CI jobs ([#5278](https://github.com/HomericIntelligence/ProjectOdyssey/pull/5278))
-- pip-audit and pip-licenses security scanning via pixi tasks ([#5337](https://github.com/HomericIntelligence/ProjectOdyssey/pull/5337))
+- Test Configuration Loading test suite validating agent config discovery and YAML parsing ([#5344](https://github.com/HomericIntelligence/Odyssey/pull/5344))
+- Paper implementation validation tests covering forward-pass shapes and dtype contracts ([#5350](https://github.com/HomericIntelligence/Odyssey/pull/5350))
+- Unified `required-checks` CI workflow consolidating all gate jobs ([#5276](https://github.com/HomericIntelligence/Odyssey/pull/5276))
+- markdownlint, pixi, justfile, and symlink validation CI jobs ([#5278](https://github.com/HomericIntelligence/Odyssey/pull/5278))
+- pip-audit and pip-licenses security scanning via pixi tasks ([#5337](https://github.com/HomericIntelligence/Odyssey/pull/5337))
 
 ### Changed
 
@@ -46,13 +46,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `AnyTensor` operators now delegate to typed implementations
 - Extracted `src/projectodyssey/base/` package to break circular dependency
 - **Mojo 1.0.0b2 migration**: updated all source to 1.0 syntax (`out self`, `thin` fn values,
-  `capturing[_]` closures) ([#5353](https://github.com/HomericIntelligence/ProjectOdyssey/pull/5353))
+  `capturing[_]` closures) ([#5353](https://github.com/HomericIntelligence/Odyssey/pull/5353))
 - Separated host/container pixi envs (detached-environments) to prevent bind-mount collisions;
-  removed superseded ADR-009 ([#5348](https://github.com/HomericIntelligence/ProjectOdyssey/pull/5348))
-- Separated dev from production dependencies in `pixi.toml` ([#5337](https://github.com/HomericIntelligence/ProjectOdyssey/pull/5337))
+  removed superseded ADR-009 ([#5348](https://github.com/HomericIntelligence/Odyssey/pull/5348))
+- Separated dev from production dependencies in `pixi.toml` ([#5337](https://github.com/HomericIntelligence/Odyssey/pull/5337))
 - Replace blanket `ignore_errors = True` in mypy.ini per-module sections (tests/, tools/, notebooks/) with
   targeted `disable_error_code` lists, so new genuine type errors surface while pre-existing patterns remain
-  suppressed ([#5041](https://github.com/HomericIntelligence/ProjectOdyssey/issues/5041))
+  suppressed ([#5041](https://github.com/HomericIntelligence/Odyssey/issues/5041))
 
 ### Fixed
 
@@ -66,27 +66,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Slice view bad-free: skip `pooled_free` for view tensors in `AnyTensor.__del__`
 - Multi-dim slice fast-path ignoring step parameter
 - VGG16 numerical overflow via bitcast migration to `load[dtype]`/`store[dtype]`
-- `root:root` bind-mount ownership breaking `just build-release` in Podman ([#5340](https://github.com/HomericIntelligence/ProjectOdyssey/pull/5340))
-- Missing `build/` directory write permissions in container entrypoint ([#5335](https://github.com/HomericIntelligence/ProjectOdyssey/pull/5335))
-- `just train lenet fp16 200` end-to-end failure inside Podman ([#5351](https://github.com/HomericIntelligence/ProjectOdyssey/pull/5351))
-- mypy type errors resolved by adding `hephaestus` as explicit dependency ([#5341](https://github.com/HomericIntelligence/ProjectOdyssey/pull/5341))
+- `root:root` bind-mount ownership breaking `just build-release` in Podman ([#5340](https://github.com/HomericIntelligence/Odyssey/pull/5340))
+- Missing `build/` directory write permissions in container entrypoint ([#5335](https://github.com/HomericIntelligence/Odyssey/pull/5335))
+- `just train lenet fp16 200` end-to-end failure inside Podman ([#5351](https://github.com/HomericIntelligence/Odyssey/pull/5351))
+- mypy type errors resolved by adding `hephaestus` as explicit dependency ([#5341](https://github.com/HomericIntelligence/Odyssey/pull/5341))
 - SpinLock unlock race: replaced `store(0)` with `fetch_add(-1)` in memory-pool
 
 ### Documentation
 
 - Closed audit umbrella issue #5048: 11 of 13 sub-issues resolved and closed
-  ([#5036](https://github.com/HomericIntelligence/ProjectOdyssey/issues/5036),
-  [#5037](https://github.com/HomericIntelligence/ProjectOdyssey/issues/5037),
-  [#5038](https://github.com/HomericIntelligence/ProjectOdyssey/issues/5038),
-  [#5039](https://github.com/HomericIntelligence/ProjectOdyssey/issues/5039),
-  [#5041](https://github.com/HomericIntelligence/ProjectOdyssey/issues/5041),
-  [#5042](https://github.com/HomericIntelligence/ProjectOdyssey/issues/5042),
-  [#5043](https://github.com/HomericIntelligence/ProjectOdyssey/issues/5043),
-  [#5044](https://github.com/HomericIntelligence/ProjectOdyssey/issues/5044),
-  [#5045](https://github.com/HomericIntelligence/ProjectOdyssey/issues/5045),
-  [#5046](https://github.com/HomericIntelligence/ProjectOdyssey/issues/5046),
-  [#5047](https://github.com/HomericIntelligence/ProjectOdyssey/issues/5047)).
-  Mojo coverage tooling ([#5040](https://github.com/HomericIntelligence/ProjectOdyssey/issues/5040)) tracked separately.
+  ([#5036](https://github.com/HomericIntelligence/Odyssey/issues/5036),
+  [#5037](https://github.com/HomericIntelligence/Odyssey/issues/5037),
+  [#5038](https://github.com/HomericIntelligence/Odyssey/issues/5038),
+  [#5039](https://github.com/HomericIntelligence/Odyssey/issues/5039),
+  [#5041](https://github.com/HomericIntelligence/Odyssey/issues/5041),
+  [#5042](https://github.com/HomericIntelligence/Odyssey/issues/5042),
+  [#5043](https://github.com/HomericIntelligence/Odyssey/issues/5043),
+  [#5044](https://github.com/HomericIntelligence/Odyssey/issues/5044),
+  [#5045](https://github.com/HomericIntelligence/Odyssey/issues/5045),
+  [#5046](https://github.com/HomericIntelligence/Odyssey/issues/5046),
+  [#5047](https://github.com/HomericIntelligence/Odyssey/issues/5047)).
+  Mojo coverage tooling ([#5040](https://github.com/HomericIntelligence/Odyssey/issues/5040)) tracked separately.
 
 ## [0.2.0-dev] - 2025-11-08 to 2026-03-25
 
@@ -376,6 +376,6 @@ classic research papers.
   catalog (64+ failure patterns), and testing strategy guide
 - **Licensing**: BSD license
 
-[Unreleased]: https://github.com/HomericIntelligence/ProjectOdyssey/compare/v0.1.0...HEAD
-[0.2.0-dev]: https://github.com/HomericIntelligence/ProjectOdyssey/compare/v0.1.0...HEAD
-[0.1.0]: https://github.com/HomericIntelligence/ProjectOdyssey/releases/tag/datasets-v2
+[Unreleased]: https://github.com/HomericIntelligence/Odyssey/compare/v0.1.0...HEAD
+[0.2.0-dev]: https://github.com/HomericIntelligence/Odyssey/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/HomericIntelligence/Odyssey/releases/tag/datasets-v2

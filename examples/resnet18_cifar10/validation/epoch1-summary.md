@@ -32,6 +32,6 @@ Per Odysseus ADR-014, a committed log is an *artifact*, not a *gate*: it attests
 to a run only insofar as the numbers are reproducible by a channel the author
 does not control. The reproduction path is the training entrypoint itself
 (`examples/resnet18_cifar10/train.mojo`), which the planned CI training-smoke
-(ProjectOdyssey #5551) will execute to machine-check that a real run emits
+(Odyssey #5551) will execute to machine-check that a real run emits
 finite, decreasing, full-precision loss. These numbers are the honest output of
 one genuine run; a longer or seeded run may vary.

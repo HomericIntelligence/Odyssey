@@ -12,7 +12,7 @@ architectures implemented (~198K lines of Mojo), 298+ tests across 433 test file
 
 ## Ecosystem Context
 
-ProjectOdyssey is part of the
+Odyssey is part of the
 [HomericIntelligence](https://github.com/HomericIntelligence) organization.
 It is a **standalone ML training framework** — not a distributed agent or
 microservice.
@@ -698,7 +698,7 @@ all PRs and pushes to `main`.
 ### Project Structure
 
 ```text
-ProjectOdyssey/
+Odyssey/
 ├── agents/                      # Team documentation
 │   ├── README.md                # Quick start guide
 │   ├── hierarchy.md             # Visual hierarchy diagram and complete agent specifications

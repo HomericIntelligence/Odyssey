@@ -767,7 +767,7 @@ pytest tests/
 Scripts expect this structure:
 
 ```text
-ProjectOdyssey/
+Odyssey/
 ├── notes/
 │   ├── plan/                # LOCAL ONLY (not in git) - task-relative planning
 │   │   ├── 01-foundation/

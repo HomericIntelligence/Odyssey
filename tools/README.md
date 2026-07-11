@@ -172,7 +172,7 @@ with future enhancements planned.
 
 ## References
 
-- [Issue #67](https://github.com/HomericIntelligence/ProjectOdyssey/issues/67): Planning for tools directory
+- [Issue #67](https://github.com/HomericIntelligence/Odyssey/issues/67): Planning for tools directory
 - [ADR-001](../docs/adr/ADR-001-language-selection-tooling.md): Language selection strategy
 - [Scripts Directory](../scripts/README.md): Repository automation scripts
 - [Project Guidelines](../CLAUDE.md): Overall project documentation

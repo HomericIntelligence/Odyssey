@@ -219,7 +219,7 @@ examples/grok/lenet_emnist/
 
 - **Manual AdamW, not autograd.** The autograd substrate in
   `src/projectodyssey/autograd/` is incomplete for convnet training (see
-  tracker issue [#5452](https://github.com/HomericIntelligence/ProjectOdyssey/issues/5452)):
+  tracker issue [#5452](https://github.com/HomericIntelligence/Odyssey/issues/5452)):
   `variable_conv2d`, `variable_maxpool2d`, `variable_linear`,
   `variable_cross_entropy`, and `tape.backward()` dispatch are all
   TODO/in-progress per `src/projectodyssey/autograd/README.md`. So this
@@ -259,10 +259,10 @@ examples/grok/lenet_emnist/
 
 ## Related issues
 
-- [#5452 — `feat(autograd): complete autograd substrate for convnet training`](https://github.com/HomericIntelligence/ProjectOdyssey/issues/5452)
-- [#5449 — `feat(optim): add Muon optimizer`](https://github.com/HomericIntelligence/ProjectOdyssey/issues/5449)
-- [#5450 — `feat(optim): add NorMuon optimizer`](https://github.com/HomericIntelligence/ProjectOdyssey/issues/5450)
-- [#5451 — `feat(optim): add Lion and Shampoo`](https://github.com/HomericIntelligence/ProjectOdyssey/issues/5451)
+- [#5452 — `feat(autograd): complete autograd substrate for convnet training`](https://github.com/HomericIntelligence/Odyssey/issues/5452)
+- [#5449 — `feat(optim): add Muon optimizer`](https://github.com/HomericIntelligence/Odyssey/issues/5449)
+- [#5450 — `feat(optim): add NorMuon optimizer`](https://github.com/HomericIntelligence/Odyssey/issues/5450)
+- [#5451 — `feat(optim): add Lion and Shampoo`](https://github.com/HomericIntelligence/Odyssey/issues/5451)
 
 Once these land, this example can be the natural benchmark for optimizer
 comparisons on a controlled small-data regime.

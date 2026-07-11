@@ -9,16 +9,16 @@ maximum performance and type safety.
 [![License](https://img.shields.io/badge/License-BSD_3--Clause-blue.svg)](LICENSE)
 [![Tests](https://img.shields.io/badge/tests-298+-brightgreen.svg)](tests/)
 [![Coverage](https://img.shields.io/badge/coverage-pending-lightgrey.svg)](#coverage-status)
-[![CI](https://github.com/HomericIntelligence/ProjectOdyssey/actions/workflows/comprehensive-tests.yml/badge.svg)](https://github.com/HomericIntelligence/ProjectOdyssey/actions/workflows/comprehensive-tests.yml)
-[![Build](https://github.com/HomericIntelligence/ProjectOdyssey/actions/workflows/build-validation.yml/badge.svg)](https://github.com/HomericIntelligence/ProjectOdyssey/actions/workflows/build-validation.yml)
-[![ASan Tests](https://github.com/HomericIntelligence/ProjectOdyssey/actions/workflows/asan-tests.yml/badge.svg)](https://github.com/HomericIntelligence/ProjectOdyssey/actions/workflows/asan-tests.yml)
-[![Benchmark](https://github.com/HomericIntelligence/ProjectOdyssey/actions/workflows/benchmark.yml/badge.svg)](https://github.com/HomericIntelligence/ProjectOdyssey/actions/workflows/benchmark.yml)
-[![Pre-commit](https://github.com/HomericIntelligence/ProjectOdyssey/actions/workflows/pre-commit.yml/badge.svg)](https://github.com/HomericIntelligence/ProjectOdyssey/actions/workflows/pre-commit.yml)
-[![Security](https://github.com/HomericIntelligence/ProjectOdyssey/actions/workflows/security.yml/badge.svg)](https://github.com/HomericIntelligence/ProjectOdyssey/actions/workflows/security.yml)
-[![Release](https://github.com/HomericIntelligence/ProjectOdyssey/actions/workflows/release.yml/badge.svg)](https://github.com/HomericIntelligence/ProjectOdyssey/actions/workflows/release.yml)
-[![Container Publish](https://github.com/HomericIntelligence/ProjectOdyssey/actions/workflows/container-publish.yml/badge.svg)](https://github.com/HomericIntelligence/ProjectOdyssey/actions/workflows/container-publish.yml)
-[![Docs](https://github.com/HomericIntelligence/ProjectOdyssey/actions/workflows/docs.yml/badge.svg)](https://github.com/HomericIntelligence/ProjectOdyssey/actions/workflows/docs.yml)
-[![Validate Configs](https://github.com/HomericIntelligence/ProjectOdyssey/actions/workflows/validate-configs.yml/badge.svg)](https://github.com/HomericIntelligence/ProjectOdyssey/actions/workflows/validate-configs.yml)
+[![CI](https://github.com/HomericIntelligence/Odyssey/actions/workflows/comprehensive-tests.yml/badge.svg)](https://github.com/HomericIntelligence/Odyssey/actions/workflows/comprehensive-tests.yml)
+[![Build](https://github.com/HomericIntelligence/Odyssey/actions/workflows/build-validation.yml/badge.svg)](https://github.com/HomericIntelligence/Odyssey/actions/workflows/build-validation.yml)
+[![ASan Tests](https://github.com/HomericIntelligence/Odyssey/actions/workflows/asan-tests.yml/badge.svg)](https://github.com/HomericIntelligence/Odyssey/actions/workflows/asan-tests.yml)
+[![Benchmark](https://github.com/HomericIntelligence/Odyssey/actions/workflows/benchmark.yml/badge.svg)](https://github.com/HomericIntelligence/Odyssey/actions/workflows/benchmark.yml)
+[![Pre-commit](https://github.com/HomericIntelligence/Odyssey/actions/workflows/pre-commit.yml/badge.svg)](https://github.com/HomericIntelligence/Odyssey/actions/workflows/pre-commit.yml)
+[![Security](https://github.com/HomericIntelligence/Odyssey/actions/workflows/security.yml/badge.svg)](https://github.com/HomericIntelligence/Odyssey/actions/workflows/security.yml)
+[![Release](https://github.com/HomericIntelligence/Odyssey/actions/workflows/release.yml/badge.svg)](https://github.com/HomericIntelligence/Odyssey/actions/workflows/release.yml)
+[![Container Publish](https://github.com/HomericIntelligence/Odyssey/actions/workflows/container-publish.yml/badge.svg)](https://github.com/HomericIntelligence/Odyssey/actions/workflows/container-publish.yml)
+[![Docs](https://github.com/HomericIntelligence/Odyssey/actions/workflows/docs.yml/badge.svg)](https://github.com/HomericIntelligence/Odyssey/actions/workflows/docs.yml)
+[![Validate Configs](https://github.com/HomericIntelligence/Odyssey/actions/workflows/validate-configs.yml/badge.svg)](https://github.com/HomericIntelligence/Odyssey/actions/workflows/validate-configs.yml)
 
 ## What This Is
 
@@ -41,13 +41,13 @@ architectures, and 298+ tests across layerwise unit tests and end-to-end integra
 
 ## Part of HomericIntelligence
 
-ProjectOdyssey is one of several repositories in the
+Odyssey is one of several repositories in the
 [HomericIntelligence](https://github.com/HomericIntelligence) organization. Here is how the
 repos relate:
 
 | Repository | Role |
 | --- | --- |
-| **ProjectOdyssey** (this repo) | ML training framework in Mojo -- neural nets, autograd, shared lib |
+| **Odyssey** (this repo) | ML training framework in Mojo -- neural nets, autograd, shared lib |
 | [Odysseus][odysseus] | Ecosystem meta-repo and architecture docs |
 | [AchaeanFleet][achaeanfleet] | Container images for the agent mesh -- Dockerfiles, Compose, CI |
 | [Myrmidons][myrmidons] | GitOps agent provisioning -- agent definitions as code |
@@ -72,12 +72,12 @@ repos relate:
 [proteus]: https://github.com/HomericIntelligence/ProjectProteus
 [telemachy]: https://github.com/HomericIntelligence/ProjectTelemachy
 
-### What ProjectOdyssey is NOT
+### What Odyssey is NOT
 
 To avoid confusion with other ecosystem repos:
 
 - **Not a distributed agent mesh.** AchaeanFleet and Myrmidons handle agent orchestration.
-  ProjectOdyssey has zero integration with ai-maestro, NATS, or any agent registration/task
+  Odyssey has zero integration with ai-maestro, NATS, or any agent registration/task
   queue system.
 - **Not an agent research sandbox.** It is a straightforward ML training framework. The only
   "agents" here are Claude Code development automation (see `.claude/agents/`), which manage
@@ -202,7 +202,7 @@ just validate
 ## Project Structure
 
 ```text
-ProjectOdyssey/
+Odyssey/
 ├── src/projectodyssey/                  # Reusable ML library
 │   ├── core/                # Tensor ops, layers, SIMD kernels
 │   ├── autograd/            # Tape-based reverse-mode autograd

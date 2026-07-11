@@ -244,4 +244,4 @@ Before finalizing:
 - **Agent Skills Best Practices**: [https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices)
 - **Sub-Agents Guide**: [https://code.claude.com/docs/en/sub-agents](https://code.claude.com/docs/en/sub-agents)
 - **Output Styles**: [https://code.claude.com/docs/en/output-styles](https://code.claude.com/docs/en/output-styles)
-- **Issue #2548**: [https://github.com/HomericIntelligence/ProjectOdyssey/issues/2548](https://github.com/HomericIntelligence/ProjectOdyssey/issues/2548)
+- **Issue #2548**: [https://github.com/HomericIntelligence/Odyssey/issues/2548](https://github.com/HomericIntelligence/Odyssey/issues/2548)

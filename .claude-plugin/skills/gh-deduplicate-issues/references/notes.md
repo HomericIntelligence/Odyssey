@@ -4,7 +4,7 @@
 
 ### Context
 
-- Repository: homericintelligence/ProjectOdyssey
+- Repository: homericintelligence/Odyssey
 - Date: 2026-03-08
 - Starting open issue count: 683
 - Ending open issue count: 570

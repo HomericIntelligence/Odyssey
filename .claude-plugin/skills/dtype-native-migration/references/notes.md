@@ -8,7 +8,7 @@
 
 ## Problem Statement
 
-ProjectOdyssey had custom struct implementations for reduced-precision dtypes:
+Odyssey had custom struct implementations for reduced-precision dtypes:
 
 - `BF16` (BFloat16) - 499 lines
 - `FP8` (E4M3) - 238 lines

@@ -73,8 +73,8 @@ and provides a prioritized roadmap for future development.
 
 #### Depthwise Convolutions
 
-**Issue:** [#2227](https://github.com/HomericIntelligence/ProjectOdyssey/issues/2227),
-[#2228](https://github.com/HomericIntelligence/ProjectOdyssey/issues/2228)
+**Issue:** [#2227](https://github.com/HomericIntelligence/Odyssey/issues/2227),
+[#2228](https://github.com/HomericIntelligence/Odyssey/issues/2228)
 
 Required for efficient architectures like MobileNet:
 
@@ -84,8 +84,8 @@ Required for efficient architectures like MobileNet:
 
 #### Attention Mechanisms
 
-**Issue:** [#2229](https://github.com/HomericIntelligence/ProjectOdyssey/issues/2229),
-[#2230](https://github.com/HomericIntelligence/ProjectOdyssey/issues/2230)
+**Issue:** [#2229](https://github.com/HomericIntelligence/Odyssey/issues/2229),
+[#2230](https://github.com/HomericIntelligence/Odyssey/issues/2230)
 
 Required for Transformer architectures:
 
@@ -97,8 +97,8 @@ Required for Transformer architectures:
 
 #### Additional Normalization Layers
 
-**Issue:** [#2232](https://github.com/HomericIntelligence/ProjectOdyssey/issues/2232),
-[#2233](https://github.com/HomericIntelligence/ProjectOdyssey/issues/2233)
+**Issue:** [#2232](https://github.com/HomericIntelligence/Odyssey/issues/2232),
+[#2233](https://github.com/HomericIntelligence/Odyssey/issues/2233)
 
 - `group_norm` - Group normalization (for small batch sizes)
 - `instance_norm` - Instance normalization (for style transfer)

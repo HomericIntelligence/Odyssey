@@ -861,6 +861,6 @@ No outputs should be created outside `/notes/issues/<issue-number>/` directory.
 
 ## References
 
-- [Agent Hierarchy](https://github.com/HomericIntelligence/ProjectOdyssey/blob/main/agents/hierarchy.md)
+- [Agent Hierarchy](https://github.com/HomericIntelligence/Odyssey/blob/main/agents/hierarchy.md)
 - [Skills Design](./skills-design.md)
 - [5-Phase Workflow](./phases.md)

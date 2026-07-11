@@ -32,8 +32,8 @@ pure **virtual address space exhaustion**.
 **Reproducible command sequence** (requires Podman or Docker):
 
 ```bash
-git clone https://github.com/HomericIntelligence/ProjectOdyssey.git
-cd ProjectOdyssey && REPO_ROOT="$(pwd)"
+git clone https://github.com/HomericIntelligence/Odyssey.git
+cd Odyssey && REPO_ROOT="$(pwd)"
 pixi install
 podman build -t projectodyssey:repro .
 # Crash:
@@ -368,4 +368,4 @@ what you think it is, and the way to find out is to measure.
 - **Investigation script:** [`repro/investigate_import_threshold.sh`](/repro/investigate_import_threshold.sh)
 - **Repro files:** [`repro/repro_parametric_monomorphization_crash.mojo`](/repro/repro_parametric_monomorphization_crash.mojo),
   [`repro/repro_module_import_crash.mojo`](/repro/repro_module_import_crash.mojo)
-- **CI fix PR:** [#5260](https://github.com/HomericIntelligence/ProjectOdyssey/pull/5260)
+- **CI fix PR:** [#5260](https://github.com/HomericIntelligence/Odyssey/pull/5260)

@@ -37,7 +37,7 @@ Active work tracked in open issues:
 
 ## How to Contribute
 
-1. Browse [open issues](https://github.com/HomericIntelligence/ProjectOdyssey/issues)
+1. Browse [open issues](https://github.com/HomericIntelligence/Odyssey/issues)
    for work that interests you.
 2. Read [`CONTRIBUTING.md`](CONTRIBUTING.md) for the branch → PR → auto-merge
    workflow.

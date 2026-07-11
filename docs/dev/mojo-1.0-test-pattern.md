@@ -58,7 +58,7 @@ def main() raises:
 
 ## ⚠️ Important note about THIS repo's existing tests
 
-ProjectOdyssey's existing test files (e.g. `tests/shared/core/test_dtype_dispatch.mojo`)
+Odyssey's existing test files (e.g. `tests/shared/core/test_dtype_dispatch.mojo`)
 **already have a hand-rolled `def main()` block** that explicitly calls every
 `test_*` function and prints a `✓` per pass. These files run on 1.0.0b2 via
 `pixi run mojo run <file>` **without any conversion** to `TestSuite`.

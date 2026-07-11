@@ -24,7 +24,7 @@ files — those still belong in GitHub issues or PR descriptions.
 ## Repository Structure
 
 ```text
-ProjectOdyssey/
+Odyssey/
 ├── notes/
 │   └── blog/                    # Development blog entries
 ├── docs/

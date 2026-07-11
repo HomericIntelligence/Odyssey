@@ -21,7 +21,7 @@ BAD: Fixed the tensor file (too vague)
 
 ```markdown
 GOOD:
-File: /home/user/ProjectOdyssey/shared/core/extensor.mojo:45-52
+File: /home/user/Odyssey/shared/core/extensor.mojo:45-52
 
 fn __init__(out self, shape: List[Int], dtype: DType):
     """Initialize tensor with given shape and dtype."""
@@ -51,7 +51,7 @@ Added comprehensive Claude 4 optimization guidance to CLAUDE.md
 - Added "Agent Skills vs Sub-Agents" decision tree
 
 ## Files Modified
-- `/home/user/ProjectOdyssey/CLAUDE.md` (lines 173-500, added 327 lines)
+- `/home/user/Odyssey/CLAUDE.md` (lines 173-500, added 327 lines)
 
 ## Verification
 - [x] Markdown linting passes
@@ -82,7 +82,7 @@ GOOD:
 
 **Issue**: Inconsistent parameter naming in AnyTensor methods
 
-**Location**: `/home/user/ProjectOdyssey/shared/core/extensor.mojo:120-145`
+**Location**: `/home/user/Odyssey/shared/core/extensor.mojo:120-145`
 
 **Problem**: Methods use both `mut self` and `self` inconsistently
 
@@ -127,7 +127,7 @@ BAD: Here's 20 random issues in no particular order
 
 ```bash
 $ mojo test tests/shared/core/test_tensor.mojo
-Testing: /home/user/ProjectOdyssey/tests/shared/core/test_tensor.mojo
+Testing: /home/user/Odyssey/tests/shared/core/test_tensor.mojo
   test_tensor_creation ... PASSED
   test_tensor_indexing ... PASSED
   test_tensor_reshape ... PASSED

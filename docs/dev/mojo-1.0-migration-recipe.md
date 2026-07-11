@@ -1,6 +1,6 @@
 # Mojo 1.0.0b2 Migration Recipe
 
-Per-error-class fix recipes discovered while migrating ProjectOdyssey from
+Per-error-class fix recipes discovered while migrating Odyssey from
 Mojo `0.26.3.0.dev2026040705` to `1.0.0b2.dev2026050805`.
 
 This is the swarm-agent reference: when an agent hits an error in Phase D

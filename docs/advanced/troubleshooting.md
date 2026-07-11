@@ -33,7 +33,7 @@ mojo --version
 1. If not found, activate the Pixi environment:
 
 ```bash
-cd /path/to/ProjectOdyssey
+cd /path/to/Odyssey
 pixi shell
 mojo --version
 ```
@@ -74,7 +74,7 @@ pixi run mojo build examples/train.mojo
 For Python scripts, ensure the working directory is the repository root:
 
 ```bash
-cd /path/to/ProjectOdyssey
+cd /path/to/Odyssey
 python3 scripts/your_script.py
 ```
 
@@ -86,7 +86,7 @@ python3 scripts/your_script.py
 
 ```bash
 # Add repository root to PYTHONPATH
-cd /path/to/ProjectOdyssey
+cd /path/to/Odyssey
 export PYTHONPATH="${PYTHONPATH}:$(pwd)"
 python3 scripts/your_script.py
 ```
@@ -94,7 +94,7 @@ python3 scripts/your_script.py
 Or run from the repository root without changing PYTHONPATH:
 
 ```bash
-cd /path/to/ProjectOdyssey
+cd /path/to/Odyssey
 python3 -c "import sys; sys.path.insert(0, '.'); from scripts import your_script"
 ```
 
@@ -125,7 +125,7 @@ pixi --version
 1. Navigate to repository and create environment:
 
 ```bash
-cd /path/to/ProjectOdyssey
+cd /path/to/Odyssey
 pixi install
 pixi shell
 ```
@@ -882,7 +882,7 @@ timeout 120 pixi run mojo test tests/models/test_lenet5_layers.mojo
 
 ```bash
 # Use same commands as CI workflow
-cd /path/to/ProjectOdyssey
+cd /path/to/Odyssey
 pixi install
 pixi shell
 just validate  # Runs all CI checks locally

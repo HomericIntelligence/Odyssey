@@ -82,6 +82,6 @@ Per [ADR-001](../../docs/adr/ADR-001-language-selection-tooling.md):
 
 ## References
 
-- [Issue #67](https://github.com/HomericIntelligence/ProjectOdyssey/issues/67): Tools planning
-- [Issue #69](https://github.com/HomericIntelligence/ProjectOdyssey/issues/69): Tools implementation
+- [Issue #67](https://github.com/HomericIntelligence/Odyssey/issues/67): Tools planning
+- [Issue #69](https://github.com/HomericIntelligence/Odyssey/issues/69): Tools implementation
 - [ADR-001](../../docs/adr/ADR-001-language-selection-tooling.md): Language strategy

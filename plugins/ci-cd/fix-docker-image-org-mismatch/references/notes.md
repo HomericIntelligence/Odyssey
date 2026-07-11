@@ -3,7 +3,7 @@
 ## Session Context
 
 **Date**: 2026-02-09
-**Repository**: HomericIntelligence/ProjectOdyssey
+**Repository**: HomericIntelligence/Odyssey
 **Issue**: Docker Build and Publish workflow failing after repository org transfer
 **PR**: #3123
 
@@ -14,16 +14,16 @@
 Docker Build workflow was failing on main branch with error:
 
 ```bash
-[0000] ERROR could not determine source: errors occurred attempting to resolve 'ghcr.io/mvillmow/ProjectOdyssey:main':
-  - snap: snap file "ghcr.io/mvillmow/ProjectOdyssey:main" does not exist
-  - docker: could not parse reference: ghcr.io/mvillmow/ProjectOdyssey:main
-  - oci-registry: unable to parse registry reference="ghcr.io/mvillmow/ProjectOdyssey:main"
+[0000] ERROR could not determine source: errors occurred attempting to resolve 'ghcr.io/mvillmow/Odyssey:main':
+  - snap: snap file "ghcr.io/mvillmow/Odyssey:main" does not exist
+  - docker: could not parse reference: ghcr.io/mvillmow/Odyssey:main
+  - oci-registry: unable to parse registry reference="ghcr.io/mvillmow/Odyssey:main"
 ```
 
 ### Root Cause Analysis
 
-1. Repository was under `mvillmow/ProjectOdyssey` originally
-2. Repository transferred to `HomericIntelligence/ProjectOdyssey`
+1. Repository was under `mvillmow/Odyssey` originally
+2. Repository transferred to `HomericIntelligence/Odyssey`
 3. `GITHUB\_TOKEN` automatically scoped to `HomericIntelligence` org
 4. `IMAGE\_NAME` in `.github/workflows/docker.yml` still hardcoded to `mvillmow/projectodyssey`
 5. Docker tried to push to `ghcr.io/mvillmow/projectodyssey` using `HomericIntelligence` token
@@ -35,7 +35,7 @@ Docker Build workflow was failing on main branch with error:
 
 **Part A: GitHub URL + GHCR Migrations (152 occurrences)**
 
-1. **GitHub URLs (138)**: `github.com/mvillmow/ProjectOdyssey` → `github.com/HomericIntelligence/ProjectOdyssey`
+1. **GitHub URLs (138)**: `github.com/mvillmow/Odyssey` → `github.com/HomericIntelligence/Odyssey`
 2. **GHCR ml-odyssey (11)**: `ghcr.io/mvillmow/ml-odyssey` → `ghcr.io/homericintelligence/projectodyssey`
 3. **GHCR projectodyssey (2)**: `ghcr.io/mvillmow/projectodyssey` → `ghcr.io/homericintelligence/projectodyssey`
 4. **Docker workflow IMAGE\_NAME (1)**: `.github/workflows/docker.yml:23`
@@ -129,7 +129,7 @@ grep -r "/home/mvillmow" --include="*.md" --include="*.py" --include="*.sh" --in
 # Only found in .pixi/ (dependencies, safe to ignore)
 
 # No old repo refs
-grep -r "mvillmow/projectodyssey\|mvillmow/ml-odyssey\|mvillmow/ProjectOdyssey" \
+grep -r "mvillmow/projectodyssey\|mvillmow/ml-odyssey\|mvillmow/Odyssey" \
   --include="*.md" --include="*.py" --include="*.yml" --include="*.toml" .
 # Only found in build/ directory (test fixtures) and API endpoint examples
 ```
@@ -180,7 +180,7 @@ ghcr.io/homericintelligence/projectodyssey:sha-68cdcb0-prod
 
 Docker image names **MUST** be lowercase. Using `${{ github.repository }}` directly fails because:
 
-- `github.repository` = `HomericIntelligence/ProjectOdyssey` (mixed case)
+- `github.repository` = `HomericIntelligence/Odyssey` (mixed case)
 - Docker requires: `homericintelligence/projectodyssey` (all lowercase)
 
 ### 2. Multiple Workflows Need Updates

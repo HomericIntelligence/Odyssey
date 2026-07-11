@@ -543,7 +543,7 @@ mojo test -m "not slow" tests/projectodyssey/
 - [Test Architecture](../../notes/issues/48/test-architecture.md) - Comprehensive test design
 - [Shared Library](../../shared/README.md) - Code being tested
 - [Mojo Testing Docs](https://docs.modular.com/mojo/tools/testing/) - Official Mojo testing guide
-- [Issue #48](https://github.com/HomericIntelligence/ProjectOdyssey/issues/48) - Test implementation issue
+- [Issue #48](https://github.com/HomericIntelligence/Odyssey/issues/48) - Test implementation issue
 
 ## Questions
 

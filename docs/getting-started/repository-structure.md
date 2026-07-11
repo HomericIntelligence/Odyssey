@@ -97,7 +97,7 @@ just build-release
 ### Top-Level Directories
 
 ```text
-ProjectOdyssey/
+Odyssey/
 ├── papers/          # ML paper implementations
 ├── src/projectodyssey/          # Reusable ML components
 ├── docs/            # User documentation

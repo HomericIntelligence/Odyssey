@@ -270,7 +270,7 @@ python tools/setup/check_dependencies.py
 
 ```bash
 # Ensure you're in repository root
-cd /path/to/ProjectOdyssey
+cd /path/to/Odyssey
 
 # Verify tool exists
 ls tools/paper-scaffold/scaffold.py
@@ -280,7 +280,7 @@ ls tools/paper-scaffold/scaffold.py
 
 ```bash
 # Check Mojo path configuration
-export MOJO_PATH=/path/to/ProjectOdyssey
+export MOJO_PATH=/path/to/Odyssey
 
 # Verify imports in Mojo REPL
 pixi run mojo

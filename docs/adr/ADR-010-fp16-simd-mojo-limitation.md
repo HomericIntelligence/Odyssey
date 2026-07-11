@@ -8,7 +8,7 @@
 
 **Date**: 2026-03-07
 
-**Issue Reference**: [Issue #3291](https://github.com/HomericIntelligence/ProjectOdyssey/issues/3291)
+**Issue Reference**: [Issue #3291](https://github.com/HomericIntelligence/Odyssey/issues/3291)
 
 **Decision Owner**: Development Team
 
@@ -200,10 +200,10 @@ to proceed.
 
 ### Related Issues
 
-- [Issue #3291](https://github.com/HomericIntelligence/ProjectOdyssey/issues/3291):
+- [Issue #3291](https://github.com/HomericIntelligence/Odyssey/issues/3291):
   Consolidate FP16 SIMD limitation references (this ADR)
-- [Issue #3072](https://github.com/HomericIntelligence/ProjectOdyssey/issues/3072): Mixed-precision conversion implementation
-- [Issue #3015](https://github.com/HomericIntelligence/ProjectOdyssey/issues/3015): FP16 SIMD limitation tracking
+- [Issue #3072](https://github.com/HomericIntelligence/Odyssey/issues/3072): Mixed-precision conversion implementation
+- [Issue #3015](https://github.com/HomericIntelligence/Odyssey/issues/3015): FP16 SIMD limitation tracking
 
 ### Affected Files
 

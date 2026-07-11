@@ -157,4 +157,4 @@ ENV PATH="/home/${USER_NAME}/.pixi/bin:${PATH}"
 USER ${USER_NAME}
 WORKDIR /workspace
 
-CMD ["pixi", "run", "python", "-c", "print('ProjectOdyssey production image ready')"]
+CMD ["pixi", "run", "python", "-c", "print('Odyssey production image ready')"]

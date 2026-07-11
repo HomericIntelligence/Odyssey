@@ -272,6 +272,6 @@ Validation runs after generation, never modifies files.
 
 ## References
 
-- [Planning Documentation](https://github.com/HomericIntelligence/ProjectOdyssey/issues/759)
+- [Planning Documentation](https://github.com/HomericIntelligence/Odyssey/issues/759)
 - [5-Phase Workflow](../../notes/review/README.md)
 - [ADR-001: Language Selection](../../docs/adr/ADR-001-language-selection-tooling.md)

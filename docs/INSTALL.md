@@ -38,8 +38,8 @@ The simplest way to consume `src/projectodyssey/` is to clone this repo and add 
 Mojo package path:
 
 ```bash
-git clone https://github.com/HomericIntelligence/ProjectOdyssey.git
-cd ProjectOdyssey
+git clone https://github.com/HomericIntelligence/Odyssey.git
+cd Odyssey
 pixi install          # installs Mojo 1.0.0b2 and all Python tooling
 just build            # compiles src/projectodyssey/ into .mojopkg artifacts
 ```
@@ -48,7 +48,7 @@ Then, in your project's `pixi.toml`, add the `src/projectodyssey/` directory to 
 
 ```toml
 [feature.default.activation.env]
-MOJO_PATH = "/path/to/ProjectOdyssey/shared"
+MOJO_PATH = "/path/to/Odyssey/shared"
 ```
 
 ## Importing the Shared Library
@@ -80,6 +80,6 @@ projects via `MOJO_PATH` or `--import-path`.
 | Symptom | Fix |
 | --- | --- |
 | `GLIBC_2.32 not found` | Use Ubuntu 22.04+, Debian 12+, or `just shell` in Podman |
-| `cannot find module 'shared'` | Verify `MOJO_PATH` includes `ProjectOdyssey/shared` |
+| `cannot find module 'shared'` | Verify `MOJO_PATH` includes `Odyssey/shared` |
 | `mojo: command not found` | Run `pixi install` first; Mojo is installed by pixi |
 | Build fails with import errors | Run `just build` before importing; compiled artifacts are required |

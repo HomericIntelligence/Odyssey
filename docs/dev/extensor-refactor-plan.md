@@ -2,7 +2,7 @@
 
 # AnyTensor → Tensor[dtype] + AnyTensor Migration Plan
 
-**Epic**: [#4998](https://github.com/HomericIntelligence/ProjectOdyssey/issues/4998)
+**Epic**: [#4998](https://github.com/HomericIntelligence/Odyssey/issues/4998)
 **Goal**: Split AnyTensor into two types following Mojo conventions:
 - **`Tensor[dtype: DType]`** — compile-time typed, SIMD-like. `tensor[i] = value` just works.
 - **`AnyTensor`** — runtime-typed, type-erased. For collections, I/O, trait interfaces. Uses `.set(i, val)` for element access.

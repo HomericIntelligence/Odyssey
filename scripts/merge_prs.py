@@ -3,7 +3,7 @@
 Merge open PRs with successful CI/CD into main using PR.merge(merge_method='rebase').
 Always prints check runs. Supports --dry-run and --push-all (push head branches even if checks fail).
 
-Repo: HomericIntelligence/ProjectOdyssey
+Repo: HomericIntelligence/Odyssey
 Requires: PyGithub (pip install PyGithub), Git installed locally
 
 Usage:
@@ -20,7 +20,7 @@ import argparse
 import subprocess
 from github import Github
 
-REPO_NAME = "HomericIntelligence/ProjectOdyssey"
+REPO_NAME = "HomericIntelligence/Odyssey"
 
 
 def run(cmd, dry_run=False, cwd=None):
