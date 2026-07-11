@@ -16,7 +16,7 @@ All data stays on the machine running training. No data is transmitted externall
 
 ## Telemetry and Phone-Home
 
-ProjectOdyssey contains **no telemetry, no analytics, and no network calls** of
+Odyssey contains **no telemetry, no analytics, and no network calls** of
 any kind. The codebase (`src/projectodyssey/`, `examples/`) has been audited and contains no
 outbound HTTP, socket, or reporting code. Training runs are entirely local.
 
@@ -55,4 +55,4 @@ passing data to the framework:
 - [Modular AI Privacy Policy](https://www.modular.com/legal/privacy) — privacy policy
   for the Mojo compiler and Modular toolchain
 
-[security-link]: https://github.com/HomericIntelligence/ProjectOdyssey/blob/main/SECURITY.md
+[security-link]: https://github.com/HomericIntelligence/Odyssey/blob/main/SECURITY.md

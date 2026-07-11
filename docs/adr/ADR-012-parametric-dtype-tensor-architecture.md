@@ -4,7 +4,7 @@
 
 **Date**: 2026-03-21
 
-**Issue Reference**: [Issue #4998](https://github.com/HomericIntelligence/ProjectOdyssey/issues/4998)
+**Issue Reference**: [Issue #4998](https://github.com/HomericIntelligence/Odyssey/issues/4998)
 
 **Decision Owner**: ML Odyssey Team
 
@@ -359,11 +359,11 @@ details.
 
 ### Related Issues
 
-- [Issue #4998](https://github.com/HomericIntelligence/ProjectOdyssey/issues/4998):
+- [Issue #4998](https://github.com/HomericIntelligence/Odyssey/issues/4998):
   Epic tracking the full migration
-- [PR #4997](https://github.com/HomericIntelligence/ProjectOdyssey/pull/4997):
+- [PR #4997](https://github.com/HomericIntelligence/Odyssey/pull/4997):
   Short-term precision fix (set() method improvements)
-- [PR #5001](https://github.com/HomericIntelligence/ProjectOdyssey/pull/5001):
+- [PR #5001](https://github.com/HomericIntelligence/Odyssey/pull/5001):
   DType guards for conv2d, batch_norm2d, attention
 
 ### External Documentation

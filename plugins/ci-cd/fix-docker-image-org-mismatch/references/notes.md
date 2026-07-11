@@ -3,7 +3,7 @@
 ## Session Context
 
 **Date**: 2026-02-09
-**Repository**: HomericIntelligence/ProjectOdyssey
+**Repository**: HomericIntelligence/Odyssey
 **Issue**: Docker Build and Publish workflow failing after repository org transfer
 **PR**: #3123
 
@@ -14,16 +14,16 @@
 Docker Build workflow was failing on main branch with error:
 
 ```bash
-[0000] ERROR could not determine source: errors occurred attempting to resolve 'ghcr.io/mvillmow/ProjectOdyssey:main':
-  - snap: snap file "ghcr.io/mvillmow/ProjectOdyssey:main" does not exist
-  - docker: could not parse reference: ghcr.io/mvillmow/ProjectOdyssey:main
-  - oci-registry: unable to parse registry reference="ghcr.io/mvillmow/ProjectOdyssey:main"
+[0000] ERROR could not determine source: errors occurred attempting to resolve 'ghcr.io/mvillmow/Odyssey:main':
+  - snap: snap file "ghcr.io/mvillmow/Odyssey:main" does not exist
+  - docker: could not parse reference: ghcr.io/mvillmow/Odyssey:main
+  - oci-registry: unable to parse registry reference="ghcr.io/mvillmow/Odyssey:main"
 ```
 
 ### Root Cause Analysis
 
-1. Repository was under `mvillmow/ProjectOdyssey` originally
-2. Repository transferred to `HomericIntelligence/ProjectOdyssey`
+1. Repository was under `mvillmow/Odyssey` originally
+2. Repository transferred to `HomericIntelligence/Odyssey`
 3. `GITHUB\_TOKEN` automatically scoped to `HomericIntelligence` org
 4. `IMAGE\_NAME` in `.github/workflows/docker.yml` still hardcoded to `mvillmow/projectodyssey`
 5. Docker tried to push to `ghcr.io/mvillmow/projectodyssey` using `HomericIntelligence` token
@@ -35,9 +35,9 @@ Docker Build workflow was failing on main branch with error:
 
 **Part A: GitHub URL + GHCR Migrations (152 occurrences)**
 
-1. **GitHub URLs (138)**: `github.com/mvillmow/ProjectOdyssey` → `github.com/HomericIntelligence/ProjectOdyssey`
-2. **GHCR ml-odyssey (11)**: `ghcr.io/mvillmow/ml-odyssey` → `ghcr.io/homericintelligence/projectodyssey`
-3. **GHCR projectodyssey (2)**: `ghcr.io/mvillmow/projectodyssey` → `ghcr.io/homericintelligence/projectodyssey`
+1. **GitHub URLs (138)**: `github.com/mvillmow/Odyssey` → `github.com/HomericIntelligence/Odyssey`
+2. **GHCR ml-odyssey (11)**: `ghcr.io/mvillmow/ml-odyssey` → `ghcr.io/HomericIntelligence/Odyssey`
+3. **GHCR projectodyssey (2)**: `ghcr.io/mvillmow/projectodyssey` → `ghcr.io/HomericIntelligence/Odyssey`
 4. **Docker workflow IMAGE\_NAME (1)**: `.github/workflows/docker.yml:23`
 5. **Release workflow (3)**: `.github/workflows/release.yml` - added IMAGE\_NAME env, updated tags
 6. **Justfile REPO\_NAME (1)**: `justfile:111`
@@ -71,7 +71,7 @@ env:
 # AFTER:
 env:
   REGISTRY: ghcr.io
-  IMAGE\_NAME: homericintelligence/projectodyssey
+  IMAGE\_NAME: HomericIntelligence/Odyssey
 ```
 
 **`.github/workflows/release.yml`** (Lines 428-437):
@@ -89,7 +89,7 @@ jobs:
 
     env:
       # Docker image names must be lowercase
-      IMAGE\_NAME: homericintelligence/projectodyssey
+      IMAGE\_NAME: HomericIntelligence/Odyssey
 
 # UPDATED tags (lines 456-458):
     tags: |
@@ -109,7 +109,7 @@ REPO\_NAME := "mvillmow/ml-odyssey"
 
 # AFTER:
 REGISTRY := "ghcr.io"
-REPO\_NAME := "homericintelligence/projectodyssey"
+REPO\_NAME := "HomericIntelligence/Odyssey"
 ```
 
 ### Step 3: Verification
@@ -129,7 +129,7 @@ grep -r "/home/mvillmow" --include="*.md" --include="*.py" --include="*.sh" --in
 # Only found in .pixi/ (dependencies, safe to ignore)
 
 # No old repo refs
-grep -r "mvillmow/projectodyssey\|mvillmow/ml-odyssey\|mvillmow/ProjectOdyssey" \
+grep -r "mvillmow/projectodyssey\|mvillmow/ml-odyssey\|mvillmow/Odyssey" \
   --include="*.md" --include="*.py" --include="*.yml" --include="*.toml" .
 # Only found in build/ directory (test fixtures) and API endpoint examples
 ```
@@ -165,13 +165,13 @@ grep -r "mvillmow/projectodyssey\|mvillmow/ml-odyssey\|mvillmow/ProjectOdyssey" 
 **Images Published**:
 
 ```bash
-ghcr.io/homericintelligence/projectodyssey:main
-ghcr.io/homericintelligence/projectodyssey:latest
-ghcr.io/homericintelligence/projectodyssey:sha-68cdcb0
-ghcr.io/homericintelligence/projectodyssey:main-ci
-ghcr.io/homericintelligence/projectodyssey:sha-68cdcb0-ci
-ghcr.io/homericintelligence/projectodyssey:main-prod
-ghcr.io/homericintelligence/projectodyssey:sha-68cdcb0-prod
+ghcr.io/HomericIntelligence/Odyssey:main
+ghcr.io/HomericIntelligence/Odyssey:latest
+ghcr.io/HomericIntelligence/Odyssey:sha-68cdcb0
+ghcr.io/HomericIntelligence/Odyssey:main-ci
+ghcr.io/HomericIntelligence/Odyssey:sha-68cdcb0-ci
+ghcr.io/HomericIntelligence/Odyssey:main-prod
+ghcr.io/HomericIntelligence/Odyssey:sha-68cdcb0-prod
 ```
 
 ## Critical Learnings
@@ -180,8 +180,8 @@ ghcr.io/homericintelligence/projectodyssey:sha-68cdcb0-prod
 
 Docker image names **MUST** be lowercase. Using `${{ github.repository }}` directly fails because:
 
-- `github.repository` = `HomericIntelligence/ProjectOdyssey` (mixed case)
-- Docker requires: `homericintelligence/projectodyssey` (all lowercase)
+- `github.repository` = `HomericIntelligence/Odyssey` (mixed case)
+- Docker requires: `HomericIntelligence/Odyssey` (all lowercase)
 
 ### 2. Multiple Workflows Need Updates
 
@@ -290,9 +290,9 @@ fix(ci)(repo): migrate GitHub URLs and fix Docker CI failure
 
 ## Docker CI Fix (Critical)
 
-- .github/workflows/docker.yml: Update IMAGE\_NAME from mvillmow/projectodyssey to homericintelligence/projectodyssey
+- .github/workflows/docker.yml: Update IMAGE\_NAME from mvillmow/projectodyssey to HomericIntelligence/Odyssey
 - .github/workflows/release.yml: Add IMAGE\_NAME env var and update GHCR references
-- justfile: Update REPO\_NAME from mvillmow/ml-odyssey to homericintelligence/projectodyssey
+- justfile: Update REPO\_NAME from mvillmow/ml-odyssey to HomericIntelligence/Odyssey
 - Dockerfile.ci: Remove redundant :- from PYTHONPATH (ENV PYTHONPATH=/app)
 
 Fixes Docker Build and Publish workflow failure where GITHUB\_TOKEN scoped to

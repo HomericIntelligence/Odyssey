@@ -275,8 +275,8 @@ python scripts/convert_image_to_idx.py --help
 
 PNG/JPEG image loading is not natively supported in Mojo v0.26.1 (no stdlib image IO).
 The `scripts/convert_image_to_idx.py` script provides a Python interop wrapper that handles this
-via Pillow. See [#3198](https://github.com/homericintelligence/projectodyssey/issues/3198)
-and [#3087](https://github.com/homericintelligence/projectodyssey/issues/3087).
+via Pillow. See [#3198](https://github.com/HomericIntelligence/Odyssey/issues/3198)
+and [#3087](https://github.com/HomericIntelligence/Odyssey/issues/3087).
 
 ## Contributing
 

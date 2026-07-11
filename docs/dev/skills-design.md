@@ -490,5 +490,5 @@ Each skill should have:
 ## References
 
 - Claude Code Skills Documentation: <https://code.claude.com/docs/en/skills>
-- [Agent Hierarchy](https://github.com/HomericIntelligence/ProjectOdyssey/blob/main/agents/hierarchy.md)
+- [Agent Hierarchy](https://github.com/HomericIntelligence/Odyssey/blob/main/agents/hierarchy.md)
 - [Orchestration Patterns](./orchestration-patterns.md)

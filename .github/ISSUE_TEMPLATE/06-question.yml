@@ -10,7 +10,7 @@ body:
       value: |
         Have a question? We're here to help!
 
-        **Note**: For longer discussions, consider using [GitHub Discussions](https://github.com/HomericIntelligence/ProjectOdyssey/discussions).
+        **Note**: For longer discussions, consider using [GitHub Discussions](https://github.com/HomericIntelligence/Odyssey/discussions).
 
   - type: textarea
     id: question

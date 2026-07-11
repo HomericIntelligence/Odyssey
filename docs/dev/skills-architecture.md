@@ -1297,7 +1297,7 @@ skill-name/
 ## References
 
 - [Claude Code Skills Documentation](https://code.claude.com/docs/en/skills)
-- [Agent Hierarchy](https://github.com/HomericIntelligence/ProjectOdyssey/blob/main/agents/hierarchy.md)
+- [Agent Hierarchy](https://github.com/HomericIntelligence/Odyssey/blob/main/agents/hierarchy.md)
 - [Orchestration Patterns](./orchestration-patterns.md)
-- [CLAUDE.md](https://github.com/HomericIntelligence/ProjectOdyssey/blob/main/CLAUDE.md)
+- [CLAUDE.md](https://github.com/HomericIntelligence/Odyssey/blob/main/CLAUDE.md)
 - [5-Phase Workflow](./phases.md)

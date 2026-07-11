@@ -12,7 +12,7 @@ architectures implemented (~198K lines of Mojo), 298+ tests across 433 test file
 
 ## Ecosystem Context
 
-ProjectOdyssey is part of the
+Odyssey is part of the
 [HomericIntelligence](https://github.com/HomericIntelligence) organization.
 It is a **standalone ML training framework** — not a distributed agent or
 microservice.
@@ -562,10 +562,10 @@ just shell          # Open shell in container
 
 ### Container Registry (GHCR)
 
-Images published to GHCR: `ghcr.io/homericintelligence/projectodyssey:{main,main-ci,main-prod}`.
+Images published to GHCR: `ghcr.io/HomericIntelligence/Odyssey:{main,main-ci,main-prod}`.
 
 ```bash
-podman pull ghcr.io/homericintelligence/projectodyssey:main  # ~2GB runtime
+podman pull ghcr.io/HomericIntelligence/Odyssey:main  # ~2GB runtime
 just podman-up    # Start dev environment
 just shell        # Open shell in container
 just podman-build-ci runtime  # Build locally
@@ -698,7 +698,7 @@ all PRs and pushes to `main`.
 ### Project Structure
 
 ```text
-ProjectOdyssey/
+Odyssey/
 ├── agents/                      # Team documentation
 │   ├── README.md                # Quick start guide
 │   ├── hierarchy.md             # Visual hierarchy diagram and complete agent specifications

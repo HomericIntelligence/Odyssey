@@ -25,7 +25,7 @@ mojo --version
 git --version
 
 # Check repository root
-cd /path/to/ProjectOdyssey
+cd /path/to/Odyssey
 git rev-parse --show-toplevel  # Should show repository root
 ```text
 
@@ -35,7 +35,7 @@ git rev-parse --show-toplevel  # Should show repository root
 
 ```bash
 # Navigate to repository root
-cd /path/to/ProjectOdyssey
+cd /path/to/Odyssey
 
 # Run setup script
 python3 tools/setup/install_tools.py
@@ -84,7 +84,7 @@ Mojo tools should work without additional setup if Mojo is installed:
 mojo -I tools/ -c "from test_utils import generate_batch"
 
 # Or set MOJO_PATH (if needed)
-export MOJO_PATH=/path/to/ProjectOdyssey
+export MOJO_PATH=/path/to/Odyssey
 ```text
 
 ### Step 3: Environment Configuration
@@ -95,7 +95,7 @@ Optional environment variables for tool configuration:
 # Add to ~/.bashrc or ~/.zshrc
 
 # Repository root (tools will auto-detect, but can be set explicitly)
-export ML_ODYSSEY_ROOT=/path/to/ProjectOdyssey
+export ML_ODYSSEY_ROOT=/path/to/Odyssey
 
 # Mojo tools path
 export MOJO_PATH=$ML_ODYSSEY_ROOT
@@ -229,11 +229,11 @@ sudo apt install python3 python3-pip git
 
 ```bash
 # Option 1: Run from repository root
-cd /path/to/ProjectOdyssey
+cd /path/to/Odyssey
 python3 tools/paper-scaffold/scaffold.py
 
 # Option 2: Add to PYTHONPATH
-export PYTHONPATH=/path/to/ProjectOdyssey:$PYTHONPATH
+export PYTHONPATH=/path/to/Odyssey:$PYTHONPATH
 ```text
 
 ### Mojo Import Errors
@@ -244,10 +244,10 @@ export PYTHONPATH=/path/to/ProjectOdyssey:$PYTHONPATH
 
 ```bash
 # Set MOJO_PATH
-export MOJO_PATH=/path/to/ProjectOdyssey
+export MOJO_PATH=/path/to/Odyssey
 
 # Or use -I flag
-mojo -I /path/to/ProjectOdyssey/tools tools/benchmarking/model_bench.mojo
+mojo -I /path/to/Odyssey/tools tools/benchmarking/model_bench.mojo
 ```text
 
 ### Permission Errors
@@ -309,7 +309,7 @@ python3 tools/setup/verify_tools.py --verbose
 Checking prerequisites...
 ✓ Python 3.11.5 (required: 3.8+)
 ✓ Mojo 24.5.0
-✓ Repository root: /path/to/ProjectOdyssey
+✓ Repository root: /path/to/Odyssey
 
 Checking Python dependencies...
 ✓ jinja2 3.1.2

@@ -229,7 +229,7 @@ any convolution with more than ~100 accumulations.
 FP-representable values (0.0, 0.5, 1.0, 1.5) where exact accumulation holds regardless
 of mantissa width. Backward passes use Float32 only.
 
-See [#3089](https://github.com/homericintelligence/projectodyssey/issues/3089) for the
+See [#3089](https://github.com/HomericIntelligence/Odyssey/issues/3089) for the
 full analysis that identified this limitation.
 
 ### Example

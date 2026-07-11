@@ -1,11 +1,11 @@
 blank_issues_enabled: false
 contact_links:
   - name: 📚 Documentation
-    url: https://github.com/HomericIntelligence/ProjectOdyssey/blob/main/README.md
+    url: https://github.com/HomericIntelligence/Odyssey/blob/main/README.md
     about: Read the project documentation and guides
   - name: 💬 Discussions
-    url: https://github.com/HomericIntelligence/ProjectOdyssey/discussions
+    url: https://github.com/HomericIntelligence/Odyssey/discussions
     about: Ask questions and discuss ideas with the community
   - name: 🤖 Agent System
-    url: https://github.com/HomericIntelligence/ProjectOdyssey/blob/main/agents/README.md
+    url: https://github.com/HomericIntelligence/Odyssey/blob/main/agents/README.md
     about: Learn about the multi-level agent hierarchy

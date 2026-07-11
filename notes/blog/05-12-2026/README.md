@@ -36,7 +36,7 @@ back to April.
 ## Chapter 1: Where We Left Off
 
 [Day 165](../04-20-2026/) closed out the first of the two crash signatures
-that had been blocking ProjectOdyssey CI for a month: virtual address space
+that had been blocking Odyssey CI for a month: virtual address space
 exhaustion in the Mojo JIT, filed as
 [modular/modular#6433](https://github.com/modular/modular/issues/6433),
 documented with a `ulimit -v` binary search and a one-command reproducer.
@@ -109,15 +109,15 @@ crash as a code-generation bug; all of them treated it as a transient
 fault in a JIT pipeline that needed retries, smaller compilation units, or
 quieter test environments. In rough chronological order:
 
-- [PR #3958 (Mar 7)](https://github.com/HomericIntelligence/ProjectOdyssey/pull/3958) —
+- [PR #3958 (Mar 7)](https://github.com/HomericIntelligence/Odyssey/pull/3958) —
   *"document Mojo JIT crash workaround for libKGENCompilerRTShared.so"*
-- [PR #4744 (Mar 14)](https://github.com/HomericIntelligence/ProjectOdyssey/pull/4744) —
+- [PR #4744 (Mar 14)](https://github.com/HomericIntelligence/Odyssey/pull/4744) —
   *"add retry logic for flaky JIT test groups"*
-- [PR #5161 (Mar 26)](https://github.com/HomericIntelligence/ProjectOdyssey/pull/5161) —
+- [PR #5161 (Mar 26)](https://github.com/HomericIntelligence/Odyssey/pull/5161) —
   *"mitigate Data test JIT crashes with targeted submodule imports"*
-- [PR #5167 (Mar 26)](https://github.com/HomericIntelligence/ProjectOdyssey/pull/5167) —
+- [PR #5167 (Mar 26)](https://github.com/HomericIntelligence/Odyssey/pull/5167) —
   *"eliminate per-element bitcast in gradient checker tight loops"*
-- [PR #5171 (Mar 26)](https://github.com/HomericIntelligence/ProjectOdyssey/pull/5171) —
+- [PR #5171 (Mar 26)](https://github.com/HomericIntelligence/Odyssey/pull/5171) —
   *"add per-file JIT crash retry for Mojo 0.26.1"*
 
 That is the history for this blog, the pre-history goes back further.
@@ -144,7 +144,7 @@ and it was wrong.
 ### April 12–20 — retry, serialize, localize
 
 Same day as the upstream filing,
-[PR #5243](https://github.com/HomericIntelligence/ProjectOdyssey/pull/5243)
+[PR #5243](https://github.com/HomericIntelligence/Odyssey/pull/5243)
 wired `test-with-retry.sh` into `_test-group-inner` to handle JIT crashes
 at the harness level. The premise: if the JIT flakes 40% of the time on
 any given run, retrying any failing test once or twice converges the
@@ -154,11 +154,11 @@ philosophy embodied in it dominated the next eight days.
 
 Look at the merge dates and you can read the shape of the search:
 
-- [PR #5247 (Apr 20)](https://github.com/HomericIntelligence/ProjectOdyssey/pull/5247) —
+- [PR #5247 (Apr 20)](https://github.com/HomericIntelligence/Odyssey/pull/5247) —
   *"ADR-015 for flaky required CI checks + remove stale ADR-009 annotations"*
-- [PR #5252 (Apr 20)](https://github.com/HomericIntelligence/ProjectOdyssey/pull/5252) —
+- [PR #5252 (Apr 20)](https://github.com/HomericIntelligence/Odyssey/pull/5252) —
   *"fix container UID mismatch causing libKGENCompilerRTShared.so JIT crash"*
-- [PR #5254 (Apr 20)](https://github.com/HomericIntelligence/ProjectOdyssey/pull/5254) —
+- [PR #5254 (Apr 20)](https://github.com/HomericIntelligence/Odyssey/pull/5254) —
   *"remove test-with-retry.sh and direct-wire mojo invocation (ADR-015 Action 2)"*
 
 ADR-015 named the policy out loud: *"flaky required CI checks."* The
@@ -166,7 +166,7 @@ mental model was the JIT crashes randomly, given its alpha nature, and the engin
 is to make our infrastructure tolerate randomness — better isolation, no
 shared state across tests, no retry sleights of hand.
 
-[PR #5252](https://github.com/HomericIntelligence/ProjectOdyssey/pull/5252)
+[PR #5252](https://github.com/HomericIntelligence/Odyssey/pull/5252)
 is the most telling artifact of the period. Its title states that a
 container UID mismatch *causes* the JIT crash. The PR did fix a real UID
 mismatch and did reduce some kind of failure. But the libKGEN crashes
@@ -180,17 +180,17 @@ permissions touched.
 The next hypothesis: the JIT crashes when its compile unit gets too large.
 A burst of import-localization PRs followed:
 
-- [PR #5256 (Apr 21)](https://github.com/HomericIntelligence/ProjectOdyssey/pull/5256) —
+- [PR #5256 (Apr 21)](https://github.com/HomericIntelligence/Odyssey/pull/5256) —
   *"localize heavy imports in activation.mojo to reduce JIT footprint"*
-- [PR #5258 (Apr 21)](https://github.com/HomericIntelligence/ProjectOdyssey/pull/5258) —
+- [PR #5258 (Apr 21)](https://github.com/HomericIntelligence/Odyssey/pull/5258) —
   *"localize shape/reduction imports to fix Data Utilities and Integration Tests JIT crashes"*
-- [PR #5259 (Apr 21)](https://github.com/HomericIntelligence/ProjectOdyssey/pull/5259) —
+- [PR #5259 (Apr 21)](https://github.com/HomericIntelligence/Odyssey/pull/5259) —
   *"localize shape import in reduction.mojo to eliminate 1371-line JIT footprint"*
-- [PR #5260 (Apr 21)](https://github.com/HomericIntelligence/ProjectOdyssey/pull/5260) —
+- [PR #5260 (Apr 21)](https://github.com/HomericIntelligence/Odyssey/pull/5260) —
   *"add Category 4 deterministic module-level import chain crash reproducers"*
-- [PR #5264 (Apr 21)](https://github.com/HomericIntelligence/ProjectOdyssey/pull/5264) —
+- [PR #5264 (Apr 21)](https://github.com/HomericIntelligence/Odyssey/pull/5264) —
   *"complete ADR-015 import audit + add targeted-import repro"*
-- [PR #5274 (Apr 22)](https://github.com/HomericIntelligence/ProjectOdyssey/pull/5274) —
+- [PR #5274 (Apr 22)](https://github.com/HomericIntelligence/Odyssey/pull/5274) —
   *"serialize mojo test jobs and lift virtual address limit"*
 
 These PRs are all working a single theory: the crash is JIT-load
@@ -273,7 +273,7 @@ value types (the new `thin` keyword), removal of `unified` capture,
 elimination of `mojo test` in favor of `def main()`-style hand-rolled
 test runners, plus the usual cascade of API shifts that come with any
 "1.0" bump. The migration landed in
-[PR #5353](https://github.com/HomericIntelligence/ProjectOdyssey/pull/5353)
+[PR #5353](https://github.com/HomericIntelligence/Odyssey/pull/5353)
 on **May 9**, just three days after 6433 had closed.
 
 That sequence is what reset the investigation. Going to 1.0.0b2 meant
@@ -290,7 +290,7 @@ left.
 
 The day after the 1.0.0b2 migration merged, the *Phase G* consolidation
 PR
-[#5363](https://github.com/HomericIntelligence/ProjectOdyssey/pull/5363)
+[#5363](https://github.com/HomericIntelligence/Odyssey/pull/5363)
 tripped the same libKGEN crash on the new Mojo. I reported it back to
 6413 on May 10 with the words *"same crash family confirmed in Mojo
 1.0.0b2."*
@@ -315,7 +315,7 @@ Three PRs, in quick succession, built the lens I had been missing. Each
 one assumed nothing about *what* the crash was. Each one only tried to
 let me *see* it.
 
-**[PR #5378 (May 10)](https://github.com/HomericIntelligence/ProjectOdyssey/pull/5378) —
+**[PR #5378 (May 10)](https://github.com/HomericIntelligence/Odyssey/pull/5378) —
 extend core-dump capture across all CI jobs.** The `coredump-capture`
 action existed in the repo, but only the `comprehensive-tests` workflow
 wired it in. The libKGEN flake fired on five distinct jobs (`Data
@@ -324,7 +324,7 @@ Utilities`, `Configs`, `Core Layers`, `Models`, and `Optimizers`). PR
 plumbing. What it *exposed*, after merging, was a much more interesting
 failure.
 
-**[PR #5380 (May 10)](https://github.com/HomericIntelligence/ProjectOdyssey/pull/5380) —
+**[PR #5380 (May 10)](https://github.com/HomericIntelligence/Odyssey/pull/5380) —
 the silent-failure modes.** After #5378 I expected core dumps to start
 appearing as workflow artifacts. They did not. The capture step would
 run, succeed, exit 0, and upload an artifact containing the string
@@ -359,7 +359,7 @@ the new tool's eyes and realize half of what you thought you knew came
 from falsified evidence. Every one of the April mitigations had been
 designed against output the harness was already failing to capture.
 
-**[PR #5382 (May 10)](https://github.com/HomericIntelligence/ProjectOdyssey/pull/5382) —
+**[PR #5382 (May 10)](https://github.com/HomericIntelligence/Odyssey/pull/5382) —
 the gdb ptrace wrapper.** Even with cores writing to disk, libKGEN's
 userspace signal handler still won. The handler runs *inside* the
 process; the kernel delivers the signal to the process before any
@@ -427,13 +427,13 @@ hitting a fortify-detected buffer overflow during heavy compilation.
 This was not the first time a libKGEN crash had been framed as a JIT
 resource problem on this project. The mitigation lineage going back to
 March —
-[PR #3958](https://github.com/HomericIntelligence/ProjectOdyssey/pull/3958)
+[PR #3958](https://github.com/HomericIntelligence/Odyssey/pull/3958)
 *(document Mojo JIT crash workaround)*,
-[PR #4744](https://github.com/HomericIntelligence/ProjectOdyssey/pull/4744)
+[PR #4744](https://github.com/HomericIntelligence/Odyssey/pull/4744)
 *(add retry logic for flaky JIT test groups)*,
-[PR #5161](https://github.com/HomericIntelligence/ProjectOdyssey/pull/5161)
+[PR #5161](https://github.com/HomericIntelligence/Odyssey/pull/5161)
 *(targeted submodule imports to mitigate Data test JIT crashes)*,
-[PR #5171](https://github.com/HomericIntelligence/ProjectOdyssey/pull/5171)
+[PR #5171](https://github.com/HomericIntelligence/Odyssey/pull/5171)
 *(per-file JIT crash retry for Mojo 0.26.1)* — had every one of them
 treated libKGEN signals as transient runtime faults in a JIT that
 needed less load, smaller compile units, or retries to converge.
@@ -441,7 +441,7 @@ needed less load, smaller compile units, or retries to converge.
 one specific JIT resource bug: virtual-memory exhaustion at the
 mid-3.6 GB mark. H1 was the same kind of story, one layer deeper.
 
-[PR #5389](https://github.com/HomericIntelligence/ProjectOdyssey/pull/5389)
+[PR #5389](https://github.com/HomericIntelligence/Odyssey/pull/5389)
 added `just build` modes for AddressSanitizer and ThreadSanitizer so we
 could re-run the failing tests under instrumentation. Twenty CI runs
 under ASAN. Zero ASAN reports — no overflowing `memcpy`, no fortify
@@ -519,7 +519,7 @@ wrong; it told us where to stop looking.
 ### H4: pixi-env cache content drift
 
 The next anomaly came from
-[PR #5382](https://github.com/HomericIntelligence/ProjectOdyssey/pull/5382)
+[PR #5382](https://github.com/HomericIntelligence/Odyssey/pull/5382)
 itself. After it merged, it had been failing at roughly 87 % on the
 target jobs through commit `379cf40a`. After a routine rebase onto main,
 the same branch suddenly went *100%* green! No code changed in the
@@ -614,27 +614,27 @@ The crashes continued.
 
 The week of May 11 began with one more attempt at clean falsification.
 Between the failing-era commit `379cf40a` on
-[PR #5382](https://github.com/HomericIntelligence/ProjectOdyssey/pull/5382)
+[PR #5382](https://github.com/HomericIntelligence/Odyssey/pull/5382)
 and the green post-rebase commit, exactly five PRs had been merged:
-[#5381](https://github.com/HomericIntelligence/ProjectOdyssey/pull/5381),
-[#5387](https://github.com/HomericIntelligence/ProjectOdyssey/pull/5387),
-[#5388](https://github.com/HomericIntelligence/ProjectOdyssey/pull/5388),
-[#5389](https://github.com/HomericIntelligence/ProjectOdyssey/pull/5389),
-and [#5385](https://github.com/HomericIntelligence/ProjectOdyssey/pull/5385).
+[#5381](https://github.com/HomericIntelligence/Odyssey/pull/5381),
+[#5387](https://github.com/HomericIntelligence/Odyssey/pull/5387),
+[#5388](https://github.com/HomericIntelligence/Odyssey/pull/5388),
+[#5389](https://github.com/HomericIntelligence/Odyssey/pull/5389),
+and [#5385](https://github.com/HomericIntelligence/Odyssey/pull/5385).
 One of them, presumably, contained the fix. If we could identify *which*,
 we could understand the bug from the patch.
 
 I built a five-PR bisect protocol around 06:45 on May 12:
 
-- [PR #5395](https://github.com/HomericIntelligence/ProjectOdyssey/pull/5395)
+- [PR #5395](https://github.com/HomericIntelligence/Odyssey/pull/5395)
   — revert Group A (`#5381` + `#5387`) and re-run target jobs eight times
-- [PR #5396](https://github.com/HomericIntelligence/ProjectOdyssey/pull/5396)
+- [PR #5396](https://github.com/HomericIntelligence/Odyssey/pull/5396)
   — disable the gdb wrapper, to test mask-vs-fix
-- [PR #5397](https://github.com/HomericIntelligence/ProjectOdyssey/pull/5397)
+- [PR #5397](https://github.com/HomericIntelligence/Odyssey/pull/5397)
   — revert the docker-compose dev memlimit change (14 G → 12 G)
-- [PR #5398](https://github.com/HomericIntelligence/ProjectOdyssey/pull/5398)
+- [PR #5398](https://github.com/HomericIntelligence/Odyssey/pull/5398)
   — revert the `just build` + examples additions from PR #5389 (compose preserved)
-- [PR #5399](https://github.com/HomericIntelligence/ProjectOdyssey/pull/5399)
+- [PR #5399](https://github.com/HomericIntelligence/Odyssey/pull/5399)
   — positive control: branch off the last-failing sha, add the symbolicator,
     do not revert anything
 
@@ -1161,13 +1161,13 @@ context is enormous.
 The honest numbers come from
 [`ccusage`](https://github.com/ryoppippi/ccusage), which reads each
 session's underlying API-call metadata directly. Scoped to the
-`ProjectOdyssey` project, May 10 — May 12 (there was no May 8 or May 9
-ProjectOdyssey activity at all — the investigation's active phase was
+`Odyssey` project, May 10 — May 12 (there was no May 8 or May 9
+Odyssey activity at all — the investigation's active phase was
 exactly those three days):
 
 ```bash
 npx -y ccusage@latest daily --since 20260510 --until 20260512 \
-  -i --json | jq '.projects."-home-mvillmow-Projects-ProjectOdyssey"'
+  -i --json | jq '.projects."-home-mvillmow-Projects-Odyssey"'
 ```
 
 | Date | Input | Output | Cache write | Cache read | Total | Cost (calc) |
@@ -1247,8 +1247,8 @@ connection.
 
 ```bash
 # 1. Clone the repo and check out the positive-control branch
-git clone https://github.com/HomericIntelligence/ProjectOdyssey
-cd ProjectOdyssey
+git clone https://github.com/HomericIntelligence/Odyssey
+cd Odyssey
 git checkout bisect/6413-positive-control
 
 # 2. Build the container image locally (or pull from GHCR)
@@ -1307,7 +1307,7 @@ blog series, and added one or two new ones.
   of it worked, and most of it *couldn't* have worked, because none
   of it had a deterministic input to verify against. The investigation
   only made real progress once
-  [PR #5393](https://github.com/HomericIntelligence/ProjectOdyssey/pull/5393)
+  [PR #5393](https://github.com/HomericIntelligence/Odyssey/pull/5393)
   landed two single-file reproducers that crashed every time on the
   failing image. A reproducer that fires at 100 % turns every
   hypothesis into a measurable A/B test. A flake that fires at 40 %
@@ -1410,39 +1410,39 @@ above:
 - Mojo *Known issue MOCO-3686* docs:
   <https://github.com/modular/modular/blob/main/mojo/docs/code/tools/README-Compilation-Targets.md>
 
-### ProjectOdyssey PRs that participated
+### Odyssey PRs that participated
 
-- [#5378](https://github.com/HomericIntelligence/ProjectOdyssey/pull/5378)
+- [#5378](https://github.com/HomericIntelligence/Odyssey/pull/5378)
   — extend coredump-capture to all test jobs
-- [#5380](https://github.com/HomericIntelligence/ProjectOdyssey/pull/5380)
+- [#5380](https://github.com/HomericIntelligence/Odyssey/pull/5380)
   — fix path-namespace and empty-cores silent-failure modes
-- [#5381](https://github.com/HomericIntelligence/ProjectOdyssey/pull/5381)
+- [#5381](https://github.com/HomericIntelligence/Odyssey/pull/5381)
   — test matrix fan-out (later reverted as part of bisect)
-- [#5382](https://github.com/HomericIntelligence/ProjectOdyssey/pull/5382)
+- [#5382](https://github.com/HomericIntelligence/Odyssey/pull/5382)
   — gdb ptrace wrapper for core capture
-- [#5385](https://github.com/HomericIntelligence/ProjectOdyssey/pull/5385)
+- [#5385](https://github.com/HomericIntelligence/Odyssey/pull/5385)
   — refactor `|| true` workarounds; add forbid-suppressions guard
-- [#5387](https://github.com/HomericIntelligence/ProjectOdyssey/pull/5387)
+- [#5387](https://github.com/HomericIntelligence/Odyssey/pull/5387)
   — forbid `::warning::` advisory pattern; flip 9 sites fail-fast
-- [#5388](https://github.com/HomericIntelligence/ProjectOdyssey/pull/5388)
+- [#5388](https://github.com/HomericIntelligence/Odyssey/pull/5388)
   — alias `shared.training.SGD` to `TrainingSGD`
-- [#5389](https://github.com/HomericIntelligence/ProjectOdyssey/pull/5389)
+- [#5389](https://github.com/HomericIntelligence/Odyssey/pull/5389)
   — `just build` compiles everything; add ASAN/TSAN modes
-- [#5393](https://github.com/HomericIntelligence/ProjectOdyssey/pull/5393)
+- [#5393](https://github.com/HomericIntelligence/Odyssey/pull/5393)
   — failing-era branch retained for repro
-- [#5394](https://github.com/HomericIntelligence/ProjectOdyssey/pull/5394)
+- [#5394](https://github.com/HomericIntelligence/Odyssey/pull/5394)
   — failing-era branch retained for repro
-- [#5395](https://github.com/HomericIntelligence/ProjectOdyssey/pull/5395)
+- [#5395](https://github.com/HomericIntelligence/Odyssey/pull/5395)
   — bisect: revert Group A
-- [#5396](https://github.com/HomericIntelligence/ProjectOdyssey/pull/5396)
+- [#5396](https://github.com/HomericIntelligence/Odyssey/pull/5396)
   — bisect: disable gdb wrapper to test mask-vs-fix
-- [#5397](https://github.com/HomericIntelligence/ProjectOdyssey/pull/5397)
+- [#5397](https://github.com/HomericIntelligence/Odyssey/pull/5397)
   — bisect: revert docker-compose memlimit change
-- [#5398](https://github.com/HomericIntelligence/ProjectOdyssey/pull/5398)
+- [#5398](https://github.com/HomericIntelligence/Odyssey/pull/5398)
   — bisect: revert justfile + examples additions from #5389
-- [#5399](https://github.com/HomericIntelligence/ProjectOdyssey/pull/5399)
+- [#5399](https://github.com/HomericIntelligence/Odyssey/pull/5399)
   — bisect positive control: branch off last-failing sha + symbolicator
-- [#5401](https://github.com/HomericIntelligence/ProjectOdyssey/pull/5401)
+- [#5401](https://github.com/HomericIntelligence/Odyssey/pull/5401)
   — bare-command repro + probe workflow
 
 ### Internal repo artifacts

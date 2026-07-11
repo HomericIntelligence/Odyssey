@@ -1,8 +1,8 @@
 site_name: ML Odyssey
 site_description: Mojo-based AI research platform for reproducing classic research papers
-site_url: https://github.com/HomericIntelligence/ProjectOdyssey
-repo_url: https://github.com/HomericIntelligence/ProjectOdyssey
-repo_name: HomericIntelligence/ProjectOdyssey
+site_url: https://github.com/HomericIntelligence/Odyssey
+repo_url: https://github.com/HomericIntelligence/Odyssey
+repo_name: HomericIntelligence/Odyssey
 
 # Exclude files from the documentation site
 exclude_docs: |

@@ -59,7 +59,7 @@ error: execution crashed
 
 We diagnosed it as **"heap corruption after ~15 cumulative tests"** — the allocator
 was corrupting its own metadata after a threshold of allocation churn. We filed
-[Issue #2942](https://github.com/HomericIntelligence/ProjectOdyssey/issues/2942).
+[Issue #2942](https://github.com/HomericIntelligence/Odyssey/issues/2942).
 
 ### The 17 Failed Reproducer Attempts
 
@@ -118,7 +118,7 @@ a symptom, not the disease.**
 
 A new crash pattern appeared: `libKGENCompilerRTShared.so` crashes that looked like
 JIT compilation overflows. Investigation led to
-[Issue #3330](https://github.com/HomericIntelligence/ProjectOdyssey/issues/3330)
+[Issue #3330](https://github.com/HomericIntelligence/Odyssey/issues/3330)
 and a new theory: **wildcard imports** (`from projectodyssey.core import *`) were causing
 the JIT compiler to compile too much code, overflowing internal buffers.
 
@@ -148,7 +148,7 @@ difference in memory layout between local (WSL2) and CI (Ubuntu 24.04 Docker).
 
 ### March 16, 2026: The Breakthrough
 
-Issue [#4511](https://github.com/HomericIntelligence/ProjectOdyssey/issues/4511)
+Issue [#4511](https://github.com/HomericIntelligence/Odyssey/issues/4511)
 reported that VGG16 E2E tests were crashing deterministically on the 4th test function.
 Unlike previous crashes, this one was **100% reproducible** — not a flake, not
 environment-specific.

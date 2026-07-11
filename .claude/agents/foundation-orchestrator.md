@@ -13,7 +13,7 @@ receives_from: [chief-architect]
 
 ## Identity
 
-Level 1 section orchestrator responsible for coordinating foundational setup of ProjectOdyssey.
+Level 1 section orchestrator responsible for coordinating foundational setup of Odyssey.
 Complete directory structure, configuration files, and build system before other sections can proceed.
 
 ## Scope

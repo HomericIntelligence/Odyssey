@@ -4,7 +4,7 @@
 
 **Date**: 2026-03-14
 
-**Issue Reference**: [Issue #3666](https://github.com/HomericIntelligence/ProjectOdyssey/issues/3666)
+**Issue Reference**: [Issue #3666](https://github.com/HomericIntelligence/Odyssey/issues/3666)
 
 **Decision Owner**: ML Odyssey Team
 
@@ -287,11 +287,11 @@ the fundamental zero-mean property.
 
 ### Related Issues
 
-- [Issue #3171](https://github.com/HomericIntelligence/ProjectOdyssey/issues/3171) - Add meaningful
+- [Issue #3171](https://github.com/HomericIntelligence/Odyssey/issues/3171) - Add meaningful
   batch_norm2d_backward gradient test
-- [Issue #2724](https://github.com/HomericIntelligence/ProjectOdyssey/issues/2724) - Original batch
+- [Issue #2724](https://github.com/HomericIntelligence/Odyssey/issues/2724) - Original batch
   norm gradient investigation
-- [Issue #3282](https://github.com/HomericIntelligence/ProjectOdyssey/issues/3282) - LayerNorm gradient
+- [Issue #3282](https://github.com/HomericIntelligence/Odyssey/issues/3282) - LayerNorm gradient
   issues
 
 ### External Documentation

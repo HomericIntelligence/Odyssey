@@ -2,7 +2,7 @@
 
 ## Overview
 
-The **Package phase** is one of the 5 phases in the ProjectOdyssey development workflow. Its purpose is to create
+The **Package phase** is one of the 5 phases in the Odyssey development workflow. Its purpose is to create
 **distributable packages** that can be installed and used by others.
 
 **Critical Understanding**: Package phase creates actual artifacts (.mojopkg files, archives, CI/CD workflows),
@@ -166,7 +166,7 @@ Deliverables:
 ✅ Built dist/data-0.1.0.mojopkg binary package
 ✅ Created installation verification script
 ✅ Tested installation in clean environment
-✅ Added to dist/ProjectOdyssey-0.1.0.mojopkg meta-package
+✅ Added to dist/Odyssey-0.1.0.mojopkg meta-package
 ✅ Created distribution README with install instructions
 
 PR #1594: "feat(data): create distributable package with installation testing"
@@ -188,7 +188,7 @@ Create or update `mojo.toml` configuration:
 
 ```toml
 [project]
-name = "ProjectOdyssey-data"
+name = "Odyssey-data"
 version = "0.1.0"
 description = "Data utilities for ML Odyssey"
 authors = ["ML Odyssey Contributors"]
@@ -469,14 +469,14 @@ cd - && rm -rf "$TEMP_DIR"
 ```toml
 
 [project]
-name = "ProjectOdyssey-training"
+name = "Odyssey-training"
 version = "0.1.0"
 description = "Training utilities for ML Odyssey"
 authors = ["ML Odyssey Contributors"]
 license = "BSD-3-Clause"
 
 [dependencies]
-ProjectOdyssey-utils = "0.1.0"
+Odyssey-utils = "0.1.0"
 
 ```text
 1. Build package:

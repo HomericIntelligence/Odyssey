@@ -4,7 +4,7 @@
 
 **Date**: 2026-03-24
 
-**Issue Reference**: [Issue #5056](https://github.com/HomericIntelligence/ProjectOdyssey/issues/5056)
+**Issue Reference**: [Issue #5056](https://github.com/HomericIntelligence/Odyssey/issues/5056)
 
 **Decision Owner**: ML Odyssey Team
 
@@ -253,9 +253,9 @@ corruption before process exit.
 
 ### Related Issues
 
-- [Issue #5056](https://github.com/HomericIntelligence/ProjectOdyssey/issues/5056):
+- [Issue #5056](https://github.com/HomericIntelligence/Odyssey/issues/5056):
   Slice view destructor bug
-- [Issue #2942](https://github.com/HomericIntelligence/ProjectOdyssey/issues/2942):
+- [Issue #2942](https://github.com/HomericIntelligence/Odyssey/issues/2942):
   Original heap corruption report
 
 ### Affected Files

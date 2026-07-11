@@ -136,7 +136,7 @@ See `.github/workflows/benchmarks.yml` for CI configuration.
 
 ## References
 
-- **Planning**: [Issue #52](https://github.com/HomericIntelligence/ProjectOdyssey/issues/52) - Plan
-- **Tests**: [Issue #53](https://github.com/HomericIntelligence/ProjectOdyssey/issues/53) - Test
-- **Implementation**: [Issue #54](https://github.com/HomericIntelligence/ProjectOdyssey/issues/54) - Implementation
+- **Planning**: [Issue #52](https://github.com/HomericIntelligence/Odyssey/issues/52) - Plan
+- **Tests**: [Issue #53](https://github.com/HomericIntelligence/Odyssey/issues/53) - Test
+- **Implementation**: [Issue #54](https://github.com/HomericIntelligence/Odyssey/issues/54) - Implementation
 - **CI/CD**: [Benchmarks Workflow](../.github/workflows/benchmarks.yml)

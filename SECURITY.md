@@ -11,7 +11,7 @@ We take security seriously. If you discover a security vulnerability, please rep
 ### GitHub Security Advisory (Preferred)
 
 Use GitHub's private vulnerability reporting:
-**<https://github.com/HomericIntelligence/ProjectOdyssey/security/advisories/new>**
+**<https://github.com/HomericIntelligence/Odyssey/security/advisories/new>**
 
 ### What to Include
 
@@ -128,7 +128,7 @@ Security updates are released as:
 For security-related questions that are not vulnerability reports:
 
 - Open a GitHub Discussion with the "security" tag
-- Use GitHub Security Advisories: <https://github.com/HomericIntelligence/ProjectOdyssey/security/advisories/new>
+- Use GitHub Security Advisories: <https://github.com/HomericIntelligence/Odyssey/security/advisories/new>
 
 ## Recognition
 

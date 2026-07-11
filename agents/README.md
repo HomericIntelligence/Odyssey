@@ -2,7 +2,7 @@
 
 ## Overview
 
-This directory contains documentation, templates, and reference materials for the ProjectOdyssey multi-level agent
+This directory contains documentation, templates, and reference materials for the Odyssey multi-level agent
 hierarchy. The actual operational agent configurations are in `.claude/agents/` following Claude Code conventions.
 
 ## Directory Purpose

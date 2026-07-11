@@ -1,6 +1,6 @@
 # Shared Library (WIP)
 
-This directory contains reusable ML/AI components used across all paper implementations in the ProjectOdyssey repository.
+This directory contains reusable ML/AI components used across all paper implementations in the Odyssey repository.
 
 ## Purpose
 

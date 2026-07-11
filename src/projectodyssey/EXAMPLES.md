@@ -28,7 +28,7 @@ Get started with the shared library in 5 minutes:
 ### 1. Install (30 seconds)
 
 ```bash
-cd ProjectOdyssey
+cd Odyssey
 mojo package shared --install
 mojo run scripts/verify_installation.mojo
 ```text

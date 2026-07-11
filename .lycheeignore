@@ -16,7 +16,7 @@ https://github.com/org/repo/issues/XX
 
 # Ignore old repository name redirects (mvillmow -> HomericIntelligence)
 # These are valid redirects, not broken links
-github\.com/HomericIntelligence/ProjectOdyssey
+github\.com/HomericIntelligence/Odyssey
 
 # Ignore ProjectMnemosyne skill links — GitHub returns intermittent 404s to
 # unauthenticated lychee on org repos even when the file exists (verified via

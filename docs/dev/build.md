@@ -67,10 +67,10 @@ locally only when you need confidence equivalent to a full CI run; the test suit
 **Docker (Recommended)**:
 
 ```bash
-git clone https://github.com/HomericIntelligence/ProjectOdyssey.git
-cd ProjectOdyssey
-docker-compose up -d ProjectOdyssey-dev
-docker-compose exec ProjectOdyssey-dev bash
+git clone https://github.com/HomericIntelligence/Odyssey.git
+cd Odyssey
+docker-compose up -d Odyssey-dev
+docker-compose exec Odyssey-dev bash
 pixi run pytest tests/
 ```
 

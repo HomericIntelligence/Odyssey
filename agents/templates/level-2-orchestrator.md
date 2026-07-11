@@ -54,7 +54,7 @@ model: opus
 
 ### Role
 
-Level 2 orchestrator responsible for coordinating [PRIMARY-DOMAIN] across the ProjectOdyssey project. Analyzes [work items]
+Level 2 orchestrator responsible for coordinating [PRIMARY-DOMAIN] across the Odyssey project. Analyzes [work items]
 and routes different aspects to specialized [type] agents, ensuring thorough coverage without overlap.
 
 ### Scope

@@ -22,8 +22,8 @@ This method is best for contributors who want to modify the shared library code.
 
 ```bash
 # Clone the repository
-git clone https://github.com/HomericIntelligence/ProjectOdyssey.git
-cd ProjectOdyssey
+git clone https://github.com/HomericIntelligence/Odyssey.git
+cd Odyssey
 
 # Install in development mode (creates symlinks)
 mojo package shared --install
@@ -83,7 +83,7 @@ name = "your-paper-implementation"
 version = "0.1.0"
 
 [dependencies]
-ProjectOdyssey-shared = { path = "../ProjectOdyssey/shared" }
+Odyssey-shared = { path = "../Odyssey/shared" }
 ```text
 
 Then use in your code:
@@ -100,7 +100,7 @@ from shared import Linear, SGD, Tensor
 
 ### Use When
 
-- Working in a monorepo with ProjectOdyssey
+- Working in a monorepo with Odyssey
 - Local development across multiple projects
 - Quick prototyping
 
@@ -248,7 +248,7 @@ mojo package shared --install
 
 ### Solution
 
-1. Verify installation: `mojo list` should show `ProjectOdyssey-shared`
+1. Verify installation: `mojo list` should show `Odyssey-shared`
 1. Reinstall: `mojo package shared --install`
 1. Check MOJO_PATH: `echo $MOJO_PATH`
 1. Verify using: `mojo run scripts/verify_installation.mojo`
@@ -324,7 +324,7 @@ mojo check src/projectodyssey/
 mojo list
 
 # Uninstall old version
-mojo uninstall ProjectOdyssey-shared
+mojo uninstall Odyssey-shared
 
 # Reinstall correct version
 mojo package shared --install
@@ -494,10 +494,10 @@ Run it: `mojo run test_import.mojo`
 
 ```bash
 # Uninstall the package
-mojo uninstall ProjectOdyssey-shared
+mojo uninstall Odyssey-shared
 
 # Verify removal
-mojo list | grep ProjectOdyssey
+mojo list | grep Odyssey
 ```text
 
 ### Clean Build Artifacts
@@ -543,8 +543,8 @@ Set up a complete development environment:
 
 ```bash
 # Clone repository
-git clone https://github.com/HomericIntelligence/ProjectOdyssey.git
-cd ProjectOdyssey
+git clone https://github.com/HomericIntelligence/Odyssey.git
+cd Odyssey
 
 # Install development dependencies
 pixi install
@@ -591,7 +591,7 @@ After installation:
 
 - **Documentation**: Check [README.md](README.md) for overview
 - **Examples**: See [EXAMPLES.md](EXAMPLES.md) for code samples
-- **Issues**: Report bugs on [GitHub Issues](https://github.com/HomericIntelligence/ProjectOdyssey/issues)
+- **Issues**: Report bugs on [GitHub Issues](https://github.com/HomericIntelligence/Odyssey/issues)
 - **Discussions**: Ask questions in GitHub Discussions
 
 ### Reporting Issues

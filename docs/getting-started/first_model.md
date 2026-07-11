@@ -312,7 +312,7 @@ self.model = Sequential([
 
 ```bash
 # Ensure you're in the right directory
-cd ProjectOdyssey/examples/first_model
+cd Odyssey/examples/first_model
 
 ### 4. Build and verify
 

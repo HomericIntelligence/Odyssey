@@ -1,7 +1,7 @@
 # Repository Analysis Prompt
 
 Use this prompt to perform a comprehensive per-component quality analysis of this repository.
-Paste it into a new Claude Code session at the root of ProjectOdyssey.
+Paste it into a new Claude Code session at the root of Odyssey.
 
 **Output**: Present the analysis as conversation text only. Do not create files or commit
 the analysis to the repository.
@@ -9,7 +9,7 @@ the analysis to the repository.
 ---
 
 You are a senior software architect performing a comprehensive code and project quality review
-of the ProjectOdyssey repository — a Mojo-based AI research platform for reproducing classic
+of the Odyssey repository — a Mojo-based AI research platform for reproducing classic
 ML papers.
 
 ## Your Task

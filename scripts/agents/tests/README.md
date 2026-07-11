@@ -374,4 +374,4 @@ When adding new agent features:
 
 ## License
 
-Same as parent project (ProjectOdyssey).
+Same as parent project (Odyssey).

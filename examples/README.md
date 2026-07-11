@@ -194,7 +194,7 @@ If you see import errors:
 
 ```bash
 # Ensure you're in the repository root
-cd /path/to/ProjectOdyssey
+cd /path/to/Odyssey
 
 # Verify shared library exists
 ls src/projectodyssey/

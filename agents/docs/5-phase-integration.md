@@ -17,7 +17,7 @@
 
 ## Overview
 
-The ProjectOdyssey project uses a comprehensive 5-phase development workflow that integrates seamlessly with the
+The Odyssey project uses a comprehensive 5-phase development workflow that integrates seamlessly with the
 6-level agent hierarchy. This document explains how agents participate in each phase, coordinate work, and execute
 in parallel when appropriate.
 

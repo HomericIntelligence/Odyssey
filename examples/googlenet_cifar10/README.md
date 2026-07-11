@@ -242,7 +242,7 @@ examples/googlenet_cifar10/
 
 ### ⚠️ Pending (Intentional Placeholder)
 
-- [ ] **Full backward pass**: ~3500 lines — tracked in [GitHub issue #3184](https://github.com/HomericIntelligence/ProjectOdyssey/issues/3184)
+- [ ] **Full backward pass**: ~3500 lines — tracked in [GitHub issue #3184](https://github.com/HomericIntelligence/Odyssey/issues/3184)
   - The training script demonstrates the structure but uses a placeholder backward pass
   - For actual training, consider using automatic differentiation
 

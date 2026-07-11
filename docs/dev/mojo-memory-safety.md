@@ -1,6 +1,6 @@
 # Mojo UnsafePointer Memory Safety Guidance
 
-Developer reference for correct `UnsafePointer` usage in ProjectOdyssey. Read
+Developer reference for correct `UnsafePointer` usage in Odyssey. Read
 before writing any code that touches raw pointers.
 
 ---
@@ -159,4 +159,4 @@ be triggered or masked by incorrect pointer lifetimes. Specifically:
 - `src/projectodyssey/tensor/any_tensor.mojo` — canonical reference-count implementation
 - [`mojo-anti-patterns.md`][anti-patterns] — broader Mojo failure patterns catalogue
 
-[anti-patterns]: https://github.com/HomericIntelligence/ProjectOdyssey/blob/main/.claude/shared/mojo-anti-patterns.md
+[anti-patterns]: https://github.com/HomericIntelligence/Odyssey/blob/main/.claude/shared/mojo-anti-patterns.md

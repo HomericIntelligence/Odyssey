@@ -57,7 +57,7 @@ pre-commit install
 
 Before starting work:
 
-- Browse [existing issues](https://github.com/HomericIntelligence/ProjectOdyssey/issues)
+- Browse [existing issues](https://github.com/HomericIntelligence/Odyssey/issues)
 - Comment on an issue to claim it before starting work
 - Create a new issue if one doesn't exist for your contribution
 - Wait for maintainer approval on significant changes

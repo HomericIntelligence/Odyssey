@@ -540,7 +540,7 @@ fn benchmark_blocked_matmul() raises:
 ## CI/CD Integration
 
 Performance regression detection ensures optimizations persist over time. See
-[Issue #2646](https://github.com/HomericIntelligence/ProjectOdyssey/issues/2646) for automated
+[Issue #2646](https://github.com/HomericIntelligence/Odyssey/issues/2646) for automated
 regression testing setup.
 
 ### Baseline Management
@@ -644,20 +644,20 @@ See the following for complete benchmarking examples:
   with GFLOPS tracking
 - **[benchmarks/bench_simd.mojo][bench-simd]** - SIMD vs scalar comparison
 
-[bench-matmul]: https://github.com/HomericIntelligence/ProjectOdyssey/blob/main/benchmarks/bench_matmul.mojo
-[bench-simd]: https://github.com/HomericIntelligence/ProjectOdyssey/blob/main/benchmarks/bench_simd.mojo
+[bench-matmul]: https://github.com/HomericIntelligence/Odyssey/blob/main/benchmarks/bench_matmul.mojo
+[bench-simd]: https://github.com/HomericIntelligence/Odyssey/blob/main/benchmarks/bench_simd.mojo
 
 ## Related Issues
 
 Performance optimization ongoing work:
 
-- [Issue #2588](https://github.com/HomericIntelligence/ProjectOdyssey/issues/2588) - Matrix
+- [Issue #2588](https://github.com/HomericIntelligence/Odyssey/issues/2588) - Matrix
   multiplication optimization (naive → 120x)
-- [Issue #2589](https://github.com/HomericIntelligence/ProjectOdyssey/issues/2589) - SIMD
+- [Issue #2589](https://github.com/HomericIntelligence/Odyssey/issues/2589) - SIMD
   vectorization opportunities
-- [Issue #2590](https://github.com/HomericIntelligence/ProjectOdyssey/issues/2590) - Float64
+- [Issue #2590](https://github.com/HomericIntelligence/Odyssey/issues/2590) - Float64
   conversion overhead (1.5-3x slowdown)
-- [Issue #2646](https://github.com/HomericIntelligence/ProjectOdyssey/issues/2646) - CI/CD
+- [Issue #2646](https://github.com/HomericIntelligence/Odyssey/issues/2646) - CI/CD
   performance regression testing
 
 ## References
@@ -667,4 +667,4 @@ Performance optimization ongoing work:
 - [Welford's Algorithm](https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance)
   - Online variance computation
 
-[bench-infra]: https://github.com/HomericIntelligence/ProjectOdyssey/blob/main/benchmarks/README.md
+[bench-infra]: https://github.com/HomericIntelligence/Odyssey/blob/main/benchmarks/README.md

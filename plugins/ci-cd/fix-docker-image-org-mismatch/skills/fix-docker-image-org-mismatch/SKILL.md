@@ -17,7 +17,7 @@ user-invocable: true
 | **Objective** | Fix Docker Build workflow failure after repository transfer to new GitHub organization |
 | **Root Cause** | IMAGE\_NAME hardcoded to old org while GITHUB\_TOKEN scoped to new org |
 | **Outcome** | ✅ All Docker images successfully pushed to GHCR under correct organization |
-| **Issue** | PR #3123 - Docker CI failure on HomericIntelligence/ProjectOdyssey |
+| **Issue** | PR #3123 - Docker CI failure on HomericIntelligence/Odyssey |
 
 ## When to Use This Skill
 
@@ -34,9 +34,9 @@ user-invocable: true
 **Example Error**:
 
 ```bash
-[0000] ERROR could not determine source: errors occurred attempting to resolve 'ghcr.io/mvillmow/ProjectOdyssey:main':
-  - docker: could not parse reference: ghcr.io/mvillmow/ProjectOdyssey:main
-  - oci-registry: unable to parse registry reference="ghcr.io/mvillmow/ProjectOdyssey:main"
+[0000] ERROR could not determine source: errors occurred attempting to resolve 'ghcr.io/mvillmow/Odyssey:main':
+  - docker: could not parse reference: ghcr.io/mvillmow/Odyssey:main
+  - oci-registry: unable to parse registry reference="ghcr.io/mvillmow/Odyssey:main"
 ```
 
 ## Problem Background
@@ -53,7 +53,7 @@ When a repository is transferred to a new GitHub organization:
 ### Key Constraint
 
 **Docker image names MUST be lowercase**, but `github.repository` preserves the
-original repository name case (e.g., `HomericIntelligence/ProjectOdyssey`). This
+original repository name case (e.g., `HomericIntelligence/Odyssey`). This
 causes failures in tools that manually construct Docker image references.
 
 ## Verified Workflow
@@ -210,7 +210,7 @@ gh run view <run-id> --log | grep "pushing manifest"
 ```yaml
 env:
   REGISTRY: ghcr.io
-  IMAGE\_NAME: homericintelligence/projectodyssey  # lowercase
+  IMAGE\_NAME: HomericIntelligence/Odyssey  # lowercase
 ```
 
 **release.yml**:
@@ -219,7 +219,7 @@ env:
 jobs:
   publish-docker:
     env:
-      IMAGE\_NAME: homericintelligence/projectodyssey  # lowercase
+      IMAGE\_NAME: HomericIntelligence/Odyssey  # lowercase
     steps:
       - name: Build and push
         with:
@@ -232,7 +232,7 @@ jobs:
 
 ```justfile
 REGISTRY := "ghcr.io"
-REPO\_NAME := "homericintelligence/projectodyssey"
+REPO\_NAME := "HomericIntelligence/Odyssey"
 ```
 
 ### Verification Results
@@ -247,9 +247,9 @@ REPO\_NAME := "homericintelligence/projectodyssey"
 
 ✅ **Images successfully pushed**:
 
-- `ghcr.io/homericintelligence/projectodyssey:main`
-- `ghcr.io/homericintelligence/projectodyssey:main-ci`
-- `ghcr.io/homericintelligence/projectodyssey:main-prod`
+- `ghcr.io/HomericIntelligence/Odyssey:main`
+- `ghcr.io/HomericIntelligence/Odyssey:main-ci`
+- `ghcr.io/HomericIntelligence/Odyssey:main-prod`
 - Plus SHA-tagged variants
 
 ### Performance Impact
@@ -264,8 +264,8 @@ REPO\_NAME := "homericintelligence/projectodyssey"
 
 Docker image names **must be lowercase**, but GitHub variables preserve case:
 
-- `github.repository` → `HomericIntelligence/ProjectOdyssey` (mixed case) ❌
-- `IMAGE\_NAME` → `homericintelligence/projectodyssey` (lowercase) ✅
+- `github.repository` → `HomericIntelligence/Odyssey` (mixed case) ❌
+- `IMAGE\_NAME` → `HomericIntelligence/Odyssey` (lowercase) ✅
 
 ### Related Issues
 
@@ -305,7 +305,7 @@ env:
 
 | Project | Context | Details |
 | --- | --- | --- |
-| ProjectOdyssey | PR #3123 - Docker CI fix after org transfer | [notes.md](../references/notes.md) |
+| Odyssey | PR #3123 - Docker CI fix after org transfer | [notes.md](../references/notes.md) |
 
 ## References
 

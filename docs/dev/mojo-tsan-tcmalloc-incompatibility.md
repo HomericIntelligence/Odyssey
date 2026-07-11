@@ -16,7 +16,7 @@ at that time and update this doc's Status section.
 
 ## Tracking
 
-**ProjectOdyssey Issues & PRs:**
+**Odyssey Issues & PRs:**
 
 - Issue #5391 — TSAN runtime fails universally: tcmalloc/ThreadSanitizer
   incompatibility
@@ -26,7 +26,7 @@ at that time and update this doc's Status section.
 **Upstream tracking:** Upstream issue **not yet filed** as of 2026-05-29. This
 abort should be reported at [modular/modular issues](https://github.com/modular/modular/issues)
 with the title and reproduction steps below. Until filed, track locally via
-ProjectOdyssey #5391.
+Odyssey #5391.
 
 ## Root Cause
 
@@ -147,6 +147,6 @@ mojo build --sanitize thread hello.mojo -o hello && ./hello
 **Actual:** FATAL: ThreadSanitizer: unexpected memory mapping ... MmapAligned()
 failed ...
 
-**Mojo version:** 1.0.0b2 (from ProjectOdyssey CI)
+**Mojo version:** 1.0.0b2 (from Odyssey CI)
 
-**Upstream tracking:** ProjectOdyssey #5391, PR #5389.
+**Upstream tracking:** Odyssey #5391, PR #5389.

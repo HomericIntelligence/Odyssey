@@ -10,7 +10,7 @@ source:
   # Local development: build straight from the working tree.
   # For modular-community submission, replace with:
   #
-  #   - git: https://github.com/HomericIntelligence/ProjectOdyssey.git
+  #   - git: https://github.com/HomericIntelligence/Odyssey.git
   #     rev: <commit-sha-or-tag>
   #
   # See scripts/publish_modular_community.py — it rewrites this block
@@ -44,11 +44,11 @@ tests:
         - conda.recipe/test_import.mojo
 
 about:
-  homepage: https://github.com/HomericIntelligence/ProjectOdyssey
+  homepage: https://github.com/HomericIntelligence/Odyssey
   license: BSD-3-Clause
   license_file: LICENSE
   summary: Mojo-based AI research platform for reproducing classic research papers. Provides reusable tensor ops, autograd, layers, optimizers, and training infrastructure.
-  repository: https://github.com/HomericIntelligence/ProjectOdyssey.git
+  repository: https://github.com/HomericIntelligence/Odyssey.git
 
 extra:
   project_name: projectodyssey

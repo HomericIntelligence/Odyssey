@@ -1,6 +1,6 @@
 # Optimizers
 
-This directory contains optimizer implementations for training neural networks in ProjectOdyssey.
+This directory contains optimizer implementations for training neural networks in Odyssey.
 
 ## Available Optimizers
 

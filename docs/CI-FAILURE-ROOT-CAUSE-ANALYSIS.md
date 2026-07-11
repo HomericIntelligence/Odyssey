@@ -1,4 +1,4 @@
-# ProjectOdyssey CI/CD Failure Root Cause Analysis
+# Odyssey CI/CD Failure Root Cause Analysis
 
 **Date:** 2026-05-01
 **Analyzed PR:** #6414 (fix(docker): fix root:root bind-mount breaking just build-release)
@@ -8,7 +8,7 @@
 
 ## Summary
 
-ProjectOdyssey has 12 failing CI/CD checks that need to be addressed.
+Odyssey has 12 failing CI/CD checks that need to be addressed.
 This document provides root cause analysis for each failure and recommended fixes.
 
 ---
@@ -37,7 +37,7 @@ scripts/agents/test_agent_loading.py:25: error: Module "agent_utils" has no attr
 
 - Add `hephaestus` as a dependency in `pixi.toml`
 - OR explicitly export the required symbols in `agent_utils.py` with proper type stubs
-- OR move agent utility functions directly into ProjectOdyssey
+- OR move agent utility functions directly into Odyssey
 
 **Priority:** BLOCKING
 **Effort:** Low (15-30 min)

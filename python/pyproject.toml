@@ -31,9 +31,9 @@ classifiers = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/HomericIntelligence/ProjectOdyssey"
-Repository = "https://github.com/HomericIntelligence/ProjectOdyssey"
-Issues = "https://github.com/HomericIntelligence/ProjectOdyssey/issues"
+Homepage = "https://github.com/HomericIntelligence/Odyssey"
+Repository = "https://github.com/HomericIntelligence/Odyssey"
+Issues = "https://github.com/HomericIntelligence/Odyssey/issues"
 
 [tool.setuptools.packages.find]
 where = ["."]
