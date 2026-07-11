@@ -200,6 +200,7 @@ jobs:
           - { example: mobilenetv1_cifar10, entry: train.mojo }
           - { example: alexnet_cifar10,    entry: run_train.mojo }
           - { example: mnist,              entry: train.mojo }
+          - { example: mnist,              entry: train_autograd.mojo }
           - { example: lenet_emnist,       entry: train.mojo }
           - { example: lenet_emnist,       entry: run_train.mojo }
 
