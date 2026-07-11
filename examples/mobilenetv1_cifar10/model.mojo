@@ -215,7 +215,11 @@ struct DepthwiseSeparableBlock:
         var out = depthwise_conv2d(
             x, self.dw_weights, self.dw_bias, stride=stride, padding=1
         )
-        out, _, _ = batch_norm2d(
+        # Persist the updated running stats back onto the block (#5537): under
+        # training=True batch_norm2d returns EMA-updated running_mean/var; if
+        # discarded, forward(training=False) inference uses the stale init
+        # (0, 1) values and produces wrong results.
+        var dw_bn = batch_norm2d(
             out,
             self.dw_bn_gamma,
             self.dw_bn_beta,
@@ -223,11 +227,14 @@ struct DepthwiseSeparableBlock:
             self.dw_bn_running_var,
             training,
         )
+        out = dw_bn[0]
+        self.dw_bn_running_mean = dw_bn[1]
+        self.dw_bn_running_var = dw_bn[2]
         out = relu(out)
 
         # Pointwise convolution (channel mixing, 1×1)
         out = conv2d(out, self.pw_weights, self.pw_bias, stride=1, padding=0)
-        out, _, _ = batch_norm2d(
+        var pw_bn = batch_norm2d(
             out,
             self.pw_bn_gamma,
             self.pw_bn_beta,
@@ -235,6 +242,9 @@ struct DepthwiseSeparableBlock:
             self.pw_bn_running_var,
             training,
         )
+        out = pw_bn[0]
+        self.pw_bn_running_mean = pw_bn[1]
+        self.pw_bn_running_var = pw_bn[2]
         out = relu(out)
 
         return out
@@ -347,7 +357,8 @@ struct MobileNetV1:
             stride=2,
             padding=1,
         )
-        out, _, _ = batch_norm2d(
+        # Persist EMA-updated running stats (#5537) — see block forward above.
+        var initial_bn = batch_norm2d(
             out,
             self.initial_bn_gamma,
             self.initial_bn_beta,
@@ -355,6 +366,9 @@ struct MobileNetV1:
             self.initial_bn_running_var,
             training,
         )
+        out = initial_bn[0]
+        self.initial_bn_running_mean = initial_bn[1]
+        self.initial_bn_running_var = initial_bn[2]
         out = relu(out)
         # Shape: (batch, 32, 16, 16)
 

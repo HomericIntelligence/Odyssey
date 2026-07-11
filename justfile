@@ -1286,12 +1286,13 @@ bump-version new_version:
     echo "All files updated. Verifying sync..."
     python3 scripts/check_version_sync.py
 
-# Run example backward-pass tests (GoogLeNet + ResNet-18) from their example
-# dirs. These live under examples/<model>/ (import `from model`/`from train`),
-# so they cannot run via `test-group` (which targets tests/). They are excluded
-# from the src coverage validator but MUST execute somewhere — this recipe is
-# the per-PR runner wired into comprehensive-tests.yml. Synthetic data only, no
-# dataset download. Fails (non-zero exit) if any test's assertions fail.
+# Run example correctness tests (backward-pass + BN-persistence) from their
+# example dirs. These live under examples/<model>/ (import `from model`/`from
+# train`), so they cannot run via `test-group` (which targets tests/). They are
+# excluded from the src coverage validator but MUST execute somewhere — this
+# recipe is the per-PR runner wired into comprehensive-tests.yml. Synthetic data
+# only, no dataset download. Fails (non-zero exit) if any test's assertions
+# fail. See the EXAMPLE_TESTS list below for the current set.
 test-example-backward:
     @just _run "just _test-example-backward-inner"
 
@@ -1301,18 +1302,25 @@ _test-example-backward-inner:
     set -euo pipefail
     REPO_ROOT="$(pwd)"
     fail=0
-    # Expected backward tests — each MUST exist and run. A missing file is a
+    # Expected example tests — each MUST exist and run. A missing file is a
     # hard failure (regression signal), not a silent skip: if a test is
     # renamed or deleted, this job must go red rather than pass green.
-    for ex in googlenet_cifar10 resnet18_cifar10; do
-        f="examples/$ex/test_backward.mojo"
+    # Entries are "<example-dir>/<test-file>".
+    EXAMPLE_TESTS=(
+        "googlenet_cifar10/test_backward.mojo"
+        "resnet18_cifar10/test_backward.mojo"
+        "mobilenetv1_cifar10/test_bn_persistence.mojo"
+    )
+    for entry in "${EXAMPLE_TESTS[@]}"; do
+        ex="${entry%%/*}"
+        f="examples/$entry"
         if [ ! -f "$f" ]; then
             echo "MISSING (expected): $f"
             fail=1
             continue
         fi
         echo "=================================================="
-        echo "Running example backward test: $f"
+        echo "Running example test: $f"
         echo "=================================================="
         # Strip AVX-512 from the target (modular/modular#6413). The "Example
         # Backward Tests" job flakes with "execution crashed" inside
