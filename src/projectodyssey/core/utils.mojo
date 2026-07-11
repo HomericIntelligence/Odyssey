@@ -11,6 +11,19 @@ All functions work with AnyTensor and follow the pure functional design pattern
 
 from std.collections import List
 from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.core.shape import as_contiguous
+
+
+def _as_contiguous_view(tensor: AnyTensor) raises -> AnyTensor:
+    """Return a contiguous equivalent, materializing only if strided.
+
+    The index ops below read the raw buffer via `_get_float64(linear_idx)` with
+    strides synthesized under a row-major-contiguous assumption. A strided
+    (non-contiguous) view — e.g. from `slice(..., axis=1)` — would be misread
+    (#5572), so callers must operate on a contiguous copy. This mirrors the same
+    guard in core/reduction.mojo (`_dispatch_reduce_*`).
+    """
+    return tensor if tensor.is_contiguous() else as_contiguous(tensor)
 
 
 def argmax(tensor: AnyTensor) raises -> Int:
@@ -34,11 +47,12 @@ def argmax(tensor: AnyTensor) raises -> Int:
     if tensor.numel() == 0:
         raise Error("argmax: tensor is empty")
 
-    var max_val = tensor._get_float64(0)
+    var t = _as_contiguous_view(tensor)
+    var max_val = t._get_float64(0)
     var max_idx = 0
 
-    for i in range(1, tensor.numel()):
-        var val = tensor._get_float64(i)
+    for i in range(1, t.numel()):
+        var val = t._get_float64(i)
         if val > max_val:
             max_val = val
             max_idx = i
@@ -74,17 +88,22 @@ def argmax(tensor: AnyTensor, axis: Int) raises -> AnyTensor:
             + " dimensions"
         )
 
+    # Materialize a contiguous copy if the input is a strided view (#5572):
+    # the row-major strides synthesized below are only valid for contiguous
+    # layout, so `_get_float64` must read from `t`, not the raw strided view.
+    var t = _as_contiguous_view(tensor)
+
     # Build result shape
     var result_shape = List[Int]()
-    for i in range(tensor.dim()):
+    for i in range(t.dim()):
         if i != axis:
-            result_shape.append(tensor.shape()[i])
+            result_shape.append(t.shape()[i])
 
     var result = AnyTensor(result_shape, DType.int64)
 
     # Compute strides for indexing
-    var input_shape = tensor.shape()
-    var ndim = tensor.dim()
+    var input_shape = t.shape()
+    var ndim = t.dim()
     var strides = List[Int]()
     for _ in range(ndim):
         strides.append(0)
@@ -108,7 +127,7 @@ def argmax(tensor: AnyTensor, axis: Int) raises -> AnyTensor:
             temp_idx //= result.shape()[i]
 
         # Map result coordinates to input coordinates (accounting for reduced axis)
-        var tensor_dim = tensor.dim()
+        var tensor_dim = t.dim()
         var input_coords = List[Int]()
         for _ in range(tensor_dim):
             input_coords.append(0)
@@ -123,9 +142,9 @@ def argmax(tensor: AnyTensor, axis: Int) raises -> AnyTensor:
         # Find argmax along the reduction axis
         input_coords[axis] = 0
         var linear_idx = 0
-        for i in range(tensor.dim()):
+        for i in range(t.dim()):
             linear_idx += input_coords[i] * strides[i]
-        var max_val = tensor._get_float64(linear_idx)
+        var max_val = t._get_float64(linear_idx)
         var max_idx = 0
 
         # Compare with remaining values
@@ -134,10 +153,10 @@ def argmax(tensor: AnyTensor, axis: Int) raises -> AnyTensor:
 
             # Convert coordinates to linear index
             linear_idx = 0
-            for i in range(tensor.dim()):
+            for i in range(t.dim()):
                 linear_idx += input_coords[i] * strides[i]
 
-            var val = tensor._get_float64(linear_idx)
+            var val = t._get_float64(linear_idx)
             if val > max_val:
                 max_val = val
                 max_idx = k
@@ -179,12 +198,13 @@ def top_k_indices(tensor: AnyTensor, k: Int) raises -> List[Int]:
     if tensor.numel() == 0:
         raise Error("top_k_indices: tensor is empty")
 
-    var numel = tensor.numel()
+    var t = _as_contiguous_view(tensor)
+    var numel = t.numel()
 
     # Create list of (value, index) pairs
     var pairs = List[Tuple[Float64, Int]]()
     for i in range(numel):
-        var val = tensor._get_float64(i)
+        var val = t._get_float64(i)
         pairs.append((val, i))
 
     # Simple selection sort to find top k (not the most efficient, but correct)
@@ -233,14 +253,18 @@ def top_k(tensor: AnyTensor, k: Int) raises -> Tuple[AnyTensor, List[Int]]:
     """
     var indices = top_k_indices(tensor, k)
 
+    # top_k_indices returns indices into the CONTIGUOUS logical order, so read
+    # values from the same contiguous view (#5572) rather than the raw input.
+    var t = _as_contiguous_view(tensor)
+
     # Create result tensor for values
     var values_shape = List[Int]()
     values_shape.append(k)
-    var values = AnyTensor(values_shape, tensor.dtype())
+    var values = AnyTensor(values_shape, t.dtype())
 
     for i in range(k):
         var idx = indices[i]
-        var val = tensor._get_float64(idx)
+        var val = t._get_float64(idx)
         values._set_float64(i, val)
 
     return (values, indices^)
@@ -268,12 +292,13 @@ def argsort(tensor: AnyTensor, descending: Bool = False) raises -> List[Int]:
     if tensor.numel() == 0:
         raise Error("argsort: tensor is empty")
 
-    var numel = tensor.numel()
+    var t = _as_contiguous_view(tensor)
+    var numel = t.numel()
 
     # Create list of (value, index) pairs
     var pairs = List[Tuple[Float64, Int]]()
     for i in range(numel):
-        var val = tensor._get_float64(i)
+        var val = t._get_float64(i)
         pairs.append((val, i))
 
     # Bubble sort (simple and correct, not the most efficient)

@@ -16,6 +16,7 @@ Type support:
 from projectodyssey.tensor.any_tensor import AnyTensor
 from std.collections import List
 from projectodyssey.training.metrics.base import Metric
+from projectodyssey.core.shape import as_contiguous
 
 
 # ============================================================================
@@ -111,6 +112,12 @@ def argmax(var tensor: AnyTensor, axis: Int) raises -> AnyTensor:
     var shape_vec = tensor.shape()
     if axis < 0 or axis >= len(shape_vec):
         raise Error("argmax: axis out of bounds")
+
+    # Reads below use flat `b * num_classes + c` offsets, which assume a
+    # row-major-contiguous layout; materialize a contiguous copy first so a
+    # strided view is not misread (#5572).
+    if not tensor.is_contiguous():
+        tensor = as_contiguous(tensor)
 
     if axis == 1 and len(shape_vec) == 2:
         # Common case: [batch_size, num_classes] -> [batch_size]
@@ -245,7 +252,13 @@ def get_topk_indices(
     Raises:
             Error: If operation fails.
     """
-    var shape_vec = predictions.shape()
+    # Reads below use flat `offset + c` indexing, which assumes a row-major-
+    # contiguous layout; materialize a contiguous copy so a strided predictions
+    # view is not misread (#5572, same class as the argmax fix above).
+    var preds = predictions if predictions.is_contiguous() else as_contiguous(
+        predictions
+    )
+    var shape_vec = preds.shape()
     var num_classes = shape_vec[1]
     var offset = batch_idx * num_classes
 
@@ -255,10 +268,10 @@ def get_topk_indices(
 
     for c in range(num_classes):
         var idx = offset + c
-        if predictions._dtype == DType.float32:
-            values.append(Float64(predictions.load[DType.float32](idx)))
+        if preds._dtype == DType.float32:
+            values.append(Float64(preds.load[DType.float32](idx)))
         else:
-            values.append(Float64(predictions.load[DType.float64](idx)))
+            values.append(Float64(preds.load[DType.float64](idx)))
         indices.append(c)
 
     # Simple selection: repeatedly find max and swap to front
