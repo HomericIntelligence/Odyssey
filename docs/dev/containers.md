@@ -8,13 +8,13 @@ This document describes how to use Podman for ml-odyssey development and deploym
 
 ```bash
 # Pull the latest runtime image
-podman pull ghcr.io/homericintelligence/projectodyssey:main
+podman pull ghcr.io/HomericIntelligence/Odyssey:main
 
 # Run tests
-podman run --rm ghcr.io/homericintelligence/projectodyssey:main
+podman run --rm ghcr.io/HomericIntelligence/Odyssey:main
 
 # Interactive shell
-podman run -it --rm ghcr.io/homericintelligence/projectodyssey:main bash
+podman run -it --rm ghcr.io/HomericIntelligence/Odyssey:main bash
 ```
 
 ### Local Development

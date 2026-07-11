@@ -210,7 +210,7 @@ gh run view <run-id> --log | grep "pushing manifest"
 ```yaml
 env:
   REGISTRY: ghcr.io
-  IMAGE\_NAME: homericintelligence/projectodyssey  # lowercase
+  IMAGE\_NAME: HomericIntelligence/Odyssey  # lowercase
 ```
 
 **release.yml**:
@@ -219,7 +219,7 @@ env:
 jobs:
   publish-docker:
     env:
-      IMAGE\_NAME: homericintelligence/projectodyssey  # lowercase
+      IMAGE\_NAME: HomericIntelligence/Odyssey  # lowercase
     steps:
       - name: Build and push
         with:
@@ -232,7 +232,7 @@ jobs:
 
 ```justfile
 REGISTRY := "ghcr.io"
-REPO\_NAME := "homericintelligence/projectodyssey"
+REPO\_NAME := "HomericIntelligence/Odyssey"
 ```
 
 ### Verification Results
@@ -247,9 +247,9 @@ REPO\_NAME := "homericintelligence/projectodyssey"
 
 ✅ **Images successfully pushed**:
 
-- `ghcr.io/homericintelligence/projectodyssey:main`
-- `ghcr.io/homericintelligence/projectodyssey:main-ci`
-- `ghcr.io/homericintelligence/projectodyssey:main-prod`
+- `ghcr.io/HomericIntelligence/Odyssey:main`
+- `ghcr.io/HomericIntelligence/Odyssey:main-ci`
+- `ghcr.io/HomericIntelligence/Odyssey:main-prod`
 - Plus SHA-tagged variants
 
 ### Performance Impact
@@ -265,7 +265,7 @@ REPO\_NAME := "homericintelligence/projectodyssey"
 Docker image names **must be lowercase**, but GitHub variables preserve case:
 
 - `github.repository` → `HomericIntelligence/Odyssey` (mixed case) ❌
-- `IMAGE\_NAME` → `homericintelligence/projectodyssey` (lowercase) ✅
+- `IMAGE\_NAME` → `HomericIntelligence/Odyssey` (lowercase) ✅
 
 ### Related Issues
 

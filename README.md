@@ -140,7 +140,7 @@ The `src/projectodyssey/` directory contains the ML components used by all paper
 
 ```bash
 # Clone the repository
-git clone https://github.com/homericintelligence/projectodyssey.git
+git clone https://github.com/HomericIntelligence/Odyssey.git
 cd projectodyssey
 
 # Install all dependencies (Mojo, Python tools, etc.)

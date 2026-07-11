@@ -36,8 +36,8 @@ Docker Build workflow was failing on main branch with error:
 **Part A: GitHub URL + GHCR Migrations (152 occurrences)**
 
 1. **GitHub URLs (138)**: `github.com/mvillmow/Odyssey` → `github.com/HomericIntelligence/Odyssey`
-2. **GHCR ml-odyssey (11)**: `ghcr.io/mvillmow/ml-odyssey` → `ghcr.io/homericintelligence/projectodyssey`
-3. **GHCR projectodyssey (2)**: `ghcr.io/mvillmow/projectodyssey` → `ghcr.io/homericintelligence/projectodyssey`
+2. **GHCR ml-odyssey (11)**: `ghcr.io/mvillmow/ml-odyssey` → `ghcr.io/HomericIntelligence/Odyssey`
+3. **GHCR projectodyssey (2)**: `ghcr.io/mvillmow/projectodyssey` → `ghcr.io/HomericIntelligence/Odyssey`
 4. **Docker workflow IMAGE\_NAME (1)**: `.github/workflows/docker.yml:23`
 5. **Release workflow (3)**: `.github/workflows/release.yml` - added IMAGE\_NAME env, updated tags
 6. **Justfile REPO\_NAME (1)**: `justfile:111`
@@ -71,7 +71,7 @@ env:
 # AFTER:
 env:
   REGISTRY: ghcr.io
-  IMAGE\_NAME: homericintelligence/projectodyssey
+  IMAGE\_NAME: HomericIntelligence/Odyssey
 ```
 
 **`.github/workflows/release.yml`** (Lines 428-437):
@@ -89,7 +89,7 @@ jobs:
 
     env:
       # Docker image names must be lowercase
-      IMAGE\_NAME: homericintelligence/projectodyssey
+      IMAGE\_NAME: HomericIntelligence/Odyssey
 
 # UPDATED tags (lines 456-458):
     tags: |
@@ -109,7 +109,7 @@ REPO\_NAME := "mvillmow/ml-odyssey"
 
 # AFTER:
 REGISTRY := "ghcr.io"
-REPO\_NAME := "homericintelligence/projectodyssey"
+REPO\_NAME := "HomericIntelligence/Odyssey"
 ```
 
 ### Step 3: Verification
@@ -165,13 +165,13 @@ grep -r "mvillmow/projectodyssey\|mvillmow/ml-odyssey\|mvillmow/Odyssey" \
 **Images Published**:
 
 ```bash
-ghcr.io/homericintelligence/projectodyssey:main
-ghcr.io/homericintelligence/projectodyssey:latest
-ghcr.io/homericintelligence/projectodyssey:sha-68cdcb0
-ghcr.io/homericintelligence/projectodyssey:main-ci
-ghcr.io/homericintelligence/projectodyssey:sha-68cdcb0-ci
-ghcr.io/homericintelligence/projectodyssey:main-prod
-ghcr.io/homericintelligence/projectodyssey:sha-68cdcb0-prod
+ghcr.io/HomericIntelligence/Odyssey:main
+ghcr.io/HomericIntelligence/Odyssey:latest
+ghcr.io/HomericIntelligence/Odyssey:sha-68cdcb0
+ghcr.io/HomericIntelligence/Odyssey:main-ci
+ghcr.io/HomericIntelligence/Odyssey:sha-68cdcb0-ci
+ghcr.io/HomericIntelligence/Odyssey:main-prod
+ghcr.io/HomericIntelligence/Odyssey:sha-68cdcb0-prod
 ```
 
 ## Critical Learnings
@@ -181,7 +181,7 @@ ghcr.io/homericintelligence/projectodyssey:sha-68cdcb0-prod
 Docker image names **MUST** be lowercase. Using `${{ github.repository }}` directly fails because:
 
 - `github.repository` = `HomericIntelligence/Odyssey` (mixed case)
-- Docker requires: `homericintelligence/projectodyssey` (all lowercase)
+- Docker requires: `HomericIntelligence/Odyssey` (all lowercase)
 
 ### 2. Multiple Workflows Need Updates
 
@@ -290,9 +290,9 @@ fix(ci)(repo): migrate GitHub URLs and fix Docker CI failure
 
 ## Docker CI Fix (Critical)
 
-- .github/workflows/docker.yml: Update IMAGE\_NAME from mvillmow/projectodyssey to homericintelligence/projectodyssey
+- .github/workflows/docker.yml: Update IMAGE\_NAME from mvillmow/projectodyssey to HomericIntelligence/Odyssey
 - .github/workflows/release.yml: Add IMAGE\_NAME env var and update GHCR references
-- justfile: Update REPO\_NAME from mvillmow/ml-odyssey to homericintelligence/projectodyssey
+- justfile: Update REPO\_NAME from mvillmow/ml-odyssey to HomericIntelligence/Odyssey
 - Dockerfile.ci: Remove redundant :- from PYTHONPATH (ENV PYTHONPATH=/app)
 
 Fixes Docker Build and Publish workflow failure where GITHUB\_TOKEN scoped to

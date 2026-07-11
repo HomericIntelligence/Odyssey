@@ -562,10 +562,10 @@ just shell          # Open shell in container
 
 ### Container Registry (GHCR)
 
-Images published to GHCR: `ghcr.io/homericintelligence/projectodyssey:{main,main-ci,main-prod}`.
+Images published to GHCR: `ghcr.io/HomericIntelligence/Odyssey:{main,main-ci,main-prod}`.
 
 ```bash
-podman pull ghcr.io/homericintelligence/projectodyssey:main  # ~2GB runtime
+podman pull ghcr.io/HomericIntelligence/Odyssey:main  # ~2GB runtime
 just podman-up    # Start dev environment
 just shell        # Open shell in container
 just podman-build-ci runtime  # Build locally
