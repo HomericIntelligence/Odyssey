@@ -268,6 +268,25 @@ def test_resolve_user_value_overrides_caller_default() raises:
     assert_equal(args.epochs, 7)
 
 
+def test_resolve_max_batches_and_smoke_defaults() raises:
+    """Max-batches defaults to 0 (unbounded) and smoke to False (#5551)."""
+    var parsed = ParsedArgs()
+    var args = resolve_training_args(parsed)
+    assert_equal(args.max_batches, 0)
+    assert_true(not args.smoke)
+
+
+def test_resolve_max_batches_and_smoke_user_supplied() raises:
+    """--max-batches N and --smoke flag are picked up by resolve (#5551)."""
+    var parsed = ParsedArgs()
+    parsed.set_user_supplied("max-batches", "5")
+    parsed.set_user_supplied("smoke", "true")  # flag → has()/get_bool True
+
+    var args = resolve_training_args(parsed)
+    assert_equal(args.max_batches, 5)
+    assert_true(args.smoke)
+
+
 def main() raises:
     """Run all test_arg_parser tests."""
     print("Running test_arg_parser tests...")
@@ -321,6 +340,8 @@ def main() raises:
     print("✓ test_resolve_honors_caller_default_when_absent")
 
     test_resolve_user_value_overrides_caller_default()
+    test_resolve_max_batches_and_smoke_defaults()
+    test_resolve_max_batches_and_smoke_user_supplied()
     print("✓ test_resolve_user_value_overrides_caller_default")
 
     print("\nAll test_arg_parser tests passed!")

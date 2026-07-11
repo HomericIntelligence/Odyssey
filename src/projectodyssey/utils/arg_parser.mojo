@@ -457,7 +457,9 @@ def create_training_parser() raises -> ArgumentParser:
     parser.add_argument("seed", "int", "42")
     parser.add_argument("lr-decay-epochs", "int", "0")
     parser.add_argument("lr-decay-factor", "float", "0.1")
+    parser.add_argument("max-batches", "int", "0")
     parser.add_flag("verbose")
+    parser.add_flag("smoke")
 
     # Optimizer selection (sgd, lion, shampoo, adamw, muon, normuon)
     parser.add_argument("optimizer", "string", "sgd")

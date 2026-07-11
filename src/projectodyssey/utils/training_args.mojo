@@ -50,6 +50,10 @@ struct TrainingArgs(Copyable, Movable):
         verbose: Whether to print verbose output.
         lr_decay_epochs: Decay LR every N epochs (0 = no decay).
         lr_decay_factor: Multiply LR by this factor when decaying.
+        max_batches: Cap training to this many batches per epoch (0 = unbounded).
+            Used by the per-PR training-smoke gate to bound a run (#5551).
+        smoke: Smoke mode — skip real dataset loading and train on a tiny
+            in-process synthetic batch (mechanism check, not convergence; #5551).
     """
 
     var epochs: Int
@@ -61,6 +65,8 @@ struct TrainingArgs(Copyable, Movable):
     var verbose: Bool
     var lr_decay_epochs: Int
     var lr_decay_factor: Float64
+    var max_batches: Int
+    var smoke: Bool
 
     def __init__(out self):
         """Initialize with default training arguments."""
@@ -73,6 +79,8 @@ struct TrainingArgs(Copyable, Movable):
         self.verbose = False
         self.lr_decay_epochs = 0
         self.lr_decay_factor = 0.1
+        self.max_batches = 0
+        self.smoke = False
 
 
 # ============================================================================
@@ -234,6 +242,10 @@ def resolve_training_args(
         "lr-decay-factor", default_lr_decay_factor
     )
     var verbose = parsed.get_bool("verbose")
+    # Smoke/max-batches for the per-PR training-smoke gate (#5551). max-batches
+    # is unbounded (0) unless the user passes it; smoke is a flag.
+    var max_batches = parsed.resolve_int("max-batches", 0)
+    var smoke = parsed.get_bool("smoke")
 
     # Validate numeric arguments
     validate_positive_int(epochs, "epochs")
@@ -252,6 +264,11 @@ def resolve_training_args(
             "lr-decay-factor must be in (0.0, 1.0], got: "
             + String(lr_decay_factor)
         )
+    if max_batches < 0:
+        raise Error(
+            "max-batches must be non-negative (0 = unbounded), got: "
+            + String(max_batches)
+        )
 
     return TrainingArgs(
         epochs=epochs,
@@ -263,6 +280,8 @@ def resolve_training_args(
         verbose=verbose,
         lr_decay_epochs=lr_decay_epochs,
         lr_decay_factor=lr_decay_factor,
+        max_batches=max_batches,
+        smoke=smoke,
     )
 
 
