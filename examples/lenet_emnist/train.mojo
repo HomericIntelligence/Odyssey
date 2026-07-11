@@ -529,11 +529,13 @@ def main() raises:
         print("  Test Accuracy: ", test_acc * 100.0, "%")
         print()
 
-    # Save model
-    print("Saving model weights...")
-    model.save_weights(weights_dir)
-    print("  Model saved to", weights_dir)
-    print()
+    # Save model — skipped in smoke mode (#5551): mechanism check, nothing to
+    # persist.
+    if not smoke:
+        print("Saving model weights...")
+        model.save_weights(weights_dir)
+        print("  Model saved to", weights_dir)
+        print()
 
     print("Training complete!")
     print(

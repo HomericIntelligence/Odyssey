@@ -533,10 +533,12 @@ def main() raises:
         precision_config.print_stats()
         print()
 
-    # Save model
-    print("Saving model weights...")
-    model.save_weights(config.weights_dir)
-    print("  Model saved to", config.weights_dir)
-    print()
+    # Save model — skipped in smoke mode (#5551): mechanism check, nothing to
+    # persist.
+    if not config.smoke:
+        print("Saving model weights...")
+        model.save_weights(config.weights_dir)
+        print("  Model saved to", config.weights_dir)
+        print()
 
     print("Training complete!")

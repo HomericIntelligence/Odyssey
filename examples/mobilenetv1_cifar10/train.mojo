@@ -2465,12 +2465,14 @@ def main() raises:
     print("Training complete!")
     print()
 
-    print("Saving weights to " + String(weights_dir) + "/...")
-    try:
-        model.save_weights(weights_dir)
-        print("  ✓ Weights saved successfully")
-    except e:
-        print("  ✗ Failed to save weights: " + String(e))
+    # Save weights — skipped in smoke mode (#5551): mechanism check.
+    if not smoke:
+        print("Saving weights to " + String(weights_dir) + "/...")
+        try:
+            model.save_weights(weights_dir)
+            print("  ✓ Weights saved successfully")
+        except e:
+            print("  ✗ Failed to save weights: " + String(e))
 
     print()
     print("=" * 60)
