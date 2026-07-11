@@ -88,18 +88,25 @@ def test_bn_stats_persist_in_depthwise_blocks() raises:
     for i in range(2 * 3 * 32 * 32):
         xd[i] = Float32(i % 5) * 0.2 - 0.4
 
-    var dw_before = _running_mean_sig(model.ds_block_1.dw_bn_running_mean)
-    var pw_before = _running_mean_sig(model.ds_block_1.pw_bn_running_mean)
+    var dw1_before = _running_mean_sig(model.ds_block_1.dw_bn_running_mean)
+    var pw1_before = _running_mean_sig(model.ds_block_1.pw_bn_running_mean)
+    # Also check the LAST block, so this proves the shared block forward path
+    # persists for every block, not just the first.
+    var dw13_before = _running_mean_sig(model.ds_block_13.dw_bn_running_mean)
 
     _ = model.forward(x, training=True)
 
     assert_true(
-        _running_mean_sig(model.ds_block_1.dw_bn_running_mean) != dw_before,
+        _running_mean_sig(model.ds_block_1.dw_bn_running_mean) != dw1_before,
         "ds_block_1 depthwise BN running_mean not persisted (#5537)",
     )
     assert_true(
-        _running_mean_sig(model.ds_block_1.pw_bn_running_mean) != pw_before,
+        _running_mean_sig(model.ds_block_1.pw_bn_running_mean) != pw1_before,
         "ds_block_1 pointwise BN running_mean not persisted (#5537)",
+    )
+    assert_true(
+        _running_mean_sig(model.ds_block_13.dw_bn_running_mean) != dw13_before,
+        "ds_block_13 (last) depthwise BN running_mean not persisted (#5537)",
     )
 
 
