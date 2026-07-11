@@ -18,6 +18,7 @@ from tests.projectodyssey.conftest import (
 from projectodyssey.tensor.any_tensor import AnyTensor
 from projectodyssey.tensor.tensor_creation import zeros
 from projectodyssey.core.utils import argmax, top_k_indices, top_k, argsort
+from projectodyssey.training.metrics.accuracy import argmax as metrics_argmax
 
 
 def _make_strided_2x4() raises -> AnyTensor:
@@ -31,9 +32,9 @@ def _make_strided_2x4() raises -> AnyTensor:
     reader would read row 1 at flat offset 4 (the 9.0, outside the slice).
     """
     var t = zeros([2, 8], DType.float32)
-    t[1] = Float32(5.0)  # row 0, col 1  (inside slice)
-    t[4] = Float32(9.0)  # row 0, col 4  (OUTSIDE slice — the trap)
-    t[10] = Float32(7.0)  # row 1, col 2  (inside slice)
+    t.set(1, Float32(5.0))  # row 0, col 1  (inside slice)
+    t.set(4, Float32(9.0))  # row 0, col 4  (OUTSIDE slice — the trap)
+    t.set(10, Float32(7.0))  # row 1, col 2  (inside slice)
     var view = t.slice(0, 4, axis=1)
     assert_false(view.is_contiguous(), "fixture must be non-contiguous")
     return view^
@@ -94,11 +95,32 @@ def test_argsort_noncontiguous() raises:
     assert_equal_int(idx[1], 1)
 
 
+def test_argsort_ascending_noncontiguous() raises:
+    """Ascending argsort on a strided view puts the true max last."""
+    var view = _make_strided_2x4()
+    # Logical: [0,5,0,0, 0,0,7,0]. Ascending -> zeros first, then 5.0 (idx 1),
+    # then the max 7.0 (idx 6) last.
+    var idx = argsort(view, descending=False)
+    assert_equal_int(len(idx), 8)
+    assert_equal_int(idx[len(idx) - 1], 6)
+    assert_equal_int(idx[len(idx) - 2], 1)
+
+
+def test_metrics_argmax_noncontiguous() raises:
+    """Metrics argmax also guards strided views (#5572, same class)."""
+    var view = _make_strided_2x4()
+    var pred = metrics_argmax(view, axis=1)
+    assert_equal_int(pred.shape()[0], 2)
+    # Row 0 max is 5.0 at col 1; row 1 max is 7.0 at col 2 (result dtype int32).
+    assert_equal_int(Int(pred.load[DType.int32](0)), 1)
+    assert_equal_int(Int(pred.load[DType.int32](1)), 2)
+
+
 def test_contiguous_baseline_unchanged() raises:
     """Contiguous inputs still behave correctly (guard is a no-op for them)."""
     var t = zeros([2, 4], DType.float32)
-    t[1] = Float32(5.0)  # row 0, col 1
-    t[6] = Float32(7.0)  # row 1, col 2
+    t.set(1, Float32(5.0))  # row 0, col 1
+    t.set(6, Float32(7.0))  # row 1, col 2
     assert_true(t.is_contiguous(), "baseline fixture must be contiguous")
     var pred = argmax(t, axis=1)
     assert_equal_int(Int(pred.load[DType.int64](0)), 1)
@@ -120,6 +142,12 @@ def main() raises:
     print(" PASS")
     print("test_argsort_noncontiguous...", end="")
     test_argsort_noncontiguous()
+    print(" PASS")
+    print("test_argsort_ascending_noncontiguous...", end="")
+    test_argsort_ascending_noncontiguous()
+    print(" PASS")
+    print("test_metrics_argmax_noncontiguous...", end="")
+    test_metrics_argmax_noncontiguous()
     print(" PASS")
     print("test_contiguous_baseline_unchanged...", end="")
     test_contiguous_baseline_unchanged()
