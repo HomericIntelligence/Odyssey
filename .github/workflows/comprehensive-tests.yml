@@ -179,6 +179,44 @@ jobs:
         run: just test-example-backward
 
   # ============================================================================
+  # Training Smoke (ADR-014, #5551) - assert each training entrypoint's MECHANISM
+  # works: runs a few bounded batches on synthetic data (--smoke, no dataset
+  # download) to exit 0 and emit >=2 finite parseable full-precision loss lines.
+  # NOT a convergence check. One job per model via a matrix so wall-clock stays
+  # low (each entry AOT-compiles + runs independently, in parallel).
+  # ============================================================================
+  training-smoke:
+    needs: [mojo-compilation]
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    name: "Training Smoke (${{ matrix.example }}/${{ matrix.entry }})"
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { example: resnet18_cifar10,   entry: train.mojo }
+          - { example: googlenet_cifar10,  entry: train.mojo }
+          - { example: vgg16_cifar10,      entry: train.mojo }
+          - { example: mobilenetv1_cifar10, entry: train.mojo }
+          - { example: alexnet_cifar10,    entry: run_train.mojo }
+          - { example: mnist,              entry: train.mojo }
+          - { example: lenet_emnist,       entry: train.mojo }
+          - { example: lenet_emnist,       entry: run_train.mojo }
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+
+      - name: Set up container
+        uses: ./.github/actions/setup-container
+
+      - name: Install Just
+        uses: extractions/setup-just@53165ef7e734c5c07cb06b3c8e7b647c5aa16db3  # v4.0.0
+
+      - name: Run training smoke (synthetic, bounded)
+        run: just training-smoke-one ${{ matrix.example }} ${{ matrix.entry }}
+
+  # ============================================================================
   # Test Coverage Validation - Ensure all tests are discovered
   # ============================================================================
   validate-test-coverage:
