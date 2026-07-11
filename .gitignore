@@ -32,6 +32,10 @@ examples/*/inference
 test_*
 !tests/**
 !conda.recipe/test_*
+# `test_*` above targets compiled Mojo test BINARIES, but also matches `.mojo`
+# sources; rescue example test sources so they can be tracked + run in CI
+# (e.g. examples/*/test_backward.mojo, test_bn_persistence.mojo).
+!examples/**/test_*.mojo
 .worktrees/
 .claude/worktrees/
 .claude/scheduled_tasks.lock
