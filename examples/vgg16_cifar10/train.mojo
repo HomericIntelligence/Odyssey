@@ -989,11 +989,12 @@ def main() raises:
             print("  Checkpoint saved to", weights_dir)
             print()
 
-    # Save final model
-    print("Saving final model weights...")
-    model.save_weights(weights_dir)
-    print("  Model saved to", weights_dir)
-    print()
+    # Save final model — skipped in smoke mode (#5551): mechanism check.
+    if not smoke:
+        print("Saving final model weights...")
+        model.save_weights(weights_dir)
+        print("  Model saved to", weights_dir)
+        print()
 
     print("Training complete!")
     print(
