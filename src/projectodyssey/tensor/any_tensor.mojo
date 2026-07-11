@@ -2170,9 +2170,9 @@ struct AnyTensor(
         is_mxfp4=True: 32-elem blocks, 17 bytes each (MXFP4).
         is_mxfp4=False: 16-elem blocks, 9 bytes each (NVFP4).
 
-        Note: bfloat16 passes the outer guard but raises in the inner dispatch.
-        This asymmetry is a pre-existing bug preserved verbatim.
-        TODO(#5564): fix bfloat16 guard for block-quant methods.
+        Accepts float16, float32, float64. bfloat16 is rejected up front for
+        consistency with to_fp8()/to_bf8() — its Float32 intermediate does not
+        round-trip correctly here (#5564).
         """
         from .tensor_dtype_conv import _convert_to_block_quant_impl
 
@@ -2181,7 +2181,8 @@ struct AnyTensor(
     def to_mxfp4(self) raises -> AnyTensor:
         """Convert tensor values to MXFP4 blocked format.
 
-        This method converts a tensor of any floating-point dtype to MXFP4 format,
+        This method converts a float16/float32/float64 tensor to MXFP4 format
+        (bfloat16 is rejected — see Raises),
         stored as uint8 blocks. Values are packed into 32-element blocks, each with
         a shared E8M0 scale.
 
@@ -2189,7 +2190,8 @@ struct AnyTensor(
             A new AnyTensor with dtype=uint8 containing MXFP4-encoded blocks.
 
         Raises:
-            Error: If the source tensor is not a floating-point dtype.
+            Error: If the source tensor is bfloat16 (rejected up front, #5564),
+                or is not a float16/float32/float64 dtype.
 
         Examples:
             # Aligned size (32 elements = 1 block)
@@ -2271,7 +2273,8 @@ struct AnyTensor(
     def to_nvfp4(self) raises -> AnyTensor:
         """Convert tensor values to NVFP4 blocked format.
 
-        This method converts a tensor of any floating-point dtype to NVFP4 format,
+        This method converts a float16/float32/float64 tensor to NVFP4 format
+        (bfloat16 is rejected — see Raises),
         stored as uint8 blocks. Values are packed into 16-element blocks, each with
         a shared E4M3 scale.
 
@@ -2279,7 +2282,8 @@ struct AnyTensor(
             A new AnyTensor with dtype=uint8 containing NVFP4-encoded blocks.
 
         Raises:
-            Error: If the source tensor is not a floating-point dtype.
+            Error: If the source tensor is bfloat16 (rejected up front, #5564),
+                or is not a float16/float32/float64 dtype.
 
         Examples:
         ```
