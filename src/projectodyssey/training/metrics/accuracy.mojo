@@ -16,6 +16,7 @@ Type support:
 from projectodyssey.tensor.any_tensor import AnyTensor
 from std.collections import List
 from projectodyssey.training.metrics.base import Metric
+from projectodyssey.core.shape import as_contiguous
 
 
 # ============================================================================
@@ -111,6 +112,12 @@ def argmax(var tensor: AnyTensor, axis: Int) raises -> AnyTensor:
     var shape_vec = tensor.shape()
     if axis < 0 or axis >= len(shape_vec):
         raise Error("argmax: axis out of bounds")
+
+    # Reads below use flat `b * num_classes + c` offsets, which assume a
+    # row-major-contiguous layout; materialize a contiguous copy first so a
+    # strided view is not misread (#5572).
+    if not tensor.is_contiguous():
+        tensor = as_contiguous(tensor)
 
     if axis == 1 and len(shape_vec) == 2:
         # Common case: [batch_size, num_classes] -> [batch_size]
