@@ -287,6 +287,20 @@ def test_resolve_max_batches_and_smoke_user_supplied() raises:
     assert_true(args.smoke)
 
 
+def test_resolve_rejects_negative_max_batches() raises:
+    """A negative --max-batches is rejected (0 = unbounded; #5551)."""
+    var parsed = ParsedArgs()
+    parsed.set_user_supplied("max-batches", "-3")
+    var raised = False
+    try:
+        _ = resolve_training_args(parsed)
+    except:
+        raised = True
+    assert_true(
+        raised, "resolve_training_args must reject negative max-batches"
+    )
+
+
 def main() raises:
     """Run all test_arg_parser tests."""
     print("Running test_arg_parser tests...")
@@ -341,7 +355,11 @@ def main() raises:
 
     test_resolve_user_value_overrides_caller_default()
     test_resolve_max_batches_and_smoke_defaults()
+    print("✓ test_resolve_max_batches_and_smoke_defaults")
     test_resolve_max_batches_and_smoke_user_supplied()
+    print("✓ test_resolve_max_batches_and_smoke_user_supplied")
+    test_resolve_rejects_negative_max_batches()
+    print("✓ test_resolve_rejects_negative_max_batches")
     print("✓ test_resolve_user_value_overrides_caller_default")
 
     print("\nAll test_arg_parser tests passed!")

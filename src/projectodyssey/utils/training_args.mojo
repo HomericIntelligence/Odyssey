@@ -100,7 +100,9 @@ def parse_training_args() raises -> TrainingArgs:
             --weights-dir <str>: Weights directory (default: "weights")
             --lr-decay-epochs <int>: Decay LR every N epochs (default: 0, disabled)
             --lr-decay-factor <float>: LR decay multiplier (default: 0.1)
+            --max-batches <int>: Cap batches/epoch (default: 0 = unbounded; #5551)
             --verbose: Enable verbose output
+            --smoke: Train on tiny in-process synthetic data, no dataset (#5551)
 
     Returns:
             TrainingArgs struct with parsed and validated values.
