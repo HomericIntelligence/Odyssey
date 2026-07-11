@@ -328,6 +328,7 @@ from projectodyssey.core.conv import (
     conv2d,
     conv2d_no_bias,
     conv2d_backward,
+    conv2d_backward_weights_only,
     conv2d_no_bias_backward,
     depthwise_conv2d,
     depthwise_conv2d_no_bias,
