@@ -982,8 +982,9 @@ def main() raises:
         var test_acc = evaluate(model, test_images, test_labels)
         print()
 
-        # Save model every 20 epochs
-        if epoch % 20 == 0:
+        # Save checkpoint every 20 epochs — never in smoke mode (#5551), so a
+        # smoke run with a large --epochs still persists nothing.
+        if not smoke and epoch % 20 == 0:
             print("Saving checkpoint at epoch", epoch, "...")
             model.save_weights(weights_dir)
             print("  Checkpoint saved to", weights_dir)
