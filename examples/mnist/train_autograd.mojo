@@ -128,10 +128,15 @@ def parse_args() raises -> TrainConfig:
     var batch_size = args.get_int("batch-size", 32)
     var learning_rate = args.get_float("lr", 0.001)
     var weight_decay = args.get_float("weight-decay", 0.01)
-    # Resolve the AdamW default in code: the parser registers `optimizer` with a
-    # built-in default of "sgd", so read it and default an unset value to
-    # "adamw" ourselves.
-    var optimizer = args.get_string("optimizer", "adamw")
+    # Resolve the AdamW default in code. The shared parser registers `optimizer`
+    # with a built-in default of "sgd", and `parse()` pre-populates that default
+    # into the value map — so `get_string("optimizer", "adamw")` would return
+    # "sgd" even when the user passed nothing (the "adamw" fallback is dead).
+    # Gate on `was_user_supplied` instead: only an explicit `--optimizer` is
+    # honored; an unset flag defaults to AdamW (DoD of #5558).
+    var optimizer: String = "adamw"
+    if args.was_user_supplied("optimizer"):
+        optimizer = args.get_string("optimizer", "adamw")
     var data_dir = args.get_string("data-dir", "datasets/mnist")
     var weights_dir = args.get_string("weights-dir", "mnist_weights_autograd")
     var max_batches = args.get_int("max-batches", 0)
