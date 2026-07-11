@@ -1064,6 +1064,7 @@ def train_epoch(
     mut loss_history: List[Float32],
     epoch: Int,
     total_epochs: Int,
+    max_batches: Int = 0,
 ) raises -> Float32:
     """Train for one epoch with full backprop and SGD momentum.
 
@@ -1078,12 +1079,16 @@ def train_epoch(
         loss_history: Mutable list to record per-batch loss for convergence testing.
         epoch: Current epoch number (1-indexed).
         total_epochs: Total number of epochs.
+        max_batches: Cap batches this epoch (0 = unbounded); used by --smoke /
+            --max-batches to bound a per-PR run (#5551).
 
     Returns:
         Average training loss for the epoch.
     """
     var num_samples = train_images.shape()[0]
     var num_batches = compute_num_batches(num_samples, batch_size)
+    if max_batches > 0 and max_batches < num_batches:
+        num_batches = max_batches
     var total_loss = Float32(0.0)
 
     print("Epoch " + String(epoch) + "/" + String(total_epochs))
@@ -1112,7 +1117,7 @@ def train_epoch(
         total_loss = total_loss + batch_loss
 
         # Log progress every 100 batches
-        if (batch_idx + 1) % 100 == 0:
+        if (batch_idx + 1) % 100 == 0 or num_batches <= 10:
             var avg_loss = total_loss / Float32(batch_idx + 1)
             print(
                 "  Batch "
@@ -1153,6 +1158,8 @@ def main() raises:
     var data_dir = args.data_dir
     var lr_decay_epochs = args.lr_decay_epochs
     var lr_decay_factor = Float32(args.lr_decay_factor)
+    var max_batches = args.max_batches
+    var smoke = args.smoke
 
     print("Configuration:")
     print("  Epochs: " + String(epochs))
@@ -1169,11 +1176,42 @@ def main() raises:
     )
     print()
 
-    # Load CIFAR-10 dataset
-    print("Loading CIFAR-10 dataset...")
-    var dataset = CIFAR10Dataset(data_dir)
-    var train_images, train_labels_raw = dataset.get_train_data()
-    var test_images, test_labels_raw = dataset.get_test_data()
+    # Load data — real CIFAR-10, or a tiny in-process synthetic batch in smoke
+    # mode (#5551): smoke skips the dataset download entirely so the training
+    # entrypoint can run per-PR in CI. It checks the MECHANISM (the loop runs
+    # and emits finite, parseable, decreasing loss), not convergence.
+    var train_images: AnyTensor
+    var train_labels_raw: AnyTensor
+    var test_images: AnyTensor
+    var test_labels_raw: AnyTensor
+    if smoke:
+        print("Smoke mode: using synthetic data (no dataset download)...")
+        # Enough samples to yield >=2 batches under --max-batches so the CI gate
+        # can assert a decreasing loss trend across batches. Class-correlated
+        # signal makes the loss learnable; labels are RAW uint8 [N]
+        # (train_epoch one-hot-encodes).
+        var wanted_batches = max_batches if max_batches > 0 else 3
+        var n_smoke = wanted_batches * Int(batch_size)
+        train_images = zeros([n_smoke, 3, 32, 32], DType.float32)
+        var img_d = train_images._data.bitcast[Float32]()
+        for s in range(n_smoke):
+            var cls = s % 10
+            for i in range(3 * 32 * 32):
+                img_d[s * (3 * 32 * 32) + i] = (
+                    Float32(cls) * 0.05 + Float32(i % 5) * 0.01
+                )
+        train_labels_raw = zeros([n_smoke], DType.uint8)
+        var lbl_d = train_labels_raw._data.bitcast[UInt8]()
+        for s in range(n_smoke):
+            lbl_d[s] = UInt8(s % 10)
+        # Reuse the same synthetic batch for "test" (eval is not asserted here).
+        test_images = train_images
+        test_labels_raw = train_labels_raw
+    else:
+        print("Loading CIFAR-10 dataset...")
+        var dataset = CIFAR10Dataset(data_dir)
+        train_images, train_labels_raw = dataset.get_train_data()
+        test_images, test_labels_raw = dataset.get_test_data()
 
     print("  Training samples: " + String(train_images.shape()[0]))
     print("  Test samples: " + String(test_images.shape()[0]))
@@ -1208,6 +1246,7 @@ def main() raises:
         loss_history=loss_history,
         epoch=1,
         total_epochs=1,
+        max_batches=max_batches,
     )
     print()
     print("Training complete. Epoch loss: " + String(epoch_loss))

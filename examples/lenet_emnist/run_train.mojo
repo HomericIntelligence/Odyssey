@@ -50,6 +50,8 @@ struct TrainConfig(Movable):
     var precision: String
     var data_dir: String
     var weights_dir: String
+    var max_batches: Int
+    var smoke: Bool
 
     def __init__(out self):
         self.epochs = 10
@@ -58,6 +60,8 @@ struct TrainConfig(Movable):
         self.precision = "fp32"
         self.data_dir = "datasets/emnist"
         self.weights_dir = "lenet5_weights"
+        self.max_batches = 0
+        self.smoke = False
 
 
 def parse_args() raises -> TrainConfig:
@@ -80,6 +84,8 @@ def parse_args() raises -> TrainConfig:
     config.precision = args.get_string("precision", "fp32")
     config.data_dir = args.get_string("data-dir", "datasets/emnist")
     config.weights_dir = args.get_string("weights-dir", "lenet5_weights")
+    config.max_batches = args.get_int("max-batches", 0)
+    config.smoke = args.get_bool("smoke")
 
     return config^
 
@@ -310,6 +316,7 @@ def train_epoch(
     epoch: Int,
     total_epochs: Int,
     mut precision_config: PrecisionConfig,
+    max_batches: Int = 0,
 ) raises -> Float32:
     """Train for one epoch with mixed-precision support.
 
@@ -322,12 +329,16 @@ def train_epoch(
         epoch: Current epoch number.
         total_epochs: Total number of epochs.
         precision_config: Precision configuration for mixed-precision training.
+        max_batches: Cap batches this epoch (0 = unbounded); used by --smoke /
+            --max-batches to bound a per-PR run (#5551).
 
     Returns:
         Average loss for the epoch (unscaled).
     """
     var num_samples = train_images.shape()[0]
     var num_batches = (num_samples + batch_size - 1) // batch_size
+    if max_batches > 0 and max_batches < num_batches:
+        num_batches = max_batches
 
     var total_loss = Float32(0.0)
     var successful_batches = 0
@@ -364,7 +375,7 @@ def train_epoch(
             skipped_batches += 1
 
         # Print progress every 100 batches
-        if (batch_idx + 1) % 100 == 0:
+        if (batch_idx + 1) % 100 == 0 or num_batches <= 10:
             var avg_loss = total_loss / Float32(batch_idx + 1)
             var scale = precision_config.get_scale()
             print(
@@ -429,29 +440,61 @@ def main() raises:
     print("  Model initialized with", model.num_classes, "classes")
     print()
 
-    # Load dataset
-    print("Loading EMNIST dataset...")
-    var train_images_path = (
-        config.data_dir + "/emnist-balanced-train-images-idx3-ubyte"
-    )
-    var train_labels_path = (
-        config.data_dir + "/emnist-balanced-train-labels-idx1-ubyte"
-    )
-    var test_images_path = (
-        config.data_dir + "/emnist-balanced-test-images-idx3-ubyte"
-    )
-    var test_labels_path = (
-        config.data_dir + "/emnist-balanced-test-labels-idx1-ubyte"
-    )
+    # Load data — real EMNIST, or a tiny in-process synthetic batch in smoke
+    # mode (#5551): smoke skips the dataset load entirely so the training
+    # entrypoint can run per-PR in CI. It checks the MECHANISM (the loop runs
+    # and emits finite, parseable, decreasing loss), not convergence.
+    var train_images: AnyTensor
+    var train_labels: AnyTensor
+    var test_images: AnyTensor
+    var test_labels: AnyTensor
+    if config.smoke:
+        print("Smoke mode: using synthetic data (no dataset load)...")
+        # Enough samples to yield >=2 batches under --max-batches so the CI gate
+        # can assert a decreasing loss trend across batches. Class-correlated
+        # signal makes the loss learnable; labels are RAW uint8 [N]
+        # (train_epoch one-hot-encodes).
+        var num_classes = dataset_info.num_classes()
+        var wanted_batches = config.max_batches if config.max_batches > 0 else 3
+        var n_smoke = wanted_batches * Int(config.batch_size)
+        train_images = zeros([n_smoke, 1, 28, 28], DType.float32)
+        var img_d = train_images._data.bitcast[Float32]()
+        for s in range(n_smoke):
+            var cls = s % num_classes
+            for i in range(1 * 28 * 28):
+                img_d[s * (1 * 28 * 28) + i] = (
+                    Float32(cls) * 0.05 + Float32(i % 5) * 0.01
+                )
+        train_labels = zeros([n_smoke], DType.uint8)
+        var lbl_d = train_labels._data.bitcast[UInt8]()
+        for s in range(n_smoke):
+            lbl_d[s] = UInt8(s % num_classes)
+        # Reuse the same synthetic batch for "test" (eval is not asserted here).
+        test_images = train_images
+        test_labels = train_labels
+    else:
+        print("Loading EMNIST dataset...")
+        var train_images_path = (
+            config.data_dir + "/emnist-balanced-train-images-idx3-ubyte"
+        )
+        var train_labels_path = (
+            config.data_dir + "/emnist-balanced-train-labels-idx1-ubyte"
+        )
+        var test_images_path = (
+            config.data_dir + "/emnist-balanced-test-images-idx3-ubyte"
+        )
+        var test_labels_path = (
+            config.data_dir + "/emnist-balanced-test-labels-idx1-ubyte"
+        )
 
-    var train_images_raw = load_idx_images(train_images_path)
-    var train_labels = load_idx_labels(train_labels_path)
-    var test_images_raw = load_idx_images(test_images_path)
-    var test_labels = load_idx_labels(test_labels_path)
+        var train_images_raw = load_idx_images(train_images_path)
+        train_labels = load_idx_labels(train_labels_path)
+        var test_images_raw = load_idx_images(test_images_path)
+        test_labels = load_idx_labels(test_labels_path)
 
-    # Normalize images to [0, 1]
-    var train_images = normalize_images(train_images_raw)
-    var test_images = normalize_images(test_images_raw)
+        # Normalize images to [0, 1]
+        train_images = normalize_images(train_images_raw)
+        test_images = normalize_images(test_images_raw)
 
     print("  Training samples: ", train_images.shape()[0])
     print("  Test samples: ", test_images.shape()[0])
@@ -469,6 +512,7 @@ def main() raises:
             epoch,
             config.epochs,
             precision_config,
+            max_batches=config.max_batches,
         )
 
         # Evaluate every epoch using shared evaluation module
@@ -489,10 +533,12 @@ def main() raises:
         precision_config.print_stats()
         print()
 
-    # Save model
-    print("Saving model weights...")
-    model.save_weights(config.weights_dir)
-    print("  Model saved to", config.weights_dir)
-    print()
+    # Save model — skipped in smoke mode (#5551): mechanism check, nothing to
+    # persist.
+    if not config.smoke:
+        print("Saving model weights...")
+        model.save_weights(config.weights_dir)
+        print("  Model saved to", config.weights_dir)
+        print()
 
     print("Training complete!")

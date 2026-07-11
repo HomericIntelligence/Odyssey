@@ -1346,3 +1346,80 @@ _test-example-backward-inner:
         fi
     done
     exit $fail
+
+# Run ONE model's training ENTRYPOINT for a few smoke batches on synthetic data
+# (--smoke, no dataset download) and assert the training MECHANISM works
+# (ADR-014, #5551): the entrypoint runs to exit 0 and emits >=2 finite,
+# parseable, full-precision loss lines. NOT a convergence check. The GHA
+# `training-smoke` job runs this per-model via a matrix so wall-clock stays low.
+# Usage: just training-smoke-one resnet18_cifar10 train.mojo
+training-smoke-one example entry:
+    @just _run "just _training-smoke-one-inner '{{example}}' '{{entry}}'"
+
+[private]
+_training-smoke-one-inner example entry:
+    #!/usr/bin/env bash
+    set -uo pipefail
+    REPO_ROOT="$(pwd)"
+    ex="{{example}}"
+    f="examples/$ex/{{entry}}"
+    if [ ! -f "$f" ]; then echo "MISSING (expected): $f"; exit 1; fi
+    echo "=================================================="
+    echo "Training smoke: $f"
+    echo "=================================================="
+    # --epochs 1 is REQUIRED: some models loop `for epoch in range(epochs)`
+    # (default up to 200); --max-batches only caps batches PER epoch. The
+    # {{MOJO_TARGET_CPU}} strip is the #6413 AVX-512 workaround (see MOJO_TARGET_CPU def).
+    out=$(pixi run mojo run --Werror {{MOJO_TARGET_CPU}} \
+            -I "$REPO_ROOT/src" -I "$REPO_ROOT" \
+            -I "$REPO_ROOT/examples/$ex" -Xlinker -lm "$f" \
+            --smoke --max-batches 3 --batch-size 4 --epochs 1 2>&1)
+    rc=$?
+    echo "$out" | grep -iE "Loss:" | head -5
+    if [ $rc -ne 0 ]; then
+        echo "FAILED (exit $rc): $f"
+        echo "$out" | tail -15
+        exit 1
+    fi
+    # Reject non-finite losses. This MUST run against the RAW "Loss:" lines,
+    # BEFORE numeric extraction: the value regex below (`[-0-9.eE]+`) contains
+    # none of n/a/i/f, so it silently strips "nan"/"inf" to "" or a bare "-".
+    # Checking the stripped values would make this guard dead code and let a
+    # diverged run (e.g. "Loss: -inf") pass green — exactly the mechanism
+    # failure ADR-014 is meant to catch.
+    loss_lines=$(echo "$out" | grep -iE "Loss:[[:space:]]*[-+]?(nan|inf|[0-9.])")
+    if echo "$loss_lines" | grep -qiE "Loss:[[:space:]]*[-+]?(nan|inf)([^a-z0-9]|$)"; then
+        echo "FAILED: non-finite loss value: $f"
+        echo "$loss_lines" | grep -iE "nan|inf"
+        exit 1
+    fi
+    # Assert >=2 loss lines, each parseable as a finite float.
+    losses=$(echo "$loss_lines" | grep -oiE "Loss:[[:space:]]*[-+]?[0-9.eE]+" \
+             | grep -oE "[-+]?[0-9.eE]+$")
+    n=$(printf '%s\n' "$losses" | grep -c .)
+    if [ "$n" -lt 2 ]; then
+        echo "FAILED: expected >=2 finite loss lines, got $n: $f"
+        exit 1
+    fi
+    echo "OK: $f ($n finite loss lines)"
+
+# Run the training-smoke check for ALL 8 primary entrypoints locally (serial).
+# CI runs them in parallel via a matrix; use this for a full local check.
+training-smoke-all:
+    #!/usr/bin/env bash
+    set -uo pipefail
+    fail=0
+    ENTRIES=(
+        "resnet18_cifar10 train.mojo"
+        "googlenet_cifar10 train.mojo"
+        "vgg16_cifar10 train.mojo"
+        "mobilenetv1_cifar10 train.mojo"
+        "alexnet_cifar10 run_train.mojo"
+        "mnist train.mojo"
+        "lenet_emnist train.mojo"
+        "lenet_emnist run_train.mojo"
+    )
+    for e in "${ENTRIES[@]}"; do
+        just training-smoke-one $e || fail=1
+    done
+    exit $fail

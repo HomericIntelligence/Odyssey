@@ -65,6 +65,8 @@ struct TrainConfig:
     var learning_rate: Float32
     var data_dir: String
     var weights_dir: String
+    var max_batches: Int
+    var smoke: Bool
 
     def __init__(
         out self,
@@ -73,12 +75,16 @@ struct TrainConfig:
         learning_rate: Float32,
         data_dir: String,
         weights_dir: String,
+        max_batches: Int,
+        smoke: Bool,
     ):
         self.epochs = epochs
         self.batch_size = batch_size
         self.learning_rate = learning_rate
         self.data_dir = data_dir
         self.weights_dir = weights_dir
+        self.max_batches = max_batches
+        self.smoke = smoke
 
 
 def parse_args() raises -> TrainConfig:
@@ -106,8 +112,18 @@ def parse_args() raises -> TrainConfig:
     var learning_rate = Float32(args.get_float("lr", 0.001))
     var data_dir = args.get_string("data-dir", "datasets/mnist")
     var weights_dir = args.get_string("weights-dir", "mnist_weights")
+    var max_batches = args.get_int("max-batches", 0)
+    var smoke = args.get_bool("smoke")
 
-    return TrainConfig(epochs, batch_size, learning_rate, data_dir, weights_dir)
+    return TrainConfig(
+        epochs,
+        batch_size,
+        learning_rate,
+        data_dir,
+        weights_dir,
+        max_batches,
+        smoke,
+    )
 
 
 def compute_gradients(
@@ -269,6 +285,7 @@ def train_epoch(
     learning_rate: Float32,
     epoch: Int,
     total_epochs: Int,
+    max_batches: Int = 0,
 ) raises -> Float32:
     """Train for one epoch using manual batch processing.
 
@@ -280,12 +297,16 @@ def train_epoch(
         learning_rate: Learning rate for SGD.
         epoch: Current epoch number (1-indexed).
         total_epochs: Total number of epochs.
+        max_batches: Cap batches this epoch (0 = unbounded); used by --smoke /
+            --max-batches to bound a per-PR run (#5551).
 
     Returns:
         Average loss for the epoch.
     """
     var num_samples = train_images.shape()[0]
     var num_batches = (num_samples + batch_size - 1) // batch_size
+    if max_batches > 0 and max_batches < num_batches:
+        num_batches = max_batches
     var total_loss = Float32(0.0)
 
     # Manual batch processing
@@ -357,7 +378,7 @@ def train_epoch(
         total_loss += batch_loss
 
         # Log progress every 100 batches
-        if (batch_idx + 1) % 100 == 0:
+        if (batch_idx + 1) % 100 == 0 or num_batches <= 10:
             var avg_loss_so_far = total_loss / Float32(batch_idx + 1)
             print(
                 "  Epoch [",
@@ -388,6 +409,8 @@ def main() raises:
     var learning_rate = config.learning_rate
     var data_dir = config.data_dir
     var weights_dir = config.weights_dir
+    var max_batches = config.max_batches
+    var smoke = config.smoke
 
     print("\nConfiguration:")
     print("  Epochs: ", epochs)
@@ -403,21 +426,52 @@ def main() raises:
     print("  Model initialized for 10 classes (digits 0-9)")
     print()
 
-    # Load dataset
-    print("Loading MNIST dataset...")
-    var train_images_path = data_dir + "/train-images-idx3-ubyte"
-    var train_labels_path = data_dir + "/train-labels-idx1-ubyte"
-    var test_images_path = data_dir + "/t10k-images-idx3-ubyte"
-    var test_labels_path = data_dir + "/t10k-labels-idx1-ubyte"
+    # Load data — real MNIST, or a tiny in-process synthetic batch in smoke
+    # mode (#5551): smoke skips the dataset load entirely so the training
+    # entrypoint can run per-PR in CI. It checks the MECHANISM (the loop runs
+    # and emits finite, parseable, decreasing loss), not convergence.
+    var train_images: AnyTensor
+    var train_labels: AnyTensor
+    var test_images: AnyTensor
+    var test_labels: AnyTensor
+    if smoke:
+        print("Smoke mode: using synthetic data (no dataset load)...")
+        # Enough samples to yield >=2 batches under --max-batches so the CI gate
+        # can assert a decreasing loss trend across batches. Class-correlated
+        # signal makes the loss learnable; labels are RAW uint8 [N]
+        # (train_epoch one-hot-encodes).
+        var wanted_batches = max_batches if max_batches > 0 else 3
+        var n_smoke = wanted_batches * Int(batch_size)
+        train_images = zeros([n_smoke, 1, 28, 28], DType.float32)
+        var img_d = train_images._data.bitcast[Float32]()
+        for s in range(n_smoke):
+            var cls = s % DEFAULT_NUM_CLASSES
+            for i in range(1 * 28 * 28):
+                img_d[s * (1 * 28 * 28) + i] = (
+                    Float32(cls) * 0.05 + Float32(i % 5) * 0.01
+                )
+        train_labels = zeros([n_smoke], DType.uint8)
+        var lbl_d = train_labels._data.bitcast[UInt8]()
+        for s in range(n_smoke):
+            lbl_d[s] = UInt8(s % DEFAULT_NUM_CLASSES)
+        # Reuse the same synthetic batch for "test" (eval is not asserted here).
+        test_images = train_images
+        test_labels = train_labels
+    else:
+        print("Loading MNIST dataset...")
+        var train_images_path = data_dir + "/train-images-idx3-ubyte"
+        var train_labels_path = data_dir + "/train-labels-idx1-ubyte"
+        var test_images_path = data_dir + "/t10k-images-idx3-ubyte"
+        var test_labels_path = data_dir + "/t10k-labels-idx1-ubyte"
 
-    var train_images_raw = load_idx_images(train_images_path)
-    var train_labels = load_idx_labels(train_labels_path)
-    var test_images_raw = load_idx_images(test_images_path)
-    var test_labels = load_idx_labels(test_labels_path)
+        var train_images_raw = load_idx_images(train_images_path)
+        train_labels = load_idx_labels(train_labels_path)
+        var test_images_raw = load_idx_images(test_images_path)
+        test_labels = load_idx_labels(test_labels_path)
 
-    # Normalize images to [0, 1]
-    var train_images = normalize_images(train_images_raw)
-    var test_images = normalize_images(test_images_raw)
+        # Normalize images to [0, 1]
+        train_images = normalize_images(train_images_raw)
+        test_images = normalize_images(test_images_raw)
 
     print("  Training samples: ", train_images.shape()[0])
     print("  Test samples: ", test_images.shape()[0])
@@ -434,6 +488,7 @@ def main() raises:
             learning_rate,
             epoch,
             epochs,
+            max_batches=max_batches,
         )
 
         # Evaluate every epoch using shared evaluation module
@@ -448,11 +503,14 @@ def main() raises:
         print("  Test Accuracy: ", test_acc * 100.0, "%")
         print()
 
-    # Save model
-    print("Saving model weights...")
-    model.save_weights(weights_dir)
-    print("  Model saved to", weights_dir)
-    print()
+    # Save model — skipped in smoke mode (#5551): a smoke run is a mechanism
+    # check, so there is nothing to persist, and it avoids an unrelated
+    # weights-serialization path.
+    if not smoke:
+        print("Saving model weights...")
+        model.save_weights(weights_dir)
+        print("  Model saved to", weights_dir)
+        print()
 
     print("Training complete!")
     print(

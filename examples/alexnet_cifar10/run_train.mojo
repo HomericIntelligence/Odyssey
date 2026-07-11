@@ -56,11 +56,14 @@ from projectodyssey.data.constants import DatasetInfo
 from std.collections import List
 
 
-def parse_args() raises -> Tuple[Int, Int, Float32, Float32, String, String]:
+def parse_args() raises -> (
+    Tuple[Int, Int, Float32, Float32, String, String, Int, Bool]
+):
     """Parse command line arguments using enhanced argument parser.
 
     Returns:
-        Tuple of (epochs, batch_size, learning_rate, momentum, data_dir, weights_dir).
+        Tuple of (epochs, batch_size, learning_rate, momentum, data_dir,
+        weights_dir, max_batches, smoke).
     """
     var parser = create_training_parser()
     parser.add_argument("weights-dir", "string", "alexnet_weights")
@@ -73,8 +76,19 @@ def parse_args() raises -> Tuple[Int, Int, Float32, Float32, String, String]:
     var momentum = Float32(args.get_float("momentum", 0.9))
     var data_dir = args.get_string("data-dir", "datasets/cifar10")
     var weights_dir = args.get_string("weights-dir", "alexnet_weights")
+    var max_batches = args.get_int("max-batches", 0)
+    var smoke = args.get_bool("smoke")
 
-    return (epochs, batch_size, learning_rate, momentum, data_dir, weights_dir)
+    return (
+        epochs,
+        batch_size,
+        learning_rate,
+        momentum,
+        data_dir,
+        weights_dir,
+        max_batches,
+        smoke,
+    )
 
 
 def compute_gradients(
@@ -442,6 +456,7 @@ def train_epoch(
     epoch: Int,
     total_epochs: Int,
     mut velocities: List[AnyTensor],
+    max_batches: Int = 0,
 ) raises -> Float32:
     """Train for one epoch with manual batch iteration.
 
@@ -458,12 +473,16 @@ def train_epoch(
         epoch: Current epoch number (1-indexed).
         total_epochs: Total number of epochs.
         velocities: Momentum velocities for each parameter.
+        max_batches: Cap batches this epoch (0 = unbounded); used by --smoke /
+            --max-batches to bound a per-PR run (#5551).
 
     Returns:
         Average loss for the epoch.
     """
     var num_samples = train_images.shape()[0]
     var num_batches = (num_samples + batch_size - 1) // batch_size
+    if max_batches > 0 and max_batches < num_batches:
+        num_batches = max_batches
     var total_loss = Float32(0.0)
     var log_interval = 100
 
@@ -495,7 +514,7 @@ def train_epoch(
         total_loss += batch_loss
 
         # Print progress every log_interval batches
-        if (batch_idx + 1) % log_interval == 0:
+        if (batch_idx + 1) % log_interval == 0 or num_batches <= 10:
             var avg_loss = total_loss / Float32(batch_idx + 1)
             print(
                 "  Batch [",
@@ -602,6 +621,8 @@ def main() raises:
     var momentum = config[3]
     var data_dir = config[4]
     var weights_dir = config[5]
+    var max_batches = config[6]
+    var smoke = config[7]
 
     print("\nConfiguration:")
     print("  Epochs: ", epochs)
@@ -628,16 +649,47 @@ def main() raises:
     print("  Velocities initialized for 16 parameters")
     print()
 
-    # Load dataset
-    print("Loading CIFAR-10 dataset...")
-    var dataset = CIFAR10Dataset(data_dir)
-    var train_data = dataset.get_train_data()
-    var train_images = train_data[0]
-    var train_labels = train_data[1]
+    # Load data — real CIFAR-10, or a tiny in-process synthetic batch in smoke
+    # mode (#5551): smoke skips the dataset download entirely so the training
+    # entrypoint can run per-PR in CI. It checks the MECHANISM (the loop runs
+    # and emits finite, parseable, decreasing loss), not convergence.
+    var train_images: AnyTensor
+    var train_labels: AnyTensor
+    var test_images: AnyTensor
+    var test_labels: AnyTensor
+    if smoke:
+        print("Smoke mode: using synthetic data (no dataset download)...")
+        # Enough samples to yield >=2 batches under --max-batches so the CI gate
+        # can assert a decreasing loss trend across batches. Class-correlated
+        # signal makes the loss learnable; labels are RAW uint8 [N]
+        # (train_epoch one-hot-encodes).
+        var wanted_batches = max_batches if max_batches > 0 else 3
+        var n_smoke = wanted_batches * Int(batch_size)
+        train_images = zeros([n_smoke, 3, 32, 32], DType.float32)
+        var img_d = train_images._data.bitcast[Float32]()
+        for s in range(n_smoke):
+            var cls = s % 10
+            for i in range(3 * 32 * 32):
+                img_d[s * (3 * 32 * 32) + i] = (
+                    Float32(cls) * 0.05 + Float32(i % 5) * 0.01
+                )
+        train_labels = zeros([n_smoke], DType.uint8)
+        var lbl_d = train_labels._data.bitcast[UInt8]()
+        for s in range(n_smoke):
+            lbl_d[s] = UInt8(s % 10)
+        # Reuse the same synthetic batch for "test" (eval is not asserted here).
+        test_images = train_images
+        test_labels = train_labels
+    else:
+        print("Loading CIFAR-10 dataset...")
+        var dataset = CIFAR10Dataset(data_dir)
+        var train_data = dataset.get_train_data()
+        train_images = train_data[0]
+        train_labels = train_data[1]
 
-    var test_data = dataset.get_test_data()
-    var test_images = test_data[0]
-    var test_labels = test_data[1]
+        var test_data = dataset.get_test_data()
+        test_images = test_data[0]
+        test_labels = test_data[1]
 
     print("  Training samples: ", train_images.shape()[0])
     print("  Test samples: ", test_images.shape()[0])
@@ -667,17 +719,20 @@ def main() raises:
             epoch,
             epochs,
             velocities,
+            max_batches=max_batches,
         )
 
         # Evaluate every epoch
         var test_acc = evaluate(model, test_images, test_labels)
         print()
 
-    # Save model
-    print("Saving model weights...")
-    model.save_weights(weights_dir)
-    print("  Model saved to", weights_dir)
-    print()
+    # Save model — skipped in smoke mode (#5551): mechanism check, nothing to
+    # persist.
+    if not smoke:
+        print("Saving model weights...")
+        model.save_weights(weights_dir)
+        print("  Model saved to", weights_dir)
+        print()
 
     print("Training complete!")
     print(
