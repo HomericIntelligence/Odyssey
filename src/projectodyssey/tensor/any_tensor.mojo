@@ -2181,7 +2181,8 @@ struct AnyTensor(
     def to_mxfp4(self) raises -> AnyTensor:
         """Convert tensor values to MXFP4 blocked format.
 
-        This method converts a tensor of any floating-point dtype to MXFP4 format,
+        This method converts a float16/float32/float64 tensor to MXFP4 format
+        (bfloat16 is rejected — see Raises),
         stored as uint8 blocks. Values are packed into 32-element blocks, each with
         a shared E8M0 scale.
 
@@ -2189,7 +2190,8 @@ struct AnyTensor(
             A new AnyTensor with dtype=uint8 containing MXFP4-encoded blocks.
 
         Raises:
-            Error: If the source tensor is not a floating-point dtype.
+            Error: If the source tensor is bfloat16 (rejected up front, #5564),
+                or is not a float16/float32/float64 dtype.
 
         Examples:
             # Aligned size (32 elements = 1 block)
@@ -2271,7 +2273,8 @@ struct AnyTensor(
     def to_nvfp4(self) raises -> AnyTensor:
         """Convert tensor values to NVFP4 blocked format.
 
-        This method converts a tensor of any floating-point dtype to NVFP4 format,
+        This method converts a float16/float32/float64 tensor to NVFP4 format
+        (bfloat16 is rejected — see Raises),
         stored as uint8 blocks. Values are packed into 16-element blocks, each with
         a shared E4M3 scale.
 
@@ -2279,7 +2282,8 @@ struct AnyTensor(
             A new AnyTensor with dtype=uint8 containing NVFP4-encoded blocks.
 
         Raises:
-            Error: If the source tensor is not a floating-point dtype.
+            Error: If the source tensor is bfloat16 (rejected up front, #5564),
+                or is not a float16/float32/float64 dtype.
 
         Examples:
         ```

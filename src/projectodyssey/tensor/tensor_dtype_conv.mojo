@@ -251,15 +251,17 @@ def _convert_to_block_quant_impl[
     is_mxfp4=False: 16-elem blocks, 9 bytes each (NVFP4).
 
     Supported source dtypes: float16, float32, float64. bfloat16 is rejected up
-    front (#5564) for consistency with to_fp8()/to_bf8(): the bfloat16 -> Float32
-    intermediate does not correctly round-trip in this Mojo version, so a
-    bfloat16 block-quant would silently produce wrong values. Previously
-    bfloat16 passed this outer guard but hit the inner dispatch's `else: raise`
-    — an accept-then-raise asymmetry; rejecting here makes the guard and dispatch
-    consistent with a single clear error.
+    front (#5564), matching to_fp8()/to_bf8() which reject it for the same
+    reason recorded in _convert_to_fp8_family_impl (an unreliable bfloat16
+    Float32-intermediate conversion path). Previously bfloat16 passed this outer
+    guard but hit the inner dispatch's `else: raise` — an accept-then-raise
+    asymmetry; rejecting here makes the guard and dispatch consistent with a
+    single clear error, and keeps block-quant's bfloat16 policy identical to the
+    FP8/BF8 family rather than adding a separately-behaving bfloat16 path.
     """
-    # Reject bfloat16 explicitly (mirrors _convert_to_fp8_family_impl) — its
-    # Float32 intermediate is not round-trip-correct here (#5564).
+    # Reject bfloat16 up front, mirroring _convert_to_fp8_family_impl (#5564).
+    # The error text is kept identical to that family so bfloat16 behaves
+    # uniformly across the FP8/BF8/block-quant conversions.
     if tensor._dtype == DType.bfloat16:
         raise Error(
             fmt_name

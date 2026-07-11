@@ -284,4 +284,4 @@ def main() raises:
     test_to_nvfp4_rejects_bfloat16_at_outer_guard()
     test_to_int8_multi_element()
     test_to_uint8_multi_element()
-    print("All 14 AnyTensor dtype conversion tests passed!")
+    print("All 16 AnyTensor dtype conversion tests passed!")
