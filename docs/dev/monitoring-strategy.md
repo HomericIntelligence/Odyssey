@@ -9,15 +9,15 @@
 
 | Metric | Where Collected | Why |
 | --- | --- | --- |
-| Training loss (batch + epoch avg) | `src/projectodyssey/training/metrics/loss_tracker.mojo` — `LossTracker` / `Statistics` | Primary signal of learning |
-| Validation accuracy | `src/projectodyssey/training/metrics/accuracy.mojo` — `top1_accuracy` | Generalization health |
-| Global gradient norm (pre-clip) | `src/projectodyssey/training/gradient_clipping.mojo` — `compute_gradient_norm_list` | Exploding gradient early warning |
-| Per-component loss | `src/projectodyssey/training/metrics/loss_tracker.mojo` — multi-component support | Diagnose regularization vs reconstruction |
-| CSV metric log | `src/projectodyssey/training/metrics/csv_metrics_logger.mojo` — `CSVMetricsLogger` | Offline analysis / plotting |
+| Training loss (batch + epoch avg) | `src/odyssey/training/metrics/loss_tracker.mojo` — `LossTracker` / `Statistics` | Primary signal of learning |
+| Validation accuracy | `src/odyssey/training/metrics/accuracy.mojo` — `top1_accuracy` | Generalization health |
+| Global gradient norm (pre-clip) | `src/odyssey/training/gradient_clipping.mojo` — `compute_gradient_norm_list` | Exploding gradient early warning |
+| Per-component loss | `src/odyssey/training/metrics/loss_tracker.mojo` — multi-component support | Diagnose regularization vs reconstruction |
+| CSV metric log | `src/odyssey/training/metrics/csv_metrics_logger.mojo` — `CSVMetricsLogger` | Offline analysis / plotting |
 
 ## What Is Already Collected
 
-The metrics package (`src/projectodyssey/training/metrics/`) collects the following at training time:
+The metrics package (`src/odyssey/training/metrics/`) collects the following at training time:
 
 - **`LossTracker`** — circular-buffer moving average, Welford variance, min/max/mean/std
   per component. Supports arbitrary named loss components.
@@ -105,8 +105,8 @@ If you need time-series dashboards, read the CSV files with a sidecar scraper
 ## Integration Pattern
 
 ```mojo
-from projectodyssey.training.metrics.csv_metrics_logger import CSVMetricsLogger
-from projectodyssey.training.gradient_clipping import clip_gradients_by_global_norm
+from odyssey.training.metrics.csv_metrics_logger import CSVMetricsLogger
+from odyssey.training.gradient_clipping import clip_gradients_by_global_norm
 
 # Setup
 var logger = CSVMetricsLogger("logs/run1")
@@ -125,8 +125,8 @@ if isnan(epoch_loss) or grad_norm > 100.0:
 
 ## See Also
 
-- `src/projectodyssey/training/metrics/` — all metric implementations
-- `src/projectodyssey/training/gradient_clipping.mojo` — `compute_gradient_norm_list`,
+- `src/odyssey/training/metrics/` — all metric implementations
+- `src/odyssey/training/gradient_clipping.mojo` — `compute_gradient_norm_list`,
   `compute_gradient_statistics`
 - `docs/dev/testing-strategy.md` — tier-1/tier-2 test strategy
 - GitHub issue #5318 — original audit finding

@@ -8,12 +8,12 @@ Usage:
 See documentation: docs/advanced/custom-layers.md
 """
 
-from projectodyssey.core.module import Module
-from projectodyssey.core.layers import Linear
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import randn
-from projectodyssey.core.activation import softmax
-from projectodyssey.core.matrix import matmul, transpose
+from odyssey.core.module import Module
+from odyssey.core.layers import Linear
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import randn
+from odyssey.core.activation import softmax
+from odyssey.core.matrix import matmul, transpose
 
 
 struct MultiHeadAttention(Module):

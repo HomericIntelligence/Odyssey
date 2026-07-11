@@ -8,7 +8,7 @@ Tests cover:
 """
 
 
-from tests.projectodyssey.conftest import (
+from tests.odyssey.conftest import (
     assert_all_values,
     assert_almost_equal,
     assert_dim,
@@ -16,9 +16,9 @@ from tests.projectodyssey.conftest import (
     assert_equal_int,
     assert_numel,
 )
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import full, ones, zeros
-from projectodyssey.core.arithmetic import (
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import full, ones, zeros
+from odyssey.core.arithmetic import (
     add,
     add_backward,
     divide,

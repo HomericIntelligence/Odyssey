@@ -13,7 +13,7 @@ run_in_container() {
         bash -lc "$*"
     else
         # Host path: podman compose exec (not docker)
-        podman compose exec -T projectodyssey-dev bash -lc "$*"
+        podman compose exec -T odyssey-dev bash -lc "$*"
     fi
 }
 
@@ -34,7 +34,7 @@ if [ ! -d "datasets/cifar10" ] || [ -z "$(ls -A datasets/cifar10 2>/dev/null)" ]
 fi
 
 # Run one epoch — tee stdout+stderr, preserve Mojo exit code via PIPESTATUS.
-# Note: -I src is required so mojo can find the projectodyssey package
+# Note: -I src is required so mojo can find the odyssey package
 run_in_container "cd /workspace && pixi run mojo run -I src -I . examples/mobilenetv1_cifar10/train.mojo --epochs 1 --batch-size 128 --lr 0.01 --data-dir datasets/cifar10" 2>&1 | tee -a "$LOG"
 MOJO_RC=${PIPESTATUS[0]}
 

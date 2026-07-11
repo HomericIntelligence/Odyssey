@@ -11,8 +11,8 @@ by separating data preparation from training iterations. Future versions
 can be upgraded to async when Mojo adds these primitives.
 
 Example:
-    from projectodyssey.data import AnyTensorDataset, BatchLoader, RandomSampler
-    from projectodyssey.data.prefetch import PrefetchDataLoader
+    from odyssey.data import AnyTensorDataset, BatchLoader, RandomSampler
+    from odyssey.data.prefetch import PrefetchDataLoader
 
     var dataset = AnyTensorDataset(images, labels)
     var sampler = RandomSampler(dataset.__len__())
@@ -20,10 +20,10 @@ Example:
     var prefetch_loader = PrefetchDataLoader(loader, prefetch_factor=2)
 """
 
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.data.loaders import Batch, BatchLoader
-from projectodyssey.data.datasets import Dataset
-from projectodyssey.data.samplers import Sampler
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.data.loaders import Batch, BatchLoader
+from odyssey.data.datasets import Dataset
+from odyssey.data.samplers import Sampler
 
 
 struct PrefetchBuffer(Copyable, Movable):

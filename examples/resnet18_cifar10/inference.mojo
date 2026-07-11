@@ -3,12 +3,12 @@
 This script loads a trained ResNet-18 model and evaluates it on the CIFAR-10 test set.
 
 Shared Modules Used:
-    - projectodyssey.core: Tensor operations and AnyTensor type
-    - projectodyssey.data: Batch extraction and data utilities
-    - projectodyssey.data.datasets: CIFAR-10 test set loading
-    - projectodyssey.training.metrics: Evaluation and accuracy computation
-    - projectodyssey.utils.arg_parser: Command-line argument parsing
-    - projectodyssey.utils.serialization: Model weight loading
+    - odyssey.core: Tensor operations and AnyTensor type
+    - odyssey.data: Batch extraction and data utilities
+    - odyssey.data.datasets: CIFAR-10 test set loading
+    - odyssey.training.metrics: Evaluation and accuracy computation
+    - odyssey.utils.arg_parser: Command-line argument parsing
+    - odyssey.utils.serialization: Model weight loading
 
 Usage:
     # Evaluate on test set
@@ -18,28 +18,28 @@ Usage:
     mojo run examples/resnet18_cifar10/inference.mojo --weights-dir resnet18_weights --samples 100
 
 Features:
-    - Loads saved model weights via projectodyssey.utils.serialization
+    - Loads saved model weights via odyssey.utils.serialization
     - Evaluates accuracy on CIFAR-10 test set using shared metrics
-    - Reports per-class accuracy using projectodyssey.training.metrics
+    - Reports per-class accuracy using odyssey.training.metrics
     - Inference mode (no training, no batch norm running stats updates)
 """
 
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros
-from projectodyssey.data.batch_utils import (
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros
+from odyssey.data.batch_utils import (
     compute_num_batches,
     extract_batch_pair,
 )
-from projectodyssey.data.constants import DatasetInfo
-from projectodyssey.data.datasets import CIFAR10Dataset
-from projectodyssey.training.metrics import (
+from odyssey.data.constants import DatasetInfo
+from odyssey.data.datasets import CIFAR10Dataset
+from odyssey.training.metrics import (
     evaluate_with_predict,
     top1_accuracy,
     per_class_accuracy,
     evaluate_logits_batch,
 )
-from projectodyssey.utils.arg_parser import ArgumentParser, ArgumentSpec
-from projectodyssey.utils.serialization import load_tensor
+from odyssey.utils.arg_parser import ArgumentParser, ArgumentSpec
+from odyssey.utils.serialization import load_tensor
 from model import ResNet18
 
 
@@ -245,14 +245,14 @@ def print_detailed_results(
 def main() raises:
     """Main inference entry point.
 
-    Integrates command-line argument parsing via projectodyssey.utils.arg_parser.
+    Integrates command-line argument parsing via odyssey.utils.arg_parser.
     """
     print("=" * 60)
     print("ResNet-18 Inference on CIFAR-10")
     print("=" * 60)
     print()
 
-    # Parse command-line arguments using projectodyssey.utils.arg_parser
+    # Parse command-line arguments using odyssey.utils.arg_parser
     var parser = ArgumentParser()
 
     # Add inference arguments with defaults

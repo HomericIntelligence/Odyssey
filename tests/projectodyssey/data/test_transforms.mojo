@@ -8,16 +8,16 @@ Tests cover:
 """
 
 
-from tests.projectodyssey.conftest import (
+from tests.odyssey.conftest import (
     assert_true,
     assert_equal,
     assert_not_equal,
     assert_close_float,
     TestFixtures,
 )
-from projectodyssey.data.transforms import Compose, Normalize, Reshape
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.data.datasets import AnyTensorDataset
+from odyssey.data.transforms import Compose, Normalize, Reshape
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.data.datasets import AnyTensorDataset
 
 
 def test_compose_empty_pipeline() raises:

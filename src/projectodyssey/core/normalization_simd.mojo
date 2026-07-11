@@ -15,7 +15,7 @@ Design:
 - SIMD-accelerated parallel reductions for gradient computation
 
 Usage:
-    from projectodyssey.core.normalization_simd import batch_norm2d_fused
+    from odyssey.core.normalization_simd import batch_norm2d_fused
 
     var x = randn([16, 64, 32, 32], DType.float32)
     var gamma = ones([64], DType.float32)
@@ -36,14 +36,14 @@ Related:
 
 from std.algorithm import vectorize
 from std.sys.info import simd_width_of
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import (
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import (
     zeros,
     zeros_like,
     ones_like,
     full_like,
 )
-from projectodyssey.core.scalar_ops import sqrt_scalar_f32, sqrt_scalar_f64
+from odyssey.core.scalar_ops import sqrt_scalar_f32, sqrt_scalar_f64
 
 
 # ============================================================================
@@ -99,7 +99,7 @@ def batch_norm2d_fused_inference(
         )
         ```
     """
-    from projectodyssey.core.normalization import batch_norm2d
+    from odyssey.core.normalization import batch_norm2d
 
     var result = AnyTensor(x.shape(), x._dtype)
 
@@ -302,7 +302,7 @@ def batch_norm2d_fused(
         )
         ```
     """
-    from projectodyssey.core.normalization import batch_norm2d
+    from odyssey.core.normalization import batch_norm2d
 
     if not training:
         # Use single-pass fused inference

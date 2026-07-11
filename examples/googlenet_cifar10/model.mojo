@@ -19,9 +19,9 @@ References:
     https://arxiv.org/abs/1409.4842
 """
 
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros
-from projectodyssey.core import (
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros
+from odyssey.core import (
     conv2d,
     conv2d_backward,
     maxpool2d,
@@ -35,10 +35,10 @@ from projectodyssey.core import (
     xavier_normal,
     constant,
 )
-from projectodyssey.core.arithmetic import add
-from projectodyssey.core.linear import linear
-from projectodyssey.core.dropout import dropout
-from projectodyssey.utils.serialization import save_tensor, load_tensor
+from odyssey.core.arithmetic import add
+from odyssey.core.linear import linear
+from odyssey.core.dropout import dropout
+from odyssey.utils.serialization import save_tensor, load_tensor
 
 
 struct InceptionModule:

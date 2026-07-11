@@ -11,10 +11,10 @@ Test Coverage:
 - Metadata persistence: Epoch, metrics stored correctly
 """
 
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros, ones
-from projectodyssey.training.checkpoint import CheckpointManager
-from projectodyssey.testing.assertions import (
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros, ones
+from odyssey.training.checkpoint import CheckpointManager
+from odyssey.testing.assertions import (
     assert_true,
     assert_equal_int,
     assert_close_float,

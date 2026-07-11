@@ -61,7 +61,7 @@ def _convert_to_fp8_family_impl[
 
 def convert_to_fp8_impl(tensor: AnyTensor) raises -> AnyTensor:
     """Convert tensor to FP8 E4M3 format."""
-    from projectodyssey.core.types.dtype_aliases import FP8
+    from odyssey.core.types.dtype_aliases import FP8
 
     return _convert_to_fp8_family_impl[FP8](tensor, "to_fp8()")
 
@@ -72,7 +72,7 @@ def from_fp8_impl(tensor: AnyTensor) raises -> AnyTensor:
     This method interprets a uint8 tensor as FP8 E4M3 encoded values and
     converts them back to Float32 for computation.
     """
-    from projectodyssey.core.types.dtype_aliases import FP8
+    from odyssey.core.types.dtype_aliases import FP8
 
     # Verify source is uint8
     if tensor._dtype != DType.uint8:
@@ -210,7 +210,7 @@ def to_uint64_impl(tensor: AnyTensor) raises -> AnyTensor:
 
 def to_bf8_impl(tensor: AnyTensor) raises -> AnyTensor:
     """Convert tensor values to BF8 E5M2 format."""
-    from projectodyssey.core.types.dtype_aliases import BF8
+    from odyssey.core.types.dtype_aliases import BF8
 
     return _convert_to_fp8_family_impl[BF8](tensor, "to_bf8()")
 
@@ -221,7 +221,7 @@ def from_bf8_impl(tensor: AnyTensor) raises -> AnyTensor:
     This method interprets a uint8 tensor as BF8 E5M2 encoded values and
     converts them back to Float32 for computation.
     """
-    from projectodyssey.core.types.dtype_aliases import BF8
+    from odyssey.core.types.dtype_aliases import BF8
 
     # Verify source is uint8
     if tensor._dtype != DType.uint8:
@@ -279,7 +279,7 @@ def _convert_to_block_quant_impl[
         raise Error(fmt_name + " requires a floating-point tensor")
 
     comptime if is_mxfp4:
-        from projectodyssey.core.types.mxfp4 import MXFP4Block
+        from odyssey.core.types.mxfp4 import MXFP4Block
 
         comptime block_size = 32
         comptime bytes_per_block = 17
@@ -322,7 +322,7 @@ def _convert_to_block_quant_impl[
             scale_ptr[] = bitcast[DType.uint8, 1](block.scale)[0]
         return result^
     else:
-        from projectodyssey.core.types.nvfp4 import NVFP4Block
+        from odyssey.core.types.nvfp4 import NVFP4Block
 
         comptime block_size = 16
         comptime bytes_per_block = 9
@@ -373,8 +373,8 @@ def from_mxfp4_impl(tensor: AnyTensor) raises -> AnyTensor:
     This method interprets a uint8 tensor as MXFP4 blocks and converts them
     back to Float32 for computation.
     """
-    from projectodyssey.core.types.mxfp4 import MXFP4Block
-    from projectodyssey.core.types.dtype_aliases import E8M0
+    from odyssey.core.types.mxfp4 import MXFP4Block
+    from odyssey.core.types.dtype_aliases import E8M0
 
     # Verify source is uint8
     if tensor._dtype != DType.uint8:
@@ -437,8 +437,8 @@ def from_nvfp4_impl(tensor: AnyTensor) raises -> AnyTensor:
     This method interprets a uint8 tensor as NVFP4 blocks and converts them
     back to Float32 for computation.
     """
-    from projectodyssey.core.types.nvfp4 import NVFP4Block
-    from projectodyssey.core.types.dtype_aliases import FP8
+    from odyssey.core.types.nvfp4 import NVFP4Block
+    from odyssey.core.types.dtype_aliases import FP8
 
     # Verify source is uint8
     if tensor._dtype != DType.uint8:

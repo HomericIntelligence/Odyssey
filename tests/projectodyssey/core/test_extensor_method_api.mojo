@@ -1,14 +1,14 @@
 """Tests for AnyTensor method-style API: split and split_with_indices.
 
 Verifies that the thin wrapper methods on AnyTensor produce identical results
-to the functional implementations in projectodyssey.core.shape. Follows #3243 and #3804.
+to the functional implementations in odyssey.core.shape. Follows #3243 and #3804.
 """
 
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros, ones, full, arange
-from projectodyssey.core.shape import split, split_with_indices
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros, ones, full, arange
+from odyssey.core.shape import split, split_with_indices
 
-from tests.projectodyssey.conftest import (
+from tests.odyssey.conftest import (
     assert_numel,
     assert_dim,
     assert_value_at,

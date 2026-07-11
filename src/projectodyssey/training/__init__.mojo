@@ -12,8 +12,8 @@ Tests require corresponding modules to be implemented first.
 
 Note:
     **Callback Import Limitation**: Due to Mojo's module system, callback types cannot
-    be imported directly from the `projectodyssey.training` parent module. They must be imported
-    directly from the `projectodyssey.training.callbacks` submodule.
+    be imported directly from the `odyssey.training` parent module. They must be imported
+    directly from the `odyssey.training.callbacks` submodule.
 
     This is a known limitation of Mojo's current re-export mechanism — symbols defined
     in a submodule and re-exported via `__init__.mojo` are not always resolvable at the
@@ -22,34 +22,34 @@ Note:
     Incorrect (will fail with a Mojo import error):
 
     ```mojo
-    from projectodyssey.training import EarlyStopping
-    from projectodyssey.training import ModelCheckpoint
-    from projectodyssey.training import LoggingCallback
+    from odyssey.training import EarlyStopping
+    from odyssey.training import ModelCheckpoint
+    from odyssey.training import LoggingCallback
     ```
 
     Correct (import directly from the submodule):
 
     ```mojo
-    from projectodyssey.training.callbacks import EarlyStopping
-    from projectodyssey.training.callbacks import ModelCheckpoint
-    from projectodyssey.training.callbacks import LoggingCallback
+    from odyssey.training.callbacks import EarlyStopping
+    from odyssey.training.callbacks import ModelCheckpoint
+    from odyssey.training.callbacks import LoggingCallback
     ```
 """
 
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.core.traits import Model, Loss, Optimizer
-from projectodyssey.training.trainer_interface import DataLoader
-from projectodyssey.autograd.tape import GradientTape
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.core.traits import Model, Loss, Optimizer
+from odyssey.training.trainer_interface import DataLoader
+from odyssey.autograd.tape import GradientTape
 
 # Package version
-from projectodyssey.version import VERSION
+from odyssey.version import VERSION
 
 # ============================================================================
 # Exports - Training Components
 # ============================================================================
 
 # Export model utilities for weight persistence (Issue #2294)
-from projectodyssey.training.model_utils import (
+from odyssey.training.model_utils import (
     save_model_weights,
     load_model_weights,
     get_model_parameter_names,
@@ -57,17 +57,17 @@ from projectodyssey.training.model_utils import (
 )
 
 # Export gradient operations (Issue #2630)
-from projectodyssey.training.gradient_ops import (
+from odyssey.training.gradient_ops import (
     accumulate_gradient_inplace,
     scale_gradient_inplace,
     zero_gradient_inplace,
 )
 
 # Export checkpoint manager (Issue #2664)
-from projectodyssey.training.checkpoint import CheckpointManager
+from odyssey.training.checkpoint import CheckpointManager
 
 # Export gradient clipping utilities (Issue #2666)
-from projectodyssey.training.gradient_clipping import (
+from odyssey.training.gradient_clipping import (
     clip_gradients_by_global_norm,
     clip_gradients_per_param,
     clip_gradients_by_value_list,
@@ -77,7 +77,7 @@ from projectodyssey.training.gradient_clipping import (
 )
 
 # Export base interfaces and utilities
-from projectodyssey.training.base import (
+from odyssey.training.base import (
     Callback,
     CallbackSignal,
     CONTINUE,
@@ -91,7 +91,7 @@ from projectodyssey.training.base import (
 )
 
 # Export scheduler implementations
-from projectodyssey.training.schedulers import (
+from odyssey.training.schedulers import (
     StepLR,
     CosineAnnealingLR,
     WarmupLR,
@@ -105,9 +105,9 @@ from projectodyssey.training.schedulers import (
 # Export callback implementations
 # Callbacks must be imported directly from submodules due to
 # Mojo re-export limitations (#3754, Mojo v0.26.1). Use:
-#   from projectodyssey.training.callbacks import EarlyStopping
-# NOT from projectodyssey.training import EarlyStopping
-from projectodyssey.training.callbacks import (
+#   from odyssey.training.callbacks import EarlyStopping
+# NOT from odyssey.training import EarlyStopping
+from odyssey.training.callbacks import (
     EarlyStopping,
     ModelCheckpoint,
     LoggingCallback,
@@ -124,12 +124,12 @@ struct TrainingLoopSGD(Movable, Optimizer):
 
     A thin `Optimizer`-trait adapter — `step()`/`zero_grad()` are no-ops
     because `TrainingLoop` performs the actual gradient updates through the
-    autograd tape. Distinct from `projectodyssey.autograd.optimizers.SGD`,
+    autograd tape. Distinct from `odyssey.autograd.optimizers.SGD`,
     the real gradient-based optimizer.
 
     Renamed from `SGD` (issue #5392): two structs both named `SGD` were
-    re-exported into the top-level `projectodyssey` namespace, making
-    `from projectodyssey import SGD` an ambiguous import under `--Werror`.
+    re-exported into the top-level `odyssey` namespace, making
+    `from odyssey import SGD` an ambiguous import under `--Werror`.
     """
 
     var learning_rate: Float32
@@ -220,8 +220,8 @@ struct MSELoss(Loss, Movable):
 
         Computes: MSE = mean((pred - target)^2) or sum((pred - target)^2).
         """
-        from projectodyssey.core.arithmetic import subtract, multiply
-        from projectodyssey.core.reduction import mean, sum as tensor_sum
+        from odyssey.core.arithmetic import subtract, multiply
+        from odyssey.core.reduction import mean, sum as tensor_sum
 
         # Compute element-wise difference: (pred - target)
         var diff = subtract(pred, target)
@@ -313,7 +313,7 @@ struct TrainingLoop[
             optimizer: Optimizer implementing Optimizer trait.
             loss_fn: Loss function implementing Loss trait.
         """
-        from projectodyssey.autograd.tape import GradientTape
+        from odyssey.autograd.tape import GradientTape
 
         self.model = model^
         self.optimizer = optimizer^
@@ -346,8 +346,8 @@ struct TrainingLoop[
             Uses trait methods for type-safe dispatch.
             Gradient computation via autograd system (GradientTape).
         """
-        from projectodyssey.autograd.variable import Variable
-        from projectodyssey.autograd.optimizers import SGD as AutogradSGD
+        from odyssey.autograd.variable import Variable
+        from odyssey.autograd.optimizers import SGD as AutogradSGD
 
         # Clear tape and enable gradient recording
         self.tape.clear()
@@ -458,10 +458,10 @@ struct TrainingLoop[
 
 
 # Export validation loop
-from projectodyssey.training.loops.validation_loop import ValidationLoop
+from odyssey.training.loops.validation_loop import ValidationLoop
 
 # Export evaluation module (Issue #2352)
-from projectodyssey.training.evaluation import (
+from odyssey.training.evaluation import (
     EvaluationResult,
     evaluate_model,
     evaluate_model_simple,
@@ -469,7 +469,7 @@ from projectodyssey.training.evaluation import (
 )
 
 # Export mixed precision training utilities
-from projectodyssey.training.mixed_precision import (
+from odyssey.training.mixed_precision import (
     GradientScaler,
     convert_to_fp32_master,
     update_model_from_master,
@@ -479,16 +479,16 @@ from projectodyssey.training.mixed_precision import (
 )
 
 # Export precision configuration
-from projectodyssey.training.precision_config import (
+from odyssey.training.precision_config import (
     PrecisionConfig,
     PrecisionMode,
 )
 
 # Export training configuration (Issue #2602)
-from projectodyssey.training.config import TrainingConfig
+from odyssey.training.config import TrainingConfig
 
 # Export training metrics (Issue #3221)
-from projectodyssey.training.metrics import (
+from odyssey.training.metrics import (
     LossTracker,
     Statistics,
     ComponentTracker,
@@ -530,7 +530,7 @@ struct CrossEntropyLoss(Loss, Movable):
         Raises:
             Error: If operation fails.
         """
-        from projectodyssey.core.loss import cross_entropy
+        from odyssey.core.loss import cross_entropy
 
         return cross_entropy(pred, target)
 
@@ -540,14 +540,14 @@ struct CrossEntropyLoss(Loss, Movable):
 # ============================================================================
 
 # Training script utilities (Issue #3034)
-from projectodyssey.training.script_runner import (
+from odyssey.training.script_runner import (
     StepFn,
     TrainingCallbacks,
     run_epoch_with_batches,
     print_training_header,
     print_dataset_info,
 )
-from projectodyssey.training.dataset_loaders import (
+from odyssey.training.dataset_loaders import (
     DatasetSplit,
     load_emnist_dataset,
     load_cifar10_dataset,

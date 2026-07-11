@@ -12,7 +12,7 @@ refcount (B4). Both types share a `TensorLike` trait interface.
 
 Example:
     ```mojo
-    from projectodyssey.tensor import Tensor
+    from odyssey.tensor import Tensor
 
     var t = Tensor[DType.float32]([3, 4])  # 3x4 float32 tensor
     var val = t[0]  # Returns Scalar[DType.float32]
@@ -22,9 +22,9 @@ Example:
 from std.collections import List
 from std.memory import UnsafePointer, memset_zero, alloc
 from std.io import Writer
-from projectodyssey.base.memory_pool import pooled_alloc, pooled_free
-from projectodyssey.tensor.tensor_traits import TensorLike
-from projectodyssey.tensor.any_tensor import AnyTensor
+from odyssey.base.memory_pool import pooled_alloc, pooled_free
+from odyssey.tensor.tensor_traits import TensorLike
+from odyssey.tensor.any_tensor import AnyTensor
 
 
 # Memory safety constants (match AnyTensor limits)

@@ -1,8 +1,8 @@
 """Unit tests for AnyTensor._normalize_slice_indices helper."""
 
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros
-from tests.projectodyssey.conftest import assert_equal
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros
+from tests.odyssey.conftest import assert_equal
 
 
 def _make_1d(size: Int) raises -> AnyTensor:

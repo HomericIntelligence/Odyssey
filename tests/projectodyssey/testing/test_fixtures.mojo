@@ -1,12 +1,12 @@
-"""Tests for projectodyssey.testing.fixtures module.
+"""Tests for odyssey.testing.fixtures module.
 
 Tests SimpleCNN and LinearModel structs plus the create_test_cnn factory function.
 """
 
 
 from std.testing import assert_true, assert_equal
-from projectodyssey.testing.models import SimpleCNN, LinearModel
-from projectodyssey.testing.fixtures import (
+from odyssey.testing.models import SimpleCNN, LinearModel
+from odyssey.testing.fixtures import (
     assert_tensor_all_finite,
     assert_tensor_dtype,
     assert_tensor_not_all_zeros,
@@ -16,7 +16,7 @@ from projectodyssey.testing.fixtures import (
     create_test_input,
     create_test_targets,
 )
-from projectodyssey.tensor.tensor_creation import ones, zeros
+from odyssey.tensor.tensor_creation import ones, zeros
 
 
 def test_simple_cnn_initialization() raises:

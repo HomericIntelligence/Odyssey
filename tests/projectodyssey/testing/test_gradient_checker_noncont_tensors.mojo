@@ -9,17 +9,17 @@ Issue #3801: Add non-contiguous tensor support to gradient checker
 """
 
 from std.testing import assert_true, assert_false
-from projectodyssey.testing import (
+from odyssey.testing import (
     NumericalForward,
     NumericalBackward,
     check_gradients,
     check_gradients_verbose,
     compute_numerical_gradient,
 )
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros, ones, full, randn
-from projectodyssey.core.shape import as_contiguous
-from projectodyssey.core.matrix import transpose_view
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros, ones, full, randn
+from odyssey.core.shape import as_contiguous
+from odyssey.core.matrix import transpose_view
 
 
 # ============================================================================

@@ -17,15 +17,15 @@ Reference:
     for Massive Batch Training. arXiv preprint arXiv:1708.03888
 """
 
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.core.arithmetic import subtract, multiply, add
-from projectodyssey.core.arithmetic_simd import (
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.core.arithmetic import subtract, multiply, add
+from odyssey.core.arithmetic_simd import (
     subtract_simd,
     multiply_simd,
     add_simd,
 )
-from projectodyssey.tensor.tensor_creation import full_like
-from projectodyssey.core.numerical_safety import compute_tensor_l2_norm
+from odyssey.tensor.tensor_creation import full_like
+from odyssey.core.numerical_safety import compute_tensor_l2_norm
 
 
 def lars_step(
@@ -61,8 +61,8 @@ def lars_step(
 
     Example (LARS with momentum):
         ```mojo
-        from projectodyssey.core import AnyTensor, zeros_like
-        from projectodyssey.training.optimizers import lars_step
+        from odyssey.core import AnyTensor, zeros_like
+        from odyssey.training.optimizers import lars_step
 
         var W = xavier_uniform([784, 128], DType.float32)
         var W_vel = zeros_like(W)

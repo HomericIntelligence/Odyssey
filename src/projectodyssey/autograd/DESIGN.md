@@ -24,7 +24,7 @@ what's currently implemented, what's in progress, and what's deferred.
    - `step()` and `zero_grad()` methods
 
 4. **Integration with existing backward passes**
-   - 27 backward functions in `src/projectodyssey/core/`
+   - 27 backward functions in `src/odyssey/core/`
    - Loss functions with gradients
    - Comprehensive documentation
 

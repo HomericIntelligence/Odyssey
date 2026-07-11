@@ -1,4 +1,4 @@
-"""Tests for top-level optimizer imports from projectodyssey package.
+"""Tests for top-level optimizer imports from odyssey package.
 
 Verifies that AdaGrad, RMSprop, SGD, Adam, and AdamW are all importable
 directly from the top-level `shared` package (Issue #3745).
@@ -8,11 +8,11 @@ Run with: mojo test tests/shared/autograd/test_top_level_optimizer_imports.mojo
 """
 
 from std.testing import assert_true
-from tests.projectodyssey.conftest import assert_almost_equal
+from tests.odyssey.conftest import assert_almost_equal
 
 # ADR-015: This file intentionally validates top-level shared package exports.
 # Do not convert to targeted imports — that would defeat its purpose.
-from projectodyssey import AdaGrad, RMSprop, SGD, Adam, AdamW
+from odyssey import AdaGrad, RMSprop, SGD, Adam, AdamW
 
 
 # ============================================================================

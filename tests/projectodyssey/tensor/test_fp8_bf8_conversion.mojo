@@ -11,8 +11,8 @@ Tests cover:
 """
 
 from std.testing import assert_true, assert_almost_equal
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros
 
 
 def test_fp8_rejects_bfloat16() raises:

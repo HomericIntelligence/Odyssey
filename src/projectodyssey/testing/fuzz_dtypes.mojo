@@ -17,7 +17,7 @@ Supported DTypes:
     - Boolean: bool
 
 Usage:
-    from projectodyssey.testing.fuzz_dtypes import (
+    from odyssey.testing.fuzz_dtypes import (
         DTypeFuzzer,
         get_edge_values,
         get_dtype_range,
@@ -44,7 +44,7 @@ Example:
 """
 
 from std.random import random_float64, seed as random_seed
-from projectodyssey.testing.fuzz_core import SeededRNG
+from odyssey.testing.fuzz_core import SeededRNG
 
 
 # ============================================================================

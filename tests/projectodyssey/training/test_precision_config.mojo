@@ -3,12 +3,12 @@
 """
 
 
-from projectodyssey.training.precision_config import (
+from odyssey.training.precision_config import (
     PrecisionConfig,
     PrecisionMode,
 )
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros, ones
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros, ones
 
 
 def test_precision_mode_values() raises:

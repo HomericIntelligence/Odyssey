@@ -8,21 +8,21 @@ Follow-up from #3236.
 """
 
 
-from tests.projectodyssey.conftest import (
+from tests.odyssey.conftest import (
     assert_almost_equal,
     assert_equal_int,
     assert_false,
     assert_true,
 )
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import arange, full, ones, zeros
-from projectodyssey.core.reduction import (
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import arange, full, ones, zeros
+from odyssey.core.reduction import (
     max_reduce,
     mean,
     min_reduce,
     sum,
 )
-from projectodyssey.core.matrix import transpose_view
+from odyssey.core.matrix import transpose_view
 
 
 def _make_nc_2x3() raises -> AnyTensor:

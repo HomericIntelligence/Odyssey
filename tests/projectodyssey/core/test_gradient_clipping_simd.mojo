@@ -1,12 +1,12 @@
 """Tests for SIMD-vectorized gradient clipping functions."""
 
-from projectodyssey.core import (
+from odyssey.core import (
     clip_grad_value_,
     clip_grad_norm_,
     clip_grad_global_norm_,
 )
-from projectodyssey.tensor.any_tensor import AnyTensor
-from tests.projectodyssey.conftest import (
+from odyssey.tensor.any_tensor import AnyTensor
+from tests.odyssey.conftest import (
     assert_true,
 )
 from std.math import sqrt, abs

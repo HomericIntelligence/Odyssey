@@ -12,7 +12,7 @@ as per architecture decision to use functional design throughout shared library.
 """
 
 
-from tests.projectodyssey.conftest import (
+from tests.odyssey.conftest import (
     TestFixtures,
     assert_almost_equal,
     assert_equal,
@@ -21,14 +21,14 @@ from tests.projectodyssey.conftest import (
     assert_true,
     create_test_vector,
 )
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros, ones, zeros_like
-from projectodyssey.training.optimizers.sgd import sgd_step, sgd_step_simple
-from projectodyssey.training.optimizers.adam import adam_step, adam_step_simple
-from projectodyssey.training.optimizers.adamw import adamw_step
-from projectodyssey.training.optimizers.lion import lion_step, lion_step_simple
-from projectodyssey.training.optimizers.rmsprop import rmsprop_step
-from projectodyssey.training.optimizers.shampoo import (
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros, ones, zeros_like
+from odyssey.training.optimizers.sgd import sgd_step, sgd_step_simple
+from odyssey.training.optimizers.adam import adam_step, adam_step_simple
+from odyssey.training.optimizers.adamw import adamw_step
+from odyssey.training.optimizers.lion import lion_step, lion_step_simple
+from odyssey.training.optimizers.rmsprop import rmsprop_step
+from odyssey.training.optimizers.shampoo import (
     shampoo_step,
     shampoo_step_simple,
     initialize_shampoo_state,

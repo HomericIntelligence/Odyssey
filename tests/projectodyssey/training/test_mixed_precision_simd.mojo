@@ -4,9 +4,9 @@ Tests SIMD-optimized FP16→FP32 and FP32→FP16 conversions with various tensor
 and edge cases.
 """
 
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import full
-from projectodyssey.training.mixed_precision import (
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import full
+from odyssey.training.mixed_precision import (
     convert_to_fp32_master,
     update_model_from_master,
 )

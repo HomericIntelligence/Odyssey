@@ -8,22 +8,22 @@ Follow-up from #3236.
 """
 
 
-from tests.projectodyssey.conftest import (
+from tests.odyssey.conftest import (
     assert_almost_equal,
     assert_equal_int,
     assert_false,
     assert_true,
 )
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros, ones, full, arange
-from projectodyssey.core.arithmetic import (
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros, ones, full, arange
+from odyssey.core.arithmetic import (
     add,
     divide,
     multiply,
     subtract,
 )
-from projectodyssey.core.matrix import transpose_view
-from projectodyssey.core.shape import as_contiguous
+from odyssey.core.matrix import transpose_view
+from odyssey.core.shape import as_contiguous
 
 
 def _make_noncontiguous_2x3() raises -> AnyTensor:

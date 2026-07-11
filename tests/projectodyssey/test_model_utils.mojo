@@ -8,9 +8,9 @@ Tests the model weight save/load functionality including:
 """
 
 from std.testing import assert_true, assert_equal
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros, ones, full
-from projectodyssey.training.model_utils import (
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros, ones, full
+from odyssey.training.model_utils import (
     save_model_weights,
     load_model_weights,
     get_model_parameter_names,

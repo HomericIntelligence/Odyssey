@@ -10,8 +10,8 @@ This module consolidates tensor creation utilities to:
 - Support both fixed seeds and random generation
 
 Example:
-    from projectodyssey.testing import tensor_factory
-    from projectodyssey.core import AnyTensor
+    from odyssey.testing import tensor_factory
+    from odyssey.core import AnyTensor
 
     # Create tensors with unified factory
     var zeros = tensor_factory.zeros_tensor([10, 5], DType.float32)
@@ -27,8 +27,8 @@ Example:
 
 from std.random import random_float64
 from std.math import sqrt, log, cos, sin, pi
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros, ones, full
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros, ones, full
 
 
 # ============================================================================

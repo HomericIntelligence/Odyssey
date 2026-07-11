@@ -5,7 +5,7 @@ values are consistent between both import paths, and numeric values are correct.
 """
 
 from std.testing import assert_true, assert_equal
-from projectodyssey.testing.tolerance_constants import (
+from odyssey.testing.tolerance_constants import (
     GRADIENT_CHECK_EPSILON,
     GRADIENT_CHECK_EPSILON_FLOAT32,
     GRADIENT_CHECK_EPSILON_FLOAT32 as EPSILON_FLOAT32_DIRECT,

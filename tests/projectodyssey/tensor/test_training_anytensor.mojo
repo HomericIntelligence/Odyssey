@@ -13,11 +13,11 @@ Tests cover:
 """
 
 from std.testing import assert_true
-from tests.projectodyssey.conftest import assert_almost_equal
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros, ones
-from projectodyssey.autograd import Variable, GradientTape
-from projectodyssey.autograd.variable import variable_add, variable_sum
+from tests.odyssey.conftest import assert_almost_equal
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros, ones
+from odyssey.autograd import Variable, GradientTape
+from odyssey.autograd.variable import variable_add, variable_sum
 
 
 def test_variable_data_is_anytensor() raises:

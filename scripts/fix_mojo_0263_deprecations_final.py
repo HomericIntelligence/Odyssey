@@ -90,7 +90,7 @@ def main():
     """Process all .mojo files."""
     dry_run = "--check" in sys.argv or "--dry-run" in sys.argv
 
-    base = Path("/home/mvillmow/ProjectOdyssey")
+    base = Path("/home/mvillmow/Odyssey")
 
     if not base.exists():
         print(f"ERROR: Directory {base} does not exist", file=sys.stderr)

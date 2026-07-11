@@ -4,15 +4,15 @@ Tests that CachedDataset correctly caches samples and respects limits.
 """
 
 
-from tests.projectodyssey.conftest import (
+from tests.odyssey.conftest import (
     assert_true,
     assert_equal,
     assert_almost_equal,
 )
-from projectodyssey.data.datasets import AnyTensorDataset
-from projectodyssey.data.cache import CachedDataset
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import ones, zeros
+from odyssey.data.datasets import AnyTensorDataset
+from odyssey.data.cache import CachedDataset
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import ones, zeros
 from std.collections import List
 
 

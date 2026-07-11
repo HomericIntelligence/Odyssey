@@ -13,10 +13,10 @@ Type support:
 
 """
 
-from projectodyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.any_tensor import AnyTensor
 from std.collections import List
-from projectodyssey.training.metrics.base import Metric
-from projectodyssey.core.shape import as_contiguous
+from odyssey.training.metrics.base import Metric
+from odyssey.core.shape import as_contiguous
 
 
 # ============================================================================

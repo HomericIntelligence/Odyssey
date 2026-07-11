@@ -279,7 +279,7 @@ Dropout (p=0.5) is applied to FC layers to prevent overfitting:
 This example follows **Keep It Simple, Stupid** principles:
 
 1. **Minimal Dependencies**: Uses only ML Odyssey shared library
-2. **Functional Design**: Model uses functional ops (conv2d, linear, relu, dropout) from src/projectodyssey/core
+2. **Functional Design**: Model uses functional ops (conv2d, linear, relu, dropout) from src/odyssey/core
 3. **Clear Structure**: Separate files for model, training, and inference
 4. **Simple Interfaces**: Command-line arguments for configuration
 5. **No Over-Engineering**: Direct implementation without unnecessary abstractions

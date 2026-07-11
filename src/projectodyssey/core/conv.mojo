@@ -12,17 +12,17 @@ AnyTensor versions dispatch to typed implementations via ordinal-based table.
 from std.algorithm import parallelize
 from std.collections import List
 
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros
-from projectodyssey.core.gradient_types import (
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros
+from odyssey.core.gradient_types import (
     GradientPair,
     GradientTriple,
     GradientQuad,
     Conv2dNoBiasGradient,
     DepthwiseConv2dNoBiasGradient,
 )
-from projectodyssey.core.parallel_utils import should_parallelize
-from projectodyssey.base.dtype_ordinal import (
+from odyssey.core.parallel_utils import should_parallelize
+from odyssey.base.dtype_ordinal import (
     dtype_to_ordinal,
     DTYPE_FLOAT16,
     DTYPE_FLOAT32,
@@ -372,7 +372,7 @@ def conv2d(
 
         Example:
             ```mojo
-            from projectodyssey.core import AnyTensor, conv2d, zeros, he_uniform
+            from odyssey.core import AnyTensor, conv2d, zeros, he_uniform
 
             # Caller manages state
             var kernel = he_uniform((16, 3, 3, 3), DType.float32)  # 16 filters, 3x3
@@ -421,7 +421,7 @@ def conv2d(
         )
 
     # Compute output dimensions using shape computation helper
-    from projectodyssey.core.shape import conv2d_output_shape, as_contiguous
+    from odyssey.core.shape import conv2d_output_shape, as_contiguous
 
     var (out_h, out_w) = conv2d_output_shape(
         in_height, in_width, kH, kW, stride, padding
@@ -776,7 +776,7 @@ def _conv2d_backward_impl[
     var out_width = grad_out_shape[3]
 
     # Ensure inputs are contiguous before flat-buffer kernel access.
-    from projectodyssey.core.shape import as_contiguous
+    from odyssey.core.shape import as_contiguous
 
     var grad_output_cont = (
         grad_output if grad_output.is_contiguous() else as_contiguous(
@@ -951,7 +951,7 @@ def depthwise_conv2d(
 
         Example:
             ```mojo
-            from projectodyssey.core import depthwise_conv2d, zeros, he_uniform
+            from odyssey.core import depthwise_conv2d, zeros, he_uniform
 
             # Depthwise kernel: one 3x3 filter per channel
             var kernel = he_uniform((32, 1, 3, 3), DType.float32)  # 32 channels
@@ -999,7 +999,7 @@ def depthwise_conv2d(
         )
 
     # Compute output dimensions
-    from projectodyssey.core.shape import conv2d_output_shape, as_contiguous
+    from odyssey.core.shape import conv2d_output_shape, as_contiguous
 
     var (out_h, out_w) = conv2d_output_shape(
         in_height, in_width, kH, kW, stride, padding
@@ -1136,7 +1136,7 @@ def depthwise_conv2d_backward(
 
         Example:
             ```mojo
-            from projectodyssey.core import depthwise_conv2d, depthwise_conv2d_backward
+            from odyssey.core import depthwise_conv2d, depthwise_conv2d_backward
 
             # Forward pass
             var output = depthwise_conv2d(x, kernel, bias, stride, padding)
@@ -1169,7 +1169,7 @@ def depthwise_conv2d_backward(
     var out_width = grad_out_shape[3]
 
     # Ensure inputs are contiguous before flat-buffer kernel access.
-    from projectodyssey.core.shape import as_contiguous
+    from odyssey.core.shape import as_contiguous
 
     var grad_output_cont = (
         grad_output if grad_output.is_contiguous() else as_contiguous(
@@ -1377,7 +1377,7 @@ def depthwise_separable_conv2d(
 
         Example:
             ```mojo
-            from projectodyssey.core import depthwise_separable_conv2d
+            from odyssey.core import depthwise_separable_conv2d
 
             # Input: (batch=1, channels=32, H=28, W=28)
             # Depthwise: (32, 1, 3, 3) - one 3x3 filter per channel

@@ -1,1 +1,1 @@
-"""Tests for the projectodyssey.base package."""
+"""Tests for the odyssey.base package."""

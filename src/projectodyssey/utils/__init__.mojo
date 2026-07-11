@@ -10,7 +10,7 @@ Modules:
 
 Example:
     ```mojo
-    from projectodyssey.utils import Logger, plot_training_curves, load_config
+    from odyssey.utils import Logger, plot_training_curves, load_config
 
     # Create logger
     logger = Logger("training.log")
@@ -28,14 +28,14 @@ See Issue #3033: 4 tests for utils module imports — all tests pass.
 """
 
 # Package version
-from projectodyssey.version import VERSION
+from odyssey.version import VERSION
 
 # ============================================================================
 # Exports - Implemented modules
 # ============================================================================
 
 # Logging utilities
-from projectodyssey.utils.logging import (
+from odyssey.utils.logging import (
     Logger,  # Main logger class
     LogLevel,  # Log level enum
     get_logger,  # Get or create logger
@@ -50,7 +50,7 @@ from projectodyssey.utils.logging import (
 )
 
 # Configuration utilities
-from projectodyssey.utils.config import (
+from odyssey.utils.config import (
     Config,  # Configuration container
     load_config,  # Load from file (YAML/JSON)
     save_config,  # Save to file
@@ -60,7 +60,7 @@ from projectodyssey.utils.config import (
 )
 
 # File I/O utilities
-from projectodyssey.utils.file_io import (
+from odyssey.utils.file_io import (
     Checkpoint,  # Checkpoint container
     save_checkpoint,  # Save model checkpoint
     load_checkpoint,  # Load model checkpoint
@@ -75,7 +75,7 @@ from projectodyssey.utils.file_io import (
 )
 
 # Visualization utilities
-from projectodyssey.utils.visualization import (
+from odyssey.utils.visualization import (
     plot_training_curves,  # Plot loss/accuracy curves
     plot_loss_only,  # Plot single loss curve
     plot_accuracy_only,  # Plot single accuracy curve
@@ -87,7 +87,7 @@ from projectodyssey.utils.visualization import (
 )
 
 # Progress bar utilities
-from projectodyssey.utils.progress_bar import (
+from odyssey.utils.progress_bar import (
     ProgressBar,  # Simple progress bar
     ProgressBarWithMetrics,  # Progress bar with metrics display
     ProgressBarWithETA,  # Progress bar with time estimation
@@ -101,7 +101,7 @@ from projectodyssey.utils.progress_bar import (
 # Example: from random import random_float64, random_si64, seed
 
 # Profiling utilities
-from projectodyssey.utils.profiling import (
+from odyssey.utils.profiling import (
     Timer,  # Context manager for timing
     memory_usage,  # Get current memory usage
     profile_function,  # Profile function execution
@@ -112,7 +112,7 @@ from projectodyssey.utils.profiling import (
 )
 
 # Tensor serialization utilities
-from projectodyssey.utils.serialization import (
+from odyssey.utils.serialization import (
     NamedTensor,  # Named tensor for checkpoint collections
     save_tensor,  # Save single tensor to file
     load_tensor,  # Load tensor from file
@@ -129,7 +129,7 @@ from projectodyssey.utils.serialization import (
 )
 
 # Argument parsing utilities
-from projectodyssey.utils.arg_parser import (
+from odyssey.utils.arg_parser import (
     ArgumentParser,  # Main argument parser class
     ArgumentSpec,  # Argument specification
     ParsedArgs,  # Parsed arguments container
@@ -141,7 +141,7 @@ from projectodyssey.utils.arg_parser import (
 )
 
 # Training argument utilities
-from projectodyssey.utils.training_args import (
+from odyssey.utils.training_args import (
     TrainingArgs,  # Training hyperparameters container
     parse_training_args,  # Parse common training arguments
     parse_training_args_with_defaults,  # Parse with custom defaults
@@ -149,7 +149,7 @@ from projectodyssey.utils.training_args import (
 )
 
 # Inference utilities
-from projectodyssey.utils.inference_utils import (
+from odyssey.utils.inference_utils import (
     InferenceConfig,  # Inference configuration container
     parse_inference_args,  # Parse common inference arguments
     parse_inference_args_with_defaults,  # Parse with custom defaults

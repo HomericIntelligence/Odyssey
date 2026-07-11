@@ -11,14 +11,14 @@ Key components:
              y = gamma * (x - running_mean) / sqrt(running_var + eps) + beta (inference)
 """
 
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import (
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import (
     zeros,
     ones,
     zeros_like,
     ones_like,
 )
-from projectodyssey.core.normalization_simd import batch_norm2d_fused
+from odyssey.core.normalization_simd import batch_norm2d_fused
 
 
 struct BatchNorm2dLayer[dtype: DType = DType.float32](Copyable, Movable):

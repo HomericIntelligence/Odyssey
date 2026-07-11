@@ -18,11 +18,11 @@ Backward Pass Testing:
 - Validates analytical gradients against numerical gradients
 - Tolerances adjusted per dtype (1e-2 for float32)
 - Epsilon for float32 gradient checking: GRADIENT_CHECK_EPSILON_FLOAT32 (imported from
-  projectodyssey.testing.tolerance_constants), chosen to avoid precision loss in matmul
+  odyssey.testing.tolerance_constants), chosen to avoid precision loss in matmul
   operations (see issue #2704)
 
 Usage:
-    from projectodyssey.testing.layer_testers import LayerTester
+    from odyssey.testing.layer_testers import LayerTester
 
     # Test a convolutional layer
     LayerTester.test_conv_layer(
@@ -50,18 +50,18 @@ Usage:
 """
 
 from std.math import isnan, isinf
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros_like, ones_like
-from projectodyssey.core.conv import conv2d, conv2d_backward
-from projectodyssey.core.shape import conv2d_output_shape, pool_output_shape
-from projectodyssey.core.linear import linear, linear_backward
-from projectodyssey.core.normalization import (
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros_like, ones_like
+from odyssey.core.conv import conv2d, conv2d_backward
+from odyssey.core.shape import conv2d_output_shape, pool_output_shape
+from odyssey.core.linear import linear, linear_backward
+from odyssey.core.normalization import (
     batch_norm2d,
     batch_norm2d_backward,
 )
-from projectodyssey.core.pooling import maxpool2d, avgpool2d
-from projectodyssey.core.reduction import sum as tensor_sum
-from projectodyssey.core.activation import (
+from odyssey.core.pooling import maxpool2d, avgpool2d
+from odyssey.core.reduction import sum as tensor_sum
+from odyssey.core.activation import (
     relu,
     sigmoid,
     tanh,
@@ -69,13 +69,13 @@ from projectodyssey.core.activation import (
     sigmoid_backward,
     tanh_backward,
 )
-from projectodyssey.testing.assertions import (
+from odyssey.testing.assertions import (
     assert_shape,
     assert_dtype,
     assert_true,
     assert_false,
 )
-from projectodyssey.testing.special_values import (
+from odyssey.testing.special_values import (
     create_special_value_tensor,
     create_alternating_pattern_tensor,
     create_seeded_random_tensor,
@@ -83,7 +83,7 @@ from projectodyssey.testing.special_values import (
     SPECIAL_VALUE_NEG_ONE,
     SPECIAL_VALUE_NEG_HALF,
 )
-from projectodyssey.testing.gradient_checker import (
+from odyssey.testing.gradient_checker import (
     check_gradients,
     check_gradients_verbose,
     compute_numerical_gradient,

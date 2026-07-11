@@ -26,7 +26,7 @@ Testing Strategy:
 """
 
 
-from tests.projectodyssey.conftest import (
+from tests.odyssey.conftest import (
     assert_almost_equal,
     assert_close_float,
     assert_equal,
@@ -35,20 +35,20 @@ from tests.projectodyssey.conftest import (
     assert_true,
     TestFixtures,
 )
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros, ones, full, randn
-from projectodyssey.core.conv import (
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros, ones, full, randn
+from odyssey.core.conv import (
     conv2d,
     conv2d_backward,
     depthwise_conv2d,
     depthwise_conv2d_backward,
     depthwise_separable_conv2d,
 )
-from projectodyssey.core.activation import relu
-from projectodyssey.core.layers.batchnorm import BatchNorm2dLayer
-from projectodyssey.core.pooling import global_avgpool2d
-from projectodyssey.core.loss import cross_entropy
-from projectodyssey.core.linear import linear
+from odyssey.core.activation import relu
+from odyssey.core.layers.batchnorm import BatchNorm2dLayer
+from odyssey.core.pooling import global_avgpool2d
+from odyssey.core.loss import cross_entropy
+from odyssey.core.linear import linear
 
 
 def test_mobilenetv1_initial_conv() raises:

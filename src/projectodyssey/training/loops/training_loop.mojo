@@ -25,14 +25,14 @@ Design principles:
 
 from std.collections import List
 from std.time import perf_counter_ns
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.training.metrics import AccuracyMetric, LossTracker
-from projectodyssey.training.trainer_interface import (
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.training.metrics import AccuracyMetric, LossTracker
+from odyssey.training.trainer_interface import (
     DataLoader,
     DataBatch,
     TrainingMetrics,
 )
-from projectodyssey.training.interruption import (
+from odyssey.training.interruption import (
     WallClockTimer,
     is_shutdown_requested,
     TrainingResult,

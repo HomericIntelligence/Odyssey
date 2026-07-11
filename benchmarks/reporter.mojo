@@ -4,7 +4,7 @@ Provides utilities for printing benchmark results as formatted tables and
 exporting to JSON format for CI/CD tracking and historical analysis.
 """
 
-from projectodyssey.benchmarking import LegacyBenchmarkResult
+from odyssey.benchmarking import LegacyBenchmarkResult
 
 
 def _str_trunc(s: String, n: Int) -> String:

@@ -5,7 +5,7 @@ enabling flexible and reusable data preprocessing workflows.
 """
 
 
-from tests.projectodyssey.conftest import (
+from tests.odyssey.conftest import (
     assert_true,
     assert_equal,
     assert_not_equal,

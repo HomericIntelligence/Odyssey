@@ -9,7 +9,7 @@ All tests use pure functional API - no internal state.
 """
 
 
-from tests.projectodyssey.conftest import (
+from tests.odyssey.conftest import (
     assert_almost_equal,
     assert_close_float,
     assert_equal,
@@ -17,9 +17,9 @@ from tests.projectodyssey.conftest import (
     assert_less_or_equal,
     assert_true,
 )
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import full, ones, zeros
-from projectodyssey.core.loss_utils import (
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import full, ones, zeros
+from odyssey.core.loss_utils import (
     blend_tensors,
     clip_predictions,
     compute_difference,

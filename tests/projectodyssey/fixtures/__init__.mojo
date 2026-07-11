@@ -3,7 +3,7 @@
 This module provides comprehensive test utilities including:
 - Mock tensor creation and comparison utilities
 - Mock datasets and data loaders
-- Mock model architectures for testing (now consolidated in projectodyssey.testing)
+- Mock model architectures for testing (now consolidated in odyssey.testing)
 - File I/O helpers for temporary files
 - Configuration fixtures for validation testing
 
@@ -14,9 +14,9 @@ All fixtures follow these principles:
 - Minimal dependencies
 
 Usage:
-    from tests.projectodyssey.fixtures.mock_tensors import create_random_tensor
-    from tests.projectodyssey.fixtures.mock_data import MockDataset
-    from projectodyssey.testing import SimpleMLP  # Models now consolidated in projectodyssey.testing
+    from tests.odyssey.fixtures.mock_tensors import create_random_tensor
+    from tests.odyssey.fixtures.mock_data import MockDataset
+    from odyssey.testing import SimpleMLP  # Models now consolidated in odyssey.testing
 
 See individual modules for detailed documentation and examples.
 """

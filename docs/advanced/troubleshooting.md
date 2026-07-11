@@ -140,12 +140,12 @@ pixi shell
 
 **Solution**:
 
-Library files like `src/projectodyssey/core/extensor.mojo` or `src/projectodyssey/training/optimizer.mojo` don't have
+Library files like `src/odyssey/core/extensor.mojo` or `src/odyssey/training/optimizer.mojo` don't have
 a `main()` function. Build the package instead:
 
 ```bash
 # WRONG - Library files don't have main()
-mojo build src/projectodyssey/core/extensor.mojo
+mojo build src/odyssey/core/extensor.mojo
 
 # CORRECT - Build the package
 mojo package shared -o dist/shared-0.1.0.mojopkg
@@ -163,17 +163,17 @@ mojo build -I . examples/train.mojo
 1. Verify the package directory structure exists:
 
 ```bash
-ls -la src/projectodyssey/**init**.mojo
-ls -la src/projectodyssey/core/**init**.mojo
-ls -la src/projectodyssey/training/**init**.mojo
+ls -la src/odyssey/**init**.mojo
+ls -la src/odyssey/core/**init**.mojo
+ls -la src/odyssey/training/**init**.mojo
 ```
 
 1. Use absolute import paths from the repository root:
 
 ```mojo
 # CORRECT - Import from root
-from projectodyssey.core.any_tensor import AnyTensor
-from projectodyssey.training.optimizer import Adam
+from odyssey.core.any_tensor import AnyTensor
+from odyssey.training.optimizer import Adam
 
 # For relative imports within a package, use ..
 # Only valid within the package structure
@@ -190,7 +190,7 @@ mojo build -I . examples/train.mojo
 
 ```bash
 mojo package shared -o dist/shared-0.1.0.mojopkg
-mojo package src/projectodyssey/training -o dist/training-0.1.0.mojopkg
+mojo package src/odyssey/training -o dist/training-0.1.0.mojopkg
 ```
 
 ### Symptom: "error: use of unknown directive" or version mismatch errors
@@ -237,17 +237,17 @@ pixi shell
 Create `**init**.mojo` in all package directories:
 
 ```bash
-touch src/projectodyssey/**init**.mojo
-touch src/projectodyssey/core/**init**.mojo
-touch src/projectodyssey/training/**init**.mojo
-touch src/projectodyssey/data/**init**.mojo
-touch src/projectodyssey/utils/**init**.mojo
+touch src/odyssey/**init**.mojo
+touch src/odyssey/core/**init**.mojo
+touch src/odyssey/training/**init**.mojo
+touch src/odyssey/data/**init**.mojo
+touch src/odyssey/utils/**init**.mojo
 ```
 
 Each `**init**.mojo` should contain version export (if applicable):
 
 ```mojo
-# src/projectodyssey/**init**.mojo
+# src/odyssey/**init**.mojo
 from .version import VERSION
 
 **all** = ["VERSION"]
@@ -765,8 +765,8 @@ fn test_another_case():
 1. Import test utilities:
 
 ```mojo
-from projectodyssey.testing.assertions import assert_equal, assert_true
-from projectodyssey.testing.special_values import get_test_values
+from odyssey.testing.assertions import assert_equal, assert_true
+from odyssey.testing.special_values import get_test_values
 
 fn test_with_assertions():
     """Using test assertions."""
@@ -822,7 +822,7 @@ for value in test_values:
 1. For gradient checking, use seeded randomness:
 
 ```mojo
-from projectodyssey.testing.special_values import seeded_rand
+from odyssey.testing.special_values import seeded_rand
 
 fn test_gradients():
     """Test backward pass with seeded random tensors."""

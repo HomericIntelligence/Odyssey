@@ -10,8 +10,8 @@ All functions work with AnyTensor and follow the pure functional design pattern
 """
 
 from std.collections import List
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.core.shape import as_contiguous
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.core.shape import as_contiguous
 
 
 def _as_contiguous_view(tensor: AnyTensor) raises -> AnyTensor:

@@ -23,7 +23,7 @@ def main():
     # Test 1: Version Info
     # ========================================================================
     print("Test 1: Checking version info...")
-    from projectodyssey import VERSION, AUTHOR, LICENSE
+    from odyssey import VERSION, AUTHOR, LICENSE
 
     print("  ✓ Version:", VERSION)
     print("  ✓ Author:", AUTHOR)
@@ -34,14 +34,14 @@ def main():
     # ========================================================================
     print("\nTest 2: Checking core package...")
     # These imports are commented until implementation completes
-    # from projectodyssey.core import Linear, ReLU, Tensor
+    # from odyssey.core import Linear, ReLU, Tensor
     print("  ✓ Core package accessible (placeholder - awaiting implementation)")
 
     # ========================================================================
     # Test 3: Training Package
     # ========================================================================
     print("\nTest 3: Checking training package...")
-    # from projectodyssey.training import SGD, Adam
+    # from odyssey.training import SGD, Adam
     print(
         "  ✓ Training package accessible (placeholder - awaiting"
         " implementation)"
@@ -51,14 +51,14 @@ def main():
     # Test 4: Data Package
     # ========================================================================
     print("\nTest 4: Checking data package...")
-    # from projectodyssey.data import DataLoader
+    # from odyssey.data import DataLoader
     print("  ✓ Data package accessible (placeholder - awaiting implementation)")
 
     # ========================================================================
     # Test 5: Utils Package
     # ========================================================================
     print("\nTest 5: Checking utils package...")
-    # from projectodyssey.utils import Logger
+    # from odyssey.utils import Logger
     print(
         "  ✓ Utils package accessible (placeholder - awaiting implementation)"
     )
@@ -67,7 +67,7 @@ def main():
     # Test 6: Root Convenience Imports
     # ========================================================================
     print("\nTest 6: Checking root convenience imports...")
-    # from projectodyssey import Linear, SGD
+    # from odyssey import Linear, SGD
     print("  ✓ Root imports accessible (placeholder - awaiting implementation)")
 
     # ========================================================================

@@ -8,7 +8,7 @@ This module provides:
     - Helper functions to access dataset properties
 
 Example:
-    from projectodyssey.data import CIFAR10_CLASS_NAMES, EMNIST_BALANCED_CLASSES, DatasetInfo
+    from odyssey.data import CIFAR10_CLASS_NAMES, EMNIST_BALANCED_CLASSES, DatasetInfo
 
     # Access class names directly
     var cifar10_classes = CIFAR10_CLASS_NAMES()

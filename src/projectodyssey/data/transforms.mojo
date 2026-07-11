@@ -12,11 +12,11 @@ These limitations are due to Mojo's current AnyTensor API not exposing shape met
 Future versions may support arbitrary image dimensions.
 """
 
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros
 from std.math import sqrt, floor, ceil, sin, cos
 from std.random import random_si64
-from projectodyssey.data.random_transform_base import (
+from odyssey.data.random_transform_base import (
     RandomTransformBase,
     random_float,
 )

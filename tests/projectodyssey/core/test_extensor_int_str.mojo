@@ -5,9 +5,9 @@ Verifies that _format_element() correctly handles all integer dtype paths for st
 Related: issue #4047, issue #3376
 """
 
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros, full, arange
-from tests.projectodyssey.conftest import assert_true, assert_equal
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros, full, arange
+from tests.odyssey.conftest import assert_true, assert_equal
 
 
 def test_str_int8() raises:

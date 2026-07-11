@@ -18,7 +18,7 @@ Note:
     DType.bfloat16 is NOT supported on Apple Silicon.
 
 Usage:
-    from projectodyssey.training.dtype_utils import (
+    from odyssey.training.dtype_utils import (
         bfloat16_dtype,
         detect_hardware_bf16_support,
         recommend_precision_dtype,

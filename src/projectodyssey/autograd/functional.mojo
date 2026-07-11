@@ -14,7 +14,7 @@ This covers 90% of real use cases without the complexity of full autograd.
 
 Example:
    ```mojo
-    from projectodyssey.autograd.functional import mse_loss_and_grad, multiply_scalar
+    from odyssey.autograd.functional import mse_loss_and_grad, multiply_scalar
 
     # Compute loss and gradient in one call
     var result = mse_loss_and_grad(predictions, targets)
@@ -31,11 +31,11 @@ Common Patterns Supported:
 - Parameter update helpers
 """
 
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import ones
-from projectodyssey.core.arithmetic import add, multiply, subtract, divide
-from projectodyssey.core.reduction import sum, mean, sum_backward, mean_backward
-from projectodyssey.core.loss import (
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import ones
+from odyssey.core.arithmetic import add, multiply, subtract, divide
+from odyssey.core.reduction import sum, mean, sum_backward, mean_backward
+from odyssey.core.loss import (
     mean_squared_error,
     mean_squared_error_backward,
     binary_cross_entropy,

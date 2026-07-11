@@ -5,15 +5,15 @@ callbacks, epoch runners, and display utilities.
 
 Example:
     ```mojo
-    from projectodyssey.training.script_runner import (
+    from odyssey.training.script_runner import (
         TrainingCallbacks,
         run_epoch_with_batches,
         print_training_header,
     )
-    from projectodyssey.training.trainer_interface import (
+    from odyssey.training.trainer_interface import (
         create_simple_dataloader,
     )
-    from projectodyssey.tensor.any_tensor import AnyTensor
+    from odyssey.tensor.any_tensor import AnyTensor
 
     def step(x: AnyTensor, y: AnyTensor) raises -> AnyTensor:
         return x  # replace with real forward+loss
@@ -28,8 +28,8 @@ Example:
     ```
 """
 
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.training.trainer_interface import DataLoader
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.training.trainer_interface import DataLoader
 
 
 trait StepFn(Copyable, Movable):

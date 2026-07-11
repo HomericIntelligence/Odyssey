@@ -11,7 +11,7 @@ real-time feedback without scrolling output.
 
 Example:
     ```mojo
-    from projectodyssey.utils import ProgressBar, ProgressBarWithMetrics
+    from odyssey.utils import ProgressBar, ProgressBarWithMetrics
 
     var progress = ProgressBar(total=100, description="Training")
     for i in range(100):

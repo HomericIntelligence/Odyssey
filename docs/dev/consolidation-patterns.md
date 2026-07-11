@@ -29,7 +29,7 @@ respect to multiple inputs. Instead of returning multiple gradients as separate 
 
 ### Location
 
-`src/projectodyssey/core/gradient_types.mojo`
+`src/odyssey/core/gradient_types.mojo`
 
 ### Structure Example
 
@@ -139,7 +139,7 @@ and use dispatcher functions to handle runtime dtype selection.
 
 ### Location
 
-`src/projectodyssey/core/dtype_dispatch.mojo`
+`src/odyssey/core/dtype_dispatch.mojo`
 
 ### Core Concepts
 
@@ -278,7 +278,7 @@ This prevents magic number proliferation and ensures consistency across all uses
 
 #### Math Constants
 
-**Location**: `src/projectodyssey/core/math_constants.mojo`
+**Location**: `src/odyssey/core/math_constants.mojo`
 
 Contains mathematical constants used in activation functions, initializers, and elementwise operations.
 
@@ -301,7 +301,7 @@ comptime LN10: Float64 = 2.302585092994046
 
 #### Numerical Constants
 
-**Location**: `src/projectodyssey/core/numerical_constants.mojo`
+**Location**: `src/odyssey/core/numerical_constants.mojo`
 
 Contains epsilon and threshold values for numerical stability.
 
@@ -323,7 +323,7 @@ comptime GRADIENT_MIN_NORM: Float64 = 1e-7   # Threshold for gradient vanishing
 ### Usage Example: GELU Activation
 
 ```mojo
-from projectodyssey.core.math_constants import GELU_COEFF, SQRT_2_OVER_PI
+from odyssey.core.math_constants import GELU_COEFF, SQRT_2_OVER_PI
 
 fn gelu_approximate[T: DType](x: Scalar[T]) -> Scalar[T]:
     """GELU approximation using precomputed constants.
@@ -344,7 +344,7 @@ fn gelu_approximate[T: DType](x: Scalar[T]) -> Scalar[T]:
 ### Usage Example: Numerical Stability
 
 ```mojo
-from projectodyssey.core.numerical_constants import EPSILON_LOSS, EPSILON_NORM
+from odyssey.core.numerical_constants import EPSILON_LOSS, EPSILON_NORM
 
 fn cross_entropy_loss(logits: AnyTensor, labels: AnyTensor) raises -> Float64:
     """Cross-entropy loss with numerical stability.
@@ -402,7 +402,7 @@ that is used across multiple layers or modules without tight coupling.
 
 ### Location
 
-`src/projectodyssey/autograd/grad_utils.mojo` (example)
+`src/odyssey/autograd/grad_utils.mojo` (example)
 
 ### Pattern Structure
 
@@ -475,7 +475,7 @@ fn clip_grad_norm_(mut grad: AnyTensor, max_norm: Float64) raises -> Float64:
 ### Usage Example
 
 ```mojo
-from projectodyssey.autograd import clip_grad_value_, clip_grad_norm_, clip_grad_global_norm_
+from odyssey.autograd import clip_grad_value_, clip_grad_norm_, clip_grad_global_norm_
 
 fn training_step(
     model: MyModel,
@@ -530,10 +530,10 @@ fn training_step(
 This example shows how all four consolidation patterns work together in a complete backward pass:
 
 ```mojo
-from projectodyssey.core.gradient_types import GradientTriple
-from projectodyssey.core.dtype_dispatch import dispatch_binary, dispatch_unary
-from projectodyssey.core.numerical_constants import EPSILON_LOSS
-from projectodyssey.autograd.grad_utils import clip_grad_norm_
+from odyssey.core.gradient_types import GradientTriple
+from odyssey.core.dtype_dispatch import dispatch_binary, dispatch_unary
+from odyssey.core.numerical_constants import EPSILON_LOSS
+from odyssey.autograd.grad_utils import clip_grad_norm_
 
 fn linear_backward(
     grad_output: AnyTensor,
@@ -574,10 +574,10 @@ fn linear_backward(
 
 | Pattern | Purpose | Location | Benefit |
 | --- | --- | --- | --- |
-| Gradient Result | Type-safe gradient containers | `src/projectodyssey/core/gradient_types.mojo` | Clear semantics, refactoring-safe |
-| DType Dispatch | Compile-time specialization | `src/projectodyssey/core/dtype_dispatch.mojo` | 80% code reduction |
-| Constants | Centralized values | `src/projectodyssey/core/math_constants.mojo`, `src/projectodyssey/core/numerical_constants.mojo` | Consistency, maintainability |
-| Utility Module | Shared functionality | `src/projectodyssey/autograd/grad_utils.mojo`, etc. | No circular deps, reusability |
+| Gradient Result | Type-safe gradient containers | `src/odyssey/core/gradient_types.mojo` | Clear semantics, refactoring-safe |
+| DType Dispatch | Compile-time specialization | `src/odyssey/core/dtype_dispatch.mojo` | 80% code reduction |
+| Constants | Centralized values | `src/odyssey/core/math_constants.mojo`, `src/odyssey/core/numerical_constants.mojo` | Consistency, maintainability |
+| Utility Module | Shared functionality | `src/odyssey/autograd/grad_utils.mojo`, etc. | No circular deps, reusability |
 
 ## Best Practices
 

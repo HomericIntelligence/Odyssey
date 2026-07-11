@@ -11,15 +11,15 @@ All tests use the real EarlyStopping implementation.
 """
 
 
-from tests.projectodyssey.conftest import (
+from tests.odyssey.conftest import (
     assert_true,
     assert_false,
     assert_equal,
     assert_almost_equal,
     TestFixtures,
 )
-from projectodyssey.training.callbacks import EarlyStopping
-from projectodyssey.training.base import TrainingState
+from odyssey.training.callbacks import EarlyStopping
+from odyssey.training.base import TrainingState
 
 
 def test_early_stopping_initialization() raises:

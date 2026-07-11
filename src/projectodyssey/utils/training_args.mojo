@@ -11,7 +11,7 @@ Features:
     - Backward compatibility with direct sys.argv parsing
 
 Example:
-    from projectodyssey.utils import TrainingArgs, parse_training_args
+    from odyssey.utils import TrainingArgs, parse_training_args
 
     def main() raises:
         var args = parse_training_args()
@@ -22,7 +22,7 @@ Example:
     ```
 """
 
-from projectodyssey.utils.arg_parser import (
+from odyssey.utils.arg_parser import (
     create_training_parser,
     validate_positive_int,
     validate_positive_float,

@@ -4,9 +4,9 @@ This module provides a pure functional implementation of linear transformations,
 following the pattern y = xW^T + b. The caller manages all state (weights, bias).
 """
 
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.core.matrix import matmul, transpose
-from projectodyssey.core.gradient_types import GradientPair, GradientTriple
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.core.matrix import matmul, transpose
+from odyssey.core.gradient_types import GradientPair, GradientTriple
 
 
 def linear(
@@ -26,7 +26,7 @@ def linear(
 
         Example:
             ```mojo
-            from projectodyssey.core import AnyTensor, linear, zeros, xavier_uniform
+            from odyssey.core import AnyTensor, linear, zeros, xavier_uniform
 
             # Caller manages state
             var w = xavier_uniform(10, 784, DType.float32)
@@ -39,7 +39,7 @@ def linear(
     Raises:
             Error if shapes are incompatible for matrix multiplication.
     """
-    from projectodyssey.core.arithmetic import add
+    from odyssey.core.arithmetic import add
 
     # Compute xW^T
     var out = matmul(x, transpose(weights))
@@ -92,7 +92,7 @@ def linear_backward(
 
         Example:
             ```
-            from projectodyssey.core import AnyTensor, linear, linear_backward
+            from odyssey.core import AnyTensor, linear, linear_backward
 
             # Forward pass
             var output = linear(x, weights, bias)
@@ -108,7 +108,7 @@ def linear_backward(
     Raises:
             Error if tensor shapes are incompatible.
     """
-    from projectodyssey.core.reduction import sum
+    from odyssey.core.reduction import sum
 
     # grad_input = grad_output @ W
     # weights is (out_features, in_features), so we use it directly

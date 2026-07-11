@@ -105,7 +105,7 @@ training/
 ### Configuration
 
 - Training hyperparameters (learning rate values, batch sizes, etc.)
-- Model architecture definitions (these belong in src/projectodyssey/models or papers/)
+- Model architecture definitions (these belong in src/odyssey/models or papers/)
 - Dataset-specific preprocessing (belongs in paper directory)
 
 ### One-Off Utilities
@@ -122,11 +122,11 @@ should be in training/, it probably shouldn't. Wait until 2-3 papers need it, th
 ### Basic Training Loop Example
 
 ```mojo
-from projectodyssey.training.optimizers import SGD, Adam
-from projectodyssey.training.schedulers import CosineAnnealingLR
-from projectodyssey.training.metrics import Accuracy, LossTracker
-from projectodyssey.training.callbacks import EarlyStopping, ModelCheckpoint
-from projectodyssey.training.loops import BasicTrainingLoop
+from odyssey.training.optimizers import SGD, Adam
+from odyssey.training.schedulers import CosineAnnealingLR
+from odyssey.training.metrics import Accuracy, LossTracker
+from odyssey.training.callbacks import EarlyStopping, ModelCheckpoint
+from odyssey.training.loops import BasicTrainingLoop
 
 # Create optimizer
 var optimizer = Adam(
@@ -181,9 +181,9 @@ loop.fit(
 ### Custom Training Loop Example
 
 ```mojo
-from projectodyssey.training.optimizers import SGD
-from projectodyssey.training.metrics import Accuracy
-from projectodyssey.core.types import Tensor
+from odyssey.training.optimizers import SGD
+from odyssey.training.metrics import Accuracy
+from odyssey.core.types import Tensor
 
 fn custom_training_loop(
     model: Model,
@@ -364,21 +364,21 @@ When adding new components to training:
 
 ### Adding a New Optimizer
 
-1. Create `src/projectodyssey/training/optimizers/my_optimizer.mojo`
+1. Create `src/odyssey/training/optimizers/my_optimizer.mojo`
 1. Implement the `Optimizer` trait
 1. Write comprehensive tests in `tests/training/optimizers/test_my_optimizer.mojo`
 1. Benchmark against reference implementation (PyTorch, TensorFlow, etc.)
 1. Add usage example to this README
-1. Export from `src/projectodyssey/training/optimizers/__init__.mojo`
+1. Export from `src/odyssey/training/optimizers/__init__.mojo`
 
 ### Adding a New Metric
 
-1. Create `src/projectodyssey/training/metrics/my_metric.mojo`
+1. Create `src/odyssey/training/metrics/my_metric.mojo`
 1. Implement the `Metric` trait
 1. Write tests with known ground truth values
 1. Verify numerical accuracy
 1. Add usage example to this README
-1. Export from `src/projectodyssey/training/metrics/__init__.mojo`
+1. Export from `src/odyssey/training/metrics/__init__.mojo`
 
 ## Performance Targets
 
@@ -394,8 +394,8 @@ Training components should meet these performance goals:
 ### Pattern 1: Basic Training with Validation
 
 ```mojo
-from projectodyssey.training.loops import BasicTrainingLoop
-from projectodyssey.training.callbacks import EarlyStopping, ModelCheckpoint
+from odyssey.training.loops import BasicTrainingLoop
+from odyssey.training.callbacks import EarlyStopping, ModelCheckpoint
 
 var loop = BasicTrainingLoop(model, optimizer)
 loop.add_callback(EarlyStopping(patience=10))
@@ -406,9 +406,9 @@ loop.fit(train_data, val_data, epochs=100)
 ### Pattern 2: Custom Training Loop with Standard Components
 
 ```mojo
-from projectodyssey.training.optimizers import Adam
-from projectodyssey.training.schedulers import CosineAnnealingLR
-from projectodyssey.training.metrics import Accuracy
+from odyssey.training.optimizers import Adam
+from odyssey.training.schedulers import CosineAnnealingLR
+from odyssey.training.metrics import Accuracy
 
 # Use standard optimizer and scheduler
 var optimizer = Adam(lr=0.001)
@@ -428,7 +428,7 @@ for epoch in range(epochs):
 ### Pattern 3: Composing Callbacks
 
 ```mojo
-from projectodyssey.training.callbacks import CallbackList
+from odyssey.training.callbacks import CallbackList
 
 var callbacks = CallbackList([
     EarlyStopping(patience=10),
@@ -448,7 +448,7 @@ for epoch in range(epochs):
 
 ### Shared Training Library
 
-**Located**: `src/projectodyssey/training/`
+**Located**: `src/odyssey/training/`
 
 ### Contains
 
@@ -476,19 +476,19 @@ for epoch in range(epochs):
 
 ```text
 Is this training code needed by multiple papers?
-├── YES: Put in src/projectodyssey/training/
+├── YES: Put in src/odyssey/training/
 │   └── Is it a standard component (optimizer, scheduler, metric)?
 │       ├── YES: Implement in appropriate subdirectory
 │       └── NO: Consider if it's truly reusable
 └── NO: Put in papers/<paper-name>/training/
-    └── Can be refactored to src/projectodyssey/ later if other papers need it
+    └── Can be refactored to src/odyssey/ later if other papers need it
 ```text
 
 ## Related Documentation
 
-- Core Library: `src/projectodyssey/core/README.md`
-- Models Library: `src/projectodyssey/models/README.md`
-- Main Shared Library: `src/projectodyssey/README.md`
+- Core Library: `src/odyssey/core/README.md`
+- Models Library: `src/odyssey/models/README.md`
+- Main Shared Library: `src/odyssey/README.md`
 - Mojo Language Guide: <https://docs.modular.com/mojo/>
 - Project Documentation: `/worktrees/issue-22-plan/CLAUDE.md`
 
@@ -507,8 +507,8 @@ The training infrastructure now supports FP16 mixed precision training for faste
 ### Usage
 
 ```mojo
-from projectodyssey.training.trainer_interface import TrainerConfig
-from projectodyssey.training.mixed_precision import GradientScaler
+from odyssey.training.trainer_interface import TrainerConfig
+from odyssey.training.mixed_precision import GradientScaler
 
 # Configure trainer for FP16 mixed precision
 var config = TrainerConfig(
@@ -552,14 +552,14 @@ else:
 
 - **Float16 (FP16)** ✓ - Fully supported, recommended for most use cases
 - **Float32 (FP32)** ✓ - Default precision, maximum accuracy
-- **BFloat16 (BF16)** ✓ - Custom implementation with uint16 storage (`src/projectodyssey/core/types/bf16.mojo`)
+- **BFloat16 (BF16)** ✓ - Custom implementation with uint16 storage (`src/odyssey/core/types/bf16.mojo`)
 
 #### BFloat16 Custom Implementation
 
 Since Mojo doesn't natively support BFloat16, we provide a custom `BF16` struct:
 
 ```mojo
-from projectodyssey.core.types.bf16 import BF16
+from odyssey.core.types.bf16 import BF16
 
 # Convert from Float32
 var bf16 = BF16.from_float32(3.14159)

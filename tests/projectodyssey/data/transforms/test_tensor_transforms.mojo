@@ -4,7 +4,7 @@ Tests tensor transforms including reshape and type conversion used in data prepr
 """
 
 
-from tests.projectodyssey.conftest import (
+from tests.odyssey.conftest import (
     assert_true,
     assert_equal,
     assert_almost_equal,

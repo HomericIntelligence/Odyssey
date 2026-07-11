@@ -4,7 +4,7 @@ Provides utilities for loading standard ML datasets like EMNIST and CIFAR-10.
 
 Example:
     ```mojo
-    from projectodyssey.training.dataset_loaders import (
+    from odyssey.training.dataset_loaders import (
         DatasetSplit,
         load_emnist_dataset,
         print_dataset_summary,
@@ -20,8 +20,8 @@ Note:
     file I/O which is limited in the current Mojo version.
 """
 
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros
 
 
 struct DatasetSplit(Copyable, Movable):

@@ -19,9 +19,9 @@ Features:
 
 """
 
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.core.traits import Model
-from projectodyssey.data.batch_utils import (
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.core.traits import Model
+from odyssey.data.batch_utils import (
     extract_batch_pair,
     compute_num_batches,
 )

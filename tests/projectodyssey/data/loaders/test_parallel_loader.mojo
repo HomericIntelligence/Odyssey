@@ -5,7 +5,7 @@ dataset compatibility, and deterministic ordering behavior.
 """
 
 
-from tests.projectodyssey.conftest import (
+from tests.odyssey.conftest import (
     assert_true,
     assert_equal,
     assert_greater,

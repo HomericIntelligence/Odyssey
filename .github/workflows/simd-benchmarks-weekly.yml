@@ -46,7 +46,7 @@ jobs:
           mkdir -p benchmark-results
 
           # Run the SIMD benchmark
-          podman compose exec -T projectodyssey-dev bash -c 'pixi run mojo run -I . benchmarks/bench_simd.mojo' | tee benchmark-results/simd-output.txt
+          podman compose exec -T odyssey-dev bash -c 'pixi run mojo run -I . benchmarks/bench_simd.mojo' | tee benchmark-results/simd-output.txt
           echo "✅ SIMD benchmarks completed successfully"
 
       - name: Generate benchmark summary

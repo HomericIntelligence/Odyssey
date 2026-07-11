@@ -13,16 +13,16 @@ Test Strategy:
 - Non-power-of-2 dimensions verify padding/unpadding logic
 """
 
-from tests.projectodyssey.conftest import (
+from tests.odyssey.conftest import (
     assert_all_close,
     assert_almost_equal,
     assert_equal_int,
     assert_true,
 )
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros, ones, zeros_like
-from projectodyssey.core.strassen import matmul_strassen, next_power_of_2
-from projectodyssey.core.matmul import matmul_tiled
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros, ones, zeros_like
+from odyssey.core.strassen import matmul_strassen, next_power_of_2
+from odyssey.core.matmul import matmul_tiled
 
 
 # ============================================================================

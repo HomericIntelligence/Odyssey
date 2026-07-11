@@ -17,7 +17,7 @@ All models use simple operations and predictable behavior for testing:
 - Parameter tracking for validation
 
 Example:
-    from projectodyssey.testing import SimpleCNN, LinearModel, SimpleMLP
+    from odyssey.testing import SimpleCNN, LinearModel, SimpleMLP
 
     def test_model_forward():
         # Test CNN forward pass
@@ -37,9 +37,9 @@ Example:
     ```
 """
 
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros, ones, zeros_like
-from projectodyssey.core.traits import Model
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros, ones, zeros_like
+from odyssey.core.traits import Model
 
 
 # ============================================================================

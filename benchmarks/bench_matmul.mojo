@@ -31,9 +31,9 @@ Output:
     | v4    | Xms    | Xms     | Xms       | X      | Xx      |
 """
 
-from projectodyssey.utils.arg_parser import ArgumentParser
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros, ones
+from odyssey.utils.arg_parser import ArgumentParser
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros, ones
 from std.time import perf_counter_ns
 from std.collections import List
 
@@ -49,7 +49,7 @@ def str_trunc(s: String, n: Int) -> String:
     return String(unsafe_from_utf8=b[:n])
 
 
-from projectodyssey.core.matmul import (
+from odyssey.core.matmul import (
     matmul_typed as _matmul_typed_impl,
     matmul_simd as _matmul_simd_impl,
     matmul_tiled as _matmul_tiled_impl,
@@ -89,7 +89,7 @@ def matmul_typed[
 ](a: AnyTensor, b: AnyTensor, mut result: AnyTensor) raises:
     """Stage 1: Dtype-specific kernel (eliminates Float64 conversion).
 
-    Uses real implementation from projectodyssey.core.matmul.
+    Uses real implementation from odyssey.core.matmul.
     Expected speedup: 3-5x over naive
     """
     _matmul_typed_impl(a, b, result)
@@ -100,7 +100,7 @@ def matmul_simd[
 ](a: AnyTensor, b: AnyTensor, mut result: AnyTensor) raises:
     """Stage 2: SIMD vectorization (vectorize J-loop).
 
-    Uses real implementation from projectodyssey.core.matmul.
+    Uses real implementation from odyssey.core.matmul.
     Expected speedup: 4-8x over typed (15-40x cumulative)
     """
     _matmul_simd_impl(a, b, result)
@@ -111,7 +111,7 @@ def matmul_tiled[
 ](a: AnyTensor, b: AnyTensor, mut result: AnyTensor) raises:
     """Stage 3: Cache-aware blocking/tiling (production kernel).
 
-    Uses real implementation from projectodyssey.core.matmul.
+    Uses real implementation from odyssey.core.matmul.
     This is the fastest kernel and is used by matmul() in production.
     Expected speedup: 3-5x over simd (50-150x cumulative)
     """

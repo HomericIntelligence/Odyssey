@@ -8,7 +8,7 @@ Modules:
 """
 
 # IDX Format Loaders
-from projectodyssey.data.formats.idx_loader import (
+from odyssey.data.formats.idx_loader import (
     read_uint32_be,
     load_idx_labels,
     load_idx_images,
@@ -20,8 +20,8 @@ from projectodyssey.data.formats.idx_loader import (
 )
 
 # CIFAR Binary Format Loaders
-from projectodyssey.data.formats.cifar_loader import CIFARLoader
-from projectodyssey.data.constants import (
+from odyssey.data.formats.cifar_loader import CIFARLoader
+from odyssey.data.constants import (
     CIFAR10_IMAGE_SIZE,
     CIFAR10_CHANNELS,
     CIFAR10_BYTES_PER_IMAGE,

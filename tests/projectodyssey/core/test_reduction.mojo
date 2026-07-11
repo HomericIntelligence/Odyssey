@@ -12,7 +12,7 @@ All tests validate backward passes produce correct gradient values.
 """
 
 
-from tests.projectodyssey.conftest import (
+from tests.odyssey.conftest import (
     TestFixtures,
     assert_close_float,
     assert_equal,
@@ -20,14 +20,14 @@ from tests.projectodyssey.conftest import (
     assert_shape,
     assert_true,
 )
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import (
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import (
     zeros,
     ones,
     zeros_like,
     ones_like,
 )
-from projectodyssey.core.reduction import (
+from odyssey.core.reduction import (
     max_reduce,
     max_reduce_backward,
     mean,
@@ -45,7 +45,7 @@ from projectodyssey.core.reduction import (
     variance,
     variance_backward,
 )
-from projectodyssey.testing.gradient_checker import (
+from odyssey.testing.gradient_checker import (
     check_gradient,
     NumericalForward,
     NumericalBackward,

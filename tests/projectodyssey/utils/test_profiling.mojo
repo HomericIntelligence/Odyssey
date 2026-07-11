@@ -6,7 +6,7 @@ This module tests:
 """
 
 
-from tests.projectodyssey.conftest import (
+from tests.odyssey.conftest import (
     assert_true,
     assert_false,
     assert_equal,
@@ -15,7 +15,7 @@ from tests.projectodyssey.conftest import (
     assert_less,
     TestFixtures,
 )
-from projectodyssey.utils.profiling import (
+from odyssey.utils.profiling import (
     BaselineMetrics,
     ProfilingReport,
     Timer,

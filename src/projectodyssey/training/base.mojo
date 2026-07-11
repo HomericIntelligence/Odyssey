@@ -9,8 +9,8 @@ These contracts establish clear APIs for gradient utilities (#2393) and training
 """
 
 from std.collections import Dict, List
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.core.numerical_safety import has_nan, has_inf
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.core.numerical_safety import has_nan, has_inf
 from std.math import sqrt
 
 

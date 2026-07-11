@@ -125,7 +125,7 @@ On March 5, our CI was failing with this crash signature:
 ```
 
 The theory: our `__init__.mojo` files eagerly re-export 200+ symbols from 40+ modules. When a
-test file does `from projectodyssey.core import AnyTensor`, the JIT compiler compiles all 37,401 lines.
+test file does `from odyssey.core import AnyTensor`, the JIT compiler compiles all 37,401 lines.
 This "import explosion" intermittently overflows a JIT-internal buffer.
 
 The evidence seemed compelling. We converted 126 test files to targeted submodule imports. We

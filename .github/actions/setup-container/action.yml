@@ -45,9 +45,9 @@ runs:
           podman load -i /tmp/podman-image-cache/dev.tar
         else
           echo "No cache found, building image..."
-          podman compose build projectodyssey-dev
+          podman compose build odyssey-dev
           mkdir -p /tmp/podman-image-cache
-          podman save -o /tmp/podman-image-cache/dev.tar projectodyssey:dev
+          podman save -o /tmp/podman-image-cache/dev.tar odyssey:dev
         fi
 
     - name: Seed pixi-cache volume from image layer
@@ -62,7 +62,7 @@ runs:
         # (/home/dev/.cache/pixi) BEFORE starting the dev container so the
         # entrypoint's pixi-info probe finds mojo already installed.
         # The volume name is prefixed with the Compose project name.
-        VOLUME_NAME="projectodyssey_pixi-cache"
+        VOLUME_NAME="odyssey_pixi-cache"
         # Idempotent: volume may already exist. `podman volume inspect` exits 0
         # only when the volume is present.
         if ! podman volume inspect "$VOLUME_NAME" >/dev/null 2>&1; then
@@ -72,14 +72,14 @@ runs:
         SEEDED=$(podman run --rm \
           --user root \
           -v "${VOLUME_NAME}:/mnt/pixi-seed" \
-          projectodyssey:dev \
+          odyssey:dev \
           bash -c "find /mnt/pixi-seed -name 'mojo' -type f 2>/dev/null | grep -q . && echo yes || echo no")
         if [ "$SEEDED" = "no" ]; then
           echo "Seeding pixi-cache volume from image layer..."
           podman run --rm \
             --user root \
             -v "${VOLUME_NAME}:/mnt/pixi-seed" \
-            projectodyssey:dev \
+            odyssey:dev \
             bash -c "cp -a /home/dev/.cache/pixi/. /mnt/pixi-seed/"
           echo "Seeding complete."
         else
@@ -109,22 +109,22 @@ runs:
 
     - name: Start container
       shell: bash
-      run: podman compose up -d projectodyssey-dev
+      run: podman compose up -d odyssey-dev
 
     - name: Wait for container and verify
       shell: bash
       run: |
         for i in $(seq 1 30); do
-          if podman compose ps -q projectodyssey-dev 2>/dev/null \
+          if podman compose ps -q odyssey-dev 2>/dev/null \
             | xargs -r podman inspect -f '{{.State.Running}}' 2>/dev/null \
             | grep -q true; then
             echo "Container is running"
-            podman compose exec -T projectodyssey-dev pixi run mojo --version
+            podman compose exec -T odyssey-dev pixi run mojo --version
             exit 0
           fi
           echo "Waiting for container... ($i/30)"
           sleep 2
         done
         echo "ERROR: Container did not start within 60 seconds"
-        podman compose logs projectodyssey-dev
+        podman compose logs odyssey-dev
         exit 1

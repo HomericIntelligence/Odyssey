@@ -5,13 +5,13 @@
 default: help
 
 # Podman compose service name
-podman_service := "projectodyssey-dev"
+podman_service := "odyssey-dev"
 
 # Repository root
 repo_root := justfile_directory()
 
 # Build output root — defaults to <repo>/build, can be overridden by a parent
-# meta-repo via env var (e.g. Odysseus sets BUILD_ROOT=/path/to/Odysseus/build/ProjectOdyssey)
+# meta-repo via env var (e.g. Odysseus sets BUILD_ROOT=/path/to/Odysseus/build/Odyssey)
 BUILD_ROOT := env_var_or_default("BUILD_ROOT", repo_root / "build")
 
 
@@ -43,7 +43,7 @@ MOJO_TEST := "-g1"
 # driver path: `mojo build --print-effective-target` correctly downgrades the
 # target when the runner masks AVX-512. However, ASAN-instrumented codegen on
 # Mojo 1.0.0b2.dev2026052506 still emits AVX-512 encodings that SIGILL on
-# AVX-512-masked GHA runners (confirmed: tests/projectodyssey/core/test_hash.mojo
+# AVX-512-masked GHA runners (confirmed: tests/odyssey/core/test_hash.mojo
 # fails with "Illegal instruction (core dumped)" under just test-group-asan when
 # this strip is absent). The non-sanitizer paths now run without this workaround.
 #
@@ -108,7 +108,7 @@ _ensure_build_dir mode:
 # Start Podman development environment
 #
 # If a container already exists but is bind-mounted to a different clone
-# (e.g. `~/ProjectOdyssey` vs `~/Projects/ProjectOdyssey`), tear it down
+# (e.g. `~/Odyssey` vs `~/Projects/Odyssey`), tear it down
 # first so `compose up` creates a fresh container mounted on `$PWD`. This
 # lets the same dev work seamlessly across multiple clones without
 # manually running `podman compose down` from the old clone first.
@@ -123,7 +123,7 @@ podman-up:
     set -euo pipefail
     export USER_ID="{{USER_ID}}" GROUP_ID="{{GROUP_ID}}" USER_NAME="${USER_NAME:-dev}"
     EXPECTED="{{repo_root}}"
-    EXISTING=$(podman inspect projectodyssey-{{podman_service}}-1 \
+    EXISTING=$(podman inspect odyssey-{{podman_service}}-1 \
         --format '{{{{range .Mounts}}{{{{if eq .Destination "/workspace"}}{{{{.Source}}{{{{end}}{{{{end}}' 2>/dev/null || echo "")
     if [ -n "$EXISTING" ] && [ "$EXISTING" != "$EXPECTED" ]; then
         echo "⚠️  Container exists with workspace mount '$EXISTING'"
@@ -178,7 +178,7 @@ podman-status:
 
 # Default registry
 REGISTRY := "ghcr.io"
-REPO_NAME := "homericintelligence/projectodyssey"
+REPO_NAME := "homericintelligence/odyssey"
 
 # Build CI-optimized container image
 podman-build-ci target="runtime":
@@ -306,7 +306,7 @@ _build-inner mode="debug":
     # ------------------------------------------------------------
     # Phase A: Package the shared library
     # ------------------------------------------------------------
-    # src/projectodyssey/ is a library (no main() entry points) — must be compiled with
+    # src/odyssey/ is a library (no main() entry points) — must be compiled with
     # `mojo package`, not file-by-file `mojo build`. This is the same logic
     # as `_package-inner`; we inline it here so `just build` produces a
     # complete artifact set in one invocation.
@@ -314,8 +314,8 @@ _build-inner mode="debug":
     # `mojo package` only accepts a small subset of compiler flags
     # (no -g / --no-optimization / -O3 / --sanitize). Pass STRICT only.
     echo "→ Packaging shared library"
-    pixi run mojo package $STRICT -I "$REPO_ROOT/src" src/projectodyssey \
-        -o "$BUILD_DIR/projectodyssey.mojopkg"
+    pixi run mojo package $STRICT -I "$REPO_ROOT/src" src/odyssey \
+        -o "$BUILD_DIR/odyssey.mojopkg"
 
     # ------------------------------------------------------------
     # Phase B: AOT-compile every executable (examples, benchmarks, papers)
@@ -329,7 +329,7 @@ _build-inner mode="debug":
     if [ "$MODE" = "asan" ] || [ "$MODE" = "tsan" ]; then
         echo
         echo "✅ Sanitizer build complete (shared package only)"
-        echo "  shared package: $BUILD_DIR/projectodyssey.mojopkg"
+        echo "  shared package: $BUILD_DIR/odyssey.mojopkg"
         echo "  Run sanitized tests: just test-mojo-${MODE}"
         exit 0
     fi
@@ -399,7 +399,7 @@ _build-inner mode="debug":
     echo "=================================================="
     echo "Build summary ($MODE)"
     echo "=================================================="
-    echo "  shared package: $BUILD_DIR/projectodyssey.mojopkg"
+    echo "  shared package: $BUILD_DIR/odyssey.mojopkg"
     echo "  executables:    $BUILT built, $FAILED failed"
     if [ "$FAILED" -gt 0 ]; then
         echo
@@ -445,16 +445,16 @@ _check-inner:
     #!/usr/bin/env bash
     set -euo pipefail
     REPO_ROOT="$(pwd)"
-    echo "🔍 Type-checking src/projectodyssey/ library..."
+    echo "🔍 Type-checking src/odyssey/ library..."
 
     # Use mojo package to validate compilation (no --check flag available)
     OUT=$(mktemp -d)
     trap "rm -rf $OUT" EXIT
 
-    if pixi run mojo package --Werror -I "$REPO_ROOT/src" src/projectodyssey -o "$OUT/projectodyssey.mojopkg" 2>&1; then
-        echo "✅ src/projectodyssey/ type-check passed"
+    if pixi run mojo package --Werror -I "$REPO_ROOT/src" src/odyssey -o "$OUT/odyssey.mojopkg" 2>&1; then
+        echo "✅ src/odyssey/ type-check passed"
     else
-        echo "❌ src/projectodyssey/ has compilation errors"
+        echo "❌ src/odyssey/ has compilation errors"
         exit 1
     fi
 
@@ -485,7 +485,7 @@ _package-inner mode="debug":
 
     echo "Packaging shared library in $MODE mode..."
     echo "Flags: $FLAGS"
-    pixi run mojo package $FLAGS -I "$REPO_ROOT/src" src/projectodyssey -o "build/$MODE/projectodyssey.mojopkg"
+    pixi run mojo package $FLAGS -I "$REPO_ROOT/src" src/odyssey -o "build/$MODE/odyssey.mojopkg"
 
 # Package debug version
 package-debug: (package "debug")
@@ -497,9 +497,9 @@ package-release: (package "release")
 # Conda Recipe (rattler-build) — install/publish to modular-community
 # ==============================================================================
 # Wraps the real tools — there is no `mojo install` or `mojo publish` CLI in
-# Mojo 1.0. "Install" means `pixi add projectodyssey` once the recipe lands
+# Mojo 1.0. "Install" means `pixi add odyssey` once the recipe lands
 # in https://repo.prefix.dev/modular-community; "publish" means a PR to
-# https://github.com/modular/modular-community adding `recipes/projectodyssey/`.
+# https://github.com/modular/modular-community adding `recipes/odyssey/`.
 
 # Build the conda package locally via rattler-build (runs inside container
 # so it can write into build/, which is owned by the container user when
@@ -540,12 +540,12 @@ publish-dry-run:
 # ==============================================================================
 # Python Wheel — pure-Python wrapper that bundles the .mojopkg
 # ==============================================================================
-# `pip install projectodyssey` ships projectodyssey.mojopkg as Python package
-# data. Consumers call `projectodyssey.import_dir()` to get the path to feed
+# `pip install odyssey` ships odyssey.mojopkg as Python package
+# data. Consumers call `odyssey.import_dir()` to get the path to feed
 # `mojo run -I`. No native Python bindings (those are out-of-scope; see the
 # tracking issue's "Out of scope" section).
 
-# Build the wheel: produces dist/projectodyssey-<version>-py3-none-any.whl
+# Build the wheel: produces dist/odyssey-<version>-py3-none-any.whl
 #
 # Runs inside the dev container so `pixi` is available (GitHub-hosted runners
 # don't ship pixi at the host level, and `package-release` already populates
@@ -558,21 +558,21 @@ wheel: package-release
 _wheel-inner:
     #!/usr/bin/env bash
     set -e
-    echo "Staging projectodyssey.mojopkg into python/projectodyssey/_data/"
-    mkdir -p python/projectodyssey/_data
-    cp build/release/projectodyssey.mojopkg python/projectodyssey/_data/
+    echo "Staging odyssey.mojopkg into python/odyssey/_data/"
+    mkdir -p python/odyssey/_data
+    cp build/release/odyssey.mojopkg python/odyssey/_data/
     echo "Building wheel via python -m build…"
     cd python && pixi run python -m build --wheel --outdir ../dist
     cd ..
     # Make wheel outputs readable by the host (release.yml's `find -exec cp`,
     # checksum generation, twine validation all run host-side). Chmod only the
     # wheels themselves — `dist/` may already contain host-owned siblings
-    # (`projectodyssey.mojopkg`, `*.conda`) that the container user can't chmod
+    # (`odyssey.mojopkg`, `*.conda`) that the container user can't chmod
     # even though it owns `dist/.tmp-XXX` (release.yml `chmod 777`'d dist/ in #5425).
-    chmod o+r dist/projectodyssey-*.whl
-    chmod o+r python/projectodyssey/_data/projectodyssey.mojopkg
-    ls -la dist/projectodyssey-*.whl
-    echo "✅ Wheel built. Verify with:  pip install dist/projectodyssey-*.whl"
+    chmod o+r dist/odyssey-*.whl
+    chmod o+r python/odyssey/_data/odyssey.mojopkg
+    ls -la dist/odyssey-*.whl
+    echo "✅ Wheel built. Verify with:  pip install dist/odyssey-*.whl"
 
 # ==============================================================================
 # Model Training and Inference

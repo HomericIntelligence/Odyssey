@@ -5,13 +5,13 @@ the standard sampling strategy for training to prevent order-dependent biases.
 """
 
 
-from tests.projectodyssey.conftest import (
+from tests.odyssey.conftest import (
     assert_true,
     assert_equal,
     assert_not_equal,
     TestFixtures,
 )
-from projectodyssey.data.samplers import RandomSampler
+from odyssey.data.samplers import RandomSampler
 
 
 def test_random_sampler_creation() raises:

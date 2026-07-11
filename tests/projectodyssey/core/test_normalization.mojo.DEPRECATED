@@ -21,11 +21,11 @@ from tests.shared.conftest import (
     assert_true,
 )
 from tests.shared.conftest import TestFixtures
-from projectodyssey.testing import (
+from odyssey.testing import (
     compute_numerical_gradient,
     assert_gradients_close,
 )
-from projectodyssey.core.extensor import (
+from odyssey.core.extensor import (
     ExTensor,
     zeros,
     ones,
@@ -33,14 +33,14 @@ from projectodyssey.core.extensor import (
     ones_like,
     full_like,
 )
-from projectodyssey.core.normalization import (
+from odyssey.core.normalization import (
     batch_norm2d,
     batch_norm2d_backward,
     layer_norm,
     layer_norm_backward,
 )
-from projectodyssey.core.arithmetic import add, subtract, multiply
-from projectodyssey.core.reduction import sum as reduce_sum
+from odyssey.core.arithmetic import add, subtract, multiply
+from odyssey.core.reduction import sum as reduce_sum
 
 
 # ============================================================================

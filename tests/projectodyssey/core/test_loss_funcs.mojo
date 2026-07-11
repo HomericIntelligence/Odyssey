@@ -8,7 +8,7 @@ All tests use pure functional API - no internal state.
 """
 
 
-from tests.projectodyssey.conftest import (
+from tests.odyssey.conftest import (
     assert_almost_equal,
     assert_equal,
     assert_greater_or_equal,
@@ -16,9 +16,9 @@ from tests.projectodyssey.conftest import (
     assert_true,
     assert_close_float,
 )
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros, ones, full
-from projectodyssey.core.loss import (
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros, ones, full
+from odyssey.core.loss import (
     cross_entropy,
     cross_entropy_backward,
     mean_squared_error,
@@ -26,7 +26,7 @@ from projectodyssey.core.loss import (
     binary_cross_entropy,
     binary_cross_entropy_backward,
 )
-from projectodyssey.core.reduction import mean
+from odyssey.core.reduction import mean
 
 
 def test_cross_entropy_output_shape() raises:

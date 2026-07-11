@@ -13,9 +13,9 @@ The shared library provides:
 
 ## Design Principles
 
-### What Belongs in `src/projectodyssey/`
+### What Belongs in `src/odyssey/`
 
-Code should live in `src/projectodyssey/` if it is:
+Code should live in `src/odyssey/` if it is:
 
 - ✅ **Reusable** across multiple paper implementations
 - ✅ **Generic** and not paper-specific
@@ -50,15 +50,15 @@ Examples:
 
 When unsure, ask:
 
-1. **Will ≥3 papers use this?** → `src/projectodyssey/`
-1. **Is it a standard ML component?** → `src/projectodyssey/`
+1. **Will ≥3 papers use this?** → `src/odyssey/`
+1. **Is it a standard ML component?** → `src/odyssey/`
 1. **Is it paper-specific innovation?** → `papers/`
-1. **Is the interface still changing?** → `papers/` (move to `src/projectodyssey/` when stable)
+1. **Is the interface still changing?** → `papers/` (move to `src/odyssey/` when stable)
 
 ## Directory Structure
 
 ```text
-src/projectodyssey/
+src/odyssey/
 ├── core/              # Fundamental utilities and base classes
 │   ├── README.md      # Core components documentation
 │   └── ...            # Base layers, tensor ops, memory management
@@ -92,8 +92,8 @@ src/projectodyssey/
 ### Example Usage
 
 ```mojo
-from projectodyssey.core.layers import Linear, ReLU
-from projectodyssey.core.module import Module
+from odyssey.core.layers import Linear, ReLU
+from odyssey.core.module import Module
 
 struct MyModel(Module):
     var layer1: Linear
@@ -119,9 +119,9 @@ struct MyModel(Module):
 ### Example Usage
 
 ```mojo
-from projectodyssey.training.optimizer import SGD
-from projectodyssey.training.scheduler import StepLR
-from projectodyssey.training.trainer import Trainer
+from odyssey.training.optimizer import SGD
+from odyssey.training.scheduler import StepLR
+from odyssey.training.trainer import Trainer
 
 var optimizer = SGD(model.parameters(), lr=0.01, momentum=0.9)
 var scheduler = StepLR(optimizer, step_size=30, gamma=0.1)
@@ -144,9 +144,9 @@ trainer.train(train_loader, epochs=100)
 ### Example Usage
 
 ```mojo
-from projectodyssey.data.dataset import ImageDataset
-from projectodyssey.data.transforms import Normalize, RandomCrop, ToTensor
-from projectodyssey.data.loader import DataLoader
+from odyssey.data.dataset import ImageDataset
+from odyssey.data.transforms import Normalize, RandomCrop, ToTensor
+from odyssey.data.loader import DataLoader
 
 var transform = Compose([
     RandomCrop(28),
@@ -173,9 +173,9 @@ var loader = DataLoader(dataset, batch_size=32, shuffle=True)
 ### Example Usage
 
 ```mojo
-from projectodyssey.utils.logger import Logger
-from projectodyssey.utils.metrics import accuracy
-from projectodyssey.utils.viz import plot_training_curves
+from odyssey.utils.logger import Logger
+from odyssey.utils.metrics import accuracy
+from odyssey.utils.viz import plot_training_curves
 
 var logger = Logger("training.log")
 logger.info("Starting training...")
@@ -261,12 +261,12 @@ utils/      # Depends on: core/
 
 ## Usage in Papers
 
-Paper implementations import from `src/projectodyssey/`:
+Paper implementations import from `src/odyssey/`:
 
 ```mojo
 # In papers/lenet5/src/model.mojo
-from projectodyssey.core.layers import Conv2D, Linear, ReLU, MaxPool2D
-from projectodyssey.core.module import Module
+from odyssey.core.layers import Conv2D, Linear, ReLU, MaxPool2D
+from odyssey.core.module import Module
 
 struct LeNet5(Module):
     var conv1: Conv2D
@@ -278,8 +278,8 @@ Papers can extend shared components:
 
 ```mojo
 # In papers/alexnet/src/model.mojo
-from projectodyssey.core.layers import Conv2D
-from projectodyssey.training.optimizer import SGD
+from odyssey.core.layers import Conv2D
+from odyssey.training.optimizer import SGD
 
 # Use shared components + paper-specific additions
 struct AlexNet(Module):
@@ -291,7 +291,7 @@ struct AlexNet(Module):
 
 ### Proposing New Components
 
-Before adding to `src/projectodyssey/`:
+Before adding to `src/odyssey/`:
 
 1. **Check if it exists**: Review existing components
 1. **Verify reusability**: Will ≥3 papers use it?

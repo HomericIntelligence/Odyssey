@@ -6,7 +6,7 @@ gradient computation support.
 ## Overview
 
 ```mojo
-from projectodyssey.core import AnyTensor
+from odyssey.core import AnyTensor
 ```
 
 `AnyTensor` is a dynamic tensor supporting:
@@ -35,7 +35,7 @@ fn zeros[dtype: DType](dims: Int...) raises -> AnyTensor  # Variadic version
 **Example:**
 
 ```mojo
-from projectodyssey.core import zeros
+from odyssey.core import zeros
 
 var a = zeros[DType.float32](3, 4)       # Shape: (3, 4)
 var b = zeros(List[Int](2, 3, 4), DType.float16)  # Shape: (2, 3, 4)
@@ -53,7 +53,7 @@ fn ones[dtype: DType](dims: Int...) raises -> AnyTensor
 **Example:**
 
 ```mojo
-from projectodyssey.core import ones
+from odyssey.core import ones
 
 var x = ones[DType.float32](64, 128)
 ```
@@ -75,7 +75,7 @@ fn full(shape: List[Int], fill_value: Scalar, dtype: DType) raises -> AnyTensor
 **Example:**
 
 ```mojo
-from projectodyssey.core import full
+from odyssey.core import full
 
 var x = full(List[Int](3, 3), 3.14, DType.float32)
 ```
@@ -98,7 +98,7 @@ fn randn[dtype: DType](dims: Int...) raises -> AnyTensor
 **Example:**
 
 ```mojo
-from projectodyssey.core import randn
+from odyssey.core import randn
 
 var x = randn[DType.float32](32, 784)  # Random input batch
 var w = randn[DType.float32](784, 128, seed=42)  # Reproducible weights
@@ -122,7 +122,7 @@ fn arange(start: Scalar, stop: Scalar, step: Scalar, dtype: DType) raises -> Any
 **Example:**
 
 ```mojo
-from projectodyssey.core import arange
+from odyssey.core import arange
 
 var x = arange(0.0, 10.0, 1.0, DType.float32)  # [0, 1, 2, ..., 9]
 var y = arange(0.0, 1.0, 0.1, DType.float32)   # [0, 0.1, 0.2, ..., 0.9]
@@ -144,7 +144,7 @@ fn eye(n: Int, dtype: DType = DType.float32) raises -> AnyTensor
 **Example:**
 
 ```mojo
-from projectodyssey.core import eye
+from odyssey.core import eye
 
 var I = eye(3)  # 3x3 identity matrix
 ```
@@ -167,7 +167,7 @@ fn linspace(start: Scalar, stop: Scalar, num: Int, dtype: DType) raises -> AnyTe
 **Example:**
 
 ```mojo
-from projectodyssey.core import linspace
+from odyssey.core import linspace
 
 var x = linspace(0.0, 1.0, 11, DType.float32)  # [0, 0.1, 0.2, ..., 1.0]
 ```

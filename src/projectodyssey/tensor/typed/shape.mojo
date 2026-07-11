@@ -4,13 +4,13 @@ Internal module -- not part of the public API.
 """
 
 from std.collections import List, Optional
-from projectodyssey.tensor.tensor import Tensor
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.base.broadcasting import (
+from odyssey.tensor.tensor import Tensor
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.base.broadcasting import (
     are_shapes_broadcastable,
     compute_broadcast_strides,
 )
-from projectodyssey.base.dtype_ordinal import (
+from odyssey.base.dtype_ordinal import (
     dtype_to_ordinal,
     DTYPE_FLOAT16,
     DTYPE_FLOAT32,
@@ -110,7 +110,7 @@ def _reshape_typed[
     Raises:
         Error: If new shape has different number of elements.
     """
-    from projectodyssey.base.shape_utils import _resolve_shape
+    from odyssey.base.shape_utils import _resolve_shape
 
     var total_elements = tensor.numel()
     var final_shape = _resolve_shape(new_shape, total_elements)

@@ -31,7 +31,7 @@ File Format:
     Line 3+: <hex_encoded_bytes>
 
 Example:
-    from projectodyssey.training.model_utils import save_model_weights, load_model_weights
+    from odyssey.training.model_utils import save_model_weights, load_model_weights
 
     # Save weights
     save_model_weights(model, "checkpoints/epoch_10/")
@@ -41,8 +41,8 @@ Example:
     ```
 """
 
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.utils.serialization import save_tensor, load_tensor
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.utils.serialization import save_tensor, load_tensor
 from std.collections import List
 
 
@@ -80,7 +80,7 @@ def save_model_weights(
             save_model_weights(params, "checkpoint/", names)
             ```
     """
-    from projectodyssey.utils.file_io import create_directory
+    from odyssey.utils.file_io import create_directory
 
     # Validate inputs match
     if len(parameters) != len(param_names):

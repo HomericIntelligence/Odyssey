@@ -6,15 +6,15 @@ Usage:
     mojo run examples/vgg16_cifar10/inference.mojo --weights-dir vgg16_weights --data-dir datasets/cifar10
 """
 
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros
-from projectodyssey.data.formats import load_cifar10_batch
-from projectodyssey.data.datasets import CIFAR10Dataset
-from projectodyssey.data.batch_utils import extract_batch_pair
-from projectodyssey.data.constants import DatasetInfo
-from projectodyssey.training.metrics import evaluate_with_predict
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros
+from odyssey.data.formats import load_cifar10_batch
+from odyssey.data.datasets import CIFAR10Dataset
+from odyssey.data.batch_utils import extract_batch_pair
+from odyssey.data.constants import DatasetInfo
+from odyssey.training.metrics import evaluate_with_predict
 from model import VGG16
-from projectodyssey.utils.arg_parser import ArgumentParser
+from odyssey.utils.arg_parser import ArgumentParser
 from std.collections import List
 
 
@@ -41,7 +41,7 @@ def compute_test_accuracy(
 ) raises -> Float32:
     """Compute accuracy on test set using shared metrics utilities.
 
-    Uses evaluate_with_predict from projectodyssey.training.metrics to consolidate
+    Uses evaluate_with_predict from odyssey.training.metrics to consolidate
     evaluation logic across all examples.
 
     Args:

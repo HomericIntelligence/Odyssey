@@ -13,10 +13,10 @@ Tests cover:
 """
 
 from std.testing import assert_true
-from tests.projectodyssey.conftest import assert_almost_equal
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros
-from projectodyssey.autograd import Variable, GradientTape, SGD, Adam
+from tests.odyssey.conftest import assert_almost_equal
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros
+from odyssey.autograd import Variable, GradientTape, SGD, Adam
 
 
 def test_sgd_step_with_anytensor_data() raises:

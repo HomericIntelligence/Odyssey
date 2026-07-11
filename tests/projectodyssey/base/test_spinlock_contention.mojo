@@ -36,7 +36,7 @@ fix preserves.
 """
 
 from std.testing import assert_true, assert_equal
-from projectodyssey.base.memory_pool import SpinLock
+from odyssey.base.memory_pool import SpinLock
 from std.atomic import Atomic
 from std.memory import UnsafePointer, alloc
 

@@ -17,7 +17,7 @@ Performance Characteristics:
     - Register blocking uses MICRO_M=4, MICRO_N=16 for optimal register utilization
 
 Usage:
-    from projectodyssey.core.matmul import matmul, matmul_optimized
+    from odyssey.core.matmul import matmul, matmul_optimized
 
     var a = zeros([1024, 512], DType.float32)
     var b = zeros([512, 1024], DType.float32)
@@ -35,10 +35,10 @@ References:
 from std.algorithm import vectorize
 from std.sys.info import simd_width_of
 from std.memory import memset_zero
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros
-from projectodyssey.core.error_utils import format_dtype, format_matmul_error
-from projectodyssey.core.strassen import (
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros
+from odyssey.core.error_utils import format_dtype, format_matmul_error
+from odyssey.core.strassen import (
     matmul_strassen,
     STRASSEN_ENABLED,
     STRASSEN_THRESHOLD,

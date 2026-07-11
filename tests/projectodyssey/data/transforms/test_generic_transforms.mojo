@@ -4,8 +4,8 @@ Tests identity transforms and lambda transforms.
 """
 
 
-from projectodyssey.tensor.any_tensor import AnyTensor
-from tests.projectodyssey.conftest import (
+from odyssey.tensor.any_tensor import AnyTensor
+from tests.odyssey.conftest import (
     assert_true,
     assert_equal,
     assert_false,
@@ -14,8 +14,8 @@ from tests.projectodyssey.conftest import (
     assert_less,
     TestFixtures,
 )
-from projectodyssey.data.transforms import Transform
-from projectodyssey.data.generic_transforms import (
+from odyssey.data.transforms import Transform
+from odyssey.data.generic_transforms import (
     IdentityTransform,
     LambdaTransform,
     ConditionalTransform,

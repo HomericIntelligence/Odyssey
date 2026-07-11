@@ -27,22 +27,22 @@ Example Usage:
 
 Note:
     All symbols in this module are re-exported cleanly through the parent
-    `projectodyssey.training` package. You may import directly from either location:
+    `odyssey.training` package. You may import directly from either location:
 
     ```mojo
-    from projectodyssey.training.loops import TrainingLoop
-    from projectodyssey.training import TrainingLoop  # also works
+    from odyssey.training.loops import TrainingLoop
+    from odyssey.training import TrainingLoop  # also works
     ```
 
-    No Mojo re-export limitation applies here (unlike `projectodyssey.training.callbacks`).
+    No Mojo re-export limitation applies here (unlike `odyssey.training.callbacks`).
 """
 
 # Export training loop implementations
-from projectodyssey.training.loops.training_loop import (
+from odyssey.training.loops.training_loop import (
     TrainingLoop,
     train_one_epoch,
     training_step,
 )
 
 # Export validation loop
-from projectodyssey.training.loops.validation_loop import ValidationLoop
+from odyssey.training.loops.validation_loop import ValidationLoop

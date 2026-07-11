@@ -27,13 +27,13 @@ Features:
 """
 
 from std.collections import Dict, List
-from projectodyssey.training.base import (
+from odyssey.training.base import (
     Callback,
     CallbackSignal,
     CONTINUE,
     TrainingState,
 )
-from projectodyssey.utils.file_io import (
+from odyssey.utils.file_io import (
     create_directory,
     safe_write_file,
     file_exists,

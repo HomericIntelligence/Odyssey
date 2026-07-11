@@ -4,10 +4,10 @@ Tests that the Module trait can be imported and used to create
 a simple module implementation.
 """
 
-from projectodyssey.core.module import Module
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros
-from tests.projectodyssey.conftest import assert_true, assert_equal_int
+from odyssey.core.module import Module
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros
+from tests.odyssey.conftest import assert_true, assert_equal_int
 
 
 struct DummyModule:

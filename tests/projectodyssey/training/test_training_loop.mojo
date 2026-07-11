@@ -9,11 +9,11 @@ Issue #2728: Enable Training Loop Tests with SimpleMLP and AnyTensor.randn.
 Tests enabled after core infrastructure was completed:
 - MSELoss.compute() implementation
 - TrainingLoopSGD/TrainingLoop integration via autograd
-- AnyTensor.randn export from projectodyssey.core
+- AnyTensor.randn export from odyssey.core
 """
 
 
-from tests.projectodyssey.conftest import (
+from tests.odyssey.conftest import (
     TestFixtures,
     assert_almost_equal,
     assert_equal,
@@ -29,17 +29,17 @@ from tests.projectodyssey.conftest import (
     create_simple_model,
     create_test_vector,
 )
-from projectodyssey.training import (
+from odyssey.training import (
     TrainingLoopSGD,
     MSELoss,
     TrainingLoop,
 )
-from projectodyssey.training.trainer_interface import DataLoader
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import ones, randn, zeros
-from projectodyssey.core.arithmetic import subtract, multiply
-from projectodyssey.testing.models import SimpleMLP
-from projectodyssey.training.script_runner import (
+from odyssey.training.trainer_interface import DataLoader
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import ones, randn, zeros
+from odyssey.core.arithmetic import subtract, multiply
+from odyssey.testing.models import SimpleMLP
+from odyssey.training.script_runner import (
     StepFn,
     TrainingCallbacks,
     run_epoch_with_batches,
@@ -202,7 +202,7 @@ def test_training_loop_forward_pass() raises:
         model^, optimizer^, loss_fn^
     )
 
-    # Create input using randn (now exported from projectodyssey.core)
+    # Create input using randn (now exported from odyssey.core)
     var inputs = randn([10], DType.float32, seed=42)
 
     # Execute forward pass

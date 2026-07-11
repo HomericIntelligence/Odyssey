@@ -12,8 +12,8 @@ Test Coverage:
 - String representation
 """
 
-from projectodyssey.training.config import TrainingConfig
-from projectodyssey.testing.assertions import (
+from odyssey.training.config import TrainingConfig
+from odyssey.testing.assertions import (
     assert_true,
     assert_equal,
     assert_almost_equal,

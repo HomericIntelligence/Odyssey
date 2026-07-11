@@ -3,8 +3,8 @@
 Tests scalar exponential functions for numerical stability and correctness.
 """
 
-from tests.projectodyssey.conftest import assert_almost_equal, assert_true
-from projectodyssey.core.activation_ops import exp_scalar_f32, exp_scalar_f64
+from tests.odyssey.conftest import assert_almost_equal, assert_true
+from odyssey.core.activation_ops import exp_scalar_f32, exp_scalar_f64
 
 
 def test_exp_scalar_f32() raises:

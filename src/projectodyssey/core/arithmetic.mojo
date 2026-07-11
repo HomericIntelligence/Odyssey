@@ -1,15 +1,15 @@
 """Arithmetic operations for AnyTensor.
 
 Implements element-wise arithmetic operations following NumPy-style broadcasting.
-Typed Tensor[dtype] implementations live in src/projectodyssey/tensor/typed/arithmetic.mojo.
+Typed Tensor[dtype] implementations live in src/odyssey/tensor/typed/arithmetic.mojo.
 This file provides the AnyTensor public API only.
 """
 
 from std.collections import List
 from std.math import nan
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import full
-from projectodyssey.core.gradient_types import GradientPair
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import full
+from odyssey.core.gradient_types import GradientPair
 
 
 def add(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
@@ -37,7 +37,7 @@ def add(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
         var z = add(x, y)  # Shape (3, 4, 5)
         ```
     """
-    from projectodyssey.tensor.typed.arithmetic import (
+    from odyssey.tensor.typed.arithmetic import (
         _dispatch_broadcast_binary,
     )
 
@@ -75,7 +75,7 @@ def subtract(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
         var z = subtract(x, y)  # Shape (3, 4, 5)
         ```
     """
-    from projectodyssey.tensor.typed.arithmetic import (
+    from odyssey.tensor.typed.arithmetic import (
         _dispatch_broadcast_binary,
     )
 
@@ -112,7 +112,7 @@ def multiply(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
         var z = multiply(x, y)  # Shape (3, 4, 5), all 6.0
         ```
     """
-    from projectodyssey.tensor.typed.arithmetic import (
+    from odyssey.tensor.typed.arithmetic import (
         _dispatch_broadcast_binary,
     )
 
@@ -160,7 +160,7 @@ def divide(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
         var z = divide(x, y)  # Shape (3, 4, 5), all 3.0
         ```
     """
-    from projectodyssey.tensor.typed.arithmetic import (
+    from odyssey.tensor.typed.arithmetic import (
         _dispatch_broadcast_binary,
     )
 
@@ -197,7 +197,7 @@ def multiply_scalar(tensor: AnyTensor, scalar: Float32) raises -> AnyTensor:
         var negated = multiply_scalar(b, -1.0)  # Shape (2, 3), all -3.0
         ```
     """
-    from projectodyssey.tensor.typed.arithmetic import _dispatch_multiply_scalar
+    from odyssey.tensor.typed.arithmetic import _dispatch_multiply_scalar
 
     return _dispatch_multiply_scalar(tensor, scalar)
 
@@ -233,7 +233,7 @@ def floor_divide(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
         var z = floor_divide(x, y)  # Shape (3, 4, 5), all 3.0
         ```
     """
-    from projectodyssey.tensor.typed.arithmetic import (
+    from odyssey.tensor.typed.arithmetic import (
         _dispatch_broadcast_binary,
     )
 
@@ -282,7 +282,7 @@ def modulo(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
         var z = modulo(x, y)  # Shape (3, 4, 5), all 1.0
         ```
     """
-    from projectodyssey.tensor.typed.arithmetic import (
+    from odyssey.tensor.typed.arithmetic import (
         _dispatch_broadcast_binary,
     )
 
@@ -334,7 +334,7 @@ def power(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
         For integer exponents, this uses efficient repeated squaring.
         For fractional exponents, this uses exp(b * log(a)).
     """
-    from projectodyssey.tensor.typed.arithmetic import (
+    from odyssey.tensor.typed.arithmetic import (
         _dispatch_broadcast_binary,
     )
 
@@ -379,7 +379,7 @@ def _reduce_broadcast_dims(
         var reduced2 = _reduce_broadcast_dims(grad2, original2)  # Shape (5,)
         ```
     """
-    from projectodyssey.core.reduction import sum
+    from odyssey.core.reduction import sum
 
     var result = grad
     var grad_shape = grad.shape()

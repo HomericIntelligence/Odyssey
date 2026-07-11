@@ -13,7 +13,7 @@ Classes:
     CIFAR10Dataset: High-level interface for CIFAR-10 data access
 
 Example:
-    from projectodyssey.data.datasets import CIFAR10Dataset, TensorDataset
+    from odyssey.data.datasets import CIFAR10Dataset, TensorDataset
 
     # Create CIFAR-10 dataset
     var cifar = CIFAR10Dataset("/path/to/cifar10/data")
@@ -23,7 +23,7 @@ Example:
 """
 
 # Core dataset types from _datasets_core.mojo
-from projectodyssey.data._datasets_core import (
+from odyssey.data._datasets_core import (
     Dataset,
     AnyTensorDataset,
     TensorDataset,
@@ -31,7 +31,7 @@ from projectodyssey.data._datasets_core import (
 )
 
 # CIFAR-10 dataset
-from projectodyssey.data.datasets.cifar10 import (
+from odyssey.data.datasets.cifar10 import (
     CIFAR10Dataset,
     get_cifar10_classes,
 )

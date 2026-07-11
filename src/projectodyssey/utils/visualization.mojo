@@ -5,7 +5,7 @@ model architecture diagrams, and other visualizations useful for understanding
 model behavior.
 
 Example:
-    from projectodyssey.utils import plot_training_curves
+    from odyssey.utils import plot_training_curves
 
     var train_losses : List[Float32]()
     var val_losses : List[Float32]()

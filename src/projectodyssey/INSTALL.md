@@ -164,13 +164,13 @@ Run the full test suite:
 
 ```bash
 # Run import validation tests
-mojo test tests/projectodyssey/test_imports.mojo
+mojo test tests/odyssey/test_imports.mojo
 
 # Run integration tests
-mojo test tests/projectodyssey/integration/
+mojo test tests/odyssey/integration/
 
 # Run all tests
-mojo test tests/projectodyssey/
+mojo test tests/odyssey/
 ```text
 
 ## Usage
@@ -200,10 +200,10 @@ Import from specific modules for less common items:
 
 ```mojo
 # Import from specific submodules
-from projectodyssey.core.layers import MaxPool2D, Dropout, BatchNorm2D
-from projectodyssey.training.schedulers import CosineAnnealingLR
-from projectodyssey.training.metrics import Precision, Recall
-from projectodyssey.data.transforms import RandomCrop, RandomHorizontalFlip
+from odyssey.core.layers import MaxPool2D, Dropout, BatchNorm2D
+from odyssey.training.schedulers import CosineAnnealingLR
+from odyssey.training.metrics import Precision, Recall
+from odyssey.data.transforms import RandomCrop, RandomHorizontalFlip
 ```text
 
 See [EXAMPLES.md](EXAMPLES.md) for complete usage examples.
@@ -263,7 +263,7 @@ mojo package shared --install
 - Check what's actually implemented:
 
 ```bash
-find src/projectodyssey/ -name "*.mojo" -type f | while read f; do
+find src/odyssey/ -name "*.mojo" -type f | while read f; do
     if grep -q "^struct\|^fn" "$f" 2>/dev/null; then
         echo "✓ $f (has implementation)"
     else
@@ -310,7 +310,7 @@ modular update mojo
 mojo package shared --verbose
 
 # Check for syntax errors
-mojo check src/projectodyssey/
+mojo check src/odyssey/
 ```text
 
 #### Version Conflicts
@@ -376,7 +376,7 @@ chmod +x scripts/*.mojo
 MOJO_PATH=/path/to/packages mojo run script.mojo
 
 # Check file system case sensitivity
-ls -la src/projectodyssey/
+ls -la src/odyssey/
 ```text
 
 **Problem**: Installation fails on macOS
@@ -404,7 +404,7 @@ mojo --version
 # Expected: 24.5 or later
 
 # 2. Verify shared library directory structure
-ls -la src/projectodyssey/
+ls -la src/odyssey/
 # Should show __init__.mojo and subdirectories (core, training, data, utils)
 
 # 3. Test basic import
@@ -451,7 +451,7 @@ If you're still having issues after trying the solutions above:
 rm -rf ~/.modular/packages/shared*
 
 # Clean build artifacts
-rm -rf src/projectodyssey/__pycache__ src/projectodyssey/**/__pycache__
+rm -rf src/odyssey/__pycache__ src/odyssey/**/__pycache__
 
 # Reinstall from scratch
 git pull
@@ -556,10 +556,10 @@ pre-commit install
 pixi run mojo package shared --install
 
 # Run tests to verify setup
-pixi run mojo test tests/projectodyssey/
+pixi run mojo test tests/odyssey/
 
 # Format code
-pixi run mojo format src/projectodyssey/
+pixi run mojo format src/odyssey/
 ```text
 
 ### IDE Setup

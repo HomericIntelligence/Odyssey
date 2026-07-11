@@ -20,7 +20,7 @@ Performance:
 - Follows patterns from activation_simd.mojo and matmul.mojo
 
 Example:
-    from projectodyssey.training.gradient_clipping import clip_gradients_by_global_norm
+    from odyssey.training.gradient_clipping import clip_gradients_by_global_norm
 
     # Clip gradients by global norm
     var gradients = [grad1, grad2, grad3]
@@ -32,12 +32,12 @@ Example:
 
 from std.algorithm import vectorize
 from std.sys.info import simd_width_of
-from projectodyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.any_tensor import AnyTensor
 from std.collections import List
 from std.math import sqrt
 
 # Re-export single-tensor clipping functions
-from projectodyssey.training.mixed_precision import (
+from odyssey.training.mixed_precision import (
     clip_gradients_by_norm,
     clip_gradients_by_value,
 )

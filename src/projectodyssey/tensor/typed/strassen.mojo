@@ -4,8 +4,8 @@ Internal module -- not part of the public API.
 """
 
 from std.collections import List
-from projectodyssey.tensor.tensor import Tensor
-from projectodyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor import Tensor
+from odyssey.tensor.any_tensor import AnyTensor
 
 
 def _extract_quadrants_typed[

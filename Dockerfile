@@ -108,7 +108,7 @@ RUN pixi run pre-commit --version
 # Build context lacks .git, but `pre-commit install-hooks` still requires
 # git to be operational inside *some* repository to clone hook envs.
 # Initialize a throwaway repo so install-hooks succeeds without `|| true`.
-RUN git config --global user.email "build@projectodyssey.local" && \
+RUN git config --global user.email "build@odyssey.local" && \
     git config --global user.name "build" && \
     git config --global init.defaultBranch main && \
     git init -q . && \

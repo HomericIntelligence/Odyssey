@@ -6,9 +6,9 @@ All operations return boolean tensors (DType.bool).
 """
 
 
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import full, ones, zeros
-from projectodyssey.core.comparison import (
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import full, ones, zeros
+from odyssey.core.comparison import (
     equal,
     greater,
     greater_equal,
@@ -16,7 +16,7 @@ from projectodyssey.core.comparison import (
     less_equal,
     not_equal,
 )
-from tests.projectodyssey.conftest import (
+from tests.odyssey.conftest import (
     assert_dtype,
     assert_numel,
     assert_value_at,

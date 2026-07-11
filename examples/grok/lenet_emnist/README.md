@@ -218,14 +218,14 @@ examples/grok/lenet_emnist/
 ## Implementation notes
 
 - **Manual AdamW, not autograd.** The autograd substrate in
-  `src/projectodyssey/autograd/` is incomplete for convnet training (see
+  `src/odyssey/autograd/` is incomplete for convnet training (see
   tracker issue [#5452](https://github.com/HomericIntelligence/Odyssey/issues/5452)):
   `variable_conv2d`, `variable_maxpool2d`, `variable_linear`,
   `variable_cross_entropy`, and `tape.backward()` dispatch are all
-  TODO/in-progress per `src/projectodyssey/autograd/README.md`. So this
+  TODO/in-progress per `src/odyssey/autograd/README.md`. So this
   example uses the same manual forward + manual `*_backward` pattern as
   `examples/lenet_emnist/`, but calls
-  [`adamw_step`](../../src/projectodyssey/training/optimizers/adamw.mojo) ten
+  [`adamw_step`](../../src/odyssey/training/optimizers/adamw.mojo) ten
   times per optimizer step (once per parameter) with its own first/second
   moment state. Once #5452 lands this example will be ported to the autograd
   path along with the others.

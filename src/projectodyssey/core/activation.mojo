@@ -22,9 +22,9 @@ Type support:
 
 from std.math import exp, erf, sqrt, tanh as math_tanh, log as math_log
 from std.collections import List
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import full, zeros_like
-from projectodyssey.base.dtype_ordinal import (
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import full, zeros_like
+from odyssey.base.dtype_ordinal import (
     dtype_to_ordinal,
     DTYPE_FLOAT16,
     DTYPE_FLOAT32,
@@ -38,9 +38,9 @@ from projectodyssey.base.dtype_ordinal import (
     DTYPE_UINT32,
     DTYPE_UINT64,
 )
-from projectodyssey.core.gradient_types import GradientPair
-from projectodyssey.core.activation_ops import exp_scalar_f32, exp_scalar_f64
-from projectodyssey.core.activation_constants import (
+from odyssey.core.gradient_types import GradientPair
+from odyssey.core.activation_ops import exp_scalar_f32, exp_scalar_f64
+from odyssey.core.activation_constants import (
     RELU6_UPPER_BOUND,
     SIGMOID_CLIP_THRESHOLD,
 )
@@ -92,7 +92,7 @@ def relu(tensor: AnyTensor) raises -> AnyTensor:
         var y = relu(x)        # [0, 0, 0, 1, 2]
     ```
     """
-    from projectodyssey.tensor.typed.activation import _dispatch_relu
+    from odyssey.tensor.typed.activation import _dispatch_relu
 
     return _dispatch_relu(tensor)
 
@@ -121,7 +121,7 @@ def relu6(tensor: AnyTensor) raises -> AnyTensor:
         var y = relu6(x)       # [0, 0, 3, 6, 6]
     ```
     """
-    from projectodyssey.tensor.typed.activation import _dispatch_relu6
+    from odyssey.tensor.typed.activation import _dispatch_relu6
 
     return _dispatch_relu6(tensor)
 
@@ -150,7 +150,7 @@ def leaky_relu(tensor: AnyTensor, alpha: Float64 = 0.01) raises -> AnyTensor:
             var y = leaky_relu(x, 0.01)     # [-0.02, -0.01, 0, 1, 2]
     ```
     """
-    from projectodyssey.tensor.typed.activation import _dispatch_leaky_relu
+    from odyssey.tensor.typed.activation import _dispatch_leaky_relu
 
     return _dispatch_leaky_relu(tensor, alpha)
 
@@ -297,7 +297,7 @@ def sigmoid(tensor: AnyTensor) raises -> AnyTensor:
             var y = sigmoid(x)     # [0.119, 0.5, 0.881]
     ```
     """
-    from projectodyssey.tensor.typed.activation import _dispatch_sigmoid
+    from odyssey.tensor.typed.activation import _dispatch_sigmoid
 
     return _dispatch_sigmoid(tensor)
 
@@ -344,7 +344,7 @@ def tanh(tensor: AnyTensor) raises -> AnyTensor:
             var y = tanh(x)        # [-0.964, 0, 0.964]
     ```
     """
-    from projectodyssey.tensor.typed.activation import _tanh_typed
+    from odyssey.tensor.typed.activation import _tanh_typed
 
     var ordinal = dtype_to_ordinal(tensor._dtype)
     if ordinal == DTYPE_FLOAT16:
@@ -415,7 +415,7 @@ def softmax(tensor: AnyTensor, axis: Int = -1) raises -> AnyTensor:
 
     var axis_size = tensor._shape[norm_axis]
 
-    from projectodyssey.core.dtype_dispatch import dispatch_softmax
+    from odyssey.core.dtype_dispatch import dispatch_softmax
 
     return dispatch_softmax(tensor, outer_size, axis_size, axis_stride)
 
@@ -449,7 +449,7 @@ def gelu(tensor: AnyTensor, approximate: Bool = False) raises -> AnyTensor:
             var y_approx = gelu(x, approximate=True)
     ```
     """
-    from projectodyssey.core.dtype_dispatch import dispatch_gelu
+    from odyssey.core.dtype_dispatch import dispatch_gelu
 
     return dispatch_gelu(tensor, approximate)
 
@@ -504,7 +504,7 @@ def relu_backward(grad_output: AnyTensor, x: AnyTensor) raises -> AnyTensor:
     if grad_output._numel != x._numel:
         raise Error("relu_backward: grad_output and x must have same shape")
 
-    from projectodyssey.core.dtype_dispatch import dispatch_binary
+    from odyssey.core.dtype_dispatch import dispatch_binary
 
     return dispatch_binary[_relu_backward_op](grad_output, x)
 
@@ -699,7 +699,7 @@ def sigmoid_backward(
             "sigmoid_backward: grad_output and output must have same shape"
         )
 
-    from projectodyssey.core.dtype_dispatch import dispatch_float_binary
+    from odyssey.core.dtype_dispatch import dispatch_float_binary
 
     return dispatch_float_binary[_sigmoid_backward_op](grad_output, output)
 
@@ -751,7 +751,7 @@ def tanh_backward(
             "tanh_backward: grad_output and output must have same shape"
         )
 
-    from projectodyssey.core.dtype_dispatch import dispatch_float_binary
+    from odyssey.core.dtype_dispatch import dispatch_float_binary
 
     return dispatch_float_binary[_tanh_backward_op](grad_output, output)
 
@@ -782,7 +782,7 @@ def gelu_backward(
     if grad_output._numel != x._numel:
         raise Error("gelu_backward: grad_output and x must have same shape")
 
-    from projectodyssey.core.dtype_dispatch import dispatch_gelu_backward
+    from odyssey.core.dtype_dispatch import dispatch_gelu_backward
 
     return dispatch_gelu_backward(grad_output, x, approximate)
 
@@ -837,7 +837,7 @@ def softmax_backward(
     for i in range(normalized_axis):
         outer_size *= output._shape[i]
 
-    from projectodyssey.core.dtype_dispatch import dispatch_softmax_backward
+    from odyssey.core.dtype_dispatch import dispatch_softmax_backward
 
     return dispatch_softmax_backward(
         grad_output, output, outer_size, axis_size, axis_stride
@@ -870,7 +870,7 @@ def swish(tensor: AnyTensor) raises -> AnyTensor:
         Reference:
             Ramachandran et al., "Searching for Activation Functions" (2017).
     """
-    from projectodyssey.core.arithmetic import multiply
+    from odyssey.core.arithmetic import multiply
 
     # swish(x) = x * sigmoid(x)
     var sig = sigmoid(tensor)
@@ -958,7 +958,7 @@ def mish(tensor: AnyTensor) raises -> AnyTensor:
     Reference:
         Misra, "Mish: A Self Regularized Non-Monotonic Activation Function" (2019).
     """
-    from projectodyssey.core.arithmetic import multiply
+    from odyssey.core.arithmetic import multiply
 
     # Use fused softplus (1 allocation instead of 7)
     var sp = softplus(tensor)
@@ -990,7 +990,7 @@ def elu(tensor: AnyTensor, alpha: Float64 = 1.0) raises -> AnyTensor:
             Clevert et al., "Fast and Accurate Deep Network Learning by.
             Exponential Linear Units (ELUs)" (2015).
     """
-    from projectodyssey.tensor.typed.activation import _dispatch_elu
+    from odyssey.tensor.typed.activation import _dispatch_elu
 
     return _dispatch_elu(tensor, alpha)
 
@@ -1024,7 +1024,7 @@ def selu(
     Reference:
         Klambauer et al., "Self-Normalizing Neural Networks" (2017).
     """
-    from projectodyssey.tensor.typed.activation import _dispatch_selu
+    from odyssey.tensor.typed.activation import _dispatch_selu
 
     return _dispatch_selu(tensor, alpha, lambda_)
 
@@ -1127,7 +1127,7 @@ def swish_backward(grad_output: AnyTensor, x: AnyTensor) raises -> AnyTensor:
     Raises:
             Error: If operation fails.
     """
-    from projectodyssey.core.arithmetic import add, subtract, multiply
+    from odyssey.core.arithmetic import add, subtract, multiply
 
     # Compute sigmoid(x)
     var sig = sigmoid(x)
@@ -1157,7 +1157,7 @@ def mish_backward(grad_output: AnyTensor, x: AnyTensor) raises -> AnyTensor:
     Raises:
             Error: If operation fails.
     """
-    from projectodyssey.core.arithmetic import add, subtract, multiply
+    from odyssey.core.arithmetic import add, subtract, multiply
 
     # Use fused softplus (1 allocation instead of 7)
     var sp = softplus(x)
@@ -1276,7 +1276,7 @@ def hard_sigmoid(tensor: AnyTensor) raises -> AnyTensor:
         Reference:
             Howard et al., "Searching for MobileNetV3" (2019).
     """
-    from projectodyssey.core.dtype_dispatch import dispatch_hard_sigmoid
+    from odyssey.core.dtype_dispatch import dispatch_hard_sigmoid
 
     return dispatch_hard_sigmoid(tensor)
 
@@ -1307,7 +1307,7 @@ def hard_swish(tensor: AnyTensor) raises -> AnyTensor:
         Reference:
             Howard et al., "Searching for MobileNetV3" (2019).
     """
-    from projectodyssey.core.dtype_dispatch import dispatch_hard_swish
+    from odyssey.core.dtype_dispatch import dispatch_hard_swish
 
     return dispatch_hard_swish(tensor)
 
@@ -1341,7 +1341,7 @@ def hard_tanh(
         Reference:
             Standard activation function used in various architectures.
     """
-    from projectodyssey.core.dtype_dispatch import dispatch_hard_tanh
+    from odyssey.core.dtype_dispatch import dispatch_hard_tanh
 
     return dispatch_hard_tanh(tensor, min_val, max_val)
 
@@ -1379,7 +1379,7 @@ def hard_sigmoid_backward(
             "hard_sigmoid_backward: grad_output and x must have same shape"
         )
 
-    from projectodyssey.core.dtype_dispatch import (
+    from odyssey.core.dtype_dispatch import (
         dispatch_hard_sigmoid_backward,
     )
 
@@ -1417,7 +1417,7 @@ def hard_swish_backward(
             "hard_swish_backward: grad_output and x must have same shape"
         )
 
-    from projectodyssey.core.dtype_dispatch import dispatch_hard_swish_backward
+    from odyssey.core.dtype_dispatch import dispatch_hard_swish_backward
 
     return dispatch_hard_swish_backward(grad_output, x)
 
@@ -1455,6 +1455,6 @@ def hard_tanh_backward(
             "hard_tanh_backward: grad_output and x must have same shape"
         )
 
-    from projectodyssey.core.dtype_dispatch import dispatch_hard_tanh_backward
+    from odyssey.core.dtype_dispatch import dispatch_hard_tanh_backward
 
     return dispatch_hard_tanh_backward(grad_output, x, min_val, max_val)

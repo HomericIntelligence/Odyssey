@@ -9,16 +9,16 @@ Regression test for #5572.
 """
 
 
-from tests.projectodyssey.conftest import (
+from tests.odyssey.conftest import (
     assert_equal_int,
     assert_almost_equal,
     assert_false,
     assert_true,
 )
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros
-from projectodyssey.core.utils import argmax, top_k_indices, top_k, argsort
-from projectodyssey.training.metrics.accuracy import argmax as metrics_argmax
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros
+from odyssey.core.utils import argmax, top_k_indices, top_k, argsort
+from odyssey.training.metrics.accuracy import argmax as metrics_argmax
 
 
 def _make_strided_2x4() raises -> AnyTensor:

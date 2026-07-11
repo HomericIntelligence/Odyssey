@@ -4,13 +4,13 @@ Tests split_words, join_words helper functions and basic RandomSwap operations.
 """
 
 
-from tests.projectodyssey.conftest import (
+from tests.odyssey.conftest import (
     assert_true,
     assert_equal,
     assert_false,
     TestFixtures,
 )
-from projectodyssey.data.text_transforms import (
+from odyssey.data.text_transforms import (
     TextTransform,
     RandomSwap,
     RandomDeletion,

@@ -1,4 +1,4 @@
-# src/projectodyssey/export/protobuf.mojo
+# src/odyssey/export/protobuf.mojo
 """
 Minimal Protocol Buffers encoder for ONNX export.
 

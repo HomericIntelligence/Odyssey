@@ -6,14 +6,14 @@ Tests the DType iteration utilities:
 """
 
 
-from projectodyssey.testing.dtype_utils import (
+from odyssey.testing.dtype_utils import (
     dtype_to_string,
     get_float32_only,
     get_float_dtypes,
     get_precision_dtypes,
     get_test_dtypes,
 )
-from projectodyssey.testing.assertions import (
+from odyssey.testing.assertions import (
     assert_equal_int,
     assert_true,
 )

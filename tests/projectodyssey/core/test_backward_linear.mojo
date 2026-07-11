@@ -1,14 +1,14 @@
 """Tests for linear layer backward passes."""
 
-from tests.projectodyssey.conftest import (
+from tests.odyssey.conftest import (
     assert_almost_equal,
     assert_equal,
     assert_true,
 )
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros, ones, ones_like
-from projectodyssey.core.linear import linear, linear_backward
-from projectodyssey.testing.gradient_checker import (
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros, ones, ones_like
+from odyssey.core.linear import linear, linear_backward
+from odyssey.testing.gradient_checker import (
     check_gradient,
     NumericalForward,
     NumericalBackward,

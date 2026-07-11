@@ -4,7 +4,7 @@ This guide explains how to integrate the shared library into paper implementatio
 
 ## Overview
 
-The shared library (`src/projectodyssey/`) provides reusable components for implementing research papers. This guide covers:
+The shared library (`src/odyssey/`) provides reusable components for implementing research papers. This guide covers:
 
 1. How to import and use shared components
 1. When to use shared vs custom implementations
@@ -17,9 +17,9 @@ The shared library (`src/projectodyssey/`) provides reusable components for impl
 
 ```mojo
 # In papers/lenet5/src/model.mojo
-from projectodyssey.core import Linear, Conv2D, ReLU, MaxPool2D, Sequential
-from projectodyssey.training import SGD, train_epoch, validate_epoch
-from projectodyssey.data import DataLoader, TensorDataset
+from odyssey.core import Linear, Conv2D, ReLU, MaxPool2D, Sequential
+from odyssey.training import SGD, train_epoch, validate_epoch
+from odyssey.data import DataLoader, TensorDataset
 
 # Use shared components directly
 var model = Sequential([
@@ -49,7 +49,7 @@ For commonly-used components, import from root:
 from shared import Linear, Conv2D, ReLU, SGD, DataLoader, Logger
 ```text
 
-**Exports from Root** (`src/projectodyssey/__init__.mojo`):
+**Exports from Root** (`src/odyssey/__init__.mojo`):
 
 - Core layers: `Linear`, `Conv2D`, `ReLU`, `MaxPool2D`, `Dropout`
 - Optimizers: `SGD`, `Adam`, `AdamW`
@@ -61,10 +61,10 @@ from shared import Linear, Conv2D, ReLU, SGD, DataLoader, Logger
 For specialized components, import from subpackage:
 
 ```mojo
-from projectodyssey.core import BatchNorm2D, LayerNorm, Softmax
-from projectodyssey.training import CosineAnnealingLR, EarlyStopping, ModelCheckpoint
-from projectodyssey.data import ImageDataset, RandomCrop, RandomHorizontalFlip
-from projectodyssey.utils import plot_training_curves, set_seed
+from odyssey.core import BatchNorm2D, LayerNorm, Softmax
+from odyssey.training import CosineAnnealingLR, EarlyStopping, ModelCheckpoint
+from odyssey.data import ImageDataset, RandomCrop, RandomHorizontalFlip
+from odyssey.utils import plot_training_curves, set_seed
 ```text
 
 ### Importing from Sub-Subpackages
@@ -72,10 +72,10 @@ from projectodyssey.utils import plot_training_curves, set_seed
 For advanced usage:
 
 ```mojo
-from projectodyssey.training.optimizers import AdamW, RMSprop
-from projectodyssey.training.schedulers import WarmupLR, ExponentialLR
-from projectodyssey.training.metrics import Precision, Recall, ConfusionMatrix
-from projectodyssey.training.callbacks import LRSchedulerCallback
+from odyssey.training.optimizers import AdamW, RMSprop
+from odyssey.training.schedulers import WarmupLR, ExponentialLR
+from odyssey.training.metrics import Precision, Recall, ConfusionMatrix
+from odyssey.training.callbacks import LRSchedulerCallback
 ```text
 
 ## When to Use Shared vs Custom
@@ -165,7 +165,7 @@ struct LeNet5:
 
 ```mojo
 # papers/lenet5/src/model.mojo
-from projectodyssey.core import Conv2D, ReLU, MaxPool2D, Linear, Flatten, Sequential
+from odyssey.core import Conv2D, ReLU, MaxPool2D, Linear, Flatten, Sequential
 
 struct LeNet5:
     var model: Sequential
@@ -232,8 +232,8 @@ fn train_one_epoch(
 
 ```mojo
 # papers/lenet5/src/train.mojo
-from projectodyssey.training import SGD, train_epoch, validate_epoch
-from projectodyssey.data import DataLoader
+from odyssey.training import SGD, train_epoch, validate_epoch
+from odyssey.data import DataLoader
 
 fn train_lenet5(
     model: LeNet5,
@@ -283,7 +283,7 @@ fn create_batches(
 
 ```mojo
 # papers/lenet5/data/loader.mojo
-from projectodyssey.data import TensorDataset, DataLoader, Compose, ToTensor, Normalize
+from odyssey.data import TensorDataset, DataLoader, Compose, ToTensor, Normalize
 
 fn create_data_loaders(
     train_data: Tensor,
@@ -322,7 +322,7 @@ When you need custom functionality, extend shared components:
 
 ```mojo
 # papers/resnet/src/layers.mojo
-from projectodyssey.core import Linear, Conv2D, ReLU, Module
+from odyssey.core import Linear, Conv2D, ReLU, Module
 
 struct ResidualBlock(Module):
     """Custom ResidualBlock - paper-specific."""
@@ -367,7 +367,7 @@ struct ResidualBlock(Module):
 ### Pattern 1: Model Construction
 
 ```mojo
-from projectodyssey.core import Sequential, Linear, ReLU, Dropout
+from odyssey.core import Sequential, Linear, ReLU, Dropout
 
 # Simple sequential model
 var model = Sequential([
@@ -384,8 +384,8 @@ var model = Sequential([
 ### Pattern 2: Training Setup
 
 ```mojo
-from projectodyssey.training import Adam, CosineAnnealingLR, EarlyStopping, ModelCheckpoint
-from projectodyssey.utils import Logger, set_seed
+from odyssey.training import Adam, CosineAnnealingLR, EarlyStopping, ModelCheckpoint
+from odyssey.utils import Logger, set_seed
 
 # Reproducibility
 set_seed(42)
@@ -405,7 +405,7 @@ var checkpoint = ModelCheckpoint("best_model.mojo", monitor="val_loss")
 ### Pattern 3: Data Pipeline
 
 ```mojo
-from projectodyssey.data import ImageDataset, DataLoader, Compose, RandomCrop, RandomHorizontalFlip, Normalize
+from odyssey.data import ImageDataset, DataLoader, Compose, RandomCrop, RandomHorizontalFlip, Normalize
 
 # Data augmentation pipeline
 var train_transform = Compose([
@@ -429,9 +429,9 @@ var val_loader = DataLoader(val_dataset, batch_size=256, shuffle=False)
 
 ```mojo
 from shared import Linear, Conv2D, ReLU, MaxPool2D
-from projectodyssey.training import SGD, train_epoch, validate_epoch
-from projectodyssey.data import DataLoader
-from projectodyssey.utils import Logger, plot_training_curves, set_seed
+from odyssey.training import SGD, train_epoch, validate_epoch
+from odyssey.data import DataLoader
+from odyssey.utils import Logger, plot_training_curves, set_seed
 
 fn main():
     # Setup
@@ -470,20 +470,20 @@ fn main():
 ❌ **Don't**: Wildcard imports
 
 ```mojo
-from projectodyssey.core import *  # Avoid this
+from odyssey.core import *  # Avoid this
 ```text
 
 ✅ **Do**: Explicit imports
 
 ```mojo
-from projectodyssey.core import Linear, Conv2D, ReLU
+from odyssey.core import Linear, Conv2D, ReLU
 ```text
 
 ### 2. Use Type Hints
 
 ```mojo
-from projectodyssey.core import Module
-from projectodyssey.training import Optimizer
+from odyssey.core import Module
+from odyssey.training import Optimizer
 
 fn train(model: Module, optimizer: Optimizer):
     # Type-safe function
@@ -537,7 +537,7 @@ papers/lenet5/
 
 1. Verify shared library is installed: `mojo run scripts/verify_installation.mojo`
 1. Check that component is implemented (not just planned)
-1. Use correct import path (check `src/projectodyssey/__init__.mojo`)
+1. Use correct import path (check `src/odyssey/__init__.mojo`)
 
 ### API Mismatches
 
@@ -598,7 +598,7 @@ When you implement something useful in a paper that could be shared:
 1. **Generalize**: Remove paper-specific assumptions
 1. **Test thoroughly**: Add comprehensive tests
 1. **Document**: Add docstrings and examples
-1. **Submit PR**: Contribute to `src/projectodyssey/`
+1. **Submit PR**: Contribute to `src/odyssey/`
 
 ## Migration Checklist
 
@@ -616,8 +616,8 @@ When migrating a paper to use shared library:
 
 ## Getting Help
 
-- **Documentation**: See `src/projectodyssey/README.md`, `src/projectodyssey/*/README.md`
-- **Examples**: See `src/projectodyssey/EXAMPLES.md`
+- **Documentation**: See `src/odyssey/README.md`, `src/odyssey/*/README.md`
+- **Examples**: See `src/odyssey/EXAMPLES.md`
 - **Issues**: File issues in repository
 - **Questions**: Ask in discussions
 

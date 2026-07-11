@@ -22,7 +22,7 @@ Benchmark your code when you need to:
 The high-level API makes it simple to benchmark a function:
 
 ```mojo
-from projectodyssey.benchmarking import benchmark_function, print_benchmark_report
+from odyssey.benchmarking import benchmark_function, print_benchmark_report
 
 fn expensive_operation() raises:
     # Your operation here
@@ -76,7 +76,7 @@ computation. Use this for most benchmarking tasks.
 Benchmark a function with a single call:
 
 ```mojo
-from projectodyssey.benchmarking import benchmark_function
+from odyssey.benchmarking import benchmark_function
 from time import perf_counter_ns
 
 fn matrix_multiply() raises:
@@ -130,7 +130,7 @@ struct BenchmarkStatistics:
 Print a formatted benchmark report:
 
 ```mojo
-from projectodyssey.benchmarking import print_benchmark_report
+from odyssey.benchmarking import print_benchmark_report
 
 var stats = benchmark_function(my_operation, measure_iters=100)
 print_benchmark_report(stats, "My Operation")
@@ -141,7 +141,7 @@ print_benchmark_report(stats, "My Operation")
 Compare multiple operations side-by-side:
 
 ```mojo
-from projectodyssey.benchmarking import print_benchmark_summary
+from odyssey.benchmarking import print_benchmark_summary
 
 var results = List[BenchmarkStatistics]()
 results.append(benchmark_function(op1, measure_iters=100))
@@ -181,7 +181,7 @@ record individual iteration times.
 The low-level result tracker records individual iteration times:
 
 ```mojo
-from projectodyssey.benchmarking.result import BenchmarkResult
+from odyssey.benchmarking.result import BenchmarkResult
 from time import perf_counter_ns
 
 var result = BenchmarkResult("custom_benchmark", iterations=0)
@@ -218,7 +218,7 @@ iterations.
 Advanced runner with manual measurement control:
 
 ```mojo
-from projectodyssey.benchmarking import BenchmarkRunner
+from odyssey.benchmarking import BenchmarkRunner
 from time import perf_counter_ns
 
 var runner = BenchmarkRunner("custom_operation", warmup_iters=10)
@@ -243,7 +243,7 @@ For simple operations, use the high-level API:
 
 ```mojo
 fn benchmark_relu() raises:
-    from projectodyssey.benchmarking import benchmark_function
+    from odyssey.benchmarking import benchmark_function
 
     fn compute_relu() raises:
         var tensor = AnyTensor([1024, 1024], DType.float32)
@@ -260,7 +260,7 @@ floating-point operations per second):
 
 ```mojo
 fn benchmark_matmul_with_gflops() raises:
-    from projectodyssey.benchmarking import benchmark_function
+    from odyssey.benchmarking import benchmark_function
 
     fn compute_matmul() raises:
         var a = AnyTensor([512, 512], DType.float32)
@@ -290,7 +290,7 @@ Compare two implementations to measure speedup:
 
 ```mojo
 fn compare_optimizations() raises:
-    from projectodyssey.benchmarking import benchmark_function, print_benchmark_summary
+    from odyssey.benchmarking import benchmark_function, print_benchmark_summary
 
     fn baseline_op() raises:
         # Baseline implementation
@@ -379,7 +379,7 @@ operations.
 ### Example: Tensor Operations Suite
 
 ```mojo
-from projectodyssey.benchmarking import benchmark_function, print_benchmark_summary
+from odyssey.benchmarking import benchmark_function, print_benchmark_summary
 
 fn benchmark_tensor_operations() raises:
     var results = List[BenchmarkStatistics]()
@@ -422,7 +422,7 @@ fn benchmark_tensor_operations() raises:
 Track memory usage alongside performance metrics:
 
 ```mojo
-from projectodyssey.benchmarking import benchmark_function
+from odyssey.benchmarking import benchmark_function
 from memory import memset_pattern
 
 fn benchmark_with_memory_tracking() raises:
@@ -458,7 +458,7 @@ Verify that SIMD optimizations actually improve performance:
 
 ```mojo
 fn benchmark_simd_speedup() raises:
-    from projectodyssey.benchmarking import benchmark_function
+    from odyssey.benchmarking import benchmark_function
 
     fn scalar_operation() raises:
         var result = 0.0
@@ -489,7 +489,7 @@ Understanding cache behavior is critical for performance optimization.
 
 ```mojo
 fn benchmark_cache_efficiency() raises:
-    from projectodyssey.benchmarking import benchmark_function
+    from odyssey.benchmarking import benchmark_function
 
     fn row_major_access() raises:
         # Efficient: sequential memory access
@@ -520,7 +520,7 @@ For matrix operations, blocking improves cache reuse:
 
 ```mojo
 fn benchmark_blocked_matmul() raises:
-    from projectodyssey.benchmarking import benchmark_function
+    from odyssey.benchmarking import benchmark_function
 
     fn naive_matmul() raises:
         # Naive: poor cache reuse

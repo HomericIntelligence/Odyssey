@@ -166,10 +166,10 @@ just test
 just test-mojo
 
 # Run specific test file
-mojo test tests/projectodyssey/core/test_tensor.mojo
+mojo test tests/odyssey/core/test_tensor.mojo
 
 # Run tests for a specific group
-just test-group tests/projectodyssey/core "test_*.mojo"
+just test-group tests/odyssey/core "test_*.mojo"
 
 # Format code before testing
 just format
@@ -448,7 +448,7 @@ Write entries in **user-facing language** — describe the impact, not the imple
 ```text
 - feat(tensor): add comparison ops              ← too terse, no user context
 - fix crash in training loop line 42            ← internal detail, not user-facing
-- refactor: move AnyTensor to src/projectodyssey/tensor/    ← internal restructuring, skip entirely
+- refactor: move AnyTensor to src/odyssey/tensor/    ← internal restructuring, skip entirely
 ```
 
 **Rules of thumb:**

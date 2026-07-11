@@ -16,8 +16,8 @@ Tests cover:
 """
 
 from std.testing import assert_true, assert_almost_equal
-from projectodyssey.core.layers.batchnorm import BatchNorm2dLayer
-from projectodyssey.tensor.tensor import Tensor
+from odyssey.core.layers.batchnorm import BatchNorm2dLayer
+from odyssey.tensor.tensor import Tensor
 
 
 def test_batchnorm_default_dtype() raises:

@@ -18,20 +18,20 @@ All optimizers follow pure functional design - caller manages state
 
 Note:
     All symbols in this module are re-exported cleanly through the parent
-    `projectodyssey.training` package. You may import directly from either location:
+    `odyssey.training` package. You may import directly from either location:
 
     ```mojo
-    from projectodyssey.training.optimizers import sgd_step
-    from projectodyssey.training import sgd_step  # also works
+    from odyssey.training.optimizers import sgd_step
+    from odyssey.training import sgd_step  # also works
     ```
 
-    No Mojo re-export limitation applies here (unlike `projectodyssey.training.callbacks`).
+    No Mojo re-export limitation applies here (unlike `odyssey.training.callbacks`).
 """
 
 # Export optimizer implementations
 
 # SGD optimizer (functional implementation and in-place mutation)
-from projectodyssey.training.optimizers.sgd import (
+from odyssey.training.optimizers.sgd import (
     sgd_step,
     sgd_step_simple,
     sgd_momentum_update_inplace,
@@ -40,25 +40,25 @@ from projectodyssey.training.optimizers.sgd import (
 )
 
 # Adam optimizer (functional implementation)
-from projectodyssey.training.optimizers.adam import adam_step, adam_step_simple
+from odyssey.training.optimizers.adam import adam_step, adam_step_simple
 
 # AdamW optimizer (functional implementation with decoupled weight decay)
-from projectodyssey.training.optimizers.adamw import (
+from odyssey.training.optimizers.adamw import (
     adamw_step,
     adamw_step_simple,
 )
 
 # RMSprop optimizer (functional implementation)
-from projectodyssey.training.optimizers.rmsprop import (
+from odyssey.training.optimizers.rmsprop import (
     rmsprop_step,
     rmsprop_step_simple,
 )
 
 # LARS optimizer (Layer-wise Adaptive Rate Scaling)
-from projectodyssey.training.optimizers.lars import lars_step, lars_step_simple
+from odyssey.training.optimizers.lars import lars_step, lars_step_simple
 
 # Muon optimizer (Newton-Schulz orthogonalized momentum for matrix-shaped parameters)
-from projectodyssey.training.optimizers.muon import (
+from odyssey.training.optimizers.muon import (
     muon_step,
     muon_step_simple,
     newton_schulz_orthogonalize,
@@ -66,16 +66,16 @@ from projectodyssey.training.optimizers.muon import (
 )
 
 # NorMuon optimizer (Muon with per-parameter normalization)
-from projectodyssey.training.optimizers.normuon import (
+from odyssey.training.optimizers.normuon import (
     normuon_step,
     normuon_step_simple,
 )
 
 # Lion optimizer (EvoLved Sign Momentum — Chen et al. 2023)
-from projectodyssey.training.optimizers.lion import lion_step, lion_step_simple
+from odyssey.training.optimizers.lion import lion_step, lion_step_simple
 
 # Shampoo optimizer (two-sided matrix preconditioner via Newton-Schulz inverse fourth root)
-from projectodyssey.training.optimizers.shampoo import (
+from odyssey.training.optimizers.shampoo import (
     shampoo_step,
     shampoo_step_simple,
     newton_schulz_inv_fourth_root,
@@ -84,7 +84,7 @@ from projectodyssey.training.optimizers.shampoo import (
 )
 
 # Optimizer utilities (common helper functions)
-from projectodyssey.training.optimizers.optimizer_utils import (
+from odyssey.training.optimizers.optimizer_utils import (
     initialize_optimizer_state,
     initialize_optimizer_state_from_params,
     compute_weight_decay_term,

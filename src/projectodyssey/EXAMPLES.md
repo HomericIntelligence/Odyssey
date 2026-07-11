@@ -279,7 +279,7 @@ Custom training loop with paper-specific logic:
 
 ```mojo
 from shared import SGD, Accuracy, Tensor
-from projectodyssey.core.layers import Linear, ReLU
+from odyssey.core.layers import Linear, ReLU
 
 fn custom_training_loop(
     model: Model,
@@ -908,7 +908,7 @@ fn mnist_classifier_complete():
 Create custom layers by extending the Module interface:
 
 ```mojo
-from projectodyssey.core import Module, Linear, ReLU
+from odyssey.core import Module, Linear, ReLU
 
 struct ResidualBlock(Module):
     """Residual block with skip connection."""
@@ -960,7 +960,7 @@ struct ResidualBlock(Module):
 Implement custom optimization algorithms:
 
 ```mojo
-from projectodyssey.training import Optimizer
+from odyssey.training import Optimizer
 
 struct CustomOptimizer(Optimizer):
     """Custom optimizer with adaptive learning rates."""
@@ -1059,7 +1059,7 @@ fn contrastive_loss(
 Create domain-specific transforms:
 
 ```mojo
-from projectodyssey.data import Transform
+from odyssey.data import Transform
 
 struct MixUp(Transform):
     """MixUp data augmentation for better generalization."""
@@ -1278,7 +1278,7 @@ struct MixedPrecisionTrainer:
 Debug training with detailed inspection:
 
 ```mojo
-from projectodyssey.utils import Logger
+from odyssey.utils import Logger
 
 struct TrainingDebugger:
     """Advanced debugging utilities for training."""

@@ -4,12 +4,12 @@ Tests NumPy-style broadcasting rules for scalar and vector-to-matrix cases.
 """
 
 
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros, ones, full
-from projectodyssey.core.arithmetic import add, multiply, subtract, divide
-from projectodyssey.core.comparison import greater, less_equal
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros, ones, full
+from odyssey.core.arithmetic import add, multiply, subtract, divide
+from odyssey.core.comparison import greater, less_equal
 from std.testing import assert_true
-from tests.projectodyssey.conftest import (
+from tests.odyssey.conftest import (
     assert_dtype,
     assert_numel,
     assert_dim,
@@ -17,7 +17,7 @@ from tests.projectodyssey.conftest import (
     assert_all_values,
     assert_all_close,
 )
-from projectodyssey.base.broadcasting import (
+from odyssey.base.broadcasting import (
     BroadcastIterator,
     are_shapes_broadcastable,
 )

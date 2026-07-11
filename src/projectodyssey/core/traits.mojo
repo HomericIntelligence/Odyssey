@@ -30,7 +30,7 @@ Example:
     ```
 """
 
-from projectodyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.any_tensor import AnyTensor
 
 
 trait Differentiable(ImplicitlyDestructible):

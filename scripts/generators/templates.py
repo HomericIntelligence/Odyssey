@@ -129,10 +129,10 @@ def generate_imports(layer_types: list[str]) -> str:
 
     imports = []
     if nn_layers:
-        imports.append(f"from projectodyssey.nn import Module, {', '.join(sorted(set(nn_layers)))}")
+        imports.append(f"from odyssey.nn import Module, {', '.join(sorted(set(nn_layers)))}")
     else:
-        imports.append("from projectodyssey.nn import Module")
-    imports.append(f"from projectodyssey.core import {', '.join(sorted(set(core_imports)))}")
+        imports.append("from odyssey.nn import Module")
+    imports.append(f"from odyssey.core import {', '.join(sorted(set(core_imports)))}")
 
     return "\n".join(imports)
 

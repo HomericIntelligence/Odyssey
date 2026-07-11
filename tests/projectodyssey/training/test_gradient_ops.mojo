@@ -11,14 +11,14 @@ All tests use small tensors for fast runtime.
 """
 
 
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros, ones, full
-from projectodyssey.training.gradient_ops import (
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros, ones, full
+from odyssey.training.gradient_ops import (
     accumulate_gradient_inplace,
     scale_gradient_inplace,
     zero_gradient_inplace,
 )
-from projectodyssey.testing.assertions import (
+from odyssey.testing.assertions import (
     assert_true,
     assert_close_float,
     assert_equal_float,

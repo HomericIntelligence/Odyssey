@@ -4,13 +4,13 @@ Internal module -- not part of the public API.
 """
 
 from std.collections import List
-from projectodyssey.tensor.tensor import Tensor
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.base.broadcasting import (
+from odyssey.tensor.tensor import Tensor
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.base.broadcasting import (
     broadcast_shapes,
     compute_broadcast_strides,
 )
-from projectodyssey.base.dtype_ordinal import (
+from odyssey.base.dtype_ordinal import (
     dtype_to_ordinal,
     DTYPE_FLOAT16,
     DTYPE_FLOAT32,
@@ -56,8 +56,8 @@ def _broadcast_binary_typed[
     # Tensor[dtype] lacks as_contiguous(), so we round-trip via AnyTensor only
     # when needed (rare path -- most tensors are contiguous).
     # NOTE: Function-scoped import to avoid circular dependency
-    # (projectodyssey.tensor.typed -> projectodyssey.core -> projectodyssey.tensor.typed).
-    from projectodyssey.core.shape import as_contiguous
+    # (odyssey.tensor.typed -> odyssey.core -> odyssey.tensor.typed).
+    from odyssey.core.shape import as_contiguous
 
     var a_any = a.as_any()
     var b_any = b.as_any()
@@ -223,7 +223,7 @@ def _multiply_scalar_typed[
     # Ensure input is contiguous before flat-buffer kernel access.
     # Tensor[dt] lacks as_contiguous() so round-trip via AnyTensor if needed.
     # NOTE: Function-scoped import to avoid circular dependency.
-    from projectodyssey.core.shape import as_contiguous
+    from odyssey.core.shape import as_contiguous
 
     var t_any = tensor.as_any()
     var t_cont = t_any if tensor.is_contiguous() else as_contiguous(t_any)

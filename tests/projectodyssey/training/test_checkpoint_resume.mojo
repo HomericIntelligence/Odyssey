@@ -18,17 +18,17 @@ Test Coverage (Issue #5184):
 - Decision 9: partial_write_recovery_skips_broken_epoch
 """
 
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros, ones
-from projectodyssey.training.checkpoint import CheckpointManager
-from projectodyssey.training.config import TrainingConfig
-from projectodyssey.utils.file_io import (
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros, ones
+from odyssey.training.checkpoint import CheckpointManager
+from odyssey.training.config import TrainingConfig
+from odyssey.utils.file_io import (
     file_exists,
     create_directory,
     safe_write_file,
     safe_read_file,
 )
-from projectodyssey.testing.assertions import (
+from odyssey.testing.assertions import (
     assert_true,
     assert_equal_int,
     assert_close_float,
@@ -297,7 +297,7 @@ def test_exit_codes_via_training_result() raises:
 
     Covers exit code AC: 0=success, 1=error, 2=transient, 130=SIGINT.
     """
-    from projectodyssey.training.interruption import (
+    from odyssey.training.interruption import (
         TrainingResult,
         ShutdownReason,
     )

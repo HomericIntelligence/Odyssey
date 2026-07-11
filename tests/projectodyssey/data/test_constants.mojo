@@ -9,7 +9,7 @@ Tests for:
 
 
 from std.testing import assert_equal, assert_true
-from projectodyssey.data.constants import (
+from odyssey.data.constants import (
     CIFAR10_CLASS_NAMES,
     EMNIST_BALANCED_CLASSES,
     EMNIST_BYCLASS_CLASSES,

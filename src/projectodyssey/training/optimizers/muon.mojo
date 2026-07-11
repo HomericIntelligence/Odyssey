@@ -38,17 +38,17 @@ Reference:
 """
 
 from std.math import sqrt as scalar_sqrt
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros_like, full_like
-from projectodyssey.core.arithmetic_simd import (
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros_like, full_like
+from odyssey.core.arithmetic_simd import (
     subtract_simd,
     multiply_simd,
     add_simd,
     divide_simd,
 )
-from projectodyssey.core.elementwise import sqrt
-from projectodyssey.core.matrix import matmul, transpose
-from projectodyssey.training.optimizers.optimizer_utils import (
+from odyssey.core.elementwise import sqrt
+from odyssey.core.matrix import matmul, transpose
+from odyssey.training.optimizers.optimizer_utils import (
     compute_tensor_norm,
 )
 
@@ -254,8 +254,8 @@ def muon_step(
 
     Example (Muon on matrix weights):
         ```mojo
-        from projectodyssey.core import AnyTensor, zeros_like
-        from projectodyssey.training.optimizers import muon_step
+        from odyssey.core import AnyTensor, zeros_like
+        from odyssey.training.optimizers import muon_step
 
         var W = xavier_uniform([784, 128], DType.float32)  # Linear weight
         var m = zeros_like(W)
@@ -293,7 +293,7 @@ def muon_step(
             "Muon requires rank-2 parameters (matrix). Use"
             " is_muon_eligible(params) to check. For non-matrix params"
             " (embeddings, biases), use AdamW instead. See"
-            " projectodyssey/training/optimizers/README.md for hybrid routing."
+            " odyssey/training/optimizers/README.md for hybrid routing."
         )
 
     # Update momentum: m_new = momentum_beta * m + grad

@@ -20,11 +20,11 @@ Array API Categories:
 - Arithmetic: add, subtract, multiply, divide, floor_divide, modulo, power ✓
 - Comparison: equal, not_equal, less, less_equal, greater, greater_equal ✓
 - Reduction: sum, mean, max, min (all-elements only) ✓
-- Matrix: matmul, transpose, dot, outer ✓ (src/projectodyssey/core/matrix.mojo)
-- Shape manipulation: reshape, squeeze, unsqueeze, concatenate ✓ (src/projectodyssey/core/shape.mojo)
-- Broadcasting: Full n-dim support for different-shape operations ✓ (src/projectodyssey/core/broadcasting.mojo)
-- Element-wise math: exp, log, sqrt, sin, cos, tanh ✓ (src/projectodyssey/core/elementwise.mojo)
-- Statistical: var, std, median, percentile ✓ (src/projectodyssey/core/reduction.mojo)
+- Matrix: matmul, transpose, dot, outer ✓ (src/odyssey/core/matrix.mojo)
+- Shape manipulation: reshape, squeeze, unsqueeze, concatenate ✓ (src/odyssey/core/shape.mojo)
+- Broadcasting: Full n-dim support for different-shape operations ✓ (src/odyssey/core/broadcasting.mojo)
+- Element-wise math: exp, log, sqrt, sin, cos, tanh ✓ (src/odyssey/core/elementwise.mojo)
+- Statistical: var, std, median, percentile ✓ (src/odyssey/core/reduction.mojo)
 - Indexing: slicing, advanced indexing ✓ (__getitem__ methods)
 - Hashing: __hash__ via Hashable trait ✓
 
@@ -48,15 +48,15 @@ from std.memory import UnsafePointer, memset_zero, alloc, bitcast
 from std.math import ceildiv
 from std.hashlib.hasher import Hasher
 from std.io import Writer
-from projectodyssey.base.memory_pool import pooled_alloc, pooled_free
+from odyssey.base.memory_pool import pooled_alloc, pooled_free
 from .tensor import Tensor
 from .tensor_traits import TensorLike
-from projectodyssey.base.broadcasting import (
+from odyssey.base.broadcasting import (
     broadcast_shapes,
     compute_broadcast_strides,
     are_shapes_broadcastable,
 )
-from projectodyssey.base.dtype_ordinal import (
+from odyssey.base.dtype_ordinal import (
     dtype_to_ordinal,
     DTYPE_FLOAT16,
     DTYPE_FLOAT32,
@@ -728,7 +728,7 @@ struct AnyTensor(
 
         Note: `transpose()` is the primary API for dimension swapping and returns a
         true stride-based view (shape and strides permuted, data pointer shared).
-        Compare with `transpose_view()` in `src/projectodyssey/core/matrix.mojo`, which copies
+        Compare with `transpose_view()` in `src/odyssey/core/matrix.mojo`, which copies
         raw bytes and sets permuted strides — useful for testing `is_contiguous()` and
         `as_contiguous()` but not recommended for production use. See also #4082.
 
@@ -1713,7 +1713,7 @@ struct AnyTensor(
 
         Note:
             This operator handles 2D×2D matrix multiplication. For 1D vectors
-            or batched matmul, use projectodyssey.core.matrix.matmul directly.
+            or batched matmul, use odyssey.core.matrix.matmul directly.
         """
         from .tensor_ops import _anytensor_matmul
 
@@ -2753,7 +2753,7 @@ struct AnyTensor(
         Creates a Tensor[dtype] that shares the same data buffer and refcount.
         The dtype parameter must match self._dtype at runtime.
 
-        Both files are siblings in src/projectodyssey/tensor/, so no circular dependency.
+        Both files are siblings in src/odyssey/tensor/, so no circular dependency.
 
         Parameters:
             dtype: The compile-time DType parameter (must match self._dtype).
@@ -2900,7 +2900,7 @@ struct AnyTensor(
         # compile any_tensor.mojo twice with distinct AnyTensor type
         # identities, producing
         #   "cannot implicitly convert 'AnyTensor' value to 'AnyTensor'".
-        # See src/projectodyssey/tensor/tensor_io.mojo top-of-file comment for details.
+        # See src/odyssey/tensor/tensor_io.mojo top-of-file comment for details.
         # (D5: D1's relative→absolute conversion accidentally re-broke this.)
         from .tensor_io import save_tensor
 

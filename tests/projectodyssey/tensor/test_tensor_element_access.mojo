@@ -14,7 +14,7 @@ Tests cover:
 """
 
 from std.testing import assert_true, assert_almost_equal
-from projectodyssey.tensor.tensor import Tensor
+from odyssey.tensor.tensor import Tensor
 
 
 def test_tensor_float32_creation() raises:

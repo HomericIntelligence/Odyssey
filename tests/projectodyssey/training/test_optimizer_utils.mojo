@@ -10,14 +10,14 @@ These tests verify the common utilities available to all optimizer implementatio
 """
 
 
-from tests.projectodyssey.conftest import (
+from tests.odyssey.conftest import (
     assert_true,
     assert_almost_equal,
     assert_equal,
 )
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros, ones, full, zeros_like
-from projectodyssey.training.optimizers import (
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros, ones, full, zeros_like
+from odyssey.training.optimizers import (
     apply_bias_correction,
     apply_weight_decay,
     clip_global_norm,

@@ -14,20 +14,20 @@ References:
     - Issue #2644: Add Numerical Stability Tests for Gradients
 """
 
-from projectodyssey.core.activation import (
+from odyssey.core.activation import (
     relu,
     relu_backward,
     sigmoid,
     sigmoid_backward,
 )
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import full, zeros_like
-from projectodyssey.testing.gradient_checker import (
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import full, zeros_like
+from odyssey.testing.gradient_checker import (
     check_gradient,
     NumericalForward,
     NumericalBackward,
 )
-from projectodyssey.testing.special_values import create_seeded_random_tensor
+from odyssey.testing.special_values import create_seeded_random_tensor
 
 
 # ---- ReLU (no captures) ----

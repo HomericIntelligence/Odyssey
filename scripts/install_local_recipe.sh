@@ -20,14 +20,14 @@ fi
 
 # Find the .conda package rattler-build produced. There should be exactly one
 # under build/recipe/<platform>/.
-CONDA_PKG=$(find "$RECIPE_OUT" -name 'projectodyssey-*.conda' -type f | head -1)
+CONDA_PKG=$(find "$RECIPE_OUT" -name 'odyssey-*.conda' -type f | head -1)
 if [ -z "$CONDA_PKG" ]; then
-    echo "❌ no projectodyssey-*.conda found under $RECIPE_OUT" >&2
+    echo "❌ no odyssey-*.conda found under $RECIPE_OUT" >&2
     echo "   (did 'just build-recipe' succeed?)" >&2
     exit 1
 fi
 
-SCRATCH="$(mktemp -d -t projectodyssey-install-XXXXXX)"
+SCRATCH="$(mktemp -d -t odyssey-install-XXXXXX)"
 echo "📦 Scratch pixi env: $SCRATCH"
 
 cd "$SCRATCH"
@@ -41,11 +41,11 @@ pixi project channel add --quiet "https://conda.modular.com/max"
 # Let the recipe's `mojo-compiler` run requirement resolve the right version
 # from conda.modular.com/max — pinning to a dev build that isn't on the
 # public channel breaks reproducibility.
-pixi add --quiet projectodyssey
+pixi add --quiet odyssey
 
 cat > smoke_test.mojo <<'EOF'
-from projectodyssey.tensor.tensor import Tensor
-from projectodyssey.tensor.any_tensor import zeros
+from odyssey.tensor.tensor import Tensor
+from odyssey.tensor.any_tensor import zeros
 
 
 def main() raises:

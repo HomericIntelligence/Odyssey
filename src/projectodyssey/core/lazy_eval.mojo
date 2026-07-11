@@ -12,9 +12,9 @@ Architecture:
 """
 
 from std.collections import List
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import full
-from projectodyssey.core.lazy_expression import (
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import full
+from odyssey.core.lazy_expression import (
     TensorExpr,
     ExprNode,
     OpType,
@@ -27,8 +27,8 @@ from projectodyssey.core.lazy_expression import (
     OP_SCALAR_MUL,
     OP_SCALAR_DIV,
 )
-from projectodyssey.base.broadcasting import compute_broadcast_strides
-from projectodyssey.base.dtype_ordinal import (
+from odyssey.base.broadcasting import compute_broadcast_strides
+from odyssey.base.dtype_ordinal import (
     dtype_to_ordinal,
     DTYPE_FLOAT16,
     DTYPE_FLOAT32,

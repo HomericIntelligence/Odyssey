@@ -15,15 +15,15 @@ so in-place cache updates would violate the trait contract. This implementation
 works around that limitation by using an explicit preload pattern.
 
 Example:
-    from projectodyssey.data import FileDataset, CachedDataset
+    from odyssey.data import FileDataset, CachedDataset
 
     var dataset = FileDataset(image_paths, label_paths)
     var cached = CachedDataset(dataset, max_cache_size=1000)
     var img, label = cached[0]  # Returns from cache if available
 """
 
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.data._datasets_core import Dataset
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.data._datasets_core import Dataset
 
 
 struct CachedDataset[D: Dataset & Copyable & Movable](

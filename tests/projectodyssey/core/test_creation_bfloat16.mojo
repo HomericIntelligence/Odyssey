@@ -7,11 +7,11 @@ _set_int64. Regression tests for issue #3906.
 """
 
 # Import AnyTensor and creation operations
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import arange, eye, linspace, randn
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import arange, eye, linspace, randn
 
 # Import test helpers
-from tests.projectodyssey.conftest import (
+from tests.odyssey.conftest import (
     assert_true,
     assert_equal_int,
     assert_dtype,

@@ -1,13 +1,13 @@
 """Comparison operations for AnyTensor.
 
 Implements element-wise comparison operations following NumPy-style broadcasting.
-Typed Tensor[dtype] implementations live in src/projectodyssey/tensor/typed/comparison.mojo.
+Typed Tensor[dtype] implementations live in src/odyssey/tensor/typed/comparison.mojo.
 This file provides the AnyTensor public API only.
 """
 
 from std.collections import List
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.base.dtype_ordinal import (
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.base.dtype_ordinal import (
     dtype_to_ordinal,
     DTYPE_FLOAT16,
     DTYPE_FLOAT32,
@@ -42,7 +42,7 @@ def equal(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     Raises:
         Error if shapes are not broadcast-compatible or dtypes don't match.
     """
-    from projectodyssey.tensor.typed.comparison import _equal_dispatch
+    from odyssey.tensor.typed.comparison import _equal_dispatch
 
     if a.dtype() != b.dtype():
         raise Error("Cannot compare tensors with different dtypes")
@@ -90,7 +90,7 @@ def not_equal(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     Raises:
         Error if shapes are not broadcast-compatible or dtypes don't match.
     """
-    from projectodyssey.tensor.typed.comparison import _not_equal_dispatch
+    from odyssey.tensor.typed.comparison import _not_equal_dispatch
 
     if a.dtype() != b.dtype():
         raise Error("Cannot compare tensors with different dtypes")
@@ -138,7 +138,7 @@ def less(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     Raises:
         Error if shapes are not broadcast-compatible or dtypes don't match.
     """
-    from projectodyssey.tensor.typed.comparison import _less_dispatch
+    from odyssey.tensor.typed.comparison import _less_dispatch
 
     if a.dtype() != b.dtype():
         raise Error("Cannot compare tensors with different dtypes")
@@ -186,7 +186,7 @@ def less_equal(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     Raises:
         Error if shapes are not broadcast-compatible or dtypes don't match.
     """
-    from projectodyssey.tensor.typed.comparison import _less_equal_dispatch
+    from odyssey.tensor.typed.comparison import _less_equal_dispatch
 
     if a.dtype() != b.dtype():
         raise Error("Cannot compare tensors with different dtypes")
@@ -234,7 +234,7 @@ def greater(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     Raises:
         Error if shapes are not broadcast-compatible or dtypes don't match.
     """
-    from projectodyssey.tensor.typed.comparison import _greater_dispatch
+    from odyssey.tensor.typed.comparison import _greater_dispatch
 
     if a.dtype() != b.dtype():
         raise Error("Cannot compare tensors with different dtypes")
@@ -282,7 +282,7 @@ def greater_equal(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     Raises:
         Error if shapes are not broadcast-compatible or dtypes don't match.
     """
-    from projectodyssey.tensor.typed.comparison import _greater_equal_dispatch
+    from odyssey.tensor.typed.comparison import _greater_equal_dispatch
 
     if a.dtype() != b.dtype():
         raise Error("Cannot compare tensors with different dtypes")

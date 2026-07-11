@@ -22,16 +22,16 @@ Reference:
     machine learning, 4(2), 26-31
 """
 
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros, full_like, zeros_like
-from projectodyssey.core.arithmetic import (
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros, full_like, zeros_like
+from odyssey.core.arithmetic import (
     subtract,
     multiply,
     add,
     divide,
     power,
 )
-from projectodyssey.core.elementwise import sqrt
+from odyssey.core.elementwise import sqrt
 
 
 def rmsprop_step(
@@ -68,8 +68,8 @@ def rmsprop_step(
 
     Example (basic RMSprop):
         ```mojo
-        from projectodyssey.core import AnyTensor, zeros_like
-        from projectodyssey.training.optimizers import rmsprop_step
+        from odyssey.core import AnyTensor, zeros_like
+        from odyssey.training.optimizers import rmsprop_step
 
         var W = xavier_uniform(784, 128, DType.float32)
         var square_avg = zeros_like(W)
@@ -200,8 +200,8 @@ def rmsprop_step_simple(
 
     Example:
         ```mojo
-        from projectodyssey.core import AnyTensor, zeros_like
-        from projectodyssey.training.optimizers import rmsprop_step_simple
+        from odyssey.core import AnyTensor, zeros_like
+        from odyssey.training.optimizers import rmsprop_step_simple
 
         var W = xavier_uniform(784, 128, DType.float32)
         var square_avg = zeros_like(W)

@@ -5,7 +5,7 @@ Internal module -- not part of the public API.
 
 from std.sys import simd_width_of
 from std.algorithm import vectorize
-from projectodyssey.tensor.tensor import Tensor
+from odyssey.tensor.tensor import Tensor
 
 
 # ============================================================================

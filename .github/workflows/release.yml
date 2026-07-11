@@ -140,7 +140,7 @@ jobs:
           pip install twine
 
       - name: Build Mojo .mojopkg
-        # Builds build/release/projectodyssey.mojopkg via `just package-release`
+        # Builds build/release/odyssey.mojopkg via `just package-release`
         # and copies it into dist/. Previously this step looked for sources at
         # src/*.mojo (wrong path post-rename in #5413) and used `mojo build`
         # (wrong subcommand — that produces executables, not a library
@@ -152,16 +152,16 @@ jobs:
         # rootless Podman subuid mapping. Without `chmod 777`, the container
         # would hit `PermissionError: [Errno 13]` on `dist/.tmp-XXX`.
         run: |
-          echo "Building projectodyssey.mojopkg…"
+          echo "Building odyssey.mojopkg…"
           mkdir -p dist
           chmod 777 dist
           just package-release
-          cp build/release/projectodyssey.mojopkg dist/
-          ls -la dist/projectodyssey.mojopkg
+          cp build/release/odyssey.mojopkg dist/
+          ls -la dist/odyssey.mojopkg
 
       - name: Build conda package via rattler-build
         # Produces the .conda artifact consumers ultimately install via
-        # `pixi add projectodyssey` once the recipe is merged into
+        # `pixi add odyssey` once the recipe is merged into
         # modular/modular-community (see scripts/publish_modular_community.py).
         run: |
           echo "Building conda package…"
@@ -172,18 +172,18 @@ jobs:
           ls -la dist/*.conda 2>&1 || echo "⚠️  no .conda produced — check build/recipe/"
 
       - name: Build Python wheel
-        # Produces dist/projectodyssey-<version>-py3-none-any.whl — pure-Python
-        # wheel that bundles projectodyssey.mojopkg as package data so consumers
-        # can `pip install projectodyssey` and feed `projectodyssey.import_dir()`
+        # Produces dist/odyssey-<version>-py3-none-any.whl — pure-Python
+        # wheel that bundles odyssey.mojopkg as package data so consumers
+        # can `pip install odyssey` and feed `odyssey.import_dir()`
         # to `mojo run -I`. (Requires PR #5416 merged for the `just wheel`
         # recipe to exist.)
         run: |
           echo "Building Python wheel…"
           just wheel
-          ls -la dist/projectodyssey-*.whl
+          ls -la dist/odyssey-*.whl
 
       - name: Validate wheel with twine
-        run: twine check dist/projectodyssey-*.whl
+        run: twine check dist/odyssey-*.whl
 
       - name: Generate checksums
         run: |
@@ -200,7 +200,7 @@ jobs:
       - name: Create build manifest
         run: |
           echo "Creating build manifest..."
-          MOJO_VERSION=$(podman compose exec -T projectodyssey-dev pixi run mojo --version 2>&1 || echo "Not available")
+          MOJO_VERSION=$(podman compose exec -T odyssey-dev pixi run mojo --version 2>&1 || echo "Not available")
 
           cat > dist/BUILD_MANIFEST.txt <<EOF
           ML Odyssey Release Build
@@ -308,14 +308,14 @@ jobs:
           #### Using pip (Python packages)
 
           ```bash
-          pip install ProjectOdyssey
+          pip install Odyssey
           ```
 
           #### From source
 
           ```bash
           git clone https://github.com/${{ github.repository }}.git
-          cd ProjectOdyssey
+          cd Odyssey
           git checkout ${{ needs.validate-version.outputs.version }}
           pixi install
           ```
@@ -328,7 +328,7 @@ jobs:
 
           - [Installation Guide](INSTALL.md)
           - [README](README.md)
-          - [Project Documentation](https://mvillmow.github.io/ProjectOdyssey/)
+          - [Project Documentation](https://mvillmow.github.io/Odyssey/)
 
           EOF
 
@@ -377,7 +377,7 @@ jobs:
 
     env:
       # Container image names must be lowercase
-      IMAGE_NAME: homericintelligence/projectodyssey
+      IMAGE_NAME: homericintelligence/odyssey
 
     steps:
       - name: Checkout code

@@ -4,7 +4,7 @@ Runs all test suites for datasets, loaders, transforms, and samplers.
 This serves as the main entry point for running data utility tests.
 """
 
-from tests.projectodyssey.data.datasets.test_base_dataset import (
+from tests.odyssey.data.datasets.test_base_dataset import (
     test_dataset_has_len_method,
     test_dataset_has_getitem_method,
     test_dataset_getitem_returns_tuple,
@@ -14,7 +14,7 @@ from tests.projectodyssey.data.datasets.test_base_dataset import (
     test_dataset_iteration_consistency,
 )
 
-from tests.projectodyssey.data.datasets.test_tensor_dataset import (
+from tests.odyssey.data.datasets.test_tensor_dataset import (
     test_tensor_dataset_creation,
     test_tensor_dataset_with_matching_sizes,
     test_tensor_dataset_size_mismatch_error,
@@ -22,7 +22,7 @@ from tests.projectodyssey.data.datasets.test_tensor_dataset import (
     test_tensor_dataset_getitem,
 )
 
-from tests.projectodyssey.data.loaders.test_base_loader import (
+from tests.odyssey.data.loaders.test_base_loader import (
     test_loader_has_len_method,
     test_loader_batch_size_consistency,
     test_loader_empty_dataset,
@@ -31,7 +31,7 @@ from tests.projectodyssey.data.loaders.test_base_loader import (
     test_loader_drop_last_option,
 )
 
-from tests.projectodyssey.data.transforms.test_pipeline import (
+from tests.odyssey.data.transforms.test_pipeline import (
     test_pipeline_creation,
     test_pipeline_empty,
     test_pipeline_single_transform,
@@ -40,7 +40,7 @@ from tests.projectodyssey.data.transforms.test_pipeline import (
     test_pipeline_preserves_intermediate_values,
 )
 
-from tests.projectodyssey.data.transforms.test_augmentations import (
+from tests.odyssey.data.transforms.test_augmentations import (
     test_random_augmentation_deterministic,
     test_random_augmentation_varies,
     test_random_rotation_range,
@@ -50,7 +50,7 @@ from tests.projectodyssey.data.transforms.test_augmentations import (
     test_random_crop_with_padding,
 )
 
-from tests.projectodyssey.data.transforms.test_augmentations import (
+from tests.odyssey.data.transforms.test_augmentations import (
     test_random_horizontal_flip_probability,
     test_random_flip_always,
     test_random_flip_never,
@@ -60,7 +60,7 @@ from tests.projectodyssey.data.transforms.test_augmentations import (
     test_augmentation_determinism_in_pipeline,
 )
 
-from tests.projectodyssey.data.samplers.test_sequential import (
+from tests.odyssey.data.samplers.test_sequential import (
     test_sequential_sampler_creation,
     test_sequential_sampler_empty,
     test_sequential_sampler_yields_all_indices,

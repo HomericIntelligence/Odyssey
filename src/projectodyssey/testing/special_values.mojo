@@ -26,7 +26,7 @@ Numerical Edge Cases:
 - Inf: Created via 1.0/0.0 or -1.0/0.0, for testing numerical stability
 
 Usage:
-    from projectodyssey.testing.special_values import (
+    from odyssey.testing.special_values import (
         create_special_value_tensor,
         create_seeded_random_tensor,
         create_nan_tensor,
@@ -53,8 +53,8 @@ Usage:
     var neg_inf = create_inf_tensor([3, 3], DType.float32, positive=False)
 """
 
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.testing.tensor_factory import zeros
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.testing.tensor_factory import zeros
 from std.random import seed as random_seed, random_float64
 
 

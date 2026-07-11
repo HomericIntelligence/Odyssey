@@ -23,13 +23,13 @@ Test Cases:
     8. Relative error sensitivity
 
 References:
-    - Gradient Checker Design: tests/projectodyssey/testing/test_gradient_checker_meta.mojo
-    - Gradient Checker Implementation: src/projectodyssey/testing/gradient_checker.mojo
+    - Gradient Checker Design: tests/odyssey/testing/test_gradient_checker_meta.mojo
+    - Gradient Checker Implementation: src/odyssey/testing/gradient_checker.mojo
 """
 
 
 from std.testing import assert_true, assert_equal
-from projectodyssey.testing import (
+from odyssey.testing import (
     NumericalForward,
     NumericalBackward,
     check_gradients,
@@ -37,8 +37,8 @@ from projectodyssey.testing import (
     relative_error,
     check_gradients_verbose,
 )
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros, ones, full, zeros_like
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros, ones, full, zeros_like
 
 
 def square_forward(x: AnyTensor) raises -> AnyTensor:

@@ -5,7 +5,7 @@ Tests image transforms including resize, crop, and basic normalize operations.
 """
 
 
-from tests.projectodyssey.conftest import (
+from tests.odyssey.conftest import (
     assert_true,
     assert_equal,
     assert_almost_equal,

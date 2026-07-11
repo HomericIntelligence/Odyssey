@@ -25,9 +25,9 @@ See issue #3009 for detailed analysis.
 """
 
 from tests.shared.conftest import assert_true, assert_equal_int
-from projectodyssey.testing import check_gradients, check_gradients_verbose
-from projectodyssey.core import ExTensor, zeros, ones, full
-from projectodyssey.core.activation import (
+from odyssey.testing import check_gradients, check_gradients_verbose
+from odyssey.core import ExTensor, zeros, ones, full
+from odyssey.core.activation import (
     relu,
     relu_backward,
     sigmoid,
@@ -35,16 +35,16 @@ from projectodyssey.core.activation import (
     tanh,
     tanh_backward,
 )
-from projectodyssey.core.arithmetic import (
+from odyssey.core.arithmetic import (
     add,
     multiply,
     add_backward,
     multiply_backward,
 )
-from projectodyssey.core.linear import linear, linear_backward
-from projectodyssey.core.conv import conv2d, conv2d_backward
-from projectodyssey.core.loss import cross_entropy, cross_entropy_backward
-from projectodyssey.training.precision_config import PrecisionConfig
+from odyssey.core.linear import linear, linear_backward
+from odyssey.core.conv import conv2d, conv2d_backward
+from odyssey.core.loss import cross_entropy, cross_entropy_backward
+from odyssey.training.precision_config import PrecisionConfig
 
 
 # ============================================================================

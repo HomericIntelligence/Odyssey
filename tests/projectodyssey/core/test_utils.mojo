@@ -1,4 +1,4 @@
-"""Tests for argmax utility functions in projectodyssey.core.utils.
+"""Tests for argmax utility functions in odyssey.core.utils.
 
 This module tests argmax functions including:
 - argmax (scalar)
@@ -7,16 +7,16 @@ This module tests argmax functions including:
 """
 
 
-from tests.projectodyssey.conftest import (
+from tests.odyssey.conftest import (
     assert_equal,
     assert_equal_int,
     assert_shape,
     assert_true,
     assert_close_float,
 )
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros, ones, arange
-from projectodyssey.core.utils import (
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros, ones, arange
+from odyssey.core.utils import (
     argmax,
     argsort,
     top_k,

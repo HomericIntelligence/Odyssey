@@ -17,15 +17,15 @@ References:
 """
 
 from model import LeNet5
-from projectodyssey.data.formats import (
+from odyssey.data.formats import (
     load_idx_images,
     load_idx_labels,
     normalize_images,
 )
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros
-from projectodyssey.utils.arg_parser import ArgumentParser
-from projectodyssey.training.metrics import (
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros
+from odyssey.utils.arg_parser import ArgumentParser
+from odyssey.training.metrics import (
     evaluate_with_predict,
     top1_accuracy,
     AccuracyMetric,

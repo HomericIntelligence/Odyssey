@@ -12,7 +12,7 @@ All tests use pure functional API - no internal state.
 """
 
 
-from tests.projectodyssey.conftest import (
+from tests.odyssey.conftest import (
     TestFixtures,
     assert_almost_equal,
     assert_close_float,
@@ -21,15 +21,15 @@ from tests.projectodyssey.conftest import (
     assert_shape,
     assert_true,
 )
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros, ones, full
-from projectodyssey.core.linear import (
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros, ones, full
+from odyssey.core.linear import (
     linear,
     linear_no_bias,
     linear_backward,
     linear_no_bias_backward,
 )
-from projectodyssey.core.matrix import transpose
+from odyssey.core.matrix import transpose
 
 
 def test_linear_initialization() raises:

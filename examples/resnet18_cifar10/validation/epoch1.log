@@ -7,7 +7,7 @@ Configuration:
   Batch size: 128
   Initial learning rate: 0.01
   Momentum: 0.9
-  Data directory: /home/mvillmow/Agents/mesh/task-agent/ProjectOdyssey/datasets/cifar10
+  Data directory: /home/mvillmow/Agents/mesh/task-agent/Odyssey/datasets/cifar10
   LR decay: 0.1x every 0 epochs
 
 Loading CIFAR-10 dataset...

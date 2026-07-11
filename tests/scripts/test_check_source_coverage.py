@@ -17,10 +17,10 @@ from check_source_coverage import (
 
 def test_expected_test_paths_returns_all_five_layouts() -> None:
     """Test that expected_test_paths covers all five layout candidates."""
-    paths = expected_test_paths(Path("src/projectodyssey/core/foo.mojo"))
+    paths = expected_test_paths(Path("src/odyssey/core/foo.mojo"))
     names = {str(p) for p in paths}
-    assert "tests/projectodyssey/core/test_foo.mojo" in names
-    assert "tests/projectodyssey/core/test_foo_part1.mojo" in names
+    assert "tests/odyssey/core/test_foo.mojo" in names
+    assert "tests/odyssey/core/test_foo_part1.mojo" in names
     assert "tests/core/test_foo.mojo" in names
     assert "tests/models/test_foo.mojo" in names
     assert "tests/shared/core/test_foo.mojo" in names
@@ -28,21 +28,21 @@ def test_expected_test_paths_returns_all_five_layouts() -> None:
 
 def test_find_uncovered_sources_flags_source_with_no_test() -> None:
     """Test that sources with no matching test are flagged."""
-    sources = [Path("src/projectodyssey/core/orphan.mojo")]
-    tests = {Path("tests/projectodyssey/core/test_unrelated.mojo")}
-    assert find_uncovered_sources(sources, tests) == [Path("src/projectodyssey/core/orphan.mojo")]
+    sources = [Path("src/odyssey/core/orphan.mojo")]
+    tests = {Path("tests/odyssey/core/test_unrelated.mojo")}
+    assert find_uncovered_sources(sources, tests) == [Path("src/odyssey/core/orphan.mojo")]
 
 
 def test_find_uncovered_sources_accepts_split_part1_pattern() -> None:
     """Test that split-file pattern test_foo_part1.mojo is accepted."""
-    sources = [Path("src/projectodyssey/core/foo.mojo")]
-    tests = {Path("tests/projectodyssey/core/test_foo_part1.mojo")}
+    sources = [Path("src/odyssey/core/foo.mojo")]
+    tests = {Path("tests/odyssey/core/test_foo_part1.mojo")}
     assert find_uncovered_sources(sources, tests) == []
 
 
 def test_find_uncovered_sources_accepts_legacy_layout() -> None:
     """Test that legacy flat layout tests/X/test_Y.mojo is accepted."""
-    sources = [Path("src/projectodyssey/core/foo.mojo")]
+    sources = [Path("src/odyssey/core/foo.mojo")]
     tests = {Path("tests/core/test_foo.mojo")}
     assert find_uncovered_sources(sources, tests) == []
 
@@ -55,8 +55,8 @@ def test_generate_report_clean_baseline() -> None:
 
 def test_generate_report_lists_each_uncovered_file() -> None:
     """Test that report lists each uncovered file and shows the count."""
-    out = generate_report([Path("src/projectodyssey/x/y.mojo")], total_sources=10)
-    assert "src/projectodyssey/x/y.mojo" in out
+    out = generate_report([Path("src/odyssey/x/y.mojo")], total_sources=10)
+    assert "src/odyssey/x/y.mojo" in out
     assert "1 of 10" in out
 
 
@@ -72,7 +72,7 @@ def test_main_returns_zero_even_when_uncovered_exist(
     monkeypatch.setattr(
         check_source_coverage,
         "find_test_files",
-        lambda _root: [Path("tests/projectodyssey/core/test_something.mojo")],
+        lambda _root: [Path("tests/odyssey/core/test_something.mojo")],
     )
     assert main() == 0
 

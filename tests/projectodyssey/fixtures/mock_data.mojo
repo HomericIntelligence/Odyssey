@@ -13,7 +13,7 @@ All mocks use deterministic seeds for reproducible tests.
 """
 
 from std.random import seed, random_float64, random_si64
-from tests.projectodyssey.fixtures.mock_tensors import (
+from tests.odyssey.fixtures.mock_tensors import (
     create_random_tensor,
     create_zeros_tensor,
     create_ones_tensor,

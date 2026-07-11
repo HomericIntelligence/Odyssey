@@ -5,19 +5,19 @@ exercising the boundary-handling path in the transposed convolution used
 to compute grad_input.
 """
 
-from tests.projectodyssey.conftest import (
+from tests.odyssey.conftest import (
     assert_almost_equal,
     assert_equal,
 )
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import (
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import (
     zeros,
     ones,
     zeros_like,
     ones_like,
 )
-from projectodyssey.core.conv import conv2d, conv2d_backward
-from projectodyssey.testing.gradient_checker import (
+from odyssey.core.conv import conv2d, conv2d_backward
+from odyssey.testing.gradient_checker import (
     check_gradient,
     NumericalForward,
     NumericalBackward,

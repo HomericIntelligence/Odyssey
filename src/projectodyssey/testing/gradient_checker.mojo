@@ -15,7 +15,7 @@ Benefits:
 - Provides confidence in optimization
 
 Usage:
-    from projectodyssey.testing.gradient_checker import check_gradients
+    from odyssey.testing.gradient_checker import check_gradients
 
     def forward(x: AnyTensor) -> AnyTensor:
         return relu(x)
@@ -45,8 +45,8 @@ Fix for intermittent JIT crashes (issue #5104):
     the entire pointer scope.
 """
 
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros_like
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros_like
 
 
 # ============================================================================

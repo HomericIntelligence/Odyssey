@@ -7,7 +7,7 @@ Tests FP-representable test value utilities:
 """
 
 
-from projectodyssey.testing.special_values import (
+from odyssey.testing.special_values import (
     SPECIAL_VALUE_HALF,
     SPECIAL_VALUE_NEG_HALF,
     SPECIAL_VALUE_NEG_ONE,
@@ -25,12 +25,12 @@ from projectodyssey.testing.special_values import (
     create_zeros_tensor,
     verify_special_value_invariants,
 )
-from projectodyssey.testing.assertions import (
+from odyssey.testing.assertions import (
     assert_dtype,
     assert_equal_float,
     assert_shape,
 )
-from projectodyssey.core.numerical_safety import has_nan, has_inf
+from odyssey.core.numerical_safety import has_nan, has_inf
 
 
 def test_special_value_constants() raises:

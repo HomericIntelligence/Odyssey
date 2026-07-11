@@ -4,10 +4,10 @@ This module provides the main DataLoader class and related utilities
 for efficient batch loading during training.
 """
 
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros
-from projectodyssey.data._datasets_core import Dataset
-from projectodyssey.data.samplers import (
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros
+from odyssey.data._datasets_core import Dataset
+from odyssey.data.samplers import (
     Sampler,
     SequentialSampler,
     RandomSampler,

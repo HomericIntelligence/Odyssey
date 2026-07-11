@@ -13,12 +13,12 @@ Where:
     d_k: Key dimension (used for scaling).
 """
 
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros, zeros_like, ones
-from projectodyssey.core.matrix import matmul, transpose
-from projectodyssey.core.activation import softmax
-from projectodyssey.core.arithmetic import multiply, divide, add
-from projectodyssey.core.gradient_types import GradientTriple, GradientQuad
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros, zeros_like, ones
+from odyssey.core.matrix import matmul, transpose
+from odyssey.core.activation import softmax
+from odyssey.core.arithmetic import multiply, divide, add
+from odyssey.core.gradient_types import GradientTriple, GradientQuad
 from std.math import sqrt
 
 
@@ -70,7 +70,7 @@ def scaled_dot_product_attention_masked(
 
         Example:
             ```mojo
-            from projectodyssey.core import scaled_dot_product_attention
+            from odyssey.core import scaled_dot_product_attention
 
             # Create Q, K, V tensors: (batch=2, seq_len=10, d_k=64)
             var query = ones([2, 10, 64], DType.float32)
@@ -205,7 +205,7 @@ def scaled_dot_product_attention_backward_masked(
 
         Example:
             ```mojo
-            from projectodyssey.core import (
+            from odyssey.core import (
                 scaled_dot_product_attention,
                 scaled_dot_product_attention_backward,
             )
@@ -352,7 +352,7 @@ def create_causal_mask(
 
         Example:
             ```mojo
-            from projectodyssey.core import create_causal_mask, scaled_dot_product_attention
+            from odyssey.core import create_causal_mask, scaled_dot_product_attention
 
             var mask = create_causal_mask(10)
             var output = scaled_dot_product_attention(query, key, value, mask=mask)
@@ -495,7 +495,7 @@ def multi_head_attention_masked(
 
         Example:
             ```mojo
-            from projectodyssey.core import multi_head_attention, MultiHeadAttentionWeights
+            from odyssey.core import multi_head_attention, MultiHeadAttentionWeights
 
             # Initialize weights (normally from model)
             var weights = MultiHeadAttentionWeights(wq, wk, wv, wo)

@@ -8,10 +8,10 @@ This module tests the gradient utilities and numerical safety functions:
 """
 
 
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros, ones, full
-from projectodyssey.core.numerical_safety import has_nan, has_inf
-from projectodyssey.training.base import (
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros, ones, full
+from odyssey.core.numerical_safety import has_nan, has_inf
+from odyssey.training.base import (
     has_nan_or_inf,
     compute_gradient_norm,
     is_valid_loss,

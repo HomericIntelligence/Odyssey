@@ -3,7 +3,7 @@
     {
       "category": "critical_bug",
       "title": "Fix precision loss in List[Int] tensor constructor",
-      "body": "src/projectodyssey/tensor/any_tensor.mojo:376 writes Float64 values into an Int64-typed tensor via `self._set_float64(i, Float64(data[i]))`. This loses precision for large integers that exceed Float64's mantissa range (>2^53). Should use `self._set_int64(i, Int64(data[i]))` instead. Discovered during #5157 refactor but left out of scope per plan Decision 7."
+      "body": "src/odyssey/tensor/any_tensor.mojo:376 writes Float64 values into an Int64-typed tensor via `self._set_float64(i, Float64(data[i]))`. This loses precision for large integers that exceed Float64's mantissa range (>2^53). Should use `self._set_int64(i, Int64(data[i]))` instead. Discovered during #5157 refactor but left out of scope per plan Decision 7."
     }
   ],
   "rejected": [

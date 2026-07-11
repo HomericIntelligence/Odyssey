@@ -18,7 +18,7 @@ Key Components:
     - Invariant checkers for numeric operations
 
 Usage:
-    from projectodyssey.testing.fuzz_core import (
+    from odyssey.testing.fuzz_core import (
         FuzzConfig,
         FuzzResult,
         fuzz_tensor_creation,
@@ -49,9 +49,9 @@ Example:
 
 from std.random import random_float64, seed as random_seed
 from std.math import isnan, isinf
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros, ones, full
-from projectodyssey.testing.dtype_utils import dtype_to_string
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros, ones, full
+from odyssey.testing.dtype_utils import dtype_to_string
 
 
 # ============================================================================

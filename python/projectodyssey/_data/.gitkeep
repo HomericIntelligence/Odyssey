@@ -1,6 +1,6 @@
 # Placeholder so the _data/ directory exists in source control.
 #
-# `just wheel` copies build/release/projectodyssey.mojopkg into this
+# `just wheel` copies build/release/odyssey.mojopkg into this
 # directory just before invoking `python -m build --wheel`, so the
 # wheel ships with the .mojopkg as package data.
 #

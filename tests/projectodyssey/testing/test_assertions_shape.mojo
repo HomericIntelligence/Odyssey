@@ -3,7 +3,7 @@
 """
 
 from std.testing import assert_true
-from projectodyssey.testing.assertions import (
+from odyssey.testing.assertions import (
     assert_greater_or_equal,
     assert_less_or_equal,
     assert_shape_equal,
@@ -12,7 +12,7 @@ from projectodyssey.testing.assertions import (
     assert_numel,
     assert_dim,
 )
-from projectodyssey.tensor.tensor_creation import ones
+from odyssey.tensor.tensor_creation import ones
 
 
 def test_assert_greater_or_equal_float32_passes() raises:

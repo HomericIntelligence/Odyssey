@@ -5,7 +5,7 @@ usage, and generating performance reports. Useful for identifying bottlenecks
 and optimizing performance-critical code.
 
 Example:
-    from projectodyssey.utils import Timer, profile_function, memory_usage
+    from odyssey.utils import Timer, profile_function, memory_usage
 
     # Measure execution time
     with Timer("forward_pass"):

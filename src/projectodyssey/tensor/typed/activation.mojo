@@ -4,13 +4,13 @@ Internal module -- not part of the public API.
 """
 
 from std.math import exp, erf, sqrt, tanh as math_tanh, log as math_log
-from projectodyssey.tensor.tensor import Tensor
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.core.activation_constants import (
+from odyssey.tensor.tensor import Tensor
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.core.activation_constants import (
     RELU6_UPPER_BOUND,
     SIGMOID_CLIP_THRESHOLD,
 )
-from projectodyssey.base.dtype_ordinal import (
+from odyssey.base.dtype_ordinal import (
     dtype_to_ordinal,
     DTYPE_FLOAT16,
     DTYPE_FLOAT32,

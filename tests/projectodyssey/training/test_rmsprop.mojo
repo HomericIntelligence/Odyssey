@@ -12,16 +12,16 @@ All tests use pure functional API.
 """
 
 
-from tests.projectodyssey.conftest import (
+from tests.odyssey.conftest import (
     assert_true,
     assert_equal,
     assert_almost_equal,
     assert_shape_equal,
     TestFixtures,
 )
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros, ones
-from projectodyssey.training.optimizers.rmsprop import (
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros, ones
+from odyssey.training.optimizers.rmsprop import (
     rmsprop_step,
     rmsprop_step_simple,
 )

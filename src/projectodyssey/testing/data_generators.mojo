@@ -9,8 +9,8 @@ This module is essential for writing comprehensive tests that validate model
 behavior across different input distributions and dataset characteristics.
 
 Example:
-    from projectodyssey.testing import random_tensor, random_normal, synthetic_classification_data
-    from projectodyssey.core import AnyTensor
+    from odyssey.testing import random_tensor, random_normal, synthetic_classification_data
+    from odyssey.core import AnyTensor
 
     # Create a random tensor
     var weights = random_tensor([10, 5], DType.float32)
@@ -25,8 +25,8 @@ Example:
 
 from std.random import random_float64
 from std.math import sqrt, log, cos, sin, pi
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros
 
 
 # ============================================================================

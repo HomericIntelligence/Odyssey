@@ -32,7 +32,7 @@ These are essential for the example to run:
 
 #### 1.1 RGB Image Normalization
 
-**Location**: `src/projectodyssey/core/normalization.mojo`
+**Location**: `src/odyssey/core/normalization.mojo`
 
 **Status**: ❌ **MISSING**
 
@@ -71,7 +71,7 @@ fn normalize_rgb(
 
 #### 1.2 SGD with Momentum Optimizer
 
-**Location**: `src/projectodyssey/training/optimizers/sgd.mojo`
+**Location**: `src/odyssey/training/optimizers/sgd.mojo`
 
 **Status**: ⚠️ **PARTIAL** - Basic SGD exists, momentum missing
 
@@ -108,7 +108,7 @@ fn sgd_momentum_update(
 
 **Effort**: 2-3 hours (add to existing optimizer module)
 
-**Note**: Should also add to `src/projectodyssey/training/optimizers/__init__.mojo` for easy import
+**Note**: Should also add to `src/odyssey/training/optimizers/__init__.mojo` for easy import
 
 ---
 
@@ -142,7 +142,7 @@ These would improve performance or usability but aren't required:
 
 #### 2.1 Learning Rate Decay Scheduler
 
-**Location**: `src/projectodyssey/training/schedulers/` (already exists!)
+**Location**: `src/odyssey/training/schedulers/` (already exists!)
 
 **Status**: ✅ **MODULE EXISTS** - May already have step decay
 
@@ -184,7 +184,7 @@ fn step_lr_schedule(
 
 #### 2.2 Data Augmentation (Random Crops, Flips)
 
-**Location**: New module `src/projectodyssey/data/augmentation.mojo`
+**Location**: New module `src/odyssey/data/augmentation.mojo`
 
 **Status**: ❌ **MISSING** (expected - data aug usually separate)
 
@@ -205,7 +205,7 @@ fn random_crop(image: AnyTensor, size: (Int, Int), padding: Int = 4) raises -> A
 
 #### 2.3 SIMD Optimization for Large Kernels
 
-**Location**: `src/projectodyssey/core/conv.mojo`
+**Location**: `src/odyssey/core/conv.mojo`
 
 **Status**: ⚠️ **MAY NEED OPTIMIZATION**
 
@@ -225,7 +225,7 @@ These components are fully functional and ready to use:
 
 #### 3.1 Dropout (Forward & Backward)
 
-**Location**: `src/projectodyssey/core/dropout.mojo`
+**Location**: `src/odyssey/core/dropout.mojo`
 
 **Status**: ✅ **COMPLETE**
 
@@ -249,7 +249,7 @@ These components are fully functional and ready to use:
 
 #### 3.2 Convolution (All Variants)
 
-**Location**: `src/projectodyssey/core/conv.mojo`
+**Location**: `src/odyssey/core/conv.mojo`
 
 **Status**: ✅ **COMPLETE**
 
@@ -271,7 +271,7 @@ These components are fully functional and ready to use:
 
 #### 3.3 Pooling
 
-**Location**: `src/projectodyssey/core/pooling.mojo`
+**Location**: `src/odyssey/core/pooling.mojo`
 
 **Status**: ✅ **COMPLETE**
 
@@ -292,7 +292,7 @@ These components are fully functional and ready to use:
 
 #### 3.4 Activations
 
-**Location**: `src/projectodyssey/core/activation.mojo`
+**Location**: `src/odyssey/core/activation.mojo`
 
 **Status**: ✅ **COMPLETE**
 
@@ -308,7 +308,7 @@ These components are fully functional and ready to use:
 
 #### 3.5 Linear (Fully Connected) Layers
 
-**Location**: `src/projectodyssey/core/linear.mojo`
+**Location**: `src/odyssey/core/linear.mojo`
 
 **Status**: ✅ **COMPLETE**
 
@@ -323,7 +323,7 @@ These components are fully functional and ready to use:
 
 #### 3.6 Loss Functions
 
-**Location**: `src/projectodyssey/core/loss.mojo`
+**Location**: `src/odyssey/core/loss.mojo`
 
 **Status**: ✅ **COMPLETE**
 
@@ -338,7 +338,7 @@ These components are fully functional and ready to use:
 
 #### 3.7 Weight Initialization
 
-**Location**: `src/projectodyssey/core/initializers.mojo`
+**Location**: `src/odyssey/core/initializers.mojo`
 
 **Status**: ✅ **COMPLETE**
 
@@ -353,7 +353,7 @@ These components are fully functional and ready to use:
 
 #### 3.8 Tensor Core Operations
 
-**Location**: `src/projectodyssey/core/extensor.mojo`
+**Location**: `src/odyssey/core/extensor.mojo`
 
 **Status**: ✅ **COMPLETE**
 
@@ -371,11 +371,11 @@ These components are fully functional and ready to use:
 
 ### Phase 1: Critical Path (Required for Basic Functionality)
 
-- [ ] **1. Add RGB normalization function** to `src/projectodyssey/core/normalization.mojo`
+- [ ] **1. Add RGB normalization function** to `src/odyssey/core/normalization.mojo`
   - Estimated time: 1-2 hours
   - Test with CIFAR-10 normalization (mean=[0.485,0.456,0.406], std=[0.229,0.224,0.225])
 
-- [ ] **2. Add SGD with momentum** to `src/projectodyssey/training/optimizers/sgd.mojo`
+- [ ] **2. Add SGD with momentum** to `src/odyssey/training/optimizers/sgd.mojo`
   - Estimated time: 2-3 hours
   - Add velocity state management
   - Add to `__init__.mojo` for easy import
@@ -394,12 +394,12 @@ These components are fully functional and ready to use:
 ### Phase 2: Quality of Life (Recommended Enhancements)
 
 - [ ] **4. Add learning rate decay scheduler** (if not present)
-  - Check if `src/projectodyssey/training/schedulers/` has step decay
+  - Check if `src/odyssey/training/schedulers/` has step decay
   - If missing, add step_lr_schedule function
   - Estimated time: 1-2 hours
 
 - [ ] **5. Add gradient clipping** (optional stability enhancement)
-  - Location: `src/projectodyssey/training/optimizers/`
+  - Location: `src/odyssey/training/optimizers/`
   - Function: `clip_gradients(grads, max_norm)`
   - Estimated time: 1 hour
 
@@ -585,13 +585,13 @@ All critical functionality exists or has simple workarounds.
 
 **Day 1-2**: Implement RGB normalization
 
-- Add `normalize_rgb` to `src/projectodyssey/core/normalization.mojo`
+- Add `normalize_rgb` to `src/odyssey/core/normalization.mojo`
 - Write unit tests
 - Update data_loader.mojo to use shared function
 
 **Day 3-4**: Implement SGD with momentum
 
-- Add to `src/projectodyssey/training/optimizers/sgd.mojo`
+- Add to `src/odyssey/training/optimizers/sgd.mojo`
 - Write unit tests comparing with PyTorch
 - Update model.mojo to use shared optimizer
 
@@ -692,14 +692,14 @@ Includes all enhancements and optimizations
 
 ### Need to Modify (Shared Library)
 
-- ⚠️ `src/projectodyssey/core/normalization.mojo` - Add `normalize_rgb` function
-- ⚠️ `src/projectodyssey/training/optimizers/sgd.mojo` - Add momentum support
-- ⚠️ `src/projectodyssey/training/optimizers/__init__.mojo` - Export SGD momentum
+- ⚠️ `src/odyssey/core/normalization.mojo` - Add `normalize_rgb` function
+- ⚠️ `src/odyssey/training/optimizers/sgd.mojo` - Add momentum support
+- ⚠️ `src/odyssey/training/optimizers/__init__.mojo` - Export SGD momentum
 
 ### Optional Enhancements
 
-- 🔵 `src/projectodyssey/training/schedulers/` - Verify step LR decay exists
-- 🔵 `src/projectodyssey/data/augmentation.mojo` - New module for data augmentation
+- 🔵 `src/odyssey/training/schedulers/` - Verify step LR decay exists
+- 🔵 `src/odyssey/data/augmentation.mojo` - New module for data augmentation
 
 ---
 

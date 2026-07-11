@@ -130,8 +130,8 @@ class TestProjectStructure:
 ## Directory Layout
 
 ```text
-ProjectOdyssey/
-├── src/projectodyssey/
+Odyssey/
+├── src/odyssey/
 ├── papers/
 └── tests/
 ```

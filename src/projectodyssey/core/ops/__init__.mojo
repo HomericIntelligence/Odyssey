@@ -12,8 +12,8 @@ Components:
 
 Example:
     ```mojo
-    from projectodyssey.core.ops import matmul, transpose
-    from projectodyssey.core.types import Tensor
+    from odyssey.core.ops import matmul, transpose
+    from odyssey.core.types import Tensor
 
     def forward(x: Tensor, w: Tensor) -> Tensor:
         # Efficient matrix multiplication

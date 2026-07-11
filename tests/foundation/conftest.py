@@ -74,7 +74,7 @@ def papers_dir(repo_root: Path) -> Path:
 @pytest.fixture
 def shared_dir(repo_root: Path) -> Path:
     """
-    Provide the src/projectodyssey/ directory path.
+    Provide the src/odyssey/ directory path.
 
     Args:
         repo_root: Real repository root directory
@@ -82,7 +82,7 @@ def shared_dir(repo_root: Path) -> Path:
     Returns:
         Path to shared directory
     """
-    return repo_root / "src" / "projectodyssey"
+    return repo_root / "src" / "odyssey"
 
 
 @pytest.fixture
@@ -102,13 +102,13 @@ def template_dir(papers_dir: Path) -> Path:
 @pytest.fixture
 def shared_core_dir(shared_dir: Path) -> Path:
     """
-    Provide the src/projectodyssey/core/ directory path.
+    Provide the src/odyssey/core/ directory path.
 
     Args:
         shared_dir: Shared directory path
 
     Returns:
-        Path to src/projectodyssey/core directory
+        Path to src/odyssey/core directory
     """
     return shared_dir / "core"
 
@@ -116,13 +116,13 @@ def shared_core_dir(shared_dir: Path) -> Path:
 @pytest.fixture
 def shared_training_dir(shared_dir: Path) -> Path:
     """
-    Provide the src/projectodyssey/training/ directory path.
+    Provide the src/odyssey/training/ directory path.
 
     Args:
         shared_dir: Shared directory path
 
     Returns:
-        Path to src/projectodyssey/training directory
+        Path to src/odyssey/training directory
     """
     return shared_dir / "training"
 
@@ -130,13 +130,13 @@ def shared_training_dir(shared_dir: Path) -> Path:
 @pytest.fixture
 def shared_data_dir(shared_dir: Path) -> Path:
     """
-    Provide the src/projectodyssey/data/ directory path.
+    Provide the src/odyssey/data/ directory path.
 
     Args:
         shared_dir: Shared directory path
 
     Returns:
-        Path to src/projectodyssey/data directory
+        Path to src/odyssey/data directory
     """
     return shared_dir / "data"
 
@@ -144,13 +144,13 @@ def shared_data_dir(shared_dir: Path) -> Path:
 @pytest.fixture
 def shared_utils_dir(shared_dir: Path) -> Path:
     """
-    Provide the src/projectodyssey/utils/ directory path.
+    Provide the src/odyssey/utils/ directory path.
 
     Args:
         shared_dir: Shared directory path
 
     Returns:
-        Path to src/projectodyssey/utils directory
+        Path to src/odyssey/utils directory
     """
     return shared_dir / "utils"
 

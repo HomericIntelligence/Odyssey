@@ -10,9 +10,9 @@ Fixes tracked in issue #3301.
 ~15 cumulative tests in a single file in Mojo 0.26.1.
 """
 
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros
-from tests.projectodyssey.conftest import (
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros
+from tests.odyssey.conftest import (
     assert_true,
     assert_almost_equal,
     assert_equal,

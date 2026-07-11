@@ -1,23 +1,23 @@
 """Gradient checking tests for dtype-specific precision (FP32, FP16)."""
 
-from projectodyssey.testing.gradient_checker import (
+from odyssey.testing.gradient_checker import (
     check_gradient,
     NumericalForward,
     NumericalBackward,
 )
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros, ones, full, zeros_like
-from projectodyssey.core.activation import (
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros, ones, full, zeros_like
+from odyssey.core.activation import (
     relu,
     relu_backward,
     sigmoid,
     sigmoid_backward,
 )
-from projectodyssey.core.arithmetic import multiply, multiply_backward
-from projectodyssey.core.linear import linear, linear_backward
-from projectodyssey.core.conv import conv2d, conv2d_backward
-from projectodyssey.core.loss import cross_entropy, cross_entropy_backward
-from projectodyssey.training.precision_config import PrecisionConfig
+from odyssey.core.arithmetic import multiply, multiply_backward
+from odyssey.core.linear import linear, linear_backward
+from odyssey.core.conv import conv2d, conv2d_backward
+from odyssey.core.loss import cross_entropy, cross_entropy_backward
+from odyssey.training.precision_config import PrecisionConfig
 
 
 # ---- Composite relu+multiply (captures input_b) ----

@@ -41,7 +41,7 @@ def step_lr(
 
         Example:
             ```mojo
-            from projectodyssey.training.schedulers import step_lr
+            from odyssey.training.schedulers import step_lr
 
             var initial_lr = Float32(0.01)
 
@@ -96,7 +96,7 @@ def multistep_lr(
 
         Example:
             ```mojo
-            from projectodyssey.training.schedulers import multistep_lr
+            from odyssey.training.schedulers import multistep_lr
 
             var initial_lr = Float32(0.1)
             var milestones = [30, 60, 90]  # Decay at these epochs
@@ -154,7 +154,7 @@ def exponential_lr(
 
         Example:
             ```mojo
-            from projectodyssey.training.schedulers import exponential_lr
+            from odyssey.training.schedulers import exponential_lr
 
             var initial_lr = Float32(0.1)
 
@@ -198,7 +198,7 @@ def constant_lr(initial_lr: Float32, epoch: Int) -> Float32:
 
         Example:
             ```mojo
-            from projectodyssey.training.schedulers import constant_lr
+            from odyssey.training.schedulers import constant_lr
 
             var initial_lr = Float32(0.01)
             var lr = constant_lr(initial_lr, epoch)  # Always returns 0.01

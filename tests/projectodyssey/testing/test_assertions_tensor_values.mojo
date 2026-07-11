@@ -3,13 +3,13 @@
 """
 
 from std.testing import assert_true
-from projectodyssey.testing.assertions import (
+from odyssey.testing.assertions import (
     assert_all_values,
     assert_all_close,
     assert_tensor_equal,
     assert_not_equal_tensor,
 )
-from projectodyssey.tensor.tensor_creation import ones, zeros, full
+from odyssey.tensor.tensor_creation import ones, zeros, full
 
 
 def test_assert_all_values_passes() raises:

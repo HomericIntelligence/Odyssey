@@ -140,7 +140,7 @@ pixi run mojo run -I . examples/mnist/train.mojo \
 Coming soon! The inference script will follow the same pattern as the LeNet-EMNIST example.
 
 **Important**: The `-I .` flag is **required** to include the current directory in Mojo's module
-search path. Without it, Mojo cannot find the `src/projectodyssey/` library modules.
+search path. Without it, Mojo cannot find the `src/odyssey/` library modules.
 
 ## Implementation Status
 
@@ -181,7 +181,7 @@ MNIST is a relatively simple dataset, so high accuracy is expected with this arc
 This example follows **Keep It Simple, Stupid** principles:
 
 1. **Minimal Dependencies**: Uses only ML Odyssey shared library
-2. **Functional Design**: Model uses functional ops (conv2d, linear, relu) from src/projectodyssey/core
+2. **Functional Design**: Model uses functional ops (conv2d, linear, relu) from src/odyssey/core
 3. **Clear Structure**: Separate files for model, training, and inference
 4. **Simple Interfaces**: Command-line arguments for configuration
 5. **No Over-Engineering**: Direct implementation without unnecessary abstractions

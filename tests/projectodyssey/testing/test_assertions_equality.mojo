@@ -3,7 +3,7 @@
 """
 
 from std.testing import assert_true
-from projectodyssey.testing.assertions import (
+from odyssey.testing.assertions import (
     assert_equal as custom_assert_equal,
     assert_not_equal,
     assert_not_none,

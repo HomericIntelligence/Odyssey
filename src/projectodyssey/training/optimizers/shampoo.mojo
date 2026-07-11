@@ -75,16 +75,16 @@ Reference:
 """
 
 from std.math import sqrt as scalar_sqrt
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import eye, zeros_like, full_like
-from projectodyssey.core.arithmetic_simd import (
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import eye, zeros_like, full_like
+from odyssey.core.arithmetic_simd import (
     subtract_simd,
     multiply_simd,
     add_simd,
     divide_simd,
 )
-from projectodyssey.core.matrix import matmul, transpose
-from projectodyssey.training.optimizers.optimizer_utils import (
+from odyssey.core.matrix import matmul, transpose
+from odyssey.training.optimizers.optimizer_utils import (
     compute_tensor_norm,
 )
 

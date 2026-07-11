@@ -20,7 +20,7 @@ Note:
 
 Example:
     ```mojo
-    from projectodyssey.core.types import BF16, FP8, BF8, FP4, MXFP4, NVFP4
+    from odyssey.core.types import BF16, FP8, BF8, FP4, MXFP4, NVFP4
 
     # Work with FP8 values using native SIMD
     var fp8_val = Scalar[FP8](3.14159)
@@ -42,14 +42,14 @@ Example:
 """
 
 # Type alias exports (DType aliases for native Mojo types)
-from projectodyssey.core.types.dtype_aliases import BF16, FP8, BF8, FP4, E8M0
+from odyssey.core.types.dtype_aliases import BF16, FP8, BF8, FP4, E8M0
 
 # Blocked FP4 format exports (custom structs for microscaling)
-from projectodyssey.core.types.mxfp4 import MXFP4, MXFP4Block
-from projectodyssey.core.types.nvfp4 import NVFP4, NVFP4Block
+from odyssey.core.types.mxfp4 import MXFP4, MXFP4Block
+from odyssey.core.types.nvfp4 import NVFP4, NVFP4Block
 
 # FP type constants
-from projectodyssey.core.types.fp_constants import (
+from odyssey.core.types.fp_constants import (
     FP8_E4M3_MIN_NORMAL,
     FP8_E4M3_MAX_NORMAL,
     FP4_E2M1_MAX_NORMAL,

@@ -1,4 +1,4 @@
-"""Tests that src/projectodyssey/base/ package imports work correctly.
+"""Tests that src/odyssey/base/ package imports work correctly.
 
 Tests cover:
 - memory_pool imports (pooled_alloc, pooled_free)
@@ -7,7 +7,7 @@ Tests cover:
 - defaults imports (DEFAULT_DROPOUT_RATE, etc.)
 - math_constants imports (PI, SQRT_2, etc.)
 - numerical_constants imports (EPSILON_DIV, etc.)
-- Package-level re-exports via projectodyssey.base
+- Package-level re-exports via odyssey.base
 """
 
 from std.testing import assert_true
@@ -15,7 +15,7 @@ from std.testing import assert_true
 
 def test_memory_pool_imports() raises:
     """Verify memory_pool module imports work."""
-    from projectodyssey.base.memory_pool import pooled_alloc, pooled_free
+    from odyssey.base.memory_pool import pooled_alloc, pooled_free
 
     # Just verify the imports compile and the symbols are accessible.
     # pooled_alloc/pooled_free are runtime functions; we verify they exist.
@@ -24,7 +24,7 @@ def test_memory_pool_imports() raises:
 
 def test_broadcasting_imports() raises:
     """Verify broadcasting module imports and basic function work."""
-    from projectodyssey.base.broadcasting import (
+    from odyssey.base.broadcasting import (
         broadcast_shapes,
         are_shapes_broadcastable,
     )
@@ -45,7 +45,7 @@ def test_broadcasting_imports() raises:
 
 def test_dtype_ordinal_imports() raises:
     """Verify dtype_ordinal module imports and constants."""
-    from projectodyssey.base.dtype_ordinal import (
+    from odyssey.base.dtype_ordinal import (
         dtype_to_ordinal,
         DTYPE_FLOAT32,
         DTYPE_FLOAT64,
@@ -77,7 +77,7 @@ def test_dtype_ordinal_imports() raises:
 
 def test_defaults_imports() raises:
     """Verify defaults module imports and constant values."""
-    from projectodyssey.base.defaults import (
+    from odyssey.base.defaults import (
         DEFAULT_DROPOUT_RATE,
         DEFAULT_BATCHNORM_MOMENTUM,
         DEFAULT_RANDOM_SEED,
@@ -97,7 +97,7 @@ def test_defaults_imports() raises:
 
 def test_math_constants_imports() raises:
     """Verify math_constants module imports and values."""
-    from projectodyssey.base.math_constants import PI, SQRT_2, LN2
+    from odyssey.base.math_constants import PI, SQRT_2, LN2
 
     # Verify known mathematical values
     assert_true(PI > 3.14 and PI < 3.15, "PI should be ~3.14159")
@@ -108,7 +108,7 @@ def test_math_constants_imports() raises:
 
 def test_numerical_constants_imports() raises:
     """Verify numerical_constants module imports and values."""
-    from projectodyssey.base.numerical_constants import (
+    from odyssey.base.numerical_constants import (
         EPSILON_DIV,
         EPSILON_LOSS,
         EPSILON_NORM,
@@ -125,8 +125,8 @@ def test_numerical_constants_imports() raises:
 
 
 def test_package_level_reexports() raises:
-    """Verify projectodyssey.base package re-exports symbols."""
-    from projectodyssey.base import (
+    """Verify odyssey.base package re-exports symbols."""
+    from odyssey.base import (
         pooled_alloc,
         pooled_free,
         broadcast_shapes,

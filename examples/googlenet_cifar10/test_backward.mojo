@@ -18,9 +18,9 @@ Two independent layers of evidence for the hand-written 222-parameter backward:
 """
 
 from std.math import isnan, isinf
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros
-from projectodyssey.data import one_hot_encode
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros
+from odyssey.data import one_hot_encode
 from model import (
     GoogLeNet,
     concatenate_depthwise,

@@ -25,8 +25,8 @@ Docker Build workflow was failing on main branch with error:
 1. Repository was under `mvillmow/Odyssey` originally
 2. Repository transferred to `HomericIntelligence/Odyssey`
 3. `GITHUB\_TOKEN` automatically scoped to `HomericIntelligence` org
-4. `IMAGE\_NAME` in `.github/workflows/docker.yml` still hardcoded to `mvillmow/projectodyssey`
-5. Docker tried to push to `ghcr.io/mvillmow/projectodyssey` using `HomericIntelligence` token
+4. `IMAGE\_NAME` in `.github/workflows/docker.yml` still hardcoded to `mvillmow/odyssey`
+5. Docker tried to push to `ghcr.io/mvillmow/odyssey` using `HomericIntelligence` token
 6. GHCR rejected push due to authentication/permission mismatch
 
 ## Implementation Steps
@@ -37,7 +37,7 @@ Docker Build workflow was failing on main branch with error:
 
 1. **GitHub URLs (138)**: `github.com/mvillmow/Odyssey` → `github.com/HomericIntelligence/Odyssey`
 2. **GHCR ml-odyssey (11)**: `ghcr.io/mvillmow/ml-odyssey` → `ghcr.io/HomericIntelligence/Odyssey`
-3. **GHCR projectodyssey (2)**: `ghcr.io/mvillmow/projectodyssey` → `ghcr.io/HomericIntelligence/Odyssey`
+3. **GHCR odyssey (2)**: `ghcr.io/mvillmow/odyssey` → `ghcr.io/HomericIntelligence/Odyssey`
 4. **Docker workflow IMAGE\_NAME (1)**: `.github/workflows/docker.yml:23`
 5. **Release workflow (3)**: `.github/workflows/release.yml` - added IMAGE\_NAME env, updated tags
 6. **Justfile REPO\_NAME (1)**: `justfile:111`
@@ -66,7 +66,7 @@ Converted hardcoded `/home/mvillmow/*` paths to repo-relative:
 # BEFORE:
 env:
   REGISTRY: ghcr.io
-  IMAGE\_NAME: mvillmow/projectodyssey
+  IMAGE\_NAME: mvillmow/odyssey
 
 # AFTER:
 env:
@@ -129,7 +129,7 @@ grep -r "/home/mvillmow" --include="*.md" --include="*.py" --include="*.sh" --in
 # Only found in .pixi/ (dependencies, safe to ignore)
 
 # No old repo refs
-grep -r "mvillmow/projectodyssey\|mvillmow/ml-odyssey\|mvillmow/Odyssey" \
+grep -r "mvillmow/odyssey\|mvillmow/ml-odyssey\|mvillmow/Odyssey" \
   --include="*.md" --include="*.py" --include="*.yml" --include="*.toml" .
 # Only found in build/ directory (test fixtures) and API endpoint examples
 ```
@@ -263,8 +263,8 @@ grep -r "ghcr.io/oldorg" --include="*.md" --include="*.yml" .
 - `notes/blog/` (8 files)
 - `notes/issues/2364/README.md`
 - `plugins/ci-cd/batch-pr-rebase/references/notes.md`
-- `src/projectodyssey/` (4 README files)
-- `tests/projectodyssey/README.md`
+- `src/odyssey/` (4 README files)
+- `tests/odyssey/README.md`
 - `tools/` (4 README files)
 
 ## Timeline
@@ -290,7 +290,7 @@ fix(ci)(repo): migrate GitHub URLs and fix Docker CI failure
 
 ## Docker CI Fix (Critical)
 
-- .github/workflows/docker.yml: Update IMAGE\_NAME from mvillmow/projectodyssey to HomericIntelligence/Odyssey
+- .github/workflows/docker.yml: Update IMAGE\_NAME from mvillmow/odyssey to HomericIntelligence/Odyssey
 - .github/workflows/release.yml: Add IMAGE\_NAME env var and update GHCR references
 - justfile: Update REPO\_NAME from mvillmow/ml-odyssey to HomericIntelligence/Odyssey
 - Dockerfile.ci: Remove redundant :- from PYTHONPATH (ENV PYTHONPATH=/app)
@@ -326,6 +326,6 @@ This approach works for **any repository** that:
 **Adaptation steps**:
 
 1. Replace `homericintelligence` with your new org name (lowercase)
-2. Replace `projectodyssey` with your repo name (lowercase)
+2. Replace `odyssey` with your repo name (lowercase)
 3. Follow the search patterns to find all references
 4. Test with `just pre-commit-all` before committing

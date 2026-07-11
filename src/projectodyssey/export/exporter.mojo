@@ -1,4 +1,4 @@
-# src/projectodyssey/export/exporter.mojo
+# src/odyssey/export/exporter.mojo
 """
 ONNX Exporter for ML Odyssey models.
 
@@ -10,8 +10,8 @@ It directly writes valid ONNX protobuf files that can be loaded by
 ONNX Runtime, TensorRT, OpenVINO, and other ONNX-compatible runtimes.
 """
 
-from projectodyssey.export.protobuf import ProtoBuffer
-from projectodyssey.export.onnx_proto import (
+from odyssey.export.protobuf import ProtoBuffer
+from odyssey.export.onnx_proto import (
     ModelProto,
     GraphProto,
     NodeProto,

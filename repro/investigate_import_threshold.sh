@@ -6,7 +6,7 @@
 #   - Is it import chain depth into real modules?
 #
 # All Experiment 1/2/3 tests are SINGLE-FILE (no cross-file imports needed).
-# Experiment 4 uses real ProjectOdyssey modules (requires just build first).
+# Experiment 4 uses real Odyssey modules (requires just build first).
 #
 # Run from the repo root with mojo in PATH:
 #   export PATH=/path/to/.pixi/envs/default/bin:$PATH
@@ -184,7 +184,7 @@ for n_fns in 10 50 100 200 500 1000; do
 done
 
 # ============================================================
-# Experiment 4: Real ProjectOdyssey module imports
+# Experiment 4: Real Odyssey module imports
 # Tests whether cross-module imports at module level crash
 # Requires: MOJO_PACKAGE_PATH pointing to built shared package
 # ============================================================
@@ -200,9 +200,9 @@ if [ ! -f "$SHARED_PKG" ]; then
 else
     # Test 1: Module-level import of reduction (-> shape 1371 lines)
     cat > "$TMP_DIR/test_real_reduction.mojo" << 'MOJO'
-from projectodyssey.core.reduction import sum as reduce_sum
+from odyssey.core.reduction import sum as reduce_sum
 def test() raises:
-    from projectodyssey.tensor.any_tensor import ones
+    from odyssey.tensor.any_tensor import ones
     var t = ones(List[Int](4), DType.float32)
     _ = reduce_sum(t)
     print("PASS")
@@ -215,9 +215,9 @@ MOJO
 
     # Test 2: Module-level import of loss_utils (-> elementwise 1650 -> dtype_dispatch 1520)
     cat > "$TMP_DIR/test_real_loss_utils.mojo" << 'MOJO'
-from projectodyssey.core.loss_utils import clip_predictions
+from odyssey.core.loss_utils import clip_predictions
 def test() raises:
-    from projectodyssey.tensor.any_tensor import ones
+    from odyssey.tensor.any_tensor import ones
     var t = ones(List[Int](4), DType.float32)
     _ = clip_predictions(t)
     print("PASS")
@@ -231,9 +231,9 @@ MOJO
     # Test 3: Per-function imports (fixed version)
     cat > "$TMP_DIR/test_real_perfn.mojo" << 'MOJO'
 def test() raises:
-    from projectodyssey.core.reduction import sum as reduce_sum
-    from projectodyssey.core.loss_utils import clip_predictions
-    from projectodyssey.tensor.any_tensor import ones
+    from odyssey.core.reduction import sum as reduce_sum
+    from odyssey.core.loss_utils import clip_predictions
+    from odyssey.tensor.any_tensor import ones
     var t = ones(List[Int](4), DType.float32)
     _ = reduce_sum(t)
     _ = clip_predictions(t)

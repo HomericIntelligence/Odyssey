@@ -18,11 +18,11 @@ Tests cover:
 """
 
 from std.testing import assert_true, assert_almost_equal
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros, ones
-from projectodyssey.core.module import Module
-from projectodyssey.core.layers.linear import Linear
-from projectodyssey.core.layers.relu import ReLULayer
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros, ones
+from odyssey.core.module import Module
+from odyssey.core.layers.linear import Linear
+from odyssey.core.layers.relu import ReLULayer
 
 
 def test_module_forward_accepts_anytensor() raises:

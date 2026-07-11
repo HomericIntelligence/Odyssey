@@ -13,13 +13,13 @@ Tests cover the new validation functions added for comprehensive API validation:
 - validate_matching_dtype: Matching dtype validation
 """
 
-from tests.projectodyssey.conftest import (
+from tests.odyssey.conftest import (
     assert_equal,
     assert_true,
 )
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros, ones
-from projectodyssey.core.validation import (
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros, ones
+from odyssey.core.validation import (
     validate_1d_input,
     validate_3d_input,
     validate_axis,

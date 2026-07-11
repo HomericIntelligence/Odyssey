@@ -30,7 +30,7 @@ Features:
     - Formatted benchmark reports
 
 Example - High-level quick benchmarking:
-    from projectodyssey.benchmarking import benchmark_function, print_benchmark_report
+    from odyssey.benchmarking import benchmark_function, print_benchmark_report
 
     def expensive_operation():
         # Your operation here
@@ -40,7 +40,7 @@ Example - High-level quick benchmarking:
     print_benchmark_report(result, "Expensive Operation")
 
 Example - Low-level granular tracking:
-    from projectodyssey.benchmarking.result import BenchmarkResult
+    from odyssey.benchmarking.result import BenchmarkResult
     from time import now
 
     var result = BenchmarkResult("custom_benchmark", iterations=0)
@@ -55,7 +55,7 @@ Example - Low-level granular tracking:
     print("Std Dev:", result.std() / 1_000_000.0, "ms")
 
 Example - Advanced runner with manual control:
-    from projectodyssey.benchmarking import BenchmarkRunner
+    from odyssey.benchmarking import BenchmarkRunner
     from time import now
 
     var runner = BenchmarkRunner("custom_operation", warmup_iters=10)
@@ -72,13 +72,13 @@ Example - Advanced runner with manual control:
 """
 
 # Package version
-from projectodyssey.version import VERSION
+from odyssey.version import VERSION
 
 # ============================================================================
 # Exports - Implemented modules
 # ============================================================================
 
-from projectodyssey.benchmarking.runner import (
+from odyssey.benchmarking.runner import (
     BenchmarkStatistics,  # High-level benchmark results with percentiles (primary)
     BenchmarkResult,  # Alias for backward compatibility (points to BenchmarkStatistics)
     benchmark_function,  # Main benchmarking function

@@ -254,9 +254,9 @@ SKILL_CATEGORY_OVERRIDE = {
 # Replacements for hardcoded Odyssey paths
 PATH_REPLACEMENTS = [
     (r"/home/mvillmow/Odyssey2/", "<project-root>/"),
-    (r"/home/mvillmow/ProjectOdyssey/", "<project-root>/"),
-    (r"\bProjectOdyssey2\b", "<project-name>"),
-    (r"\bProjectOdyssey\b", "<project-name>"),
+    (r"/home/mvillmow/Odyssey/", "<project-root>/"),
+    (r"\bOdyssey2\b", "<project-name>"),
+    (r"\bOdyssey\b", "<project-name>"),
     (r"\bpixi run mojo\b", "<package-manager> run mojo"),
     (r"\bpixi run\b", "<package-manager> run"),
     (r"tests/models/test_", "tests/<model>/test_"),

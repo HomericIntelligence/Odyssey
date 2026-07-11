@@ -9,7 +9,7 @@ Tests cover:
 These tests validate entire model lifecycle workflows.
 """
 
-from tests.projectodyssey.conftest import (
+from tests.odyssey.conftest import (
     assert_true,
     assert_less,
     assert_greater,
@@ -19,12 +19,12 @@ from tests.projectodyssey.conftest import (
     create_simple_model,
     TestFixtures,
 )
-from projectodyssey.testing.models import SimpleMLP
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros, ones
-from projectodyssey.core.loss import mean_squared_error
-from projectodyssey.core.reduction import mean
-from projectodyssey.core.activation import softmax
+from odyssey.testing.models import SimpleMLP
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros, ones
+from odyssey.core.loss import mean_squared_error
+from odyssey.core.reduction import mean
+from odyssey.core.activation import softmax
 
 
 # ============================================================================

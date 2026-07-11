@@ -19,7 +19,7 @@ Following TDD principles:
 - Test CI/CD integration points
 """
 
-from tests.projectodyssey.conftest import (
+from tests.odyssey.conftest import (
     assert_true,
     assert_false,
     assert_equal,

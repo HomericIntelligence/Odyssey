@@ -32,7 +32,7 @@ Test Models:
     Parameter: Trainable parameter with gradient tracking
 """
 
-from projectodyssey.testing.tolerance_constants import (
+from odyssey.testing.tolerance_constants import (
     TOLERANCE_DEFAULT,
     TOLERANCE_FLOAT16,
     TOLERANCE_FLOAT32,
@@ -47,7 +47,7 @@ from projectodyssey.testing.tolerance_constants import (
     TOLERANCE_CROSS_ENTROPY,
 )
 
-from projectodyssey.testing.assertions import (
+from odyssey.testing.assertions import (
     assert_true,
     assert_false,
     assert_equal,
@@ -75,7 +75,7 @@ from projectodyssey.testing.assertions import (
     assert_type,
 )
 
-from projectodyssey.testing.gradient_checker import (
+from odyssey.testing.gradient_checker import (
     NumericalForward,
     NumericalBackward,
     check_gradients,
@@ -86,14 +86,14 @@ from projectodyssey.testing.gradient_checker import (
     assert_gradients_close,
 )
 
-from projectodyssey.testing.data_generators import (
+from odyssey.testing.data_generators import (
     random_tensor,
     random_uniform,
     random_normal,
     synthetic_classification_data,
 )
 
-from projectodyssey.testing.models import (
+from odyssey.testing.models import (
     SimpleCNN,
     LinearModel,
     SimpleMLP,
@@ -103,7 +103,7 @@ from projectodyssey.testing.models import (
     Parameter,
 )
 
-from projectodyssey.testing.fixtures import (
+from odyssey.testing.fixtures import (
     create_test_cnn,
     create_linear_model,
     create_test_input,
@@ -114,7 +114,7 @@ from projectodyssey.testing.fixtures import (
     assert_tensor_not_all_zeros,
 )
 
-from projectodyssey.testing.special_values import (
+from odyssey.testing.special_values import (
     SPECIAL_VALUE_ZERO,
     SPECIAL_VALUE_HALF,
     SPECIAL_VALUE_ONE,
@@ -131,9 +131,9 @@ from projectodyssey.testing.special_values import (
     create_one_and_half_tensor,
 )
 
-from projectodyssey.testing.layer_testers import LayerTester
+from odyssey.testing.layer_testers import LayerTester
 
-from projectodyssey.testing.dtype_utils import (
+from odyssey.testing.dtype_utils import (
     get_test_dtypes,
     get_float_dtypes,
     get_precision_dtypes,
@@ -141,10 +141,10 @@ from projectodyssey.testing.dtype_utils import (
     dtype_to_string,
 )
 
-from projectodyssey.testing.layer_params import ConvFixture, LinearFixture
+from odyssey.testing.layer_params import ConvFixture, LinearFixture
 
 # Fuzzing infrastructure
-from projectodyssey.testing.fuzz_core import (
+from odyssey.testing.fuzz_core import (
     FuzzConfig,
     FuzzResult,
     SeededRNG,
@@ -162,7 +162,7 @@ from projectodyssey.testing.fuzz_core import (
     format_failure_message,
 )
 
-from projectodyssey.testing.fuzz_shapes import (
+from odyssey.testing.fuzz_shapes import (
     ShapeFuzzer,
     generate_broadcast_shapes,
     generate_matmul_shapes,
@@ -177,7 +177,7 @@ from projectodyssey.testing.fuzz_shapes import (
     shape_to_string,
 )
 
-from projectodyssey.testing.fuzz_dtypes import (
+from odyssey.testing.fuzz_dtypes import (
     DTypeFuzzer,
     get_all_dtypes,
     get_float_dtypes as get_fuzz_float_dtypes,
@@ -202,7 +202,7 @@ from projectodyssey.testing.fuzz_dtypes import (
 )
 
 # Property-based testing
-from projectodyssey.testing.property_testing import (
+from odyssey.testing.property_testing import (
     random_shape,
     random_compatible_shape,
     random_broadcastable_shapes,

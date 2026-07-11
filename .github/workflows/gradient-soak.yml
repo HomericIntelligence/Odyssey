@@ -62,7 +62,7 @@ jobs:
             echo "=================================================="
             echo "Soak iteration $i / $ITERATIONS"
             echo "=================================================="
-            if ! just test-group "tests/projectodyssey/core" \
+            if ! just test-group "tests/odyssey/core" \
                 "test_gradient_checking_basic.mojo test_gradient_checking_dtype.mojo"; then
               echo "Iteration $i FAILED"
               failures=$((failures + 1))

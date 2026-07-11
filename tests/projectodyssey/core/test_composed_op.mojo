@@ -10,13 +10,13 @@ Tests the composition of two differentiable operations including:
 
 
 from std.testing import assert_true, assert_equal
-from tests.projectodyssey.conftest import (
+from tests.odyssey.conftest import (
     assert_almost_equal,
     assert_shape_equal,
 )
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import ones, zeros
-from projectodyssey.core.traits import Differentiable, Composable, ComposedOp
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import ones, zeros
+from odyssey.core.traits import Differentiable, Composable, ComposedOp
 
 
 def make_tensor_with_shape(numel: Int) raises -> AnyTensor:

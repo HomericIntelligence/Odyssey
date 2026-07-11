@@ -1,6 +1,6 @@
 """Tests for dtype utilities and aliases."""
 
-from projectodyssey.training.dtype_utils import (
+from odyssey.training.dtype_utils import (
     float16_dtype,
     float32_dtype,
     float64_dtype,
@@ -253,7 +253,7 @@ def test_bfloat16_alias_behavior() raises:
     print("Testing bfloat16 native dtype behavior...")
 
     # Verify bfloat16_dtype uses native DType.bfloat16
-    from projectodyssey.tensor.tensor_creation import zeros
+    from odyssey.tensor.tensor_creation import zeros
 
     var tensor = zeros(List[Int](), bfloat16_dtype)
     assert_equal(

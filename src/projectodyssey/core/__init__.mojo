@@ -39,26 +39,26 @@ Modules:
 Note:
     Mojo v0.26.1+ automatically exports all imported symbols to package consumers.
     No ``__all__`` equivalent is needed — any symbol imported in this file is
-    automatically available to users of ``projectodyssey.core``. See issue #3751.
+    automatically available to users of ``odyssey.core``. See issue #3751.
 
-    Re-exports from ``projectodyssey.core`` work cleanly with no chain limitation.
+    Re-exports from ``odyssey.core`` work cleanly with no chain limitation.
     Callers may import directly from the parent package:
 
     ```mojo
-    from projectodyssey.core import AnyTensor, linear, relu
+    from odyssey.core import AnyTensor, linear, relu
     ```
 
     The chain limitation described in #3210 only applies to importing from the
-    ``shared`` top-level package (e.g. ``from projectodyssey import AnyTensor``), not from
-    ``projectodyssey.core`` or its submodules directly.
+    ``shared`` top-level package (e.g. ``from odyssey import AnyTensor``), not from
+    ``odyssey.core`` or its submodules directly.
 
 Example:
    ```mojo
-    from projectodyssey.tensor.any_tensor import AnyTensor
-    from projectodyssey.tensor.tensor_creation import zeros
-    from projectodyssey.core.linear import linear
-    from projectodyssey.core.activation import relu
-    from projectodyssey.core.matrix import matmul, transpose
+    from odyssey.tensor.any_tensor import AnyTensor
+    from odyssey.tensor.tensor_creation import zeros
+    from odyssey.core.linear import linear
+    from odyssey.core.activation import relu
+    from odyssey.core.matrix import matmul, transpose
 
     # Create tensors
     var x = zeros([32, 784])
@@ -75,13 +75,13 @@ See Issue #3033: 4 tests for core module imports — all tests pass.
 """
 
 # Package version
-from projectodyssey.version import VERSION
+from odyssey.version import VERSION
 
 # ============================================================================
 # Default Hyperparameters
 # ============================================================================
 
-from projectodyssey.base.defaults import (
+from odyssey.base.defaults import (
     DEFAULT_LEAKY_RELU_ALPHA,
     DEFAULT_ELU_ALPHA,
     DEFAULT_HARD_TANH_MIN,
@@ -99,7 +99,7 @@ from projectodyssey.base.defaults import (
 # Mathematical Constants
 # ============================================================================
 
-from projectodyssey.base.math_constants import (
+from odyssey.base.math_constants import (
     PI,
     SQRT_2,
     SQRT_2_OVER_PI,
@@ -113,7 +113,7 @@ from projectodyssey.base.math_constants import (
 # Numerical Stability Constants
 # ============================================================================
 
-from projectodyssey.base.numerical_constants import (
+from odyssey.base.numerical_constants import (
     EPSILON_DIV,
     EPSILON_LOSS,
     EPSILON_NORM,
@@ -130,7 +130,7 @@ from projectodyssey.base.numerical_constants import (
 # Activation Function Constants
 # ============================================================================
 
-from projectodyssey.core.activation_constants import (
+from odyssey.core.activation_constants import (
     RELU6_UPPER_BOUND,
     SIGMOID_CLIP_THRESHOLD,
     HARD_SIGMOID_OFFSET,
@@ -143,7 +143,7 @@ from projectodyssey.core.activation_constants import (
 # Optimizer Default Hyperparameters
 # ============================================================================
 
-from projectodyssey.core.optimizer_constants import (
+from odyssey.core.optimizer_constants import (
     DEFAULT_LEARNING_RATE_SGD,
     DEFAULT_LEARNING_RATE_ADAM,
     DEFAULT_MOMENTUM,
@@ -158,17 +158,17 @@ from projectodyssey.core.optimizer_constants import (
 # ============================================================================
 # Core Tensor Type and Creation Functions
 # ============================================================================
-# AnyTensor lives in projectodyssey.tensor.any_tensor; factory functions (zeros,
-# ones, etc.) live in projectodyssey.tensor.tensor_creation.
-# Import directly: from projectodyssey.tensor.any_tensor import AnyTensor
-#                  from projectodyssey.tensor.tensor_creation import zeros, ones
-# NOT re-exported here to avoid circular imports between projectodyssey.core and projectodyssey.tensor.
+# AnyTensor lives in odyssey.tensor.any_tensor; factory functions (zeros,
+# ones, etc.) live in odyssey.tensor.tensor_creation.
+# Import directly: from odyssey.tensor.any_tensor import AnyTensor
+#                  from odyssey.tensor.tensor_creation import zeros, ones
+# NOT re-exported here to avoid circular imports between odyssey.core and odyssey.tensor.
 
 # ============================================================================
 # Shape Manipulation Operations
 # ============================================================================
 
-from projectodyssey.core.shape import (
+from odyssey.core.shape import (
     reshape,
     squeeze,
     unsqueeze,
@@ -199,13 +199,13 @@ from projectodyssey.core.shape import (
 # Custom Data Types (Type Aliases)
 # ============================================================================
 
-from projectodyssey.core.types.dtype_aliases import BF16, FP8, BF8, FP4, E8M0
+from odyssey.core.types.dtype_aliases import BF16, FP8, BF8, FP4, E8M0
 
 # ============================================================================
 # Gradient Container Types
 # ============================================================================
 
-from projectodyssey.core.gradient_types import (
+from odyssey.core.gradient_types import (
     GradientPair,
     GradientTriple,
     GradientQuad,
@@ -217,7 +217,7 @@ from projectodyssey.core.gradient_types import (
 # Arithmetic Operations
 # ============================================================================
 
-from projectodyssey.core.arithmetic import (
+from odyssey.core.arithmetic import (
     add,
     subtract,
     multiply,
@@ -236,7 +236,7 @@ from projectodyssey.core.arithmetic import (
 # Matrix Operations
 # ============================================================================
 
-from projectodyssey.core.matrix import (
+from odyssey.core.matrix import (
     matmul,
     transpose,
     transpose_view,
@@ -250,14 +250,14 @@ from projectodyssey.core.matrix import (
 # Optimized Matrix Multiplication Kernels
 # ============================================================================
 
-from projectodyssey.core.matmul import (
+from odyssey.core.matmul import (
     matmul_optimized,
     matmul_tiled,
     matmul_simd,
     matmul_typed,
 )
 
-from projectodyssey.core.strassen import (
+from odyssey.core.strassen import (
     matmul_strassen,
     STRASSEN_ENABLED,
     STRASSEN_THRESHOLD,
@@ -268,7 +268,7 @@ from projectodyssey.core.strassen import (
 # Activation Functions
 # ============================================================================
 
-from projectodyssey.core.activation import (
+from odyssey.core.activation import (
     relu,
     leaky_relu,
     prelu,
@@ -299,12 +299,12 @@ from projectodyssey.core.activation import (
     hard_tanh_backward,
 )
 
-from projectodyssey.core.activation_ops import (
+from odyssey.core.activation_ops import (
     exp_scalar_f32,
     exp_scalar_f64,
 )
 
-from projectodyssey.core.activation_simd import (
+from odyssey.core.activation_simd import (
     relu_simd,
     leaky_relu_simd,
     relu6_simd,
@@ -317,14 +317,14 @@ from projectodyssey.core.activation_simd import (
 # Neural Network Operations
 # ============================================================================
 
-from projectodyssey.core.linear import (
+from odyssey.core.linear import (
     linear,
     linear_no_bias,
     linear_backward,
     linear_no_bias_backward,
 )
 
-from projectodyssey.core.conv import (
+from odyssey.core.conv import (
     conv2d,
     conv2d_no_bias,
     conv2d_backward,
@@ -340,7 +340,7 @@ from projectodyssey.core.conv import (
     depthwise_separable_conv2d_no_bias_backward,
 )
 
-from projectodyssey.core.pooling import (
+from odyssey.core.pooling import (
     maxpool2d,
     avgpool2d,
     global_avgpool2d,
@@ -349,14 +349,14 @@ from projectodyssey.core.pooling import (
     global_avgpool2d_backward,
 )
 
-from projectodyssey.core.dropout import (
+from odyssey.core.dropout import (
     dropout,
     dropout2d,
     dropout_backward,
     dropout2d_backward,
 )
 
-from projectodyssey.core.normalization import (
+from odyssey.core.normalization import (
     batch_norm2d,
     batch_norm2d_backward,
     layer_norm,
@@ -367,14 +367,14 @@ from projectodyssey.core.normalization import (
     instance_norm_backward,
 )
 
-from projectodyssey.core.normalization_simd import (
+from odyssey.core.normalization_simd import (
     batch_norm2d_fused,
     batch_norm2d_fused_inference,
 )
 
-from projectodyssey.core.normalize_ops import normalize_rgb
+from odyssey.core.normalize_ops import normalize_rgb
 
-from projectodyssey.core.scalar_ops import (
+from odyssey.core.scalar_ops import (
     sqrt_scalar_f32,
     sqrt_scalar_f64,
     pow_scalar_f32,
@@ -385,7 +385,7 @@ from projectodyssey.core.scalar_ops import (
 # Attention Mechanisms
 # ============================================================================
 
-from projectodyssey.core.attention import (
+from odyssey.core.attention import (
     scaled_dot_product_attention,
     scaled_dot_product_attention_masked,
     scaled_dot_product_attention_backward,
@@ -404,7 +404,7 @@ from projectodyssey.core.attention import (
 # Element-wise Operations
 # ============================================================================
 
-from projectodyssey.core.elementwise import (
+from odyssey.core.elementwise import (
     abs,
     sign,
     exp,
@@ -438,7 +438,7 @@ from projectodyssey.core.elementwise import (
 # Comparison Operations
 # ============================================================================
 
-from projectodyssey.core.comparison import (
+from odyssey.core.comparison import (
     equal,
     not_equal,
     less,
@@ -451,7 +451,7 @@ from projectodyssey.core.comparison import (
 # Broadcasting Utilities
 # ============================================================================
 
-from projectodyssey.base.broadcasting import (
+from odyssey.base.broadcasting import (
     broadcast_shapes,
     are_shapes_broadcastable,
     compute_broadcast_strides,
@@ -462,7 +462,7 @@ from projectodyssey.base.broadcasting import (
 # Initialization Functions
 # ============================================================================
 
-from projectodyssey.core.initializers import (
+from odyssey.core.initializers import (
     xavier_uniform,
     xavier_normal,
     kaiming_uniform,
@@ -478,7 +478,7 @@ from projectodyssey.core.initializers import (
 # Loss Functions
 # ============================================================================
 
-from projectodyssey.core.loss import (
+from odyssey.core.loss import (
     binary_cross_entropy,
     mean_squared_error,
     cross_entropy,
@@ -495,7 +495,7 @@ from projectodyssey.core.loss import (
     kl_divergence_backward,
 )
 
-from projectodyssey.core.loss_utils import (
+from odyssey.core.loss_utils import (
     clip_predictions,
     create_epsilon_tensor,
     validate_tensor_shapes,
@@ -510,7 +510,7 @@ from projectodyssey.core.loss_utils import (
     negate_tensor,
 )
 
-from projectodyssey.core.numerical_safety import (
+from odyssey.core.numerical_safety import (
     has_nan,
     has_inf,
     count_nan,
@@ -532,7 +532,7 @@ from projectodyssey.core.numerical_safety import (
 # Dtype Dispatch Helpers
 # ============================================================================
 
-from projectodyssey.core.dtype_dispatch import (
+from odyssey.core.dtype_dispatch import (
     dispatch_unary,
     dispatch_binary,
     dispatch_scalar,
@@ -555,7 +555,7 @@ from projectodyssey.core.dtype_dispatch import (
 # Reduction Operations
 # ============================================================================
 
-from projectodyssey.core.reduction import (
+from odyssey.core.reduction import (
     sum,
     mean,
     max_reduce,
@@ -574,7 +574,7 @@ from projectodyssey.core.reduction import (
     percentile_backward,
 )
 
-from projectodyssey.core.reduction_ops import (
+from odyssey.core.reduction_ops import (
     ReduceOp,
     ReduceBackwardOp,
     SumOp,
@@ -587,7 +587,7 @@ from projectodyssey.core.reduction_ops import (
     MinBackwardOp,
 )
 
-from projectodyssey.core.reduction_utils import (
+from odyssey.core.reduction_utils import (
     compute_strides,
     linear_to_coords,
     coords_to_linear,
@@ -599,7 +599,7 @@ from projectodyssey.core.reduction_utils import (
 # Utility Functions
 # ============================================================================
 
-from projectodyssey.core.utils import (
+from odyssey.core.utils import (
     argmax,
     top_k_indices,
     top_k,
@@ -610,7 +610,7 @@ from projectodyssey.core.utils import (
 # Tensor Validation Functions
 # ============================================================================
 
-from projectodyssey.core.validation import (
+from odyssey.core.validation import (
     validate_tensor_shape,
     validate_tensor_dtype,
     validate_matching_tensors,
@@ -632,7 +632,7 @@ from projectodyssey.core.validation import (
 # Parallel Processing Utilities
 # ============================================================================
 
-from projectodyssey.core.parallel_utils import (
+from odyssey.core.parallel_utils import (
     PARALLEL_BATCH_THRESHOLD,
     DEFAULT_NUM_WORKERS,
     should_parallelize,
@@ -643,7 +643,7 @@ from projectodyssey.core.parallel_utils import (
 # Memory Pool for Efficient Small Allocations
 # ============================================================================
 
-from projectodyssey.base.memory_pool import (
+from odyssey.base.memory_pool import (
     TensorMemoryPool,
     PoolConfig,
     PoolStats,
@@ -656,33 +656,33 @@ from projectodyssey.base.memory_pool import (
 # Module Interface for Layer Composition
 # ============================================================================
 
-from projectodyssey.core.module import Module
-from projectodyssey.core.sequential import Sequential2, Sequential3
+from odyssey.core.module import Module
+from odyssey.core.sequential import Sequential2, Sequential3
 
 # ============================================================================
 # Lazy Expression Evaluation
 # ============================================================================
 
-from projectodyssey.core.lazy_expression import (
+from odyssey.core.lazy_expression import (
     expr,
     TensorExpr,
     ExprNode,
     OpType,
 )
 
-from projectodyssey.core.lazy_eval import (
+from odyssey.core.lazy_eval import (
     evaluate,
 )
 
 # ============================================================================
 # Gradient Clipping Utilities
 # ============================================================================
-# Defined here (in projectodyssey.core) rather than projectodyssey.autograd to avoid a
+# Defined here (in odyssey.core) rather than odyssey.autograd to avoid a
 # circular type identity issue in Mojo v0.26.1: cross-package imports of
-# AnyTensor from projectodyssey.autograd cause any_tensor.mojo to be compiled twice
+# AnyTensor from odyssey.autograd cause any_tensor.mojo to be compiled twice
 # with distinct type identities, breaking operator overloads.
 
-from projectodyssey.core.grad_utils import (
+from odyssey.core.grad_utils import (
     clip_grad_value_,
     clip_grad_norm_,
     clip_grad_global_norm_,
@@ -691,6 +691,6 @@ from projectodyssey.core.grad_utils import (
 # ============================================================================
 # Tensor I/O (Save/Load) Utilities
 # ============================================================================
-# Now in projectodyssey.tensor.tensor_io. Import directly:
-#   from projectodyssey.tensor.tensor_io import save_tensor, load_tensor
-# NOT re-exported here to avoid circular imports between projectodyssey.core and projectodyssey.tensor.
+# Now in odyssey.tensor.tensor_io. Import directly:
+#   from odyssey.tensor.tensor_io import save_tensor, load_tensor
+# NOT re-exported here to avoid circular imports between odyssey.core and odyssey.tensor.

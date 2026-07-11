@@ -4,16 +4,16 @@ Tests that TransformedDataset correctly applies transforms to data
 while leaving labels unchanged.
 """
 
-from tests.projectodyssey.conftest import (
+from tests.odyssey.conftest import (
     assert_true,
     assert_equal,
     TestFixtures,
 )
-from projectodyssey.data.datasets import AnyTensorDataset
-from projectodyssey.data.dataset_with_transform import TransformedDataset
-from projectodyssey.data.transforms import Normalize
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import ones, zeros
+from odyssey.data.datasets import AnyTensorDataset
+from odyssey.data.dataset_with_transform import TransformedDataset
+from odyssey.data.transforms import Normalize
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import ones, zeros
 from std.collections import List
 
 

@@ -7,7 +7,7 @@ Tests cover:
 All tests use the real scheduler implementations.
 """
 
-from tests.projectodyssey.conftest import (
+from tests.odyssey.conftest import (
     assert_true,
     assert_equal,
     assert_almost_equal,
@@ -15,7 +15,7 @@ from tests.projectodyssey.conftest import (
     assert_less_or_equal,
     TestFixtures,
 )
-from projectodyssey.training.schedulers import (
+from odyssey.training.schedulers import (
     WarmupCosineAnnealingLR,
     WarmupStepLR,
 )

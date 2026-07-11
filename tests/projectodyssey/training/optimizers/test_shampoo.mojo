@@ -12,7 +12,7 @@ Tests cover:
 - Genuine descent on quadratic objectives
 """
 
-from projectodyssey.tensor.any_tensor import (
+from odyssey.tensor.any_tensor import (
     AnyTensor,
     zeros,
     zeros_like,
@@ -21,7 +21,7 @@ from projectodyssey.tensor.any_tensor import (
     full_like,
     ones_like,
 )
-from projectodyssey.training.optimizers.shampoo import (
+from odyssey.training.optimizers.shampoo import (
     is_shampoo_eligible,
     initialize_shampoo_state,
     _trace_sum_diag,
@@ -30,15 +30,15 @@ from projectodyssey.training.optimizers.shampoo import (
     shampoo_step,
     shampoo_step_simple,
 )
-from projectodyssey.core.arithmetic_simd import (
+from odyssey.core.arithmetic_simd import (
     subtract_simd,
     multiply_simd,
     add_simd,
     divide_simd,
 )
-from projectodyssey.core.matrix import matmul, transpose
-from projectodyssey.tensor.tensor_creation import eye
-from projectodyssey.training.optimizers.optimizer_utils import (
+from odyssey.core.matrix import matmul, transpose
+from odyssey.tensor.tensor_creation import eye
+from odyssey.training.optimizers.optimizer_utils import (
     compute_tensor_norm,
 )
 from std.math import sqrt as scalar_sqrt, abs as math_abs, isnan

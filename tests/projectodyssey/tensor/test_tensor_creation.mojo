@@ -1,14 +1,14 @@
 """Direct unit tests for the tensor_creation module (issue #5158).
 
 Other tests reach these creation functions through the
-`projectodyssey.tensor.any_tensor` re-export layer. This file imports
-straight from `projectodyssey.tensor.tensor_creation` so the module is
+`odyssey.tensor.any_tensor` re-export layer. This file imports
+straight from `odyssey.tensor.tensor_creation` so the module is
 verified independently of that re-export.
 """
 
 from std.testing import assert_true, assert_equal, assert_almost_equal
 from std.math import isnan, isinf
-from projectodyssey.tensor.tensor_creation import (
+from odyssey.tensor.tensor_creation import (
     zeros,
     ones,
     full,

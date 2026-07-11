@@ -10,7 +10,7 @@ All tests use pure functional API.
 """
 
 
-from tests.projectodyssey.conftest import (
+from tests.odyssey.conftest import (
     TestFixtures,
     assert_almost_equal,
     assert_close_float,
@@ -19,26 +19,26 @@ from tests.projectodyssey.conftest import (
     assert_shape,
     assert_true,
 )
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import (
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import (
     full_like,
     ones,
     ones_like,
     zeros,
     zeros_like,
 )
-from projectodyssey.core.dropout import (
+from odyssey.core.dropout import (
     dropout,
     dropout2d,
     dropout_backward,
     dropout2d_backward,
 )
-from projectodyssey.testing.gradient_checker import (
+from odyssey.testing.gradient_checker import (
     check_gradient,
     NumericalForward,
     NumericalBackward,
 )
-from projectodyssey.core.arithmetic import multiply
+from odyssey.core.arithmetic import multiply
 
 
 def test_dropout_shapes() raises:

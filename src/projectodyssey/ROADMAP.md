@@ -5,7 +5,7 @@ and provides a prioritized roadmap for future development.
 
 ## Current Capabilities
 
-### Core Operations (`src/projectodyssey/core/`)
+### Core Operations (`src/odyssey/core/`)
 
 | Module | Description | Status |
 | --- | --- | --- |
@@ -27,7 +27,7 @@ and provides a prioritized roadmap for future development.
 | `reduction.mojo` | sum, mean, max, min with axis support | Complete |
 | `shape.mojo` | Shape computation utilities | Complete |
 
-### Training (`src/projectodyssey/training/`)
+### Training (`src/odyssey/training/`)
 
 | Module | Description | Status |
 | --- | --- | --- |
@@ -38,7 +38,7 @@ and provides a prioritized roadmap for future development.
 | `metrics/` | Training metrics | Partial |
 | `loops/` | Training loop utilities | Partial |
 
-### Autograd (`src/projectodyssey/autograd/`)
+### Autograd (`src/odyssey/autograd/`)
 
 | Module | Description | Status |
 | --- | --- | --- |
@@ -47,14 +47,14 @@ and provides a prioritized roadmap for future development.
 | `functional.mojo` | Functional autograd operations | Complete |
 | `optimizers.mojo` | Optimizer integration | Complete |
 
-### Data (`src/projectodyssey/data/`)
+### Data (`src/odyssey/data/`)
 
 | Module | Description | Status |
 | --- | --- | --- |
 | `datasets/` | Dataset loading utilities | Partial |
 | `formats/` | Data format handlers | Partial |
 
-### Utilities (`src/projectodyssey/utils/`)
+### Utilities (`src/odyssey/utils/`)
 
 | Module | Description | Status |
 | --- | --- | --- |
@@ -120,7 +120,7 @@ var out = conv(x)
 **Missing layer classes:**
 
 - `Conv2D` - Wraps conv2d with stored weights
-- `Linear` - Already exists in `src/projectodyssey/core/layers/linear.mojo`
+- `Linear` - Already exists in `src/odyssey/core/layers/linear.mojo`
 - `BatchNorm2D` - Wraps batch_norm with running stats
 - `LayerNorm` - Wraps layer_norm
 - `Dropout` - Wraps dropout

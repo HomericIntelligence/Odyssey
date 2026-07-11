@@ -1,6 +1,6 @@
 # Smoke test executed by the `tests:` block in recipe.yaml.
 #
-# Imports canonical public symbols from the installed projectodyssey.mojopkg
+# Imports canonical public symbols from the installed odyssey.mojopkg
 # and instantiates one to prove the package is not just parseable but
 # actually usable. If any import or instantiation fails, rattler-build
 # fails the package test and the recipe is rejected.
@@ -8,9 +8,9 @@
 # Positive imports only: Mojo import failures are compile-time errors,
 # so there is no equivalent of pytest.raises(ImportError) here.
 
-from projectodyssey.tensor.tensor import Tensor
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros
+from odyssey.tensor.tensor import Tensor
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros
 
 
 def main() raises:
@@ -20,4 +20,4 @@ def main() raises:
     # Runtime-typed tensor via the zeros() factory (canonical creation path).
     var _a = zeros([2, 3], DType.float32)
 
-    print("projectodyssey package import test: OK")
+    print("odyssey package import test: OK")

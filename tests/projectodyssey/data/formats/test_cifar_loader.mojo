@@ -12,14 +12,14 @@ Test Coverage:
 
 from std.collections import List
 from std.memory import UnsafePointer
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros
-from projectodyssey.data.formats import (
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros
+from odyssey.data.formats import (
     CIFARLoader,
     CIFAR10_BYTES_PER_IMAGE,
     CIFAR100_BYTES_PER_IMAGE,
 )
-from tests.projectodyssey.conftest import assert_true, assert_equal
+from tests.odyssey.conftest import assert_true, assert_equal
 
 
 def create_cifar10_test_file(num_images: Int) -> String:

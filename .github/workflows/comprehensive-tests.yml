@@ -56,7 +56,7 @@ jobs:
           echo "=================================================="
 
           # Search for deprecated pattern (any type)
-          if grep -rE "List\[.*\]\([0-9]" --include="*.mojo" src/projectodyssey/ tests/ examples/ benchmarks/ scripts/ 2>/dev/null; then
+          if grep -rE "List\[.*\]\([0-9]" --include="*.mojo" src/odyssey/ tests/ examples/ benchmarks/ scripts/ 2>/dev/null; then
             echo ""
             echo "❌ FAILED: Found deprecated List[Type](args) syntax"
             echo ""
@@ -78,17 +78,17 @@ jobs:
           echo "============================================================"
 
           # The 8 deprecated type aliases removed in #3059/#3267.
-          # They must not reappear in src/projectodyssey/ or tests/.
+          # They must not reappear in src/odyssey/ or tests/.
           PATTERN='LinearBackwardResult\|LinearNoBiasBackwardResult\|Conv2dBackwardResult\|Conv2dNoBiasBackwardResult\|DepthwiseConv2dBackwardResult\|DepthwiseConv2dNoBiasBackwardResult\|DepthwiseSeparableConv2dBackwardResult\|DepthwiseSeparableConv2dNoBiasBackwardResult'
 
           # Two-phase grep: broad scan, then exclude comment-only lines and docstrings.
-          if grep -rn "$PATTERN" src/projectodyssey/ tests/ --include='*.mojo' 2>/dev/null \
+          if grep -rn "$PATTERN" src/odyssey/ tests/ --include='*.mojo' 2>/dev/null \
                | grep -v '^\s*#' \
                | grep -v '^\s*"""' \
                | grep -q .; then
             echo ""
-            echo "::error::Deprecated alias names detected in src/projectodyssey/ or tests/"
-            grep -rn "$PATTERN" src/projectodyssey/ tests/ --include='*.mojo' 2>/dev/null \
+            echo "::error::Deprecated alias names detected in src/odyssey/ or tests/"
+            grep -rn "$PATTERN" src/odyssey/ tests/ --include='*.mojo' 2>/dev/null \
               | grep -v '^\s*#' \
               | grep -v '^\s*"""'
             echo ""
@@ -101,14 +101,14 @@ jobs:
           fi
 
   # ============================================================================
-  # Mojo Package Compilation Check - Verify src/projectodyssey package compiles
+  # Mojo Package Compilation Check - Verify src/odyssey package compiles
   # This runs BEFORE tests to catch compilation errors early
   # ============================================================================
   mojo-compilation:
     needs: [mojo-syntax-check]
     runs-on: ubuntu-latest
     # 30 min: `just ci-build` now actually compiles 46 example/benchmark
-    # binaries in addition to the src/projectodyssey package (#5389). Previously this
+    # binaries in addition to the src/odyssey package (#5389). Previously this
     # was a 1-file no-op, so 10 min was sufficient.
     timeout-minutes: 30
     name: "Mojo Package Compilation"
@@ -132,8 +132,8 @@ jobs:
           just ci-build
 
           mkdir -p compilation-results
-          total_files=$(find src/projectodyssey -name "*.mojo" -type f | wc -l)
-          echo "Total .mojo files in src/projectodyssey/: $total_files"
+          total_files=$(find src/odyssey -name "*.mojo" -type f | wc -l)
+          echo "Total .mojo files in src/odyssey/: $total_files"
           echo "✅ CI build validation succeeded"
           echo "compilation_status=success" >> $GITHUB_ENV
 
@@ -243,7 +243,7 @@ jobs:
       - name: Install dependencies
         run: pip install "homericintelligence-hephaestus>=0.9.0,<1"
 
-      - name: Audit src/projectodyssey links in CLAUDE.md
+      - name: Audit src/odyssey links in CLAUDE.md
         run: |
           python scripts/audit_shared_links.py
 
@@ -336,7 +336,7 @@ jobs:
       - name: "Core Tensors"
         if: matrix.group == 'core-tensors-loss'
         run: |
-          just test-group "tests/projectodyssey/core" \
+          just test-group "tests/odyssey/core" \
             "test_tensors*.mojo test_arithmetic*.mojo test_broadcasting*.mojo \
              test_shape*.mojo test_creation*.mojo test_reduction*.mojo \
              test_matrix*.mojo test_matmul*.mojo test_strassen.mojo \
@@ -347,28 +347,28 @@ jobs:
       - name: "Core Activations & Types"
         if: matrix.group == 'core-tensors-loss'
         run: |
-          just test-group "tests/projectodyssey/core" \
+          just test-group "tests/odyssey/core" \
             "test_activation*.mojo test_advanced_activations*.mojo \
              test_dtype_dispatch*.mojo test_dtype_ordinal*.mojo"
 
       - name: "Core Loss"
         if: matrix.group == 'core-tensors-loss'
         run: |
-          just test-group "tests/projectodyssey/core" \
+          just test-group "tests/odyssey/core" \
             "test_losses.mojo test_loss_funcs*.mojo test_loss_utils.mojo"
 
       # ---------- core-gradient-utils ----------
       - name: "Core Gradient"
         if: matrix.group == 'core-gradient-utils'
         run: |
-          just test-group "tests/projectodyssey/core" \
+          just test-group "tests/odyssey/core" \
             "test_backward*.mojo test_gradient*.mojo \
              test_variable_backward*.mojo test_depthwise_conv*.mojo"
 
       - name: "Core Utilities A"
         if: matrix.group == 'core-gradient-utils'
         run: |
-          just test-group "tests/projectodyssey/core" \
+          just test-group "tests/odyssey/core" \
             "test_utilities*.mojo test_utility*.mojo test_utils*.mojo \
              test_validation*.mojo test_integration*.mojo test_inplace*.mojo \
              test_lazy*.mojo test_constants*.mojo test_hash*.mojo \
@@ -378,12 +378,12 @@ jobs:
 
       - name: "Core Utilities B"
         if: matrix.group == 'core-gradient-utils'
-        run: just test-group "tests/projectodyssey/core" "test_extensor_*.mojo"
+        run: just test-group "tests/odyssey/core" "test_extensor_*.mojo"
 
       - name: "Core Utilities C"
         if: matrix.group == 'core-gradient-utils'
         run: |
-          just test-group "tests/projectodyssey/core" \
+          just test-group "tests/odyssey/core" \
             "test_memory_pool*.mojo test_memory_leaks*.mojo \
              test_initializers*.mojo test_module*.mojo test_sequential*.mojo \
              test_composed_op*.mojo test_dropout*.mojo"
@@ -391,7 +391,7 @@ jobs:
       - name: "Core Utilities D"
         if: matrix.group == 'core-gradient-utils'
         run: |
-          just test-group "tests/projectodyssey/core" \
+          just test-group "tests/odyssey/core" \
             "test_utilities*.mojo test_utility*.mojo test_utils*.mojo \
              test_validation*.mojo test_integration*.mojo test_inplace*.mojo \
              test_lazy*.mojo test_memory_pool*.mojo test_constants*.mojo \
@@ -408,52 +408,52 @@ jobs:
       # ---------- data ----------
       - name: "Data Core"
         if: matrix.group == 'data'
-        run: just test-group "tests/projectodyssey/data" "test_*.mojo"
+        run: just test-group "tests/odyssey/data" "test_*.mojo"
 
       - name: "Data Datasets"
         if: matrix.group == 'data'
-        run: just test-group "tests/projectodyssey/data/datasets" "test_*.mojo"
+        run: just test-group "tests/odyssey/data/datasets" "test_*.mojo"
 
       - name: "Data Loaders"
         if: matrix.group == 'data'
-        run: just test-group "tests/projectodyssey/data/loaders" "test_*.mojo"
+        run: just test-group "tests/odyssey/data/loaders" "test_*.mojo"
 
       - name: "Data Transforms"
         if: matrix.group == 'data'
-        run: just test-group "tests/projectodyssey/data/transforms" "test_*.mojo"
+        run: just test-group "tests/odyssey/data/transforms" "test_*.mojo"
 
       - name: "Data Samplers"
         if: matrix.group == 'data'
-        run: just test-group "tests/projectodyssey/data/samplers" "test_*.mojo"
+        run: just test-group "tests/odyssey/data/samplers" "test_*.mojo"
 
       - name: "Data Formats"
         if: matrix.group == 'data'
-        run: just test-group "tests/projectodyssey/data/formats" "test_*.mojo"
+        run: just test-group "tests/odyssey/data/formats" "test_*.mojo"
 
       # ---------- autograd-tensor-base ----------
       - name: "Autograd"
         if: matrix.group == 'autograd-tensor-base'
-        run: just test-group "tests/projectodyssey/autograd" "test_*.mojo"
+        run: just test-group "tests/odyssey/autograd" "test_*.mojo"
 
       - name: "Tensor"
         if: matrix.group == 'autograd-tensor-base'
-        run: just test-group "tests/projectodyssey/tensor" "test_*.mojo"
+        run: just test-group "tests/odyssey/tensor" "test_*.mojo"
 
       - name: "Base"
         if: matrix.group == 'autograd-tensor-base'
-        run: just test-group "tests/projectodyssey/base" "test_*.mojo"
+        run: just test-group "tests/odyssey/base" "test_*.mojo"
 
       # ---------- shampoo-optimizer (named for explicit failure attribution) ----------
       - name: "Shampoo Optimizer"
         if: matrix.group == 'autograd-tensor-base'
         run: |
-          just test-group "tests/projectodyssey/training/optimizers" \
+          just test-group "tests/odyssey/training/optimizers" \
             "test_shampoo.mojo"
 
       - name: "Shared Infra & Testing"
         if: matrix.group == 'autograd-tensor-base'
         run: |
-          just test-group "tests/projectodyssey" \
+          just test-group "tests/odyssey" \
             "test_imports*.mojo test_data_generators.mojo \
              test_model_utils.mojo test_serialization.mojo \
              utils/test_*.mojo fixtures/test_*.mojo \
@@ -471,7 +471,7 @@ jobs:
           just test-group "tests" \
             "test_*.mojo training/test_*.mojo unit/test_*.mojo \
              integration/test_*.mojo helpers/test_*.mojo \
-             tooling/benchmarks/test_*.mojo projectodyssey/fuzz/test_*.mojo"
+             tooling/benchmarks/test_*.mojo odyssey/fuzz/test_*.mojo"
 
       - name: "Examples"
         if: matrix.group == 'models-misc'
@@ -484,11 +484,11 @@ jobs:
       # ---------- integration-bench ----------
       - name: "Benchmarking"
         if: matrix.group == 'integration-bench'
-        run: just test-group "tests/projectodyssey/benchmarking" "test_*.mojo"
+        run: just test-group "tests/odyssey/benchmarking" "test_*.mojo"
 
       - name: "Integration Tests"
         if: matrix.group == 'integration-bench'
-        run: just test-group "tests/projectodyssey/integration" "test_*.mojo"
+        run: just test-group "tests/odyssey/integration" "test_*.mojo"
 
       - name: Upload test results
         if: always()
@@ -563,7 +563,7 @@ jobs:
         uses: extractions/setup-just@53165ef7e734c5c07cb06b3c8e7b647c5aa16db3  # v4.0.0
 
       - name: Run Benchmarks tests
-        run: just test-group tests/projectodyssey/benchmarks "bench_*.mojo"
+        run: just test-group tests/odyssey/benchmarks "bench_*.mojo"
 
       - name: Upload test results
         if: always()
@@ -596,7 +596,7 @@ jobs:
         uses: extractions/setup-just@53165ef7e734c5c07cb06b3c8e7b647c5aa16db3  # v4.0.0
 
       - name: Run Core Layers tests
-        run: just test-group tests/projectodyssey/core/layers "test_*.mojo"
+        run: just test-group tests/odyssey/core/layers "test_*.mojo"
 
       - name: Upload test results
         if: always()
@@ -729,10 +729,10 @@ jobs:
           echo "## Mojo Code Statistics" >> quality-reports/complexity.md
           echo "" >> quality-reports/complexity.md
 
-          total_mojo_files=$(find src/projectodyssey tests -name "*.mojo" 2>/dev/null | wc -l)
-          total_mojo_lines=$(find src/projectodyssey tests -name "*.mojo" -exec cat {} \; 2>/dev/null | wc -l)
-          total_functions=$(grep -r "^fn " src/projectodyssey tests --include="*.mojo" 2>/dev/null | wc -l)
-          total_structs=$(grep -r "^struct " src/projectodyssey tests --include="*.mojo" 2>/dev/null | wc -l)
+          total_mojo_files=$(find src/odyssey tests -name "*.mojo" 2>/dev/null | wc -l)
+          total_mojo_lines=$(find src/odyssey tests -name "*.mojo" -exec cat {} \; 2>/dev/null | wc -l)
+          total_functions=$(grep -r "^fn " src/odyssey tests --include="*.mojo" 2>/dev/null | wc -l)
+          total_structs=$(grep -r "^struct " src/odyssey tests --include="*.mojo" 2>/dev/null | wc -l)
 
           cat >> quality-reports/complexity.md << EOF
           | Metric | Count |
@@ -748,8 +748,8 @@ jobs:
           echo "## Technical Debt Markers" >> quality-reports/complexity.md
           echo "" >> quality-reports/complexity.md
 
-          todo_count=$(grep -r "TODO" src/projectodyssey tests scripts --include="*.mojo" --include="*.py" 2>/dev/null | wc -l)
-          fixme_count=$(grep -r "FIXME" src/projectodyssey tests scripts --include="*.mojo" --include="*.py" 2>/dev/null | wc -l)
+          todo_count=$(grep -r "TODO" src/odyssey tests scripts --include="*.mojo" --include="*.py" 2>/dev/null | wc -l)
+          fixme_count=$(grep -r "FIXME" src/odyssey tests scripts --include="*.mojo" --include="*.py" 2>/dev/null | wc -l)
 
           cat >> quality-reports/complexity.md << EOF
           | Marker | Count |
@@ -788,9 +788,9 @@ jobs:
 
           mkdir -p simd-reports
 
-          simd_count=$(grep -r "SIMD\[" src/projectodyssey --include="*.mojo" 2>/dev/null | wc -l)
-          vectorize_count=$(grep -r "vectorize" src/projectodyssey --include="*.mojo" 2>/dev/null | wc -l)
-          parallelize_count=$(grep -r "parallelize" src/projectodyssey --include="*.mojo" 2>/dev/null | wc -l)
+          simd_count=$(grep -r "SIMD\[" src/odyssey --include="*.mojo" 2>/dev/null | wc -l)
+          vectorize_count=$(grep -r "vectorize" src/odyssey --include="*.mojo" 2>/dev/null | wc -l)
+          parallelize_count=$(grep -r "parallelize" src/odyssey --include="*.mojo" 2>/dev/null | wc -l)
 
           cat > simd-reports/analysis.md << EOF
           # SIMD Optimization Analysis
@@ -807,7 +807,7 @@ jobs:
           EOF
 
           echo '```' >> simd-reports/analysis.md
-          grep -rl "for .* in range" src/projectodyssey --include="*.mojo" 2>/dev/null | \
+          grep -rl "for .* in range" src/odyssey --include="*.mojo" 2>/dev/null | \
             xargs -I{} sh -c 'echo "{}": $(grep -c "for .* in range" "{}")' 2>/dev/null | \
             sort -t: -k2 -nr | head -10 >> simd-reports/analysis.md || echo "None found"
           echo '```' >> simd-reports/analysis.md
@@ -827,7 +827,7 @@ jobs:
   build-validation:
     needs: [mojo-syntax-check]
     runs-on: ubuntu-latest
-    # 30 min: `just build` + `just package` now compile the full src/projectodyssey
+    # 30 min: `just build` + `just package` now compile the full src/odyssey
     # package and 46 example/benchmark binaries (#5389). Previously the
     # build recipe was a 1-file no-op, so 10 min was sufficient.
     timeout-minutes: 30
@@ -878,7 +878,7 @@ jobs:
           test_result="failed"
           exit_code=1
 
-          if just test-group "tests/projectodyssey/core" "test_gradient_checking_basic.mojo test_gradient_checking_dtype.mojo"; then
+          if just test-group "tests/odyssey/core" "test_gradient_checking_basic.mojo test_gradient_checking_dtype.mojo"; then
             test_result="passed"
             exit_code=0
           fi
@@ -945,10 +945,10 @@ jobs:
           fi
 
           # Find all *_backward functions
-          BACKWARD_FUNCS=$(grep -r "fn.*_backward" src/projectodyssey/core --include="*.mojo" | wc -l)
+          BACKWARD_FUNCS=$(grep -r "fn.*_backward" src/odyssey/core --include="*.mojo" | wc -l)
 
           # Find all gradient tests
-          GRADIENT_TESTS=$(grep -r "test.*gradient" tests/projectodyssey/core/test_gradient_checking_basic.mojo tests/projectodyssey/core/test_gradient_checking_dtype.mojo | wc -l)
+          GRADIENT_TESTS=$(grep -r "test.*gradient" tests/odyssey/core/test_gradient_checking_basic.mojo tests/odyssey/core/test_gradient_checking_dtype.mojo | wc -l)
 
           echo "Backward functions found: $BACKWARD_FUNCS"
           echo "Gradient tests found: $GRADIENT_TESTS"
@@ -993,7 +993,7 @@ jobs:
         run: |
           mkdir -p test-results
           echo "start_time=$(date +%s)" >> $GITHUB_ENV
-          if [ -d "tests/projectodyssey/data" ]; then
+          if [ -d "tests/odyssey/data" ]; then
             echo "tests_exist=true" >> $GITHUB_OUTPUT
           else
             echo "tests_exist=false" >> $GITHUB_OUTPUT
@@ -1002,31 +1002,31 @@ jobs:
       - name: Run Dataset Tests
         if: steps.check-tests.outputs.tests_exist == 'true'
         run: |
-          just test-group "tests/projectodyssey/data/datasets" "test_base_dataset.mojo test_tensor_dataset.mojo"
+          just test-group "tests/odyssey/data/datasets" "test_base_dataset.mojo test_tensor_dataset.mojo"
 
       - name: Run Loader Tests
         if: steps.check-tests.outputs.tests_exist == 'true'
         run: |
-          just test-group "tests/projectodyssey/data/loaders" "test_base_loader.mojo"
+          just test-group "tests/odyssey/data/loaders" "test_base_loader.mojo"
 
       - name: Run Transform Tests
         if: steps.check-tests.outputs.tests_exist == 'true'
         run: |
-          just test-group "tests/projectodyssey/data/transforms" "test_pipeline.mojo"
+          just test-group "tests/odyssey/data/transforms" "test_pipeline.mojo"
 
       - name: Run Sampler Tests
         if: steps.check-tests.outputs.tests_exist == 'true'
         run: |
-          just test-group "tests/projectodyssey/data/samplers" "test_sequential.mojo"
+          just test-group "tests/odyssey/data/samplers" "test_sequential.mojo"
 
       - name: Run All Data Tests
         if: steps.check-tests.outputs.tests_exist == 'true'
         run: |
-          just test-group "tests/projectodyssey/data" "run_all_tests.mojo"
+          just test-group "tests/odyssey/data" "run_all_tests.mojo"
 
       - name: Run File I/O Tests (includes remove_safely)
         run: |
-          just test-group "tests/projectodyssey/utils" "test_io.mojo"
+          just test-group "tests/odyssey/utils" "test_io.mojo"
 
       - name: Report Results
         if: always()
@@ -1058,7 +1058,7 @@ jobs:
             echo "Check individual test outputs above for details"
           else
             echo "⚠️  Data utilities tests not yet implemented"
-            echo "This workflow will run once tests/projectodyssey/data/ tests are created"
+            echo "This workflow will run once tests/odyssey/data/ tests are created"
           fi
 
       - name: Upload test results

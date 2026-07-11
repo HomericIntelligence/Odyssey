@@ -19,9 +19,9 @@ Optimizations:
 
 from std.collections import List
 from std.memory import memcpy, UnsafePointer
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.base.shape_utils import _resolve_shape
-from projectodyssey.base.dtype_ordinal import (
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.base.shape_utils import _resolve_shape
+from odyssey.base.dtype_ordinal import (
     dtype_to_ordinal,
     DTYPE_FLOAT16,
     DTYPE_FLOAT32,
@@ -82,7 +82,7 @@ def as_contiguous(tensor: AnyTensor) raises -> AnyTensor:
             This function always copies data. For zero-copy operations, check
             is_contiguous() first.
     """
-    from projectodyssey.tensor.typed.shape import _as_contiguous_dispatch
+    from odyssey.tensor.typed.shape import _as_contiguous_dispatch
 
     var ordinal = dtype_to_ordinal(tensor.dtype())
 
@@ -185,7 +185,7 @@ def reshape(tensor: AnyTensor, new_shape: List[Int]) raises -> AnyTensor:
             var c = reshape(a, [3, -1])  # Shape (3, 4) - infers 4
     ```
     """
-    from projectodyssey.tensor.typed.shape import _reshape_dispatch
+    from odyssey.tensor.typed.shape import _reshape_dispatch
 
     var ordinal = dtype_to_ordinal(tensor.dtype())
 
@@ -1265,7 +1265,7 @@ def broadcast_to(
             var b = broadcast_to(a, target)  # Shape (4, 3)
     ```
     """
-    from projectodyssey.tensor.typed.shape import _broadcast_to_dispatch
+    from odyssey.tensor.typed.shape import _broadcast_to_dispatch
 
     var ordinal = dtype_to_ordinal(tensor.dtype())
 
@@ -1357,7 +1357,7 @@ def permute(tensor: AnyTensor, dims: List[Int]) raises -> AnyTensor:
             var b = permute(a, perm)  # Shape (4, 2, 3)
     ```
     """
-    from projectodyssey.tensor.typed.shape import _permute_dispatch
+    from odyssey.tensor.typed.shape import _permute_dispatch
 
     var ordinal = dtype_to_ordinal(tensor.dtype())
 

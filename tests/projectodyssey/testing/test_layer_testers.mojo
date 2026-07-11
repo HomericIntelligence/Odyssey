@@ -10,15 +10,15 @@ See test_layer_testers_part2.mojo for remaining tests.
 
 
 from std.math import isnan, isinf
-from projectodyssey.testing import LayerTester
-from projectodyssey.testing.special_values import (
+from odyssey.testing import LayerTester
+from odyssey.testing.special_values import (
     create_ones_tensor,
     create_special_value_tensor,
     create_seeded_random_tensor,
 )
-from projectodyssey.testing.assertions import assert_true
-from projectodyssey.testing.tensor_factory import zeros_tensor
-from projectodyssey.tensor.any_tensor import AnyTensor
+from odyssey.testing.assertions import assert_true
+from odyssey.testing.tensor_factory import zeros_tensor
+from odyssey.tensor.any_tensor import AnyTensor
 
 
 def test_layer_dtype_consistency_passes() raises:

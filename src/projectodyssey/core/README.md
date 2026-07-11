@@ -69,10 +69,10 @@ it probably shouldn't. Wait until 2-3 papers need it, then refactor into core.
 ## Using Core Components in Papers
 
 ```mojo
-from projectodyssey.core.layers import Linear, ReLU, Conv2D
-from projectodyssey.core.ops import matmul
-from projectodyssey.core.types import Tensor
-from projectodyssey.core.utils import xavier_init
+from odyssey.core.layers import Linear, ReLU, Conv2D
+from odyssey.core.ops import matmul
+from odyssey.core.types import Tensor
+from odyssey.core.utils import xavier_init
 
 # Use core components in your paper implementation
 struct LeNet5:

@@ -1,4 +1,4 @@
-# src/projectodyssey/export/onnx_proto.mojo
+# src/odyssey/export/onnx_proto.mojo
 """
 ONNX Protocol Buffer message definitions.
 
@@ -9,7 +9,7 @@ Based on ONNX IR specification v9 (opset 14+).
 Reference: https://github.com/onnx/onnx/blob/main/onnx/onnx.proto
 """
 
-from projectodyssey.export.protobuf import ProtoBuffer
+from odyssey.export.protobuf import ProtoBuffer
 
 
 # ONNX data types.

@@ -10,14 +10,14 @@ All tests use the real LoggingCallback implementation.
 """
 
 
-from tests.projectodyssey.conftest import (
+from tests.odyssey.conftest import (
     assert_true,
     assert_equal,
     assert_greater,
     TestFixtures,
 )
-from projectodyssey.training.callbacks import LoggingCallback
-from projectodyssey.training.base import TrainingState
+from odyssey.training.callbacks import LoggingCallback
+from odyssey.training.base import TrainingState
 
 
 def test_logging_callback_initialization() raises:

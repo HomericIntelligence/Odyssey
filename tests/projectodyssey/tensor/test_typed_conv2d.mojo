@@ -16,8 +16,8 @@ Tests cover:
 """
 
 from std.testing import assert_true, assert_almost_equal
-from projectodyssey.core.layers.conv2d import Conv2dLayer
-from projectodyssey.tensor.tensor import Tensor
+from odyssey.core.layers.conv2d import Conv2dLayer
+from odyssey.tensor.tensor import Tensor
 
 
 def test_conv2d_default_dtype() raises:

@@ -15,13 +15,13 @@ Usage:
 See documentation: docs/getting-started/quickstart.md
 """
 
-from projectodyssey.benchmarking import (
+from odyssey.benchmarking import (
     benchmark_function,
     print_benchmark_report,
     BenchmarkResult,
 )
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import ones, zeros
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import ones, zeros
 
 
 # ============================================================================

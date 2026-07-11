@@ -12,7 +12,7 @@ create_mock_dataloader, MockDataLoader) rather than asserting on hand-built
 tensors.
 """
 
-from tests.projectodyssey.conftest import (
+from tests.odyssey.conftest import (
     assert_true,
     assert_less,
     assert_greater,

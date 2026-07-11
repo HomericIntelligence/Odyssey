@@ -9,16 +9,16 @@ This package provides reusable ML/AI components including:
 
 Usage:
     # Import commonly used components directly
-    from projectodyssey import Linear, Conv2D, ReLU, SGD, Adam, AnyTensor
+    from odyssey import Linear, Conv2D, ReLU, SGD, Adam, AnyTensor
 
     # Import from specific modules for less common items
-    from projectodyssey.core.layers import MaxPool2D, Dropout
-    from projectodyssey.training.schedulers import CosineAnnealingLR
-    from projectodyssey.data.transforms import Normalize
+    from odyssey.core.layers import MaxPool2D, Dropout
+    from odyssey.training.schedulers import CosineAnnealingLR
+    from odyssey.data.transforms import Normalize
 
 Example:
     ```mojo
-    from projectodyssey import Linear, ReLU, Sequential, SGD
+    from odyssey import Linear, ReLU, Sequential, SGD
 
     # Build a simple model
     model = Sequential([
@@ -38,12 +38,12 @@ Example:
         print("Epoch", epoch, "Loss:", loss)
     ```
 
-Import tests in tests/projectodyssey/integration/test_packaging.mojo are implemented and passing.
+Import tests in tests/odyssey/integration/test_packaging.mojo are implemented and passing.
 See Issue #3033: 12 tests for packaging integration — all tests pass.
 """
 
 # Package version and metadata
-from projectodyssey.version import VERSION, AUTHOR, LICENSE
+from odyssey.version import VERSION, AUTHOR, LICENSE
 
 # ============================================================================
 # Core Exports - Most commonly used components
@@ -52,13 +52,13 @@ from projectodyssey.version import VERSION, AUTHOR, LICENSE
 # Core layers — activated where leaf-module implementations are confirmed ready.
 # NOTE(#3754, Mojo v0.26.1): Re-export chain limitation requires absolute leaf-module
 # paths here; chained re-exports through intermediate __init__.mojo do not work.
-from projectodyssey.core.layers.linear import Linear
-from projectodyssey.core.layers.conv2d import Conv2dLayer
-from projectodyssey.core.layers.relu import ReLULayer
-from projectodyssey.core.layers.dropout import DropoutLayer
-from projectodyssey.core.layers.batchnorm import BatchNorm2dLayer
+from odyssey.core.layers.linear import Linear
+from odyssey.core.layers.conv2d import Conv2dLayer
+from odyssey.core.layers.relu import ReLULayer
+from odyssey.core.layers.dropout import DropoutLayer
+from odyssey.core.layers.batchnorm import BatchNorm2dLayer
 
-# Aliases to match documented public API names (e.g. `from projectodyssey import Conv2D`)
+# Aliases to match documented public API names (e.g. `from odyssey import Conv2D`)
 comptime Conv2D = Conv2dLayer
 comptime ReLU = ReLULayer
 comptime Dropout = DropoutLayer
@@ -66,38 +66,38 @@ comptime BatchNorm2d = BatchNorm2dLayer
 
 # MaxPool2D, Flatten — pending layer implementation
 
-# Core activations (function form) — all four confirmed in src/projectodyssey/core/activation.mojo
-from projectodyssey.core.activation import relu, sigmoid, tanh, softmax
+# Core activations (function form) — all four confirmed in src/odyssey/core/activation.mojo
+from odyssey.core.activation import relu, sigmoid, tanh, softmax
 
 # Core module system
 # Module is a trait (not a struct) — can be imported but not instantiated directly
-from projectodyssey.core.module import Module
+from odyssey.core.module import Module
 
 # Sequential — only parametric variants exist (Sequential2, Sequential3, …)
 
 # Core tensors — AnyTensor is the canonical runtime-typed tensor.
-# Import directly: from projectodyssey.tensor.any_tensor import AnyTensor
+# Import directly: from odyssey.tensor.any_tensor import AnyTensor
 # Factory functions live in tensor_creation:
-#   from projectodyssey.tensor.tensor_creation import zeros, ones, randn
+#   from odyssey.tensor.tensor_creation import zeros, ones, randn
 # NOT re-exported here to avoid circular imports.
 
-# Training optimizers — struct classes available via projectodyssey.autograd.optimizers
+# Training optimizers — struct classes available via odyssey.autograd.optimizers
 
 # Training schedulers — struct implementations confirmed in lr_schedulers.mojo
-from projectodyssey.training.schedulers.lr_schedulers import (
+from odyssey.training.schedulers.lr_schedulers import (
     StepLR,
     CosineAnnealingLR,
 )
 
 # Training metrics (most commonly used) — Issue #3221
-# NOTE(#3754, Mojo v0.26.1): Metrics are imported directly from projectodyssey.training.metrics
-# rather than from projectodyssey.training due to Mojo re-export chain limitation.
-# See src/projectodyssey/training/__init__.mojo for detailed explanation of this limitation.
+# NOTE(#3754, Mojo v0.26.1): Metrics are imported directly from odyssey.training.metrics
+# rather than from odyssey.training due to Mojo re-export chain limitation.
+# See src/odyssey/training/__init__.mojo for detailed explanation of this limitation.
 # Users should import metrics either as:
-#   from projectodyssey.training.metrics import LossTracker, AccuracyMetric
+#   from odyssey.training.metrics import LossTracker, AccuracyMetric
 # or:
-#   from projectodyssey import LossTracker, AccuracyMetric  # if this module re-exports them
-from projectodyssey.training.metrics import (
+#   from odyssey import LossTracker, AccuracyMetric  # if this module re-exports them
+from odyssey.training.metrics import (
     LossTracker,
     AccuracyMetric,
     ConfusionMatrix,
@@ -108,7 +108,7 @@ from projectodyssey.training.metrics import (
 comptime Accuracy = AccuracyMetric
 
 # Autograd optimizers (most commonly used) — Issue #3745, #3219
-from projectodyssey.autograd.optimizers import (
+from odyssey.autograd.optimizers import (
     SGD,
     Adam,
     AdaGrad,
@@ -116,16 +116,16 @@ from projectodyssey.autograd.optimizers import (
     AdamW,
 )
 
-# Training callbacks — struct implementations confirmed in src/projectodyssey/training/callbacks.mojo
-from projectodyssey.training.callbacks import EarlyStopping, ModelCheckpoint
+# Training callbacks — struct implementations confirmed in src/odyssey/training/callbacks.mojo
+from odyssey.training.callbacks import EarlyStopping, ModelCheckpoint
 
 # Training loops — available as train_one_epoch / validate (see training_loop.mojo)
 
 # Data components — AnyTensorDataset available; typed wrappers pending
 
 # Utils
-from projectodyssey.utils.logging import Logger
-from projectodyssey.utils.visualization import plot_training_curves
+from odyssey.utils.logging import Logger
+from odyssey.utils.visualization import plot_training_curves
 
 # ============================================================================
 # Public API
@@ -135,9 +135,9 @@ from projectodyssey.utils.visualization import plot_training_curves
 # are automatically exported), we document the public API here for clarity.
 #
 # Users can import in multiple ways:
-#   from projectodyssey import core, training, data, utils  # Import modules
-#   from projectodyssey.core.layers import Linear           # Import specific items
-#   import projectodyssey                                     # Import whole package
+#   from odyssey import core, training, data, utils  # Import modules
+#   from odyssey.core.layers import Linear           # Import specific items
+#   import odyssey                                     # Import whole package
 #
 # Available Now:
 # - Version info: VERSION, AUTHOR, LICENSE
@@ -164,8 +164,8 @@ from projectodyssey.utils.visualization import plot_training_curves
 # ============================================================================
 # Convenience: Make subpackages accessible
 # ============================================================================
-# This allows users to do: from projectodyssey import core, training, data, utils
-# Then access via: projectodyssey.core.layers.Linear, projectodyssey.training.optimizers.SGD
+# This allows users to do: from odyssey import core, training, data, utils
+# Then access via: odyssey.core.layers.Linear, odyssey.training.optimizers.SGD
 #
 # NOTE(#3751, Mojo v0.26.1): Mojo v0.26.1+ does not support __all__ module-level assignments.
 # In Mojo, all public symbols (those not prefixed with _) are automatically
@@ -175,11 +175,11 @@ from projectodyssey.utils.visualization import plot_training_curves
 # Re-export Chain Limitation (Mojo v0.26.1, #3754):
 # Mojo v0.26.1 does not support re-export chains where an intermediate __init__.mojo
 # re-exports a symbol and a consumer imports it from the top-level package.
-# Example: `from projectodyssey import Linear` fails even if src/projectodyssey/core/__init__.mojo
-# re-exports Linear from projectodyssey/core/layers.mojo.
+# Example: `from odyssey import Linear` fails even if src/odyssey/core/__init__.mojo
+# re-exports Linear from odyssey/core/layers.mojo.
 # Workaround: Import directly from the submodule that defines the symbol:
-#   from projectodyssey.core.layers import Linear   # ✓ works
-#   from projectodyssey import Linear               # ✗ fails in v0.26.1
+#   from odyssey.core.layers import Linear   # ✓ works
+#   from odyssey import Linear               # ✗ fails in v0.26.1
 # This limitation is tracked upstream. Once resolved, top-level convenience
 # imports will be enabled by un-commenting the import lines above.
 #
@@ -187,48 +187,48 @@ from projectodyssey.utils.visualization import plot_training_curves
 # ┌──────────────────────────────────────────┬──────────────────────────────────────────┐
 # │ Symbol                                   │ Source                                   │
 # ├──────────────────────────────────────────┼──────────────────────────────────────────┤
-# │ VERSION, AUTHOR, LICENSE                 │ projectodyssey.version                           │
-# │ Linear                                   │ projectodyssey.core.layers.linear                │
-# │ Conv2dLayer, Conv2D                      │ projectodyssey.core.layers.conv2d (Conv2D alias) │
-# │ ReLULayer, ReLU                          │ projectodyssey.core.layers.relu (ReLU alias)     │
-# │ DropoutLayer, Dropout                    │ projectodyssey.core.layers.dropout (alias)       │
-# │ BatchNorm2dLayer, BatchNorm2d            │ projectodyssey.core.layers.batchnorm (alias)     │
-# │ relu, sigmoid, tanh, softmax             │ projectodyssey.core.activation                   │
-# │ Module                                   │ projectodyssey.core.module (trait)               │
-# │ AnyTensor                                 │ projectodyssey.core.any_tensor                    │
-# │ zeros, ones, randn                       │ projectodyssey.core.any_tensor                    │
-# │ StepLR, CosineAnnealingLR                │ projectodyssey.training.schedulers.lr_schedulers │
-# │ LossTracker, AccuracyMetric              │ projectodyssey.training.metrics                  │
-# │ ConfusionMatrix, CSVMetricsLogger        │ projectodyssey.training.metrics                  │
+# │ VERSION, AUTHOR, LICENSE                 │ odyssey.version                           │
+# │ Linear                                   │ odyssey.core.layers.linear                │
+# │ Conv2dLayer, Conv2D                      │ odyssey.core.layers.conv2d (Conv2D alias) │
+# │ ReLULayer, ReLU                          │ odyssey.core.layers.relu (ReLU alias)     │
+# │ DropoutLayer, Dropout                    │ odyssey.core.layers.dropout (alias)       │
+# │ BatchNorm2dLayer, BatchNorm2d            │ odyssey.core.layers.batchnorm (alias)     │
+# │ relu, sigmoid, tanh, softmax             │ odyssey.core.activation                   │
+# │ Module                                   │ odyssey.core.module (trait)               │
+# │ AnyTensor                                 │ odyssey.core.any_tensor                    │
+# │ zeros, ones, randn                       │ odyssey.core.any_tensor                    │
+# │ StepLR, CosineAnnealingLR                │ odyssey.training.schedulers.lr_schedulers │
+# │ LossTracker, AccuracyMetric              │ odyssey.training.metrics                  │
+# │ ConfusionMatrix, CSVMetricsLogger        │ odyssey.training.metrics                  │
 # │ Accuracy                                 │ comptime alias for AccuracyMetric        │
-# │ SGD, Adam, AdaGrad, RMSprop, AdamW       │ projectodyssey.autograd.optimizers               │
-# │ EarlyStopping, ModelCheckpoint           │ projectodyssey.training.callbacks                │
-# │ Logger                                   │ projectodyssey.utils.logging                     │
-# │ plot_training_curves                     │ projectodyssey.utils.visualization               │
-# │ GRADIENT_CHECK_EPSILON_FLOAT32           │ projectodyssey.testing.tolerance_constants       │
-# │ core                                     │ projectodyssey.core (subpackage)                 │
-# │ training                                 │ projectodyssey.training (subpackage)             │
-# │ data                                     │ projectodyssey.data (subpackage)                 │
-# │ utils                                    │ projectodyssey.utils (subpackage)                │
-# │ autograd                                 │ projectodyssey.autograd (subpackage)             │
-# │ testing                                  │ projectodyssey.testing (subpackage)              │
+# │ SGD, Adam, AdaGrad, RMSprop, AdamW       │ odyssey.autograd.optimizers               │
+# │ EarlyStopping, ModelCheckpoint           │ odyssey.training.callbacks                │
+# │ Logger                                   │ odyssey.utils.logging                     │
+# │ plot_training_curves                     │ odyssey.utils.visualization               │
+# │ GRADIENT_CHECK_EPSILON_FLOAT32           │ odyssey.testing.tolerance_constants       │
+# │ core                                     │ odyssey.core (subpackage)                 │
+# │ training                                 │ odyssey.training (subpackage)             │
+# │ data                                     │ odyssey.data (subpackage)                 │
+# │ utils                                    │ odyssey.utils (subpackage)                │
+# │ autograd                                 │ odyssey.autograd (subpackage)             │
+# │ testing                                  │ odyssey.testing (subpackage)              │
 # └──────────────────────────────────────────┴──────────────────────────────────────────┘
 # Not yet activated (implementation pending):
 #   Sequential (only Sequential2/3/4/5 variants exist),
 #   TensorDataset/ImageDataset/DataLoader, train_epoch/validate_epoch, MaxPool2D/Flatten
 #
 # Once implementations are available, users will be able to import:
-#   from projectodyssey import core, training, data, utils
-#   from projectodyssey import VERSION, AUTHOR, LICENSE
+#   from odyssey import core, training, data, utils
+#   from odyssey import VERSION, AUTHOR, LICENSE
 #
 # For implementation of component-level imports when core modules
 # are fully implemented, see test_packaging.mojo
 #
-# Note: self-referential subpackage imports (from projectodyssey import core, etc.)
+# Note: self-referential subpackage imports (from odyssey import core, etc.)
 # cause recursive reference errors in Mojo 0.26.3. Users should import
-# subpackages directly: from projectodyssey.core import ..., from projectodyssey.training import ...
+# subpackages directly: from odyssey.core import ..., from odyssey.training import ...
 
 # ============================================================================
 # Testing Constants - Available at package level
 # ============================================================================
-from projectodyssey.testing import GRADIENT_CHECK_EPSILON_FLOAT32
+from odyssey.testing import GRADIENT_CHECK_EPSILON_FLOAT32

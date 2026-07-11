@@ -5,7 +5,7 @@ with the standard three-tier merge pattern: defaults → paper → experiment.
 
 Example:
     ```
-    from projectodyssey.utils.config_loader import load_experiment_config
+    from odyssey.utils.config_loader import load_experiment_config
 
     var config = load_experiment_config("lenet5", "baseline")
     var lr = config.get_float("optimizer.learning_rate")
@@ -13,7 +13,7 @@ Example:
     ```
 """
 
-from projectodyssey.utils.config import Config, load_config, merge_configs
+from odyssey.utils.config import Config, load_config, merge_configs
 from std.python import Python
 
 

@@ -226,7 +226,7 @@ If the project outgrows the current functional helpers:
 
 ## References
 
-- **Current Implementation**: `src/projectodyssey/autograd/__init__.mojo`
-- **Backward Functions**: `src/projectodyssey/core/*.mojo`
+- **Current Implementation**: `src/odyssey/autograd/__init__.mojo`
+- **Backward Functions**: `src/odyssey/core/*.mojo`
 - **Design Document**: `DESIGN.md`
 - **Issues**: #2196 (Unification), #2197 (Dropout), #2198 (Global Pool), #2199 (This TODO)

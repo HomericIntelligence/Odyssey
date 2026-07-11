@@ -41,8 +41,8 @@ Functions:
 
 from std.math import isnan, isinf
 from std.collections.optional import Optional
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.testing.tolerance_constants import (
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.testing.tolerance_constants import (
     TOLERANCE_DEFAULT,
     TOLERANCE_FLOAT32,
     TOLERANCE_FLOAT64,

@@ -5,12 +5,12 @@ the default sampling strategy for deterministic data loading.
 """
 
 
-from tests.projectodyssey.conftest import (
+from tests.odyssey.conftest import (
     TestFixtures,
     assert_equal,
     assert_true,
 )
-from projectodyssey.data.samplers import SequentialSampler
+from odyssey.data.samplers import SequentialSampler
 
 
 struct StubSequentialSampler:

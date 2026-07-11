@@ -40,16 +40,16 @@ Key Innovation:
     - Solves vanishing gradient problem in deep networks
 
 Shared Modules Used:
-    - projectodyssey.core: Core tensor operations (AnyTensor, zeros, ones)
-    - projectodyssey.core.conv: Convolution operations (conv2d, conv2d_backward)
-    - projectodyssey.core.pooling: Pooling operations (avgpool2d, avgpool2d_backward)
-    - projectodyssey.core.linear: Linear/fully-connected layers (linear, linear_backward)
-    - projectodyssey.core.activation: Activation functions (relu, relu_backward)
-    - projectodyssey.core.normalization: Batch normalization (batch_norm2d)
-    - projectodyssey.core.initializers: Weight initialization (he_uniform)
-    - projectodyssey.core.arithmetic: Element-wise operations (add for skip connections)
-    - projectodyssey.training.optimizers: Optimization algorithms (sgd_momentum_update_inplace)
-    - projectodyssey.utils.serialization: Model persistence (save_tensor, load_tensor)
+    - odyssey.core: Core tensor operations (AnyTensor, zeros, ones)
+    - odyssey.core.conv: Convolution operations (conv2d, conv2d_backward)
+    - odyssey.core.pooling: Pooling operations (avgpool2d, avgpool2d_backward)
+    - odyssey.core.linear: Linear/fully-connected layers (linear, linear_backward)
+    - odyssey.core.activation: Activation functions (relu, relu_backward)
+    - odyssey.core.normalization: Batch normalization (batch_norm2d)
+    - odyssey.core.initializers: Weight initialization (he_uniform)
+    - odyssey.core.arithmetic: Element-wise operations (add for skip connections)
+    - odyssey.training.optimizers: Optimization algorithms (sgd_momentum_update_inplace)
+    - odyssey.utils.serialization: Model persistence (save_tensor, load_tensor)
 
 References:
     - He, K., Zhang, X., Ren, S., & Sun, J. (2015).
@@ -58,22 +58,22 @@ References:
     - CIFAR-10 Dataset: https://www.cs.toronto.edu/~kriz/cifar.html
 """
 
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros, ones
-from projectodyssey.core.conv import conv2d, conv2d_backward
-from projectodyssey.core.pooling import avgpool2d, avgpool2d_backward
-from projectodyssey.core.linear import linear, linear_backward
-from projectodyssey.core.activation import relu, relu_backward
-from projectodyssey.core.normalization import batch_norm2d
-from projectodyssey.core.initializers import he_uniform
-from projectodyssey.core.arithmetic import add  # For skip connections
-from projectodyssey.training.optimizers import sgd_momentum_update_inplace
-from projectodyssey.training.model_utils import (
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros, ones
+from odyssey.core.conv import conv2d, conv2d_backward
+from odyssey.core.pooling import avgpool2d, avgpool2d_backward
+from odyssey.core.linear import linear, linear_backward
+from odyssey.core.activation import relu, relu_backward
+from odyssey.core.normalization import batch_norm2d
+from odyssey.core.initializers import he_uniform
+from odyssey.core.arithmetic import add  # For skip connections
+from odyssey.training.optimizers import sgd_momentum_update_inplace
+from odyssey.training.model_utils import (
     save_model_weights,
     load_model_weights,
     get_model_parameter_names,
 )
-from projectodyssey.utils.serialization import save_tensor, load_tensor
+from odyssey.utils.serialization import save_tensor, load_tensor
 from std.collections import List
 
 
@@ -255,7 +255,7 @@ def initialize_velocities(model: ResNet18) raises -> ResNet18Velocities:
     """Zero-fill velocity buffers matching every ResNet18 trainable parameter shape.
 
     Uses keyword-argument construction, which @fieldwise_init supports (verified
-    against src/projectodyssey/training/precision_config.mojo:fp32() factory).
+    against src/odyssey/training/precision_config.mojo:fp32() factory).
     """
     return ResNet18Velocities(
         conv1_kernel=zeros(model.conv1_kernel.shape(), DType.float32),

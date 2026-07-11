@@ -17,8 +17,8 @@ Design Note — The Mojo Trait-Object Constraint:
 
 Usage:
     ```mojo
-    from projectodyssey.core.sequential import Sequential2, Sequential3, Sequential4, Sequential5
-    from projectodyssey.core.layers import Linear, ReLULayer
+    from odyssey.core.sequential import Sequential2, Sequential3, Sequential4, Sequential5
+    from odyssey.core.layers import Linear, ReLULayer
 
     # Five-layer model (common for deeper MLPs like LeNet-5 classifier)
     var model = Sequential5[Linear, ReLULayer, Linear, ReLULayer, Linear](
@@ -33,12 +33,12 @@ Usage:
     ```
 
 See Also:
-    - projectodyssey.core.module: Module trait definition
-    - projectodyssey.core.layers: Available layer implementations
+    - odyssey.core.module: Module trait definition
+    - odyssey.core.layers: Available layer implementations
 """
 
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.core.module import Module
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.core.module import Module
 
 
 struct Sequential2[T0: Module & Movable, T1: Module & Movable](

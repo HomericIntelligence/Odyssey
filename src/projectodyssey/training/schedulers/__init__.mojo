@@ -16,18 +16,18 @@ All schedulers are struct-based implementations of the LRScheduler trait
 
 Note:
     All symbols in this module are re-exported cleanly through the parent
-    `projectodyssey.training` package. You may import directly from either location:
+    `odyssey.training` package. You may import directly from either location:
 
     ```mojo
-    from projectodyssey.training.schedulers import StepLR
-    from projectodyssey.training import StepLR  # also works
+    from odyssey.training.schedulers import StepLR
+    from odyssey.training import StepLR  # also works
     ```
 
-    No Mojo re-export limitation applies here (unlike `projectodyssey.training.callbacks`).
+    No Mojo re-export limitation applies here (unlike `odyssey.training.callbacks`).
 """
 
 # Export scheduler implementations
-from projectodyssey.training.schedulers.lr_schedulers import (
+from odyssey.training.schedulers.lr_schedulers import (
     StepLR,
     CosineAnnealingLR,
     WarmupLR,
@@ -39,7 +39,7 @@ from projectodyssey.training.schedulers.lr_schedulers import (
 )
 
 # Also export pure function implementations for backward compatibility
-from projectodyssey.training.schedulers.step_decay import (
+from odyssey.training.schedulers.step_decay import (
     step_lr,
     multistep_lr,
     exponential_lr,

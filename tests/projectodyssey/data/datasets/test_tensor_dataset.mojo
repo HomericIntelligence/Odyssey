@@ -4,14 +4,14 @@ Tests TensorDataset which stores all data in memory as tensors,
 providing fast random access for small to medium datasets.
 """
 
-from tests.projectodyssey.conftest import (
+from tests.odyssey.conftest import (
     assert_true,
     assert_equal,
     assert_almost_equal,
     TestFixtures,
 )
-from projectodyssey.data.datasets import TensorDataset
-from projectodyssey.tensor.any_tensor import AnyTensor
+from odyssey.data.datasets import TensorDataset
+from odyssey.tensor.any_tensor import AnyTensor
 
 
 # ============================================================================

@@ -1,7 +1,7 @@
 """Tests for dropout backward pass functions.
 
 This module tests the dropout_backward and dropout2d_backward functions
-from the projectodyssey.core.dropout module. These tests ensure that the backward
+from the odyssey.core.dropout module. These tests ensure that the backward
 passes correctly handle mask caching and gradient computation.
 
 Tests cover:
@@ -12,7 +12,7 @@ Tests cover:
 - Both standard dropout and spatial dropout (dropout2d)
 """
 
-from tests.projectodyssey.conftest import (
+from tests.odyssey.conftest import (
     assert_almost_equal,
     assert_close_float,
     assert_equal,
@@ -20,14 +20,14 @@ from tests.projectodyssey.conftest import (
     assert_shape,
     assert_true,
 )
-from projectodyssey.core.dropout import (
+from odyssey.core.dropout import (
     dropout,
     dropout2d,
     dropout_backward,
     dropout2d_backward,
 )
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import (
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import (
     zeros,
     ones,
     zeros_like,
@@ -41,7 +41,7 @@ from projectodyssey.tensor.tensor_creation import (
 
 
 def test_dropout_backward_exported() raises:
-    """Test that dropout_backward is accessible from projectodyssey.core.dropout.
+    """Test that dropout_backward is accessible from odyssey.core.dropout.
     """
     # This test simply verifies the function is accessible
     var shape = List[Int]()
@@ -201,7 +201,7 @@ def test_dropout_backward_consistency() raises:
 
 
 def test_dropout2d_backward_exported() raises:
-    """Test that dropout2d_backward is accessible from projectodyssey.core.dropout.
+    """Test that dropout2d_backward is accessible from odyssey.core.dropout.
     """
     var shape = List[Int]()
     shape.append(2)

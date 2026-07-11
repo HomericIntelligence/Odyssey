@@ -1,13 +1,13 @@
 """Gradient checking tests for activation, arithmetic, and edge cases."""
 
-from projectodyssey.testing.gradient_checker import (
+from odyssey.testing.gradient_checker import (
     check_gradient,
     NumericalForward,
     NumericalBackward,
 )
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros, ones, full, zeros_like
-from projectodyssey.core.activation import (
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros, ones, full, zeros_like
+from odyssey.core.activation import (
     relu,
     relu_backward,
     sigmoid,
@@ -15,7 +15,7 @@ from projectodyssey.core.activation import (
     tanh,
     tanh_backward,
 )
-from projectodyssey.core.arithmetic import (
+from odyssey.core.arithmetic import (
     add,
     multiply,
     add_backward,

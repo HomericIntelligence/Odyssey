@@ -14,7 +14,7 @@ Key Features:
 - clear_checkpoints() supports --fresh flag (clear state, restart from scratch)
 
 Example:
-    from projectodyssey.training.checkpoint import CheckpointManager
+    from odyssey.training.checkpoint import CheckpointManager
 
     var ckpt_mgr = CheckpointManager("checkpoints/lenet5", max_to_keep=5)
 
@@ -41,19 +41,19 @@ Example:
     # epoch_step[0] = last completed epoch, epoch_step[1] = global step
 """
 
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.training.model_utils import (
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.training.model_utils import (
     save_model_weights,
     load_model_weights,
 )
-from projectodyssey.utils.file_io import (
+from odyssey.utils.file_io import (
     create_directory,
     file_exists,
     safe_write_file,
     safe_read_file,
     remove_safely,
 )
-from projectodyssey.utils.serialization import save_tensor, load_tensor
+from odyssey.utils.serialization import save_tensor, load_tensor
 from std.collections import List
 
 

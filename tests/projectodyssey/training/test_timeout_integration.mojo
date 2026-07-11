@@ -6,8 +6,8 @@ Tests cover:
 - Graceful exit with proper TrainingResult
 """
 
-from projectodyssey.training.config import TrainingConfig
-from projectodyssey.training.interruption import (
+from odyssey.training.config import TrainingConfig
+from odyssey.training.interruption import (
     ShutdownReason,
     WallClockTimer,
     TrainingResult,

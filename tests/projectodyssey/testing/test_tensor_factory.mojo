@@ -1,10 +1,10 @@
-"""Tests for projectodyssey.testing.tensor_factory module.
+"""Tests for odyssey.testing.tensor_factory module.
 
 """
 
 
 from std.testing import assert_true, assert_equal
-from projectodyssey.testing.tensor_factory import (
+from odyssey.testing.tensor_factory import (
     full_tensor,
     ones_tensor,
     random_normal_tensor,
@@ -12,7 +12,7 @@ from projectodyssey.testing.tensor_factory import (
     set_tensor_value,
     zeros_tensor,
 )
-from projectodyssey.testing.assertions import (
+from odyssey.testing.assertions import (
     assert_almost_equal,
     assert_dtype_equal,
     assert_shape_equal,

@@ -5,8 +5,8 @@ a transform pipeline. Transforms are applied to data but not labels,
 enabling data augmentation during training.
 
 Example:
-    from projectodyssey.data import AnyTensorDataset, TransformedDataset
-    from projectodyssey.data.transforms import Normalize
+    from odyssey.data import AnyTensorDataset, TransformedDataset
+    from odyssey.data.transforms import Normalize
 
     var dataset = AnyTensorDataset(images, labels)
     var normalize = Normalize(mean=0.5, std=0.5)
@@ -14,9 +14,9 @@ Example:
     var img, label = transformed[0]  # Returns normalized image
 """
 
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.data._datasets_core import Dataset
-from projectodyssey.data.transforms import Transform
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.data._datasets_core import Dataset
+from odyssey.data.transforms import Transform
 
 
 struct TransformedDataset[

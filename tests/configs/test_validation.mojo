@@ -5,7 +5,7 @@ Tests for validating required keys and value types in configurations.
 
 
 from std.testing import assert_true, assert_false, assert_equal
-from projectodyssey.utils.config import Config, load_config, create_validator
+from odyssey.utils.config import Config, load_config, create_validator
 
 
 def test_validate_required_keys() raises:

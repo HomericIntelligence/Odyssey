@@ -8,16 +8,16 @@ Tests cover:
 - AnyTensor.as_tensor[dtype]() returns Tensor[dtype]
 - as_tensor with wrong dtype raises error
 - Roundtrip Tensor -> AnyTensor -> Tensor preserves data
-- Import from projectodyssey.tensor package works
+- Import from odyssey.tensor package works
 """
 
 from std.testing import assert_true, assert_almost_equal
-from projectodyssey.tensor.tensor import (
+from odyssey.tensor.tensor import (
     Tensor,
     Tensor as T,
 )
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros
 
 
 def test_anytensor_alias_works() raises:
@@ -94,9 +94,9 @@ def test_roundtrip_tensor_any_tensor() raises:
 
 
 def test_tensor_import_from_package() raises:
-    """Verify import from projectodyssey.tensor works."""
+    """Verify import from odyssey.tensor works."""
     var t = T[DType.float32]([2])
-    assert_true(t.numel() == 2, "import from projectodyssey.tensor works")
+    assert_true(t.numel() == 2, "import from odyssey.tensor works")
     print("PASS: test_tensor_import_from_package")
 
 

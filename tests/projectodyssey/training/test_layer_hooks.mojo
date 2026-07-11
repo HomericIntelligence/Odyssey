@@ -9,10 +9,10 @@ Covers:
 """
 
 from std.testing import assert_true, assert_equal, assert_false
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros, ones
-from projectodyssey.training.base import CallbackSignal, CONTINUE, STOP
-from projectodyssey.training.layer_hooks import (
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros, ones
+from odyssey.training.base import CallbackSignal, CONTINUE, STOP
+from odyssey.training.layer_hooks import (
     LayerHook,
     HookRegistry,
     ActivationStatsHook,

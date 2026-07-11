@@ -45,17 +45,17 @@ Design Note:
     - Gradient clipping by global norm
 """
 
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.core.arithmetic import subtract, multiply, divide, add
-from projectodyssey.core.elementwise import sqrt
-from projectodyssey.autograd.variable import Variable
-from projectodyssey.autograd.tape import GradientTape
-from projectodyssey.autograd.functional import (
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.core.arithmetic import subtract, multiply, divide, add
+from odyssey.core.elementwise import sqrt
+from odyssey.autograd.variable import Variable
+from odyssey.autograd.tape import GradientTape
+from odyssey.autograd.functional import (
     multiply_scalar,
     subtract_scalar,
     add_scalar,
 )
-from projectodyssey.autograd.optimizer_base import (
+from odyssey.autograd.optimizer_base import (
     Optimizer,
     zero_grad_impl,
     validate_learning_rate,
@@ -86,7 +86,7 @@ struct SGD(Copyable, Movable, Optimizer):
             var optimizer = SGD(learning_rate=0.01, momentum=0.9)
 
             # Training step with gradient clipping
-            from projectodyssey.autograd.optimizer_base import clip_gradients_by_global_norm
+            from odyssey.autograd.optimizer_base import clip_gradients_by_global_norm
             clip_gradients_by_global_norm(parameters, tape, max_norm=5.0)
             optimizer.step(parameters, tape)
             optimizer.zero_grad(tape)

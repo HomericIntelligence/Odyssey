@@ -22,7 +22,7 @@ Modules:
     - Hex encoding/decoding
 
 Example:
-    from projectodyssey.utils.serialization import (
+    from odyssey.utils.serialization import (
         save_tensor, load_tensor,
         save_named_tensors, load_named_tensors,
         NamedTensor,
@@ -39,9 +39,9 @@ Example:
     ```
 """
 
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros
-from projectodyssey.tensor.tensor_io import (
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros
+from odyssey.tensor.tensor_io import (
     save_tensor,
     load_tensor,
     load_tensor_with_name,

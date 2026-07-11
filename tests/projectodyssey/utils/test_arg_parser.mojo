@@ -8,8 +8,8 @@ Tests basic argument parsing functionality including:
 
 
 from std.testing import assert_true, assert_equal
-from projectodyssey.utils import ArgumentParser, ArgumentSpec, ParsedArgs
-from projectodyssey.utils import resolve_training_args
+from odyssey.utils import ArgumentParser, ArgumentSpec, ParsedArgs
+from odyssey.utils import resolve_training_args
 
 
 def test_argument_spec_creation() raises:

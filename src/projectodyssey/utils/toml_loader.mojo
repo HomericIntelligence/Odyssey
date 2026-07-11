@@ -5,7 +5,7 @@ It's designed specifically for loading precision training configurations.
 
 Example:
     ```mojo
-    from projectodyssey.utils.toml_loader import load_toml_config
+    from odyssey.utils.toml_loader import load_toml_config
 
     var config = load_toml_config("configs/lenet5/emnist/fp16.toml")
     var initial_scale = config.get_float("precision.gradient_scaler.initial_scale")
@@ -14,7 +14,7 @@ Example:
 """
 
 from std.python import Python, PythonObject
-from projectodyssey.utils.config import Config, ConfigValue, merge_configs
+from odyssey.utils.config import Config, ConfigValue, merge_configs
 
 
 def load_toml_file(filepath: String) raises -> PythonObject:
