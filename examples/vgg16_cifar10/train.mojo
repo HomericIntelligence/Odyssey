@@ -820,6 +820,8 @@ def main() raises:
     var weights_dir = args.weights_dir
     var lr_decay_epochs = args.lr_decay_epochs
     var lr_decay_factor = Float32(args.lr_decay_factor)
+    var max_batches = args.max_batches
+    var smoke = args.smoke
 
     print("\nConfiguration:")
     print("  Epochs: ", epochs)
@@ -846,16 +848,55 @@ def main() raises:
     print("  Velocities initialized for 32 parameters")
     print()
 
-    # Load dataset
-    print("Loading CIFAR-10 dataset...")
-    var cifar_dataset = CIFAR10Dataset(data_dir)
-    var train_data = cifar_dataset.get_train_data()
-    var train_images = train_data[0]
-    var train_labels = train_data[1]
-
-    var test_data = cifar_dataset.get_test_data()
-    var test_images = test_data[0]
-    var test_labels = test_data[1]
+    # Load data — real CIFAR-10, or a tiny in-process synthetic batch in smoke
+    # mode (#5551): smoke skips the dataset download entirely so the training
+    # entrypoint can run per-PR in CI. It checks the MECHANISM (the loop runs
+    # and emits finite, parseable, decreasing loss), not convergence.
+    var train_images: AnyTensor
+    var train_labels: AnyTensor
+    var test_images: AnyTensor
+    var test_labels: AnyTensor
+    if smoke:
+        print("Smoke mode: using synthetic data (no dataset download)...")
+        # Enough samples to yield >=2 batches under --max-batches so the CI gate
+        # can assert a decreasing loss trend across batches. Class-correlated
+        # signal makes the loss learnable. VGG16 feeds labels straight into
+        # cross_entropy, which requires ONE-HOT float32 targets matching the
+        # logits' (batch, 10) shape/dtype — so build one-hot labels here (unlike
+        # googlenet/mobilenetv1, which one-hot-encode per batch inside
+        # train_epoch and take raw uint8 labels).
+        var wanted_batches = max_batches if max_batches > 0 else 3
+        var n_smoke = wanted_batches * Int(batch_size)
+        train_images = zeros([n_smoke, 3, 32, 32], DType.float32)
+        var img_d = train_images._data.bitcast[Float32]()
+        for s in range(n_smoke):
+            var cls = s % 10
+            for i in range(3 * 32 * 32):
+                img_d[s * (3 * 32 * 32) + i] = (
+                    Float32(cls) * 0.05 + Float32(i % 5) * 0.01
+                )
+        train_labels = zeros([n_smoke, 10], DType.float32)
+        var lbl_d = train_labels._data.bitcast[Float32]()
+        for s in range(n_smoke):
+            lbl_d[s * 10 + (s % 10)] = Float32(1.0)
+        # Reuse the same images for "test" (eval is not asserted here). evaluate()
+        # calls evaluate_with_predict, which compares argmax predictions against
+        # RAW class-index labels [N] — so test labels are uint8 indices, not the
+        # one-hot form the training loss consumes.
+        test_images = train_images
+        test_labels = zeros([n_smoke], DType.uint8)
+        var test_lbl_d = test_labels._data.bitcast[UInt8]()
+        for s in range(n_smoke):
+            test_lbl_d[s] = UInt8(s % 10)
+    else:
+        print("Loading CIFAR-10 dataset...")
+        var cifar_dataset = CIFAR10Dataset(data_dir)
+        var train_data = cifar_dataset.get_train_data()
+        train_images = train_data[0]
+        train_labels = train_data[1]
+        var test_data = cifar_dataset.get_test_data()
+        test_images = test_data[0]
+        test_labels = test_data[1]
 
     print("  Training samples: ", train_images.shape()[0])
     print("  Test samples: ", test_images.shape()[0])
@@ -883,6 +924,11 @@ def main() raises:
         # Manual epoch loop (VGG16 needs custom backward pass)
         var num_samples = train_images.shape()[0]
         var num_batches = compute_num_batches(num_samples, batch_size)
+        # Cap batches this epoch under --smoke / --max-batches (0 = unbounded)
+        # so a per-PR run stays bounded (#5551). VGG16 inlines its batch loop
+        # in main(), so the cap is applied here rather than in a train_epoch.
+        if max_batches > 0 and max_batches < num_batches:
+            num_batches = max_batches
         var total_loss = Float32(0.0)
 
         print("Epoch [", epoch, "/", epochs, "]")
@@ -915,7 +961,11 @@ def main() raises:
             total_loss += batch_loss
 
             # Log progress every 100 batches
-            if (batch_idx + 1) % 100 == 0 or (batch_idx + 1) == num_batches:
+            if (
+                (batch_idx + 1) % 100 == 0
+                or (batch_idx + 1) == num_batches
+                or num_batches <= 10
+            ):
                 var avg_loss = total_loss / Float32(batch_idx + 1)
                 print(
                     "  Batch [",
