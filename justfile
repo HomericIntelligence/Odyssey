@@ -1322,16 +1322,14 @@ _test-example-backward-inner:
         # strip (defined justfile:52, wired into MOJO_ASAN/MOJO_TSAN at :54-55)
         # is the repo's fix for the same crash under sanitizers.
         #
-        # Whether `mojo run` (JIT) honors --target-features is not fully settled
-        # in-repo: notes/mojo-cpu-detection-source-review.md is internally
-        # uncertain (its abstract says the flag "only helps for AOT builds", its
-        # §4 says a `mojo run` inherits the driver-derived !kgen.target so it
-        # "would propagate — worth testing"). `--print-effective-target` confirms
-        # the strip removes every avx512* feature from the target; the strip is
-        # accepted by `mojo run` and both tests pass locally. This is the
-        # cheapest correct-direction fix; if the JIT ignores it and the flake
-        # persists, escalate to the coredump-capture path (comprehensive-tests
-        # workflow_dispatch input) / upstream. Harmless where AVX-512 is absent.
+        # `mojo run`'s in-process JIT DOES honor --target-features (proven: on an
+        # AVX-512-less host, forcing `--target-features +avx512f` makes `mojo run`
+        # emit AVX-512 and SIGILL with this same libKGENCompilerRTShared.so
+        # backtrace, while the strip below runs clean). This directly reproduces
+        # #6413 and confirms the strip removes the crashing codegen — not just an
+        # AOT-only flag (correcting the "only helps for AOT" hedge in
+        # notes/mojo-cpu-detection-source-review.md). Harmless where AVX-512 is
+        # absent (features are simply already-off).
         if ! pixi run mojo run --Werror {{MOJO_TARGET_CPU}} \
                 -I "$REPO_ROOT/src" -I "$REPO_ROOT" \
                 -I "$REPO_ROOT/examples/$ex" -Xlinker -lm "$f"; then
