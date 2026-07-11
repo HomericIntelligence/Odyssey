@@ -158,6 +158,64 @@ def test_to_fp8_rejects_bfloat16_exact_message() raises:
     print("PASS: test_to_fp8_rejects_bfloat16_exact_message")
 
 
+def test_to_mxfp4_rejects_bfloat16_at_outer_guard() raises:
+    """MXFP4 rejects bfloat16 up front, not with the inner 'Invalid dtype'.
+
+    Before the fix (#5564), bfloat16 passed the outer float guard and hit the
+    inner dispatch's `else: raise Error("Invalid dtype for MXFP4 quantization")`
+    — an accept-then-raise asymmetry. Now the outer guard rejects bfloat16 with
+    an explicit message (consistent with to_fp8()/to_bf8()), so the error is the
+    clear up-front one, NOT the generic inner "Invalid dtype".
+    """
+    var t = zeros([32], DType.bfloat16)
+    var raised = False
+    var msg_ok = False
+    try:
+        _ = t.to_mxfp4()
+    except e:
+        raised = True
+        var err_str = String(e)
+        # Must be the explicit up-front rejection, not the inner generic error.
+        msg_ok = (
+            "bfloat16" in err_str
+            and "Invalid dtype for MXFP4 quantization" not in err_str
+        )
+    assert_true(raised, "to_mxfp4() must raise for bfloat16")
+    assert_true(
+        msg_ok,
+        (
+            "to_mxfp4() must reject bfloat16 at the outer guard (explicit"
+            " bfloat16 message), not the inner 'Invalid dtype' error"
+        ),
+    )
+    print("PASS: test_to_mxfp4_rejects_bfloat16_at_outer_guard")
+
+
+def test_to_nvfp4_rejects_bfloat16_at_outer_guard() raises:
+    """NVFP4 rejects bfloat16 up front, not with the inner 'Invalid dtype'."""
+    var t = zeros([16], DType.bfloat16)
+    var raised = False
+    var msg_ok = False
+    try:
+        _ = t.to_nvfp4()
+    except e:
+        raised = True
+        var err_str = String(e)
+        msg_ok = (
+            "bfloat16" in err_str
+            and "Invalid dtype for NVFP4 quantization" not in err_str
+        )
+    assert_true(raised, "to_nvfp4() must raise for bfloat16")
+    assert_true(
+        msg_ok,
+        (
+            "to_nvfp4() must reject bfloat16 at the outer guard (explicit"
+            " bfloat16 message), not the inner 'Invalid dtype' error"
+        ),
+    )
+    print("PASS: test_to_nvfp4_rejects_bfloat16_at_outer_guard")
+
+
 def test_to_bf8_rejects_bfloat16_exact_message() raises:
     """Verify to_bf8() rejects bfloat16 with byte-exact error message."""
     var t = zeros([2], DType.bfloat16)
@@ -222,6 +280,8 @@ def main() raises:
     test_to_int32_same_dtype_fast_path()
     test_to_fp8_rejects_bfloat16_exact_message()
     test_to_bf8_rejects_bfloat16_exact_message()
+    test_to_mxfp4_rejects_bfloat16_at_outer_guard()
+    test_to_nvfp4_rejects_bfloat16_at_outer_guard()
     test_to_int8_multi_element()
     test_to_uint8_multi_element()
     print("All 14 AnyTensor dtype conversion tests passed!")

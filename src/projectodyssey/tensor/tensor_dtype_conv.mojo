@@ -250,18 +250,29 @@ def _convert_to_block_quant_impl[
     is_mxfp4=True: 32-elem blocks, 17 bytes each (MXFP4).
     is_mxfp4=False: 16-elem blocks, 9 bytes each (NVFP4).
 
-    Note: bfloat16 passes the outer guard but raises in the inner dispatch.
-    This asymmetry is a pre-existing bug preserved verbatim.
-    TODO(#5564): fix bfloat16 guard for block-quant methods.
+    Supported source dtypes: float16, float32, float64. bfloat16 is rejected up
+    front (#5564) for consistency with to_fp8()/to_bf8(): the bfloat16 -> Float32
+    intermediate does not correctly round-trip in this Mojo version, so a
+    bfloat16 block-quant would silently produce wrong values. Previously
+    bfloat16 passed this outer guard but hit the inner dispatch's `else: raise`
+    — an accept-then-raise asymmetry; rejecting here makes the guard and dispatch
+    consistent with a single clear error.
     """
-    # Verify source is floating point (bfloat16 outer guard passes; inner raises).
-    # TODO(#5564): the bfloat16 outer guard accepts but inner raises;
-    # this asymmetry is preserved verbatim as a pre-existing bug.
+    # Reject bfloat16 explicitly (mirrors _convert_to_fp8_family_impl) — its
+    # Float32 intermediate is not round-trip-correct here (#5564).
+    if tensor._dtype == DType.bfloat16:
+        raise Error(
+            fmt_name
+            + " does not support bfloat16: the bfloat16 conversion path does"
+            + " not correctly round-trip through the Float32 intermediate"
+            + " representation"
+        )
+
+    # Verify source is floating point.
     if not (
         tensor._dtype == DType.float16
         or tensor._dtype == DType.float32
         or tensor._dtype == DType.float64
-        or tensor._dtype == DType.bfloat16
     ):
         raise Error(fmt_name + " requires a floating-point tensor")
 

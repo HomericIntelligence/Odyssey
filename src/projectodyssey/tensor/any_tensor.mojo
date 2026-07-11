@@ -2170,9 +2170,9 @@ struct AnyTensor(
         is_mxfp4=True: 32-elem blocks, 17 bytes each (MXFP4).
         is_mxfp4=False: 16-elem blocks, 9 bytes each (NVFP4).
 
-        Note: bfloat16 passes the outer guard but raises in the inner dispatch.
-        This asymmetry is a pre-existing bug preserved verbatim.
-        TODO(#5564): fix bfloat16 guard for block-quant methods.
+        Accepts float16, float32, float64. bfloat16 is rejected up front for
+        consistency with to_fp8()/to_bf8() — its Float32 intermediate does not
+        round-trip correctly here (#5564).
         """
         from .tensor_dtype_conv import _convert_to_block_quant_impl
 
