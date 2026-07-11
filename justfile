@@ -1314,7 +1314,23 @@ _test-example-backward-inner:
         echo "=================================================="
         echo "Running example backward test: $f"
         echo "=================================================="
-        if ! pixi run mojo run --Werror \
+        # Strip AVX-512 from the target (modular/modular#6413). The "Example
+        # Backward Tests" job flakes with "execution crashed" inside
+        # libKGENCompilerRTShared.so on AVX-512-masked GHA runners (Azure Zen4:
+        # Hyper-V masks the AVX-512 CPUID bits, but --target-cpu fingerprinting
+        # sees a Zen4 name and emits AVX-512 anyway → SIGILL). The MOJO_TARGET_CPU
+        # strip (defined justfile:52, wired into MOJO_ASAN/MOJO_TSAN at :54-55)
+        # is the repo's fix for the same crash under sanitizers.
+        #
+        # `mojo run`'s in-process JIT DOES honor --target-features (proven: on an
+        # AVX-512-less host, forcing `--target-features +avx512f` makes `mojo run`
+        # emit AVX-512 and SIGILL with this same libKGENCompilerRTShared.so
+        # backtrace, while the strip below runs clean). This directly reproduces
+        # #6413 and confirms the strip removes the crashing codegen — not just an
+        # AOT-only flag (correcting the "only helps for AOT" hedge in
+        # notes/mojo-cpu-detection-source-review.md). Harmless where AVX-512 is
+        # absent (features are simply already-off).
+        if ! pixi run mojo run --Werror {{MOJO_TARGET_CPU}} \
                 -I "$REPO_ROOT/src" -I "$REPO_ROOT" \
                 -I "$REPO_ROOT/examples/$ex" -Xlinker -lm "$f"; then
             echo "FAILED: $f"
