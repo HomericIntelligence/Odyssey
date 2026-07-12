@@ -45,7 +45,8 @@ from projectodyssey.core.activation import (
     tanh_backward,
 )
 from projectodyssey.core.linear import linear_backward
-from projectodyssey.core.conv import conv2d_backward
+from projectodyssey.core.conv import conv2d_backward, depthwise_conv2d_backward
+from projectodyssey.core.shape import as_contiguous
 from projectodyssey.core.pooling import maxpool2d_backward
 from projectodyssey.core.loss import cross_entropy_backward
 from projectodyssey.core.normalization import batch_norm2d_backward
@@ -554,3 +555,92 @@ def backward_cross_entropy(
     var grad_logits = cross_entropy_backward(grad_output, logits, targets)
     if len(nodes[idx].input_ids) >= 1:
         registry.set_grad(nodes[idx].input_ids[0], grad_logits)
+
+
+def backward_depthwise_conv2d(
+    nodes: List[TapeNode],
+    mut registry: VariableRegistry,
+    idx: Int,
+    grad_output: AnyTensor,
+) raises:
+    """Backward pass for depthwise 2D convolution.
+
+    Saved layout (see variable_depthwise_conv2d):
+        tensors[0] = input x   (batch, C, H, W)
+        tensors[1] = kernel    (C, 1, kH, kW)
+        scalars[0] = stride  (Float64-cast Int)
+        scalars[1] = padding (Float64-cast Int)
+
+    Routes (same as conv2d):
+        input_ids[0] -> grad_input
+        input_ids[1] -> grad_weights
+        input_ids[2] -> grad_bias (if 3 input_ids)
+    """
+    if len(nodes[idx].saved.tensors) < 2:
+        return
+    if len(nodes[idx].saved.scalars) < 2:
+        return
+    var x = nodes[idx].saved.tensors[0].copy()
+    var kernel = nodes[idx].saved.tensors[1].copy()
+    var stride = Int(nodes[idx].saved.scalars[0])
+    var padding = Int(nodes[idx].saved.scalars[1])
+    var grads = depthwise_conv2d_backward(
+        grad_output, x, kernel, stride, padding
+    )
+    if len(nodes[idx].input_ids) >= 1:
+        registry.set_grad(nodes[idx].input_ids[0], grads.grad_input)
+    if len(nodes[idx].input_ids) >= 2:
+        registry.set_grad(nodes[idx].input_ids[1], grads.grad_weights)
+    if len(nodes[idx].input_ids) >= 3:
+        registry.set_grad(nodes[idx].input_ids[2], grads.grad_bias)
+
+
+def backward_concat(
+    nodes: List[TapeNode],
+    mut registry: VariableRegistry,
+    idx: Int,
+    grad_output: AnyTensor,
+) raises:
+    """Backward pass for concatenation along an axis.
+
+    Concat is a pure data-routing op: the gradient wrt each input is simply the
+    slice of `grad_output` that that input contributed. We split `grad_output`
+    along the concat axis at the saved per-input boundaries and route each slice
+    to its input variable.
+
+    Saved layout (see variable_concat):
+        scalars[0]      = axis
+        scalars[1]      = num_inputs (N)
+        scalars[2..2+N] = size of each input along the concat axis (in order)
+
+    Routes:
+        input_ids[i] -> slice(grad_output, offset_i, offset_i + size_i, axis)
+    """
+    if len(nodes[idx].saved.scalars) < 2:
+        return
+    var axis = Int(nodes[idx].saved.scalars[0])
+    var num_inputs = Int(nodes[idx].saved.scalars[1])
+    if len(nodes[idx].saved.scalars) < 2 + num_inputs:
+        return
+    # grad_output must be contiguous so the flat-index slice offsets are valid,
+    # and each slice must be materialized contiguous before routing: `slice`
+    # returns a (possibly strided) view, but VariableRegistry.set_grad reads
+    # gradients by FLAT index (contiguity-assuming), so a strided channel-axis
+    # view would be read incorrectly.
+    var grad_cont = (
+        grad_output if grad_output.is_contiguous() else as_contiguous(
+            grad_output
+        )
+    )
+    var offset = 0
+    for i in range(num_inputs):
+        var size = Int(nodes[idx].saved.scalars[2 + i])
+        var grad_slice = grad_cont.slice(offset, offset + size, axis=axis)
+        var grad_slice_cont = (
+            grad_slice if grad_slice.is_contiguous() else as_contiguous(
+                grad_slice
+            )
+        )
+        if i < len(nodes[idx].input_ids):
+            registry.set_grad(nodes[idx].input_ids[i], grad_slice_cont)
+        offset += size

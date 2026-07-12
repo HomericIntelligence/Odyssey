@@ -59,6 +59,7 @@ Available Variable Operations:
 - variable_sum, variable_mean
 - variable_relu, variable_sigmoid, variable_tanh
 - variable_neg
+- variable_conv2d, variable_depthwise_conv2d, variable_concat (convnet primitives)
 
 Available Loss+Grad Helpers:
 - mse_loss_and_grad: Mean squared error (regression)
@@ -112,6 +113,8 @@ from projectodyssey.autograd.variable import (
     variable_flatten,
     variable_linear,
     variable_conv2d,
+    variable_depthwise_conv2d,
+    variable_concat,
     variable_maxpool2d,
     variable_cross_entropy,
     variable_batch_norm,
@@ -151,6 +154,8 @@ from projectodyssey.autograd.tape import (
     OP_MAXPOOL2D,
     OP_CROSS_ENTROPY,
     OP_BATCH_NORM2D,
+    OP_DEPTHWISE_CONV2D,
+    OP_CONCAT,
 )
 
 from projectodyssey.autograd.optimizers import (

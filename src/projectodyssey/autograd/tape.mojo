@@ -85,6 +85,8 @@ from projectodyssey.autograd.backward_ops import (
     backward_maxpool2d,
     backward_cross_entropy,
     backward_batch_norm,
+    backward_depthwise_conv2d,
+    backward_concat,
 )
 
 
@@ -112,6 +114,8 @@ comptime OP_CONV2D = "conv2d"
 comptime OP_MAXPOOL2D = "maxpool2d"
 comptime OP_CROSS_ENTROPY = "cross_entropy"
 comptime OP_BATCH_NORM2D = "batch_norm2d"
+comptime OP_DEPTHWISE_CONV2D = "depthwise_conv2d"
+comptime OP_CONCAT = "concat"
 
 
 struct GradientTape:
@@ -294,6 +298,12 @@ struct GradientTape:
             backward_batch_norm(
                 self.nodes, self.registry, node_idx, grad_output
             )
+        elif op_type == OP_DEPTHWISE_CONV2D:
+            backward_depthwise_conv2d(
+                self.nodes, self.registry, node_idx, grad_output
+            )
+        elif op_type == OP_CONCAT:
+            backward_concat(self.nodes, self.registry, node_idx, grad_output)
         else:
             raise Error(
                 "Unsupported operation type for backward pass: " + op_type
