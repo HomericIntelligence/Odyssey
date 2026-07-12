@@ -7,7 +7,11 @@ version = "0.2.0"
 
 [dependencies]
 # Language runtime
-mojo = "==1.0.0b2.dev2026052506"
+# Pin the 1.0.0b2 *release*, not a dated `.dev` nightly: nightlies are
+# garbage-collected from https://conda.modular.com/max-nightly, which left HEAD
+# unbuildable when the previous pin (1.0.0b2.dev2026052506) was GC'd. Releases
+# persist, so HEAD stays reproducible.
+mojo = "==1.0.0b2"
 
 # Core libraries
 numpy = ">=2.3.5,<3"
