@@ -7,7 +7,7 @@
 FROM mcr.microsoft.com/mirror/docker/library/ubuntu:24.04 AS builder
 
 ENV DEBIAN_FRONTEND=noninteractive
-ENV PIXI_VERSION=0.65.0
+ENV PIXI_VERSION=0.70.2
 
 # Install system dependencies (as root)
 RUN apt-get update && apt-get install -y \
@@ -62,7 +62,7 @@ COPY --chown=${USER_NAME}:${USER_NAME} pyproject.toml requirements.txt requireme
 FROM mcr.microsoft.com/mirror/docker/library/ubuntu:24.04 AS runtime
 
 ENV DEBIAN_FRONTEND=noninteractive
-ENV PIXI_VERSION=0.65.0
+ENV PIXI_VERSION=0.70.2
 
 # Install minimal runtime dependencies (as root)
 RUN apt-get update && apt-get install -y \

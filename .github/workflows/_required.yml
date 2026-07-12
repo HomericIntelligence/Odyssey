@@ -474,7 +474,8 @@ jobs:
         if: steps.detect.outputs.skip == 'false'
         uses: prefix-dev/setup-pixi@a09b6247153796b190642a2b53fac4241043cf6f  # v0.10.0
         with:
-          pixi-version: v0.67.2
+          # Must read lockfile v7 (written by local pixi 0.70.x); <=0.67 cannot.
+          pixi-version: v0.70.2
           cache: true
       - name: pixi install (locked)
         if: steps.detect.outputs.skip == 'false'
