@@ -44,6 +44,8 @@ from projectodyssey.core.reduction import sum, mean
 from projectodyssey.core.matrix import matmul
 from projectodyssey.core.linear import linear as _linear
 from projectodyssey.core.conv import conv2d as _conv2d
+from projectodyssey.core.conv import depthwise_conv2d as _depthwise_conv2d
+from projectodyssey.core.shape import concatenate as _concatenate
 from projectodyssey.core.pooling import maxpool2d as _maxpool2d
 from projectodyssey.core.loss import cross_entropy as _cross_entropy
 from projectodyssey.core.normalization import batch_norm2d as _batch_norm2d
@@ -71,6 +73,8 @@ from projectodyssey.autograd.tape import (
     OP_MAXPOOL2D,
     OP_CROSS_ENTROPY,
     OP_BATCH_NORM2D,
+    OP_DEPTHWISE_CONV2D,
+    OP_CONCAT,
 )
 
 
@@ -730,6 +734,117 @@ def variable_conv2d(
         saved.add_scalar(Float64(stride))
         saved.add_scalar(Float64(padding))
         tape.record(OP_CONV2D, input_ids^, result_id, saved^)
+
+    return Variable(result_data^, needs_grad, result_id)
+
+
+def variable_depthwise_conv2d(
+    x: Variable,
+    weights: Variable,
+    bias: Variable,
+    mut tape: GradientTape,
+    stride: Int = 1,
+    padding: Int = 0,
+) raises -> Variable:
+    """Apply depthwise 2D convolution with bias: one filter per input channel.
+
+    Unlike `variable_conv2d` (which mixes all input channels), depthwise conv
+    convolves each input channel with its own filter — the building block of
+    MobileNet / EfficientNet depthwise-separable blocks. Wraps the core
+    `depthwise_conv2d` / `depthwise_conv2d_backward`.
+
+    Saved layout for backward (mirrors OP_CONV2D):
+        tensors[0] = input x      (batch, C, H, W)
+        tensors[1] = weights      (C, 1, kH, kW)
+        scalars[0] = stride
+        scalars[1] = padding
+
+    Args:
+        x: Input activations Variable (batch, C, H, W).
+        weights: Depthwise kernel Variable (C, 1, kH, kW) — one filter per channel.
+        bias: Bias Variable (C,).
+        tape: Gradient tape for recording.
+        stride: Convolution stride (default 1).
+        padding: Zero-padding (default 0).
+
+    Returns:
+        Output Variable of shape (batch, C, out_H, out_W).
+    """
+    var result_data = _depthwise_conv2d(
+        x.data, weights.data, bias.data, stride, padding
+    )
+    var needs_grad = (
+        x.requires_grad or weights.requires_grad or bias.requires_grad
+    )
+    var result_id = tape.register_variable(needs_grad)
+
+    if tape.enabled and needs_grad:
+        var input_ids = List[Int]()
+        input_ids.append(x.id)
+        input_ids.append(weights.id)
+        input_ids.append(bias.id)
+
+        var saved = SavedTensors()
+        saved.add_tensor(x.data)
+        saved.add_tensor(weights.data)
+        saved.add_scalar(Float64(stride))
+        saved.add_scalar(Float64(padding))
+        tape.record(OP_DEPTHWISE_CONV2D, input_ids^, result_id, saved^)
+
+    return Variable(result_data^, needs_grad, result_id)
+
+
+def variable_concat(
+    inputs: List[Variable],
+    mut tape: GradientTape,
+    axis: Int,
+) raises -> Variable:
+    """Concatenate Variables along an existing axis (e.g. channel-axis for
+    Inception depth-concat).
+
+    Concat is a pure data-routing op: forward stacks the inputs along `axis`;
+    backward slices the output gradient back into each input's contiguous range.
+    Wraps the core `concatenate`. Result requires grad if ANY input does.
+
+    Saved layout for backward:
+        scalars[0]      = axis
+        scalars[1]      = num_inputs (N)
+        scalars[2..2+N] = each input's size along `axis`, in order (for the split)
+
+    Args:
+        inputs: Variables to concatenate (all matching except along `axis`).
+        tape: Gradient tape for recording.
+        axis: Axis along which to concatenate (channel axis is 1 for NCHW).
+
+    Returns:
+        Concatenated Variable.
+    """
+    if len(inputs) == 0:
+        raise Error("variable_concat: need at least one input")
+
+    var data_list = List[AnyTensor]()
+    var needs_grad = False
+    for i in range(len(inputs)):
+        data_list.append(inputs[i].data)
+        if inputs[i].requires_grad:
+            needs_grad = True
+
+    var result_data = _concatenate(data_list, axis)
+    var result_id = tape.register_variable(needs_grad)
+
+    if tape.enabled and needs_grad:
+        var input_ids = List[Int]()
+        var saved = SavedTensors()
+        # Resolve a negative axis against the (shared) input rank so the saved
+        # split sizes AND the backward slice use the same positive axis.
+        var rank = len(inputs[0].data.shape())
+        var actual_axis = axis if axis >= 0 else rank + axis
+        saved.add_scalar(Float64(actual_axis))
+        saved.add_scalar(Float64(len(inputs)))
+        for i in range(len(inputs)):
+            input_ids.append(inputs[i].id)
+            saved.add_scalar(Float64(inputs[i].data.shape()[actual_axis]))
+        tape.record(OP_CONCAT, input_ids^, result_id, saved^)
 
     return Variable(result_data^, needs_grad, result_id)
 
