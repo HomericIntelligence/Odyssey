@@ -200,6 +200,7 @@ jobs:
           - { example: vgg16_cifar10,      entry: train.mojo }
           - { example: vgg16_cifar10,      entry: train_autograd.mojo }
           - { example: mobilenetv1_cifar10, entry: train.mojo }
+          - { example: mobilenetv1_cifar10, entry: train_autograd.mojo }
           - { example: alexnet_cifar10,    entry: run_train.mojo }
           - { example: alexnet_cifar10,    entry: run_train_autograd.mojo }
           - { example: mnist,              entry: train.mojo }
