@@ -365,31 +365,117 @@ _build-inner mode="debug":
             | xargs -0 grep -lE "^fn main|^def main" 2>/dev/null || true)
     fi
 
-    # Disable -e for the per-file loop so a single failure doesn't abort
-    # the whole sweep — collect failures, report at end, exit non-zero if any.
-    set +e
-    BUILT=0
-    FAILED=0
-    FAILED_FILES=""
-    while IFS= read -r file; do
-        [ -z "$file" ] && continue
-        # Flatten path → unique binary name: examples/foo/bar.mojo → examples_foo_bar
-        rel="${file#./}"
-        out_name="${rel%.mojo}"
-        out_name="${out_name//\//_}"
-        out="$BUILD_DIR/$out_name"
+    # ------------------------------------------------------------
+    # Parallel per-file build with a bounded worker pool.
+    #
+    # Each `mojo build` is CPU- and memory-heavy (~1.5-3 GB), so we cap
+    # concurrency rather than fan out unbounded (see CLAUDE.md host limits:
+    # never `-j$(nproc)` across concurrent builds). Wall-clock previously grew
+    # linearly with the example/binary count and hit the build-validation 30-min
+    # timeout once the autograd example ports landed (#5454); bounded parallelism
+    # keeps every mode's build under budget without OOMing the runner.
+    #
+    # BUILD_PARALLELISM: number of concurrent `mojo build` jobs. Defaults to 4
+    # (fits a standard 4-core/16 GB CI runner); override via env for tighter or
+    # looser hosts. TSAN forces serial (JOBS=-j1 already; keep 1 worker too).
+    # ------------------------------------------------------------
+    if [ "$MODE" = "tsan" ]; then
+        BUILD_PARALLELISM=1
+    else
+        BUILD_PARALLELISM="${BUILD_PARALLELISM:-4}"
+    fi
 
+    # Per-file build → a status file per input so we can tally after the wait
+    # (a backgrounded subshell can't mutate parent-scope counters). Status dir
+    # is scratch under BUILD_DIR (never re-globbed as a source).
+    STATUS_DIR="$BUILD_DIR/.build-status"
+    rm -rf "$STATUS_DIR"; mkdir -p "$STATUS_DIR"
+
+    # Map a source path to its unique flattened key (examples/foo/bar.mojo →
+    # examples_foo_bar), used for the -o binary, the .status, and the .log.
+    status_key() {
+        local rel="${1#./}"
+        local k="${rel%.mojo}"
+        echo "${k//\//_}"
+    }
+
+    build_one() {
+        local file="$1"
+        local out_name; out_name="$(status_key "$file")"
+        local out="$BUILD_DIR/$out_name"
         echo "→ Building: $file"
         if pixi run mojo build $FLAGS ${JOBS:-} \
                 -I "$REPO_ROOT/src" -I "$REPO_ROOT" \
-                -Xlinker -lm "$file" -o "$out" 2>&1; then
+                -Xlinker -lm "$file" -o "$out" > "$STATUS_DIR/$out_name.log" 2>&1; then
+            echo "ok" > "$STATUS_DIR/$out_name.status"
+        else
+            echo "fail" > "$STATUS_DIR/$out_name.status"
+            echo "── build failed: $file ──"
+            cat "$STATUS_DIR/$out_name.log"
+        fi
+    }
+
+    # Detect `wait -n` (bash 4.3+) ONCE up front. Do NOT infer support from a
+    # job's exit status inside the loop — a failed `mojo build` also makes
+    # `wait -n` return non-zero, and treating that as "unsupported" would drain
+    # the whole pool and collapse parallelism exactly when builds are failing.
+    HAVE_WAIT_N=0
+    if [ "${BASH_VERSINFO[0]:-0}" -gt 4 ] || \
+       { [ "${BASH_VERSINFO[0]:-0}" -eq 4 ] && [ "${BASH_VERSINFO[1]:-0}" -ge 3 ]; }; then
+        HAVE_WAIT_N=1
+    fi
+
+    # Dispatch with a bounded worker pool. CRITICAL: pre-seed every file's
+    # status as "pending" BEFORE backgrounding its worker, so a worker that is
+    # OOM-killed / SIGTERM'd / segfaults before it can write "ok"/"fail" leaves
+    # a "pending" marker that the tally counts as a FAILURE. Without this, a
+    # killed worker would write no status file and vanish from the tally —
+    # letting a build that never completed pass green (the exact risk under the
+    # memory pressure this parallelism targets).
+    set +e
+    TOTAL=0
+    RUNNING=0
+    while IFS= read -r file; do
+        [ -z "$file" ] && continue
+        TOTAL=$((TOTAL + 1))
+        skey="$(status_key "$file")"
+        echo "pending" > "$STATUS_DIR/$skey.status"
+        build_one "$file" &
+        RUNNING=$((RUNNING + 1))
+        if [ "$RUNNING" -ge "$BUILD_PARALLELISM" ]; then
+            if [ "$HAVE_WAIT_N" -eq 1 ]; then
+                wait -n            # reap exactly one finished job (any exit code)
+            else
+                wait               # no `wait -n`: drain all, reset the counter
+                RUNNING=0
+            fi
+            [ "$RUNNING" -gt 0 ] && RUNNING=$((RUNNING - 1))
+        fi
+    done <<< "$EXEC_FILES"
+    wait
+    set -e
+
+    # Tally from the per-file status files. Anything not exactly "ok" (including
+    # a leftover "pending" from a killed worker, or a missing file) is a
+    # failure. Also cross-check the observed count against TOTAL so a vanished
+    # status file cannot silently reduce the denominator.
+    BUILT=0
+    FAILED=0
+    FAILED_FILES=""
+    SEEN=0
+    while IFS= read -r file; do
+        [ -z "$file" ] && continue
+        skey="$(status_key "$file")"
+        st="$STATUS_DIR/$skey.status"
+        SEEN=$((SEEN + 1))
+        if [ -e "$st" ] && [ "$(cat "$st")" = "ok" ]; then
             BUILT=$((BUILT + 1))
         else
             FAILED=$((FAILED + 1))
-            FAILED_FILES="${FAILED_FILES}\n  - $file"
+            reason="$([ -e "$st" ] && cat "$st" || echo "no-status")"
+            FAILED_FILES="${FAILED_FILES}\n  - $file ($reason)"
         fi
     done <<< "$EXEC_FILES"
-    set -e
 
     # ------------------------------------------------------------
     # Summary
@@ -397,14 +483,22 @@ _build-inner mode="debug":
 
     echo
     echo "=================================================="
-    echo "Build summary ($MODE)"
+    echo "Build summary ($MODE, parallelism=$BUILD_PARALLELISM)"
     echo "=================================================="
     echo "  shared package: $BUILD_DIR/projectodyssey.mojopkg"
-    echo "  executables:    $BUILT built, $FAILED failed"
+    echo "  executables:    $BUILT built, $FAILED failed (of $TOTAL dispatched)"
     if [ "$FAILED" -gt 0 ]; then
         echo
         echo "❌ Failed files:"
         echo -e "$FAILED_FILES"
+        exit 1
+    fi
+    # Belt-and-suspenders: the tally iterates the dispatch list, so SEEN==TOTAL
+    # by construction — but assert it, so any future refactor that reintroduces
+    # a dropped file (the killed-worker masking bug) fails loudly instead of
+    # passing green with a smaller denominator.
+    if [ "$SEEN" -ne "$TOTAL" ]; then
+        echo "❌ Accounting error: dispatched $TOTAL files but tallied $SEEN"
         exit 1
     fi
     echo "✅ Build successful"
