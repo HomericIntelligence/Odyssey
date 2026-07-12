@@ -486,11 +486,19 @@ _build-inner mode="debug":
     echo "Build summary ($MODE, parallelism=$BUILD_PARALLELISM)"
     echo "=================================================="
     echo "  shared package: $BUILD_DIR/projectodyssey.mojopkg"
-    echo "  executables:    $BUILT built, $FAILED failed"
+    echo "  executables:    $BUILT built, $FAILED failed (of $TOTAL dispatched)"
     if [ "$FAILED" -gt 0 ]; then
         echo
         echo "❌ Failed files:"
         echo -e "$FAILED_FILES"
+        exit 1
+    fi
+    # Belt-and-suspenders: the tally iterates the dispatch list, so SEEN==TOTAL
+    # by construction — but assert it, so any future refactor that reintroduces
+    # a dropped file (the killed-worker masking bug) fails loudly instead of
+    # passing green with a smaller denominator.
+    if [ "$SEEN" -ne "$TOTAL" ]; then
+        echo "❌ Accounting error: dispatched $TOTAL files but tallied $SEEN"
         exit 1
     fi
     echo "✅ Build successful"
