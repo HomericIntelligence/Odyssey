@@ -1415,6 +1415,7 @@ training-smoke-all:
         "vgg16_cifar10 train.mojo"
         "mobilenetv1_cifar10 train.mojo"
         "alexnet_cifar10 run_train.mojo"
+        "alexnet_cifar10 run_train_autograd.mojo"
         "mnist train.mojo"
         "mnist train_autograd.mojo"
         "lenet_emnist train.mojo"
