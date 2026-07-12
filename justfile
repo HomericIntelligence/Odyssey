@@ -386,15 +386,22 @@ _build-inner mode="debug":
     fi
 
     # Per-file build → a status file per input so we can tally after the wait
-    # (a subshell can't mutate parent-scope counters). Status dir is scratch.
+    # (a backgrounded subshell can't mutate parent-scope counters). Status dir
+    # is scratch under BUILD_DIR (never re-globbed as a source).
     STATUS_DIR="$BUILD_DIR/.build-status"
     rm -rf "$STATUS_DIR"; mkdir -p "$STATUS_DIR"
 
+    # Map a source path to its unique flattened key (examples/foo/bar.mojo →
+    # examples_foo_bar), used for the -o binary, the .status, and the .log.
+    status_key() {
+        local rel="${1#./}"
+        local k="${rel%.mojo}"
+        echo "${k//\//_}"
+    }
+
     build_one() {
         local file="$1"
-        local rel="${file#./}"
-        local out_name="${rel%.mojo}"
-        out_name="${out_name//\//_}"
+        local out_name; out_name="$(status_key "$file")"
         local out="$BUILD_DIR/$out_name"
         echo "→ Building: $file"
         if pixi run mojo build $FLAGS ${JOBS:-} \
@@ -408,37 +415,67 @@ _build-inner mode="debug":
         fi
     }
 
-    # Dispatch with a bounded pool: block a new job whenever
-    # BUILD_PARALLELISM are already running (portable: `wait -n` where
-    # available, else fall back to a full drain).
+    # Detect `wait -n` (bash 4.3+) ONCE up front. Do NOT infer support from a
+    # job's exit status inside the loop — a failed `mojo build` also makes
+    # `wait -n` return non-zero, and treating that as "unsupported" would drain
+    # the whole pool and collapse parallelism exactly when builds are failing.
+    HAVE_WAIT_N=0
+    if [ "${BASH_VERSINFO[0]:-0}" -gt 4 ] || \
+       { [ "${BASH_VERSINFO[0]:-0}" -eq 4 ] && [ "${BASH_VERSINFO[1]:-0}" -ge 3 ]; }; then
+        HAVE_WAIT_N=1
+    fi
+
+    # Dispatch with a bounded worker pool. CRITICAL: pre-seed every file's
+    # status as "pending" BEFORE backgrounding its worker, so a worker that is
+    # OOM-killed / SIGTERM'd / segfaults before it can write "ok"/"fail" leaves
+    # a "pending" marker that the tally counts as a FAILURE. Without this, a
+    # killed worker would write no status file and vanish from the tally —
+    # letting a build that never completed pass green (the exact risk under the
+    # memory pressure this parallelism targets).
     set +e
+    TOTAL=0
     RUNNING=0
     while IFS= read -r file; do
         [ -z "$file" ] && continue
+        TOTAL=$((TOTAL + 1))
+        skey="$(status_key "$file")"
+        echo "pending" > "$STATUS_DIR/$skey.status"
         build_one "$file" &
         RUNNING=$((RUNNING + 1))
         if [ "$RUNNING" -ge "$BUILD_PARALLELISM" ]; then
-            if wait -n 2>/dev/null; then :; else wait; fi
-            RUNNING=$((RUNNING - 1))
+            if [ "$HAVE_WAIT_N" -eq 1 ]; then
+                wait -n            # reap exactly one finished job (any exit code)
+            else
+                wait               # no `wait -n`: drain all, reset the counter
+                RUNNING=0
+            fi
+            [ "$RUNNING" -gt 0 ] && RUNNING=$((RUNNING - 1))
         fi
     done <<< "$EXEC_FILES"
     wait
     set -e
 
-    # Tally results from the per-file status files.
+    # Tally from the per-file status files. Anything not exactly "ok" (including
+    # a leftover "pending" from a killed worker, or a missing file) is a
+    # failure. Also cross-check the observed count against TOTAL so a vanished
+    # status file cannot silently reduce the denominator.
     BUILT=0
     FAILED=0
     FAILED_FILES=""
-    for st in "$STATUS_DIR"/*.status; do
-        [ -e "$st" ] || continue
-        if [ "$(cat "$st")" = "ok" ]; then
+    SEEN=0
+    while IFS= read -r file; do
+        [ -z "$file" ] && continue
+        skey="$(status_key "$file")"
+        st="$STATUS_DIR/$skey.status"
+        SEEN=$((SEEN + 1))
+        if [ -e "$st" ] && [ "$(cat "$st")" = "ok" ]; then
             BUILT=$((BUILT + 1))
         else
             FAILED=$((FAILED + 1))
-            name="$(basename "$st" .status)"
-            FAILED_FILES="${FAILED_FILES}\n  - $name"
+            reason="$([ -e "$st" ] && cat "$st" || echo "no-status")"
+            FAILED_FILES="${FAILED_FILES}\n  - $file ($reason)"
         fi
-    done
+    done <<< "$EXEC_FILES"
 
     # ------------------------------------------------------------
     # Summary
