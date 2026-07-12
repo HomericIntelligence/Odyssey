@@ -91,7 +91,8 @@ The autograd module follows **YAGNI** (You Aren't Gonna Need It) and **KISS** (K
 
 ### Potential Future Additions
 
-- [ ] `concat_backward` - Concatenation gradient
+- [x] `concat_backward` - Concatenation gradient (implemented as `backward_concat` /
+      `variable_concat`, OP_CONCAT — channel-axis depth-concat for Inception; #5591)
 - [ ] `stack_backward` - Stack operation gradient
 - [ ] `reshape_backward` - Reshape gradient
 - [ ] `expand_dims_backward` - Dimension expansion gradient
@@ -112,8 +113,9 @@ The autograd module follows **YAGNI** (You Aren't Gonna Need It) and **KISS** (K
 ### Phase 2: Automatic Differentiation (DELIVERED — #5452)
 
 - [x] **Full tape-based autograd** — Variable + GradientTape + automatic
-  backward dispatch for 15 op types (arithmetic, matmul, reductions,
-  activations, flatten, linear, conv2d, maxpool2d, cross_entropy).
+  backward dispatch for 18 op types (arithmetic, matmul, reductions,
+  activations, flatten, linear, conv2d, depthwise_conv2d, maxpool2d,
+  cross_entropy, batch_norm2d, concat).
 - [x] **Variable wrapper** — tape recording, gradient accumulation,
   dtype-agnostic SavedTensors round-trip.
 - [x] Dtype-correct copy/accumulate in `SavedTensors` and `VariableRegistry`

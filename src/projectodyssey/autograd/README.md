@@ -274,7 +274,7 @@ for epoch in range(num_epochs):
 - SGD optimizer
 - Integration points with existing backward passes
 - **Automatic operation recording in Variable**
-- **Backward pass dispatch (15 op types: add/sub/mul/div/matmul/sum/mean/relu/sigmoid/tanh/flatten/linear/conv2d/maxpool2d/cross_entropy)**
+- **Backward pass dispatch (18 op types: add/sub/mul/div/matmul/sum/mean/relu/sigmoid/tanh/flatten/linear/conv2d/depthwise_conv2d/maxpool2d/cross_entropy/batch_norm2d/concat)**
 - **Automatic gradient computation in tape.backward()** — forward execution
   appends nodes in topological order, so reverse iteration is correct
   reverse-topological order (no DAG sort needed)
@@ -283,11 +283,14 @@ for epoch in range(num_epochs):
 
 ### Phase 2 substrate (complete)
 
-`variable_flatten`, `variable_linear`, `variable_conv2d`, `variable_maxpool2d`,
-`variable_cross_entropy` enable end-to-end convnet training (LeNet/AlexNet/VGG
-forward+backward via `loss.backward(tape)`). See
-`tests/projectodyssey/autograd/test_variable_layers.mojo` for FD-validated
-gradient checks.
+`variable_flatten`, `variable_linear`, `variable_conv2d`,
+`variable_depthwise_conv2d`, `variable_maxpool2d`, `variable_cross_entropy`,
+`variable_batch_norm`, and `variable_concat` enable end-to-end convnet training
+(LeNet/AlexNet/VGG/ResNet, plus depthwise-separable MobileNet and Inception
+depth-concat) forward+backward via `loss.backward(tape)`. See
+`tests/projectodyssey/autograd/test_variable_layers.mojo`,
+`test_variable_batch_norm.mojo`, `test_variable_depthwise_conv2d.mojo`, and
+`test_variable_concat.mojo` for FD-validated gradient checks.
 
 Also fixed in Phase 2: `SavedTensors.add_tensor` and `VariableRegistry.set_grad`
 previously hardcoded `bitcast[Float32]`, silently corrupting fp16/bf16/fp64
