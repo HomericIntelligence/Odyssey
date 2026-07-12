@@ -66,11 +66,13 @@ def find_test_files(root_dir: Path) -> List[Path]:
         # `just test-example-backward` — it uses synthetic interleaved-class
         # data with no dataset download.
         "examples/googlenet_cifar10/test_backward.mojo",
-        # MobileNetV1 BatchNorm running-stat persistence regression (#5537).
-        # Example-dir test (imports `from model`), EXECUTED per-PR by the
-        # "example-backward-tests" job via `just test-example-backward`
-        # (EXAMPLE_TESTS list) with synthetic data — not a src/ unit test.
+        # MobileNetV1 / GoogLeNet BatchNorm running-stat persistence regression
+        # (#5537 / #5575). Example-dir tests (import `from model`), EXECUTED
+        # per-PR by the "example-backward-tests" job via
+        # `just test-example-backward` (EXAMPLE_TESTS list) with synthetic
+        # data — not src/ unit tests.
         "examples/mobilenetv1_cifar10/test_bn_persistence.mojo",
+        "examples/googlenet_cifar10/test_bn_persistence.mojo",
         # Conda recipe smoke test — executed by rattler-build's `tests:`
         # block when the package is built (see conda.recipe/recipe.yaml),
         # not by the per-PR CI test matrix.
