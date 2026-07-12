@@ -365,31 +365,80 @@ _build-inner mode="debug":
             | xargs -0 grep -lE "^fn main|^def main" 2>/dev/null || true)
     fi
 
-    # Disable -e for the per-file loop so a single failure doesn't abort
-    # the whole sweep — collect failures, report at end, exit non-zero if any.
-    set +e
-    BUILT=0
-    FAILED=0
-    FAILED_FILES=""
-    while IFS= read -r file; do
-        [ -z "$file" ] && continue
-        # Flatten path → unique binary name: examples/foo/bar.mojo → examples_foo_bar
-        rel="${file#./}"
-        out_name="${rel%.mojo}"
-        out_name="${out_name//\//_}"
-        out="$BUILD_DIR/$out_name"
+    # ------------------------------------------------------------
+    # Parallel per-file build with a bounded worker pool.
+    #
+    # Each `mojo build` is CPU- and memory-heavy (~1.5-3 GB), so we cap
+    # concurrency rather than fan out unbounded (see CLAUDE.md host limits:
+    # never `-j$(nproc)` across concurrent builds). Wall-clock previously grew
+    # linearly with the example/binary count and hit the build-validation 30-min
+    # timeout once the autograd example ports landed (#5454); bounded parallelism
+    # keeps every mode's build under budget without OOMing the runner.
+    #
+    # BUILD_PARALLELISM: number of concurrent `mojo build` jobs. Defaults to 4
+    # (fits a standard 4-core/16 GB CI runner); override via env for tighter or
+    # looser hosts. TSAN forces serial (JOBS=-j1 already; keep 1 worker too).
+    # ------------------------------------------------------------
+    if [ "$MODE" = "tsan" ]; then
+        BUILD_PARALLELISM=1
+    else
+        BUILD_PARALLELISM="${BUILD_PARALLELISM:-4}"
+    fi
 
+    # Per-file build → a status file per input so we can tally after the wait
+    # (a subshell can't mutate parent-scope counters). Status dir is scratch.
+    STATUS_DIR="$BUILD_DIR/.build-status"
+    rm -rf "$STATUS_DIR"; mkdir -p "$STATUS_DIR"
+
+    build_one() {
+        local file="$1"
+        local rel="${file#./}"
+        local out_name="${rel%.mojo}"
+        out_name="${out_name//\//_}"
+        local out="$BUILD_DIR/$out_name"
         echo "→ Building: $file"
         if pixi run mojo build $FLAGS ${JOBS:-} \
                 -I "$REPO_ROOT/src" -I "$REPO_ROOT" \
-                -Xlinker -lm "$file" -o "$out" 2>&1; then
+                -Xlinker -lm "$file" -o "$out" > "$STATUS_DIR/$out_name.log" 2>&1; then
+            echo "ok" > "$STATUS_DIR/$out_name.status"
+        else
+            echo "fail" > "$STATUS_DIR/$out_name.status"
+            echo "── build failed: $file ──"
+            cat "$STATUS_DIR/$out_name.log"
+        fi
+    }
+
+    # Dispatch with a bounded pool: block a new job whenever
+    # BUILD_PARALLELISM are already running (portable: `wait -n` where
+    # available, else fall back to a full drain).
+    set +e
+    RUNNING=0
+    while IFS= read -r file; do
+        [ -z "$file" ] && continue
+        build_one "$file" &
+        RUNNING=$((RUNNING + 1))
+        if [ "$RUNNING" -ge "$BUILD_PARALLELISM" ]; then
+            if wait -n 2>/dev/null; then :; else wait; fi
+            RUNNING=$((RUNNING - 1))
+        fi
+    done <<< "$EXEC_FILES"
+    wait
+    set -e
+
+    # Tally results from the per-file status files.
+    BUILT=0
+    FAILED=0
+    FAILED_FILES=""
+    for st in "$STATUS_DIR"/*.status; do
+        [ -e "$st" ] || continue
+        if [ "$(cat "$st")" = "ok" ]; then
             BUILT=$((BUILT + 1))
         else
             FAILED=$((FAILED + 1))
-            FAILED_FILES="${FAILED_FILES}\n  - $file"
+            name="$(basename "$st" .status)"
+            FAILED_FILES="${FAILED_FILES}\n  - $name"
         fi
-    done <<< "$EXEC_FILES"
-    set -e
+    done
 
     # ------------------------------------------------------------
     # Summary
@@ -397,7 +446,7 @@ _build-inner mode="debug":
 
     echo
     echo "=================================================="
-    echo "Build summary ($MODE)"
+    echo "Build summary ($MODE, parallelism=$BUILD_PARALLELISM)"
     echo "=================================================="
     echo "  shared package: $BUILD_DIR/projectodyssey.mojopkg"
     echo "  executables:    $BUILT built, $FAILED failed"
