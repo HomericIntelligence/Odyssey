@@ -1413,6 +1413,7 @@ training-smoke-all:
         "resnet18_cifar10 train.mojo"
         "googlenet_cifar10 train.mojo"
         "vgg16_cifar10 train.mojo"
+        "vgg16_cifar10 train_autograd.mojo"
         "mobilenetv1_cifar10 train.mojo"
         "alexnet_cifar10 run_train.mojo"
         "alexnet_cifar10 run_train_autograd.mojo"
