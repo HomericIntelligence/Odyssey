@@ -5,7 +5,10 @@ inputs:
   pixi-version:
     description: Pixi version to install
     required: false
-    default: v0.65.0
+    # Must be >= the pixi that writes pixi.lock locally (0.70.x → lockfile v7).
+    # Older pixi (<=0.67) cannot read a v7 lock and fails `pixi install --locked`
+    # with "Lock-file version 7 is newer than supported".
+    default: v0.70.2
 
 runs:
   using: composite

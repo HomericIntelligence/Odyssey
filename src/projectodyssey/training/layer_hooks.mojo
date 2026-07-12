@@ -34,7 +34,7 @@ from projectodyssey.tensor.any_tensor import AnyTensor
 from projectodyssey.training.base import CallbackSignal, CONTINUE
 
 
-trait LayerHook(Copyable, Movable):
+trait LayerHook(Copyable, ImplicitlyDeletable, Movable):
     """Per-layer pre/post-forward hook with read-write tensor access.
 
     Implementations run around an individual layer's `forward()` call.

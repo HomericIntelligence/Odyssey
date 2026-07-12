@@ -7,7 +7,17 @@ version = "0.2.0"
 
 [dependencies]
 # Language runtime
-mojo = "==1.0.0b2.dev2026052506"
+# Pin the 1.0.0b2 tagged beta, not a dated `.dev` nightly. The previous pin
+# (1.0.0b2.dev2026052506) was a daily build that got garbage-collected from
+# https://conda.modular.com/max-nightly, leaving HEAD unbuildable. A tagged
+# beta (1.0.0b2) is far less GC-prone than a dated daily build, so this is the
+# durable-enough fix. NOTE: with the current channel order (max-nightly first)
+# this still resolves 1.0.0b2 from the nightly channel — the same build also
+# exists on the stable https://conda.modular.com/max channel, but preferring it
+# would require reordering `channels` above, which re-resolves ~140 other
+# packages and is out of scope here. Fully GC-proof follow-up: move to a /max
+# release build and reorder channels deliberately.
+mojo = "==1.0.0b2"
 
 # Core libraries
 numpy = ">=2.3.5,<3"
