@@ -482,10 +482,10 @@ def main() raises:
     # mode (#5551): smoke skips the dataset download so the training entrypoint
     # can run per-PR in CI. It checks the MECHANISM (the loop runs and emits
     # finite, parseable loss), not convergence.
+    # Only training data is needed — this port does not run an eval loop, so it
+    # loads no test split (avoids an unused-assignment --Werror error).
     var train_images: AnyTensor
     var train_labels: AnyTensor
-    var test_images: AnyTensor
-    var test_labels: AnyTensor
     if smoke:
         print("Smoke mode: using synthetic data (no dataset download)...")
         var wanted_batches = max_batches if max_batches > 0 else 3
@@ -502,9 +502,6 @@ def main() raises:
         var lbl_d = train_labels._data.bitcast[UInt8]()
         for s in range(n_smoke):
             lbl_d[s] = UInt8(s % 10)
-        # Reuse the synthetic batch for "test" (eval is not asserted here).
-        test_images = train_images
-        test_labels = train_labels
     else:
         print("Loading CIFAR-10 dataset...")
         var dataset = CIFAR10Dataset(data_dir)
@@ -512,12 +509,7 @@ def main() raises:
         train_images = train_data[0]
         train_labels = train_data[1]
 
-        var test_data = dataset.get_test_data()
-        test_images = test_data[0]
-        test_labels = test_data[1]
-
     print("  Training samples: ", train_images.shape()[0])
-    print("  Test samples: ", test_images.shape()[0])
     print()
 
     # Training loop. Construct the optimizer ONCE (outside the epoch/batch
