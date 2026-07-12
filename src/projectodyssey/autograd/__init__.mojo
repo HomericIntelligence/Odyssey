@@ -114,6 +114,7 @@ from projectodyssey.autograd.variable import (
     variable_conv2d,
     variable_maxpool2d,
     variable_cross_entropy,
+    variable_batch_norm,
 )
 
 from projectodyssey.autograd.tape_types import (
@@ -149,6 +150,7 @@ from projectodyssey.autograd.tape import (
     OP_CONV2D,
     OP_MAXPOOL2D,
     OP_CROSS_ENTROPY,
+    OP_BATCH_NORM2D,
 )
 
 from projectodyssey.autograd.optimizers import (

@@ -46,6 +46,7 @@ from projectodyssey.core.linear import linear as _linear
 from projectodyssey.core.conv import conv2d as _conv2d
 from projectodyssey.core.pooling import maxpool2d as _maxpool2d
 from projectodyssey.core.loss import cross_entropy as _cross_entropy
+from projectodyssey.core.normalization import batch_norm2d as _batch_norm2d
 
 comptime tensor_sum = sum
 comptime tensor_mean = mean
@@ -69,6 +70,7 @@ from projectodyssey.autograd.tape import (
     OP_CONV2D,
     OP_MAXPOOL2D,
     OP_CROSS_ENTROPY,
+    OP_BATCH_NORM2D,
 )
 
 
@@ -730,6 +732,94 @@ def variable_conv2d(
         tape.record(OP_CONV2D, input_ids^, result_id, saved^)
 
     return Variable(result_data^, needs_grad, result_id)
+
+
+def variable_batch_norm(
+    x: Variable,
+    gamma: Variable,
+    beta: Variable,
+    running_mean: AnyTensor,
+    running_var: AnyTensor,
+    mut tape: GradientTape,
+    training: Bool,
+    momentum: Float64 = 0.1,
+    epsilon: Float64 = 1e-5,
+) raises -> Tuple[Variable, AnyTensor, AnyTensor]:
+    """Apply 2D batch normalization: y = gamma * norm(x) + beta.
+
+    `x`, `gamma`, `beta` are trainable Variables (they receive gradients).
+    `running_mean` / `running_var` are non-trainable buffers (plain
+    `AnyTensor`, no gradient); the core op is functional, so the *updated*
+    running statistics are returned and the caller must thread them back into
+    its per-layer storage for the next batch. In training mode the forward and
+    backward derive batch statistics from `x` and ignore the incoming running
+    stats, so a caller that drops the returned stats still trains correctly
+    (only later inference accuracy would suffer).
+
+    Saved layout for backward:
+        tensors[0] = input x            (batch, C, H, W)
+        tensors[1] = gamma              (C,)
+        tensors[2] = running_mean       (C,) — consumed only when training=False
+        tensors[3] = running_var        (C,) — consumed only when training=False
+        scalars[0] = training (1.0/0.0)
+        scalars[1] = epsilon
+        (beta is intentionally NOT saved — batch_norm2d_backward does not take
+        it; grad_beta = sum(grad_output) needs no saved beta.)
+
+    Args:
+        x: Input activations Variable (batch, C, H, W).
+        gamma: Scale-parameter Variable (C,).
+        beta: Shift-parameter Variable (C,).
+        running_mean: Running mean buffer (C,), not a Variable.
+        running_var: Running variance buffer (C,), not a Variable.
+        tape: Gradient tape for recording.
+        training: If True, use batch statistics and update running stats.
+        momentum: Momentum for the running-stats update (default 0.1).
+        epsilon: Numerical-stability constant (default 1e-5).
+
+    Returns:
+        A tuple of (output Variable (batch, C, H, W), updated running_mean,
+        updated running_var).
+    """
+    var bn = _batch_norm2d(
+        x.data,
+        gamma.data,
+        beta.data,
+        running_mean,
+        running_var,
+        training,
+        momentum,
+        epsilon,
+    )
+    var result_data = bn[0]
+    var new_running_mean = bn[1]
+    var new_running_var = bn[2]
+
+    var needs_grad = (
+        x.requires_grad or gamma.requires_grad or beta.requires_grad
+    )
+    var result_id = tape.register_variable(needs_grad)
+
+    if tape.enabled and needs_grad:
+        var input_ids = List[Int]()
+        input_ids.append(x.id)
+        input_ids.append(gamma.id)
+        input_ids.append(beta.id)
+
+        var saved = SavedTensors()
+        saved.add_tensor(x.data)
+        saved.add_tensor(gamma.data)
+        saved.add_tensor(running_mean)
+        saved.add_tensor(running_var)
+        saved.add_scalar(1.0 if training else 0.0)
+        saved.add_scalar(epsilon)
+        tape.record(OP_BATCH_NORM2D, input_ids^, result_id, saved^)
+
+    return (
+        Variable(result_data^, needs_grad, result_id),
+        new_running_mean^,
+        new_running_var^,
+    )
 
 
 def variable_maxpool2d(
