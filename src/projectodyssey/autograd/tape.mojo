@@ -84,6 +84,7 @@ from projectodyssey.autograd.backward_ops import (
     backward_conv2d,
     backward_maxpool2d,
     backward_cross_entropy,
+    backward_batch_norm,
 )
 
 
@@ -110,6 +111,7 @@ comptime OP_LINEAR = "linear"
 comptime OP_CONV2D = "conv2d"
 comptime OP_MAXPOOL2D = "maxpool2d"
 comptime OP_CROSS_ENTROPY = "cross_entropy"
+comptime OP_BATCH_NORM2D = "batch_norm2d"
 
 
 struct GradientTape:
@@ -286,6 +288,10 @@ struct GradientTape:
             backward_maxpool2d(self.nodes, self.registry, node_idx, grad_output)
         elif op_type == OP_CROSS_ENTROPY:
             backward_cross_entropy(
+                self.nodes, self.registry, node_idx, grad_output
+            )
+        elif op_type == OP_BATCH_NORM2D:
+            backward_batch_norm(
                 self.nodes, self.registry, node_idx, grad_output
             )
         else:

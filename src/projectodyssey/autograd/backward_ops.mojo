@@ -48,6 +48,7 @@ from projectodyssey.core.linear import linear_backward
 from projectodyssey.core.conv import conv2d_backward
 from projectodyssey.core.pooling import maxpool2d_backward
 from projectodyssey.core.loss import cross_entropy_backward
+from projectodyssey.core.normalization import batch_norm2d_backward
 
 # Import types from tape_types (avoids circular import with tape.mojo)
 from projectodyssey.autograd.tape_types import TapeNode, VariableRegistry
@@ -458,6 +459,49 @@ def backward_conv2d(
         registry.set_grad(nodes[idx].input_ids[1], grads.grad_weights)
     if len(nodes[idx].input_ids) >= 3:
         registry.set_grad(nodes[idx].input_ids[2], grads.grad_bias)
+
+
+def backward_batch_norm(
+    nodes: List[TapeNode],
+    mut registry: VariableRegistry,
+    idx: Int,
+    grad_output: AnyTensor,
+) raises:
+    """Backward pass for 2D batch normalization.
+
+    Saved layout (see variable_batch_norm):
+        tensors[0] = input x        (batch, C, H, W)
+        tensors[1] = gamma          (C,)
+        tensors[2] = running_mean   (C,)
+        tensors[3] = running_var    (C,)
+        scalars[0] = training (1.0/0.0)
+        scalars[1] = epsilon
+
+    Routes:
+        input_ids[0] -> grad_input
+        input_ids[1] -> grad_gamma
+        input_ids[2] -> grad_beta
+    (Running-mean/var are not Variables, so they receive no gradient.)
+    """
+    if len(nodes[idx].saved.tensors) < 4:
+        return
+    if len(nodes[idx].saved.scalars) < 2:
+        return
+    var x = nodes[idx].saved.tensors[0].copy()
+    var gamma = nodes[idx].saved.tensors[1].copy()
+    var running_mean = nodes[idx].saved.tensors[2].copy()
+    var running_var = nodes[idx].saved.tensors[3].copy()
+    var training = nodes[idx].saved.scalars[0] != 0.0
+    var epsilon = nodes[idx].saved.scalars[1]
+    var grads = batch_norm2d_backward(
+        grad_output, x, gamma, running_mean, running_var, training, epsilon
+    )
+    if len(nodes[idx].input_ids) >= 1:
+        registry.set_grad(nodes[idx].input_ids[0], grads[0])
+    if len(nodes[idx].input_ids) >= 2:
+        registry.set_grad(nodes[idx].input_ids[1], grads[1])
+    if len(nodes[idx].input_ids) >= 3:
+        registry.set_grad(nodes[idx].input_ids[2], grads[2])
 
 
 def backward_maxpool2d(
