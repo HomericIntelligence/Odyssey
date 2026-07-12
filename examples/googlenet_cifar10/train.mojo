@@ -435,7 +435,7 @@ def compute_gradients(
         stride=1,
         padding=1,
     )
-    var init_bn, _, _ = batch_norm2d(
+    var init_bn_result = batch_norm2d(
         init_conv,
         model.initial_bn_gamma,
         model.initial_bn_beta,
@@ -443,6 +443,9 @@ def compute_gradients(
         model.initial_bn_running_var,
         True,
     )
+    var init_bn = init_bn_result[0]
+    model.initial_bn_running_mean = init_bn_result[1]
+    model.initial_bn_running_var = init_bn_result[2]
     var init_relu = relu(init_bn)
     var init_pool = maxpool2d(init_relu, kernel_size=3, stride=2, padding=1)
 

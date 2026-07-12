@@ -1402,6 +1402,7 @@ _test-example-backward-inner:
     # Entries are "<example-dir>/<test-file>".
     EXAMPLE_TESTS=(
         "googlenet_cifar10/test_backward.mojo"
+        "googlenet_cifar10/test_bn_persistence.mojo"
         "resnet18_cifar10/test_backward.mojo"
         "mobilenetv1_cifar10/test_bn_persistence.mojo"
     )
