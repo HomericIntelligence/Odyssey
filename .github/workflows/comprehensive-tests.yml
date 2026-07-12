@@ -195,6 +195,7 @@ jobs:
       matrix:
         include:
           - { example: resnet18_cifar10,   entry: train.mojo }
+          - { example: resnet18_cifar10,   entry: train_autograd.mojo }
           - { example: googlenet_cifar10,  entry: train.mojo }
           - { example: vgg16_cifar10,      entry: train.mojo }
           - { example: vgg16_cifar10,      entry: train_autograd.mojo }
