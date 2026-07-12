@@ -249,6 +249,121 @@ def test_batch_norm_grad_check() raises:
     print("       OK")
 
 
+@fieldwise_init
+struct _BNInferForward(NumericalForward):
+    """Inference-mode loss(x) = sum(batch_norm2d(x, ..., training=False) * w).
+    """
+
+    var gamma: AnyTensor
+    var beta: AnyTensor
+    var running_mean: AnyTensor
+    var running_var: AnyTensor
+    var w: AnyTensor
+
+    def __call__(self, inp: AnyTensor) raises -> AnyTensor:
+        var res = batch_norm2d(
+            inp,
+            self.gamma,
+            self.beta,
+            self.running_mean,
+            self.running_var,
+            training=False,
+            epsilon=1e-5,
+        )
+        return multiply(res[0], self.w)
+
+
+def test_batch_norm_inference_grad_check() raises:
+    """Verify the training=False path: BN uses running stats, and the taped
+    backward still matches finite differences for grad_x."""
+    print("[test] variable_batch_norm inference-mode gradient check ...")
+
+    var shape: List[Int] = [2, 2, 2, 2]
+    var x_vals: List[Float64] = [
+        0.5,
+        -1.2,
+        0.3,
+        0.8,
+        -0.4,
+        1.1,
+        0.2,
+        -0.7,
+        0.9,
+        -0.1,
+        1.4,
+        -0.6,
+        0.05,
+        0.7,
+        -1.3,
+        0.35,
+    ]
+    var gamma_vals: List[Float64] = [1.3, 0.7]
+    var beta_vals: List[Float64] = [0.2, -0.4]
+    var w_vals: List[Float64] = [
+        1.0,
+        0.3,
+        -0.5,
+        0.8,
+        0.2,
+        -0.9,
+        1.1,
+        0.4,
+        -0.3,
+        0.6,
+        0.9,
+        -0.2,
+        0.7,
+        -0.6,
+        0.15,
+        1.2,
+    ]
+    var c_shape: List[Int] = [2]
+    # Non-trivial running stats (inference uses these, NOT batch stats).
+    var rm_vals: List[Float64] = [0.1, -0.2]
+    var rv_vals: List[Float64] = [1.5, 0.8]
+
+    var tape = GradientTape()
+    tape.enable()
+
+    var x = Variable(_make_tensor(shape, x_vals), True, tape)
+    var gamma = Variable(_make_tensor(c_shape, gamma_vals), True, tape)
+    var beta = Variable(_make_tensor(c_shape, beta_vals), True, tape)
+    var running_mean = _make_tensor(c_shape, rm_vals)
+    var running_var = _make_tensor(c_shape, rv_vals)
+    var w = Variable(_make_tensor(shape, w_vals), False, tape)
+
+    var bn = variable_batch_norm(
+        x, gamma, beta, running_mean, running_var, tape, training=False
+    )
+    var y = bn[0].copy()
+
+    var weighted = variable_multiply(y, w, tape)
+    var loss = variable_sum(weighted, tape, axis=-1)
+    loss.backward(tape)
+
+    var grad_x = tape.get_grad(x.id)
+    var num_grad_x = compute_numerical_gradient(
+        _BNInferForward(
+            _make_tensor(c_shape, gamma_vals),
+            _make_tensor(c_shape, beta_vals),
+            _make_tensor(c_shape, rm_vals),
+            _make_tensor(c_shape, rv_vals),
+            _make_tensor(shape, w_vals),
+        ),
+        _make_tensor(shape, x_vals),
+        epsilon=1e-3,
+    )
+    assert_gradients_close(
+        grad_x,
+        num_grad_x,
+        rtol=5e-2,
+        atol=5e-4,
+        message="variable_batch_norm inference grad_x",
+    )
+    print("       OK")
+
+
 def main() raises:
     test_batch_norm_grad_check()
+    test_batch_norm_inference_grad_check()
     print("\nvariable_batch_norm gradient check PASS")
