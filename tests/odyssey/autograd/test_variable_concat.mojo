@@ -13,14 +13,14 @@ slice contiguous. This test concatenates two tensors with DIFFERENT channel
 counts along axis=1 to exercise that path.
 """
 
-from projectodyssey.autograd import Variable, GradientTape
-from projectodyssey.autograd.variable import (
+from odyssey.autograd import Variable, GradientTape
+from odyssey.autograd.variable import (
     variable_concat,
     variable_multiply,
     variable_sum,
 )
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros
 
 
 def _make_tensor(shape: List[Int], values: List[Float64]) raises -> AnyTensor:

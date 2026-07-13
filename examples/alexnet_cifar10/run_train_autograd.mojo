@@ -13,7 +13,7 @@ all ports land.
 
 NOTE: dropout is OMITTED here. The manual AlexNet forward applies dropout after
 fc1 and fc2 (training=True), but the autograd substrate has no `variable_dropout`
-op (verified: no OP_DROPOUT / variable_dropout in src/projectodyssey/autograd/).
+op (verified: no OP_DROPOUT / variable_dropout in src/odyssey/autograd/).
 The recorded FC tail is therefore fc1 -> relu -> fc2 -> relu -> fc3, matching an
 inference-mode / non-regularized forward. This is a mechanism port, not a
 convergence-tuned run.
@@ -53,10 +53,10 @@ from model import (
     POOL3_STRIDE,
     POOL3_PADDING,
 )
-from projectodyssey.data.datasets import CIFAR10Dataset
-from projectodyssey.data.formats import one_hot_encode
-from projectodyssey.data.constants import DatasetInfo
-from projectodyssey.autograd import (
+from odyssey.data.datasets import CIFAR10Dataset
+from odyssey.data.formats import one_hot_encode
+from odyssey.data.constants import DatasetInfo
+from odyssey.autograd import (
     Variable,
     GradientTape,
     AdamW,
@@ -68,10 +68,10 @@ from projectodyssey.autograd import (
     variable_linear,
     variable_cross_entropy,
 )
-from projectodyssey.autograd.optimizer_base import Optimizer
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros
-from projectodyssey.utils.arg_parser import create_training_parser
+from odyssey.autograd.optimizer_base import Optimizer
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros
+from odyssey.utils.arg_parser import create_training_parser
 from std.collections import List
 
 

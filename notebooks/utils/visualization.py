@@ -34,10 +34,7 @@ def plot_training_curves(
     Returns:
         Matplotlib figure object
     """
-    fig, axes = plt.subplots(
-        1, 2 if train_accuracies else 1,
-        figsize=figsize
-    )
+    fig, axes = plt.subplots(1, 2 if train_accuracies else 1, figsize=figsize)
 
     if not isinstance(axes, np.ndarray):
         axes = np.array([axes])
@@ -184,12 +181,14 @@ def display_model_summary(layers: List[Dict]) -> None:
 
     total_params = 0
     for layer in layers:
-        table.add_row([
-            layer.get("name", ""),
-            layer.get("type", ""),
-            layer.get("output_shape", ""),
-            layer.get("params", 0),
-        ])
+        table.add_row(
+            [
+                layer.get("name", ""),
+                layer.get("type", ""),
+                layer.get("output_shape", ""),
+                layer.get("params", 0),
+            ]
+        )
         total_params += layer.get("params", 0)
 
     print(table)

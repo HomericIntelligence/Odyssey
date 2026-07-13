@@ -145,9 +145,7 @@ def compare_tensors(
         "mean_difference": mean_diff,
         "num_different_elements": num_diff,
         "total_elements": int(np.prod(a.shape)),
-        "percent_different": (
-            100.0 * num_diff / np.prod(a.shape) if np.prod(a.shape) > 0 else 0.0
-        ),
+        "percent_different": (100.0 * num_diff / np.prod(a.shape) if np.prod(a.shape) > 0 else 0.0),
     }
 
 

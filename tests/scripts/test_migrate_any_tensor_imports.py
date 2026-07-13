@@ -54,14 +54,12 @@ def test_partition_table_aborts_on_extra_symbol(tmp_path):
         # single-line, mixed
         (
             "from odyssey.tensor.any_tensor import AnyTensor, zeros\n",
-            "from odyssey.tensor.any_tensor import AnyTensor\n"
-            "from odyssey.tensor.tensor_creation import zeros\n",
+            "from odyssey.tensor.any_tensor import AnyTensor\nfrom odyssey.tensor.tensor_creation import zeros\n",
         ),
         # multi-line paren
         (
             "from odyssey.tensor.any_tensor import (\n    AnyTensor,\n    zeros,\n    ones,\n)\n",
-            "from odyssey.tensor.any_tensor import AnyTensor\n"
-            "from odyssey.tensor.tensor_creation import zeros, ones\n",
+            "from odyssey.tensor.any_tensor import AnyTensor\nfrom odyssey.tensor.tensor_creation import zeros, ones\n",
         ),
         # paren + comment containing parens (the canary R1 raised)
         (
@@ -79,8 +77,7 @@ def test_partition_table_aborts_on_extra_symbol(tmp_path):
         # util-only file
         (
             "from odyssey.tensor.any_tensor import zeros, item\n",
-            "from odyssey.tensor.tensor_creation import zeros\n"
-            "from odyssey.tensor.tensor_utils import item\n",
+            "from odyssey.tensor.tensor_creation import zeros\nfrom odyssey.tensor.tensor_utils import item\n",
         ),
         # relative form
         (
@@ -116,17 +113,14 @@ def test_rewrite_idempotent(tmp_path):
 def test_preflight_passes_on_unrelated_comments(tmp_path):
     f = tmp_path / "f.mojo"
     f.write_text(
-        "# TODO: drop `from tensor_creation import zeros` legacy line\n"
-        "from odyssey.tensor.any_tensor import zeros\n"
+        "# TODO: drop `from tensor_creation import zeros` legacy line\nfrom odyssey.tensor.any_tensor import zeros\n"
     )
     m._preflight_partial_state([f], tmp_path)  # must not raise
 
 
 def test_preflight_aborts_on_real_clash(tmp_path):
     f = tmp_path / "f.mojo"
-    f.write_text(
-        "from odyssey.tensor.any_tensor import zeros\nfrom odyssey.tensor.tensor_creation import zeros\n"
-    )
+    f.write_text("from odyssey.tensor.any_tensor import zeros\nfrom odyssey.tensor.tensor_creation import zeros\n")
     with pytest.raises(SystemExit, match="partial-migration state"):
         m._preflight_partial_state([f], tmp_path)
 

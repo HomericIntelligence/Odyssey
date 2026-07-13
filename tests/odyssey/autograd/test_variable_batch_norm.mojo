@@ -11,17 +11,17 @@ check vacuous. A non-uniform weight breaks that symmetry so grad_x is a real
 signal to validate.
 """
 
-from projectodyssey.autograd import Variable, GradientTape
-from projectodyssey.autograd.variable import (
+from odyssey.autograd import Variable, GradientTape
+from odyssey.autograd.variable import (
     variable_batch_norm,
     variable_multiply,
     variable_sum,
 )
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros
-from projectodyssey.core.normalization import batch_norm2d
-from projectodyssey.core.arithmetic import multiply
-from projectodyssey.testing.gradient_checker import (
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros
+from odyssey.core.normalization import batch_norm2d
+from odyssey.core.arithmetic import multiply
+from odyssey.testing.gradient_checker import (
     compute_numerical_gradient,
     assert_gradients_close,
     NumericalForward,

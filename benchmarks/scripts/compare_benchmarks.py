@@ -319,9 +319,7 @@ def main() -> int:
     )
 
     # Generate report
-    report = format_markdown_report(
-        regressions, improvements, current_results, baseline_results
-    )
+    report = format_markdown_report(regressions, improvements, current_results, baseline_results)
 
     # Output report
     if args.output:
