@@ -465,14 +465,16 @@ struct Tensor[dtype: DType = DType.float32](
         so ASAP destruction of either only decrements (not frees) the count
         until the last reference goes away (B4).
 
-        Safety: This method performs manual field replacement on an AnyTensor
-        because AnyTensor lacks an internal constructor accepting raw pointers.
-        The temporary AnyTensor's independent allocation is fully torn down
-        (data freed, refcount freed) before fields are replaced with shared
-        pointers from this Tensor.
+        Safety: This uses AnyTensor's internal shared-data constructor, which
+        adopts this Tensor's existing byte buffer + refcount pointer directly
+        (no allocation, no copy). The constructor increments the shared refcount
+        so both `self` and the returned AnyTensor own the buffer; it is freed
+        exactly once, when the last reference is destroyed (B4). Since a Tensor
+        never offsets its `_data`, the AnyTensor's `_base_data` equals `_data`.
 
-        TODO(#5566): Replace with AnyTensor internal constructor once available,
-        eliminating the allocate-then-free overhead and fragile field surgery.
+        Fixed in #5566: previously this allocated a temporary AnyTensor, tore
+        down its independent allocation (freeing data + refcount), then replaced
+        its fields with shared pointers — wasteful and fragile "field surgery".
 
         Returns:
             An AnyTensor sharing the same data and refcount.
@@ -480,44 +482,24 @@ struct Tensor[dtype: DType = DType.float32](
         Raises:
             Error: If AnyTensor construction fails.
         """
-        # Create an AnyTensor with same shape/dtype — this allocates its own
-        # independent data buffer and refcount pointer.
-        var shape_copy = List[Int]()
-        for i in range(len(self._shape)):
-            shape_copy.append(self._shape[i])
-        var result = AnyTensor(shape_copy, Self.dtype)
-
-        # --- Tear down the temporary AnyTensor's independent allocation ---
-        # Free the independently allocated data buffer (safe: result is the
-        # sole owner at this point, refcount == 1).
-        var tmp_data = result._data
-        var tmp_alloc_size = result._allocated_size
-        var tmp_refcount = result._refcount
-        pooled_free(tmp_data, tmp_alloc_size)
-        # Free the independent refcount pointer (was allocated with alloc[Int](1))
-        tmp_refcount.free()
-
-        # --- Replace fields with shared pointers from this Tensor ---
-        # Share our data pointer (bitcast typed -> UInt8 for AnyTensor)
-        result._data = self._data.bitcast[UInt8]()
-        # `_base_data` must also point at the shared allocation, NOT the freed
-        # temp buffer the AnyTensor constructor set it to. The Tensor never
-        # offsets its `_data`, so the base equals `_data` here. `AnyTensor.__del__`
-        # frees `_base_data` at refcount 0.
-        result._base_data = self._data.bitcast[UInt8]()
-        result._allocated_size = self._allocated_size
-        result._shape = self._shape.copy()
-        result._strides = self._strides.copy()
-        result._numel = self._numel
-        result._is_view = self._is_view
-        result._original_numel_quantized = self._original_numel_quantized
-
-        # Share our refcount and increment for shared ownership (B4 critical).
-        # After this, both `self` and `result` point to the same refcount.
-        result._refcount = self._refcount
-        result._refcount[] += 1
-
-        return result^
+        # Share this Tensor's existing byte buffer and refcount directly — no
+        # temporary allocation. Bitcast the typed pointer to UInt8 for the
+        # type-erased AnyTensor; `base_data == shared_data` because a Tensor
+        # never offsets its `_data`. The constructor increments the shared
+        # refcount for shared ownership (B4 critical).
+        var byte_ptr = self._data.bitcast[UInt8]()
+        return AnyTensor(
+            shared_data=byte_ptr,
+            base_data=byte_ptr,
+            shape=self._shape,
+            strides=self._strides,
+            dtype=Self.dtype,
+            numel=self._numel,
+            is_view=self._is_view,
+            refcount=self._refcount,
+            original_numel_quantized=self._original_numel_quantized,
+            allocated_size=self._allocated_size,
+        )
 
     # ------------------------------------------------------------------
     # String representation (H4 fix: typed access, no _get_float64)

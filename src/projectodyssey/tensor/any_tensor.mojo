@@ -409,6 +409,62 @@ struct AnyTensor(
         for i in range(len(data)):
             self._set_float64(i, Float64(data[i]))
 
+    def __init__(
+        out self,
+        *,
+        shared_data: UnsafePointer[UInt8, origin=MutAnyOrigin],
+        base_data: UnsafePointer[UInt8, origin=MutAnyOrigin],
+        shape: List[Int],
+        strides: List[Int],
+        dtype: DType,
+        numel: Int,
+        is_view: Bool,
+        refcount: UnsafePointer[Int, origin=MutAnyOrigin],
+        original_numel_quantized: Int,
+        allocated_size: Int,
+    ):
+        """Internal constructor for zero-copy conversion (NOT public API).
+
+        Creates an AnyTensor sharing ownership of an existing byte buffer via a
+        shared refcount pointer — no allocation or copy occurs. Increments the
+        shared refcount to establish shared ownership (B4 critical — prevents a
+        dangling pointer from ASAP destruction of the source). The buffer is
+        freed exactly once, when the last reference (source or this AnyTensor)
+        is destroyed.
+
+        This mirrors `Tensor.__init__`'s internal raw-field constructor and is
+        the target of `Tensor.as_any()`'s zero-copy conversion (#5566),
+        replacing the previous allocate-then-free + field-surgery approach.
+
+        Args:
+            shared_data: Byte-level pointer to the existing element storage.
+                For non-offset buffers this equals `base_data`.
+            base_data: The original `pooled_alloc` pointer to free at refcount 0.
+            shape: Shape dimensions (copied into a fresh List).
+            strides: Row-major strides in elements (copied into a fresh List).
+            dtype: The element data type.
+            numel: Total number of elements.
+            is_view: Whether this tensor shares data with another.
+            refcount: Shared refcount pointer (same pointer, not a copy).
+            original_numel_quantized: Original element count before quantization.
+            allocated_size: Allocated size in bytes.
+        """
+        self._data = shared_data
+        self._base_data = base_data
+        self._shape = List[Int]()
+        for i in range(len(shape)):
+            self._shape.append(shape[i])
+        self._strides = List[Int]()
+        for i in range(len(strides)):
+            self._strides.append(strides[i])
+        self._dtype = dtype
+        self._numel = numel
+        self._is_view = is_view
+        self._refcount = refcount
+        self._refcount[] += 1  # CRITICAL: shared ownership (B4)
+        self._original_numel_quantized = original_numel_quantized
+        self._allocated_size = allocated_size
+
     def __init__(out self, *, copy: Self):
         """Copy constructor - creates a shared-ownership copy with reference counting.
 
