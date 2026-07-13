@@ -136,8 +136,8 @@ def parse_args() raises -> InferenceConfig:
 
     var args = parser.parse()
 
-    var weights_dir = args.get_string("weights-dir", "lenet5_weights")
-    var data_dir = args.get_string("data-dir", "datasets/emnist")
+    var weights_dir = args.resolve_string("weights-dir", "lenet5_weights")
+    var data_dir = args.resolve_string("data-dir", "datasets/emnist")
 
     return InferenceConfig(weights_dir, data_dir)
 

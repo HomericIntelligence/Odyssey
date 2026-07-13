@@ -96,12 +96,14 @@ def parse_args() raises -> TrainConfig:
 
     var args = parser.parse()
 
-    var epochs = args.get_int("epochs", 1)
-    var batch_size = args.get_int("batch-size", 32)
-    var learning_rate = args.get_float("lr", 0.001)
-    var data_dir = args.get_string("data-dir", "datasets/emnist")
-    var weights_dir = args.get_string("weights-dir", "lenet5_weights_autograd")
-    var max_batches = args.get_int("max-batches", -1)
+    var epochs = args.resolve_int("epochs", 1)
+    var batch_size = args.resolve_int("batch-size", 32)
+    var learning_rate = args.resolve_float("lr", 0.001)
+    var data_dir = args.resolve_string("data-dir", "datasets/emnist")
+    var weights_dir = args.resolve_string(
+        "weights-dir", "lenet5_weights_autograd"
+    )
+    var max_batches = args.resolve_int("max-batches", -1)
 
     return TrainConfig(
         epochs, batch_size, learning_rate, data_dir, weights_dir, max_batches

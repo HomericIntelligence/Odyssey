@@ -107,12 +107,12 @@ def parse_args() raises -> TrainConfig:
 
     var args = parser.parse()
 
-    var epochs = args.get_int("epochs", 10)
-    var batch_size = args.get_int("batch-size", 32)
-    var learning_rate = Float32(args.get_float("lr", 0.001))
-    var data_dir = args.get_string("data-dir", "datasets/mnist")
-    var weights_dir = args.get_string("weights-dir", "mnist_weights")
-    var max_batches = args.get_int("max-batches", 0)
+    var epochs = args.resolve_int("epochs", 10)
+    var batch_size = args.resolve_int("batch-size", 32)
+    var learning_rate = Float32(args.resolve_float("lr", 0.001))
+    var data_dir = args.resolve_string("data-dir", "datasets/mnist")
+    var weights_dir = args.resolve_string("weights-dir", "mnist_weights")
+    var max_batches = args.resolve_int("max-batches", 0)
     var smoke = args.get_bool("smoke")
 
     return TrainConfig(

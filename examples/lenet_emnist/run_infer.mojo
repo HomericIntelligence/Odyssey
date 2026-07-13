@@ -87,11 +87,11 @@ def parse_args() raises -> InferConfig:
     var args = parser.parse()
 
     var config = InferConfig()
-    config.checkpoint_dir = args.get_string("checkpoint", "")
-    config.image_path = args.get_string("image", "")
+    config.checkpoint_dir = args.resolve_string("checkpoint", "")
+    config.image_path = args.resolve_string("image", "")
     config.run_test_set = args.get_bool("test-set")
-    config.data_dir = args.get_string("data-dir", "datasets/emnist")
-    config.top_k = args.get_int("top-k", 5)
+    config.data_dir = args.resolve_string("data-dir", "datasets/emnist")
+    config.top_k = args.resolve_int("top-k", 5)
 
     return config^
 
