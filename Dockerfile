@@ -82,8 +82,12 @@ ENV PIXI_HOME=/home/${USER_NAME}/.pixi
 ENV PIXI_CACHE_DIR=/home/${USER_NAME}/.cache/pixi
 RUN mkdir -p $PIXI_HOME $PIXI_CACHE_DIR $HOME/.cache/rattler
 
-# Install Pixi as dev user (pinned version for reproducible builds)
-ENV PIXI_VERSION=0.65.0
+# Install Pixi as dev user (pinned version for reproducible builds).
+# Must be >= the pixi that writes pixi.lock locally (0.70.x -> lockfile v7).
+# Older pixi (<=0.67) cannot read a v7 lock and fails with a misleading
+# "missing `version` field in lock file" error (#5589 bumped Dockerfile.ci,
+# setup-pixi, and _required.yml to 0.70.2 but missed this Dockerfile).
+ENV PIXI_VERSION=0.70.2
 RUN curl -fsSL https://pixi.sh/install.sh | PIXI_VERSION=${PIXI_VERSION} bash
 
 # Copy dependency manifests first for layer caching.
