@@ -25,8 +25,8 @@ echo -e "${GREEN}✓ dist/ directory ready${NC}"
 
 # Step 2: Build package
 echo -e "\n${YELLOW}Step 2: Building .mojopkg package...${NC}"
-echo "Command: mojo package src/projectodyssey/utils -o dist/utils-0.1.0.mojopkg"
-mojo package src/projectodyssey/utils -o dist/utils-0.1.0.mojopkg
+echo "Command: mojo package src/odyssey/utils -o dist/utils-0.1.0.mojopkg"
+mojo package src/odyssey/utils -o dist/utils-0.1.0.mojopkg
 
 if [ -f "dist/utils-0.1.0.mojopkg" ]; then
     echo -e "${GREEN}✓ Package built successfully!${NC}"

@@ -1,0 +1,3037 @@
+"""AnyTensor - Extensible Tensor for ML Odyssey.
+
+A comprehensive, dynamic tensor class implementing the Python Array API Standard
+
+Compliance:
+- Follows the Python Array API Standard (https://data-apis.org/array-api/latest/)
+- Implements Array API Standard 2023.12 specification
+- Provides 150+ operations across all API categories
+- NumPy-style broadcasting semantics for element-wise operations
+- Supports 13 data types (float16/32/64, int8/16/32/64, uint8/16/32/64, bool)
+
+Architecture:
+- Dynamic shapes: 0D scalars to N-D tensors with runtime-determined dimensions
+- Type-erased storage: UnsafePointer enables dtype flexibility
+- Row-major memory layout (C-order) for efficient access patterns
+- Memory-safe via Mojo's ownership and borrow checking
+
+Array API Categories:
+- Creation: zeros, ones, full, empty, arange, eye, linspace ✓
+- Arithmetic: add, subtract, multiply, divide, floor_divide, modulo, power ✓
+- Comparison: equal, not_equal, less, less_equal, greater, greater_equal ✓
+- Reduction: sum, mean, max, min (all-elements only) ✓
+- Matrix: matmul, transpose, dot, outer ✓ (src/odyssey/core/matrix.mojo)
+- Shape manipulation: reshape, squeeze, unsqueeze, concatenate ✓ (src/odyssey/core/shape.mojo)
+- Broadcasting: Full n-dim support for different-shape operations ✓ (src/odyssey/core/broadcasting.mojo)
+- Element-wise math: exp, log, sqrt, sin, cos, tanh ✓ (src/odyssey/core/elementwise.mojo)
+- Statistical: var, std, median, percentile ✓ (src/odyssey/core/reduction.mojo)
+- Indexing: slicing, advanced indexing ✓ (__getitem__ methods)
+- Hashing: __hash__ via Hashable trait ✓
+
+Slicing Design:
+- `slice(start, end)` — view-based extraction (shares memory, zero-copy). Use for
+  batch processing where the original data must not be modified.
+- `tensor[i]` / `tensor[i, j]` — copy-based element access via __getitem__(Int)
+  or __getitem__(*slices). Returns a new tensor with independent memory.
+- The split between view (slice) and copy (getitem) is intentional: views support
+  efficient batch iteration; copies ensure safety when downstream code may mutate.
+
+See Also:
+- Issue #3013: Consolidates issues #2717-#2721 documenting implementation status
+- docs/dev/extensor-operations-status.md: Comprehensive mapping of all 5 operation categories
+
+Reference: https://data-apis.org/array-api/latest/API_specification/index.html
+"""
+
+from std.collections import List
+from std.memory import UnsafePointer, memset_zero, alloc, bitcast
+from std.math import ceildiv
+from std.hashlib.hasher import Hasher
+from std.io import Writer
+from odyssey.base.memory_pool import pooled_alloc, pooled_free
+from .tensor import Tensor
+from .tensor_traits import TensorLike
+from odyssey.base.broadcasting import (
+    broadcast_shapes,
+    compute_broadcast_strides,
+    are_shapes_broadcastable,
+)
+from odyssey.base.dtype_ordinal import (
+    dtype_to_ordinal,
+    DTYPE_FLOAT16,
+    DTYPE_FLOAT32,
+    DTYPE_FLOAT64,
+    DTYPE_INT8,
+    DTYPE_INT16,
+    DTYPE_INT32,
+    DTYPE_INT64,
+    DTYPE_UINT8,
+    DTYPE_UINT16,
+    DTYPE_UINT32,
+    DTYPE_UINT64,
+)
+from .tensor_constants import MAX_TENSOR_BYTES, WARN_TENSOR_BYTES
+
+# Print options for AnyTensor.__str__ and __repr__ truncation
+# Can be modified globally to control output behavior (e.g., in test utilities)
+comptime ANYTENSOR_PRINT_THRESHOLD: Int = 1000  # Truncate if numel > threshold
+comptime ANYTENSOR_PRINT_SHOW_ELEMENTS: Int = 3  # Show first/last N elements
+
+
+struct AnyTensor(
+    Copyable,
+    Hashable,
+    ImplicitlyCopyable,
+    Movable,
+    Sized,
+    TensorLike,
+    Writable,
+):
+    """Dynamic tensor with runtime-determined shape and data type.
+
+        AnyTensor provides a flexible tensor implementation for machine learning workloads,
+        supporting arbitrary dimensions (0D scalars to N-D tensors), multiple data types,
+        and NumPy-style broadcasting for all operations.
+
+        Memory Safety: Implements reference counting for safe shared ownership.
+        Copying a tensor increments the reference count, allowing views and copies
+        to safely share data. Memory is freed only when the last reference is destroyed.
+
+        Attributes:
+            _data: UnsafePointer to raw byte storage (type-erased).
+            _shape: List storing the shape dimensions.
+            _strides: List storing the stride for each dimension (in elements).
+            _dtype: The data type of tensor elements.
+            _numel: Total number of elements in the tensor.
+            _is_view: Whether this tensor is a view (shares data with another tensor).
+            _refcount: Shared reference count for memory management.
+            _original_numel_quantized: For quantized tensors, stores original size before padding (-1 if not quantized).
+
+    Examples:
+            # Create tensors
+            var a = zeros([3, 4], DType.float32)
+            var b = ones([3, 4], DType.float32)
+
+            # Access properties
+            print(a.shape())  # [3, 4]
+            print(a.dtype())  # float32
+            print(a.numel())  # 12.
+    """
+
+    var _data: UnsafePointer[UInt8, origin=MutAnyOrigin]
+    """Raw byte storage for tensor elements. For a slice view this is offset
+    into the parent's buffer, so it must NOT be passed to `free()`."""
+    var _base_data: UnsafePointer[UInt8, origin=MutAnyOrigin]
+    """The original allocation pointer returned by `pooled_alloc`. Always the
+    address to free at refcount 0, regardless of `_is_view`. For owners this
+    equals `_data`; for views it points at the parent's base allocation."""
+    var _shape: List[Int]
+    """List of dimension sizes."""
+    var _strides: List[Int]
+    """Row-major strides for each dimension."""
+    var _dtype: DType
+    """Data type of tensor elements."""
+    var _numel: Int
+    """Total number of elements."""
+    var _is_view: Bool
+    """Whether this tensor shares data with another."""
+    var _refcount: UnsafePointer[Int, origin=MutAnyOrigin]
+    """Reference count for shared memory management."""
+    var _original_numel_quantized: Int
+    """Original element count before quantization padding."""
+    var _allocated_size: Int
+    """Actual allocated size (may differ from requested due to pool bucketing)."""
+
+    def __init__(out self, shape: List[Int], dtype: DType) raises:
+        """Initialize a new AnyTensor with given shape and dtype.
+
+        Args:
+            shape: The shape of the tensor as a vector of dimension sizes.
+            dtype: The data type of tensor elements.
+
+        Raises:
+            Error: If tensor size exceeds MAX_TENSOR_BYTES (2 GB).
+
+        Note:
+            This is a low-level constructor. Users should prefer creation
+            functions like zeros(), ones(), full(), etc.
+
+            Allocating tensors larger than WARN_TENSOR_BYTES (500 MB) will
+            print a console warning. This is informational only and does not
+            raise an error.
+        """
+        # Copy shape to avoid mutation issues
+        self._shape = List[Int]()
+        for i in range(len(shape)):
+            self._shape.append(shape[i])
+
+        self._dtype = dtype
+        self._is_view = False
+        self._original_numel_quantized = (
+            -1
+        )  # Initialize as non-quantized (fixes DATA-001)
+
+        # Calculate total number of elements
+        self._numel = 1
+        for i in range(len(self._shape)):
+            self._numel *= self._shape[i]
+
+        # Calculate row-major strides (in elements, not bytes)
+        self._strides = List[Int]()
+        var stride = 1
+        # Pre-allocate strides list with correct forward iteration
+        for _ in range(len(self._shape)):
+            self._strides.append(0)
+        # Now fill strides in backward order
+        for i in range(len(self._shape) - 1, -1, -1):
+            self._strides[i] = stride
+            stride *= self._shape[i]
+
+        # Validate memory requirements + allocate.
+        var dtype_size = AnyTensor._get_dtype_size_static(dtype)
+        var total_bytes = self._numel * dtype_size
+
+        if total_bytes > WARN_TENSOR_BYTES:
+            print("Warning: Large tensor allocation:", total_bytes, "bytes")
+
+        var (data, refcount, allocated_size) = AnyTensor._alloc_storage(
+            total_bytes
+        )
+        self._data = data
+        self._refcount = refcount
+        self._allocated_size = allocated_size
+        self._base_data = self._data
+
+    def __init__(out self, value: IntLiteral) raises:
+        """Create a scalar AnyTensor from an integer literal.
+
+        Enables implicit conversion from integer literals to AnyTensor.
+        Creates a 0D (scalar) tensor with Int64 dtype.
+
+        Args:
+            value: Integer literal to convert.
+
+        Raises:
+            Error: If tensor allocation fails.
+
+        Example:
+            ```mojo
+            var x: AnyTensor = 42  # Implicit conversion from IntLiteral
+        ```
+        ```
+        """
+        # Initialize scalar tensor (0D shape)
+        self._shape = List[Int]()
+        self._strides = List[Int]()
+        self._dtype = DType.int64
+        self._numel = 1
+        self._is_view = False
+        self._original_numel_quantized = -1
+        var dtype_size = AnyTensor._get_dtype_size_static(DType.int64)
+        var (data, refcount, allocated_size) = AnyTensor._alloc_storage(
+            dtype_size
+        )
+        self._data = data
+        self._refcount = refcount
+        self._allocated_size = allocated_size
+        self._base_data = self._data
+        self._set_int64(0, Int64(value))
+
+    def __init__(out self, value: FloatLiteral) raises:
+        """Create a scalar AnyTensor from a float literal.
+
+        Enables implicit conversion from float literals to AnyTensor.
+        Creates a 0D (scalar) tensor with Float64 dtype.
+
+        Args:
+            value: Float literal to convert.
+
+        Raises:
+            Error: If tensor allocation fails.
+
+        Example:
+            ```mojo
+            var x: AnyTensor = 3.14  # Implicit conversion from FloatLiteral
+        ```
+        ```
+        """
+        # Initialize scalar tensor (0D shape)
+        self._shape = List[Int]()
+        self._strides = List[Int]()
+        self._dtype = DType.float64
+        self._numel = 1
+        self._is_view = False
+        self._original_numel_quantized = -1
+        var dtype_size = AnyTensor._get_dtype_size_static(DType.float64)
+        var (data, refcount, allocated_size) = AnyTensor._alloc_storage(
+            dtype_size
+        )
+        self._data = data
+        self._refcount = refcount
+        self._allocated_size = allocated_size
+        self._base_data = self._data
+        self._set_float64(0, Float64(value))
+
+    def __init__(out self, value: Int) raises:
+        """Create a scalar AnyTensor from an Int.
+
+        Enables implicit conversion from Int to AnyTensor.
+        Creates a 0D (scalar) tensor with Int64 dtype.
+
+        Args:
+            value: Int value to convert.
+
+        Raises:
+            Error: If tensor allocation fails.
+        """
+        # Initialize scalar tensor (0D shape)
+        self._shape = List[Int]()
+        self._strides = List[Int]()
+        self._dtype = DType.int64
+        self._numel = 1
+        self._is_view = False
+        self._original_numel_quantized = -1
+        var dtype_size = AnyTensor._get_dtype_size_static(DType.int64)
+        var (data, refcount, allocated_size) = AnyTensor._alloc_storage(
+            dtype_size
+        )
+        self._data = data
+        self._refcount = refcount
+        self._allocated_size = allocated_size
+        self._base_data = self._data
+        self._set_int64(0, Int64(value))
+
+    def __init__(out self, value: Float64) raises:
+        """Create a scalar AnyTensor from a Float64.
+
+        Enables implicit conversion from Float64 to AnyTensor.
+        Creates a 0D (scalar) tensor with Float64 dtype.
+
+        Args:
+            value: Float64 value to convert.
+
+        Raises:
+            Error: If tensor allocation fails.
+
+        Example:
+            ```mojo
+            var x: AnyTensor = Float64(3.14)
+        ```
+        """
+        # Initialize scalar tensor (0D shape)
+        self._shape = List[Int]()
+        self._strides = List[Int]()
+        self._dtype = DType.float64
+        self._numel = 1
+        self._is_view = False
+        self._original_numel_quantized = -1
+        var dtype_size = AnyTensor._get_dtype_size_static(DType.float64)
+        var (data, refcount, allocated_size) = AnyTensor._alloc_storage(
+            dtype_size
+        )
+        self._data = data
+        self._refcount = refcount
+        self._allocated_size = allocated_size
+        self._base_data = self._data
+        self._set_float64(0, value)
+
+    def __init__(out self, var data: List[Float32]) raises:
+        """Create 1D tensor from List[Float32].
+
+        Args:
+            data: List of Float32 values.
+
+        Raises:
+            Error: If tensor size exceeds MAX_TENSOR_BYTES or allocation fails.
+
+        Example:
+            ```mojo
+            var values : List[Float32] = [1.0, 2.0, 3.0]
+            var tensor = AnyTensor(values)
+        ```
+        ```
+        """
+        # Initialize fields manually (delegating constructor doesn't satisfy compiler)
+        self._shape = List[Int]()
+        self._shape.append(len(data))
+        self._strides = List[Int]()
+        self._strides.append(1)
+        self._dtype = DType.float32
+        self._numel = len(data)
+        self._is_view = False
+        self._original_numel_quantized = -1
+        var dtype_size = AnyTensor._get_dtype_size_static(DType.float32)
+        var total_bytes = self._numel * dtype_size
+        var (data_ptr, refcount, allocated_size) = AnyTensor._alloc_storage(
+            total_bytes
+        )
+        self._data = data_ptr
+        self._refcount = refcount
+        self._allocated_size = allocated_size
+        self._base_data = self._data
+        for i in range(len(data)):
+            self._set_float32(i, data[i])
+
+    def __init__(out self, var data: List[Int]) raises:
+        """Create 1D tensor from List[Int].
+
+        Args:
+            data: List of Int values.
+
+        Raises:
+            Error: If tensor size exceeds MAX_TENSOR_BYTES or allocation fails.
+
+        Example:
+            ```mojo
+            var values : List[Int] = [1, 2, 3]
+            var tensor = AnyTensor(values)
+        ```
+        ```
+        """
+        # Initialize fields manually (delegating constructor doesn't satisfy compiler)
+        self._shape = List[Int]()
+        self._shape.append(len(data))
+        self._strides = List[Int]()
+        self._strides.append(1)
+        self._dtype = DType.int64
+        self._numel = len(data)
+        self._is_view = False
+        self._original_numel_quantized = -1
+        var dtype_size = AnyTensor._get_dtype_size_static(DType.int64)
+        var total_bytes = self._numel * dtype_size
+        var (data_ptr, refcount, allocated_size) = AnyTensor._alloc_storage(
+            total_bytes
+        )
+        self._data = data_ptr
+        self._refcount = refcount
+        self._allocated_size = allocated_size
+        self._base_data = self._data
+        for i in range(len(data)):
+            self._set_float64(i, Float64(data[i]))
+
+    def __init__(
+        out self,
+        *,
+        shared_data: UnsafePointer[UInt8, origin=MutAnyOrigin],
+        base_data: UnsafePointer[UInt8, origin=MutAnyOrigin],
+        shape: List[Int],
+        strides: List[Int],
+        dtype: DType,
+        numel: Int,
+        is_view: Bool,
+        refcount: UnsafePointer[Int, origin=MutAnyOrigin],
+        original_numel_quantized: Int,
+        allocated_size: Int,
+    ):
+        """Internal constructor for zero-copy conversion (NOT public API).
+
+        Creates an AnyTensor sharing ownership of an existing byte buffer via a
+        shared refcount pointer — no allocation or copy occurs. Increments the
+        shared refcount to establish shared ownership (B4 critical — prevents a
+        dangling pointer from ASAP destruction of the source). The buffer is
+        freed exactly once, when the last reference (source or this AnyTensor)
+        is destroyed.
+
+        This mirrors `Tensor.__init__`'s internal raw-field constructor and is
+        the target of `Tensor.as_any()`'s zero-copy conversion (#5566),
+        replacing the previous allocate-then-free + field-surgery approach.
+
+        Args:
+            shared_data: Byte-level pointer to the existing element storage.
+                For non-offset buffers this equals `base_data`.
+            base_data: The original `pooled_alloc` pointer to free at refcount 0.
+            shape: Shape dimensions (copied into a fresh List).
+            strides: Row-major strides in elements (copied into a fresh List).
+            dtype: The element data type.
+            numel: Total number of elements.
+            is_view: Whether this tensor shares data with another.
+            refcount: Shared refcount pointer (same pointer, not a copy).
+            original_numel_quantized: Original element count before quantization.
+            allocated_size: Allocated size in bytes.
+        """
+        self._data = shared_data
+        self._base_data = base_data
+        self._shape = List[Int]()
+        for i in range(len(shape)):
+            self._shape.append(shape[i])
+        self._strides = List[Int]()
+        for i in range(len(strides)):
+            self._strides.append(strides[i])
+        self._dtype = dtype
+        self._numel = numel
+        self._is_view = is_view
+        self._refcount = refcount
+        self._refcount[] += 1  # CRITICAL: shared ownership (B4)
+        self._original_numel_quantized = original_numel_quantized
+        self._allocated_size = allocated_size
+
+    def __init__(out self, *, copy: Self):
+        """Copy constructor - creates a shared-ownership copy with reference counting.
+
+        Copies all fields and increments the reference count to track shared ownership.
+        This prevents double-free and enables safe view semantics.
+        """
+        self._data = copy._data
+        self._base_data = copy._base_data
+        self._shape = copy._shape.copy()
+        self._strides = copy._strides.copy()
+        self._dtype = copy._dtype
+        self._numel = copy._numel
+        self._is_view = copy._is_view
+        self._refcount = copy._refcount
+        self._original_numel_quantized = copy._original_numel_quantized
+        self._allocated_size = copy._allocated_size
+        # Increment reference count (shared ownership).
+        # _refcount is always allocated by every initializing constructor;
+        # the previous null-check was a defensive holdover from pre-1.0 when
+        # UnsafePointer was nullable by default.
+        self._refcount[] += 1
+
+    def __init__(out self, *, deinit take: Self):
+        """Move constructor - transfers ownership without refcount change."""
+        self._data = take._data
+        self._base_data = take._base_data
+        self._shape = take._shape^
+        self._strides = take._strides^
+        self._dtype = take._dtype
+        self._numel = take._numel
+        self._is_view = take._is_view
+        self._refcount = take._refcount
+        self._original_numel_quantized = take._original_numel_quantized
+        self._allocated_size = take._allocated_size
+
+    def __del__(deinit self):
+        """Destructor - decrements ref count, frees if last reference.
+
+        Uses reference counting to safely manage shared ownership.
+        Only frees memory when the last reference is destroyed.
+
+        """
+        # All copies (views or not) participate in refcount management.
+        # _refcount is always allocated by every initializing constructor.
+        self._refcount[] -= 1
+        # If last reference, free everything.
+        if self._refcount[] == 0:
+            # Free the original allocation via `_base_data`, NOT `_data`.
+            # `_data` may be offset into the buffer for a slice view, so it is
+            # not a valid `free()` argument. `_base_data` always holds the
+            # pointer returned by `pooled_alloc`. Freeing here is unconditional:
+            # whichever reference is last (owner OR view) must release the
+            # shared allocation — a view can outlive the owner that created it.
+            pooled_free(self._base_data, self._allocated_size)
+            self._refcount.free()
+
+    def copy(self) -> Self:
+        """Create a shared-ownership copy with reference counting.
+
+        Creates a new reference to the same underlying data.
+        Increments the reference count to track shared ownership.
+        This prevents double-free and enables safe view semantics.
+        """
+        from std.memory import alloc as mem_alloc
+
+        var ptr = mem_alloc[AnyTensor](1)
+        ptr[0]._data = self._data
+        ptr[0]._base_data = self._base_data
+        ptr[0]._shape = self._shape.copy()
+        ptr[0]._strides = self._strides.copy()
+        ptr[0]._dtype = self._dtype
+        ptr[0]._numel = self._numel
+        ptr[0]._is_view = self._is_view
+        ptr[0]._refcount = self._refcount
+        ptr[0]._original_numel_quantized = self._original_numel_quantized
+        ptr[0]._allocated_size = self._allocated_size
+        # Increment reference count (shared ownership).
+        self._refcount[] += 1
+        var result = ptr.take_pointee()
+        ptr.free()
+        return result
+
+    def _get_dtype_size(self) -> Int:
+        """Get size in bytes for the tensor's dtype."""
+        return AnyTensor._get_dtype_size_static(self._dtype)
+
+    @staticmethod
+    def _get_dtype_size_static(dtype: DType) -> Int:
+        """Get size in bytes for a given dtype (static version for use in __init__).
+        """
+        if dtype == DType.float16:
+            return 2
+        elif dtype == DType.bfloat16:
+            return 2
+        elif dtype == DType.float32:
+            return 4
+        elif dtype == DType.float64:
+            return 8
+        elif dtype == DType.int8 or dtype == DType.uint8 or dtype == DType.bool:
+            return 1
+        elif dtype == DType.int16 or dtype == DType.uint16:
+            return 2
+        elif dtype == DType.int32 or dtype == DType.uint32:
+            return 4
+        elif dtype == DType.int64 or dtype == DType.uint64:
+            return 8
+        else:
+            return 4  # Default fallback
+
+    @staticmethod
+    def _alloc_storage(
+        total_bytes: Int,
+    ) raises -> Tuple[
+        UnsafePointer[UInt8, origin=MutAnyOrigin],
+        UnsafePointer[Int, origin=MutAnyOrigin],
+        Int,
+    ]:
+        """Allocate raw byte storage + refcount cell for an AnyTensor.
+
+        Centralizes the `pooled_alloc` + `alloc[Int](1)` + `refcount[] = 1`
+        pattern shared by every initializing constructor. Also enforces the
+        MAX_TENSOR_BYTES guard so no constructor can skip it.
+
+        Args:
+            total_bytes: Bytes to allocate (numel * dtype_size).
+
+        Returns:
+            A tuple of (data pointer, refcount pointer, allocated_size).
+
+        Raises:
+            Error: If `total_bytes` exceeds MAX_TENSOR_BYTES.
+        """
+        if total_bytes > MAX_TENSOR_BYTES:
+            raise Error(
+                "Tensor too large: "
+                + String(total_bytes)
+                + " bytes exceeds maximum "
+                + String(MAX_TENSOR_BYTES)
+                + " bytes"
+            )
+        var data = pooled_alloc(total_bytes)
+        var refcount = alloc[Int](1)
+        refcount[] = 1
+        return (data, refcount, total_bytes)
+
+    def shape(self) -> List[Int]:
+        """Return the shape of the tensor.
+
+        Returns:
+            A copy of the shape vector.
+
+        Examples:
+            ```var t = zeros([3, 4], DType.float32)
+            print(t.shape())  # List[3, 4]```
+        """
+        # Return a copy to avoid mutation issues
+        var result = List[Int]()
+        for i in range(len(self._shape)):
+            result.append(self._shape[i])
+        return result^
+
+    def dtype(self) -> DType:
+        """Return the data type of the tensor.
+
+        Returns:
+            The DType of tensor elements.
+        """
+        return self._dtype
+
+    def get_dtype(self) -> DType:
+        """Return the element data type (TensorLike conformance).
+
+        Returns:
+            The DType of tensor elements.
+        """
+        return self._dtype
+
+    def numel(self) -> Int:
+        """Return the total number of elements in the tensor.
+
+        Returns:
+            The product of all dimension sizes.
+
+        Examples:
+            `var t = AnyTensor.zeros((3, 4), DType.float32)
+            print(t.numel())  # 12`
+        """
+        return self._numel
+
+    def num_elements(self) -> Int:
+        """Return the total number of elements in the tensor.
+
+        This is an comptime for numel() for API compatibility.
+
+        Returns:
+            The product of all dimension sizes.
+
+        Examples:
+            `var t = zeros([3, 4], DType.float32)
+            print(t.num_elements())  # 12`
+        """
+        return self._numel
+
+    def dim(self) -> Int:
+        """Return the number of dimensions (rank) of the tensor.
+
+        Returns:
+            The number of dimensions.
+
+        Examples:```
+            var t = AnyTensor.zeros((3, 4), DType.float32)
+            print(t.dim())  # 2
+            ```
+        """
+        return len(self._shape)
+
+    def ndim(self) -> Int:
+        """Return the number of dimensions (rank).
+
+        Alias for `dim()`, provided for future TensorLike trait conformance.
+
+        Returns:
+            The number of dimensions.
+        """
+        return len(self._shape)
+
+    def is_contiguous(self) -> Bool:
+        """Check if the tensor has a contiguous memory layout.
+
+        Returns:
+            True if the tensor is contiguous (row-major, no gaps), False otherwise.
+
+        Note:
+            Contiguous tensors enable SIMD optimizations and efficient operations.
+        """
+        # Check if strides match row-major layout
+        var expected_stride = 1
+        for i in range(len(self._shape) - 1, -1, -1):
+            if self._strides[i] != expected_stride:
+                return False
+            expected_stride *= self._shape[i]
+        return True
+
+    def reshape(self, new_shape: List[Int]) raises -> AnyTensor:
+        """Reshape tensor to new shape (must have same total elements).
+
+        Returns a zero-copy view (shallow pointer copy) sharing data with the
+        original tensor. The result has `is_view() == True` and `is_contiguous() == True`
+        (because reshape only changes the shape/stride metadata, not the flat layout).
+        Uses reference counting to ensure data remains valid while any view is alive.
+
+        Note: This mirrors the view semantics of `slice()` — no data is copied.
+        Compare with operations that return independent copies (e.g. `as_contiguous()`).
+
+        Args:
+            new_shape: The new shape for the tensor.
+
+        Returns:
+            A zero-copy view with the requested shape, sharing the same flat data buffer.
+
+        Raises:
+            Error: If the total number of elements doesn't match.
+
+        Example:
+        ```mojo
+            var t = zeros([2, 3], DType.float32)
+            var reshaped = t.reshape([6])  # (2, 3) -> (6,), zero-copy view
+        ```
+        """
+        from .tensor_views import reshape_impl
+
+        return reshape_impl(self, new_shape)
+
+    def slice(self, start: Int, end: Int, axis: Int = 0) raises -> AnyTensor:
+        """Extract a slice along the specified axis, returning a view into the original data.
+
+        Creates a shallow copy of the tensor struct whose `_data` pointer is offset
+        into the original buffer. No data bytes are copied. The returned tensor has
+        `_is_view = True`, and modifying its elements will affect the original tensor.
+
+        Args:
+            start: Starting index (inclusive).
+            end: Ending index (exclusive).
+            axis: Axis to slice along (default: 0, the batch dimension).
+
+        Returns:
+            A new AnyTensor whose `_data` pointer references the same underlying memory
+            as the original, offset to `start` along `axis`. The `_is_view` flag is
+            set to True. This is a zero-copy view: no data bytes are allocated or copied.
+            Modifying elements of the returned tensor will affect the original.
+
+        Raises:
+            Error: If indices are out of bounds or axis is invalid.
+
+        Notes:
+            This is the recommended method for memory-efficient batch extraction in
+            training loops. Unlike `__getitem__(Slice)` and `__getitem__(*slices)`,
+            which both return independent copies (`_is_view = False`), this method
+            returns a genuine view that shares memory with the original tensor.
+
+        Example:
+        ```mojo
+        # Extract batch 0-32 from (112800, 1, 28, 28)
+        var batch = dataset.slice(0, 32, axis=0)  # Returns (32, 1, 28, 28)
+        ```
+        """
+        from .tensor_views import slice_impl
+
+        return slice_impl(self, start, end, axis)
+
+    def transpose(self, dim0: Int, dim1: Int) raises -> AnyTensor:
+        """Return a non-contiguous view with dim0 and dim1 swapped.
+
+        Creates a stride-based view sharing the same underlying data — no
+        copying occurs. For any non-trivial swap (dim0 != dim1) the result
+        satisfies is_contiguous() == False.
+
+        Note: `transpose()` is the primary API for dimension swapping and returns a
+        true stride-based view (shape and strides permuted, data pointer shared).
+        Compare with `transpose_view()` in `src/odyssey/core/matrix.mojo`, which copies
+        raw bytes and sets permuted strides — useful for testing `is_contiguous()` and
+        `as_contiguous()` but not recommended for production use. See also #4082.
+
+        Args:
+            dim0: First dimension to swap.
+            dim1: Second dimension to swap.
+
+        Returns:
+            A new AnyTensor view with permuted shape and strides.
+
+        Raises:
+            Error: If tensor has fewer than 2 dimensions or dims are out of
+                bounds.
+
+        Example:
+            ```mojo
+            var shape = List[Int]()
+            shape.append(3)
+            shape.append(4)
+            var a = ones(shape, DType.float32)
+            var b = a.transpose(0, 1)  # shape (4, 3), non-contiguous view
+            ```
+        """
+        from .tensor_views import transpose_impl
+
+        return transpose_impl(self, dim0, dim1)
+
+    def __getitem__(self, index: Int) raises -> Float32:
+        """Get element at flat index.
+
+        For contiguous tensors, the flat index maps directly to a memory offset.
+        For non-contiguous tensors (e.g., after transpose or axis>0 slice), the
+        flat index is first converted to multi-dimensional coordinates using the
+        tensor's shape, then mapped to a memory offset using strides.
+
+        Args:
+            index: The flat index to access (logical element index in
+                row-major order of the tensor's shape).
+
+        Returns:
+            The value at the given index as Float32.
+
+        Raises:
+            Error: If index is out of bounds.
+
+        Example:
+            ```mojo
+            var t = arange(0.0, 10.0, 1.0, DType.float32)
+            var val = t[5]  # Get element at index 5
+        ```
+        """
+        from .tensor_indexing import _getitem_int_impl
+
+        return _getitem_int_impl(self, index)
+
+    def _resolve_index(self, index: Int) raises -> Int:
+        """Resolve flat index to memory offset, with bounds check.
+
+        For non-contiguous tensors, converts flat index to memory offset
+        via nd-coordinates and strides.
+
+        Args:
+            index: Flat logical index.
+
+        Returns:
+            Memory offset for the element.
+
+        Raises:
+            Error: If index is out of bounds.
+        """
+        from .tensor_indexing import _resolve_index_impl
+
+        return _resolve_index_impl(self, index)
+
+    def __setitem__(mut self, index: Int, value: Float64) raises:
+        """Set element at flat index.
+
+        Note: Mojo does not dispatch `obj[i] = val` to __setitem__ — it
+        treats `obj[i]` as an lvalue via __getitem__ (returns Float32).
+        Use `tensor.set(i, val)` for type-safe assignment from any numeric
+        type.
+
+        Args:
+            index: The flat index to set.
+            value: The value to store.
+
+        Raises:
+            Error: If index is out of bounds.
+        """
+        var idx = self._resolve_index(index)
+        if (
+            self._dtype == DType.float16
+            or self._dtype == DType.float32
+            or self._dtype == DType.float64
+            or self._dtype == DType.bfloat16
+        ):
+            self._set_float64(idx, value)
+        else:
+            self._set_int64(idx, Int64(value))
+
+    def __setitem__(mut self, index: Int, value: Int64) raises:
+        """Set element at flat index using an integer value."""
+        var idx = self._resolve_index(index)
+        self._set_int64(idx, value)
+
+    def __setitem__(mut self, index: Int, value: Float32) raises:
+        """Set element at flat index using a Float32 value."""
+        var idx = self._resolve_index(index)
+        self._set_float32(idx, value)
+
+    # ===----------------------------------------------------------------------===#
+    # set() — type-safe element assignment
+    #
+    # TODO(#5565): Remove these set() overloads once Tensor[dtype] with proper
+    # typed __setitem__ is used everywhere. Currently still needed because
+    # AnyTensor is used in metrics, normalization, dropout, attention, and
+    # other modules.
+    #
+    # Mojo does NOT dispatch `obj[i] = val` to __setitem__; it treats
+    # `obj[i]` as an lvalue via __getitem__ (returns Float32), so
+    # assigning Float64/Float16/Int64/etc. fails with a type error.
+    # Use `tensor.set(i, val)` instead of `tensor[i] = val` when the
+    # RHS is not Float32.
+    #
+    # Each overload calls the appropriate internal setter directly to
+    # avoid precision-losing type round-trips (e.g. Float32→Float64→Float32).
+    # ===----------------------------------------------------------------------===#
+
+    @always_inline
+    def set(mut self, index: Int, value: Float64) raises:
+        """Set element at flat index from a Float64 value."""
+        var idx = self._resolve_index(index)
+        self._set_float64(idx, value)
+
+    @always_inline
+    def set(mut self, index: Int, value: Float32) raises:
+        """Set element at flat index from a Float32 value."""
+        var idx = self._resolve_index(index)
+        self._set_float32(idx, value)
+
+    @always_inline
+    def set(mut self, index: Int, value: Float16) raises:
+        """Set element at flat index from a Float16 value."""
+        var idx = self._resolve_index(index)
+        self._set_float32(idx, Float32(value))
+
+    @always_inline
+    def set(mut self, index: Int, value: Int) raises:
+        """Set element at flat index from an Int value."""
+        var idx = self._resolve_index(index)
+        self._set_int64(idx, Int64(value))
+
+    @always_inline
+    def set(mut self, index: Int, value: Int64) raises:
+        """Set element at flat index from an Int64 value."""
+        var idx = self._resolve_index(index)
+        self._set_int64(idx, value)
+
+    @always_inline
+    def set(mut self, index: Int, value: Int32) raises:
+        """Set element at flat index from an Int32 value."""
+        var idx = self._resolve_index(index)
+        self._set_int64(idx, Int64(Int(value)))
+
+    @always_inline
+    def set(mut self, index: Int, value: Int16) raises:
+        """Set element at flat index from an Int16 value."""
+        var idx = self._resolve_index(index)
+        self._set_int64(idx, Int64(Int(value)))
+
+    @always_inline
+    def set(mut self, index: Int, value: Int8) raises:
+        """Set element at flat index from an Int8 value."""
+        var idx = self._resolve_index(index)
+        self._set_int64(idx, Int64(Int(value)))
+
+    @always_inline
+    def set(mut self, index: Int, value: UInt8) raises:
+        """Set element at flat index from a UInt8 value."""
+        var idx = self._resolve_index(index)
+        self._set_int64(idx, Int64(Int(value)))
+
+    @always_inline
+    def set(mut self, index: Int, value: UInt16) raises:
+        """Set element at flat index from a UInt16 value.
+
+        For float16 tensors, writes the raw bit pattern (bitcast), preserving
+        NaN payloads and special bit patterns. For integer tensors, numeric cast.
+        """
+        var idx = self._resolve_index(index)
+        if self._dtype == DType.float16:
+            var dtype_size = self._get_dtype_size()
+            var offset = idx * dtype_size
+            var ptr = (self._data + offset).bitcast[UInt16]()
+            ptr[] = value
+        else:
+            self._set_int64(idx, Int64(Int(value)))
+
+    @always_inline
+    def set(mut self, index: Int, value: UInt32) raises:
+        """Set element at flat index from a UInt32 value.
+
+        For float32 tensors, writes the raw bit pattern (bitcast), preserving
+        NaN payloads and special bit patterns. For integer tensors, numeric cast.
+        """
+        var idx = self._resolve_index(index)
+        if self._dtype == DType.float32:
+            var dtype_size = self._get_dtype_size()
+            var offset = idx * dtype_size
+            var ptr = (self._data + offset).bitcast[UInt32]()
+            ptr[] = value
+        else:
+            self._set_int64(idx, Int64(Int(value)))
+
+    @always_inline
+    def set(mut self, index: Int, value: UInt64) raises:
+        """Set element at flat index from a UInt64 value.
+
+        For float64 tensors, writes the raw bit pattern (bitcast), preserving
+        NaN payloads and special bit patterns. For integer tensors, numeric cast.
+        """
+        var idx = self._resolve_index(index)
+        if self._dtype == DType.float64:
+            var dtype_size = self._get_dtype_size()
+            var offset = idx * dtype_size
+            var ptr = (self._data + offset).bitcast[UInt64]()
+            ptr[] = value
+        else:
+            self._set_int64(idx, Int64(Int(value)))
+
+    def __getitem__(self, indices: List[Int]) raises -> Float32:
+        """Get element at multi-dimensional index.
+
+        Args:
+            indices: Per-dimension indices (one per axis).
+
+        Returns:
+            The value at the given indices as Float32.
+
+        Raises:
+            Error: If number of indices doesn't match tensor rank,
+                   or any index is out of bounds.
+
+        Example:
+            ```mojo
+            var t = ones([3, 4], DType.float32)
+            var val = t[[1, 2]]  # Get element at row 1, col 2
+            ```
+        """
+        from .tensor_indexing import _getitem_multi_impl
+
+        return _getitem_multi_impl(self, indices)
+
+    def __setitem__(mut self, indices: List[Int], value: Float64) raises:
+        """Set element at multi-dimensional index.
+
+        Args:
+            indices: Per-dimension indices (one per axis).
+            value: The value to set (cast to tensor dtype).
+
+        Raises:
+            Error: If number of indices doesn't match tensor rank,
+                   or any index is out of bounds.
+
+        Example:
+            ```mojo
+            var t = zeros([3, 4], DType.float32)
+            t[[1, 2]] = 5.0  # Set element at row 1, col 2
+            ```
+        """
+        if len(indices) != len(self._shape):
+            raise Error(
+                "Number of indices ("
+                + String(len(indices))
+                + ") must match tensor rank ("
+                + String(len(self._shape))
+                + ")"
+            )
+        var mem_offset = 0
+        for i in range(len(indices)):
+            if indices[i] < 0 or indices[i] >= self._shape[i]:
+                raise Error("Index out of bounds at dimension " + String(i))
+            mem_offset += indices[i] * self._strides[i]
+        # Use _set_float64/_set_int64 directly with the stride-computed memory
+        # offset to avoid double-conversion in __setitem__(Int) for non-contiguous tensors.
+        if (
+            self._dtype == DType.float16
+            or self._dtype == DType.float32
+            or self._dtype == DType.float64
+            or self._dtype == DType.bfloat16
+        ):
+            self._set_float64(mem_offset, value)
+        else:
+            self._set_int64(mem_offset, Int64(value))
+
+    def __setitem__(mut self, indices: List[Int], value: Float32) raises:
+        """Set element at multi-dimensional index using Float32 value.
+
+        Args:
+            indices: Per-dimension indices (one per axis).
+            value: The Float32 value to set (converted to Float64 internally).
+
+        Raises:
+            Error: If number of indices doesn't match tensor rank,
+                   or any index is out of bounds.
+
+        Example:
+            ```mojo
+            var t = zeros([3, 4], DType.float32)
+            t[[1, 2]] = Float32(5.0)  # Set element at row 1, col 2
+            ```
+        """
+        self.__setitem__(indices, Float64(value))
+
+    def _normalize_slice_indices(
+        self, start: Int, end: Int, step: Int, size: Int
+    ) -> Tuple[Int, Int, Int, Int]:
+        """Normalize slice indices to valid ranges.
+
+        Handles negative indices, clamping, and returns normalized
+        (start, end, step, result_size) for valid iteration.
+
+        Args:
+            start: Start index (may be negative).
+            end: End index (may be negative).
+            step: Step value (can be negative for reverse).
+            size: Size of the dimension being sliced.
+
+        Returns:
+            Tuple of (normalized_start, normalized_end, normalized_step, result_size).
+            result_size is the number of elements in the slice result.
+        """
+        from .tensor_indexing import normalize_slice_indices_impl
+
+        return normalize_slice_indices_impl(size, start, end, step)
+
+    def __getitem__(self, slice: Slice) raises -> Self:
+        """Get slice of 1D tensor [start:end] or [start:end:step].
+
+        Args:
+            slice: Slice object specifying start, end, and optional step.
+
+        Returns:
+            New tensor containing a **copy** of the sliced data. The result
+            does not share memory with the original tensor.
+
+        Raises:
+            Error: If tensor is not 1D or indices are invalid.
+
+        Notes:
+            This method always returns a copy (`_is_view = False`), regardless
+            of the step value. This is by design: materializing a strided copy
+            keeps the implementation simple and avoids lifetime management
+            complexity. For memory-efficient batch extraction over the first
+            axis, use `slice()` instead, which returns a true view.
+
+        Example:
+            ```mojo
+            var t = arange(0.0, 10.0, 1.0, DType.float32)
+            var sliced = t[2:7]  # Copy of [2, 3, 4, 5, 6]
+            var strided = t[0:10:2]  # Copy of [0, 2, 4, 6, 8]
+            var reversed = t[::-1]  # Copy of [9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
+        ```
+        """
+        from .tensor_indexing import _getitem_slice_impl
+
+        return _getitem_slice_impl(self, slice)
+
+    # Inlined per #5182: variadic *Slice overload
+    def __getitem__(self, *slices: Slice) raises -> Self:
+        """Get multi-dimensional slice (e.g., tensor[a:b, c:d, :]).
+
+        Args:
+            slices: Variable number of Slice objects, one per dimension.
+
+        Returns:
+            New tensor containing a **copy** of the sliced data. The result
+            does not share memory with the original tensor.
+
+        Raises:
+            Error: If number of slices doesn't match tensor dimensions.
+
+        Notes:
+            This method returns a copy (`_is_view = False`), consistent with
+            the 1D `__getitem__(Slice)` overload. Multi-dimensional slicing
+            produces non-contiguous data in general (e.g., `t[1:4, 1:3]` on
+            a 5x4 tensor), so a simple pointer offset is insufficient. Each
+            output element is copied individually using per-dimension offsets
+            and original strides.
+
+        Example:
+            ```mojo
+            var t = zeros([10, 8, 6], DType.float32)
+            var sliced = t[2:7, :, 1:4]  # Copy with shape [5, 8, 3]
+        ```
+        """
+        var num_slices = len(slices)
+        var num_dims = len(self._shape)
+
+        if num_slices != num_dims:
+            raise Error(
+                "Number of slices ("
+                + String(num_slices)
+                + ") must match number of dimensions ("
+                + String(num_dims)
+                + ")"
+            )
+
+        # Compute per-dimension starts, steps, and result shape
+        var starts = List[Int]()
+        var steps = List[Int]()
+        var result_shape = List[Int]()
+        for dim in range(num_dims):
+            var s = slices[dim]
+            var size = self._shape[dim]
+
+            var step = s.step.or_else(1)
+            if step == 0:
+                raise Error(
+                    "Slice step cannot be zero for dimension " + String(dim)
+                )
+
+            var start: Int
+            var end: Int
+            if step < 0:
+                start = s.start.or_else(size - 1)
+                end = s.end.or_else(-size - 1)
+            else:
+                start = s.start.or_else(0)
+                end = s.end.or_else(size)
+
+            var normalized = self._normalize_slice_indices(
+                start, end, step, size
+            )
+            starts.append(normalized[0])
+            steps.append(normalized[2])
+            result_shape.append(normalized[3])
+
+        # Allocate result tensor (independent copy, not a view)
+        var result = Self(result_shape, self._dtype)
+        result._is_view = False
+
+        var result_numel = result._numel
+        if result_numel == 0:
+            return result^
+
+        # Fast-path: detect when only dim-0 is non-trivially sliced
+        # and all remaining dimensions use full slices
+        var can_use_memcpy = (
+            num_dims > 0
+            and self._strides[0] == self._shape[1] if num_dims > 1 else True
+        )
+        if can_use_memcpy:
+            # Check that all dims >= 1 use full slices
+            for dim in range(1, num_dims):
+                var s = slices[dim]
+                var size = self._shape[dim]
+                var step = s.step.or_else(1)
+                if step != 1:
+                    can_use_memcpy = False
+                    break
+                var start = s.start.or_else(0)
+                var end = s.end.or_else(size)
+                if start < 0:
+                    start = size + start
+                if end < 0:
+                    end = size + end
+                start = max(0, min(start, size))
+                end = max(0, min(end, size))
+                var sl_step = s.step.or_else(1)
+                if start != 0 or end != size or sl_step != 1:
+                    can_use_memcpy = False
+                    break
+
+        if can_use_memcpy and result_numel > 0:
+            # Fast-path: use memcpy for contiguous first-axis slice
+            var dtype_size = self._get_dtype_size()
+            var src_ptr = self._data
+            var dst_ptr = result._data
+
+            # Calculate stride (elements per dim-0 slice)
+            var stride_numel = result_numel // result_shape[0]
+
+            # Copy each row contiguously
+            var src_offset = starts[0] * stride_numel * dtype_size
+            for i in range(result_shape[0]):
+                var src_addr = (
+                    src_ptr
+                    + src_offset
+                    + i * steps[0] * stride_numel * dtype_size
+                )
+                var dst_addr = dst_ptr + i * stride_numel * dtype_size
+                # memcpy semantics: copy stride_numel elements
+                for b in range(stride_numel * dtype_size):
+                    dst_addr[b] = src_addr[b]
+        else:
+            # Slow-path: copy each element individually (stride-aware)
+            var dtype_size = self._get_dtype_size()
+            var src_ptr = self._data
+            var dst_ptr = result._data
+
+            for out_flat in range(result_numel):
+                # Decompose out_flat into per-dimension indices, then map to source
+                var src_flat = 0
+                var remaining = out_flat
+                for dim in range(num_dims):
+                    var out_idx = remaining // result._strides[dim]
+                    remaining = remaining % result._strides[dim]
+                    var src_idx = starts[dim] + out_idx * steps[dim]
+                    src_flat += src_idx * self._strides[dim]
+
+                # Copy element byte-by-byte
+                var src_offset = src_flat * dtype_size
+                var dst_offset = out_flat * dtype_size
+                for b in range(dtype_size):
+                    dst_ptr[dst_offset + b] = src_ptr[src_offset + b]
+
+        return result^
+
+    def _get_float64(self, index: Int) -> Float64:
+        """Internal: Get value at index as Float64 (assumes float-compatible dtype).
+
+        Args:
+            index: The element index to retrieve.
+
+        Returns:
+            The value at the index as Float64.
+        """
+        var dtype_size = self._get_dtype_size()
+        var offset = index * dtype_size
+
+        if self._dtype == DType.float16:
+            var ptr = (self._data + offset).bitcast[Float16]()
+            return ptr[].cast[DType.float64]()
+        elif self._dtype == DType.bfloat16:
+            # BF16 occupies the upper 16 bits of Float32 (same sign + exponent layout).
+            # Read raw UInt16 bits and reconstruct Float32 via bitcast to preserve all
+            # NaN mantissa bits — numeric cast via Float32(BFloat16) may canonicalize NaN.
+            var raw_ptr = (self._data + offset).bitcast[UInt16]()
+            var raw: UInt16 = raw_ptr[]
+            var f32_bits: UInt32 = UInt32(raw) << 16
+            var f32_val = UnsafePointer[UInt32, MutAnyOrigin](
+                to=f32_bits
+            ).bitcast[Float32]()[]
+            return Float64(f32_val)
+        elif self._dtype == DType.float32:
+            var ptr = (self._data + offset).bitcast[Float32]()
+            return ptr[].cast[DType.float64]()
+        elif self._dtype == DType.float64:
+            var ptr = (self._data + offset).bitcast[Float64]()
+            return ptr[]
+        else:
+            # For integer types, cast to float64
+            return Float64(self._get_int64(index))
+
+    def _set_float64(self, index: Int, value: Float64):
+        """Internal: Set value at index (assumes float-compatible dtype).
+
+        Args:
+            index: The element index to set.
+            value: The value to set (as Float64).
+        """
+        var dtype_size = self._get_dtype_size()
+        var offset = index * dtype_size
+
+        if self._dtype == DType.float16:
+            var ptr = (self._data + offset).bitcast[Float16]()
+            ptr[] = value.cast[DType.float16]()
+        elif self._dtype == DType.bfloat16:
+            var ptr = (self._data + offset).bitcast[BFloat16]()
+            ptr[] = BFloat16(Float32(value))
+        elif self._dtype == DType.float32:
+            var ptr = (self._data + offset).bitcast[Float32]()
+            ptr[] = value.cast[DType.float32]()
+        elif self._dtype == DType.float64:
+            var ptr = (self._data + offset).bitcast[Float64]()
+            ptr[] = value
+        else:
+            # For integer types, truncate Float64 to Int64 and delegate
+            self._set_int64(index, Int64(value))
+
+    def _get_float32(self, index: Int) -> Float32:
+        """Internal: Get value at index as Float32 (assumes float-compatible dtype).
+
+        Args:
+            index: Flat index to retrieve value from.
+
+        Returns:
+            Value at index as Float32.
+
+        Note:
+            For Float64 and integer types, value is cast to Float32.
+            For Float16, value is upcast to Float32.
+        """
+        var dtype_size = self._get_dtype_size()
+        var offset = index * dtype_size
+
+        if self._dtype == DType.float16:
+            var ptr = (self._data + offset).bitcast[Float16]()
+            return ptr[].cast[DType.float32]()
+        elif self._dtype == DType.float32:
+            var ptr = (self._data + offset).bitcast[Float32]()
+            return ptr[]
+        elif self._dtype == DType.float64:
+            var ptr = (self._data + offset).bitcast[Float64]()
+            return ptr[].cast[DType.float32]()
+        elif self._dtype == DType.bfloat16:
+            var ptr = (self._data + offset).bitcast[BFloat16]()
+            return ptr[].cast[DType.float32]()
+        else:
+            # For integer types, cast to float32
+            return Float32(self._get_int64(index))
+
+    def _set_float32(self, index: Int, value: Float32):
+        """Internal: Set value at index as Float32 (assumes float-compatible dtype).
+
+        Args:
+            index: Flat index to set value at.
+            value: Float32 value to store.
+
+        Note:
+            For Float16, value is downcast with potential precision loss.
+            For Float64, value is upcast to Float64.
+            For integer types, value is truncated to integer.
+        """
+        var dtype_size = self._get_dtype_size()
+        var offset = index * dtype_size
+
+        if self._dtype == DType.float16:
+            var ptr = (self._data + offset).bitcast[Float16]()
+            ptr[] = value.cast[DType.float16]()
+        elif self._dtype == DType.float32:
+            var ptr = (self._data + offset).bitcast[Float32]()
+            ptr[] = value
+        elif self._dtype == DType.float64:
+            var ptr = (self._data + offset).bitcast[Float64]()
+            ptr[] = value.cast[DType.float64]()
+        elif self._dtype == DType.bfloat16:
+            var ptr = (self._data + offset).bitcast[BFloat16]()
+            ptr[] = value.cast[DType.bfloat16]()
+        else:
+            # For integer types, truncate Float32 to Int64 and delegate
+            self._set_int64(index, Int64(value))
+
+    def _get_int64(self, index: Int) -> Int64:
+        """Internal: Get value at index as Int64 (assumes integer-compatible dtype).
+
+        Args:
+            index: The element index to retrieve.
+
+        Returns:
+            The value at the index as Int64.
+        """
+        var dtype_size = self._get_dtype_size()
+        var offset = index * dtype_size
+
+        if self._dtype == DType.int8:
+            var ptr = (self._data + offset).bitcast[Int8]()
+            return ptr[].cast[DType.int64]()
+        elif self._dtype == DType.int16:
+            var ptr = (self._data + offset).bitcast[Int16]()
+            return ptr[].cast[DType.int64]()
+        elif self._dtype == DType.int32:
+            var ptr = (self._data + offset).bitcast[Int32]()
+            return ptr[].cast[DType.int64]()
+        elif self._dtype == DType.int64:
+            var ptr = (self._data + offset).bitcast[Int64]()
+            return ptr[]
+        elif self._dtype == DType.uint8:
+            var ptr = (self._data + offset).bitcast[UInt8]()
+            return ptr[].cast[DType.int64]()
+        elif self._dtype == DType.uint16:
+            var ptr = (self._data + offset).bitcast[UInt16]()
+            return ptr[].cast[DType.int64]()
+        elif self._dtype == DType.uint32:
+            var ptr = (self._data + offset).bitcast[UInt32]()
+            return ptr[].cast[DType.int64]()
+        elif self._dtype == DType.uint64:
+            var ptr = (self._data + offset).bitcast[UInt64]()
+            return ptr[].cast[DType.int64]()
+        elif self._dtype == DType.bool:
+            var ptr = (self._data + offset).bitcast[Scalar[DType.bool]]()
+            return Int64(1) if ptr[].__bool__() else Int64(0)
+        else:
+            return 0  # Default fallback
+
+    def _set_int64(self, index: Int, value: Int64):
+        """Internal: Set value at index (assumes integer-compatible dtype).
+
+        Args:
+            index: The element index to set.
+            value: The value to set (as Int64).
+        """
+        var dtype_size = self._get_dtype_size()
+        var offset = index * dtype_size
+
+        if self._dtype == DType.int8:
+            var ptr = (self._data + offset).bitcast[Int8]()
+            ptr[] = value.cast[DType.int8]()
+        elif self._dtype == DType.int16:
+            var ptr = (self._data + offset).bitcast[Int16]()
+            ptr[] = value.cast[DType.int16]()
+        elif self._dtype == DType.int32:
+            var ptr = (self._data + offset).bitcast[Int32]()
+            ptr[] = value.cast[DType.int32]()
+        elif self._dtype == DType.int64:
+            var ptr = (self._data + offset).bitcast[Int64]()
+            ptr[] = value
+        elif self._dtype == DType.uint8:
+            var ptr = (self._data + offset).bitcast[UInt8]()
+            ptr[] = value.cast[DType.uint8]()
+        elif self._dtype == DType.uint16:
+            var ptr = (self._data + offset).bitcast[UInt16]()
+            ptr[] = value.cast[DType.uint16]()
+        elif self._dtype == DType.uint32:
+            var ptr = (self._data + offset).bitcast[UInt32]()
+            ptr[] = value.cast[DType.uint32]()
+        elif self._dtype == DType.uint64:
+            var ptr = (self._data + offset).bitcast[UInt64]()
+            ptr[] = value.cast[DType.uint64]()
+        elif self._dtype == DType.bool:
+            var ptr = (self._data + offset).bitcast[Scalar[DType.bool]]()
+            ptr[] = Scalar[DType.bool](value != 0)
+
+    def _set_int32(self, index: Int, value: Int32):
+        """Internal: Set value at index as Int32 (assumes integer-compatible dtype).
+
+        Args:
+            index: Flat index to set value at.
+            value: Int32 value to store.
+
+        Note:
+            Delegates to _set_int64 after casting to Int64.
+        """
+        self._set_int64(index, value.cast[DType.int64]())
+
+    # ===----------------------------------------------------------------------===#
+    # Parametric Element Access (compile-time dtype, no bounds check)
+    #
+    # These replace raw `_data.bitcast[T]()` patterns throughout the codebase.
+    # Use load[dtype]/store[dtype] for per-element access in inner loops.
+    # Use data_ptr[dtype]() when SIMD load/store or bulk pointer ops are needed.
+    #
+    # Why: Mojo's ASAP destruction can free tensors whose bitcast-derived
+    # pointers are still live (modular/modular#6187). These methods keep
+    # `self` alive for the duration of the access.
+    # ===----------------------------------------------------------------------===#
+
+    @always_inline
+    def load[dtype: DType](self, index: Int) -> Scalar[dtype]:
+        """Load element at flat index as Scalar[dtype]. No bounds check.
+
+        The caller must ensure dtype matches self._dtype and index is in
+        bounds. Direct memory access for inner loops where dtype is known
+        at compile time.
+
+        Parameters:
+            dtype: Compile-time DType matching self._dtype.
+
+        Args:
+            index: Flat element index.
+
+        Returns:
+            Element value as Scalar[dtype].
+        """
+        return self._data.bitcast[Scalar[dtype]]()[index]
+
+    @always_inline
+    def store[dtype: DType](self, index: Int, value: Scalar[dtype]):
+        """Store element at flat index. No bounds check.
+
+        The caller must ensure dtype matches self._dtype and index is in
+        bounds.
+
+        Parameters:
+            dtype: Compile-time DType matching self._dtype.
+
+        Args:
+            index: Flat element index.
+            value: Value to store.
+        """
+        self._data.bitcast[Scalar[dtype]]()[index] = value
+
+    @always_inline
+    def data_ptr[
+        dtype: DType
+    ](self,) -> UnsafePointer[Scalar[dtype], origin=MutAnyOrigin]:
+        """Get typed pointer to underlying data for bulk operations.
+
+        SAFETY: Caller MUST keep the source tensor alive for the duration
+        of pointer use. The returned pointer is invalidated if the tensor
+        is destroyed.
+
+        Parameters:
+            dtype: Compile-time DType matching self._dtype.
+
+        Returns:
+            Typed UnsafePointer to element data.
+        """
+        return self._data.bitcast[Scalar[dtype]]()
+
+    def _fill_zero(mut self):
+        """Internal: Fill tensor with zeros (works for all dtypes)."""
+        var dtype_size = self._get_dtype_size()
+        var total_bytes = self._numel * dtype_size
+        memset_zero(self._data, total_bytes)
+
+    def _fill_value_float(mut self, value: Float64):
+        """Internal: Fill tensor with float value.
+
+        Args:
+            value: The float value to fill with.
+        """
+        for i in range(self._numel):
+            self._set_float64(i, value)
+
+    def _fill_value_int(mut self, value: Int64):
+        """Internal: Fill tensor with integer value.
+
+        Args:
+            value: The integer value to fill with.
+        """
+        for i in range(self._numel):
+            self._set_int64(i, value)
+
+    # ========================================================================
+    # Dunder Methods (Operator Overloading)
+    # ========================================================================
+
+    def __add__(self, other: AnyTensor) raises -> AnyTensor:
+        """Element-wise addition: a + b.
+
+        Args:
+            other: The tensor to add.
+
+        Returns:
+            New tensor with element-wise sum.
+
+        Raises:
+            Error: If tensors have incompatible shapes.
+        """
+        from .tensor_ops import _anytensor_binary_op
+
+        @always_inline
+        def _add[T: DType](x: Scalar[T], y: Scalar[T]) -> Scalar[T]:
+            return x + y
+
+        return _anytensor_binary_op[_add](self, other)
+
+    def __sub__(self, other: AnyTensor) raises -> AnyTensor:
+        """Element-wise subtraction: a - b.
+
+        Args:
+            other: The tensor to subtract.
+
+        Returns:
+            New tensor with element-wise difference.
+
+        Raises:
+            Error: If tensors have incompatible shapes.
+        """
+        from .tensor_ops import _anytensor_binary_op
+
+        @always_inline
+        def _sub[T: DType](x: Scalar[T], y: Scalar[T]) -> Scalar[T]:
+            return x - y
+
+        return _anytensor_binary_op[_sub](self, other)
+
+    def __mul__(self, other: AnyTensor) raises -> AnyTensor:
+        """Element-wise multiplication: a * b.
+
+        Args:
+            other: The tensor to multiply.
+
+        Returns:
+            New tensor with element-wise product.
+
+        Raises:
+            Error: If tensors have incompatible shapes.
+        """
+        from .tensor_ops import _anytensor_binary_op
+
+        @always_inline
+        def _mul[T: DType](x: Scalar[T], y: Scalar[T]) -> Scalar[T]:
+            return x * y
+
+        return _anytensor_binary_op[_mul](self, other)
+
+    def __truediv__(self, other: AnyTensor) raises -> AnyTensor:
+        """Element-wise division: a / b.
+
+        Args:
+            other: The tensor to divide by.
+
+        Returns:
+            New tensor with element-wise quotient.
+
+        Raises:
+            Error: If tensors have incompatible shapes or division by zero.
+
+        """
+        from .tensor_ops import _anytensor_binary_op
+
+        @always_inline
+        def _div[T: DType](x: Scalar[T], y: Scalar[T]) -> Scalar[T]:
+            return x / y
+
+        return _anytensor_binary_op[_div](self, other)
+
+    def __floordiv__(self, other: AnyTensor) raises -> AnyTensor:
+        """Element-wise floor division: a // b.
+
+        Args:
+            other: The tensor to divide by.
+
+        Returns:
+            New tensor with element-wise floor quotient.
+
+        Raises:
+            Error: If tensors have incompatible shapes or division by zero.
+        """
+        from .tensor_ops import _anytensor_binary_op
+
+        @always_inline
+        def _floordiv[T: DType](x: Scalar[T], y: Scalar[T]) -> Scalar[T]:
+            return x // y
+
+        return _anytensor_binary_op[_floordiv](self, other)
+
+    def __mod__(self, other: AnyTensor) raises -> AnyTensor:
+        """Element-wise modulo: a % b.
+
+        Args:
+            other: The tensor to take modulo with.
+
+        Returns:
+            New tensor with element-wise remainder.
+
+        Raises:
+            Error: If tensors have incompatible shapes.
+        """
+        from .tensor_ops import _anytensor_binary_op
+
+        @always_inline
+        def _mod[T: DType](x: Scalar[T], y: Scalar[T]) -> Scalar[T]:
+            return x % y
+
+        return _anytensor_binary_op[_mod](self, other)
+
+    def __pow__(self, other: AnyTensor) raises -> AnyTensor:
+        """Element-wise power: a ** b.
+
+        Args:
+            other: The tensor of exponents.
+
+        Returns:
+            New tensor with element-wise powers.
+
+        Raises:
+            Error: If tensors have incompatible shapes.
+        """
+        from .tensor_ops import _anytensor_binary_op
+
+        @always_inline
+        def _pow[T: DType](x: Scalar[T], y: Scalar[T]) -> Scalar[T]:
+            return x**y
+
+        return _anytensor_binary_op[_pow](self, other)
+
+    def __matmul__(self, other: AnyTensor) raises -> AnyTensor:
+        """Matrix multiplication: a @ b.
+
+        Args:
+            other: The tensor to multiply with.
+
+        Returns:
+            New tensor with matrix product.
+
+        Raises:
+            Error: If tensors have incompatible dimensions for multiplication.
+
+        Note:
+            This operator handles 2D×2D matrix multiplication. For 1D vectors
+            or batched matmul, use odyssey.core.matrix.matmul directly.
+        """
+        from .tensor_ops import _anytensor_matmul
+
+        return _anytensor_matmul(self, other)
+
+    def __eq__(self, other: AnyTensor) raises -> AnyTensor:
+        """Element-wise equality: a == b.
+
+        Note: NaN comparison follows IEEE 754 semantics — NaN is never equal to
+        anything, including itself. That is, `NaN == NaN` returns 0.0 (False) for
+        every element position where either operand is NaN. Use `isnan()` to detect
+        NaN values explicitly rather than relying on equality comparison.
+
+        Args:
+            other: The tensor to compare.
+
+        Returns:
+            New tensor with 1.0 where equal, 0.0 otherwise.
+
+        Raises:
+            Error: If tensors have incompatible shapes.
+        """
+        from .tensor_ops import _anytensor_compare_op
+
+        @always_inline
+        def _eq[T: DType](x: Scalar[T], y: Scalar[T]) -> Bool:
+            return x == y
+
+        return _anytensor_compare_op[_eq](self, other)
+
+    def __ne__(self, other: AnyTensor) raises -> AnyTensor:
+        """Element-wise inequality: a != b.
+
+        Args:
+            other: The tensor to compare.
+
+        Returns:
+            New tensor with 1.0 where not equal, 0.0 otherwise.
+
+        Raises:
+            Error: If tensors have incompatible shapes.
+        """
+        from .tensor_ops import _anytensor_compare_op
+
+        @always_inline
+        def _ne[T: DType](x: Scalar[T], y: Scalar[T]) -> Bool:
+            return x != y
+
+        return _anytensor_compare_op[_ne](self, other)
+
+    def array_equal(
+        self, other: AnyTensor, equal_nan: Bool = True
+    ) raises -> Bool:
+        """Whole-tensor equality returning a single `Bool`.
+
+        Unlike `__eq__`, which is element-wise and returns a tensor of
+        1.0/0.0, this returns one `Bool`: True iff `self` and `other` have
+        the same shape and dtype and every element compares equal.
+
+        With `equal_nan=True` (the default), NaN matches NaN position-wise —
+        mirroring `__hash__`, which canonicalizes NaN so NaN-containing
+        tensors hash equally. This is what makes a NaN-containing tensor
+        usable as a dict/set key: `__hash__` and `array_equal` agree, so
+        lookup succeeds. With `equal_nan=False`, IEEE 754 semantics apply
+        and any NaN makes the tensors unequal (see issue #4061).
+
+        Args:
+            other: The tensor to compare against.
+            equal_nan: If True, NaN equals NaN at the same position.
+
+        Returns:
+            True iff the tensors are equal under the chosen NaN policy.
+        """
+        from .tensor_views import array_equal_impl
+
+        return array_equal_impl(self, other, equal_nan)
+
+    def __lt__(self, other: AnyTensor) raises -> AnyTensor:
+        """Element-wise less than: a < b.
+
+        Args:
+            other: The tensor to compare.
+
+        Returns:
+            New tensor with 1.0 where less than, 0.0 otherwise.
+
+        Raises:
+            Error: If tensors have incompatible shapes.
+        """
+        from .tensor_ops import _anytensor_compare_op
+
+        @always_inline
+        def _lt[T: DType](x: Scalar[T], y: Scalar[T]) -> Bool:
+            return x < y
+
+        return _anytensor_compare_op[_lt](self, other)
+
+    def __le__(self, other: AnyTensor) raises -> AnyTensor:
+        """Element-wise less or equal: a <= b.
+
+        Args:
+            other: The tensor to compare.
+
+        Returns:
+            New tensor with 1.0 where less or equal, 0.0 otherwise.
+
+        Raises:
+            Error: If tensors have incompatible shapes.
+        """
+        from .tensor_ops import _anytensor_compare_op
+
+        @always_inline
+        def _le[T: DType](x: Scalar[T], y: Scalar[T]) -> Bool:
+            return x <= y
+
+        return _anytensor_compare_op[_le](self, other)
+
+    def __gt__(self, other: AnyTensor) raises -> AnyTensor:
+        """Element-wise greater than: a > b.
+
+        Args:
+            other: The tensor to compare.
+
+        Returns:
+            New tensor with 1.0 where greater than, 0.0 otherwise.
+
+        Raises:
+            Error: If tensors have incompatible shapes.
+        """
+        from .tensor_ops import _anytensor_compare_op
+
+        @always_inline
+        def _gt[T: DType](x: Scalar[T], y: Scalar[T]) -> Bool:
+            return x > y
+
+        return _anytensor_compare_op[_gt](self, other)
+
+    def __ge__(self, other: AnyTensor) raises -> AnyTensor:
+        """Element-wise greater or equal: a >= b.
+
+        Args:
+            other: The tensor to compare.
+
+        Returns:
+            New tensor with 1.0 where greater or equal, 0.0 otherwise.
+
+        Raises:
+            Error: If tensors have incompatible shapes.
+        """
+        from .tensor_ops import _anytensor_compare_op
+
+        @always_inline
+        def _ge[T: DType](x: Scalar[T], y: Scalar[T]) -> Bool:
+            return x >= y
+
+        return _anytensor_compare_op[_ge](self, other)
+
+    # ========================================================================
+    # FP8 Conversion Methods
+    # ========================================================================
+
+    def _convert_to_fp8_family[
+        target_fp8_dtype: DType
+    ](self, method_name: String) raises -> AnyTensor:
+        """Shared helper for to_fp8() and to_bf8() (FP8/BF8 SIMD encode family).
+
+        Rejects bfloat16, validates float input, SIMD-encodes each element to
+        target_fp8_dtype, and stores as uint8.
+        """
+        from .tensor_dtype_conv import _convert_to_fp8_family_impl
+
+        return _convert_to_fp8_family_impl[target_fp8_dtype](self, method_name)
+
+    def to_fp8(self) raises -> AnyTensor:
+        """Convert tensor values to FP8 E4M3 format.
+
+        This method converts a tensor of any floating-point dtype to FP8 format,
+        stored as uint8. The conversion uses E4M3 encoding (1 sign bit, 4 exponent
+        bits, 3 mantissa bits) which is optimized for ML workloads.
+
+        Returns:
+            A new AnyTensor with dtype=uint8 containing FP8-encoded values.
+
+        Raises:
+            Error: If the source tensor is bfloat16 (not supported) or a non-floating-point dtype.
+
+        Examples:
+            ```var t = zeros([3, 4], DType.float32)
+            var fp8_t = t.to_fp8()  # Returns uint8 tensor with FP8 encoding
+            var restored = fp8_t.from_fp8()  # Convert back to float32```
+
+        Note:
+            FP8 has limited range (~±240) and precision. Values outside this range
+            are clamped. This is useful for memory-efficient training/inference.
+            FP16 inputs are converted to FP32 before quantization.
+        """
+        from .tensor_dtype_conv import convert_to_fp8_impl
+
+        return convert_to_fp8_impl(self)
+
+    def from_fp8(self) raises -> AnyTensor:
+        """Convert FP8-encoded tensor (uint8) back to Float32.
+
+        This method interprets a uint8 tensor as FP8 E4M3 encoded values and
+        converts them back to Float32 for computation.
+
+        Returns:
+            A new AnyTensor with dtype=float32 containing decoded values.
+
+        Raises:
+            Error: If the source tensor is not uint8 dtype.
+
+        Examples:
+            var fp8_t = ...  # uint8 tensor with FP8 encoding
+            var float_t = fp8_t.from_fp8()  # Decode to float32
+
+        Note:
+            This assumes the uint8 tensor contains valid FP8 E4M3 encoded values.
+            Use this to decode tensors created by to_fp8().
+        """
+        from .tensor_dtype_conv import from_fp8_impl
+
+        return from_fp8_impl(self)
+
+    # ===----------------------------------------------------------------------===#
+    # Integer Type Conversions
+    # ===----------------------------------------------------------------------===#
+
+    def _convert_to_int_dtype[
+        target_dtype: DType
+    ](
+        self,
+        method_name: String,
+        min_val: Int64,
+        max_val: Int64,
+        do_clamp: Bool,
+    ) raises -> AnyTensor:
+        """Shared helper for all 8 to_int*/to_uint* methods (integer-clamp family).
+
+        Handles same-dtype fast-path, full dtype-dispatch read, optional clamp, and
+        _set_int64 store.  target_dtype selects the output element type at compile time.
+        """
+        from .tensor_dtype_conv import _convert_to_int_dtype_impl
+
+        return _convert_to_int_dtype_impl[target_dtype](
+            self, method_name, min_val, max_val, do_clamp
+        )
+
+    def to_int8(self) raises -> AnyTensor:
+        """Convert tensor values to Int8 format.
+
+        Converts a tensor of any dtype to Int8 format, clamping values to the
+        range [-128, 127].
+
+        Returns:
+            A new AnyTensor with dtype=int8 containing converted values.
+
+        Raises:
+            Error: If conversion is not supported for the source dtype.
+
+        Examples:
+            var t = zeros([3, 4], DType.float32)
+            var i8_t = t.to_int8()  # Returns int8 tensor
+
+        Note:
+            FP16 inputs are converted to FP32 before conversion.
+        """
+        from .tensor_dtype_conv import to_int8_impl
+
+        return to_int8_impl(self)
+
+    def to_int16(self) raises -> AnyTensor:
+        """Convert tensor values to Int16 format.
+
+        Converts a tensor of any dtype to Int16 format, clamping values to the
+        range [-32768, 32767].
+
+        Returns:
+            A new AnyTensor with dtype=int16 containing converted values.
+
+        Raises:
+            Error: If conversion fails or bounds check error occurs.
+
+        """
+        from .tensor_dtype_conv import to_int16_impl
+
+        return to_int16_impl(self)
+
+    def to_int32(self) raises -> AnyTensor:
+        """Convert tensor values to Int32 format.
+
+        Converts a tensor of any dtype to Int32 format, clamping values to the
+        range [-2147483648, 2147483647].
+
+        Returns:
+            A new AnyTensor with dtype=int32 containing converted values.
+
+        Raises:
+            Error: If conversion fails or bounds check error occurs.
+
+        """
+        from .tensor_dtype_conv import to_int32_impl
+
+        return to_int32_impl(self)
+
+    def to_int64(self) raises -> AnyTensor:
+        """Convert tensor values to Int64 format.
+
+        Converts a tensor of any dtype to Int64 format.
+
+        Returns:
+            A new AnyTensor with dtype=int64 containing converted values.
+
+        Raises:
+            Error: If conversion fails or bounds check error occurs.
+
+        """
+        from .tensor_dtype_conv import to_int64_impl
+
+        return to_int64_impl(self)
+
+    def to_uint8(self) raises -> AnyTensor:
+        """Convert tensor values to UInt8 format.
+
+        Converts a tensor of any dtype to UInt8 format, clamping values to the
+        range [0, 255].
+
+        Returns:
+            A new AnyTensor with dtype=uint8 containing converted values.
+
+        Raises:
+            Error: If conversion fails or bounds check error occurs.
+
+        """
+        from .tensor_dtype_conv import to_uint8_impl
+
+        return to_uint8_impl(self)
+
+    def to_uint16(self) raises -> AnyTensor:
+        """Convert tensor values to UInt16 format.
+
+        Converts a tensor of any dtype to UInt16 format, clamping values to the
+        range [0, 65535].
+
+        Returns:
+            A new AnyTensor with dtype=uint16 containing converted values.
+
+        Raises:
+            Error: If conversion fails or bounds check error occurs.
+
+        """
+        from .tensor_dtype_conv import to_uint16_impl
+
+        return to_uint16_impl(self)
+
+    def to_uint32(self) raises -> AnyTensor:
+        """Convert tensor values to UInt32 format.
+
+        Converts a tensor of any dtype to UInt32 format, clamping values to the
+        range [0, 4294967295].
+
+        Returns:
+            A new AnyTensor with dtype=uint32 containing converted values.
+
+        Raises:
+            Error: If conversion fails or bounds check error occurs.
+
+        """
+        from .tensor_dtype_conv import to_uint32_impl
+
+        return to_uint32_impl(self)
+
+    def to_uint64(self) raises -> AnyTensor:
+        """Convert tensor values to UInt64 format.
+
+        Converts a tensor of any dtype to UInt64 format, clamping negative values to 0.
+
+        Returns:
+            A new AnyTensor with dtype=uint64 containing converted values.
+
+        Raises:
+            Error: If conversion fails or bounds check error occurs.
+
+        """
+        from .tensor_dtype_conv import to_uint64_impl
+
+        return to_uint64_impl(self)
+
+    # ========================================================================
+    # BF8 Conversion Methods
+    # ========================================================================
+
+    def to_bf8(self) raises -> AnyTensor:
+        """Convert tensor values to BF8 E5M2 format.
+
+        This method converts a tensor of any floating-point dtype to BF8 format,
+        stored as uint8. The conversion uses E5M2 encoding (1 sign bit, 5 exponent
+        bits, 2 mantissa bits) which provides larger range than FP8 E4M3.
+
+        Returns:
+            A new AnyTensor with dtype=uint8 containing BF8-encoded values.
+
+        Raises:
+            Error: If the source tensor is bfloat16 (not supported) or a non-floating-point dtype.
+
+        Examples:
+            var t = zeros([3, 4], DType.float32)
+            var bf8_t = t.to_bf8()  # Returns uint8 tensor with BF8 encoding
+            var restored = bf8_t.from_bf8()  # Convert back to float32
+
+        Note:
+            BF8 has larger range (~±57344) than FP8 but less precision (2 mantissa bits).
+            Values outside this range are clamped. This is useful for memory-efficient
+            training/inference where range is more important than precision.
+            FP16 inputs are converted to FP32 before quantization.
+        """
+        from .tensor_dtype_conv import to_bf8_impl
+
+        return to_bf8_impl(self)
+
+    def from_bf8(self) raises -> AnyTensor:
+        """Convert BF8-encoded tensor (uint8) back to Float32.
+
+        This method interprets a uint8 tensor as BF8 E5M2 encoded values and
+        converts them back to Float32 for computation.
+
+        Returns:
+            A new AnyTensor with dtype=float32 containing decoded values.
+
+        Raises:
+            Error: If the source tensor is not uint8 dtype.
+
+        Examples:
+            var bf8_t = ...  # uint8 tensor with BF8 encoding
+            var float_t = bf8_t.from_bf8()  # Decode to float32
+
+        Note:
+            This assumes the uint8 tensor contains valid BF8 E5M2 encoded values.
+            Use this to decode tensors created by to_bf8().
+        """
+        from .tensor_dtype_conv import from_bf8_impl
+
+        return from_bf8_impl(self)
+
+    # ===----------------------------------------------------------------------===#
+    # FP4 Blocked Type Conversions
+    # ===----------------------------------------------------------------------===#
+
+    def _convert_to_block_quant[
+        is_mxfp4: Bool
+    ](self, fmt_name: String) raises -> AnyTensor:
+        """Shared helper for to_mxfp4() and to_nvfp4() (block-quantized family).
+
+        is_mxfp4=True: 32-elem blocks, 17 bytes each (MXFP4).
+        is_mxfp4=False: 16-elem blocks, 9 bytes each (NVFP4).
+
+        Accepts float16, float32, float64. bfloat16 is rejected up front for
+        consistency with to_fp8()/to_bf8() — its Float32 intermediate does not
+        round-trip correctly here (#5564).
+        """
+        from .tensor_dtype_conv import _convert_to_block_quant_impl
+
+        return _convert_to_block_quant_impl[is_mxfp4](self, fmt_name)
+
+    def to_mxfp4(self) raises -> AnyTensor:
+        """Convert tensor values to MXFP4 blocked format.
+
+        This method converts a float16/float32/float64 tensor to MXFP4 format
+        (bfloat16 is rejected — see Raises),
+        stored as uint8 blocks. Values are packed into 32-element blocks, each with
+        a shared E8M0 scale.
+
+        Returns:
+            A new AnyTensor with dtype=uint8 containing MXFP4-encoded blocks.
+
+        Raises:
+            Error: If the source tensor is bfloat16 (rejected up front, #5564),
+                or is not a float16/float32/float64 dtype.
+
+        Examples:
+            # Aligned size (32 elements = 1 block)
+            var t = zeros([32], DType.float32)
+            var mxfp4_t = t.to_mxfp4()  # Returns uint8 tensor (17 bytes)
+            var restored = mxfp4_t.from_mxfp4()  # Restores 32 elements
+
+            # Non-aligned size (33 elements = 2 blocks with padding)
+            var t2 = zeros([33], DType.float32)
+            var mxfp4_t2 = t2.to_mxfp4()  # Pads to 64 elements, returns 34 bytes
+            var restored2 = mxfp4_t2.from_mxfp4()  # Correctly restores 33 elements!
+
+            # Small tensors (1 element still uses full 32-element block)
+            var scalar = AnyTensor([1], DType.float32)
+            var quantized_scalar = scalar.to_mxfp4()  # Returns 17 bytes (padded to 32)
+
+            # Multi-dimensional tensors (flattened for quantization)
+            var weights = AnyTensor([64, 128], DType.float32)  # 8192 elements
+            var quantized_weights = weights.to_mxfp4()  # 256 blocks × 17 bytes = 4352 bytes
+
+            # ML workflow: quantize model weights for memory efficiency
+            def quantize_model_weights(weights: AnyTensor) raises -> AnyTensor:
+                # Convert FP32 weights to MXFP4 (16:1 compression)
+                return weights.to_mxfp4()
+
+            # ML workflow: quantize gradients during training
+            def quantize_gradients(gradients: AnyTensor) raises -> AnyTensor:
+                # MXFP4 works for both positive and negative values
+                var quantized = gradients.to_mxfp4()
+                # Dequantize before optimizer update
+                return quantized.from_mxfp4()
+
+        Error Handling:
+            - Empty tensors: Raises "requires a floating-point tensor" if dtype is not FP16/FP32/FP64.
+            - NaN values: Automatically clamped to max representable value (no error).
+            - Infinity values: Automatically clamped to max representable value (no error).
+            - Non-aligned sizes: Automatically padded with zeros (no error, transparent).
+            - OOM conditions: Raises allocation error if insufficient memory for blocks.
+
+        Performance:
+            - Compression ratio: 16:1 vs Float32 (17 bytes per 32 values).
+            - Time complexity: O(n) where n is number of elements.
+            - Memory overhead: Temporary padding for non-aligned sizes.
+
+        Note:
+            MXFP4 uses 32-element blocks. Non-aligned tensors are padded with zeros,
+            but original size is preserved in metadata. Round-trip conversion maintains
+            original tensor size.
+            Memory efficiency: 17 bytes per 32 Float32 values (16:1 compression).
+            FP16 inputs are converted to FP32 before quantization.
+        """
+        return self._convert_to_block_quant[True]("to_mxfp4()")
+
+    def from_mxfp4(self) raises -> AnyTensor:
+        """Convert MXFP4-encoded tensor (uint8 blocks) back to Float32.
+
+        This method interprets a uint8 tensor as MXFP4 blocks and converts them
+        back to Float32 for computation.
+
+        Returns:
+            A new AnyTensor with dtype=float32 containing decoded values.
+
+        Raises:
+            Error: If the source tensor is not uint8 dtype or not block-aligned.
+
+        Examples:
+            var mxfp4_t = ...  # uint8 tensor with MXFP4 blocks
+            var float_t = mxfp4_t.from_mxfp4()  # Decode to float32, restores original size
+
+        Note:
+            This assumes the uint8 tensor contains valid MXFP4 blocks.
+            Use this to decode tensors created by to_mxfp4().
+            Original tensor size is restored from metadata if available.
+        """
+        from .tensor_dtype_conv import from_mxfp4_impl
+
+        return from_mxfp4_impl(self)
+
+    def to_nvfp4(self) raises -> AnyTensor:
+        """Convert tensor values to NVFP4 blocked format.
+
+        This method converts a float16/float32/float64 tensor to NVFP4 format
+        (bfloat16 is rejected — see Raises),
+        stored as uint8 blocks. Values are packed into 16-element blocks, each with
+        a shared E4M3 scale.
+
+        Returns:
+            A new AnyTensor with dtype=uint8 containing NVFP4-encoded blocks.
+
+        Raises:
+            Error: If the source tensor is bfloat16 (rejected up front, #5564),
+                or is not a float16/float32/float64 dtype.
+
+        Examples:
+        ```
+                # Aligned size (16 elements = 1 block)
+                var t = zeros([16], DType.float32)
+                var nvfp4_t = t.to_nvfp4()  # Returns uint8 tensor (9 bytes)
+                var restored = nvfp4_t.from_nvfp4()  # Restores 16 elements
+
+                # Non-aligned size (17 elements = 2 blocks with padding)
+                var t2 = zeros([17], DType.float32)
+                var nvfp4_t2 = t2.to_nvfp4()  # Pads to 32 elements, returns 18 bytes
+                var restored2 = nvfp4_t2.from_nvfp4()  # Correctly restores 17 elements!
+
+                # Small tensors (1 element still uses full 16-element block)
+                var scalar = AnyTensor([1], DType.float32)
+                var quantized_scalar = scalar.to_nvfp4()  # Returns 9 bytes (padded to 16)
+
+                # Multi-dimensional tensors (flattened for quantization)
+                var activations = AnyTensor([128, 256], DType.float32)  # 32768 elements
+                var quantized_activations = activations.to_nvfp4()  # 2048 blocks × 9 bytes = 18432 bytes
+
+                # ML workflow: quantize activations with better accuracy than MXFP4
+                def quantize_activations(activations: AnyTensor) raises -> AnyTensor:
+                    # NVFP4 provides better accuracy (smaller blocks = better scale granularity)
+                    return activations.to_nvfp4()
+
+                # ML workflow: quantize gradients with E4M3 scale (recommended by paper)
+                def quantize_gradients_nvfp4(gradients: AnyTensor) raises -> AnyTensor:
+                    # E4M3 achieves best results according to Dettmers et al. 2023
+                    var quantized = gradients.to_nvfp4()
+                    return quantized.from_nvfp4()
+
+                # Compare accuracy: NVFP4 vs MXFP4
+                def compare_quantization_accuracy(data: AnyTensor) raises:
+                    var mxfp4_quantized = data.to_mxfp4().from_mxfp4()
+                    var nvfp4_quantized = data.to_nvfp4().from_nvfp4()
+                    # NVFP4 typically has lower error due to smaller blocks (16 vs 32)
+        ```
+
+            Error Handling:
+                - Empty tensors: Raises "requires a floating-point tensor" if dtype is not FP16/FP32/FP64.
+                - NaN values: Automatically clamped to max representable value (no error).
+                - Infinity values: Automatically clamped to max representable value (no error).
+                - Non-aligned sizes: Automatically padded with zeros (no error, transparent).
+                - OOM conditions: Raises allocation error if insufficient memory for blocks.
+
+            Performance:
+                - Compression ratio: 14:1 vs Float32 (9 bytes per 16 values).
+                - Time complexity: O(n) where n is number of elements.
+                - Memory overhead: Temporary padding for non-aligned sizes.
+                - Accuracy: Better than MXFP4 due to smaller blocks (per Dettmers et al.).
+
+            Note:
+                NVFP4 uses 16-element blocks for better accuracy. Non-aligned tensors are
+                padded with zeros, but original size is preserved in metadata.
+                Memory efficiency: 9 bytes per 16 Float32 values (14:1 compression).
+                FP16 inputs are converted to FP32 before quantization.
+        """
+        return self._convert_to_block_quant[False]("to_nvfp4()")
+
+    def from_nvfp4(self) raises -> AnyTensor:
+        """Convert NVFP4-encoded tensor (uint8 blocks) back to Float32.
+
+        This method interprets a uint8 tensor as NVFP4 blocks and converts them
+        back to Float32 for computation.
+
+        Returns:
+            A new AnyTensor with dtype=float32 containing decoded values.
+
+        Raises:
+            Error: If the source tensor is not uint8 dtype or not block-aligned.
+
+        Examples:
+        ```
+                var nvfp4_t = ...  # uint8 tensor with NVFP4 blocks
+                var float_t = nvfp4_t.from_nvfp4()  # Decode to float32, restores original size
+        ```
+
+            Note:
+                This assumes the uint8 tensor contains valid NVFP4 blocks.
+                Use this to decode tensors created by to_nvfp4().
+                Original tensor size is restored from metadata if available.
+        """
+        from .tensor_dtype_conv import from_nvfp4_impl
+
+        return from_nvfp4_impl(self)
+
+    # Reflected operators - enable reversed operand order (e.g., 2 + tensor)
+    # These are called when the left operand doesn't support the operation
+    def __radd__(self, other: AnyTensor) raises -> AnyTensor:
+        """Reflected addition: `other + self` (commutative, so same as __add__).
+
+        Raises:
+            Error: If tensors have incompatible shapes.
+
+        """
+        return self.__add__(other)
+
+    def __rsub__(self, other: AnyTensor) raises -> AnyTensor:
+        """Reflected subtraction: `other - self` (order matters: returns other - self).
+
+        Raises:
+            Error: If tensors have incompatible shapes.
+
+        """
+        return other - self
+
+    def __rmul__(self, other: AnyTensor) raises -> AnyTensor:
+        """Reflected multiplication: other * self (commutative, so same as __mul__).
+
+        Raises:
+            Error: If tensors have incompatible shapes.
+
+        """
+        return self.__mul__(other)
+
+    def __rtruediv__(self, other: AnyTensor) raises -> AnyTensor:
+        """Reflected division: other / self (order matters: returns other / self).
+
+        Raises:
+            Error: If tensors have incompatible shapes or division by zero.
+
+        """
+        return other / self
+
+    # In-place operators - mutate self instead of creating new tensor
+    def __iadd__(mut self, other: AnyTensor) raises:
+        """In-place addition: `self += other`.
+
+        Raises:
+            Error: If tensors have incompatible shapes or dtypes.
+
+        """
+        self = self + other
+
+    def __isub__(mut self, other: AnyTensor) raises:
+        """In-place subtraction: `self -= other`.
+
+        Raises:
+            Error: If tensors have incompatible shapes or dtypes.
+
+        """
+        self = self - other
+
+    def __imul__(mut self, other: AnyTensor) raises:
+        """In-place multiplication: `self *= other`.
+
+        Raises:
+            Error: If tensors have incompatible shapes or dtypes.
+
+        """
+        self = self * other
+
+    def __itruediv__(mut self, other: AnyTensor) raises:
+        """In-place division: `self /= other`.
+
+        Raises:
+            Error: If tensors have incompatible shapes or dtypes, or division by zero.
+
+        """
+        self = self / other
+
+    # Unary operators - operate on single tensor
+    def __neg__(self) raises -> AnyTensor:
+        """Negation: `-self`.
+
+        Raises:
+            Error: If tensor allocation fails.
+
+        """
+        from .tensor_ops import _anytensor_unary_op
+
+        @always_inline
+        def _neg[T: DType](x: Scalar[T]) -> Scalar[T]:
+            return -x
+
+        return _anytensor_unary_op[_neg](self)
+
+    def __pos__(self) raises -> AnyTensor:
+        """Positive: +self (returns a copy).
+
+        Raises:
+            Error: If tensor allocation fails.
+
+        """
+        # Return a copy of the tensor using Mojo's copy semantics
+        var copy = self
+        return copy^
+
+    def __abs__(self) raises -> AnyTensor:
+        """Absolute value: abs(self).
+
+        Raises:
+            Error: If operation fails.
+
+        """
+        from .tensor_ops import _anytensor_unary_op
+
+        @always_inline
+        def _abs[T: DType](x: Scalar[T]) -> Scalar[T]:
+            if x < Scalar[T](0):
+                return -x
+            return x
+
+        return _anytensor_unary_op[_abs](self)
+
+    def __len__(self) -> Int:
+        """Return the size of the first dimension.
+
+        This follows NumPy/PyTorch convention where len() returns the
+        size of the first dimension (axis 0).
+
+        Returns:
+            The size of the first dimension, or 0 if the tensor is 0-dimensional.
+
+        Example:
+            ```mojo
+            var x = ones([5, 3], DType.float32)
+            var length = len(x)  # Returns 5
+            ```
+        """
+        if len(self._shape) == 0:
+            return 0
+        return self._shape[0]
+
+    def __bool__(self) raises -> Bool:
+        """Return the boolean value of a single-element tensor.
+
+        Follows PyTorch/NumPy convention: a single-element tensor can be
+        used in boolean context. Returns True if the value is non-zero.
+
+        Returns:
+            True if the single element is non-zero, False otherwise.
+
+        Raises:
+            Error: If tensor has more than one element.
+
+        Example:
+            ```mojo
+            var x = full([], 5.0, DType.float32)
+            if x:  # True
+                print("non-zero")
+            ```
+        """
+        return self.item() != 0.0
+
+    def __int__(self) raises -> Int:
+        """Convert single-element tensor to Int.
+
+        Returns:
+            The scalar value as Int.
+
+        Raises:
+            Error: If tensor has more than one element.
+
+        Example:
+            ```mojo
+            var x = full([], 7.0, DType.float32)
+            var i = Int(x)  # Returns 7
+            ```
+        """
+        return Int(self.item())
+
+    def __float__(self) raises -> Float64:
+        """Convert single-element tensor to Float64.
+
+        Returns:
+            The scalar value as Float64.
+
+        Raises:
+            Error: If tensor has more than one element.
+
+        Example:
+            ```mojo
+            var x = full([], 3.14, DType.float32)
+            var f = Float64(x)  # Returns 3.14
+            ```
+        """
+        return self.item()
+
+    def write_to[W: Writer](self, mut writer: W):
+        """Write the string representation to a Writer (required for Writable trait).
+
+        Primary implementation of string formatting. __str__() delegates to
+        this method via String.write(self).
+
+        Parameters:
+            W: The writer type conforming to the Writer trait.
+
+        Args:
+            writer: The writer to write the string representation to.
+        """
+        from .tensor_printing import write_to_str_impl
+
+        writer.write(write_to_str_impl(self))
+
+    def __str__(self) -> String:
+        """Human-readable string representation with NumPy-style truncation.
+
+        For tensors with more than 1000 elements, shows only the first 3 and
+        last 3 elements with '...' in between to prevent performance issues.
+
+        Formats values by dtype:
+        - Float types: display as decimals (1.0, 2.5, etc.)
+        - Integer types: display without decimals (1, 42, -100, etc.)
+        - Bool type: display as True/False
+
+        For multi-dimensional tensors (2D+), includes shape info and nested brackets.
+
+        Returns:
+            1D: AnyTensor([v0, v1, ...], dtype=<dtype>)
+            2D+: AnyTensor([[v0, v1, ...], ...], shape=[d0, d1, ...], dtype=<dtype>)
+
+        Example:
+            ```mojo
+            var x = arange(1000, DType.float32)
+            print(x)  # AnyTensor([0.0, 1.0, 2.0, ..., 997.0, 998.0, 999.0], dtype=float32)
+            var y = full([2, 3], Float64(42), DType.int32)
+            print(y)  # AnyTensor([[42, 42, 42], [42, 42, 42]], shape=[2, 3], dtype=int32)
+            ```
+        """
+        return String.write(self)
+
+    def _format_element(self, flat_idx: Int) -> String:
+        """Format a single element based on dtype.
+
+        Handles unsigned integers natively to avoid sign corruption when
+        values exceed Int64 range (e.g., uint64 values > 2^63).
+
+        Args:
+            flat_idx: The flat index in the buffer.
+
+        Returns:
+            String representation of the element.
+        """
+        from .tensor_printing import format_element_impl
+
+        return format_element_impl(self, flat_idx)
+
+    def _format_nd_slice(self, dim: Int, base_offset: Int) -> String:
+        """Format a slice of the N-dimensional tensor with nested brackets.
+
+        Design: uses offset-based recursion instead of threading a mutable counter
+        through calls. Each call computes its flat indices as base_offset + i * stride,
+        making the function pure — its behavior is determined entirely by its arguments,
+        not hidden mutable state. This mirrors the row-major index formula directly:
+        element [i,j,k] lives at flat index i*(J*K) + j*K + k.
+
+        Args:
+            dim: Current dimension level (0 = outermost).
+            base_offset: Flat index offset for the start of this slice.
+
+        Returns:
+            String with nested brackets representing the N-D structure.
+        """
+        from .tensor_printing import format_nd_slice_impl
+
+        return format_nd_slice_impl(self, dim, base_offset)
+
+    def __repr__(self) -> String:
+        """Detailed representation for debugging.
+
+        Returns:
+            String in the format: AnyTensor(shape=[...], dtype=<dtype>, numel=N, data=[...]).
+            For large tensors: AnyTensor(shape=[...], dtype=<dtype>, numel=N, data=[v0, v1, v2, ..., vN-2, vN-1, vN]).
+        """
+        from .tensor_printing import write_repr_impl
+
+        return write_repr_impl(self)
+
+    def write_repr_to[W: Writer](self, mut writer: W):
+        """Write the repr representation to a Writer (required for Writable trait).
+
+        This method is called when using `repr(tensor)` to get the detailed
+        debugging representation. It delegates to `__repr__()` for the actual
+        formatting logic.
+
+        Parameters:
+            W: The writer type conforming to the Writer trait.
+
+        Args:
+            writer: The writer to write the repr representation to.
+        """
+        var s = self.__repr__()
+        writer.write(s)
+
+    def __hash__[H: Hasher](self, mut hasher: H):
+        """Compute hash based on shape, dtype, and data.
+
+        AnyTensor implements the `Hashable` trait, allowing tensors to be used as
+        dictionary keys or in hash-based data structures. Two tensors with identical
+        shape, dtype, and element values will produce the same hash.
+
+        Parameters:
+            H: The hasher type conforming to the Hasher trait.
+
+        Args:
+            hasher: The hasher to write values into.
+
+        Note:
+            The hash is computed from the tensor's shape dimensions, dtype ordinal,
+            and element values. All NaN values are canonicalized before hashing,
+            so tensors differing only in NaN bit patterns hash equally.
+
+        Example:
+            ```mojo
+            from hashlib import hash
+            var x = ones([3], DType.float32)
+            var h = hash(x)
+
+            # Tensors with identical shape, dtype, and values hash equally
+            var y = ones([3], DType.float32)
+            assert hash(x) == hash(y)
+
+            # Tensors with different shapes hash differently
+            var z = ones([4], DType.float32)
+            # hash(x) != hash(z)  (with overwhelming probability)
+            ```
+        """
+        # Hash shape
+        for i in range(len(self._shape)):
+            hasher.update(self._shape[i])
+        # Hash dtype ordinal
+        hasher.update(dtype_to_ordinal(self._dtype))
+        # Hash data — canonicalize NaN so all NaN bit patterns hash equally
+        from std.math import isnan
+
+        for i in range(self._numel):
+            var val = self._get_float64(i)
+            if isnan(val):
+                # Canonical NaN: positive quiet NaN (0x7FF8000000000000)
+                hasher.update(UInt64(0x7FF8000000000000))
+            else:
+                var int_bits = UnsafePointer[Float64, MutAnyOrigin](
+                    to=val
+                ).bitcast[UInt64]()[]
+                hasher.update(int_bits)
+
+    def contiguous(self) raises -> AnyTensor:
+        """Return a contiguous version of the tensor.
+
+        If the tensor is already contiguous, returns self without allocating
+        new memory. Otherwise, creates a new contiguous tensor by repacking
+        the data into row-major order.
+
+        Returns:
+            A contiguous AnyTensor with the same shape, dtype, and values.
+
+        Raises:
+            Error: If memory allocation fails.
+
+        Example:
+            ```mojo
+            var x = ones([3, 4], DType.float32)
+            var c = x.contiguous()  # Already contiguous, returns self (no allocation)
+            var t = x.transpose(0, 1)
+            var ct = t.contiguous()  # Non-contiguous, allocates new memory
+            ```
+        """
+        if self.is_contiguous():
+            return self
+        return self.clone()
+
+    def as_tensor[dtype: DType](self) raises -> Tensor[dtype]:
+        """Zero-copy conversion to compile-time typed Tensor[dtype].
+
+        Creates a Tensor[dtype] that shares the same data buffer and refcount.
+        The dtype parameter must match self._dtype at runtime.
+
+        Both files are siblings in src/odyssey/tensor/, so no circular dependency.
+
+        Parameters:
+            dtype: The compile-time DType parameter (must match self._dtype).
+
+        Returns:
+            A Tensor[dtype] sharing the same data and refcount.
+
+        Raises:
+            Error: If dtype doesn't match self._dtype.
+        """
+        if self._dtype != dtype:
+            raise Error(
+                "DType mismatch: tensor has dtype "
+                + String(self._dtype)
+                + " but as_tensor called with "
+                + String(dtype)
+            )
+        # Zero-copy: bitcast data pointer, share refcount
+        return Tensor[dtype](
+            self._data.bitcast[Scalar[dtype]](),
+            self._shape,
+            self._strides,
+            self._refcount,
+            self._numel,
+            self._is_view,
+            self._allocated_size,
+            self._original_numel_quantized,
+        )
+
+    # ============================================================================
+    # Utility Methods
+    # ============================================================================
+
+    def clone(self) raises -> AnyTensor:
+        """Create a clone of the tensor.
+
+        Creates a new tensor with the same shape, dtype, and values but with
+        separate underlying data. Modifications to the clone do not affect
+        the original tensor.
+
+        This method follows PyTorch naming conventions.
+
+        Returns:
+            A new AnyTensor that is a deep copy of self.
+
+        Raises:
+            Error: If memory allocation fails.
+
+        Example:
+            ```mojo
+            var x = zeros([3, 4], DType.float32)
+            var y = x.clone()  # Independent copy
+            ```
+        """
+        from .tensor_views import clone_impl
+
+        return clone_impl(self)
+
+    def item(self) raises -> Float64:
+        """Extract the value from a single-element tensor.
+
+        Returns:
+            The scalar value as Float64.
+
+        Raises:
+            Error: If tensor has more than one element.
+
+        Example:
+            ```mojo
+            var x = full([], 42.0, DType.float32)
+            var val = x.item()  # Returns 42.0
+            ```
+        """
+        if self._numel != 1:
+            raise Error(
+                "item() requires single-element tensor, got "
+                + String(self._numel)
+                + " elements"
+            )
+        return self._get_float64(0)
+
+    def tolist(self) raises -> List[Float64]:
+        """Convert tensor to a flat list of Float64 values.
+
+        Returns:
+            A flat list containing all tensor values.
+
+        Example:
+            ```mojo
+            var x = arange(0.0, 5.0, 1.0, DType.float32)
+            var lst = x.tolist()  # [0.0, 1.0, 2.0, 3.0, 4.0]
+            ```
+        """
+        var result = List[Float64]()
+        for i in range(self._numel):
+            result.append(self._get_float64(i))
+        return result^
+
+    def diff(self, n: Int = 1) raises -> AnyTensor:
+        """Calculate consecutive differences.
+
+        Computes the n-th order discrete difference along the first axis.
+
+        Args:
+            n: Order of differences (default: 1).
+
+        Returns:
+            A new AnyTensor with differences computed.
+
+        Raises:
+            Error: If n <= 0 or n >= tensor size.
+
+        Example:
+            ```mojo
+            var x = arange(0.0, 5.0, 1.0, DType.float32)
+            var d = x.diff()  # [1.0, 1.0, 1.0, 1.0]
+            ```
+        """
+        from .tensor_views import diff_impl
+
+        return diff_impl(self, n)
+
+    def save(self, path: String, name: String = "") raises:
+        """Save tensor to file in hex-encoded binary format.
+
+        Persists tensor with metadata (dtype, shape) and hex-encoded byte data.
+        File format is text-based for portability across platforms.
+
+        Args:
+            path: Output file path.
+            name: Optional tensor name (defaults to empty string).
+
+        Raises:
+            Error: If file write fails or path is invalid.
+
+        Example:
+            ```mojo
+            var weights = zeros([3, 4], DType.float32)
+            weights.save("checkpoint/weights.bin", "conv1_weights")
+            ```
+        """
+        # NOTE: relative import is REQUIRED here. tensor_io.mojo's docstring
+        # explains: an absolute import causes Mojo's package compiler to
+        # compile any_tensor.mojo twice with distinct AnyTensor type
+        # identities, producing
+        #   "cannot implicitly convert 'AnyTensor' value to 'AnyTensor'".
+        # See src/odyssey/tensor/tensor_io.mojo top-of-file comment for details.
+        # (D5: D1's relative→absolute conversion accidentally re-broke this.)
+        from .tensor_io import save_tensor
+
+        save_tensor(self, path, name)
+
+    @staticmethod
+    def load(path: String) raises -> AnyTensor:
+        """Load tensor from file.
+
+        Reads hex-encoded tensor data and metadata, reconstructs
+        AnyTensor with original dtype and shape.
+
+        Args:
+            path: Input file path.
+
+        Returns:
+            Loaded AnyTensor.
+
+        Raises:
+            Error: If file format is invalid or file doesn't exist.
+
+        Example:
+            ```mojo
+            var tensor = AnyTensor.load("checkpoint/weights.bin")
+            ```
+        """
+        # NOTE: relative import REQUIRED — see save() above and the
+        # tensor_io.mojo docstring for the type-doubling rationale.
+        from .tensor_io import load_tensor
+
+        return load_tensor(path)
+
+    def split(self, num_splits: Int, axis: Int = 0) raises -> List[AnyTensor]:
+        """Split tensor into equal-sized parts along an axis.
+
+        Method wrapper for the module-level `split_impl()` function, providing
+        convenient object syntax: `tensor.split(3)` instead of
+        `split_impl(tensor, 3)`.
+
+        Args:
+            num_splits: Number of equal parts to split into.
+            axis: Axis along which to split (default: 0).
+
+        Returns:
+            List of AnyTensor objects, each with same shape except along
+            split axis.
+
+        Raises:
+            Error: If axis is invalid, num_splits <= 0, or tensor size not
+                divisible by num_splits.
+
+        Example:
+        ```mojo
+            var a = arange(0.0, 12.0, 1.0, DType.float32)
+            var parts = a.split(3)  # 3 parts of size 4 each
+        ```
+        """
+        from .tensor_split import split_impl
+
+        return split_impl(self, num_splits, axis)
+
+    def split_with_indices(
+        self, split_indices: List[Int], axis: Int = 0
+    ) raises -> List[AnyTensor]:
+        """Split tensor at specified indices along an axis."""
+        from .tensor_split import split_with_indices_impl
+
+        return split_with_indices_impl(self, split_indices, axis)
+
+    def broadcast_to(self, target_shape: List[Int]) raises -> AnyTensor:
+        """Broadcast tensor to target shape.
+
+        Provides convenient object syntax: `tensor.broadcast_to([4, 3])`.
+        Uses module-level broadcasting utilities (no circular import).
+        """
+        from .tensor_ops import broadcast_to_impl
+
+        return broadcast_to_impl(self, target_shape)

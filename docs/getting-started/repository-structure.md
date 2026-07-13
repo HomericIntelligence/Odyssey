@@ -69,11 +69,11 @@ just build
 just test-mojo
 
 # Specific test group
-just test-group tests/projectodyssey/core "test_*.mojo"
+just test-group tests/odyssey/core "test_*.mojo"
 just test-group tests/papers/lenet5 "test_*.mojo"
 
 # Single test file
-pixi run mojo tests/projectodyssey/core/test_creation_part1.mojo
+pixi run mojo tests/odyssey/core/test_creation_part1.mojo
 ```
 
 **See**: `tests/README.md` for testing guidelines
@@ -84,13 +84,13 @@ pixi run mojo tests/projectodyssey/core/test_creation_part1.mojo
 
 ```bash
 # Run benchmarks
-pixi run mojo src/projectodyssey/benchmarking/run_benchmarks.mojo
+pixi run mojo src/odyssey/benchmarking/run_benchmarks.mojo
 
 # Run with release build for accurate numbers
 just build-release
 ```
 
-**See**: `src/projectodyssey/benchmarking/` for benchmark scripts
+**See**: `src/odyssey/benchmarking/` for benchmark scripts
 
 ## Repository Organization
 
@@ -99,7 +99,7 @@ just build-release
 ```text
 Odyssey/
 ├── papers/          # ML paper implementations
-├── src/projectodyssey/          # Reusable ML components
+├── src/odyssey/          # Reusable ML components
 ├── docs/            # User documentation
 ├── agents/          # AI agent system docs
 ├── tests/           # Test suite
@@ -132,7 +132,7 @@ papers/
 
 **When to Use**: Implementing or studying paper implementations
 
-#### src/projectodyssey/ - Reusable Components
+#### src/odyssey/ - Reusable Components
 
 **What**: Core ML components used across papers
 
@@ -205,7 +205,7 @@ just pre-commit
 just test-mojo
 
 # Run a specific group
-just test-group tests/projectodyssey/core "test_*.mojo"
+just test-group tests/odyssey/core "test_*.mojo"
 ```
 
 ## Common Workflows
@@ -252,14 +252,14 @@ just test-group tests/projectodyssey/core "test_*.mojo"
 1. **Implement**:
 
    ```bash
-   # Add to appropriate location in src/projectodyssey/
-   # e.g., src/projectodyssey/core/layers/attention.mojo
+   # Add to appropriate location in src/odyssey/
+   # e.g., src/odyssey/core/layers/attention.mojo
    ```
 
 1. **Test**:
 
    ```bash
-   # Add tests in tests/projectodyssey/core/layers/
+   # Add tests in tests/odyssey/core/layers/
    just test-mojo
    ```
 
@@ -299,7 +299,7 @@ just test-group tests/projectodyssey/core "test_*.mojo"
 
    ```bash
    just build-release
-   pixi run mojo src/projectodyssey/benchmarking/run_benchmarks.mojo
+   pixi run mojo src/odyssey/benchmarking/run_benchmarks.mojo
    ```
 
 1. **Optimize**:
@@ -312,7 +312,7 @@ just test-group tests/projectodyssey/core "test_*.mojo"
 
    ```bash
    just build-release
-   pixi run mojo src/projectodyssey/benchmarking/run_benchmarks.mojo
+   pixi run mojo src/odyssey/benchmarking/run_benchmarks.mojo
    ```
 
 1. **Document**:
@@ -331,7 +331,7 @@ ML Paper Implementation?
 └─ No → Continue
 
 Reusable ML Component?
-├─ Yes → src/projectodyssey/{core|training|data|utils}/
+├─ Yes → src/odyssey/{core|training|data|utils}/
 └─ No → Continue
 
 User Documentation?
@@ -403,7 +403,7 @@ Architectural Decision?
 
 **Quick Check**:
 
-- ML implementation? → `papers/` or `src/projectodyssey/`
+- ML implementation? → `papers/` or `src/odyssey/`
 - Configuration? → `configs/` (if it exists for your paper)
 - Test? → `tests/`
 
@@ -449,7 +449,7 @@ just build
 just test-mojo
 
 # Run specific test group
-just test-group tests/projectodyssey/core "test_*.mojo"
+just test-group tests/odyssey/core "test_*.mojo"
 
 # Train LeNet-5
 just train
@@ -475,7 +475,7 @@ just pre-commit-all
 | Directory | Quick Description |
 | --- | --- |
 | `papers/` | ML implementations |
-| `src/projectodyssey/` | Reusable components |
+| `src/odyssey/` | Reusable components |
 | `docs/` | User documentation |
 | `tests/` | Test suite |
 | `scripts/` | Automation scripts |
@@ -486,14 +486,14 @@ just pre-commit-all
 
 1. **Setup**: Follow [installation guide](installation.md)
 2. **Verify**: Run `pixi run mojo --version`
-3. **Explore**: Read `src/projectodyssey/README.md` for the shared library
+3. **Explore**: Read `src/odyssey/README.md` for the shared library
 4. **Try**: Run `just test-mojo` to verify everything works
 5. **Ask**: Use GitHub issues for questions
 
 ### For Implementers
 
 1. **Template**: Copy `papers/_template/` to start
-2. **Implement**: Write model in `papers/` using `src/projectodyssey/core/`
+2. **Implement**: Write model in `papers/` using `src/odyssey/core/`
 3. **Test**: Add tests in `tests/papers/` and run `just test-mojo`
 4. **Build**: Run `just build` and `just build-release`
 
@@ -529,7 +529,7 @@ just pre-commit-all
 **Remember**:
 
 - `papers/` - Implementations
-- `src/projectodyssey/` - Reusable components
+- `src/odyssey/` - Reusable components
 - `docs/` - Documentation
 - `tests/` - Test suite
 

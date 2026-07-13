@@ -14,7 +14,7 @@ ML Odyssey uses tape-based (dynamic) automatic differentiation:
 The `Tape` class records operations for gradient computation.
 
 ```mojo
-from projectodyssey.autograd import Tape
+from odyssey.autograd import Tape
 ```
 
 ### Creating a Tape
@@ -64,8 +64,8 @@ var dw = grads.get(w)  # Gradient w.r.t w
 ### Complete Example
 
 ```mojo
-from projectodyssey.autograd import Tape
-from projectodyssey.core import randn
+from odyssey.autograd import Tape
+from odyssey.core import randn
 
 fn train_step():
     # Create input and weights
@@ -97,7 +97,7 @@ fn train_step():
 Disable gradient computation for efficiency.
 
 ```mojo
-from projectodyssey.autograd import no_grad
+from odyssey.autograd import no_grad
 ```
 
 **Context Manager:**
@@ -121,7 +121,7 @@ with no_grad():
 Check if gradients are currently enabled.
 
 ```mojo
-from projectodyssey.autograd import is_grad_enabled
+from odyssey.autograd import is_grad_enabled
 
 if is_grad_enabled():
     print("Gradients are being tracked")
@@ -132,7 +132,7 @@ if is_grad_enabled():
 Programmatically enable/disable gradients.
 
 ```mojo
-from projectodyssey.autograd import set_grad_enabled
+from odyssey.autograd import set_grad_enabled
 
 set_grad_enabled(False)  # Disable
 # ... operations without gradients ...
@@ -228,7 +228,7 @@ The following operations are differentiable:
 Save memory by recomputing forward pass during backward:
 
 ```mojo
-from projectodyssey.autograd import checkpoint
+from odyssey.autograd import checkpoint
 
 fn expensive_forward(x: AnyTensor) -> AnyTensor:
     # Memory-intensive operations
@@ -261,7 +261,7 @@ for tensor_id, grad in grads.items():
 Prevent exploding gradients:
 
 ```mojo
-from projectodyssey.training import clip_grad_norm
+from odyssey.training import clip_grad_norm
 
 # Clip by global norm
 clip_grad_norm(model.parameters(), max_norm=1.0)

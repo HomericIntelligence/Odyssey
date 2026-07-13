@@ -11,7 +11,7 @@
 
 set -e
 
-BASE_DIR="/home/mvillmow/ProjectOdyssey"
+BASE_DIR="/home/mvillmow/Odyssey"
 
 if [ ! -d "$BASE_DIR" ]; then
     echo "Error: $BASE_DIR does not exist"

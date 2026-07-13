@@ -108,7 +108,7 @@ consume(buf^)      # buf is moved; do not touch buf after this line
 ### Reference-count pattern (`AnyTensor`)
 
 When multiple views of the same allocation must coexist, track lifetime with a
-shared counter. See `src/projectodyssey/tensor/any_tensor.mojo` lines 129–487 for the full
+shared counter. See `src/odyssey/tensor/any_tensor.mojo` lines 129–487 for the full
 implementation. Key invariants:
 
 1. Every value-initialising constructor calls `alloc[Int](1)` and sets `_refcount[] = 1`.
@@ -156,7 +156,7 @@ be triggered or masked by incorrect pointer lifetimes. Specifically:
 
 - [`mojo-1.0-migration-recipe.md`](mojo-1.0-migration-recipe.md) — Recipe 3
   (non-null UnsafePointer), Recipe 6 (null constructor removal)
-- `src/projectodyssey/tensor/any_tensor.mojo` — canonical reference-count implementation
+- `src/odyssey/tensor/any_tensor.mojo` — canonical reference-count implementation
 - [`mojo-anti-patterns.md`][anti-patterns] — broader Mojo failure patterns catalogue
 
 [anti-patterns]: https://github.com/HomericIntelligence/Odyssey/blob/main/.claude/shared/mojo-anti-patterns.md

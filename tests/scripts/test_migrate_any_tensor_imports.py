@@ -53,34 +53,31 @@ def test_partition_table_aborts_on_extra_symbol(tmp_path):
     [
         # single-line, mixed
         (
-            "from projectodyssey.tensor.any_tensor import AnyTensor, zeros\n",
-            "from projectodyssey.tensor.any_tensor import AnyTensor\n"
-            "from projectodyssey.tensor.tensor_creation import zeros\n",
+            "from odyssey.tensor.any_tensor import AnyTensor, zeros\n",
+            "from odyssey.tensor.any_tensor import AnyTensor\nfrom odyssey.tensor.tensor_creation import zeros\n",
         ),
         # multi-line paren
         (
-            "from projectodyssey.tensor.any_tensor import (\n    AnyTensor,\n    zeros,\n    ones,\n)\n",
-            "from projectodyssey.tensor.any_tensor import AnyTensor\n"
-            "from projectodyssey.tensor.tensor_creation import zeros, ones\n",
+            "from odyssey.tensor.any_tensor import (\n    AnyTensor,\n    zeros,\n    ones,\n)\n",
+            "from odyssey.tensor.any_tensor import AnyTensor\nfrom odyssey.tensor.tensor_creation import zeros, ones\n",
         ),
         # paren + comment containing parens (the canary R1 raised)
         (
-            "from projectodyssey.tensor.any_tensor import (\n"
+            "from odyssey.tensor.any_tensor import (\n"
             "    zeros,  # zeros_like creates (shape-matching) tensor\n"
             "    ones,\n"
             ")\n",
-            "from projectodyssey.tensor.tensor_creation import zeros, ones\n",
+            "from odyssey.tensor.tensor_creation import zeros, ones\n",
         ),
         # alias preservation
         (
-            "from projectodyssey.tensor.any_tensor import nan_tensor as shared_nan_tensor\n",
-            "from projectodyssey.tensor.tensor_creation import nan_tensor as shared_nan_tensor\n",
+            "from odyssey.tensor.any_tensor import nan_tensor as shared_nan_tensor\n",
+            "from odyssey.tensor.tensor_creation import nan_tensor as shared_nan_tensor\n",
         ),
         # util-only file
         (
-            "from projectodyssey.tensor.any_tensor import zeros, item\n",
-            "from projectodyssey.tensor.tensor_creation import zeros\n"
-            "from projectodyssey.tensor.tensor_utils import item\n",
+            "from odyssey.tensor.any_tensor import zeros, item\n",
+            "from odyssey.tensor.tensor_creation import zeros\nfrom odyssey.tensor.tensor_utils import item\n",
         ),
         # relative form
         (
@@ -89,8 +86,8 @@ def test_partition_table_aborts_on_extra_symbol(tmp_path):
         ),
         # indented import
         (
-            "    from projectodyssey.tensor.any_tensor import zeros\n",
-            "    from projectodyssey.tensor.tensor_creation import zeros\n",
+            "    from odyssey.tensor.any_tensor import zeros\n",
+            "    from odyssey.tensor.tensor_creation import zeros\n",
         ),
     ],
 )
@@ -103,7 +100,7 @@ def test_rewrite_forms(tmp_path, body, expected):
 
 def test_rewrite_idempotent(tmp_path):
     f = tmp_path / "f.mojo"
-    f.write_text("from projectodyssey.tensor.any_tensor import AnyTensor, zeros\n")
+    f.write_text("from odyssey.tensor.any_tensor import AnyTensor, zeros\n")
     assert m._process(f) is True
     first = f.read_text()
     assert m._process(f) is False  # no further change
@@ -116,17 +113,14 @@ def test_rewrite_idempotent(tmp_path):
 def test_preflight_passes_on_unrelated_comments(tmp_path):
     f = tmp_path / "f.mojo"
     f.write_text(
-        "# TODO: drop `from tensor_creation import zeros` legacy line\n"
-        "from projectodyssey.tensor.any_tensor import zeros\n"
+        "# TODO: drop `from tensor_creation import zeros` legacy line\nfrom odyssey.tensor.any_tensor import zeros\n"
     )
     m._preflight_partial_state([f], tmp_path)  # must not raise
 
 
 def test_preflight_aborts_on_real_clash(tmp_path):
     f = tmp_path / "f.mojo"
-    f.write_text(
-        "from projectodyssey.tensor.any_tensor import zeros\nfrom projectodyssey.tensor.tensor_creation import zeros\n"
-    )
+    f.write_text("from odyssey.tensor.any_tensor import zeros\nfrom odyssey.tensor.tensor_creation import zeros\n")
     with pytest.raises(SystemExit, match="partial-migration state"):
         m._preflight_partial_state([f], tmp_path)
 
@@ -136,20 +130,20 @@ def test_preflight_aborts_on_real_clash(tmp_path):
 
 def test_end_to_end_sandbox(tmp_path):
     root = tmp_path / "repo"
-    (root / "src/projectodyssey/tensor").mkdir(parents=True)
+    (root / "src/odyssey/tensor").mkdir(parents=True)
     (root / "examples").mkdir()
     # Minimal any_tensor.mojo with the real partition table.
-    _write_any_tensor_mojo(root / "src/projectodyssey/tensor", sorted(m.CREATION), sorted(m.UTILS)).rename(
-        root / "src/projectodyssey/tensor/any_tensor.mojo"
+    _write_any_tensor_mojo(root / "src/odyssey/tensor", sorted(m.CREATION), sorted(m.UTILS)).rename(
+        root / "src/odyssey/tensor/any_tensor.mojo"
     )
     consumer = root / "examples/c.mojo"
-    consumer.write_text("from projectodyssey.tensor.any_tensor import AnyTensor, zeros, item\n")
+    consumer.write_text("from odyssey.tensor.any_tensor import AnyTensor, zeros, item\n")
     rc = m.main(["--root", str(root)])
     assert rc == 0
     assert consumer.read_text() == (
-        "from projectodyssey.tensor.any_tensor import AnyTensor\n"
-        "from projectodyssey.tensor.tensor_creation import zeros\n"
-        "from projectodyssey.tensor.tensor_utils import item\n"
+        "from odyssey.tensor.any_tensor import AnyTensor\n"
+        "from odyssey.tensor.tensor_creation import zeros\n"
+        "from odyssey.tensor.tensor_utils import item\n"
     )
     # Idempotency.
     rc2 = m.main(["--root", str(root)])

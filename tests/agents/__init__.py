@@ -1,5 +1,5 @@
 """
-Agent testing infrastructure for ProjectOdyssey.
+Agent testing infrastructure for Odyssey.
 
 This package provides validation and testing tools for the 6-level agent hierarchy.
 """

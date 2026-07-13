@@ -12,7 +12,7 @@ All tests use small tensors for fast execution (< 90 seconds total).
 """
 
 
-from tests.projectodyssey.conftest import (
+from tests.odyssey.conftest import (
     assert_almost_equal,
     assert_close_float,
     assert_equal,
@@ -20,13 +20,13 @@ from tests.projectodyssey.conftest import (
     assert_shape,
     assert_true,
 )
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros, ones, full, randn
-from projectodyssey.core.conv import conv2d, conv2d_backward
-from projectodyssey.core.pooling import maxpool2d, global_avgpool2d
-from projectodyssey.core.linear import linear
-from projectodyssey.core.activation import relu
-from projectodyssey.core.initializers import (
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros, ones, full, randn
+from odyssey.core.conv import conv2d, conv2d_backward
+from odyssey.core.pooling import maxpool2d, global_avgpool2d
+from odyssey.core.linear import linear
+from odyssey.core.activation import relu
+from odyssey.core.initializers import (
     kaiming_normal,
     xavier_normal,
     constant,
@@ -903,7 +903,7 @@ def _channel_split_4(
     """Channel-dim (axis=1) split that is the exact inverse of the local
     concatenate_depthwise layout above: per-batch contiguous channel blocks.
 
-    Note: projectodyssey.core.shape.split_with_indices is NOT a value-correct
+    Note: odyssey.core.shape.split_with_indices is NOT a value-correct
     inverse of concatenate_depthwise (it produces correctly-shaped parts but a
     different data layout — verified by execution), so the round-trip is
     checked against a layout-matched split instead.

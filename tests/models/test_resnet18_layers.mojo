@@ -18,7 +18,7 @@ Test Deduplication Strategy:
 """
 
 
-from tests.projectodyssey.conftest import (
+from tests.odyssey.conftest import (
     TestFixtures,
     assert_almost_equal,
     assert_close_float,
@@ -27,12 +27,12 @@ from tests.projectodyssey.conftest import (
     assert_shape,
     assert_true,
 )
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros, ones, full, randn
-from projectodyssey.core.conv import conv2d, conv2d_backward
-from projectodyssey.core.activation import relu, relu_backward
-from projectodyssey.core.normalization import batch_norm2d
-from projectodyssey.core.arithmetic import add
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros, ones, full, randn
+from odyssey.core.conv import conv2d, conv2d_backward
+from odyssey.core.activation import relu, relu_backward
+from odyssey.core.normalization import batch_norm2d
+from odyssey.core.arithmetic import add
 
 
 def create_basic_block(

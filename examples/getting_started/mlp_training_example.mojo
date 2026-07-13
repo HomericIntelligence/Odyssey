@@ -13,9 +13,9 @@ This example trains on synthetic XOR-like data to demonstrate that the training
 pipeline is fully functional.
 """
 
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros, ones, full, ones_like
-from projectodyssey.core import (
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros, ones, full, ones_like
+from odyssey.core import (
     add,
     subtract,
     multiply,
@@ -32,8 +32,8 @@ from projectodyssey.core import (
 )
 
 # Import matrix operations directly to avoid name collision
-from projectodyssey.core.matrix import matmul, matmul_backward
-from projectodyssey.training.optimizers import sgd_step_simple
+from odyssey.core.matrix import matmul, matmul_backward
+from odyssey.training.optimizers import sgd_step_simple
 
 
 def create_synthetic_data() raises -> Tuple[AnyTensor, AnyTensor]:

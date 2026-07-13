@@ -98,10 +98,10 @@ jobs:
           if [ -d "$SUITE_PATH" ]; then
             if [ -f "$SUITE_PATH/run_benchmark.py" ]; then
               echo "Running Python benchmark..."
-              podman compose exec -T projectodyssey-dev bash -c "mkdir -p builds/benchmarks && pixi run python $SUITE_PATH/run_benchmark.py --output builds/benchmarks/$SUITE.json"
+              podman compose exec -T odyssey-dev bash -c "mkdir -p builds/benchmarks && pixi run python $SUITE_PATH/run_benchmark.py --output builds/benchmarks/$SUITE.json"
             elif [ -f "$SUITE_PATH/run_benchmark.mojo" ]; then
               echo "Running Mojo benchmark..."
-              podman compose exec -T projectodyssey-dev bash -c "mkdir -p builds/benchmarks && pixi run mojo -I . $SUITE_PATH/run_benchmark.mojo --output builds/benchmarks/$SUITE.json"
+              podman compose exec -T odyssey-dev bash -c "mkdir -p builds/benchmarks && pixi run mojo -I . $SUITE_PATH/run_benchmark.mojo --output builds/benchmarks/$SUITE.json"
             else
               echo "⚠️  No benchmark runner found in $SUITE_PATH"
               echo "{\"suite\": \"$SUITE\", \"status\": \"not_implemented\"}" > "builds/benchmarks/$SUITE.json"
@@ -236,13 +236,13 @@ jobs:
           mkdir -p builds/benchmarks
 
           # Create output directory inside container
-          podman compose exec -T projectodyssey-dev bash -c "mkdir -p /tmp/benchmark-results"
+          podman compose exec -T odyssey-dev bash -c "mkdir -p /tmp/benchmark-results"
 
-          podman compose exec -T projectodyssey-dev bash -c 'pixi run mojo run -I . benchmarks/bench_simd.mojo' | tee builds/benchmarks/simd-output.txt
+          podman compose exec -T odyssey-dev bash -c 'pixi run mojo run -I . benchmarks/bench_simd.mojo' | tee builds/benchmarks/simd-output.txt
           echo "✅ SIMD benchmarks completed successfully"
 
           # Copy results from container to host
-          CONTAINER_ID=$(podman compose ps -q projectodyssey-dev)
+          CONTAINER_ID=$(podman compose ps -q odyssey-dev)
           if [ -z "$CONTAINER_ID" ]; then
             echo "❌ Failed to get container ID"
             exit 1

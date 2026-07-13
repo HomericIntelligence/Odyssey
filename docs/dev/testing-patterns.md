@@ -212,7 +212,7 @@ fn test_with_dtype(dtype: DType, dtype_name: String) raises:
 ### Using check_gradients Helper
 
 ```mojo
-from projectodyssey.testing import check_gradients, check_gradients_verbose
+from odyssey.testing import check_gradients, check_gradients_verbose
 
 fn test_activation_gradient() raises:
     """Test activation function backward pass using gradient checking."""
@@ -769,7 +769,7 @@ from tests.shared.fixtures.mock_tensors import (
     create_random_tensor,
     create_zeros_tensor,
 )
-from projectodyssey.core import AnyTensor
+from odyssey.core import AnyTensor
 
 
 # ============================================================================

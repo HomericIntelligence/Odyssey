@@ -32,33 +32,33 @@ Training Details:
     - Epochs: 200 (recommended)
 """
 
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros
-from projectodyssey.core.conv import conv2d, conv2d_backward
-from projectodyssey.core.pooling import (
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros
+from odyssey.core.conv import conv2d, conv2d_backward
+from odyssey.core.pooling import (
     maxpool2d,
     maxpool2d_backward,
     global_avgpool2d,
     global_avgpool2d_backward,
 )
-from projectodyssey.core.normalization import (
+from odyssey.core.normalization import (
     batch_norm2d,
     batch_norm2d_backward,
 )
-from projectodyssey.core.activation import relu, relu_backward
-from projectodyssey.core.linear import linear, linear_backward
-from projectodyssey.core.dropout import dropout, dropout_backward
-from projectodyssey.core.loss import cross_entropy, cross_entropy_backward
-from projectodyssey.training.schedulers import step_lr
-from projectodyssey.data.batch_utils import (
+from odyssey.core.activation import relu, relu_backward
+from odyssey.core.linear import linear, linear_backward
+from odyssey.core.dropout import dropout, dropout_backward
+from odyssey.core.loss import cross_entropy, cross_entropy_backward
+from odyssey.training.schedulers import step_lr
+from odyssey.data.batch_utils import (
     compute_num_batches,
     extract_batch_pair,
 )
-from projectodyssey.data.constants import DatasetInfo
-from projectodyssey.data.datasets import CIFAR10Dataset
-from projectodyssey.data import one_hot_encode
-from projectodyssey.utils.training_args import parse_training_args_with_defaults
-from projectodyssey.training.optimizers import sgd_momentum_update_inplace
+from odyssey.data.constants import DatasetInfo
+from odyssey.data.datasets import CIFAR10Dataset
+from odyssey.data import one_hot_encode
+from odyssey.utils.training_args import parse_training_args_with_defaults
+from odyssey.training.optimizers import sgd_momentum_update_inplace
 from model import (
     GoogLeNet,
     InceptionModule,
@@ -146,7 +146,7 @@ def initialize_velocities(model: GoogLeNet) raises -> List[AnyTensor]:
 
 def _flatten_gap(gap_out: AnyTensor) raises -> AnyTensor:
     """Flatten global-avgpool output (N, C, 1, 1) -> (N, C) using
-    AnyTensor.reshape (src/projectodyssey/tensor/any_tensor.mojo:655).
+    AnyTensor.reshape (src/odyssey/tensor/any_tensor.mojo:655).
     """
     var gap_shape = gap_out.shape()
     var flat_shape: List[Int] = [gap_shape[0], gap_shape[1]]

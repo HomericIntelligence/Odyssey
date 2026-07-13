@@ -13,7 +13,7 @@ ignores memory strides and will produce silently incorrect results.
 
 ## Key Finding
 
-A reference pattern exists in `src/projectodyssey/core/matrix.mojo` (lines 604-611) that demonstrates the
+A reference pattern exists in `src/odyssey/core/matrix.mojo` (lines 604-611) that demonstrates the
 correct guard pattern. This should be replicated across other modules.
 
 ## Contiguity Guard Pattern
@@ -41,7 +41,7 @@ if not b.is_contiguous():
 
 ### Critical Path: Reduction Operations
 
-**File**: `src/projectodyssey/core/reduction.mojo`
+**File**: `src/odyssey/core/reduction.mojo`
 
 Functions using raw pointer arithmetic:
 
@@ -54,7 +54,7 @@ Functions using raw pointer arithmetic:
 
 ### Critical Path: Elementwise Operations
 
-**File**: `src/projectodyssey/core/elementwise.mojo`
+**File**: `src/odyssey/core/elementwise.mojo`
 
 Elementwise operations (element-by-element operations like `add_elementwise()`, `multiply()`,
 `relu()`, etc.) use bitcast for fast indexing.
@@ -65,7 +65,7 @@ Elementwise operations (element-by-element operations like `add_elementwise()`, 
 
 ### Critical Path: Convolution Operations
 
-**File**: `src/projectodyssey/core/conv.mojo`
+**File**: `src/odyssey/core/conv.mojo`
 
 Functions:
 
@@ -78,7 +78,7 @@ Functions:
 
 ### Critical Path: Activation Functions
 
-**File**: `src/projectodyssey/core/activation.mojo` and `src/projectodyssey/core/activation_simd.mojo`
+**File**: `src/odyssey/core/activation.mojo` and `src/odyssey/core/activation_simd.mojo`
 
 Functions:
 
@@ -89,7 +89,7 @@ Functions:
 
 ### Already Protected: Matrix Operations
 
-**File**: `src/projectodyssey/core/matrix.mojo` ✓
+**File**: `src/odyssey/core/matrix.mojo` ✓
 
 Lines 604-611 show the pattern:
 
@@ -104,7 +104,7 @@ else:
 
 ### Already Protected: Arithmetic Operations
 
-**File**: `src/projectodyssey/core/arithmetic_contiguous.mojo` ✓
+**File**: `src/odyssey/core/arithmetic_contiguous.mojo` ✓
 
 Lines 82-85 validate contiguity for each input:
 
@@ -120,12 +120,12 @@ implementations.
 
 ### Other Files Needing Review
 
-- `src/projectodyssey/core/pooling.mojo` - Pooling kernels use raw pointer access
-- `src/projectodyssey/core/normalization_simd.mojo` - Batch/layer normalization
-- `src/projectodyssey/core/comparison.mojo` - Comparison operations
-- `src/projectodyssey/core/dtype_dispatch.mojo` - Generic dispatch templates
-- `src/projectodyssey/training/gradient_ops.mojo` - Backward pass operations
-- `src/projectodyssey/training/loops/training_loop.mojo` - Training loop kernels
+- `src/odyssey/core/pooling.mojo` - Pooling kernels use raw pointer access
+- `src/odyssey/core/normalization_simd.mojo` - Batch/layer normalization
+- `src/odyssey/core/comparison.mojo` - Comparison operations
+- `src/odyssey/core/dtype_dispatch.mojo` - Generic dispatch templates
+- `src/odyssey/training/gradient_ops.mojo` - Backward pass operations
+- `src/odyssey/training/loops/training_loop.mojo` - Training loop kernels
 
 ## Recommended Approach
 
@@ -134,7 +134,7 @@ implementations.
 Search for patterns where bitcast is used directly without stride awareness:
 
 ```bash
-grep -n "_data\.bitcast\[.*\]()\[i\]" src/projectodyssey/core/*.mojo
+grep -n "_data\.bitcast\[.*\]()\[i\]" src/odyssey/core/*.mojo
 ```
 
 Identify fast-path patterns that:
@@ -177,7 +177,7 @@ fn my_kernel_fast(a: AnyTensor, b: AnyTensor) raises -> Optional[AnyTensor]:
 
 Existing test files for non-contiguous support:
 
-- `tests/projectodyssey/testing/test_gradient_checker_noncont_tensors.mojo` (new, #3801)
+- `tests/odyssey/testing/test_gradient_checker_noncont_tensors.mojo` (new, #3801)
 
 Additional test requirements:
 
@@ -189,7 +189,7 @@ Additional test requirements:
 
 ### `as_contiguous()` Performance Cost
 
-From `src/projectodyssey/core/shape.mojo`:
+From `src/odyssey/core/shape.mojo`:
 
 - Always copies data (no zero-copy optimization)
 - Uses memcpy for bulk copy - O(n) where n = tensor.numel()
@@ -209,7 +209,7 @@ The gradient_checker already demonstrates stride-aware access pattern:
 - `tensor._get_float64(i)` - Handles strides correctly
 - `tensor._set_float64(i, val)` - Handles strides correctly
 
-See `src/projectodyssey/testing/gradient_checker.mojo` for examples of correct non-contiguous handling.
+See `src/odyssey/testing/gradient_checker.mojo` for examples of correct non-contiguous handling.
 
 ## Risk Assessment
 
@@ -250,7 +250,7 @@ fn test_relu_noncont() raises:
 - Issue #3236: Original fix that added matmul guard (reference implementation)
 - Issue #3801: Non-contiguous gradient checker tests (now available)
 - `docs/dev/extensor-view-contract.md`: View semantics documentation
-- `src/projectodyssey/core/matrix.mojo`: Line 604-611 - Guard pattern reference
+- `src/odyssey/core/matrix.mojo`: Line 604-611 - Guard pattern reference
 
 ## Next Steps
 

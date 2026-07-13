@@ -19,22 +19,22 @@ Full E2E testing happens in weekly CI job with complete dataset.
 """
 
 
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros, ones
-from projectodyssey.core.conv import conv2d
-from projectodyssey.core.pooling import maxpool2d
-from projectodyssey.core.linear import linear
-from projectodyssey.core.activation import relu
-from projectodyssey.core.shape import conv2d_output_shape, pool_output_shape
-from projectodyssey.core.initializers import kaiming_uniform
-from projectodyssey.testing.assertions import (
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros, ones
+from odyssey.core.conv import conv2d
+from odyssey.core.pooling import maxpool2d
+from odyssey.core.linear import linear
+from odyssey.core.activation import relu
+from odyssey.core.shape import conv2d_output_shape, pool_output_shape
+from odyssey.core.initializers import kaiming_uniform
+from odyssey.testing.assertions import (
     assert_shape,
     assert_dtype,
     assert_true,
     assert_false,
     assert_close_float,
 )
-from projectodyssey.testing.special_values import (
+from odyssey.testing.special_values import (
     create_special_value_tensor,
     create_seeded_random_tensor,
     SPECIAL_VALUE_ONE,

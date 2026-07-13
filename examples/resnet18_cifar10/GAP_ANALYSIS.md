@@ -17,7 +17,7 @@ functional ResNet-18 implementation.
 
 **Status**: ❌ **CRITICAL** - Blocks all training
 
-**Location**: `src/projectodyssey/core/normalization.mojo`
+**Location**: `src/odyssey/core/normalization.mojo`
 
 **Required Function**:
 
@@ -141,19 +141,19 @@ fn batch_norm2d_backward(
 
 ### Phase 1: Implement Batch Normalization Backward (**CRITICAL**)
 
-1. **Add function to `src/projectodyssey/core/normalization.mojo`**:
+1. **Add function to `src/odyssey/core/normalization.mojo`**:
    - Implement `batch_norm2d_backward` with full training mode support
    - Implement inference mode (simpler - just rescale gradients)
    - Add comprehensive docstring with mathematical formulation
 
 2. **Add tests**:
-   - Create `tests/projectodyssey/core/test_normalization_backward.mojo`
+   - Create `tests/odyssey/core/test_normalization_backward.mojo`
    - Gradient check against numerical gradients
    - Test various input shapes and modes
    - Test edge cases (zero variance, small batch)
 
 3. **Export in public API**:
-   - Update `src/projectodyssey/core/__init__.mojo` to include backward function
+   - Update `src/odyssey/core/__init__.mojo` to include backward function
 
 ### Phase 2: Complete Training Script
 
@@ -221,7 +221,7 @@ Layer](https://kratzert.github.io/2016/02/12/understanding-the-gradient-flow-thr
 
 ## Next Steps
 
-1. **Implement `batch_norm2d_backward`** in `src/projectodyssey/core/normalization.mojo`
+1. **Implement `batch_norm2d_backward`** in `src/odyssey/core/normalization.mojo`
 2. **Add comprehensive tests** for batch norm backward
 3. **Complete training script** backward pass
 4. **Validate** with small-scale training run

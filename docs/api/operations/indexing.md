@@ -15,7 +15,7 @@ fn __getitem__(self, indices: List[Int]) raises -> AnyTensor
 **Example:**
 
 ```mojo
-from projectodyssey.core import randn
+from odyssey.core import randn
 
 var x = randn[DType.float32](3, 4, 5)
 
@@ -212,7 +212,7 @@ fn where(condition: AnyTensor, x: AnyTensor, y: AnyTensor) raises -> AnyTensor
 **Example:**
 
 ```mojo
-from projectodyssey.core import where, randn, zeros
+from odyssey.core import where, randn, zeros
 
 var condition = randn[DType.float32](3, 4) > 0.0
 var x = ones[DType.float32](3, 4)
@@ -233,7 +233,7 @@ fn concatenate(tensors: List[AnyTensor], axis: Int = 0) raises -> AnyTensor
 **Example:**
 
 ```mojo
-from projectodyssey.core import concatenate, randn
+from odyssey.core import concatenate, randn
 
 var a = randn[DType.float32](2, 3)
 var b = randn[DType.float32](3, 3)
@@ -251,7 +251,7 @@ fn stack(tensors: List[AnyTensor], axis: Int = 0) raises -> AnyTensor
 **Example:**
 
 ```mojo
-from projectodyssey.core import stack, randn
+from odyssey.core import stack, randn
 
 var a = randn[DType.float32](3, 4)
 var b = randn[DType.float32](3, 4)

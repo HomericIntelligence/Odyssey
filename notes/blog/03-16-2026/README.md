@@ -119,19 +119,19 @@ a symptom, not the disease.**
 A new crash pattern appeared: `libKGENCompilerRTShared.so` crashes that looked like
 JIT compilation overflows. Investigation led to
 [Issue #3330](https://github.com/HomericIntelligence/Odyssey/issues/3330)
-and a new theory: **wildcard imports** (`from projectodyssey.core import *`) were causing
+and a new theory: **wildcard imports** (`from odyssey.core import *`) were causing
 the JIT compiler to compile too much code, overflowing internal buffers.
 
 The fix: convert all 126 test files from wildcard imports to targeted imports:
 
 ```mojo
 # BEFORE (wildcard):
-from projectodyssey.core import *
+from odyssey.core import *
 
 # AFTER (targeted):
-from projectodyssey.core.extensor import ExTensor, zeros, ones
-from projectodyssey.core.conv import conv2d
-from projectodyssey.core.activation import relu
+from odyssey.core.extensor import ExTensor, zeros, ones
+from odyssey.core.conv import conv2d
+from odyssey.core.activation import relu
 ```
 
 This improved CI stability from ~70% to ~95% pass rate. But crashes still happened
@@ -402,7 +402,7 @@ included all three.
 
 ### Why targeted imports helped
 
-Converting from `from projectodyssey.core import *` to targeted imports reduced the number of
+Converting from `from odyssey.core import *` to targeted imports reduced the number of
 symbols in scope. This reduced the optimizer's workload when analyzing liveness, making
 the ASAP destruction pass less likely to misfire on `bitcast`-derived pointers. It
 didn't fix the bug — it reduced the probability of triggering it.

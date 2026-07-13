@@ -19,8 +19,8 @@ them via the repository-root include path used by the test group runner.
 
 from math import isnan, isinf
 
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import ones, zeros
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import ones, zeros
 
 from examples.mobilenetv1_cifar10.model import MobileNetV1
 from examples.mobilenetv1_cifar10.train import (

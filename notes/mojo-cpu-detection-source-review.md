@@ -55,7 +55,7 @@ tree — only the **stdlib** (`mojo/stdlib/std/`) and documentation are open.
 ### `mojo/stdlib/std/sys/info.mojo`
 
 This is the file that *every* AVX-512 path in your crash traces ultimately
-queries (`src/projectodyssey/...` → `math.abs` → `SIMD.__abs__` → `CompilationTarget.has_avx512f()`).
+queries (`src/odyssey/...` → `math.abs` → `SIMD.__abs__` → `CompilationTarget.has_avx512f()`).
 
 URL: <https://github.com/modular/modular/blob/main/mojo/stdlib/std/sys/info.mojo>
 
@@ -266,7 +266,7 @@ The faulting instructions captured (per
 All five live behind the same compile-time guard chain:
 
 ```text
-src/projectodyssey/* → math.abs / SIMD ops
+src/odyssey/* → math.abs / SIMD ops
       └─ SIMD.__abs__ (mojo/stdlib/std/builtin/simd.mojo)
            └─ CompilationTarget.has_avx512f()        ← info.mojo line 449
                 └─ __mlir_attr.target_has_feature["avx512f"]   ← KGEN intrinsic

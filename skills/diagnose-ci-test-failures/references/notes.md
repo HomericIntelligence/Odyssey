@@ -12,7 +12,7 @@
 
 ### Concatenate Bug Details
 
-File: `src/projectodyssey/core/shape.mojo` — `concatenate()` function
+File: `src/odyssey/core/shape.mojo` — `concatenate()` function
 
 **Before (broken for axis!=0)**:
 
@@ -37,7 +37,7 @@ axis != 0:
 
 ### Transpose View Tests Skipped
 
-Tests in `tests/projectodyssey/core/test_matrix.mojo`:
+Tests in `tests/odyssey/core/test_matrix.mojo`:
 
 - `test_transpose_returns_view`
 - `test_transpose_shares_data`

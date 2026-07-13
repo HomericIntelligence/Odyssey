@@ -15,14 +15,14 @@ Usage:
 See documentation: docs/advanced/performance.md
 """
 
-from projectodyssey.benchmarking import (
+from odyssey.benchmarking import (
     benchmark_function,
     print_benchmark_report,
     print_benchmark_summary,
     BenchmarkResult,
 )
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import ones
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import ones
 
 
 # ============================================================================

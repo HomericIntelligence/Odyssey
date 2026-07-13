@@ -37,7 +37,7 @@ ML frameworks require reliable performance measurement:
 
 ### Core Benchmarking API
 
-**High-Level API** (`src/projectodyssey/benchmarking/runner.mojo`):
+**High-Level API** (`src/odyssey/benchmarking/runner.mojo`):
 
 ```mojo
 fn benchmark_function(
@@ -60,7 +60,7 @@ struct BenchmarkStatistics:
     var warmup_iterations: Int
 ```
 
-**Low-Level API** (`src/projectodyssey/benchmarking/result.mojo`):
+**Low-Level API** (`src/odyssey/benchmarking/result.mojo`):
 
 ```mojo
 struct BenchmarkResult:
@@ -331,7 +331,7 @@ Nanosecond precision ensures accurate measurement of fast operations.
 ### File Locations
 
 ```text
-src/projectodyssey/benchmarking/
+src/odyssey/benchmarking/
 ├── __init__.mojo       # Package exports
 ├── runner.mojo         # High-level API, BenchmarkStatistics
 └── result.mojo         # Low-level BenchmarkResult
@@ -342,7 +342,7 @@ benchmarks/
 ├── reporter.mojo       # Report generation
 └── stats.mojo          # Additional statistics
 
-tests/projectodyssey/benchmarking/
+tests/odyssey/benchmarking/
 ├── test_runner.mojo    # Runner tests
 └── test_result.mojo    # Result tests
 ```
@@ -395,10 +395,10 @@ print("Mean:", runner.get_mean_ms(), "ms")
 
 ### Related Files
 
-- `src/projectodyssey/benchmarking/runner.mojo`: High-level API
-- `src/projectodyssey/benchmarking/result.mojo`: Low-level API
+- `src/odyssey/benchmarking/runner.mojo`: High-level API
+- `src/odyssey/benchmarking/result.mojo`: Low-level API
 - `benchmarks/*.mojo`: Benchmark implementations
-- `tests/projectodyssey/benchmarking/`: Benchmark tests
+- `tests/odyssey/benchmarking/`: Benchmark tests
 
 ### Related ADRs
 

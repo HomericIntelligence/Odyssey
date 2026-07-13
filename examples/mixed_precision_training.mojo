@@ -18,16 +18,16 @@ Usage:
     mojo examples/mixed_precision_training.mojo
 """
 
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import full
-from projectodyssey.training.mixed_precision import (
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import full
+from odyssey.training.mixed_precision import (
     GradientScaler,
     convert_to_fp32_master,
     update_model_from_master,
     check_gradients_finite,
     clip_gradients_by_norm,
 )
-from projectodyssey.training.trainer_interface import TrainerConfig
+from odyssey.training.trainer_interface import TrainerConfig
 
 
 def simulate_forward_pass(

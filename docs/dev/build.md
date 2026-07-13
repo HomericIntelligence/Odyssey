@@ -10,14 +10,14 @@ the main build and validation scenarios:
 | Recipe | What it does | When to use |
 | --- | --- | --- |
 | `just build` | Compile entry-point executables (debug mode by default) | Day-to-day development; produces binaries in `build/debug/` |
-| `just check` | Type-check the `src/projectodyssey/` library without producing any artifacts | Fast feedback loop — catches type errors without a full build |
+| `just check` | Type-check the `src/odyssey/` library without producing any artifacts | Fast feedback loop — catches type errors without a full build |
 | `just ci-build` | Full CI build: entry points (`just build ci`) + package compilation (`just package ci`) | Pre-push validation; mirrors exactly what CI runs |
 | `just validate` | `ci-build` + the full Mojo test suite | Final gate before merging; slowest but most complete |
 
 ### Choosing the Right Recipe
 
 ```text
-Editing src/projectodyssey/ code?
+Editing src/odyssey/ code?
   └─ just check          ← fastest; no artifacts, type errors only
 
 Editing entry points or want binaries?
@@ -32,15 +32,15 @@ Before opening a PR / after all changes?
 
 ### Details
 
-**`just check`** compiles the `src/projectodyssey/` library with `mojo package --Werror` into a temporary
+**`just check`** compiles the `src/odyssey/` library with `mojo package --Werror` into a temporary
 directory and immediately discards the output. It is the fastest way to confirm that type
-annotations, imports, and function signatures in `src/projectodyssey/` are correct without waiting for a
+annotations, imports, and function signatures in `src/odyssey/` are correct without waiting for a
 full build or test run.
 
 **`just ci-build`** runs two sub-recipes in sequence:
 
 1. `just build ci` — compiles all entry-point executables with CI flags (`-g1 --Werror`)
-2. `just package ci` — packages the `src/projectodyssey/` library into a `.mojopkg` artifact
+2. `just package ci` — packages the `src/odyssey/` library into a `.mojopkg` artifact
 
 This is the minimum validation that must pass before CI will accept a PR.
 
@@ -54,7 +54,7 @@ locally only when you need confidence equivalent to a full CI run; the test suit
 
 **Training Module**:
 
-- `mojo package src/projectodyssey/training -o dist/training-0.1.0.mojopkg`
+- `mojo package src/odyssey/training -o dist/training-0.1.0.mojopkg`
 - Verify: `./scripts/install_verify_training.sh`
 - Automated: `./scripts/build_training_package.sh`
 

@@ -84,6 +84,6 @@ See [common-constraints.md](../shared/common-constraints.md) for minimal changes
 
 ---
 
-**References**: [src/projectodyssey/common-constraints](../shared/common-constraints.md),
-[src/projectodyssey/documentation-rules](../shared/documentation-rules.md),
-[src/projectodyssey/mojo-guidelines](../shared/mojo-guidelines.md)
+**References**: [src/odyssey/common-constraints](../shared/common-constraints.md),
+[src/odyssey/documentation-rules](../shared/documentation-rules.md),
+[src/odyssey/mojo-guidelines](../shared/mojo-guidelines.md)

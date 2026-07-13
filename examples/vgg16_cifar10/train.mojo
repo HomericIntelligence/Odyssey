@@ -2,7 +2,7 @@
 
 Implements training with manual backward passes through all 16 layers (no autograd).
 Uses SGD optimizer with momentum and dropout regularization.
-Uses consolidated TrainingLoop from projectodyssey module for epoch iteration.
+Uses consolidated TrainingLoop from odyssey module for epoch iteration.
 
 Usage:
     mojo run examples/vgg16_cifar10/train.mojo --epochs 200 --batch-size 128 --lr 0.01 --momentum 0.9
@@ -18,24 +18,24 @@ References:
 """
 
 from model import VGG16
-from projectodyssey.data.datasets import CIFAR10Dataset
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros
-from projectodyssey.core.conv import conv2d, conv2d_backward
-from projectodyssey.core.pooling import maxpool2d, maxpool2d_backward
-from projectodyssey.core.linear import linear, linear_backward
-from projectodyssey.core.activation import relu, relu_backward
-from projectodyssey.core.dropout import dropout, dropout_backward
-from projectodyssey.core.loss import cross_entropy, cross_entropy_backward
-from projectodyssey.training.schedulers import step_lr
-from projectodyssey.data.batch_utils import (
+from odyssey.data.datasets import CIFAR10Dataset
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros
+from odyssey.core.conv import conv2d, conv2d_backward
+from odyssey.core.pooling import maxpool2d, maxpool2d_backward
+from odyssey.core.linear import linear, linear_backward
+from odyssey.core.activation import relu, relu_backward
+from odyssey.core.dropout import dropout, dropout_backward
+from odyssey.core.loss import cross_entropy, cross_entropy_backward
+from odyssey.training.schedulers import step_lr
+from odyssey.data.batch_utils import (
     compute_num_batches,
     extract_batch_pair,
     get_batch_indices,
 )
-from projectodyssey.data.constants import DatasetInfo
-from projectodyssey.utils.training_args import parse_training_args_with_defaults
-from projectodyssey.training.metrics.evaluate import evaluate_with_predict
+from odyssey.data.constants import DatasetInfo
+from odyssey.utils.training_args import parse_training_args_with_defaults
+from odyssey.training.metrics.evaluate import evaluate_with_predict
 
 
 def compute_gradients(
@@ -444,7 +444,7 @@ def compute_gradients(
     # ========== Parameter Update (SGD with Momentum) ==========
     # Update all 32 parameters (16 layers × 2 params per layer)
 
-    from projectodyssey.training.optimizers import sgd_momentum_update_inplace
+    from odyssey.training.optimizers import sgd_momentum_update_inplace
 
     # Block 1 updates
     sgd_momentum_update_inplace(
@@ -690,7 +690,7 @@ def evaluate(
 ) raises -> Float32:
     """Evaluate model on test set using shared metrics utilities.
 
-    Uses evaluate_with_predict from projectodyssey.training.metrics to consolidate
+    Uses evaluate_with_predict from odyssey.training.metrics to consolidate
     evaluation logic across all examples.
 
     Args:
@@ -720,7 +720,7 @@ def evaluate(
         if (i + 1) % 1000 == 0:
             print("  Processed ", i + 1, "/", num_samples)
 
-    # Use shared evaluate function from projectodyssey.training.metrics
+    # Use shared evaluate function from odyssey.training.metrics
     var accuracy = evaluate_with_predict(predictions, test_labels)
     print(
         "  Test Accuracy: ",

@@ -1,7 +1,7 @@
 """
 Test suite for directory structure validation.
 
-This module contains comprehensive tests for validating the papers/ and src/projectodyssey/
+This module contains comprehensive tests for validating the papers/ and src/odyssey/
 directory structures, ensuring they follow the planned architecture.
 
 Test Categories:
@@ -108,11 +108,11 @@ class TestPapersDirectoryStructure:
 
 
 class TestSharedDirectoryStructure:
-    """Test cases for src/projectodyssey/ directory structure."""
+    """Test cases for src/odyssey/ directory structure."""
 
     def test_shared_directory_exists(self, shared_dir: Path) -> None:
         """
-        Test that src/projectodyssey/ directory exists at repository root.
+        Test that src/odyssey/ directory exists at repository root.
 
         Verifies:
         - Directory exists
@@ -122,12 +122,12 @@ class TestSharedDirectoryStructure:
         Args:
             shared_dir: Shared directory path
         """
-        assert shared_dir.exists(), "src/projectodyssey/ directory must exist at repository root"
-        assert shared_dir.is_dir(), "src/projectodyssey/ must be a directory, not a file"
+        assert shared_dir.exists(), "src/odyssey/ directory must exist at repository root"
+        assert shared_dir.is_dir(), "src/odyssey/ must be a directory, not a file"
 
     def test_shared_readme_exists(self, shared_dir: Path) -> None:
         """
-        Test that src/projectodyssey/README.md exists.
+        Test that src/odyssey/README.md exists.
 
         Verifies:
         - README.md file exists
@@ -138,13 +138,13 @@ class TestSharedDirectoryStructure:
             shared_dir: Shared directory path
         """
         readme = shared_dir / "README.md"
-        assert readme.exists(), "src/projectodyssey/README.md must exist"
-        assert readme.is_file(), "src/projectodyssey/README.md must be a file"
-        assert readme.stat().st_size > 0, "src/projectodyssey/README.md must not be empty"
+        assert readme.exists(), "src/odyssey/README.md must exist"
+        assert readme.is_file(), "src/odyssey/README.md must be a file"
+        assert readme.stat().st_size > 0, "src/odyssey/README.md must not be empty"
 
     def test_shared_readme_content(self, shared_dir: Path) -> None:
         """
-        Test that src/projectodyssey/README.md has correct content.
+        Test that src/odyssey/README.md has correct content.
 
         Verifies:
         - Contains purpose section
@@ -168,7 +168,7 @@ class TestSharedDirectoryStructure:
 
     def test_shared_init_file_exists(self, shared_dir: Path) -> None:
         """
-        Test that src/projectodyssey/__init__.mojo exists.
+        Test that src/odyssey/__init__.mojo exists.
 
         Verifies:
         - __init__.mojo file exists
@@ -179,8 +179,8 @@ class TestSharedDirectoryStructure:
             shared_dir: Shared directory path
         """
         init_file = shared_dir / "__init__.mojo"
-        assert init_file.exists(), "src/projectodyssey/__init__.mojo must exist"
-        assert init_file.is_file(), "src/projectodyssey/__init__.mojo must be a file"
+        assert init_file.exists(), "src/odyssey/__init__.mojo must exist"
+        assert init_file.is_file(), "src/odyssey/__init__.mojo must be a file"
 
     def test_shared_subdirectories_exist(
         self,
@@ -204,21 +204,21 @@ class TestSharedDirectoryStructure:
             shared_data_dir: Shared data directory path
             shared_utils_dir: Shared utils directory path
         """
-        assert shared_core_dir.exists(), "src/projectodyssey/core/ directory must exist"
-        assert shared_core_dir.is_dir(), "src/projectodyssey/core/ must be a directory"
+        assert shared_core_dir.exists(), "src/odyssey/core/ directory must exist"
+        assert shared_core_dir.is_dir(), "src/odyssey/core/ must be a directory"
 
-        assert shared_training_dir.exists(), "src/projectodyssey/training/ directory must exist"
-        assert shared_training_dir.is_dir(), "src/projectodyssey/training/ must be a directory"
+        assert shared_training_dir.exists(), "src/odyssey/training/ directory must exist"
+        assert shared_training_dir.is_dir(), "src/odyssey/training/ must be a directory"
 
-        assert shared_data_dir.exists(), "src/projectodyssey/data/ directory must exist"
-        assert shared_data_dir.is_dir(), "src/projectodyssey/data/ must be a directory"
+        assert shared_data_dir.exists(), "src/odyssey/data/ directory must exist"
+        assert shared_data_dir.is_dir(), "src/odyssey/data/ must be a directory"
 
-        assert shared_utils_dir.exists(), "src/projectodyssey/utils/ directory must exist"
-        assert shared_utils_dir.is_dir(), "src/projectodyssey/utils/ must be a directory"
+        assert shared_utils_dir.exists(), "src/odyssey/utils/ directory must exist"
+        assert shared_utils_dir.is_dir(), "src/odyssey/utils/ must be a directory"
 
     def test_shared_core_has_readme(self, shared_core_dir: Path) -> None:
         """
-        Test that src/projectodyssey/core/ has README.md.
+        Test that src/odyssey/core/ has README.md.
 
         Verifies:
         - README.md exists in core directory
@@ -228,13 +228,13 @@ class TestSharedDirectoryStructure:
             shared_core_dir: Shared core directory path
         """
         readme = shared_core_dir / "README.md"
-        assert readme.exists(), "src/projectodyssey/core/README.md must exist"
-        assert readme.is_file(), "src/projectodyssey/core/README.md must be a file"
-        assert readme.stat().st_size > 0, "src/projectodyssey/core/README.md must not be empty"
+        assert readme.exists(), "src/odyssey/core/README.md must exist"
+        assert readme.is_file(), "src/odyssey/core/README.md must be a file"
+        assert readme.stat().st_size > 0, "src/odyssey/core/README.md must not be empty"
 
     def test_shared_core_has_init(self, shared_core_dir: Path) -> None:
         """
-        Test that src/projectodyssey/core/ has __init__.mojo.
+        Test that src/odyssey/core/ has __init__.mojo.
 
         Verifies:
         - __init__.mojo exists in core directory
@@ -244,12 +244,12 @@ class TestSharedDirectoryStructure:
             shared_core_dir: Shared core directory path
         """
         init_file = shared_core_dir / "__init__.mojo"
-        assert init_file.exists(), "src/projectodyssey/core/__init__.mojo must exist"
-        assert init_file.is_file(), "src/projectodyssey/core/__init__.mojo must be a file"
+        assert init_file.exists(), "src/odyssey/core/__init__.mojo must exist"
+        assert init_file.is_file(), "src/odyssey/core/__init__.mojo must be a file"
 
     def test_shared_training_has_readme(self, shared_training_dir: Path) -> None:
         """
-        Test that src/projectodyssey/training/ has README.md.
+        Test that src/odyssey/training/ has README.md.
 
         Verifies:
         - README.md exists in training directory
@@ -259,13 +259,13 @@ class TestSharedDirectoryStructure:
             shared_training_dir: Shared training directory path
         """
         readme = shared_training_dir / "README.md"
-        assert readme.exists(), "src/projectodyssey/training/README.md must exist"
-        assert readme.is_file(), "src/projectodyssey/training/README.md must be a file"
-        assert readme.stat().st_size > 0, "src/projectodyssey/training/README.md must not be empty"
+        assert readme.exists(), "src/odyssey/training/README.md must exist"
+        assert readme.is_file(), "src/odyssey/training/README.md must be a file"
+        assert readme.stat().st_size > 0, "src/odyssey/training/README.md must not be empty"
 
     def test_shared_training_has_init(self, shared_training_dir: Path) -> None:
         """
-        Test that src/projectodyssey/training/ has __init__.mojo.
+        Test that src/odyssey/training/ has __init__.mojo.
 
         Verifies:
         - __init__.mojo exists in training directory
@@ -275,12 +275,12 @@ class TestSharedDirectoryStructure:
             shared_training_dir: Shared training directory path
         """
         init_file = shared_training_dir / "__init__.mojo"
-        assert init_file.exists(), "src/projectodyssey/training/__init__.mojo must exist"
-        assert init_file.is_file(), "src/projectodyssey/training/__init__.mojo must be a file"
+        assert init_file.exists(), "src/odyssey/training/__init__.mojo must exist"
+        assert init_file.is_file(), "src/odyssey/training/__init__.mojo must be a file"
 
     def test_shared_data_has_readme(self, shared_data_dir: Path) -> None:
         """
-        Test that src/projectodyssey/data/ has README.md.
+        Test that src/odyssey/data/ has README.md.
 
         Verifies:
         - README.md exists in data directory
@@ -290,13 +290,13 @@ class TestSharedDirectoryStructure:
             shared_data_dir: Shared data directory path
         """
         readme = shared_data_dir / "README.md"
-        assert readme.exists(), "src/projectodyssey/data/README.md must exist"
-        assert readme.is_file(), "src/projectodyssey/data/README.md must be a file"
-        assert readme.stat().st_size > 0, "src/projectodyssey/data/README.md must not be empty"
+        assert readme.exists(), "src/odyssey/data/README.md must exist"
+        assert readme.is_file(), "src/odyssey/data/README.md must be a file"
+        assert readme.stat().st_size > 0, "src/odyssey/data/README.md must not be empty"
 
     def test_shared_data_has_init(self, shared_data_dir: Path) -> None:
         """
-        Test that src/projectodyssey/data/ has __init__.mojo.
+        Test that src/odyssey/data/ has __init__.mojo.
 
         Verifies:
         - __init__.mojo exists in data directory
@@ -306,12 +306,12 @@ class TestSharedDirectoryStructure:
             shared_data_dir: Shared data directory path
         """
         init_file = shared_data_dir / "__init__.mojo"
-        assert init_file.exists(), "src/projectodyssey/data/__init__.mojo must exist"
-        assert init_file.is_file(), "src/projectodyssey/data/__init__.mojo must be a file"
+        assert init_file.exists(), "src/odyssey/data/__init__.mojo must exist"
+        assert init_file.is_file(), "src/odyssey/data/__init__.mojo must be a file"
 
     def test_shared_utils_has_readme(self, shared_utils_dir: Path) -> None:
         """
-        Test that src/projectodyssey/utils/ has README.md.
+        Test that src/odyssey/utils/ has README.md.
 
         Verifies:
         - README.md exists in utils directory
@@ -321,13 +321,13 @@ class TestSharedDirectoryStructure:
             shared_utils_dir: Shared utils directory path
         """
         readme = shared_utils_dir / "README.md"
-        assert readme.exists(), "src/projectodyssey/utils/README.md must exist"
-        assert readme.is_file(), "src/projectodyssey/utils/README.md must be a file"
-        assert readme.stat().st_size > 0, "src/projectodyssey/utils/README.md must not be empty"
+        assert readme.exists(), "src/odyssey/utils/README.md must exist"
+        assert readme.is_file(), "src/odyssey/utils/README.md must be a file"
+        assert readme.stat().st_size > 0, "src/odyssey/utils/README.md must not be empty"
 
     def test_shared_utils_has_init(self, shared_utils_dir: Path) -> None:
         """
-        Test that src/projectodyssey/utils/ has __init__.mojo.
+        Test that src/odyssey/utils/ has __init__.mojo.
 
         Verifies:
         - __init__.mojo exists in utils directory
@@ -337,12 +337,12 @@ class TestSharedDirectoryStructure:
             shared_utils_dir: Shared utils directory path
         """
         init_file = shared_utils_dir / "__init__.mojo"
-        assert init_file.exists(), "src/projectodyssey/utils/__init__.mojo must exist"
-        assert init_file.is_file(), "src/projectodyssey/utils/__init__.mojo must be a file"
+        assert init_file.exists(), "src/odyssey/utils/__init__.mojo must exist"
+        assert init_file.is_file(), "src/odyssey/utils/__init__.mojo must be a file"
 
     def test_shared_directory_permissions(self, shared_dir: Path) -> None:
         """
-        Test that src/projectodyssey/ directory has correct permissions.
+        Test that src/odyssey/ directory has correct permissions.
 
         Verifies:
         - Directory has read permission
@@ -355,9 +355,9 @@ class TestSharedDirectoryStructure:
         dir_stat = shared_dir.stat()
         mode = dir_stat.st_mode
 
-        assert mode & stat.S_IRUSR, "src/projectodyssey/ must have read permission"
-        assert mode & stat.S_IWUSR, "src/projectodyssey/ must have write permission"
-        assert mode & stat.S_IXUSR, "src/projectodyssey/ must have execute permission"
+        assert mode & stat.S_IRUSR, "src/odyssey/ must have read permission"
+        assert mode & stat.S_IWUSR, "src/odyssey/ must have write permission"
+        assert mode & stat.S_IXUSR, "src/odyssey/ must have execute permission"
 
 
 class TestDirectoryHierarchy:
@@ -365,7 +365,7 @@ class TestDirectoryHierarchy:
 
     def test_papers_and_shared_are_siblings(self, papers_dir: Path, shared_dir: Path) -> None:
         """
-        Test that papers/ and src/projectodyssey/ are sibling directories.
+        Test that papers/ and src/odyssey/ are sibling directories.
 
         Verifies:
         - Both directories have same parent
@@ -375,9 +375,7 @@ class TestDirectoryHierarchy:
             papers_dir: Papers directory path
             shared_dir: Shared directory path
         """
-        assert papers_dir.parent == shared_dir.parent, (
-            "papers/ and src/projectodyssey/ must be in same parent directory"
-        )
+        assert papers_dir.parent == shared_dir.parent, "papers/ and src/odyssey/ must be in same parent directory"
 
     def test_template_is_child_of_papers(self, papers_dir: Path, template_dir: Path) -> None:
         """
@@ -405,7 +403,7 @@ class TestDirectoryHierarchy:
         Test that all shared subdirectories are direct children.
 
         Verifies:
-        - All subdirectories have src/projectodyssey/ as parent
+        - All subdirectories have src/odyssey/ as parent
         - No extra nesting
 
         Args:
@@ -415,7 +413,7 @@ class TestDirectoryHierarchy:
             shared_data_dir: Shared data directory path
             shared_utils_dir: Shared utils directory path
         """
-        assert shared_core_dir.parent == shared_dir, "core/ must be direct child of src/projectodyssey/"
-        assert shared_training_dir.parent == shared_dir, "training/ must be direct child of src/projectodyssey/"
-        assert shared_data_dir.parent == shared_dir, "data/ must be direct child of src/projectodyssey/"
-        assert shared_utils_dir.parent == shared_dir, "utils/ must be direct child of src/projectodyssey/"
+        assert shared_core_dir.parent == shared_dir, "core/ must be direct child of src/odyssey/"
+        assert shared_training_dir.parent == shared_dir, "training/ must be direct child of src/odyssey/"
+        assert shared_data_dir.parent == shared_dir, "data/ must be direct child of src/odyssey/"
+        assert shared_utils_dir.parent == shared_dir, "utils/ must be direct child of src/odyssey/"

@@ -9,37 +9,37 @@ minimum = 80.0
 [coverage.modules]
 # Per-module targets based on criticality
 
-[coverage.modules."src/projectodyssey/core"]
+[coverage.modules."src/odyssey/core"]
 # Critical path - tensor operations, layers, losses
 target = 95
 minimum = 90
 priority = "critical"
 
-[coverage.modules."src/projectodyssey/autograd"]
+[coverage.modules."src/odyssey/autograd"]
 # Gradient computation - must be correct
 target = 95
 minimum = 90
 priority = "critical"
 
-[coverage.modules."src/projectodyssey/nn"]
+[coverage.modules."src/odyssey/nn"]
 # Neural network layers
 target = 90
 minimum = 85
 priority = "high"
 
-[coverage.modules."src/projectodyssey/data"]
+[coverage.modules."src/odyssey/data"]
 # Data loading and transforms
 target = 85
 minimum = 80
 priority = "high"
 
-[coverage.modules."src/projectodyssey/training"]
+[coverage.modules."src/odyssey/training"]
 # Training loops and optimizers
 target = 90
 minimum = 85
 priority = "high"
 
-[coverage.modules."src/projectodyssey/ops"]
+[coverage.modules."src/odyssey/ops"]
 # Mathematical operations
 target = 90
 minimum = 85

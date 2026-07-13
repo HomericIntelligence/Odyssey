@@ -21,8 +21,8 @@ Or via:   pixi run python scripts/run_mojo_tests.py tests/shared/core/test_dtype
 from testing import TestSuite, assert_equal, assert_raises
 
 # Imports under test
-from projectodyssey.core.dtype_dispatch import elementwise_unary, dispatch_unary
-from projectodyssey.tensor.any_tensor import AnyTensor
+from odyssey.core.dtype_dispatch import elementwise_unary, dispatch_unary
+from odyssey.tensor.any_tensor import AnyTensor
 
 
 # ----------------------------------------------------------------------------

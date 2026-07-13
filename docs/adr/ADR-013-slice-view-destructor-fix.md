@@ -260,7 +260,7 @@ corruption before process exit.
 
 ### Affected Files
 
-- `src/projectodyssey/core/any_tensor.mojo` -- `__del__` method (line ~491), `slice()` method
+- `src/odyssey/core/any_tensor.mojo` -- `__del__` method (line ~491), `slice()` method
   (line ~677)
 
 ## Revision History

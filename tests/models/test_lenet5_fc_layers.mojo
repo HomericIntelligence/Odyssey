@@ -20,9 +20,9 @@ compared to Float32. This is an expected limitation of Float16 arithmetic
 (not a bug). See issue #3009 for detailed analysis.
 """
 
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.testing.layer_params import LinearFixture
-from projectodyssey.testing.layer_testers import LayerTester
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.testing.layer_params import LinearFixture
+from odyssey.testing.layer_testers import LayerTester
 
 
 # ============================================================================

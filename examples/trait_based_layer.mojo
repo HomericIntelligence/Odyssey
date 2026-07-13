@@ -21,10 +21,10 @@ Usage:
     mojo run examples/trait_based_layer.mojo
 """
 
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros, zeros_like
-from projectodyssey.core.linear import linear, linear_backward
-from projectodyssey.core.traits import (
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros, zeros_like
+from odyssey.core.linear import linear, linear_backward
+from odyssey.core.traits import (
     Differentiable,
     Parameterized,
     Serializable,
@@ -205,7 +205,7 @@ struct FullyConnectedLayer(Differentiable, Parameterized):
 
         Note:
             Computes gradients for weights and bias, storing them internally.
-            The autograd system (src/projectodyssey/autograd/tape.mojo) provides automatic
+            The autograd system (src/odyssey/autograd/tape.mojo) provides automatic
             differentiation for training loops. This manual implementation
             demonstrates the mathematical formulation.
         """
@@ -338,22 +338,22 @@ struct BatchNormLayer(Differentiable, Parameterized, Serializable, Trainable):
         """Forward pass: Normalize, scale, and shift.
 
         Note:
-            Full batch normalization is available in src/projectodyssey/core/normalization.mojo
+            Full batch normalization is available in src/odyssey/core/normalization.mojo
             with batch_norm2d() and batch_norm2d_backward(). This example
             demonstrates the trait interface pattern.
         """
         self.last_input = input.copy()
 
-        # Placeholder: Use src/projectodyssey/core/normalization.batch_norm2d() for production
+        # Placeholder: Use src/odyssey/core/normalization.batch_norm2d() for production
         return input
 
     def backward(self, grad_output: AnyTensor) raises -> AnyTensor:
         """Backward pass: Compute gradients.
 
         Note:
-            The autograd system (src/projectodyssey/autograd/tape.mojo) provides automatic
+            The autograd system (src/odyssey/autograd/tape.mojo) provides automatic
             differentiation. For manual batch norm backward, use
-            src/projectodyssey/core/normalization.batch_norm2d_backward().
+            src/odyssey/core/normalization.batch_norm2d_backward().
         """
         return grad_output
 
@@ -399,7 +399,7 @@ struct BatchNormLayer(Differentiable, Parameterized, Serializable, Trainable):
             bn.save("checkpoint/batch_norm/")
             ```
         """
-        from projectodyssey.utils.serialization import (
+        from odyssey.utils.serialization import (
             save_named_tensors,
             NamedTensor,
         )
@@ -429,7 +429,7 @@ struct BatchNormLayer(Differentiable, Parameterized, Serializable, Trainable):
             bn.load("checkpoint/batch_norm/")
             ```
         """
-        from projectodyssey.utils.serialization import load_named_tensors
+        from odyssey.utils.serialization import load_named_tensors
 
         var tensors = load_named_tensors(path)
 

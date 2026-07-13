@@ -78,7 +78,7 @@ ADR quality, whether docs match actual implementation state.
 
 ### 6. Mojo Code Quality
 
-Files: All `.mojo` files in `src/projectodyssey/`, `tests/`, `papers/` (read a representative sample
+Files: All `.mojo` files in `src/odyssey/`, `tests/`, `papers/` (read a representative sample
 from each directory)
 
 Evaluate: Pattern consistency, use of modern Mojo v0.26.1+ syntax, memory safety, SIMD

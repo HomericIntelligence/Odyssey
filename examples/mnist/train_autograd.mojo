@@ -19,7 +19,7 @@ Requirements:
 
 References:
     - MNIST Dataset: http://yann.lecun.com/exdb/mnist/
-    - Autograd substrate: src/projectodyssey/autograd/README.md
+    - Autograd substrate: src/odyssey/autograd/README.md
 """
 
 from model import (
@@ -36,13 +36,13 @@ from model import (
     POOL2_STRIDE,
     POOL2_PADDING,
 )
-from projectodyssey.data.formats import (
+from odyssey.data.formats import (
     load_idx_images,
     load_idx_labels,
     normalize_images,
     one_hot_encode,
 )
-from projectodyssey.autograd import (
+from odyssey.autograd import (
     Variable,
     GradientTape,
     AdamW,
@@ -54,11 +54,11 @@ from projectodyssey.autograd import (
     variable_linear,
     variable_cross_entropy,
 )
-from projectodyssey.autograd.optimizer_base import Optimizer
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros
-from projectodyssey.training.evaluation import evaluate_model_simple
-from projectodyssey.utils.arg_parser import create_training_parser
+from odyssey.autograd.optimizer_base import Optimizer
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros
+from odyssey.training.evaluation import evaluate_model_simple
+from odyssey.utils.arg_parser import create_training_parser
 from std.collections import List
 
 # Default number of classes for MNIST dataset.

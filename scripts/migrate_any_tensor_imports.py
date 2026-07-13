@@ -20,7 +20,7 @@ from token import COMMENT, DEDENT, ENCODING, INDENT, NAME, NEWLINE, NL, OP
 DEFAULT_REPO = Path(__file__).resolve().parent.parent
 ROOTS = ("src", "tests", "papers", "examples", "conda.recipe", "benchmarks")
 EXCLUDE_PARTS = {"build", ".pixi", "worktrees", "node_modules", ".git"}
-DEFAULT_SKIP_REL = {"src/projectodyssey/tensor/any_tensor.mojo"}
+DEFAULT_SKIP_REL = {"src/odyssey/tensor/any_tensor.mojo"}
 
 # Hardcoded sets — VALIDATED at startup against any_tensor.mojo re-export block.
 CREATION = {
@@ -221,7 +221,7 @@ def _process(path: Path) -> bool:
     for start_i, end_i, module, syms in _iter_import_statements(toks):
         if not module.endswith("any_tensor"):
             continue
-        prefix = module[: -len("any_tensor")]  # "projectodyssey.tensor." or "."
+        prefix = module[: -len("any_tensor")]  # "odyssey.tensor." or "."
         first_tok = toks[start_i]
         last_tok = toks[end_i - 1]
         line_start = first_tok.start[0]
@@ -281,14 +281,14 @@ def main(argv: list[str] | None = None) -> int:
         type=Path,
         default=None,
         help="path to any_tensor.mojo used for partition-table validation"
-        " (default: <root>/src/projectodyssey/tensor/any_tensor.mojo)",
+        " (default: <root>/src/odyssey/tensor/any_tensor.mojo)",
     )
     ap.add_argument(
         "--skip-preflight", action="store_true", help="skip partial-migration preflight (used by tests only)"
     )
     args = ap.parse_args(argv)
     root = args.root.resolve()
-    any_tensor_mojo = (args.any_tensor_mojo or root / "src/projectodyssey/tensor/any_tensor.mojo").resolve()
+    any_tensor_mojo = (args.any_tensor_mojo or root / "src/odyssey/tensor/any_tensor.mojo").resolve()
     _validate_partition_table(any_tensor_mojo)
     skip_rel = set(DEFAULT_SKIP_REL)
     try:

@@ -26,35 +26,35 @@ Training Details:
     - Epochs: 200 (recommended)
 """
 
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros
-from projectodyssey.core.conv import (
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros
+from odyssey.core.conv import (
     conv2d,
     conv2d_backward,
     depthwise_conv2d,
     depthwise_conv2d_backward,
 )
-from projectodyssey.core.normalization import (
+from odyssey.core.normalization import (
     batch_norm2d,
     batch_norm2d_backward,
 )
-from projectodyssey.core.activation import relu, relu_backward
-from projectodyssey.core.linear import linear, linear_backward
-from projectodyssey.core.pooling import (
+from odyssey.core.activation import relu, relu_backward
+from odyssey.core.linear import linear, linear_backward
+from odyssey.core.pooling import (
     global_avgpool2d,
     global_avgpool2d_backward,
 )
-from projectodyssey.core.loss import cross_entropy, cross_entropy_backward
-from projectodyssey.training.optimizers.sgd import sgd_momentum_update_inplace
-from projectodyssey.data.batch_utils import (
+from odyssey.core.loss import cross_entropy, cross_entropy_backward
+from odyssey.training.optimizers.sgd import sgd_momentum_update_inplace
+from odyssey.data.batch_utils import (
     compute_num_batches,
     extract_batch_pair,
 )
-from projectodyssey.data.constants import DatasetInfo
-from projectodyssey.data.datasets import CIFAR10Dataset
-from projectodyssey.data import one_hot_encode
-from projectodyssey.training.schedulers import step_lr
-from projectodyssey.utils.training_args import parse_training_args_with_defaults
+from odyssey.data.constants import DatasetInfo
+from odyssey.data.datasets import CIFAR10Dataset
+from odyssey.data import one_hot_encode
+from odyssey.training.schedulers import step_lr
+from odyssey.utils.training_args import parse_training_args_with_defaults
 from model import MobileNetV1
 
 
@@ -2251,7 +2251,7 @@ def train_epoch(
     """Train for one epoch using compute_gradients per batch.
 
     Labels are one-hot-encoded per batch to match cross_entropy's (B, num_classes)
-    contract (src/projectodyssey/core/loss.mojo:309 asserts logits.shape() == targets.shape()).
+    contract (src/odyssey/core/loss.mojo:309 asserts logits.shape() == targets.shape()).
 
     `max_batches` caps batches this epoch (0 = unbounded); used by --smoke /
     --max-batches to bound a per-PR run (#5551).

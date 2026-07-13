@@ -1,5 +1,5 @@
 {
-  "name": "ProjectOdyssey Dev Container",
+  "name": "Odyssey Dev Container",
   "build": {
     "dockerfile": "../Dockerfile",
     "target": "development",

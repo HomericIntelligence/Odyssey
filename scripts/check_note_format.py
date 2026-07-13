@@ -10,7 +10,7 @@ Non-compliant patterns like # NOTE: or # NOTE some text will be flagged.
 
 Usage:
     python scripts/check_note_format.py [directory]
-    python scripts/check_note_format.py src/projectodyssey/
+    python scripts/check_note_format.py src/odyssey/
     python scripts/check_note_format.py  # defaults to repo root, checks source dirs
 """
 
@@ -24,7 +24,7 @@ from typing import List, Tuple
 EXCLUDED_DIRS = {".worktrees", ".pixi", "build", ".git", "__pycache__", ".mypy_cache"}
 
 # Source directories to check when scanning from repo root
-SOURCE_DIRS = ["benchmarks", "examples", "papers", "scripts", "src/projectodyssey", "tests"]
+SOURCE_DIRS = ["benchmarks", "examples", "papers", "scripts", "src/odyssey", "tests"]
 
 # Pattern that matches non-compliant NOTE comments.
 # Compliant format requires # NOTE followed by optional space then '('.

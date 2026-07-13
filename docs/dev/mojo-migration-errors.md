@@ -9,7 +9,7 @@
 ## v0.26.3 Quality Audit (2026-04-09)
 
 **Pinned version**: `0.26.3.0.dev2026040705` (April 7 nightly)
-**Scope**: `src/projectodyssey/` and `tests/` directories, all `*.mojo` files
+**Scope**: `src/odyssey/` and `tests/` directories, all `*.mojo` files
 **Standards**: Modular mojo-syntax skill v26.2
 
 ### Results Summary
@@ -36,7 +36,7 @@ All deprecated pattern counts are measured against **actual code** (not comment 
 - The codebase has **fully migrated** from `fn` to `def` for all function and method definitions.
   The 150-match grep count is a false positive: the pattern `fn` appears in docstrings, comments,
   and quoted code examples but not in live Mojo source.
-- `__copyinit__` and `__moveinit__` appear only in `src/projectodyssey/base/memory_pool.mojo` docstrings
+- `__copyinit__` and `__moveinit__` appear only in `src/odyssey/base/memory_pool.mojo` docstrings
   explaining the historical rationale for explicit copy/move constructors. The actual struct
   implementations use Mojo's synthesized copy/move semantics via `(Copyable, Movable)` traits.
 - No action required. The codebase is compliant with v0.26.3 standards.
@@ -75,7 +75,7 @@ fn modify(mut self):
 fn process(mut data: AnyTensor):
 ```
 
-**Files Affected**: 8 files in `src/projectodyssey/core/arithmetic_simd.mojo`
+**Files Affected**: 8 files in `src/odyssey/core/arithmetic_simd.mojo`
 
 **Agent Guidance**: Always use `mut` for mutable parameters, never `inout`.
 
@@ -105,7 +105,7 @@ fn __init__(out self):
 fn __init__(out self, value: Int):
 ```
 
-**Files Affected**: 34 files across src/projectodyssey/, examples/, tools/
+**Files Affected**: 34 files across src/odyssey/, examples/, tools/
 
 **Agent Guidance**: ALL `__init__` methods MUST use `out self`, not `mut self`.
 
@@ -174,7 +174,7 @@ from sys import simdwidthof
 from sys.info import simdwidthof
 ```
 
-**Files Affected**: `src/projectodyssey/core/any_tensor.mojo`
+**Files Affected**: `src/odyssey/core/any_tensor.mojo`
 
 ---
 
@@ -200,7 +200,7 @@ var s = String(value)
 var msg = "Count: " + String(count)
 ```
 
-**Files Affected**: 14 files + 11 in src/projectodyssey/data/
+**Files Affected**: 14 files + 11 in src/odyssey/data/
 
 **Agent Guidance**: Always use `String(value)`, never `str(value)`.
 
@@ -232,7 +232,7 @@ struct Transform(Copyable, Movable):
     var name: String
 ```
 
-**Files Affected**: 10 files in src/projectodyssey/core/types/, src/projectodyssey/training/
+**Files Affected**: 10 files in src/odyssey/core/types/, src/odyssey/training/
 
 **Agent Guidance**: Use `@fieldwise_init` with explicit `(Copyable, Movable)` traits.
 
@@ -270,10 +270,10 @@ struct MetricResult(Copyable, Movable):
 
 **Files Affected**: 10 files (28 structs total)
 
-- src/projectodyssey/training/metrics/
-- src/projectodyssey/autograd/
-- src/projectodyssey/utils/
-- src/projectodyssey/core/gradient_types.mojo
+- src/odyssey/training/metrics/
+- src/odyssey/autograd/
+- src/odyssey/utils/
+- src/odyssey/core/gradient_types.mojo
 
 **Agent Guidance**: Any struct used in collections or parameters needs `(Copyable, Movable)`.
 
@@ -308,7 +308,7 @@ struct Dataset(Copyable, Movable):
         self.size = size
 ```
 
-**Files Affected**: 7 files in src/projectodyssey/data/ (25 structs)
+**Files Affected**: 7 files in src/odyssey/data/ (25 structs)
 
 **Agent Guidance**: Use `@fieldwise_init` OR manual `__init__`, never both.
 
@@ -353,7 +353,7 @@ var copy = some_list
 var copy = List[Int](some_list)
 ```
 
-**Files Affected**: 8 files in src/projectodyssey/training/metrics/, src/projectodyssey/autograd/, src/projectodyssey/core/
+**Files Affected**: 8 files in src/odyssey/training/metrics/, src/odyssey/autograd/, src/odyssey/core/
 
 **Agent Guidance**: Use `^` for transfer, explicit constructor for copying.
 
@@ -382,7 +382,7 @@ var ptr = Pointer.address_of(variable)
 var value = ptr.bitcast[Type]()[]
 ```
 
-**Files Affected**: src/projectodyssey/core/bfloat16.mojo (3 locations)
+**Files Affected**: src/odyssey/core/bfloat16.mojo (3 locations)
 
 **Agent Guidance**: Use `Pointer.address_of()` and `[]` array access syntax.
 
@@ -403,7 +403,7 @@ var value = ptr.bitcast[Type]()[]
 var result = AnyTensor.from_scalar(value, dtype)
 
 // CORRECT:
-from projectodyssey.core.any_tensor import full
+from odyssey.core.any_tensor import full
 var result = full(tensor._shape, value, tensor._dtype)
 ```
 
@@ -414,7 +414,7 @@ var result = full(tensor._shape, value, tensor._dtype)
 var total = tensor.sum()
 
 // CORRECT:
-from projectodyssey.core.reduction import sum as tensor_sum
+from odyssey.core.reduction import sum as tensor_sum
 var total = tensor_sum(tensor)
 ```
 
@@ -425,7 +425,7 @@ var total = tensor_sum(tensor)
 var result = a.matmul(b)
 
 // CORRECT:
-from projectodyssey.core.matrix import matmul
+from odyssey.core.matrix import matmul
 var result = matmul(a, b)
 ```
 
@@ -439,8 +439,8 @@ self.tensor = AnyTensor()
 self.tensor = AnyTensor(List[Float32](), DType.float32)
 ```
 
-**Files Affected**: src/projectodyssey/core/activation.mojo, src/projectodyssey/testing/gradient_checker.mojo, tests/,
-src/projectodyssey/training/optimizers/
+**Files Affected**: src/odyssey/core/activation.mojo, src/odyssey/testing/gradient_checker.mojo, tests/,
+src/odyssey/training/optimizers/
 
 ---
 
@@ -470,7 +470,7 @@ var neg_inf = -Float64(1.0) / Float64(0.0)  # -Inf
 var infinity = Float64(1.0) / Float64(0.0)  # +Inf
 ```
 
-**Files Affected**: tests/projectodyssey/training/test_numerical_safety.mojo (7), notes/review/ (1)
+**Files Affected**: tests/odyssey/training/test_numerical_safety.mojo (7), notes/review/ (1)
 
 ---
 
@@ -571,7 +571,7 @@ var s = tensor.shape  # Tries to create closure
 var s = tensor.shape()  # Explicit call
 ```
 
-**Files Affected**: src/projectodyssey/core/matrix.mojo (13 locations)
+**Files Affected**: src/odyssey/core/matrix.mojo (13 locations)
 
 ---
 
@@ -603,7 +603,7 @@ else:
     return Scalar[T](1.0) / (Scalar[T](1.0) + exp(-x))
 ```
 
-**Files Affected**: src/projectodyssey/core/activation.mojo
+**Files Affected**: src/odyssey/core/activation.mojo
 
 **Agent Guidance**: Keep SIMD types consistent within operations.
 
@@ -637,7 +637,7 @@ struct BatchLoader(Copyable, Movable):
     # Copy all fields from BaseLoader
 ```
 
-**Files Affected**: src/projectodyssey/data/loaders.mojo
+**Files Affected**: src/odyssey/data/loaders.mojo
 
 **Agent Guidance**: Use composition, not inheritance for structs.
 
@@ -665,7 +665,7 @@ struct Container[T: Transform]:  # Compile-time generic
     var transform: T
 ```
 
-**Files Affected**: src/projectodyssey/data/generic_transforms.mojo (4 structs)
+**Files Affected**: src/odyssey/data/generic_transforms.mojo (4 structs)
 
 **Agent Guidance**: Use parametric generics `[T: TraitName]` instead of trait-typed fields.
 
@@ -684,7 +684,7 @@ determined at runtime or through multi-hop re-exports across `__init__.mojo` fil
 error: cannot find 'LinearLayer' in module 'shared'
 ```
 
-Even when `src/projectodyssey/__init__.mojo` imports from `shared.core` which imports from
+Even when `src/odyssey/__init__.mojo` imports from `shared.core` which imports from
 `shared.core.layers`, a consumer doing `from shared import LinearLayer` may fail
 because Mojo's compiler resolves imports at compile time and does not follow
 re-export chains through multiple `__init__.mojo` levels.
@@ -700,7 +700,7 @@ to the parent package's namespace in a way that downstream modules can discover.
 from shared import LinearLayer
 
 # CORRECT (import from the defining module):
-from projectodyssey.core.layers import LinearLayer
+from odyssey.core.layers import LinearLayer
 ```
 
 **Workaround in `__init__.mojo`**: Keep commented import stubs with a note explaining
@@ -778,7 +778,7 @@ var shape_vec = tensor.shape()
 if len(shape_vec) == 2:
 ```
 
-**Files Affected**: src/projectodyssey/training/metrics/accuracy.mojo, confusion_matrix.mojo
+**Files Affected**: src/odyssey/training/metrics/accuracy.mojo, confusion_matrix.mojo
 
 **Agent Guidance**: Assign method result to variable before calling len().
 
@@ -832,30 +832,30 @@ if len(shape_vec) == 2:
 
 ### Core Infrastructure (15 files)
 
-- src/projectodyssey/core/any_tensor.mojo, activation.mojo, arithmetic_simd.mojo
-- src/projectodyssey/core/matrix.mojo, broadcasting.mojo, bfloat16.mojo
-- src/projectodyssey/core/types/ (7 files)
-- src/projectodyssey/core/pooling.mojo, conv.mojo, dropout.mojo, etc.
+- src/odyssey/core/any_tensor.mojo, activation.mojo, arithmetic_simd.mojo
+- src/odyssey/core/matrix.mojo, broadcasting.mojo, bfloat16.mojo
+- src/odyssey/core/types/ (7 files)
+- src/odyssey/core/pooling.mojo, conv.mojo, dropout.mojo, etc.
 
 ### Training & Metrics (14 files)
 
-- src/projectodyssey/training/metrics/ (4 files)
-- src/projectodyssey/training/optimizers/ (3 files)
-- src/projectodyssey/training/trainer, callbacks, mixed_precision
+- src/odyssey/training/metrics/ (4 files)
+- src/odyssey/training/optimizers/ (3 files)
+- src/odyssey/training/trainer, callbacks, mixed_precision
 
 ### Data Module (7 files)
 
-- src/projectodyssey/data/datasets.mojo, loaders.mojo, samplers.mojo
-- src/projectodyssey/data/transforms.mojo, text_transforms.mojo, generic_transforms.mojo
-- src/projectodyssey/data/batch_utils.mojo
+- src/odyssey/data/datasets.mojo, loaders.mojo, samplers.mojo
+- src/odyssey/data/transforms.mojo, text_transforms.mojo, generic_transforms.mojo
+- src/odyssey/data/batch_utils.mojo
 
 ### Autograd (4 files)
 
-- src/projectodyssey/autograd/variable.mojo, tape.mojo, optimizers.mojo, functional.mojo
+- src/odyssey/autograd/variable.mojo, tape.mojo, optimizers.mojo, functional.mojo
 
 ### Utils (4 files)
 
-- src/projectodyssey/utils/random.mojo, profiling.mojo, logging.mojo, io.mojo, visualization.mojo
+- src/odyssey/utils/random.mojo, profiling.mojo, logging.mojo, io.mojo, visualization.mojo
 
 ### Tests (31 files)
 

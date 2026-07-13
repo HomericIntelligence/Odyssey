@@ -49,10 +49,10 @@ Requirements:
 """
 
 from model import ResNet18
-from projectodyssey.data.datasets import CIFAR10Dataset
-from projectodyssey.data.formats import one_hot_encode
-from projectodyssey.data.constants import DatasetInfo
-from projectodyssey.autograd import (
+from odyssey.data.datasets import CIFAR10Dataset
+from odyssey.data.formats import one_hot_encode
+from odyssey.data.constants import DatasetInfo
+from odyssey.autograd import (
     Variable,
     GradientTape,
     AdamW,
@@ -65,10 +65,10 @@ from projectodyssey.autograd import (
     variable_mean,
     variable_batch_norm,
 )
-from projectodyssey.autograd.optimizer_base import Optimizer
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros
-from projectodyssey.utils.arg_parser import create_training_parser
+from odyssey.autograd.optimizer_base import Optimizer
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros
+from odyssey.utils.arg_parser import create_training_parser
 from std.collections import List
 
 

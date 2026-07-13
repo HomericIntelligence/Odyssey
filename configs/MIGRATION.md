@@ -66,7 +66,7 @@ training:
 **After** (configuration-driven):
 
 ```mojo
-from projectodyssey.utils.config_loader import load_experiment_config
+from odyssey.utils.config_loader import load_experiment_config
 
 fn train_model() raises:
     # Load configuration
@@ -98,7 +98,7 @@ fn create_model() -> Model:
 ### After
 
 ```mojo
-from projectodyssey.utils.config_loader import load_experiment_config
+from odyssey.utils.config_loader import load_experiment_config
 
 fn create_model(config: Config) raises -> Model:
     var model = Model()
@@ -122,7 +122,7 @@ fn main() raises:
 Add validation to catch errors early:
 
 ```mojo
-from projectodyssey.utils.config_loader import validate_experiment_config
+from odyssey.utils.config_loader import validate_experiment_config
 
 fn main() raises:
     var config = load_experiment_config("lenet5", "baseline")
@@ -216,7 +216,7 @@ fn main() raises:
 ### After Migration
 
 ```mojo
-from projectodyssey.utils.config_loader import (
+from odyssey.utils.config_loader import (
     load_experiment_config,
     validate_experiment_config
 )

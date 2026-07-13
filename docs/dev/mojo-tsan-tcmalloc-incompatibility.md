@@ -84,7 +84,7 @@ runtime.
 just podman-up
 
 # Minimal reproduction: build a Mojo program with --sanitize thread
-podman compose exec -T projectodyssey-dev bash -c \
+podman compose exec -T odyssey-dev bash -c \
   "cd /workspace && pixi run mojo build --sanitize thread --Werror -j1 \
    -I /workspace -Xlinker -lm tests/configs/test_env_vars.mojo \
    -o /tmp/tsan_test && /tmp/tsan_test"

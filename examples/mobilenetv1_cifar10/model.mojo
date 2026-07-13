@@ -19,9 +19,9 @@ References:
     https://arxiv.org/abs/1704.04861
 """
 
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros
-from projectodyssey.core import (
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros
+from odyssey.core import (
     conv2d,
     batch_norm2d,
     relu,
@@ -30,8 +30,8 @@ from projectodyssey.core import (
     xavier_normal,
     constant,
 )
-from projectodyssey.core.linear import linear
-from projectodyssey.core.shape import conv2d_output_shape
+from odyssey.core.linear import linear
+from odyssey.core.shape import conv2d_output_shape
 
 
 def depthwise_conv2d(
@@ -445,7 +445,7 @@ struct MobileNetV1:
             - ds_block_N_{dw,pw}_{weights,bias,bn_*}.weights for each block
             - fc_weights.weights, fc_bias.weights.
         """
-        from projectodyssey.training.model_utils import (
+        from odyssey.training.model_utils import (
             load_model_weights,
             get_model_parameter_names,
         )
@@ -847,7 +847,7 @@ struct MobileNetV1:
 
             Total parameters saved: ~156 (6 initial conv, 13 blocks × 12 params, 2 fc).
         """
-        from projectodyssey.training.model_utils import (
+        from odyssey.training.model_utils import (
             save_model_weights,
             get_model_parameter_names,
         )

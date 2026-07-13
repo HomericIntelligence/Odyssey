@@ -1,0 +1,562 @@
+"""
+Import Validation Tests.
+
+Tests that all public imports work correctly for the shared library.
+These tests verify both import functionality and basic component behavior.
+
+"""
+
+
+from std.testing import assert_true
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import ones, randn, zeros
+from odyssey.core import (
+    BF8,
+    FP8,
+    avgpool2d,
+    conv2d,
+    elu,
+    flatten,
+    gelu,
+    leaky_relu,
+    linear,
+    maxpool2d,
+    mish,
+    relu,
+    selu,
+    sigmoid,
+    softmax,
+    swish,
+    tanh,
+)
+
+# odyssey.training.TrainingLoopSGD is a thin Optimizer-trait adapter
+# for the generic TrainingLoop, distinct from odyssey.autograd's real
+# SGD optimizer (which odyssey.SGD re-exports). They were renamed apart
+# in issue #5392 — both used to be named `SGD`, which made the top-level
+# `from odyssey import SGD` an ambiguous import.
+from odyssey.training import (
+    Callback,
+    CosineAnnealingLR,
+    EarlyStopping,
+    ExponentialLR,
+    LoggingCallback,
+    MSELoss,
+    ModelCheckpoint,
+    MultiStepLR,
+    ReduceLROnPlateau,
+    StepLR,
+    TrainingLoopSGD,
+    TrainingState,
+    WarmupLR,
+    base,
+)
+from odyssey import (
+    AUTHOR,
+    AdaGrad,
+    Adam,
+    AdamW,
+    LICENSE,
+    RMSprop,
+    VERSION,
+    core,
+    data,
+    training,
+    utils,
+)
+from odyssey.training.base import (
+    Callback,
+    TrainingState,
+)
+from odyssey.data.datasets import (
+    AnyTensorDataset,
+    CIFAR10Dataset,
+    Dataset,
+)
+from odyssey.data import (
+    AnyTensorDataset,
+    Batch,
+    Dataset,
+    FileDataset,
+    normalize_images,
+    one_hot_encode,
+)
+from odyssey.utils import (
+    Config,
+    ConfigValidator,
+    FileHandler,
+    LogLevel,
+    Logger,
+    StreamHandler,
+    get_logger,
+    load_config,
+    save_config,
+)
+
+
+def test_core_imports() raises:
+    """Test core package imports work correctly."""
+
+    # Test that functions are actually callable and work correctly
+    var test_tensor = zeros([3, 3], DType.float32)
+    assert_true(
+        test_tensor.dim() == 2, "zeros should create tensor with correct rank"
+    )
+    var test_shape = test_tensor.shape()
+    assert_true(
+        test_shape[0] == 3,
+        "zeros should create tensor with correct first dimension",
+    )
+    assert_true(
+        test_shape[1] == 3,
+        "zeros should create tensor with correct second dimension",
+    )
+
+    print("✓ Core imports test passed")
+
+
+def test_core_layers_imports() raises:
+    """Test core layer operations imports."""
+    print("✓ Core layer operations imports test passed")
+
+
+def test_core_activations_imports() raises:
+    """Test core activation function imports."""
+    print("✓ Core activation functions imports test passed")
+
+
+def test_core_types_imports() raises:
+    """Test core types imports."""
+    print("✓ Core types imports test passed")
+
+
+def test_core_activations_direct_imports() raises:
+    """Test activations are importable directly from odyssey.core.activation sub-module.
+    """
+    from odyssey.core.activation import relu, sigmoid, tanh, gelu
+
+    print("✓ Core activations direct imports test passed")
+
+
+def test_core_layers_direct_imports() raises:
+    """Test layers are importable directly from their odyssey.core sub-modules.
+
+    Note: linear, conv2d, flatten are pure functions in odyssey.core (not in
+    odyssey.core.layers which contains struct-based layer wrappers like Linear).
+    """
+    from odyssey.core.linear import linear
+    from odyssey.core.conv import conv2d
+    from odyssey.core.shape import flatten
+
+    print("✓ Core layers direct imports test passed")
+
+
+def test_core_types_direct_imports() raises:
+    """Test types are importable directly from their odyssey.core sub-modules.
+
+    Note: AnyTensor lives in odyssey.core.any_tensor (not odyssey.core.types which
+    contains dtype aliases like FP8, BF8, BF16).
+    """
+    from odyssey.core.types import FP8, BF8
+
+    print("✓ Core types direct imports test passed")
+
+
+def test_training_imports() raises:
+    """Test training package imports work correctly."""
+    print("✓ Training imports test passed")
+
+
+def test_training_optimizers_imports() raises:
+    """Test training optimizers imports."""
+    print("✓ Training optimizers imports test passed")
+
+
+def test_shared_optimizer_imports() raises:
+    """Test that Adam, AdamW, AdaGrad, RMSprop are importable from odyssey package.
+
+    Covers Issue #3745: AdaGrad and RMSprop exposed as top-level shared imports.
+    Note: SGD is intentionally imported via `odyssey.training` instead — the
+    `shared` package surfaces two `SGD` declarations (autograd's optimizer
+    struct and training's wrapper), so a bare `from odyssey import SGD`
+    is ambiguous under --Werror.
+    """
+    print("✓ Shared optimizer imports test passed")
+
+
+def test_training_schedulers_imports() raises:
+    """Test training schedulers imports."""
+    print("✓ Training schedulers imports test passed")
+
+
+def test_training_metrics_imports() raises:
+    """Test training metrics imports."""
+    # Metrics are in odyssey.training for now
+    print("✓ Training metrics imports test passed")
+
+
+def test_training_callbacks_imports() raises:
+    """Test training callbacks imports."""
+    print("✓ Training callbacks imports test passed")
+
+
+def test_training_optimizers_direct_imports() raises:
+    """Test optimizers are importable directly from odyssey.training.optimizers sub-module.
+
+    Validates the canonical import path for optimizers sub-module.
+
+    Note: The SGD struct is defined in odyssey.training (importable from there).
+    The odyssey.training.optimizers sub-module provides functional step functions
+    (sgd_step, adam_step, etc.) rather than struct-based optimizers.
+    """
+    from odyssey.training.optimizers import sgd_step, adam_step
+
+    print("✓ Training optimizers direct imports test passed")
+
+
+def test_training_schedulers_direct_imports() raises:
+    """Test schedulers are importable directly from odyssey.training.schedulers sub-module.
+
+    Validates the canonical import path for schedulers sub-module.
+    """
+    from odyssey.training.schedulers import (
+        StepLR,
+        CosineAnnealingLR,
+        ExponentialLR,
+    )
+
+    print("✓ Training schedulers direct imports test passed")
+
+
+def test_training_base_direct_imports() raises:
+    """Test base classes are importable directly from odyssey.training.base sub-module.
+
+    Validates the canonical import path for base sub-module.
+    """
+    print("✓ Training base direct imports test passed")
+
+
+def test_training_loops_direct_imports() raises:
+    """Test loops and base components are importable from their direct sub-modules.
+
+    Validates the canonical import paths for loops and base sub-modules.
+
+    Note: TrainingState is defined in odyssey.training.base (not odyssey.training.loops).
+    The loops sub-module provides TrainingLoop and ValidationLoop.
+    """
+    from odyssey.training.loops import TrainingLoop
+
+    print("✓ Training loops direct imports test passed")
+
+
+def test_training_callbacks_direct_imports() raises:
+    """Test callbacks are importable directly from odyssey.training.callbacks sub-module.
+
+        This validates the canonical import path documented in Issue #3211:
+    from odyssey.training.callbacks import (
+        EarlyStopping,
+        LoggingCallback,
+        ModelCheckpoint,
+    )
+
+        NOTE: A negative test for the wrong import path cannot be written because
+        Mojo import failures are compile-time errors, not runtime exceptions.
+        There is no equivalent of pytest.raises() for compile-time errors.
+    """
+    # Instantiate each type to confirm the import is functional, not just parseable
+    var early_stop = EarlyStopping(
+        monitor="val_loss",
+        patience=3,
+        min_delta=0.001,
+        mode="min",
+        verbose=False,
+    )
+    assert_true(
+        early_stop.patience == 3, "EarlyStopping should have patience=3"
+    )
+    assert_true(
+        early_stop.stopped == False,
+        "EarlyStopping should not be stopped initially",
+    )
+
+    var checkpoint = ModelCheckpoint(
+        filepath="test_checkpoint.pt",
+        save_best_only=False,
+        save_frequency=1,
+        mode="min",
+    )
+    assert_true(
+        checkpoint.save_count == 0,
+        "ModelCheckpoint should have save_count=0 initially",
+    )
+
+    var logger = LoggingCallback(log_interval=2)
+    assert_true(
+        logger.log_interval == 2, "LoggingCallback should have log_interval=2"
+    )
+    assert_true(
+        logger.log_count == 0,
+        "LoggingCallback should have log_count=0 initially",
+    )
+
+    print("✓ Training callbacks direct imports test passed")
+
+
+def test_training_loops_imports() raises:
+    """Test training loops imports."""
+    print("✓ Training loops imports test passed")
+
+
+def test_data_imports() raises:
+    """Test data package imports work correctly."""
+    print("✓ Data imports test passed")
+
+
+def test_data_datasets_imports() raises:
+    """Test data datasets imports."""
+    print("✓ Data datasets imports test passed")
+
+
+def test_data_loaders_imports() raises:
+    """Test data loaders imports."""
+    print("✓ Data loaders imports test passed")
+
+
+def test_data_transforms_imports() raises:
+    """Test data transforms imports."""
+    # Data transforms are provided as utility functions, not classes
+    print("✓ Data transforms imports test passed")
+
+
+def test_data_datasets_direct_imports() raises:
+    """Test datasets are importable directly from odyssey.data.datasets sub-module.
+    """
+    print("✓ Data datasets direct imports test passed")
+
+
+def test_data_loaders_direct_imports() raises:
+    """Test loaders are importable directly from odyssey.data.loaders sub-module.
+    """
+    from odyssey.data.loaders import Batch
+
+    print("✓ Data loaders direct imports test passed")
+
+
+def test_utils_imports() raises:
+    """Test utils package imports work correctly."""
+    print("✓ Utils imports test passed")
+
+
+def test_utils_logging_imports() raises:
+    """Test utils logging imports."""
+    print("✓ Utils logging imports test passed")
+
+
+def test_utils_visualization_imports() raises:
+    """Test utils visualization imports."""
+    # Visualization functions require Python interop
+    # For now, just verify utils imports work
+    print("✓ Utils visualization imports test passed")
+
+
+def test_utils_config_imports() raises:
+    """Test utils config imports."""
+    print("✓ Utils config imports test passed")
+
+
+def test_root_imports() raises:
+    """Test root package convenience imports work."""
+    # Root package doesn't re-export all components
+    # Users should import from subpackages
+    print("✓ Root imports test passed")
+
+
+def test_subpackage_imports() raises:
+    """Test importing subpackages themselves."""
+    print("✓ Subpackage imports test passed")
+
+
+def test_nested_optimizer_imports() raises:
+    """Test nested imports from optimizer subpackages."""
+    print("✓ Nested optimizer imports test passed")
+
+
+def test_nested_scheduler_imports() raises:
+    """Test nested imports from scheduler subpackages."""
+    print("✓ Nested scheduler imports test passed")
+
+
+def test_nested_metric_imports() raises:
+    """Test nested imports from metrics subpackages."""
+    # Metrics are in odyssey.training
+    print("✓ Nested metric imports test passed")
+
+
+def test_version_info() raises:
+    """Test version info is accessible and has proper format."""
+    # Critical validation - ensure values are not empty/None
+    assert_true(VERSION != "", "VERSION should not be empty")
+    assert_true(AUTHOR != "", "AUTHOR should not be empty")
+    assert_true(LICENSE != "", "LICENSE should not be empty")
+
+    # Ensure these are actual string values, not None
+    assert_true(
+        VERSION.byte_length() > 0, "VERSION string should have length > 0"
+    )
+    assert_true(
+        AUTHOR.byte_length() > 0, "AUTHOR string should have length > 0"
+    )
+    assert_true(
+        LICENSE.byte_length() > 0, "LICENSE string should have length > 0"
+    )
+
+    # Test version format follows semantic versioning (major.minor.patch)
+    var version_parts = VERSION.split(".")
+    assert_true(
+        len(version_parts) == 3,
+        "Version should have 3 parts (major.minor.patch)",
+    )
+
+    # Test that version parts are numeric by checking they only contain digits
+    for i in range(len(version_parts)):
+        var part = version_parts[i]
+        assert_true(part.byte_length() > 0, "Version part should not be empty")
+
+        # Check each character is a digit (0-9)
+        var is_numeric = True
+        var part_bytes = part.as_bytes()
+        for j in range(part.byte_length()):
+            var ch = Int(part_bytes[j])
+            if ch < 48 or ch > 57:  # ord("0") == 48, ord("9") == 57
+                is_numeric = False
+                break
+
+        assert_true(is_numeric, "Version part should contain only digits")
+
+    print("✓ Version info test passed")
+
+
+def test_training_dataloader_imports() raises:
+    """Test DataLoader and DataBatch are importable from trainer_interface.
+
+    Verifies Issue #3851: DataLoader and DataBatch defined in
+    src/odyssey/training/trainer_interface.mojo.
+    """
+    from odyssey.training.trainer_interface import DataLoader, DataBatch
+
+    print("✓ Training DataLoader/DataBatch package imports test passed")
+
+
+def main() raises:
+    """Run all test_imports tests."""
+    print("Running test_imports tests...")
+
+    test_core_imports()
+    print("✓ test_core_imports")
+
+    test_core_layers_imports()
+    print("✓ test_core_layers_imports")
+
+    test_core_activations_imports()
+    print("✓ test_core_activations_imports")
+
+    test_core_types_imports()
+    print("✓ test_core_types_imports")
+
+    test_core_activations_direct_imports()
+    print("✓ test_core_activations_direct_imports")
+
+    test_core_layers_direct_imports()
+    print("✓ test_core_layers_direct_imports")
+
+    test_core_types_direct_imports()
+    print("✓ test_core_types_direct_imports")
+
+    test_training_imports()
+    print("✓ test_training_imports")
+
+    test_training_optimizers_imports()
+    print("✓ test_training_optimizers_imports")
+
+    test_shared_optimizer_imports()
+    print("✓ test_shared_optimizer_imports")
+
+    test_training_schedulers_imports()
+    print("✓ test_training_schedulers_imports")
+
+    test_training_metrics_imports()
+    print("✓ test_training_metrics_imports")
+
+    test_training_callbacks_imports()
+    print("✓ test_training_callbacks_imports")
+
+    test_training_optimizers_direct_imports()
+    print("✓ test_training_optimizers_direct_imports")
+
+    test_training_schedulers_direct_imports()
+    print("✓ test_training_schedulers_direct_imports")
+
+    test_training_base_direct_imports()
+    print("✓ test_training_base_direct_imports")
+
+    test_training_loops_direct_imports()
+    print("✓ test_training_loops_direct_imports")
+
+    test_training_callbacks_direct_imports()
+    print("✓ test_training_callbacks_direct_imports")
+
+    test_training_loops_imports()
+    print("✓ test_training_loops_imports")
+
+    test_data_imports()
+    print("✓ test_data_imports")
+
+    test_data_datasets_imports()
+    print("✓ test_data_datasets_imports")
+
+    test_data_loaders_imports()
+    print("✓ test_data_loaders_imports")
+
+    test_data_transforms_imports()
+    print("✓ test_data_transforms_imports")
+
+    test_data_datasets_direct_imports()
+    print("✓ test_data_datasets_direct_imports")
+
+    test_data_loaders_direct_imports()
+    print("✓ test_data_loaders_direct_imports")
+
+    test_utils_imports()
+    print("✓ test_utils_imports")
+
+    test_utils_logging_imports()
+    print("✓ test_utils_logging_imports")
+
+    test_utils_visualization_imports()
+    print("✓ test_utils_visualization_imports")
+
+    test_utils_config_imports()
+    print("✓ test_utils_config_imports")
+
+    test_root_imports()
+    print("✓ test_root_imports")
+
+    test_subpackage_imports()
+    print("✓ test_subpackage_imports")
+
+    test_nested_optimizer_imports()
+    print("✓ test_nested_optimizer_imports")
+
+    test_nested_scheduler_imports()
+    print("✓ test_nested_scheduler_imports")
+
+    test_nested_metric_imports()
+    print("✓ test_nested_metric_imports")
+
+    test_version_info()
+    print("✓ test_version_info")
+
+    test_training_dataloader_imports()
+    print("✓ test_training_dataloader_imports")
+
+    print("\nAll test_imports tests passed!")

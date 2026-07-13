@@ -1252,14 +1252,14 @@ cd Odyssey
 git checkout bisect/6413-positive-control
 
 # 2. Build the container image locally (or pull from GHCR)
-podman compose build projectodyssey-dev
+podman compose build odyssey-dev
 # (~10 min first build; subsequent builds use the layer cache)
 
 # 3. Run the four-layer probe inside the cached image
 podman run --rm --userns=keep-id \
   -v "$(pwd):/workspace:Z" -w /workspace \
   --ulimit core=-1 \
-  projectodyssey:dev bash -c '
+  odyssey:dev bash -c '
     echo "=== Layer 1: kernel view ==="
     grep -m1 ^flags /proc/cpuinfo | tr " " "\n" | grep ^avx
     echo "=== Layer 2 + 3: silicon + compiler-rt ==="
@@ -1274,7 +1274,7 @@ podman run --rm --userns=keep-id \
 podman run --rm --userns=keep-id \
   -v "$(pwd):/workspace:Z" -w /workspace \
   --ulimit core=-1 \
-  projectodyssey:dev \
+  odyssey:dev \
   bash -c 'pixi run mojo run repro/repro_6413_python_import_os.mojo'
 ```
 

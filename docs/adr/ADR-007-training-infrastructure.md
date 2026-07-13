@@ -342,7 +342,7 @@ struct Trainer:
 ### File Locations
 
 ```text
-src/projectodyssey/training/
+src/odyssey/training/
 ├── __init__.mojo              # Package exports
 ├── loops/
 │   ├── __init__.mojo
@@ -352,7 +352,7 @@ src/projectodyssey/training/
 ├── metrics.mojo               # LossTracker, AccuracyMetric
 └── callbacks.mojo             # Training callbacks (future)
 
-src/projectodyssey/utils/
+src/odyssey/utils/
 ├── config.mojo                # Config struct
 ├── config_loader.mojo         # load_experiment_config
 └── arg_parser.mojo            # Command-line parsing
@@ -424,8 +424,8 @@ for epoch in range(num_epochs):
 
 ### Related Files
 
-- `src/projectodyssey/training/loops/training_loop.mojo`: Core training loop
-- `src/projectodyssey/training/trainer_interface.mojo`: TrainerConfig, TrainingMetrics
+- `src/odyssey/training/loops/training_loop.mojo`: Core training loop
+- `src/odyssey/training/trainer_interface.mojo`: TrainerConfig, TrainingMetrics
 - `papers/_template/examples/train.mojo`: Example training script
 - `examples/*/train.mojo`: Model-specific training examples
 

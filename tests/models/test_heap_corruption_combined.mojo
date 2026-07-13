@@ -4,23 +4,23 @@ Contains 8 fn test_ functions (limit: 10).
 """
 
 
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.core.conv import conv2d
-from projectodyssey.core.activation import relu
-from projectodyssey.testing.layer_params import (
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.core.conv import conv2d
+from odyssey.core.activation import relu
+from odyssey.testing.layer_params import (
     ConvFixture,
     LinearFixture,
 )
-from projectodyssey.testing.assertions import (
+from odyssey.testing.assertions import (
     assert_dtype,
     assert_false,
     assert_shape,
     assert_true,
 )
-from projectodyssey.testing.layer_testers import LayerTester
-from projectodyssey.core.pooling import maxpool2d
-from projectodyssey.core.linear import linear
-from projectodyssey.testing.special_values import (
+from odyssey.testing.layer_testers import LayerTester
+from odyssey.core.pooling import maxpool2d
+from odyssey.core.linear import linear
+from odyssey.testing.special_values import (
     create_special_value_tensor,
     SPECIAL_VALUE_ONE,
 )

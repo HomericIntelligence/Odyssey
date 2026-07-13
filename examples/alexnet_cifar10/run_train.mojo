@@ -39,20 +39,20 @@ from model import (
     POOL3_STRIDE,
     POOL3_PADDING,
 )
-from projectodyssey.data.datasets import CIFAR10Dataset
-from projectodyssey.data.formats import one_hot_encode
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros
-from projectodyssey.core.conv import conv2d, conv2d_backward
-from projectodyssey.core.pooling import maxpool2d, maxpool2d_backward
-from projectodyssey.core.linear import linear, linear_backward
-from projectodyssey.core.activation import relu, relu_backward
-from projectodyssey.core.dropout import dropout, dropout_backward
-from projectodyssey.core.loss import cross_entropy, cross_entropy_backward
-from projectodyssey.training.schedulers import step_lr
-from projectodyssey.utils.arg_parser import create_training_parser
-from projectodyssey.training.metrics import evaluate_with_predict
-from projectodyssey.data.constants import DatasetInfo
+from odyssey.data.datasets import CIFAR10Dataset
+from odyssey.data.formats import one_hot_encode
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros
+from odyssey.core.conv import conv2d, conv2d_backward
+from odyssey.core.pooling import maxpool2d, maxpool2d_backward
+from odyssey.core.linear import linear, linear_backward
+from odyssey.core.activation import relu, relu_backward
+from odyssey.core.dropout import dropout, dropout_backward
+from odyssey.core.loss import cross_entropy, cross_entropy_backward
+from odyssey.training.schedulers import step_lr
+from odyssey.utils.arg_parser import create_training_parser
+from odyssey.training.metrics import evaluate_with_predict
+from odyssey.data.constants import DatasetInfo
 from std.collections import List
 
 

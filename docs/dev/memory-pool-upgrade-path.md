@@ -2,7 +2,7 @@
 
 ## Current State (Mojo 1.0)
 
-The functions `pooled_alloc()` and `pooled_free()` in `src/projectodyssey/base/memory_pool.mojo`
+The functions `pooled_alloc()` and `pooled_free()` in `src/odyssey/base/memory_pool.mojo`
 bypass the `TensorMemoryPool` entirely and delegate directly to system `malloc`/`free`. This is a
 temporary workaround because **Mojo 1.0 does not support global mutable state**.
 
@@ -34,7 +34,7 @@ When Mojo adds support for `global var`, upgrading is a **one-line change** in t
 
 #### 1. Add Global Pool Singleton
 
-After line 760 in `src/projectodyssey/base/memory_pool.mojo`, replace the comment block with:
+After line 760 in `src/odyssey/base/memory_pool.mojo`, replace the comment block with:
 
 ```mojo
 # Global memory pool singleton - one per process
@@ -83,10 +83,10 @@ Run the test suite to verify the upgrade:
 
 ```bash
 # Unit tests for memory pool behavior
-just test-group "tests/projectodyssey/core" "test_memory_pool.mojo"
+just test-group "tests/odyssey/core" "test_memory_pool.mojo"
 
 # Thread-safety tests
-just test-group "tests/projectodyssey/core" "test_memory_pool_threadsafe.mojo"
+just test-group "tests/odyssey/core" "test_memory_pool_threadsafe.mojo"
 
 # Full validation
 just validate

@@ -29,7 +29,7 @@ fi
 PROFILE="$1"
 shift
 
-# Operate from the repo root so `-I src` resolves projectodyssey.* correctly.
+# Operate from the repo root so `-I src` resolves odyssey.* correctly.
 REPO_ROOT="$(git rev-parse --show-toplevel)"
 cd "$REPO_ROOT"
 

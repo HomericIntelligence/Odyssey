@@ -47,7 +47,7 @@ I = torch.eye(3)
 **ML Odyssey:**
 
 ```mojo
-from projectodyssey.core import zeros, ones, randn, arange, eye
+from odyssey.core import zeros, ones, randn, arange, eye
 
 # From values (use full or creation functions)
 var x = arange(1.0, 4.0, 1.0, DType.float32)
@@ -240,7 +240,7 @@ output = layer(input)
 **ML Odyssey:**
 
 ```mojo
-from projectodyssey.core.layers import Linear
+from odyssey.core.layers import Linear
 
 var layer = Linear(784, 128)
 var output = layer.forward(input)
@@ -260,7 +260,7 @@ output = conv(input)  # NCHW format
 **ML Odyssey:**
 
 ```mojo
-from projectodyssey.core.layers import Conv2d
+from odyssey.core.layers import Conv2d
 
 var conv = Conv2d(3, 64, kernel_size=3, padding=1)
 var output = conv.forward(input)  # NCHW format
@@ -281,7 +281,7 @@ bn.train()  # Training mode
 **ML Odyssey:**
 
 ```mojo
-from projectodyssey.core.layers import BatchNorm2d
+from odyssey.core.layers import BatchNorm2d
 
 var bn = BatchNorm2d(64)
 bn.train()  # Training mode
@@ -304,7 +304,7 @@ y = torch.tanh(x)
 **ML Odyssey:**
 
 ```mojo
-from projectodyssey.core import relu, sigmoid, softmax, tanh
+from odyssey.core import relu, sigmoid, softmax, tanh
 
 var y = relu(x)
 var y = sigmoid(x)
@@ -336,7 +336,7 @@ model = SimpleModel()
 ### ML Odyssey Model
 
 ```mojo
-from projectodyssey.core.layers import Linear, ReLU
+from odyssey.core.layers import Linear, ReLU
 
 struct SimpleModel:
     var fc1: Linear
@@ -386,7 +386,7 @@ print(x.grad)    # Access gradient
 ### ML Odyssey (Explicit Tape)
 
 ```mojo
-from projectodyssey.autograd import Tape
+from odyssey.autograd import Tape
 
 var tape = Tape()
 with tape:
@@ -412,7 +412,7 @@ with torch.no_grad():
 **ML Odyssey:**
 
 ```mojo
-from projectodyssey.autograd import no_grad
+from odyssey.autograd import no_grad
 
 with no_grad():
     var output = model.forward(input)
@@ -443,9 +443,9 @@ for epoch in range(10):
 ### ML Odyssey
 
 ```mojo
-from projectodyssey.training.optimizers import Adam
-from projectodyssey.core.layers import CrossEntropyLoss
-from projectodyssey.autograd import Tape
+from odyssey.training.optimizers import Adam
+from odyssey.core.layers import CrossEntropyLoss
+from odyssey.autograd import Tape
 
 var model = SimpleModel()
 var optimizer = Adam(model.parameters(), lr=0.001)

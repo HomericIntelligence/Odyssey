@@ -6,7 +6,7 @@ Run with: mojo test tests/configs/test_json_colon_values.mojo
 """
 
 from std.testing import assert_true, assert_false, assert_equal
-from projectodyssey.utils.config import Config, load_config
+from odyssey.utils.config import Config, load_config
 
 
 # ============================================================================

@@ -18,7 +18,7 @@ It is a **standalone ML training framework** — not a distributed agent or
 microservice.
 
 **This repo's role**: Mojo-based ML framework for reproducing classic research
-papers. The shared library (`src/projectodyssey/`) provides tensor ops, autograd, layers,
+papers. The shared library (`src/odyssey/`) provides tensor ops, autograd, layers,
 and training infrastructure that all paper implementations build on.
 
 **What this repo is NOT** (to prevent AI agents from making incorrect
@@ -271,8 +271,8 @@ The project uses a dual-type tensor system (see [ADR-012](docs/adr/ADR-012-param
 Both conform to `TensorLike` trait. Zero-copy conversion via `as_tensor[dtype]()` and `as_any()`.
 
 ```mojo
-from projectodyssey.core.any_tensor import AnyTensor, zeros
-from projectodyssey.tensor.tensor import Tensor
+from odyssey.core.any_tensor import AnyTensor, zeros
+from odyssey.tensor.tensor import Tensor
 ```
 
 ## Claude 4 & Claude Code Optimization

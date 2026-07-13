@@ -1,6 +1,6 @@
 # Wheel-only project config — pure-Python wheel that bundles
-# `projectodyssey.mojopkg` as package data so consumers can
-# `pip install projectodyssey` and feed the path to `mojo run -I`.
+# `odyssey.mojopkg` as package data so consumers can
+# `pip install odyssey` and feed the path to `mojo run -I`.
 #
 # Dependency-management note: this file is intentionally minimal and is
 # NOT a source of truth for the project's dependencies. The repo-level
@@ -12,9 +12,9 @@ requires = ["setuptools>=82", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "projectodyssey"
+name = "odyssey"
 version = "0.1.0"
-description = "ProjectOdyssey: ML Odyssey shared library bundled as a Mojo .mojopkg. Use projectodyssey.import_dir() to get the path to feed `mojo run -I`."
+description = "Odyssey: ML Odyssey shared library bundled as a Mojo .mojopkg. Use odyssey.import_dir() to get the path to feed `mojo run -I`."
 license = { text = "BSD-3-Clause" }
 authors = [
     { name = "Micah Villmow", email = "4211002+mvillmow@users.noreply.github.com" },
@@ -37,7 +37,7 @@ Issues = "https://github.com/HomericIntelligence/Odyssey/issues"
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["projectodyssey*"]
+include = ["odyssey*"]
 
 [tool.setuptools.package-data]
-projectodyssey = ["_data/*.mojopkg"]
+odyssey = ["_data/*.mojopkg"]

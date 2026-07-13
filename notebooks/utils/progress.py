@@ -102,12 +102,8 @@ class TrainingProgressBar:
             "num_epochs": len(self.epoch_losses),
             "final_loss": self.epoch_losses[-1] if self.epoch_losses else None,
             "best_loss": min(self.epoch_losses) if self.epoch_losses else None,
-            "final_accuracy": (
-                self.epoch_accuracies[-1] if self.epoch_accuracies else None
-            ),
-            "best_accuracy": (
-                max(self.epoch_accuracies) if self.epoch_accuracies else None
-            ),
+            "final_accuracy": (self.epoch_accuracies[-1] if self.epoch_accuracies else None),
+            "best_accuracy": (max(self.epoch_accuracies) if self.epoch_accuracies else None),
         }
 
     def plot_history(self):

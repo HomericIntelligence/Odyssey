@@ -15,8 +15,8 @@ command -v mojo >/dev/null 2>&1 || {
 }
 
 # Validate source directory exists
-if [[ ! -d "src/projectodyssey/${PACKAGE_NAME}" ]]; then
-    echo "❌ ERROR: Package source not found: src/projectodyssey/${PACKAGE_NAME}"
+if [[ ! -d "src/odyssey/${PACKAGE_NAME}" ]]; then
+    echo "❌ ERROR: Package source not found: src/odyssey/${PACKAGE_NAME}"
     exit 1
 fi
 
@@ -25,7 +25,7 @@ mkdir -p "${OUTPUT_DIR}"
 
 # Build package
 echo "Building ${PACKAGE_NAME}-${VERSION}.mojopkg..."
-mojo package "src/projectodyssey/${PACKAGE_NAME}" -o "${OUTPUT_DIR}/${PACKAGE_NAME}-${VERSION}.mojopkg" || {
+mojo package "src/odyssey/${PACKAGE_NAME}" -o "${OUTPUT_DIR}/${PACKAGE_NAME}-${VERSION}.mojopkg" || {
     echo "❌ ERROR: Package build failed"
     exit 1
 }

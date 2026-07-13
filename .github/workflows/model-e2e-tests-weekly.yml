@@ -62,7 +62,7 @@ jobs:
             # Run Mojo tests if they exist
             mojo_tests=$(find "$model_dir" -name 'test_*.mojo' 2>/dev/null | head -1)
             if [ -n "$mojo_tests" ]; then
-              if podman compose exec -T projectodyssey-dev bash -c "pixi run mojo test -I . $model_dir --verbose" \
+              if podman compose exec -T odyssey-dev bash -c "pixi run mojo test -I . $model_dir --verbose" \
                   2>&1 | tee "test-results/${model_name}-mojo.txt"; then
                 echo "Mojo E2E tests passed for $model_name"
               else
@@ -76,7 +76,7 @@ jobs:
             # Run Python tests if they exist
             py_tests=$(find "$model_dir" -name 'test_*.py' 2>/dev/null | head -1)
             if [ -n "$py_tests" ]; then
-              if podman compose exec -T projectodyssey-dev bash -c "pixi run pytest $model_dir --verbose" \
+              if podman compose exec -T odyssey-dev bash -c "pixi run pytest $model_dir --verbose" \
                   2>&1 | tee "test-results/${model_name}-python.txt"; then
                 echo "Python E2E tests passed for $model_name"
               else

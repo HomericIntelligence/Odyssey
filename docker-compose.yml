@@ -1,6 +1,6 @@
 services:
   # Main development environment
-  projectodyssey-dev:
+  odyssey-dev:
     user: "${USER_ID}:${GROUP_ID}"
     build:
       context: .
@@ -10,7 +10,7 @@ services:
         USER_ID: ${USER_ID}
         GROUP_ID: ${GROUP_ID}
         USER_NAME: ${USER_NAME:-dev}
-    image: projectodyssey:dev
+    image: odyssey:dev
     volumes:
       - .:/workspace:Z
       - pixi-cache:/home/${USER_NAME:-dev}/.cache/pixi
@@ -45,7 +45,7 @@ services:
     cpus: ${ODYSSEY_CPU_LIMIT:-6.0}
 
   # CI/Testing environment
-  projectodyssey-ci:
+  odyssey-ci:
     user: "${USER_ID}:${GROUP_ID}"
     build:
       context: .
@@ -55,7 +55,7 @@ services:
         USER_ID: ${USER_ID}
         GROUP_ID: ${GROUP_ID}
         USER_NAME: ${USER_NAME:-dev}
-    image: projectodyssey:ci
+    image: odyssey:ci
     volumes:
       - .:/workspace
       - pixi-cache:/home/${USER_NAME:-dev}/.cache/pixi
@@ -77,13 +77,13 @@ services:
     # they enforce.
     mem_limit: ${ODYSSEY_MEM_LIMIT:-24g}
     cpus: ${ODYSSEY_CPU_LIMIT:-6.0}
-    # See projectodyssey-dev for rationale: ulimit -c must be set on the
+    # See odyssey-dev for rationale: ulimit -c must be set on the
     # service so cores survive across `podman compose exec` invocations.
     ulimits:
       core: -1
 
   # Production environment
-  projectodyssey-prod:
+  odyssey-prod:
     user: "${USER_ID}:${GROUP_ID}"
     build:
       context: .
@@ -93,7 +93,7 @@ services:
         USER_ID: ${USER_ID}
         GROUP_ID: ${GROUP_ID}
         USER_NAME: ${USER_NAME:-dev}
-    image: projectodyssey:prod
+    image: odyssey:prod
     volumes:
       - .:/workspace:ro
     environment:

@@ -8,8 +8,8 @@ This example shows:
 5. Comparing BF8 (E5M2) vs FP8 (E4M3) characteristics
 """
 
-from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.tensor.tensor_creation import zeros
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros
 
 
 def main() raises:

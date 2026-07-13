@@ -2,7 +2,7 @@
 
 **Date**: 2026-05-08
 **Mojo version surveyed**: `1.0.0b2.dev2026050805`
-**Survey scope**: `src/projectodyssey/` and `tools/` source files
+**Survey scope**: `src/odyssey/` and `tools/` source files
 (excluding `tests/`, `.pixi/`, `worktrees/`, `repro/`, `examples/`)
 
 ## Summary
@@ -29,8 +29,8 @@ errors). Total unique broken files = 79.
 
 ### Warning-only (not counted as broken)
 
-- **UNSAFEPOINTER_BOOL**: 2 files (`src/projectodyssey/tensor/any_tensor.mojo`,
-  `src/projectodyssey/tensor/tensor.mojo`) — 6 occurrences of `if self._refcount:` that now trigger
+- **UNSAFEPOINTER_BOOL**: 2 files (`src/odyssey/tensor/any_tensor.mojo`,
+  `src/odyssey/tensor/tensor.mojo`) — 6 occurrences of `if self._refcount:` that now trigger
   `UnsafePointer is non-null by design` warnings. Currently warnings only; not counted in
   broken total.
 
@@ -46,40 +46,40 @@ errors). Total unique broken files = 79.
 when compiling a file that is part of a top-level package. The pattern `from .submodule import X`
 must be changed to `from package.submodule import X`.
 
-- `src/projectodyssey/core/activation.mojo` — `from .gradient_types import GradientPair`
-- `src/projectodyssey/core/activation_simd.mojo` — `from .activation_ops import ...`
-- `src/projectodyssey/core/arithmetic.mojo` — `from .tensor_types import ...`
-- `src/projectodyssey/core/arithmetic_simd.mojo` — relative import in conditional block
-- `src/projectodyssey/core/attention.mojo` — `from .attention_types import ...`
-- `src/projectodyssey/core/conv.mojo` — `from .conv_types import ...`
-- `src/projectodyssey/core/dropout.mojo` — `from .dropout_ops import ...`
-- `src/projectodyssey/core/elementwise.mojo` — `from .elementwise_types import ...`
-- `src/projectodyssey/core/layers/batchnorm.mojo` — `from .layer_types import ...`
-- `src/projectodyssey/core/layers/conv2d.mojo` — `from .conv2d_types import ...`
-- `src/projectodyssey/core/layers/linear.mojo` — `from .linear_types import ...`
-- `src/projectodyssey/core/layers/relu.mojo` — `from .relu_types import ...`
-- `src/projectodyssey/core/lazy_eval.mojo` — relative import
-- `src/projectodyssey/core/linear.mojo` — `from .linear_ops import ...`
-- `src/projectodyssey/core/loss.mojo` — `from .loss_types import ...`
-- `src/projectodyssey/core/loss_utils.mojo` — `from .loss_ops import ...`
-- `src/projectodyssey/core/matmul.mojo` — relative import
-- `src/projectodyssey/core/matrix.mojo` — relative import
-- `src/projectodyssey/core/normalization.mojo` — relative import
-- `src/projectodyssey/core/normalization_simd.mojo` — relative import
-- `src/projectodyssey/core/pooling.mojo` — relative import
-- `src/projectodyssey/core/reduction.mojo` — relative import
-- `src/projectodyssey/core/sequential.mojo` — relative import
-- `src/projectodyssey/core/strassen.mojo` — relative import
-- `src/projectodyssey/core/types/__init__.mojo` — relative import
-- `src/projectodyssey/core/types/mxfp4.mojo` — relative import
-- `src/projectodyssey/core/types/nvfp4.mojo` — relative import
-- `src/projectodyssey/tensor/any_tensor.mojo` — `from .tensor_types import ...`
-- `src/projectodyssey/tensor/factories.mojo` — `from .tensor_types import ...`
-- `src/projectodyssey/tensor/tensor.mojo` — relative import
-- `src/projectodyssey/tensor/tensor_creation.mojo` — relative import
-- `src/projectodyssey/tensor/tensor_io.mojo` — relative import
-- `src/projectodyssey/tensor/tensor_utils.mojo` — relative import
-- `src/projectodyssey/utils/__init__.mojo` — relative import
+- `src/odyssey/core/activation.mojo` — `from .gradient_types import GradientPair`
+- `src/odyssey/core/activation_simd.mojo` — `from .activation_ops import ...`
+- `src/odyssey/core/arithmetic.mojo` — `from .tensor_types import ...`
+- `src/odyssey/core/arithmetic_simd.mojo` — relative import in conditional block
+- `src/odyssey/core/attention.mojo` — `from .attention_types import ...`
+- `src/odyssey/core/conv.mojo` — `from .conv_types import ...`
+- `src/odyssey/core/dropout.mojo` — `from .dropout_ops import ...`
+- `src/odyssey/core/elementwise.mojo` — `from .elementwise_types import ...`
+- `src/odyssey/core/layers/batchnorm.mojo` — `from .layer_types import ...`
+- `src/odyssey/core/layers/conv2d.mojo` — `from .conv2d_types import ...`
+- `src/odyssey/core/layers/linear.mojo` — `from .linear_types import ...`
+- `src/odyssey/core/layers/relu.mojo` — `from .relu_types import ...`
+- `src/odyssey/core/lazy_eval.mojo` — relative import
+- `src/odyssey/core/linear.mojo` — `from .linear_ops import ...`
+- `src/odyssey/core/loss.mojo` — `from .loss_types import ...`
+- `src/odyssey/core/loss_utils.mojo` — `from .loss_ops import ...`
+- `src/odyssey/core/matmul.mojo` — relative import
+- `src/odyssey/core/matrix.mojo` — relative import
+- `src/odyssey/core/normalization.mojo` — relative import
+- `src/odyssey/core/normalization_simd.mojo` — relative import
+- `src/odyssey/core/pooling.mojo` — relative import
+- `src/odyssey/core/reduction.mojo` — relative import
+- `src/odyssey/core/sequential.mojo` — relative import
+- `src/odyssey/core/strassen.mojo` — relative import
+- `src/odyssey/core/types/__init__.mojo` — relative import
+- `src/odyssey/core/types/mxfp4.mojo` — relative import
+- `src/odyssey/core/types/nvfp4.mojo` — relative import
+- `src/odyssey/tensor/any_tensor.mojo` — `from .tensor_types import ...`
+- `src/odyssey/tensor/factories.mojo` — `from .tensor_types import ...`
+- `src/odyssey/tensor/tensor.mojo` — relative import
+- `src/odyssey/tensor/tensor_creation.mojo` — relative import
+- `src/odyssey/tensor/tensor_io.mojo` — relative import
+- `src/odyssey/tensor/tensor_utils.mojo` — relative import
+- `src/odyssey/utils/__init__.mojo` — relative import
 
 ### THIN (22 files)
 
@@ -88,36 +88,36 @@ must be changed to `from package.submodule import X`.
 
 **Root cause**: In Mojo 1.0, parametric `def` function types used as value parameters require the
 `thin` keyword before `->` in the parameter type annotation. Fix recipe is in
-`docs/dev/mojo-1.0-migration-recipe.md` (already verified on `src/projectodyssey/core/dtype_dispatch.mojo`).
+`docs/dev/mojo-1.0-migration-recipe.md` (already verified on `src/odyssey/core/dtype_dispatch.mojo`).
 
 **Primary broken files** (files with their own THIN errors, not just cascade):
 
-- `src/projectodyssey/core/arithmetic.mojo` — `_dispatch_broadcast_binary` parameter `op` type mismatch
-- `src/projectodyssey/core/elementwise.mojo` — `_dispatch_float_unary_typed` parameter `op` type mismatch
-- `src/projectodyssey/tensor/any_tensor.mojo` — `_anytensor_binary_op` parameter `op` type mismatch
-- `src/projectodyssey/tensor/typed/arithmetic.mojo` — `__call__` parameter `_Self` type mismatch
-- `src/projectodyssey/tensor/typed/elementwise.mojo` — `__call__` parameter `_Self` type mismatch
+- `src/odyssey/core/arithmetic.mojo` — `_dispatch_broadcast_binary` parameter `op` type mismatch
+- `src/odyssey/core/elementwise.mojo` — `_dispatch_float_unary_typed` parameter `op` type mismatch
+- `src/odyssey/tensor/any_tensor.mojo` — `_anytensor_binary_op` parameter `op` type mismatch
+- `src/odyssey/tensor/typed/arithmetic.mojo` — `__call__` parameter `_Self` type mismatch
+- `src/odyssey/tensor/typed/elementwise.mojo` — `__call__` parameter `_Self` type mismatch
 
 **Cascade-broken files** (fail because they import broken THIN files):
 
-- `src/projectodyssey/__init__.mojo` — imports arithmetic+elementwise
-- `src/projectodyssey/autograd/__init__.mojo` — imports arithmetic
-- `src/projectodyssey/autograd/backward_ops.mojo` — imports arithmetic
-- `src/projectodyssey/autograd/functional.mojo` — imports arithmetic+elementwise
-- `src/projectodyssey/autograd/optimizers.mojo` — imports elementwise
-- `src/projectodyssey/autograd/tape.mojo` — imports arithmetic
-- `src/projectodyssey/autograd/variable.mojo` — imports arithmetic
-- `src/projectodyssey/core/__init__.mojo` — imports arithmetic+elementwise
-- `src/projectodyssey/core/layers/__init__.mojo` — imports arithmetic via any_tensor
-- `src/projectodyssey/testing/layer_testers.mojo` — imports any_tensor (THIN) + gradient_checker (TRAIT_CALL)
-- `src/projectodyssey/training/optimizers/__init__.mojo` — imports elementwise
-- `src/projectodyssey/training/optimizers/adam.mojo` — imports arithmetic
-- `src/projectodyssey/training/optimizers/adamw.mojo` — imports arithmetic
-- `src/projectodyssey/training/optimizers/lars.mojo` — imports arithmetic
-- `src/projectodyssey/training/optimizers/optimizer_utils.mojo` — imports elementwise
-- `src/projectodyssey/training/optimizers/rmsprop.mojo` — imports arithmetic
-- `src/projectodyssey/training/optimizers/sgd.mojo` — imports arithmetic
-- `src/projectodyssey/training/trainer.mojo` — imports any_tensor (THIN) + training_loop (TRAIT_CALL)
+- `src/odyssey/__init__.mojo` — imports arithmetic+elementwise
+- `src/odyssey/autograd/__init__.mojo` — imports arithmetic
+- `src/odyssey/autograd/backward_ops.mojo` — imports arithmetic
+- `src/odyssey/autograd/functional.mojo` — imports arithmetic+elementwise
+- `src/odyssey/autograd/optimizers.mojo` — imports elementwise
+- `src/odyssey/autograd/tape.mojo` — imports arithmetic
+- `src/odyssey/autograd/variable.mojo` — imports arithmetic
+- `src/odyssey/core/__init__.mojo` — imports arithmetic+elementwise
+- `src/odyssey/core/layers/__init__.mojo` — imports arithmetic via any_tensor
+- `src/odyssey/testing/layer_testers.mojo` — imports any_tensor (THIN) + gradient_checker (TRAIT_CALL)
+- `src/odyssey/training/optimizers/__init__.mojo` — imports elementwise
+- `src/odyssey/training/optimizers/adam.mojo` — imports arithmetic
+- `src/odyssey/training/optimizers/adamw.mojo` — imports arithmetic
+- `src/odyssey/training/optimizers/lars.mojo` — imports arithmetic
+- `src/odyssey/training/optimizers/optimizer_utils.mojo` — imports elementwise
+- `src/odyssey/training/optimizers/rmsprop.mojo` — imports arithmetic
+- `src/odyssey/training/optimizers/sgd.mojo` — imports arithmetic
+- `src/odyssey/training/trainer.mojo` — imports any_tensor (THIN) + training_loop (TRAIT_CALL)
 
 ### UNIFIED (16 files)
 
@@ -126,22 +126,22 @@ must be changed to `from package.submodule import X`.
 **Root cause**: The `unified` function effect was removed in Mojo 1.0. Drop the `unified` keyword;
 keep the `{...}` capture list if the function captures variables.
 
-- `src/projectodyssey/core/activation_simd.mojo` — multiple `unified` uses on SIMD kernel functions
-- `src/projectodyssey/core/arithmetic_contiguous.mojo` — `unified` on arithmetic kernel
-- `src/projectodyssey/core/matmul.mojo` — `unified` on matmul kernel
-- `src/projectodyssey/core/normalization_simd.mojo` — `unified` on normalization kernel
-- `src/projectodyssey/core/numerical_safety.mojo` — (via typed/numerical_safety)
-- `src/projectodyssey/tensor/typed/activation_simd.mojo` — multiple `unified` uses
-- `src/projectodyssey/tensor/typed/arithmetic_contiguous.mojo` — multiple `unified` uses
-- `src/projectodyssey/tensor/typed/arithmetic_simd.mojo` — multiple `unified` uses
-- `src/projectodyssey/tensor/typed/numerical_safety.mojo` — multiple `unified` uses
-- `src/projectodyssey/training/__init__.mojo` — imports broken training submodule
-- `src/projectodyssey/training/gradient_clipping.mojo` — `unified` on clipping function
-- `src/projectodyssey/training/mixed_precision.mojo` — `unified` on precision-cast functions
-- `src/projectodyssey/training/optimizers/lars.mojo` — cascade from arithmetic THIN
-- `src/projectodyssey/training/optimizers/optimizer_utils.mojo` — cascade from arithmetic THIN
-- `src/projectodyssey/training/optimizers/sgd.mojo` — cascade from arithmetic THIN
-- `src/projectodyssey/training/precision_config.mojo` — `unified` on config function
+- `src/odyssey/core/activation_simd.mojo` — multiple `unified` uses on SIMD kernel functions
+- `src/odyssey/core/arithmetic_contiguous.mojo` — `unified` on arithmetic kernel
+- `src/odyssey/core/matmul.mojo` — `unified` on matmul kernel
+- `src/odyssey/core/normalization_simd.mojo` — `unified` on normalization kernel
+- `src/odyssey/core/numerical_safety.mojo` — (via typed/numerical_safety)
+- `src/odyssey/tensor/typed/activation_simd.mojo` — multiple `unified` uses
+- `src/odyssey/tensor/typed/arithmetic_contiguous.mojo` — multiple `unified` uses
+- `src/odyssey/tensor/typed/arithmetic_simd.mojo` — multiple `unified` uses
+- `src/odyssey/tensor/typed/numerical_safety.mojo` — multiple `unified` uses
+- `src/odyssey/training/__init__.mojo` — imports broken training submodule
+- `src/odyssey/training/gradient_clipping.mojo` — `unified` on clipping function
+- `src/odyssey/training/mixed_precision.mojo` — `unified` on precision-cast functions
+- `src/odyssey/training/optimizers/lars.mojo` — cascade from arithmetic THIN
+- `src/odyssey/training/optimizers/optimizer_utils.mojo` — cascade from arithmetic THIN
+- `src/odyssey/training/optimizers/sgd.mojo` — cascade from arithmetic THIN
+- `src/odyssey/training/precision_config.mojo` — `unified` on config function
 
 ### TRAIT_CALL (12 files)
 
@@ -153,18 +153,18 @@ instantiation syntax changes. Functions stored as trait parameters need updated 
 This affects benchmarking harnesses, testing infrastructure, and training loops that store
 user-provided callbacks as trait parameters.
 
-- `src/projectodyssey/benchmarking/__init__.mojo` — runner uses trait callback
-- `src/projectodyssey/benchmarking/runner.mojo` — 3 call sites: lines 223, 230, 349
-- `src/projectodyssey/testing/__init__.mojo` — re-exports testing with trait callbacks
-- `src/projectodyssey/testing/gradient_checker.mojo` — trait-typed forward function
-- `src/projectodyssey/testing/layer_testers.mojo` — also has THIN cascade
-- `src/projectodyssey/testing/property_testing.mojo` — `property_fn` trait call
-- `src/projectodyssey/training/loops/__init__.mojo` — re-exports broken loop
-- `src/projectodyssey/training/loops/training_loop.mojo` — epoch callback trait call
-- `src/projectodyssey/training/loops/validation_loop.mojo` — validation callback trait call (line 272)
-- `src/projectodyssey/training/script_runner.mojo` — runner callback trait call
-- `src/projectodyssey/training/trainer.mojo` — also has THIN cascade
-- `src/projectodyssey/utils/profiling.mojo` — profiler function trait call (lines 436, 470)
+- `src/odyssey/benchmarking/__init__.mojo` — runner uses trait callback
+- `src/odyssey/benchmarking/runner.mojo` — 3 call sites: lines 223, 230, 349
+- `src/odyssey/testing/__init__.mojo` — re-exports testing with trait callbacks
+- `src/odyssey/testing/gradient_checker.mojo` — trait-typed forward function
+- `src/odyssey/testing/layer_testers.mojo` — also has THIN cascade
+- `src/odyssey/testing/property_testing.mojo` — `property_fn` trait call
+- `src/odyssey/training/loops/__init__.mojo` — re-exports broken loop
+- `src/odyssey/training/loops/training_loop.mojo` — epoch callback trait call
+- `src/odyssey/training/loops/validation_loop.mojo` — validation callback trait call (line 272)
+- `src/odyssey/training/script_runner.mojo` — runner callback trait call
+- `src/odyssey/training/trainer.mojo` — also has THIN cascade
+- `src/odyssey/utils/profiling.mojo` — profiler function trait call (lines 436, 470)
 
 ### STD_OS_ATOMIC (2 files)
 
@@ -173,8 +173,8 @@ user-provided callbacks as trait parameters.
 **Root cause**: The `atomic` module path changed in Mojo 1.0. `from memory import Atomic` or the
 old `std.os.atomic` import path no longer works.
 
-- `src/projectodyssey/base/__init__.mojo` — cascade from memory_pool
-- `src/projectodyssey/base/memory_pool.mojo` — `from memory import Atomic` at line 41; also has secondary
+- `src/odyssey/base/__init__.mojo` — cascade from memory_pool
+- `src/odyssey/base/memory_pool.mojo` — `from memory import Atomic` at line 41; also has secondary
   errors: `statement indentation must match the rest of the block` (line 144) and multiple
   `no matching function in initialization` errors (lines 399, 409, 418, 438)
 
@@ -187,100 +187,100 @@ old `std.os.atomic` import path no longer works.
 dynamic callable) is not supported. The pattern must be changed to use compile-time generics
 or a different abstraction.
 
-- `src/projectodyssey/data/generic_transforms.mojo` — struct field of type `def(Float32) -> Float32` (line 99)
+- `src/odyssey/data/generic_transforms.mojo` — struct field of type `def(Float32) -> Float32` (line 99)
   and `def(AnyTensor) raises -> Bool` (line 158)
 
 ### OTHER (8 files)
 
 Files with errors that don't fit existing categories:
 
-- `src/projectodyssey/base/__init__.mojo` — cascade from memory_pool
+- `src/odyssey/base/__init__.mojo` — cascade from memory_pool
   (STD_OS_ATOMIC + `no matching function in initialization` on Atomic initialization)
-- `src/projectodyssey/base/memory_pool.mojo` — `unable to locate module 'atomic'` (STD_OS_ATOMIC);
+- `src/odyssey/base/memory_pool.mojo` — `unable to locate module 'atomic'` (STD_OS_ATOMIC);
   secondary: `statement indentation must match the rest of the block` (line 144);
   `no matching function in initialization` (lines 399, 409, 418, 438, 460) — Atomic API changed
-- `src/projectodyssey/core/conv.mojo` — `use of unknown declaration 'out_h'` (line 428),
+- `src/odyssey/core/conv.mojo` — `use of unknown declaration 'out_h'` (line 428),
   `'out_w'` (line 429) — variable scoping change after relative import failure
-- `src/projectodyssey/core/layers/batchnorm.mojo` — `use of unknown declaration 'new_running_mean'`
+- `src/odyssey/core/layers/batchnorm.mojo` — `use of unknown declaration 'new_running_mean'`
   (line 149), `'new_running_var'` (150), `'output'` (152) — variable scoping changed
-- `src/projectodyssey/core/normalization_simd.mojo` — `use of unknown declaration 'scalar_result'`
+- `src/odyssey/core/normalization_simd.mojo` — `use of unknown declaration 'scalar_result'`
   (line 119) — variable scoping changed in 1.0
-- `src/projectodyssey/core/pooling.mojo` — `use of unknown declaration 'out_h'` (lines 78, 354),
+- `src/odyssey/core/pooling.mojo` — `use of unknown declaration 'out_h'` (lines 78, 354),
   `'out_w'` (line 79) — variable scoping change
-- `src/projectodyssey/data/formats/cifar_loader.mojo` — `use of unknown declaration 'CIFAR10_CHANNELS'`
+- `src/odyssey/data/formats/cifar_loader.mojo` — `use of unknown declaration 'CIFAR10_CHANNELS'`
   (line 83), `'CIFAR10_BYTES_PER_IMAGE'` (86), `'CIFAR100_BYTES_PER_IMAGE'` (88)
   — constants no longer visible, likely relative import failure or scoping change
-- `src/projectodyssey/testing/fuzz_core.mojo` — `use of unknown declaration 'dtype_to_string'`
+- `src/odyssey/testing/fuzz_core.mojo` — `use of unknown declaration 'dtype_to_string'`
   (line 784) — utility function moved or renamed
 
 ---
 
 ## OTHER bucket details
 
-### src/projectodyssey/base/memory_pool.mojo
+### src/odyssey/base/memory_pool.mojo
 
 ```text
-src/projectodyssey/base/memory_pool.mojo:41:9: error: unable to locate module 'atomic'
-src/projectodyssey/base/memory_pool.mojo:144:17: error: statement indentation must match the rest of the block; adjust to align
-src/projectodyssey/base/memory_pool.mojo:399:70: error: no matching function in initialization
+src/odyssey/base/memory_pool.mojo:41:9: error: unable to locate module 'atomic'
+src/odyssey/base/memory_pool.mojo:144:17: error: statement indentation must match the rest of the block; adjust to align
+src/odyssey/base/memory_pool.mojo:399:70: error: no matching function in initialization
 ```
 
 The `atomic` module has moved. The subsequent `no matching function in initialization` errors (at
 lines 399, 409, 418, 438, 460) are all on `Atomic` construction — the Atomic API changed or
 the type is now initialized differently.
 
-### src/projectodyssey/core/conv.mojo (secondary from RELATIVE_IMPORT)
+### src/odyssey/core/conv.mojo (secondary from RELATIVE_IMPORT)
 
 ```text
-src/projectodyssey/core/conv.mojo:16:7: error: cannot import relative to a top-level package
-src/projectodyssey/core/conv.mojo:428:22: error: use of unknown declaration 'out_h'
-src/projectodyssey/core/conv.mojo:429:21: error: use of unknown declaration 'out_w'
+src/odyssey/core/conv.mojo:16:7: error: cannot import relative to a top-level package
+src/odyssey/core/conv.mojo:428:22: error: use of unknown declaration 'out_h'
+src/odyssey/core/conv.mojo:429:21: error: use of unknown declaration 'out_w'
 ```
 
 Secondary `use of unknown declaration` errors likely caused by a scoping change in 1.0 where
 variables declared in `if`/`for` blocks no longer escape their scope.
 
-### src/projectodyssey/core/layers/batchnorm.mojo (secondary from RELATIVE_IMPORT)
+### src/odyssey/core/layers/batchnorm.mojo (secondary from RELATIVE_IMPORT)
 
 ```text
-src/projectodyssey/core/layers/batchnorm.mojo:21:7: error: cannot import relative to a top-level package
-src/projectodyssey/core/layers/batchnorm.mojo:149:33: error: use of unknown declaration 'new_running_mean'
-src/projectodyssey/core/layers/batchnorm.mojo:150:32: error: use of unknown declaration 'new_running_var'
+src/odyssey/core/layers/batchnorm.mojo:21:7: error: cannot import relative to a top-level package
+src/odyssey/core/layers/batchnorm.mojo:149:33: error: use of unknown declaration 'new_running_mean'
+src/odyssey/core/layers/batchnorm.mojo:150:32: error: use of unknown declaration 'new_running_var'
 ```
 
 Same scoping pattern as conv.mojo — variables assigned inside a conditional block referenced
 outside it.
 
-### src/projectodyssey/core/normalization_simd.mojo (secondary from RELATIVE_IMPORT + UNIFIED)
+### src/odyssey/core/normalization_simd.mojo (secondary from RELATIVE_IMPORT + UNIFIED)
 
 ```text
-src/projectodyssey/core/normalization_simd.mojo:71:7: error: cannot import relative to a top-level package
-src/projectodyssey/core/normalization_simd.mojo:119:16: error: use of unknown declaration 'scalar_result'
+src/odyssey/core/normalization_simd.mojo:71:7: error: cannot import relative to a top-level package
+src/odyssey/core/normalization_simd.mojo:119:16: error: use of unknown declaration 'scalar_result'
 ```
 
-### src/projectodyssey/core/pooling.mojo (secondary from RELATIVE_IMPORT)
+### src/odyssey/core/pooling.mojo (secondary from RELATIVE_IMPORT)
 
 ```text
-src/projectodyssey/core/pooling.mojo:11:7: error: cannot import relative to a top-level package
-src/projectodyssey/core/pooling.mojo:78:22: error: use of unknown declaration 'out_h'
-src/projectodyssey/core/pooling.mojo:79:21: error: use of unknown declaration 'out_w'
+src/odyssey/core/pooling.mojo:11:7: error: cannot import relative to a top-level package
+src/odyssey/core/pooling.mojo:78:22: error: use of unknown declaration 'out_h'
+src/odyssey/core/pooling.mojo:79:21: error: use of unknown declaration 'out_w'
 ```
 
-### src/projectodyssey/data/formats/cifar_loader.mojo
+### src/odyssey/data/formats/cifar_loader.mojo
 
 ```text
-src/projectodyssey/data/formats/cifar_loader.mojo:83:25: error: use of unknown declaration 'CIFAR10_CHANNELS'
-src/projectodyssey/data/formats/cifar_loader.mojo:86:36: error: use of unknown declaration 'CIFAR10_BYTES_PER_IMAGE'
-src/projectodyssey/data/formats/cifar_loader.mojo:88:36: error: use of unknown declaration 'CIFAR100_BYTES_PER_IMAGE'
+src/odyssey/data/formats/cifar_loader.mojo:83:25: error: use of unknown declaration 'CIFAR10_CHANNELS'
+src/odyssey/data/formats/cifar_loader.mojo:86:36: error: use of unknown declaration 'CIFAR10_BYTES_PER_IMAGE'
+src/odyssey/data/formats/cifar_loader.mojo:88:36: error: use of unknown declaration 'CIFAR100_BYTES_PER_IMAGE'
 ```
 
-Constants defined in `src/projectodyssey/data/constants.mojo` are no longer visible. Either the import
+Constants defined in `src/odyssey/data/constants.mojo` are no longer visible. Either the import
 was done via relative import (which now fails) or the constant names changed.
 
-### src/projectodyssey/testing/fuzz_core.mojo
+### src/odyssey/testing/fuzz_core.mojo
 
 ```text
-src/projectodyssey/testing/fuzz_core.mojo:784:11: error: use of unknown declaration 'dtype_to_string'
+src/odyssey/testing/fuzz_core.mojo:784:11: error: use of unknown declaration 'dtype_to_string'
 ```
 
 The function `dtype_to_string` was presumably renamed or moved in the stdlib or in the
@@ -292,16 +292,16 @@ codebase during refactoring.
 
 These 10 files compiled with no hard errors (only warnings allowed):
 
-1. `src/projectodyssey/autograd/grad_utils.mojo`
-2. `src/projectodyssey/autograd/optimizer_base.mojo`
-3. `src/projectodyssey/autograd/schedulers.mojo`
-4. `src/projectodyssey/autograd/tape_types.mojo`
-5. `src/projectodyssey/base/broadcasting.mojo`
-6. `src/projectodyssey/base/defaults.mojo`
-7. `src/projectodyssey/base/dtype_ordinal.mojo`
-8. `src/projectodyssey/base/math_constants.mojo`
-9. `src/projectodyssey/core/activation_constants.mojo`
-10. `src/projectodyssey/core/activation_ops.mojo`
+1. `src/odyssey/autograd/grad_utils.mojo`
+2. `src/odyssey/autograd/optimizer_base.mojo`
+3. `src/odyssey/autograd/schedulers.mojo`
+4. `src/odyssey/autograd/tape_types.mojo`
+5. `src/odyssey/base/broadcasting.mojo`
+6. `src/odyssey/base/defaults.mojo`
+7. `src/odyssey/base/dtype_ordinal.mojo`
+8. `src/odyssey/base/math_constants.mojo`
+9. `src/odyssey/core/activation_constants.mojo`
+10. `src/odyssey/core/activation_ops.mojo`
 
 (110 total clean files — these are primarily leaf modules with no internal relative imports and
 no THIN/UNIFIED/TRAIT_CALL patterns.)
@@ -316,20 +316,20 @@ Wave ordering is driven by dependency: fix the leaves first, then the dependents
 
 **Assignment**: Haiku (pure find-replace, no logic)
 
-**What**: Replace `from .submodule import X` with `from projectodyssey.submodule import X` (or the
+**What**: Replace `from .submodule import X` with `from odyssey.submodule import X` (or the
 correct absolute package path). This is purely mechanical — grep and replace.
 
 **Groups by module** (fix together so tests can verify incrementally):
 
-- Group 1: `src/projectodyssey/tensor/` — any_tensor, tensor, factories, tensor_creation, tensor_io,
+- Group 1: `src/odyssey/tensor/` — any_tensor, tensor, factories, tensor_creation, tensor_io,
   tensor_utils (6 files)
-- Group 2: `src/projectodyssey/core/types/` — `__init__`, mxfp4, nvfp4 (3 files)
-- Group 3: `src/projectodyssey/core/` top-level — activation, arithmetic, arithmetic_simd, attention,
+- Group 2: `src/odyssey/core/types/` — `__init__`, mxfp4, nvfp4 (3 files)
+- Group 3: `src/odyssey/core/` top-level — activation, arithmetic, arithmetic_simd, attention,
   conv, dropout, elementwise, lazy_eval, linear, loss, loss_utils, matmul, matrix,
   normalization, pooling, reduction, sequential, strassen (18 files)
-- Group 4: `src/projectodyssey/core/activation_simd`, `normalization_simd` (2 files; also have UNIFIED)
-- Group 5: `src/projectodyssey/core/layers/` — batchnorm, conv2d, linear, relu (4 files; batchnorm also has OTHER)
-- Group 6: `src/projectodyssey/utils/__init__` (1 file)
+- Group 4: `src/odyssey/core/activation_simd`, `normalization_simd` (2 files; also have UNIFIED)
+- Group 5: `src/odyssey/core/layers/` — batchnorm, conv2d, linear, relu (4 files; batchnorm also has OTHER)
+- Group 6: `src/odyssey/utils/__init__` (1 file)
 
 **Estimated effort**: 1 agent pass, ~30 min
 
@@ -341,25 +341,25 @@ correct absolute package path). This is purely mechanical — grep and replace.
 
 **Pure UNIFIED files** (no other issues after D1 fixes RELATIVE_IMPORT):
 
-- `src/projectodyssey/core/arithmetic_contiguous.mojo`
-- `src/projectodyssey/core/numerical_safety.mojo` (via tensor/typed/numerical_safety)
-- `src/projectodyssey/tensor/typed/activation_simd.mojo`
-- `src/projectodyssey/tensor/typed/arithmetic_contiguous.mojo`
-- `src/projectodyssey/tensor/typed/arithmetic_simd.mojo`
-- `src/projectodyssey/tensor/typed/numerical_safety.mojo`
-- `src/projectodyssey/training/gradient_clipping.mojo`
-- `src/projectodyssey/training/mixed_precision.mojo`
-- `src/projectodyssey/training/precision_config.mojo`
+- `src/odyssey/core/arithmetic_contiguous.mojo`
+- `src/odyssey/core/numerical_safety.mojo` (via tensor/typed/numerical_safety)
+- `src/odyssey/tensor/typed/activation_simd.mojo`
+- `src/odyssey/tensor/typed/arithmetic_contiguous.mojo`
+- `src/odyssey/tensor/typed/arithmetic_simd.mojo`
+- `src/odyssey/tensor/typed/numerical_safety.mojo`
+- `src/odyssey/training/gradient_clipping.mojo`
+- `src/odyssey/training/mixed_precision.mojo`
+- `src/odyssey/training/precision_config.mojo`
 
 **Mixed RELATIVE+UNIFIED** (fix RELATIVE_IMPORT first in D1, then these in D2):
 
-- `src/projectodyssey/core/activation_simd.mojo`
-- `src/projectodyssey/core/matmul.mojo`
-- `src/projectodyssey/core/normalization_simd.mojo`
-- `src/projectodyssey/training/__init__.mojo` (cascade, may auto-fix after dependencies fixed)
-- `src/projectodyssey/training/optimizers/lars.mojo` (cascade THIN+UNIFIED — after D3)
-- `src/projectodyssey/training/optimizers/optimizer_utils.mojo` (cascade THIN+UNIFIED — after D3)
-- `src/projectodyssey/training/optimizers/sgd.mojo` (cascade THIN+UNIFIED — after D3)
+- `src/odyssey/core/activation_simd.mojo`
+- `src/odyssey/core/matmul.mojo`
+- `src/odyssey/core/normalization_simd.mojo`
+- `src/odyssey/training/__init__.mojo` (cascade, may auto-fix after dependencies fixed)
+- `src/odyssey/training/optimizers/lars.mojo` (cascade THIN+UNIFIED — after D3)
+- `src/odyssey/training/optimizers/optimizer_utils.mojo` (cascade THIN+UNIFIED — after D3)
+- `src/odyssey/training/optimizers/sgd.mojo` (cascade THIN+UNIFIED — after D3)
 
 **Estimated effort**: 1 agent pass, ~20 min
 
@@ -372,11 +372,11 @@ documented and verified in `docs/dev/mojo-1.0-migration-recipe.md`.
 
 **Primary files to fix** (fixing these will unblock all 17 cascade-broken files):
 
-- `src/projectodyssey/core/arithmetic.mojo` — `_dispatch_broadcast_binary` op parameter
-- `src/projectodyssey/core/elementwise.mojo` — `_dispatch_float_unary_typed` op parameter
-- `src/projectodyssey/tensor/any_tensor.mojo` — `_anytensor_binary_op` op parameter (also needs D1 relative import fix)
-- `src/projectodyssey/tensor/typed/arithmetic.mojo` — `__call__` _Self parameter
-- `src/projectodyssey/tensor/typed/elementwise.mojo` — `__call__` _Self parameter
+- `src/odyssey/core/arithmetic.mojo` — `_dispatch_broadcast_binary` op parameter
+- `src/odyssey/core/elementwise.mojo` — `_dispatch_float_unary_typed` op parameter
+- `src/odyssey/tensor/any_tensor.mojo` — `_anytensor_binary_op` op parameter (also needs D1 relative import fix)
+- `src/odyssey/tensor/typed/arithmetic.mojo` — `__call__` _Self parameter
+- `src/odyssey/tensor/typed/elementwise.mojo` — `__call__` _Self parameter
 
 **After these 5 are fixed, cascade fixes unblock**:
 All 17 autograd, core, and optimizer files listed under THIN.
@@ -392,13 +392,13 @@ may require `.value()` unwrap or explicit type annotation at the call site.
 
 **Files**:
 
-- `src/projectodyssey/benchmarking/runner.mojo` — 3 call sites
-- `src/projectodyssey/testing/gradient_checker.mojo` — 3+ call sites
-- `src/projectodyssey/testing/property_testing.mojo` — 2 call sites
-- `src/projectodyssey/training/loops/training_loop.mojo` — epoch callback
-- `src/projectodyssey/training/loops/validation_loop.mojo` — validation callback (line 272)
-- `src/projectodyssey/training/script_runner.mojo` — runner callback
-- `src/projectodyssey/utils/profiling.mojo` — profiler callback (lines 436, 470)
+- `src/odyssey/benchmarking/runner.mojo` — 3 call sites
+- `src/odyssey/testing/gradient_checker.mojo` — 3+ call sites
+- `src/odyssey/testing/property_testing.mojo` — 2 call sites
+- `src/odyssey/training/loops/training_loop.mojo` — epoch callback
+- `src/odyssey/training/loops/validation_loop.mojo` — validation callback (line 272)
+- `src/odyssey/training/script_runner.mojo` — runner callback
+- `src/odyssey/utils/profiling.mojo` — profiler callback (lines 436, 470)
 
 After fixing: benchmarking/\_\_init\_\_, testing/\_\_init\_\_, training/loops/\_\_init\_\_,
 training/trainer.mojo will auto-unblock.
@@ -411,27 +411,27 @@ training/trainer.mojo will auto-unblock.
 
 **Files and issues**:
 
-- `src/projectodyssey/base/memory_pool.mojo` (STD_OS_ATOMIC) — Atomic module path changed; investigate
+- `src/odyssey/base/memory_pool.mojo` (STD_OS_ATOMIC) — Atomic module path changed; investigate
   `from memory import Atomic` vs new location; fix `no matching function in initialization`
   on Atomic construction (likely constructor API changed).
-- `src/projectodyssey/data/generic_transforms.mojo` (DYNAMIC_TRAIT) — Storing `def(Float32) -> Float32`
+- `src/odyssey/data/generic_transforms.mojo` (DYNAMIC_TRAIT) — Storing `def(Float32) -> Float32`
   in struct field; must redesign to use compile-time generic parameter (parametric struct)
   or a trait-based approach.
-- `src/projectodyssey/data/formats/cifar_loader.mojo` (OTHER) — Constants `CIFAR10_CHANNELS`,
+- `src/odyssey/data/formats/cifar_loader.mojo` (OTHER) — Constants `CIFAR10_CHANNELS`,
   `CIFAR10_BYTES_PER_IMAGE`, `CIFAR100_BYTES_PER_IMAGE` not visible; check if import
   path changed or if they need to be imported explicitly.
-- `src/projectodyssey/testing/fuzz_core.mojo` (OTHER) — `dtype_to_string` not found at line 784;
+- `src/odyssey/testing/fuzz_core.mojo` (OTHER) — `dtype_to_string` not found at line 784;
   trace what module it came from and fix import.
-- Secondary scoping errors in `src/projectodyssey/core/conv.mojo`, `src/projectodyssey/core/pooling.mojo`,
-  `src/projectodyssey/core/layers/batchnorm.mojo`, `src/projectodyssey/core/normalization_simd.mojo` —
+- Secondary scoping errors in `src/odyssey/core/conv.mojo`, `src/odyssey/core/pooling.mojo`,
+  `src/odyssey/core/layers/batchnorm.mojo`, `src/odyssey/core/normalization_simd.mojo` —
   variables declared inside `if`/`for` blocks that are referenced outside them; in Mojo 1.0
   block-scoped variables may no longer escape. These need careful reading to restructure
   the scope (hoist variable declarations before the block).
 
 **Warning-only cleanup** (UNSAFEPOINTER_BOOL — not blocking, do last):
 
-- `src/projectodyssey/tensor/any_tensor.mojo` — 3 occurrences of `if self._refcount:`
-- `src/projectodyssey/tensor/tensor.mojo` — 3 occurrences of `if self._refcount:`
+- `src/odyssey/tensor/any_tensor.mojo` — 3 occurrences of `if self._refcount:`
+- `src/odyssey/tensor/tensor.mojo` — 3 occurrences of `if self._refcount:`
 - Fix: change to `if self._refcount[] > 0:` or `if self._refcount != UnsafePointer[Int]():`
 
 **Estimated effort**: 1 Opus pass for investigation, then 1 Sonnet pass for implementation,

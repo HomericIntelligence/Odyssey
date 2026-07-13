@@ -102,9 +102,9 @@ tests (runs weekly with real datasets).
 
 ## Shared Library
 
-The `src/projectodyssey/` directory contains the ML components used by all paper implementations:
+The `src/odyssey/` directory contains the ML components used by all paper implementations:
 
-### `src/projectodyssey/core/` - Tensor Operations and Layers
+### `src/odyssey/core/` - Tensor Operations and Layers
 
 - SIMD-optimized tensor type (`AnyTensor`) with compile-time dtype dispatch
 - Convolution, linear, pooling, activation, normalization layers
@@ -112,14 +112,14 @@ The `src/projectodyssey/` directory contains the ML components used by all paper
 - Broadcasting, reduction, elementwise ops
 - Dropout, batch normalization, attention
 
-### `src/projectodyssey/autograd/` - Automatic Differentiation
+### `src/odyssey/autograd/` - Automatic Differentiation
 
 - Tape-based reverse-mode autograd engine
 - `Variable` type with gradient tracking
 - Backward ops for all core operations
 - Gradient utilities and type definitions
 
-### `src/projectodyssey/training/` - Training Infrastructure
+### `src/odyssey/training/` - Training Infrastructure
 
 - `Trainer` with configurable training loops
 - Optimizers: SGD, Adam, AdamW, RMSprop, LARS
@@ -141,7 +141,7 @@ The `src/projectodyssey/` directory contains the ML components used by all paper
 ```bash
 # Clone the repository
 git clone https://github.com/HomericIntelligence/Odyssey.git
-cd projectodyssey
+cd odyssey
 
 # Install all dependencies (Mojo, Python tools, etc.)
 pixi install
@@ -194,7 +194,7 @@ just validate
 - [Quickstart](docs/getting-started/quickstart.md)
 - [Your First Model](docs/getting-started/first_model.md)
 - [Repository Structure](docs/getting-started/repository-structure.md)
-- [Shared Library README](src/projectodyssey/README.md)
+- [Shared Library README](src/odyssey/README.md)
 - [Contributing Guide](CONTRIBUTING.md)
 - [Architecture Decision Records](docs/adr/)
 - [Privacy & Data-Handling Policy](docs/PRIVACY.md)
@@ -203,7 +203,7 @@ just validate
 
 ```text
 Odyssey/
-├── src/projectodyssey/                  # Reusable ML library
+├── src/odyssey/                  # Reusable ML library
 │   ├── core/                # Tensor ops, layers, SIMD kernels
 │   ├── autograd/            # Tape-based reverse-mode autograd
 │   ├── training/            # Trainers, optimizers, schedulers
@@ -211,7 +211,7 @@ Odyssey/
 │   └── testing/             # Shared test utilities
 ├── tests/
 │   ├── models/              # Per-architecture test suites
-│   └── src/projectodyssey/              # Shared library tests
+│   └── src/odyssey/              # Shared library tests
 ├── docs/
 │   ├── adr/                 # Architecture Decision Records
 │   ├── getting-started/     # Setup and quickstart guides
@@ -242,13 +242,13 @@ Full code coverage metrics are blocked by [Mojo coverage tooling availability](d
 
 - All `test_*.mojo` files verified in CI via test discovery validation
   (`scripts/validate_test_coverage.py`)
-- Source-to-test mapping: every `src/projectodyssey/**/*.mojo` is checked for
+- Source-to-test mapping: every `src/odyssey/**/*.mojo` is checked for
   a corresponding `test_*.mojo` file (`scripts/check_source_coverage.py`,
   warn-only as of initial rollout). Run locally:
   `python scripts/check_source_coverage.py`
 - Test and source file counts (regenerate via the commands shown):
   `find tests -name 'test_*.mojo' | wc -l` and
-  `find src/projectodyssey -name '*.mojo' ! -name '__init__.mojo' | wc -l`
+  `find src/odyssey -name '*.mojo' ! -name '__init__.mojo' | wc -l`
 - Manual code review via PR checklist for test coverage verification
 - 70%+ threshold enforced for Python automation scripts via pytest-cov
 - ADR-008 review cadence enforced quarterly via

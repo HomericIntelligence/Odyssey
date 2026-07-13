@@ -8,7 +8,7 @@ on:
     paths:
       - 'configs/**/*.yaml'
       - 'configs/**/*.yml'
-      - 'src/projectodyssey/utils/config*.mojo'
+      - 'src/odyssey/utils/config*.mojo'
       - '.claude/agents/**'
       - 'tests/agents/**'
       - 'agents/**'
@@ -22,7 +22,7 @@ on:
     paths:
       - 'configs/**/*.yaml'
       - 'configs/**/*.yml'
-      - 'src/projectodyssey/utils/config*.mojo'
+      - 'src/odyssey/utils/config*.mojo'
       - '.claude/agents/**'
       - 'tests/agents/**'
       - 'agents/**'
@@ -557,11 +557,11 @@ jobs:
           for paper_dir in $PAPER_DIRS; do
             echo "Running training for: $paper_dir"
             if [ -f "$paper_dir/train.py" ]; then
-              if ! podman compose exec -T projectodyssey-dev bash -c "pixi run python $paper_dir/train.py --quick-validation --epochs 1"; then
+              if ! podman compose exec -T odyssey-dev bash -c "pixi run python $paper_dir/train.py --quick-validation --epochs 1"; then
                 failed_papers+=("$paper_dir (python)")
               fi
             elif [ -f "$paper_dir/train.mojo" ]; then
-              if ! podman compose exec -T projectodyssey-dev bash -c "pixi run mojo -I . $paper_dir/train.mojo --quick-validation --epochs 1"; then
+              if ! podman compose exec -T odyssey-dev bash -c "pixi run mojo -I . $paper_dir/train.mojo --quick-validation --epochs 1"; then
                 failed_papers+=("$paper_dir (mojo)")
               fi
             fi
