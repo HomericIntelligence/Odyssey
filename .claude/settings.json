@@ -14,7 +14,37 @@
     ]
   },
   "enabledPlugins": {
-    "hephaestus@ProjectHephaestus": true,
-    "safety-net@cc-marketplace": true
+    "safety-net@cc-marketplace": true,
+    "advise@Athena": true,
+    "brainstorm@Athena": true,
+    "code-review@Athena": true,
+    "create-reusable-utilities@Athena": true,
+    "finish-branch@Athena": true,
+    "git-worktrees@Athena": true,
+    "github-actions-python-cicd@Athena": true,
+    "learn@Athena": true,
+    "myrmidon-swarm@Athena": true,
+    "python-repo-modernization@Athena": true,
+    "repo-analyze@Athena": true,
+    "repo-analyze-full@Athena": true,
+    "repo-analyze-quick@Athena": true,
+    "repo-analyze-quick-full@Athena": true,
+    "repo-analyze-strict@Athena": true,
+    "repo-analyze-strict-full@Athena": true,
+    "review-pr-strict@Athena": true,
+    "skill-advisor@Athena": true,
+    "systematic-debugging@Athena": true,
+    "test-driven-development@Athena": true,
+    "tidy@Athena": true,
+    "verification@Athena": true,
+    "worktree-cleanup@Athena": true
+  },
+  "extraKnownMarketplaces": {
+    "Athena": {
+      "source": {
+        "source": "git",
+        "url": "https://github.com/HomericIntelligence/Athena.git"
+      }
+    }
   }
 }
