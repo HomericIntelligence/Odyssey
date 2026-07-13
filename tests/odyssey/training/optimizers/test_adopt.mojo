@@ -88,26 +88,47 @@ def test_parity_with_reference() raises:
     var v = zeros([N], DType.float64)
 
     var pv = List[Float64]()
-    pv.append(0.1); pv.append(-0.2); pv.append(0.3)
-    pv.append(-0.4); pv.append(0.5); pv.append(-0.6)
+    pv.append(0.1)
+    pv.append(-0.2)
+    pv.append(0.3)
+    pv.append(-0.4)
+    pv.append(0.5)
+    pv.append(-0.6)
     var gv = List[Float64]()
-    gv.append(-0.02); gv.append(0.08); gv.append(0.12)
-    gv.append(-0.18); gv.append(0.22); gv.append(-0.28)
+    gv.append(-0.02)
+    gv.append(0.08)
+    gv.append(0.12)
+    gv.append(-0.18)
+    gv.append(0.22)
+    gv.append(-0.28)
     var vv = List[Float64]()
-    vv.append(0.0025000000000000005); vv.append(0.0225); vv.append(0.0625)
-    vv.append(0.12249999999999998); vv.append(0.2025); vv.append(0.30250000000000005)
+    vv.append(0.0025000000000000005)
+    vv.append(0.0225)
+    vv.append(0.0625)
+    vv.append(0.12249999999999998)
+    vv.append(0.2025)
+    vv.append(0.30250000000000005)
 
     var rp = List[Float64]()
-    rp.append(0.1004); rp.append(-0.20053333333333334); rp.append(0.29952)
-    rp.append(-0.39948571428571433); rp.append(0.49951111111111113)
+    rp.append(0.1004)
+    rp.append(-0.20053333333333334)
+    rp.append(0.29952)
+    rp.append(-0.39948571428571433)
+    rp.append(0.49951111111111113)
     rp.append(-0.5994909090909091)
     var rm = List[Float64]()
-    rm.append(-0.03999999999999999); rm.append(0.05333333333333332)
-    rm.append(0.04799999999999999); rm.append(-0.05142857142857142)
-    rm.append(0.04888888888888888); rm.append(-0.050909090909090904)
+    rm.append(-0.03999999999999999)
+    rm.append(0.05333333333333332)
+    rm.append(0.04799999999999999)
+    rm.append(-0.05142857142857142)
+    rm.append(0.04888888888888888)
+    rm.append(-0.050909090909090904)
     var rv = List[Float64]()
-    rv.append(0.002499790000000001); rv.append(0.02249839); rv.append(0.06249519)
-    rv.append(0.12249098999999998); rv.append(0.20248459000000002)
+    rv.append(0.002499790000000001)
+    rv.append(0.02249839)
+    rv.append(0.06249519)
+    rv.append(0.12249098999999998)
+    rv.append(0.20248459000000002)
     rv.append(0.30247759)
 
     for i in range(N):
@@ -193,7 +214,9 @@ def test_clip_bounds_normalized_gradient() raises:
     var g = full([N], 0.5, DType.float64)
     var m0 = zeros([N], DType.float64)
     var v0 = full([N], 0.25, DType.float64)  # v_prev = g^2
-    var res_un = adopt_step(p_un, g, m0, v0, lr, beta1, 0.9999, 1e-6, 1.0e30, 0.0)
+    var res_un = adopt_step(
+        p_un, g, m0, v0, lr, beta1, 0.9999, 1e-6, 1.0e30, 0.0
+    )
     var m_un = res_un[1]
 
     # Clipped step with clip_value = 0.25 (< 1). normalized ~= +1 -> clipped to 0.25.
@@ -228,15 +251,21 @@ def test_simple_matches_full_defaults() raises:
     var full_res = adopt_step(p, g, m, v, 0.01)
     var simple_res = adopt_step_simple(p, g, m, v, 0.01)
     for i in range(N):
-        if _abs_diff(
-            full_res[0].load[DType.float64](i),
-            simple_res[0].load[DType.float64](i),
-        ) > 1e-12:
+        if (
+            _abs_diff(
+                full_res[0].load[DType.float64](i),
+                simple_res[0].load[DType.float64](i),
+            )
+            > 1e-12
+        ):
             raise Error("adopt_step_simple params differ from adopt_step")
-        if _abs_diff(
-            full_res[2].load[DType.float64](i),
-            simple_res[2].load[DType.float64](i),
-        ) > 1e-12:
+        if (
+            _abs_diff(
+                full_res[2].load[DType.float64](i),
+                simple_res[2].load[DType.float64](i),
+            )
+            > 1e-12
+        ):
             raise Error("adopt_step_simple second moment differs")
     print("  ✓ adopt_step_simple == adopt_step with defaults")
     print("test_simple_matches_full_defaults PASSED")

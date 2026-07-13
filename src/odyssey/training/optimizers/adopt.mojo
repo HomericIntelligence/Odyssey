@@ -142,9 +142,7 @@ def adopt_step(
 
     # Decoupled weight decay (AdamW-style), applied after the gradient step.
     if weight_decay != 0.0:
-        var wd_coeff_tensor = full_like(
-            params, weight_decay * learning_rate
-        )
+        var wd_coeff_tensor = full_like(params, weight_decay * learning_rate)
         var wd_term = multiply_simd(wd_coeff_tensor, params)
         new_params = subtract_simd(new_params, wd_term)
 
@@ -188,6 +186,4 @@ def adopt_step_simple(
     Raises:
         Error: If tensor shapes or dtypes don't match.
     """
-    return adopt_step(
-        params, gradients, momentum, second_moment, learning_rate
-    )
+    return adopt_step(params, gradients, momentum, second_moment, learning_rate)
