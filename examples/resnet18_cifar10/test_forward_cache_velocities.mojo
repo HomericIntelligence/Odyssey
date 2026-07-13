@@ -135,128 +135,34 @@ def test_forward_with_cache_matches_forward_logits() raises:
     for i in range(batch_size * 3 * 32 * 32):
         input_data[i] = Float32(0.1)
 
-    # Test approach: single-model comparison
-    # Run forward_with_cache first, then re-execute forward on same weights
-    # Use training=False to ensure BN uses fixed stats (no stat updates),
-    # so identical weights produce identical logits.
-    var model_a = ResNet18(num_classes=10)
+    # Test approach: single-model self-consistency check.
+    #
+    # forward_with_cache() must be a faithful instrumented copy of forward():
+    # identical math, differing only in that it also records intermediate
+    # activations. This test asserts that equivalence directly by running BOTH
+    # code paths on the SAME model instance and comparing the logits bit-for-bit.
+    #
+    # Why one model is correct (and why the old two-model weight-copy was not
+    # needed): both calls pass training=False, so batch_norm2d runs in inference
+    # mode and returns running_mean/running_var UNCHANGED (normalization.mojo:
+    # "Running stats unchanged in inference mode" ->
+    # `return (output, running_mean, running_var)`). Both ResNet18.forward and
+    # ResNet18.forward_with_cache take `mut self` and write those returned stats
+    # back to their fields, but in inference mode the write-back stores the same
+    # values, so neither call mutates the model. The first call therefore cannot
+    # contaminate the second: both observe identical weights AND identical
+    # (frozen) BN stats, so any divergence in the logits is a genuine
+    # forward_with_cache vs forward discrepancy -- exactly what this test exists
+    # to catch.
+    #
+    # This replaces a fragile 85-line model_a -> model_b field-copy block that
+    # silently rotted whenever a new ResNet18 parameter was added.
+    var model = ResNet18(num_classes=10)
 
-    # Capture logits from forward_with_cache
-    var cache = model_a.forward_with_cache(input_tensor, training=False)
+    # Run both code paths on the same instance, then compare logits.
+    var cache = model.forward_with_cache(input_tensor, training=False)
     var cache_logits = cache.logits
-
-    # Create second model with same weights as model_a
-    # (deterministic init using he_uniform with same construction)
-    var model_b = ResNet18(num_classes=10)
-
-    # Copy all weights from model_a to model_b
-    model_b.conv1_kernel = model_a.conv1_kernel
-    model_b.conv1_bias = model_a.conv1_bias
-    model_b.bn1_gamma = model_a.bn1_gamma
-    model_b.bn1_beta = model_a.bn1_beta
-    model_b.bn1_running_mean = model_a.bn1_running_mean
-    model_b.bn1_running_var = model_a.bn1_running_var
-
-    # Per-stage BN running stats (s1b1, s1b2, ...) intentionally not copied.
-    # Robustness guarantee: ResNet18.__init__ zero-initializes all running_mean fields
-    # and ones-initializes all running_var fields (model.mojo lines 576-577, 583-584, etc.).
-    # With training=False, BN stats remain frozen at this init state, so both models' outputs
-    # are bit-equal despite not copying per-stage BN stats. This test depends on that invariant.
-
-    # Stage 1
-    model_b.s1b1_conv1_kernel = model_a.s1b1_conv1_kernel
-    model_b.s1b1_conv1_bias = model_a.s1b1_conv1_bias
-    model_b.s1b1_bn1_gamma = model_a.s1b1_bn1_gamma
-    model_b.s1b1_bn1_beta = model_a.s1b1_bn1_beta
-    model_b.s1b1_conv2_kernel = model_a.s1b1_conv2_kernel
-    model_b.s1b1_conv2_bias = model_a.s1b1_conv2_bias
-    model_b.s1b1_bn2_gamma = model_a.s1b1_bn2_gamma
-    model_b.s1b1_bn2_beta = model_a.s1b1_bn2_beta
-
-    model_b.s1b2_conv1_kernel = model_a.s1b2_conv1_kernel
-    model_b.s1b2_conv1_bias = model_a.s1b2_conv1_bias
-    model_b.s1b2_bn1_gamma = model_a.s1b2_bn1_gamma
-    model_b.s1b2_bn1_beta = model_a.s1b2_bn1_beta
-    model_b.s1b2_conv2_kernel = model_a.s1b2_conv2_kernel
-    model_b.s1b2_conv2_bias = model_a.s1b2_conv2_bias
-    model_b.s1b2_bn2_gamma = model_a.s1b2_bn2_gamma
-    model_b.s1b2_bn2_beta = model_a.s1b2_bn2_beta
-
-    # Stage 2
-    model_b.s2b1_conv1_kernel = model_a.s2b1_conv1_kernel
-    model_b.s2b1_conv1_bias = model_a.s2b1_conv1_bias
-    model_b.s2b1_bn1_gamma = model_a.s2b1_bn1_gamma
-    model_b.s2b1_bn1_beta = model_a.s2b1_bn1_beta
-    model_b.s2b1_conv2_kernel = model_a.s2b1_conv2_kernel
-    model_b.s2b1_conv2_bias = model_a.s2b1_conv2_bias
-    model_b.s2b1_bn2_gamma = model_a.s2b1_bn2_gamma
-    model_b.s2b1_bn2_beta = model_a.s2b1_bn2_beta
-    model_b.s2b1_proj_kernel = model_a.s2b1_proj_kernel
-    model_b.s2b1_proj_bias = model_a.s2b1_proj_bias
-    model_b.s2b1_proj_bn_gamma = model_a.s2b1_proj_bn_gamma
-    model_b.s2b1_proj_bn_beta = model_a.s2b1_proj_bn_beta
-
-    model_b.s2b2_conv1_kernel = model_a.s2b2_conv1_kernel
-    model_b.s2b2_conv1_bias = model_a.s2b2_conv1_bias
-    model_b.s2b2_bn1_gamma = model_a.s2b2_bn1_gamma
-    model_b.s2b2_bn1_beta = model_a.s2b2_bn1_beta
-    model_b.s2b2_conv2_kernel = model_a.s2b2_conv2_kernel
-    model_b.s2b2_conv2_bias = model_a.s2b2_conv2_bias
-    model_b.s2b2_bn2_gamma = model_a.s2b2_bn2_gamma
-    model_b.s2b2_bn2_beta = model_a.s2b2_bn2_beta
-
-    # Stage 3
-    model_b.s3b1_conv1_kernel = model_a.s3b1_conv1_kernel
-    model_b.s3b1_conv1_bias = model_a.s3b1_conv1_bias
-    model_b.s3b1_bn1_gamma = model_a.s3b1_bn1_gamma
-    model_b.s3b1_bn1_beta = model_a.s3b1_bn1_beta
-    model_b.s3b1_conv2_kernel = model_a.s3b1_conv2_kernel
-    model_b.s3b1_conv2_bias = model_a.s3b1_conv2_bias
-    model_b.s3b1_bn2_gamma = model_a.s3b1_bn2_gamma
-    model_b.s3b1_bn2_beta = model_a.s3b1_bn2_beta
-    model_b.s3b1_proj_kernel = model_a.s3b1_proj_kernel
-    model_b.s3b1_proj_bias = model_a.s3b1_proj_bias
-    model_b.s3b1_proj_bn_gamma = model_a.s3b1_proj_bn_gamma
-    model_b.s3b1_proj_bn_beta = model_a.s3b1_proj_bn_beta
-
-    model_b.s3b2_conv1_kernel = model_a.s3b2_conv1_kernel
-    model_b.s3b2_conv1_bias = model_a.s3b2_conv1_bias
-    model_b.s3b2_bn1_gamma = model_a.s3b2_bn1_gamma
-    model_b.s3b2_bn1_beta = model_a.s3b2_bn1_beta
-    model_b.s3b2_conv2_kernel = model_a.s3b2_conv2_kernel
-    model_b.s3b2_conv2_bias = model_a.s3b2_conv2_bias
-    model_b.s3b2_bn2_gamma = model_a.s3b2_bn2_gamma
-    model_b.s3b2_bn2_beta = model_a.s3b2_bn2_beta
-
-    # Stage 4
-    model_b.s4b1_conv1_kernel = model_a.s4b1_conv1_kernel
-    model_b.s4b1_conv1_bias = model_a.s4b1_conv1_bias
-    model_b.s4b1_bn1_gamma = model_a.s4b1_bn1_gamma
-    model_b.s4b1_bn1_beta = model_a.s4b1_bn1_beta
-    model_b.s4b1_conv2_kernel = model_a.s4b1_conv2_kernel
-    model_b.s4b1_conv2_bias = model_a.s4b1_conv2_bias
-    model_b.s4b1_bn2_gamma = model_a.s4b1_bn2_gamma
-    model_b.s4b1_bn2_beta = model_a.s4b1_bn2_beta
-    model_b.s4b1_proj_kernel = model_a.s4b1_proj_kernel
-    model_b.s4b1_proj_bias = model_a.s4b1_proj_bias
-    model_b.s4b1_proj_bn_gamma = model_a.s4b1_proj_bn_gamma
-    model_b.s4b1_proj_bn_beta = model_a.s4b1_proj_bn_beta
-
-    model_b.s4b2_conv1_kernel = model_a.s4b2_conv1_kernel
-    model_b.s4b2_conv1_bias = model_a.s4b2_conv1_bias
-    model_b.s4b2_bn1_gamma = model_a.s4b2_bn1_gamma
-    model_b.s4b2_bn1_beta = model_a.s4b2_bn1_beta
-    model_b.s4b2_conv2_kernel = model_a.s4b2_conv2_kernel
-    model_b.s4b2_conv2_bias = model_a.s4b2_conv2_bias
-    model_b.s4b2_bn2_gamma = model_a.s4b2_bn2_gamma
-    model_b.s4b2_bn2_beta = model_a.s4b2_bn2_beta
-
-    # FC head
-    model_b.fc_weights = model_a.fc_weights
-    model_b.fc_bias = model_a.fc_bias
-
-    # Run forward on model_b
-    var forward_logits = model_b.forward(input_tensor, training=False)
+    var forward_logits = model.forward(input_tensor, training=False)
 
     # Compare logit shapes (sanity check before element-wise comparison)
     var cache_logits_shape = cache_logits.shape()
