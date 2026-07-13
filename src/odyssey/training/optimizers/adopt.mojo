@@ -157,3 +157,37 @@ def adopt_step(
     new_second_moment = add_simd(new_second_moment, v_contrib)
 
     return (new_params, new_momentum, new_second_moment)
+
+
+def adopt_step_simple(
+    params: AnyTensor,
+    gradients: AnyTensor,
+    momentum: AnyTensor,
+    second_moment: AnyTensor,
+    learning_rate: Float64,
+) raises -> Tuple[AnyTensor, AnyTensor, AnyTensor]:
+    """Simplified ADOPT step with default hyperparameters (Taniguchi et al. 2024).
+
+    Convenience wrapper around `adopt_step` for the common case: default betas
+    (0.9, 0.9999), epsilon 1e-6, clipping disabled, and no weight decay. Caller
+    still manages the momentum and second-moment buffers.
+
+    On the first step, initialize `second_moment` to the first squared gradient
+    (v_0 = g_0^2) as recommended by the paper (see `adopt_step`).
+
+    Args:
+        params: Model parameters to update.
+        gradients: Gradients of loss with respect to params.
+        momentum: First-moment buffer m. Initialize to zeros_like(params).
+        second_moment: Second-moment buffer v from the previous step.
+        learning_rate: Step size for parameter updates.
+
+    Returns:
+        Tuple of (new_params, new_momentum, new_second_moment).
+
+    Raises:
+        Error: If tensor shapes or dtypes don't match.
+    """
+    return adopt_step(
+        params, gradients, momentum, second_moment, learning_rate
+    )

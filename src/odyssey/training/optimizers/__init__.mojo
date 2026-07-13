@@ -76,7 +76,7 @@ from odyssey.training.optimizers.normuon import (
 from odyssey.training.optimizers.lion import lion_step, lion_step_simple
 
 # ADOPT optimizer (modified Adam with the optimal convergence rate for any beta2)
-from odyssey.training.optimizers.adopt import adopt_step
+from odyssey.training.optimizers.adopt import adopt_step, adopt_step_simple
 
 # Shampoo optimizer (two-sided matrix preconditioner via Newton-Schulz inverse fourth root)
 from odyssey.training.optimizers.shampoo import (
