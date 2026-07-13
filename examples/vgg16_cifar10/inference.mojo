@@ -30,8 +30,8 @@ def parse_args() raises -> Tuple[String, String]:
 
     var args = parser.parse()
 
-    var weights_dir = args.get_string("weights-dir", "vgg16_weights")
-    var data_dir = args.get_string("data-dir", "datasets/cifar10")
+    var weights_dir = args.resolve_string("weights-dir", "vgg16_weights")
+    var data_dir = args.resolve_string("data-dir", "datasets/cifar10")
 
     return Tuple[String, String](weights_dir, data_dir)
 

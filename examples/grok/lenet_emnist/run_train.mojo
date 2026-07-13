@@ -89,17 +89,17 @@ def parse_args() raises -> TrainConfig:
     var args = parser.parse()
 
     var config = TrainConfig()
-    config.epochs = args.get_int("epochs", 10)
-    config.batch_size = args.get_int("batch-size", 32)
-    config.learning_rate = args.get_float("lr", 0.001)
-    config.weight_decay = args.get_float("weight-decay", 0.01)
-    config.subset_size = args.get_int("subset-size", 0)
-    config.max_batches = args.get_int("max-batches", 0)
-    config.log_every = args.get_int("log-every", 1)
-    config.checkpoint_every = args.get_int("checkpoint-every", 1)
-    config.track_metric = args.get_string("track-metric", "test_acc:max")
-    config.data_dir = args.get_string("data-dir", "datasets/emnist")
-    config.weights_dir = args.get_string("weights-dir", "lenet5_weights")
+    config.epochs = args.resolve_int("epochs", 10)
+    config.batch_size = args.resolve_int("batch-size", 32)
+    config.learning_rate = args.resolve_float("lr", 0.001)
+    config.weight_decay = args.resolve_float("weight-decay", 0.01)
+    config.subset_size = args.resolve_int("subset-size", 0)
+    config.max_batches = args.resolve_int("max-batches", 0)
+    config.log_every = args.resolve_int("log-every", 1)
+    config.checkpoint_every = args.resolve_int("checkpoint-every", 1)
+    config.track_metric = args.resolve_string("track-metric", "test_acc:max")
+    config.data_dir = args.resolve_string("data-dir", "datasets/emnist")
+    config.weights_dir = args.resolve_string("weights-dir", "lenet5_weights")
 
     return config^
 

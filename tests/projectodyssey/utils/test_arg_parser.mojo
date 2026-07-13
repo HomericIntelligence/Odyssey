@@ -301,6 +301,79 @@ def test_resolve_rejects_negative_max_batches() raises:
     )
 
 
+def test_direct_parse_resolve_honors_script_default_when_absent() raises:
+    """Direct-parse resolve_* honors the script's own default when unset (#5569).
+
+    Mirrors what every migrated example script now does: the shared parser
+    pre-populates a *registered* default into the value map, but the script
+    passes its own per-script default to resolve_* and that default must win
+    unless the user explicitly passed the flag. This is the systemic
+    masked-default bug that `get_*` exhibited (it returned the registered
+    default) and that resolve_* fixes.
+    """
+    var parsed = ParsedArgs()
+    # Registered defaults, exactly as ArgumentParser.parse() pre-populates them
+    # (e.g. create_training_parser registers epochs=100, weights-dir="weights",
+    # lr=0.001). None of these was user-supplied.
+    parsed.set("weights-dir", "weights")
+    parsed.set("epochs", "100")
+    parsed.set("lr", "0.001")
+
+    # The script supplies its OWN defaults (e.g. lenet run_train wants
+    # "lenet5_weights", 10 epochs, lr 0.01). With get_* these were shadowed by
+    # the registered defaults above; resolve_* must honor the script's values.
+    assert_equal(
+        parsed.resolve_string("weights-dir", "lenet5_weights"), "lenet5_weights"
+    )
+    assert_equal(parsed.resolve_int("epochs", 10), 10)
+    var lr = parsed.resolve_float("lr", 0.01)
+    assert_true(lr > 0.0099 and lr < 0.0101)
+
+
+def test_direct_parse_resolve_user_value_overrides_script_default() raises:
+    """Direct-parse resolve_* returns the user's value when the flag is passed.
+
+    The complement to the case above: when the user explicitly passes a flag,
+    the parsed CLI value must beat both the registered default and the script's
+    own default (#5569).
+    """
+    var parsed = ParsedArgs()
+    parsed.set("weights-dir", "weights")  # registered default
+    parsed.set_user_supplied("weights-dir", "user_dir")  # user passed the flag
+    parsed.set_user_supplied("epochs", "7")
+    parsed.set_user_supplied("lr", "0.5")
+
+    # User-supplied values win over the script's per-site defaults.
+    assert_equal(
+        parsed.resolve_string("weights-dir", "lenet5_weights"), "user_dir"
+    )
+    assert_equal(parsed.resolve_int("epochs", 10), 7)
+    var lr = parsed.resolve_float("lr", 0.01)
+    assert_true(lr > 0.4999 and lr < 0.5001)
+
+
+def test_direct_parse_resolve_differs_from_get_when_shadowed() raises:
+    """Resolve_* honors the script default where get_* returned the registered.
+
+    Pins the exact behavioral difference the #5569 migration relies on: for a
+    pre-populated (registered) default that the user did NOT pass, get_* returns
+    the registered value (the bug) while resolve_* returns the script's default
+    (the fix). Also guards that get_* semantics are unchanged (so the
+    pre-population contract / test_parser_populates_defaults is not regressed).
+    """
+    var parsed = ParsedArgs()
+    parsed.set(
+        "weights-dir", "weights"
+    )  # registered default, not user-supplied
+
+    # get_* keeps its documented behavior: registered default wins (unchanged).
+    assert_equal(parsed.get_string("weights-dir", "lenet5_weights"), "weights")
+    # resolve_* is the fix: the script's own default wins when unset.
+    assert_equal(
+        parsed.resolve_string("weights-dir", "lenet5_weights"), "lenet5_weights"
+    )
+
+
 def main() raises:
     """Run all test_arg_parser tests."""
     print("Running test_arg_parser tests...")
@@ -361,5 +434,12 @@ def main() raises:
     test_resolve_rejects_negative_max_batches()
     print("✓ test_resolve_rejects_negative_max_batches")
     print("✓ test_resolve_user_value_overrides_caller_default")
+
+    test_direct_parse_resolve_honors_script_default_when_absent()
+    print("✓ test_direct_parse_resolve_honors_script_default_when_absent")
+    test_direct_parse_resolve_user_value_overrides_script_default()
+    print("✓ test_direct_parse_resolve_user_value_overrides_script_default")
+    test_direct_parse_resolve_differs_from_get_when_shadowed()
+    print("✓ test_direct_parse_resolve_differs_from_get_when_shadowed")
 
     print("\nAll test_arg_parser tests passed!")

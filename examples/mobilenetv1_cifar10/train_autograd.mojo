@@ -133,9 +133,9 @@ def parse_args() raises -> TrainConfig:
 
     var args = parser.parse()
 
-    var epochs = args.get_int("epochs", 100)
-    var batch_size = args.get_int("batch-size", 128)
-    var weight_decay = args.get_float("weight-decay", 0.01)
+    var epochs = args.resolve_int("epochs", 100)
+    var batch_size = args.resolve_int("batch-size", 128)
+    var weight_decay = args.resolve_float("weight-decay", 0.01)
     # Resolve the AdamW default in code. The shared parser registers `optimizer`
     # with a built-in default of "sgd", and `parse()` pre-populates it into the
     # value map — so `get_string("optimizer", "adamw")` would return "sgd" even
@@ -155,11 +155,11 @@ def parse_args() raises -> TrainConfig:
         learning_rate = 0.01
     else:
         learning_rate = 0.0001
-    var data_dir = args.get_string("data-dir", "datasets/cifar10")
+    var data_dir = args.resolve_string("data-dir", "datasets/cifar10")
     var weights_dir = args.get_string(
         "weights-dir", "mobilenetv1_weights_autograd"
     )
-    var max_batches = args.get_int("max-batches", 0)
+    var max_batches = args.resolve_int("max-batches", 0)
     var smoke = args.get_bool("smoke")
 
     return TrainConfig(

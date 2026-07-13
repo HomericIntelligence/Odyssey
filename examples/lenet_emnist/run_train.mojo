@@ -78,13 +78,13 @@ def parse_args() raises -> TrainConfig:
     var args = parser.parse()
 
     var config = TrainConfig()
-    config.epochs = args.get_int("epochs", 10)
-    config.batch_size = args.get_int("batch-size", 32)
-    config.learning_rate = Float32(args.get_float("lr", 0.001))
-    config.precision = args.get_string("precision", "fp32")
-    config.data_dir = args.get_string("data-dir", "datasets/emnist")
-    config.weights_dir = args.get_string("weights-dir", "lenet5_weights")
-    config.max_batches = args.get_int("max-batches", 0)
+    config.epochs = args.resolve_int("epochs", 10)
+    config.batch_size = args.resolve_int("batch-size", 32)
+    config.learning_rate = Float32(args.resolve_float("lr", 0.001))
+    config.precision = args.resolve_string("precision", "fp32")
+    config.data_dir = args.resolve_string("data-dir", "datasets/emnist")
+    config.weights_dir = args.resolve_string("weights-dir", "lenet5_weights")
+    config.max_batches = args.resolve_int("max-batches", 0)
     config.smoke = args.get_bool("smoke")
 
     return config^

@@ -70,13 +70,13 @@ def parse_args() raises -> (
 
     var args = parser.parse()
 
-    var epochs = args.get_int("epochs", 100)
-    var batch_size = args.get_int("batch-size", 128)
-    var learning_rate = Float32(args.get_float("lr", 0.01))
-    var momentum = Float32(args.get_float("momentum", 0.9))
-    var data_dir = args.get_string("data-dir", "datasets/cifar10")
-    var weights_dir = args.get_string("weights-dir", "alexnet_weights")
-    var max_batches = args.get_int("max-batches", 0)
+    var epochs = args.resolve_int("epochs", 100)
+    var batch_size = args.resolve_int("batch-size", 128)
+    var learning_rate = Float32(args.resolve_float("lr", 0.01))
+    var momentum = Float32(args.resolve_float("momentum", 0.9))
+    var data_dir = args.resolve_string("data-dir", "datasets/cifar10")
+    var weights_dir = args.resolve_string("weights-dir", "alexnet_weights")
+    var max_batches = args.resolve_int("max-batches", 0)
     var smoke = args.get_bool("smoke")
 
     return (
