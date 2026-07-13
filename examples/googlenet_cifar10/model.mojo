@@ -217,7 +217,7 @@ struct InceptionModule:
         var b1 = conv2d(
             x, self.conv1x1_1_weights, self.conv1x1_1_bias, stride=1, padding=0
         )
-        b1, _, _ = batch_norm2d(
+        var b1_bn_result = batch_norm2d(
             b1,
             self.bn1x1_1_gamma,
             self.bn1x1_1_beta,
@@ -225,13 +225,16 @@ struct InceptionModule:
             self.bn1x1_1_running_var,
             training,
         )
+        b1 = b1_bn_result[0]
+        self.bn1x1_1_running_mean = b1_bn_result[1]
+        self.bn1x1_1_running_var = b1_bn_result[2]
         b1 = relu(b1)
 
         # Branch 2: 1×1 reduce → 3×3 conv
         var b2 = conv2d(
             x, self.conv1x1_2_weights, self.conv1x1_2_bias, stride=1, padding=0
         )
-        b2, _, _ = batch_norm2d(
+        var b2_bn1_result = batch_norm2d(
             b2,
             self.bn1x1_2_gamma,
             self.bn1x1_2_beta,
@@ -239,11 +242,14 @@ struct InceptionModule:
             self.bn1x1_2_running_var,
             training,
         )
+        b2 = b2_bn1_result[0]
+        self.bn1x1_2_running_mean = b2_bn1_result[1]
+        self.bn1x1_2_running_var = b2_bn1_result[2]
         b2 = relu(b2)
         b2 = conv2d(
             b2, self.conv3x3_weights, self.conv3x3_bias, stride=1, padding=1
         )
-        b2, _, _ = batch_norm2d(
+        var b2_bn2_result = batch_norm2d(
             b2,
             self.bn3x3_gamma,
             self.bn3x3_beta,
@@ -251,13 +257,16 @@ struct InceptionModule:
             self.bn3x3_running_var,
             training,
         )
+        b2 = b2_bn2_result[0]
+        self.bn3x3_running_mean = b2_bn2_result[1]
+        self.bn3x3_running_var = b2_bn2_result[2]
         b2 = relu(b2)
 
         # Branch 3: 1×1 reduce → 5×5 conv
         var b3 = conv2d(
             x, self.conv1x1_3_weights, self.conv1x1_3_bias, stride=1, padding=0
         )
-        b3, _, _ = batch_norm2d(
+        var b3_bn1_result = batch_norm2d(
             b3,
             self.bn1x1_3_gamma,
             self.bn1x1_3_beta,
@@ -265,11 +274,14 @@ struct InceptionModule:
             self.bn1x1_3_running_var,
             training,
         )
+        b3 = b3_bn1_result[0]
+        self.bn1x1_3_running_mean = b3_bn1_result[1]
+        self.bn1x1_3_running_var = b3_bn1_result[2]
         b3 = relu(b3)
         b3 = conv2d(
             b3, self.conv5x5_weights, self.conv5x5_bias, stride=1, padding=2
         )
-        b3, _, _ = batch_norm2d(
+        var b3_bn2_result = batch_norm2d(
             b3,
             self.bn5x5_gamma,
             self.bn5x5_beta,
@@ -277,6 +289,9 @@ struct InceptionModule:
             self.bn5x5_running_var,
             training,
         )
+        b3 = b3_bn2_result[0]
+        self.bn5x5_running_mean = b3_bn2_result[1]
+        self.bn5x5_running_var = b3_bn2_result[2]
         b3 = relu(b3)
 
         # Branch 4: 3×3 max pool → 1×1 projection
@@ -284,7 +299,7 @@ struct InceptionModule:
         b4 = conv2d(
             b4, self.conv1x1_4_weights, self.conv1x1_4_bias, stride=1, padding=0
         )
-        b4, _, _ = batch_norm2d(
+        var b4_bn_result = batch_norm2d(
             b4,
             self.bn1x1_4_gamma,
             self.bn1x1_4_beta,
@@ -292,6 +307,9 @@ struct InceptionModule:
             self.bn1x1_4_running_var,
             training,
         )
+        b4 = b4_bn_result[0]
+        self.bn1x1_4_running_mean = b4_bn_result[1]
+        self.bn1x1_4_running_var = b4_bn_result[2]
         b4 = relu(b4)
 
         # Concatenate all branches depth-wise
@@ -763,12 +781,15 @@ struct InceptionGradients(Movable):
 
 
 def inception_forward_cached(
-    module: InceptionModule, x: AnyTensor
+    mut module: InceptionModule, x: AnyTensor
 ) raises -> Tuple[AnyTensor, InceptionCache]:
     """Forward pass through one Inception module, caching every activation.
 
-    Training-mode BatchNorm (write-backs of running stats are handled by the
-    caller / eval path; here we only need the forward output + cache).
+    Runs BatchNorm in training mode and writes the EMA-updated running_mean /
+    running_var back onto ``module`` at every BN site, so that post-training
+    inference (``training=False``) uses the accumulated statistics rather than
+    the init values (mean=0, var=1). Taking ``module`` mutably is what makes the
+    write-back possible (fixes #5575).
 
     Returns:
         (output, cache) where output is the depth-wise concatenation of the
@@ -778,7 +799,7 @@ def inception_forward_cached(
     var b1_conv = conv2d(
         x, module.conv1x1_1_weights, module.conv1x1_1_bias, stride=1, padding=0
     )
-    var b1_bn, _, _ = batch_norm2d(
+    var b1_bn_result = batch_norm2d(
         b1_conv,
         module.bn1x1_1_gamma,
         module.bn1x1_1_beta,
@@ -786,13 +807,16 @@ def inception_forward_cached(
         module.bn1x1_1_running_var,
         True,
     )
+    var b1_bn = b1_bn_result[0]
+    module.bn1x1_1_running_mean = b1_bn_result[1]
+    module.bn1x1_1_running_var = b1_bn_result[2]
     var b1 = relu(b1_bn)
 
     # Branch 2: conv1x1_2 -> BN -> ReLU -> conv3x3 -> BN -> ReLU
     var b2_conv1 = conv2d(
         x, module.conv1x1_2_weights, module.conv1x1_2_bias, stride=1, padding=0
     )
-    var b2_bn1, _, _ = batch_norm2d(
+    var b2_bn1_result = batch_norm2d(
         b2_conv1,
         module.bn1x1_2_gamma,
         module.bn1x1_2_beta,
@@ -800,6 +824,9 @@ def inception_forward_cached(
         module.bn1x1_2_running_var,
         True,
     )
+    var b2_bn1 = b2_bn1_result[0]
+    module.bn1x1_2_running_mean = b2_bn1_result[1]
+    module.bn1x1_2_running_var = b2_bn1_result[2]
     var b2_relu1 = relu(b2_bn1)
     var b2_conv2 = conv2d(
         b2_relu1,
@@ -808,7 +835,7 @@ def inception_forward_cached(
         stride=1,
         padding=1,
     )
-    var b2_bn2, _, _ = batch_norm2d(
+    var b2_bn2_result = batch_norm2d(
         b2_conv2,
         module.bn3x3_gamma,
         module.bn3x3_beta,
@@ -816,13 +843,16 @@ def inception_forward_cached(
         module.bn3x3_running_var,
         True,
     )
+    var b2_bn2 = b2_bn2_result[0]
+    module.bn3x3_running_mean = b2_bn2_result[1]
+    module.bn3x3_running_var = b2_bn2_result[2]
     var b2 = relu(b2_bn2)
 
     # Branch 3: conv1x1_3 -> BN -> ReLU -> conv5x5 -> BN -> ReLU
     var b3_conv1 = conv2d(
         x, module.conv1x1_3_weights, module.conv1x1_3_bias, stride=1, padding=0
     )
-    var b3_bn1, _, _ = batch_norm2d(
+    var b3_bn1_result = batch_norm2d(
         b3_conv1,
         module.bn1x1_3_gamma,
         module.bn1x1_3_beta,
@@ -830,6 +860,9 @@ def inception_forward_cached(
         module.bn1x1_3_running_var,
         True,
     )
+    var b3_bn1 = b3_bn1_result[0]
+    module.bn1x1_3_running_mean = b3_bn1_result[1]
+    module.bn1x1_3_running_var = b3_bn1_result[2]
     var b3_relu1 = relu(b3_bn1)
     var b3_conv2 = conv2d(
         b3_relu1,
@@ -838,7 +871,7 @@ def inception_forward_cached(
         stride=1,
         padding=2,
     )
-    var b3_bn2, _, _ = batch_norm2d(
+    var b3_bn2_result = batch_norm2d(
         b3_conv2,
         module.bn5x5_gamma,
         module.bn5x5_beta,
@@ -846,6 +879,9 @@ def inception_forward_cached(
         module.bn5x5_running_var,
         True,
     )
+    var b3_bn2 = b3_bn2_result[0]
+    module.bn5x5_running_mean = b3_bn2_result[1]
+    module.bn5x5_running_var = b3_bn2_result[2]
     var b3 = relu(b3_bn2)
 
     # Branch 4: maxpool -> conv1x1_4 -> BN -> ReLU
@@ -857,7 +893,7 @@ def inception_forward_cached(
         stride=1,
         padding=0,
     )
-    var b4_bn, _, _ = batch_norm2d(
+    var b4_bn_result = batch_norm2d(
         b4_conv,
         module.bn1x1_4_gamma,
         module.bn1x1_4_beta,
@@ -865,6 +901,9 @@ def inception_forward_cached(
         module.bn1x1_4_running_var,
         True,
     )
+    var b4_bn = b4_bn_result[0]
+    module.bn1x1_4_running_mean = b4_bn_result[1]
+    module.bn1x1_4_running_var = b4_bn_result[2]
     var b4 = relu(b4_bn)
 
     var c1 = b1.shape()[1]
@@ -1241,7 +1280,7 @@ struct GoogLeNet:
             stride=1,
             padding=1,
         )
-        out, _, _ = batch_norm2d(
+        var initial_bn_result = batch_norm2d(
             out,
             self.initial_bn_gamma,
             self.initial_bn_beta,
@@ -1249,6 +1288,9 @@ struct GoogLeNet:
             self.initial_bn_running_var,
             training,
         )
+        out = initial_bn_result[0]
+        self.initial_bn_running_mean = initial_bn_result[1]
+        self.initial_bn_running_var = initial_bn_result[2]
         out = relu(out)
         # Shape: (batch, 64, 32, 32)
 
