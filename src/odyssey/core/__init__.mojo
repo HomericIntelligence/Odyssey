@@ -246,6 +246,9 @@ from odyssey.core.matrix import (
     transpose_backward,
 )
 
+# Symmetric eigendecomposition (cyclic Jacobi)
+from odyssey.core.eigen import symmetric_eigh
+
 # ============================================================================
 # Optimized Matrix Multiplication Kernels
 # ============================================================================

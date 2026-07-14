@@ -87,6 +87,12 @@ from odyssey.training.optimizers.shampoo import (
     initialize_shampoo_state,
 )
 
+# SOAP optimizer (Shampoo + Adam in the preconditioner eigenbasis)
+from odyssey.training.optimizers.soap import (
+    soap_step,
+    init_soap_state,
+)
+
 # Optimizer utilities (common helper functions)
 from odyssey.training.optimizers.optimizer_utils import (
     initialize_optimizer_state,
