@@ -21,14 +21,17 @@ def _abs_diff(a: Float64, b: Float64) -> Float64:
     return d
 
 
-def _seed_ramp(mut t: AnyTensor, count: Int, scale: Float64, off: Float64) raises:
+def _seed_ramp(
+    mut t: AnyTensor, count: Int, scale: Float64, off: Float64
+) raises:
     """Seed a tensor's flat buffer with value[i] = i*scale + off."""
     for i in range(count):
         t.store[DType.float64](i, Float64(i) * scale + off)
 
 
 def test_shape() raises:
-    """step maps (batch, in) x (batch, hid) x (batch, hid) -> two (batch, hid)."""
+    """step maps (batch, in) x (batch, hid) x (batch, hid) -> two (batch, hid).
+    """
     print("Running test_shape...")
     var cell = LSTMCell[DType.float32](3, 4)
     var x = zeros([2, 3], DType.float32)
