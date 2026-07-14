@@ -139,6 +139,41 @@ def test_parity_with_pytorch() raises:
     print("test_parity_with_pytorch PASSED")
 
 
+def test_forward_equals_zero_state_step() raises:
+    """forward(x) must equal step(x, zeros, zeros)[0] with nonzero h->h biases.
+
+    A zero initial (hidden, cell) zeros only the hidden-to-hidden WEIGHT terms,
+    not the biases b_hi/b_hf/b_hg/b_ho. This asserts forward() includes them
+    (regression guard: an earlier shortcut dropped the h->h biases, so forward
+    diverged from a zero-state step once those biases were trained nonzero).
+    """
+    print("Running test_forward_equals_zero_state_step...")
+    var cell = LSTMCell[DType.float64](3, 4)
+    for i in range(4):
+        cell.hi.bias.store[DType.float64](i, Float64(i) * 0.01 + 0.05)
+        cell.hf.bias.store[DType.float64](i, Float64(i) * 0.02 - 0.03)
+        cell.hg.bias.store[DType.float64](i, Float64(i) * 0.015 + 0.02)
+        cell.ho.bias.store[DType.float64](i, Float64(i) * 0.01 - 0.01)
+    var x = zeros([2, 3], DType.float64)
+    for i in range(6):
+        x.store[DType.float64](i, Float64(i) * 0.1 - 0.2)
+    var h0 = zeros([2, 4], DType.float64)
+    var c0 = zeros([2, 4], DType.float64)
+
+    var f = cell.forward(x)
+    var hc = cell.step(x, h0, c0)
+    for i in range(8):
+        if (
+            _abs_diff(f.load[DType.float64](i), hc[0].load[DType.float64](i))
+            > 1e-12
+        ):
+            raise Error("forward != step(x, zeros, zeros)[0] at " + String(i))
+    print(
+        "  ok forward(x) == step(x, zeros, zeros)[0] with nonzero h->h biases"
+    )
+    print("test_forward_equals_zero_state_step PASSED")
+
+
 def main() raises:
     """Run all LSTM tests."""
     print("=" * 60)
@@ -148,6 +183,7 @@ def main() raises:
     test_reject_bad_sizes()
     test_parameter_count()
     test_parity_with_pytorch()
+    test_forward_equals_zero_state_step()
     print("=" * 60)
     print("All LSTM tests PASSED")
     print("=" * 60)

@@ -21,7 +21,7 @@ Reference:
 """
 
 from odyssey.tensor.any_tensor import AnyTensor
-from odyssey.tensor.tensor_creation import full_like
+from odyssey.tensor.tensor_creation import full_like, zeros
 from odyssey.core.module import Module
 from odyssey.core.layers.linear import Linear
 from odyssey.core.activation import sigmoid, tanh
@@ -89,8 +89,12 @@ struct LSTMCell[dtype: DType = DType.float32](Copyable, Module, Movable):
     def forward(mut self, input: AnyTensor) raises -> AnyTensor:
         """Module `forward` from a zero initial hidden and cell state.
 
-        Use `step(input, hidden, cell)` to thread real recurrent state. Returns
-        only the new hidden state (the cell state is discarded).
+        Runs a single `step` from all-zero hidden and cell states, so this is
+        exactly the hidden output of `step(input, zeros, zeros)` — the
+        hidden-to-hidden projections still contribute their biases (a zero hidden
+        zeros only the weight terms, not `b_hi`/`b_hf`/`b_hg`/`b_ho`). Returns only
+        the new hidden state (the new cell state is discarded). Use
+        `step(input, hidden, cell)` to thread real recurrent state.
 
         Args:
             input: Input tensor of shape (batch, input_size).
@@ -101,13 +105,11 @@ struct LSTMCell[dtype: DType = DType.float32](Copyable, Module, Movable):
         Raises:
             Error: If tensor operations fail.
         """
-        # h0 = c0 = 0 -> i = sigmoid(x W_ii + b_ii), g = tanh(x W_ig + b_ig),
-        # o = sigmoid(x W_io + b_io); c' = i * g; h' = o * tanh(c').
-        var i = sigmoid(self.ii.forward(input))
-        var g = tanh(self.ig.forward(input))
-        var o = sigmoid(self.io.forward(input))
-        var c_new = multiply_simd(i, g)
-        return multiply_simd(o, tanh(c_new))
+        var batch = input.shape()[0]
+        var h0 = zeros([batch, self.hidden_size], Self.dtype)
+        var c0 = zeros([batch, self.hidden_size], Self.dtype)
+        var hc = self.step(input, h0, c0)
+        return hc[0]
 
     def step(
         mut self, input: AnyTensor, hidden: AnyTensor, cell: AnyTensor
