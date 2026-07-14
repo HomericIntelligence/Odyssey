@@ -20,7 +20,9 @@ def _abs_diff(a: Float64, b: Float64) -> Float64:
     return d
 
 
-def _seed_ramp(mut t: AnyTensor, count: Int, scale: Float64, off: Float64) raises:
+def _seed_ramp(
+    mut t: AnyTensor, count: Int, scale: Float64, off: Float64
+) raises:
     """Seed a tensor's flat buffer with value[i] = i*scale + off."""
     for i in range(count):
         t.store[DType.float64](i, Float64(i) * scale + off)
