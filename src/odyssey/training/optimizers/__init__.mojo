@@ -72,6 +72,12 @@ from odyssey.training.optimizers.normuon import (
     normuon_step_simple,
 )
 
+# MGUP-Muon optimizer (Muon with selective / max-utilization updates)
+from odyssey.training.optimizers.mgup_muon import (
+    mgup_muon_step,
+    mgup_muon_step_simple,
+)
+
 # Lion optimizer (EvoLved Sign Momentum — Chen et al. 2023)
 from odyssey.training.optimizers.lion import lion_step, lion_step_simple
 
