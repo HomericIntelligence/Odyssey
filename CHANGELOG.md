@@ -11,6 +11,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Vanilla RNN cell** (Elman 1990) — `RNNCell` in `core/layers/rnn.mojo`,
+  h_t = tanh(x W_ih + b_ih + h W_hh + b_hh), verified against `torch.nn.RNNCell` to 1e-5.
+
 - **Full manual backward passes + real CIFAR-10 training** for three CNN examples,
   each with genuine measured epoch validation (no synthetic placeholders):
   - MobileNetV1 ([#3187](https://github.com/HomericIntelligence/Odyssey/issues/3187)):
