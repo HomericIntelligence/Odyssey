@@ -263,9 +263,8 @@ class TestReleaseProcess:
 ## Steps
 
 1. Version bump
-2. Changelog update
-3. Create release
-4. Deploy
+2. Create release
+3. Deploy
 
 ## Checklist
 

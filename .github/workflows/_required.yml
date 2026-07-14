@@ -629,7 +629,7 @@ jobs:
   # lives in release.yml and fires on `v*` tags (creating the GitHub release,
   # container, conda, wheel). That workflow emits no check-run on `main`, so the
   # board's release cell would be blank. This job runs on every PR / push to
-  # main and validates release *readiness* — version format + changelog entry —
+  # main and validates release *readiness* — version format + consistency —
   # without publishing or deploying anything. It does NOT touch release.yml's
   # `deploy` custom check.
   release:
@@ -661,10 +661,4 @@ jobs:
             exit 1
           fi
 
-          # 3. A changelog must exist and be non-empty (release notes source).
-          if [ ! -s CHANGELOG.md ]; then
-            echo "::error::CHANGELOG.md missing or empty — required for release notes"
-            exit 1
-          fi
-
-          echo "Release readiness OK (dry-run): version=$version, CHANGELOG.md present. No artifacts published."
+          echo "Release readiness OK (dry-run): version=$version. No artifacts published."

@@ -376,7 +376,6 @@ Use this checklist to verify Package phase is truly complete:
 ### Common to All
 
 - [ ] Version number follows SemVer (0.1.0)
-- [ ] CHANGELOG.md updated with changes
 - [ ] Distribution README created
 - [ ] Installation instructions documented
 - [ ] No artifacts committed to git (add to .gitignore)

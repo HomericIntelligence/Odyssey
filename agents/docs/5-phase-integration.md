@@ -770,7 +770,6 @@ Implementation Engineer:
 
 ```text
 Documentation Engineer:
-  - Updates CHANGELOG with bug fix
   - No major doc changes needed
 ```text
 

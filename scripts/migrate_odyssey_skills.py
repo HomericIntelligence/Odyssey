@@ -175,7 +175,6 @@ TIER2_CATEGORY_MAP = {
     "extract-dependencies": "tooling",
     "extract-hyperparameters": "optimization",
     "generate-api-docs": "documentation",
-    "generate-changelog": "documentation",
     "generate-docstrings": "documentation",
     "generate-tests": "testing",
     "identify-architecture": "architecture",
