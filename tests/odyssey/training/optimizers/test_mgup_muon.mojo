@@ -143,6 +143,49 @@ def test_simple_wrapper_runs() raises:
     print("test_simple_wrapper_runs PASSED")
 
 
+def test_float32_matches_float64() raises:
+    """A float32 step must match the float64 reference to float32 precision.
+
+    Regression guard: the selection/amplification loop originally read tensors
+    with a hardcoded `load[DType.float64]` bitcast, which over-reads and
+    misinterprets the buffer for float32 params (the standard training dtype).
+    The dtype-safe accessors (`_get_float64`/`_set_float64`) must produce the
+    same result as the float64 path, to ~1e-6.
+    """
+    print("Running test_float32_matches_float64...")
+
+    # float64 reference values (same fixture as test_parity_with_reference).
+    var ref = List[Float64]()
+    ref.append(-0.4690749)
+    ref.append(-0.3902363)
+    ref.append(-0.2959352)
+    ref.append(-0.201634)
+    ref.append(-0.0788658)
+    ref.append(0.0037723)
+    ref.append(0.0969775)
+    ref.append(0.1901828)
+    ref.append(0.3056717)
+    ref.append(0.397781)
+    ref.append(0.4898903)
+    ref.append(0.5639991)
+
+    var W = zeros([3, 4], DType.float32)
+    for i in range(12):
+        W.store[DType.float32](i, Float32(Float64(i) * 0.1 - 0.5))
+    var G = zeros([3, 4], DType.float32)
+    for i in range(12):
+        G.store[DType.float32](i, Float32(Float64(i) * 0.05 - 0.3))
+    var M = zeros_like(W)
+
+    var (new_p, _) = mgup_muon_step(W, G, M, 0.1, 0.25, 2.0)
+    for i in range(12):
+        var got = Float64(new_p.load[DType.float32](i))
+        if _abs_diff(got, ref[i]) > 1e-5:
+            raise Error("MGUP float32 mismatch vs float64 at " + String(i))
+    print("  ok float32 step matches float64 reference to 1e-5")
+    print("test_float32_matches_float64 PASSED")
+
+
 def main() raises:
     """Run all MGUP-Muon tests."""
     print("=" * 60)
@@ -153,6 +196,7 @@ def main() raises:
     test_reduces_to_muon_when_disabled()
     test_selected_move_further()
     test_simple_wrapper_runs()
+    test_float32_matches_float64()
     print("=" * 60)
     print("All MGUP-Muon tests PASSED")
     print("=" * 60)

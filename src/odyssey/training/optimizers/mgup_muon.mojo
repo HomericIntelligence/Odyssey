@@ -56,9 +56,9 @@ def _select_threshold(
     var frac = fraction
     if frac <= 0.0:
         # Nothing selected: a cutoff above every magnitude.
-        var max_v = abs_update.load[DType.float64](0)
+        var max_v = abs_update._get_float64(0)
         for i in range(1, n):
-            var v = abs_update.load[DType.float64](i)
+            var v = abs_update._get_float64(i)
             if v > max_v:
                 max_v = v
         return max_v + 1.0
@@ -75,10 +75,10 @@ def _select_threshold(
     var threshold = 0.0
     var found = False
     for i in range(n):
-        var cand = abs_update.load[DType.float64](i)
+        var cand = abs_update._get_float64(i)
         var count = 0
         for j in range(n):
-            if abs_update.load[DType.float64](j) >= cand:
+            if abs_update._get_float64(j) >= cand:
                 count += 1
         if count >= k:
             if not found or cand > threshold:
@@ -150,20 +150,20 @@ def mgup_muon_step(
     var n = update.numel()
     var abs_update = zeros_like(update)
     for i in range(n):
-        var v = update.load[DType.float64](i)
+        var v = update._get_float64(i)
         if v < 0:
             v = -v
-        abs_update.store[DType.float64](i, v)
+        abs_update._set_float64(i, v)
 
     var threshold = _select_threshold(abs_update, selected_fraction)
 
     # Amplify the selected coordinates' step-size in place.
     var new_update = zeros_like(update)
     for i in range(n):
-        var d = update.load[DType.float64](i)
-        if abs_update.load[DType.float64](i) >= threshold:
+        var d = update._get_float64(i)
+        if abs_update._get_float64(i) >= threshold:
             d = d * select_scale
-        new_update.store[DType.float64](i, d)
+        new_update._set_float64(i, d)
 
     var new_params = add_simd(params, new_update)
     return (new_params, new_momentum)
