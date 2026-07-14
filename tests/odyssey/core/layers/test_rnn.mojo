@@ -101,6 +101,54 @@ def test_parity_with_pytorch() raises:
     print("test_parity_with_pytorch PASSED")
 
 
+def test_forward_equals_zero_state_step() raises:
+    """forward(x) must equal step(x, zeros) even with a nonzero b_hh.
+
+    A zero initial hidden zeros only the hidden-to-hidden WEIGHT term, not its
+    bias b_hh. This asserts forward() includes b_hh (regression guard: an earlier
+    shortcut computed tanh(ih.forward(x)) and dropped b_hh, so forward diverged
+    from step once b_hh was trained nonzero).
+    """
+    print("Running test_forward_equals_zero_state_step...")
+    var cell = RNNCell[DType.float64](3, 4)
+    for i in range(4):
+        cell.hh.bias.store[DType.float64](i, Float64(i) * 0.02 + 0.05)
+    var x = zeros([2, 3], DType.float64)
+    for i in range(6):
+        x.store[DType.float64](i, Float64(i) * 0.1 - 0.2)
+    var h0 = zeros([2, 4], DType.float64)
+
+    var f = cell.forward(x)
+    var s = cell.step(x, h0)
+    for i in range(8):
+        if _abs_diff(f.load[DType.float64](i), s.load[DType.float64](i)) > 1e-12:
+            raise Error("forward != step(x, zeros) at " + String(i))
+    print("  ok forward(x) == step(x, zeros) with nonzero b_hh")
+    print("test_forward_equals_zero_state_step PASSED")
+
+
+def test_parameter_order() raises:
+    """parameters() must return [ih.weight, ih.bias, hh.weight, hh.bias] in order.
+
+    A consumer that threads per-parameter state (e.g. the PC error chain) relies
+    on this positional contract, so assert identity by numel, not just count.
+    """
+    print("Running test_parameter_order...")
+    var cell = RNNCell[DType.float64](3, 4)
+    var params = cell.parameters()
+    # ih.weight: 3x4=12, ih.bias: 4, hh.weight: 4x4=16, hh.bias: 4.
+    if params[0].numel() != 12:
+        raise Error("params[0] should be ih.weight (12)")
+    if params[1].numel() != 4:
+        raise Error("params[1] should be ih.bias (4)")
+    if params[2].numel() != 16:
+        raise Error("params[2] should be hh.weight (16)")
+    if params[3].numel() != 4:
+        raise Error("params[3] should be hh.bias (4)")
+    print("  ok parameter order ih.weight/ih.bias/hh.weight/hh.bias")
+    print("test_parameter_order PASSED")
+
+
 def main() raises:
     """Run all RNN tests."""
     print("=" * 60)
@@ -110,6 +158,8 @@ def main() raises:
     test_reject_bad_sizes()
     test_parameter_count()
     test_parity_with_pytorch()
+    test_forward_equals_zero_state_step()
+    test_parameter_order()
     print("=" * 60)
     print("All RNN tests PASSED")
     print("=" * 60)

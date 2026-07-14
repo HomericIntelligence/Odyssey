@@ -17,6 +17,7 @@ Reference:
 """
 
 from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros
 from odyssey.core.module import Module
 from odyssey.core.layers.linear import Linear
 from odyssey.core.activation import tanh
@@ -81,7 +82,11 @@ struct RNNCell[dtype: DType = DType.float32](Copyable, Module, Movable):
         Raises:
             Error: If tensor operations fail.
         """
-        return tanh(self.ih.forward(input))
+        # A zero hidden zeros only the hidden-to-hidden WEIGHT term, not its bias
+        # b_hh — so delegate to step(input, zeros) rather than dropping b_hh.
+        var batch = input.shape()[0]
+        var h0 = zeros([batch, self.hidden_size], Self.dtype)
+        return self.step(input, h0)
 
     def step(mut self, input: AnyTensor, hidden: AnyTensor) raises -> AnyTensor:
         """One recurrent step: h_t = tanh(x_t W_ih + b_ih + h_{t-1} W_hh + b_hh).
