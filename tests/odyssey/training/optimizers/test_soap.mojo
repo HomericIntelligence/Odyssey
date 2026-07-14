@@ -148,6 +148,79 @@ def test_parity_two_step() raises:
     print("test_parity_two_step PASSED")
 
 
+def test_eigenbasis_refresh() raises:
+    """The eigenbasis-refresh branch (step % precondition_frequency == 0) must
+    match the reference.
+
+    With precondition_frequency=2 the basis is built on step 1, REFRESHED on step
+    2 (2 % 2 == 0), and reused on step 3. This exercises the refresh path that the
+    freq=100 parity test never triggers. Reference values (step 3, after a mid-run
+    refresh) from the numpy transcription with precondition_frequency=2; the
+    gradient on step s is (i*0.05 - 0.3) + s*0.01.
+    """
+    print("Running test_eigenbasis_refresh...")
+
+    var ref3 = List[Float64]()
+    ref3.append(-0.221968543)
+    ref3.append(-0.243913991)
+    ref3.append(-0.265859438)
+    ref3.append(-0.287804884)
+    ref3.append(0.007783449)
+    ref3.append(0.027912385)
+    ref3.append(0.048041322)
+    ref3.append(0.068170261)
+    ref3.append(0.237535442)
+    ref3.append(0.299738762)
+    ref3.append(0.361942084)
+    ref3.append(0.424145406)
+
+    var W = zeros([3, 4], DType.float64)
+    _seed_ramp(W, 12, 0.1, -0.5)
+    var st = init_soap_state(W)
+    var exp_avg = st[0]
+    var exp_avg_sq = st[1]
+    var gg_left = st[2]
+    var gg_right = st[3]
+    var q_left = st[4]
+    var q_right = st[5]
+
+    for s in range(1, 4):
+        var g = zeros([3, 4], DType.float64)
+        _seed_ramp(g, 12, 0.05, -0.3 + Float64(s) * 0.01)
+        # precondition_frequency = 2 -> step 2 refreshes the eigenbasis.
+        var r = soap_step(
+            W,
+            g,
+            exp_avg,
+            exp_avg_sq,
+            gg_left,
+            gg_right,
+            q_left,
+            q_right,
+            s,
+            0.1,
+            0.95,
+            0.95,
+            0.95,
+            0.01,
+            2,
+        )
+        W = r[0]
+        exp_avg = r[1]
+        exp_avg_sq = r[2]
+        gg_left = r[3]
+        gg_right = r[4]
+        q_left = r[5]
+        q_right = r[6]
+
+    for i in range(12):
+        if _abs_diff(W.load[DType.float64](i), ref3[i]) > 1e-6:
+            raise Error("SOAP refresh-path step-3 mismatch at " + String(i))
+
+    print("  ok eigenbasis-refresh path matches reference to 1e-6")
+    print("test_eigenbasis_refresh PASSED")
+
+
 def main() raises:
     """Run all SOAP tests."""
     print("=" * 60)
@@ -156,6 +229,7 @@ def main() raises:
     test_reject_non_2d()
     test_init_state_shapes()
     test_parity_two_step()
+    test_eigenbasis_refresh()
     print("=" * 60)
     print("All SOAP tests PASSED")
     print("=" * 60)

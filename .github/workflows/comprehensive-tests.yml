@@ -384,6 +384,7 @@ jobs:
             "test_tensors*.mojo test_arithmetic*.mojo test_broadcasting*.mojo \
              test_shape*.mojo test_creation*.mojo test_reduction*.mojo \
              test_matrix*.mojo test_matmul*.mojo test_strassen.mojo \
+             test_eigen*.mojo \
              test_pooling*.mojo test_properties*.mojo test_high_dimensional*.mojo \
              test_slicing*.mojo test_elementwise*.mojo test_comparison_ops*.mojo \
              test_edge_cases*.mojo test_concatenate*.mojo test_reshape*.mojo"
