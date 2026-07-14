@@ -60,7 +60,6 @@ scripts/
 ├── download_emnist.py                  # Download EMNIST dataset
 ├── download_fashion_mnist.py           # Download Fashion-MNIST dataset
 ├── download_mnist.py                   # Download MNIST dataset
-├── generate_changelog.py               # Generate CHANGELOG.md from git log
 ├── generate_test_metrics.py            # Generate test metrics report
 ├── get_stats.py                        # Repository statistics collector
 ├── get_system_info.py                  # System information collector
