@@ -3,6 +3,7 @@
 Tests cover:
 - Shape validation (params/gradients/momentum/second_moment must match)
 - Dtype validation (params/gradients must share a dtype)
+- Decoupled weight decay (nonzero wd shifts params by lr*wd*params vs wd=0)
 - Numerical parity with the public `pytorch_optimizer.ADOPT` reference on a
   fixed (params, grad, m, v) vector for one step (tolerance 1e-9)
 - Descent behavior (a nonzero gradient moves params against the gradient)
@@ -69,6 +70,64 @@ def test_reject_second_moment_shape() raises:
     except e:
         print("  ✓ Correctly rejected second_moment shape mismatch")
     print("test_reject_second_moment_shape PASSED")
+
+
+def test_reject_momentum_shape() raises:
+    """ADOPT must reject a momentum whose shape differs from params."""
+    print("Running test_reject_momentum_shape...")
+    var params = zeros([4], DType.float32)
+    var grad = zeros([4], DType.float32)
+    var m = zeros([3], DType.float32)
+    var v = zeros([4], DType.float32)
+    try:
+        var _ = adopt_step(params, grad, m, v, 0.01)
+        raise Error("Should have rejected momentum shape mismatch")
+    except e:
+        print("  ✓ Correctly rejected momentum shape mismatch")
+    print("test_reject_momentum_shape PASSED")
+
+
+def test_weight_decay_differs_from_zero() raises:
+    """Nonzero decoupled weight decay must shift params vs the wd=0 result.
+
+    With AdamW-style decoupled decay applied after the gradient step, a positive
+    weight_decay subtracts `lr * wd * params` from each coordinate. For a
+    positive param this makes the decayed result strictly smaller than the wd=0
+    result; the exact gap must equal `lr * wd * params` (the gradient step is
+    identical between the two calls since it does not depend on weight_decay).
+    """
+    print("Running test_weight_decay_differs_from_zero...")
+    alias N = 4
+    var lr = 0.1
+    var wd = 0.5
+    var p_val = 2.0
+
+    var p0 = full([N], p_val, DType.float64)
+    var g = full([N], 0.5, DType.float64)
+    var m0 = zeros([N], DType.float64)
+    var v0 = full([N], 0.25, DType.float64)  # v_prev = g^2
+
+    # wd = 0 baseline.
+    var p_wd0 = full([N], p_val, DType.float64)
+    var res0 = adopt_step(p_wd0, g, m0, v0, lr, 0.9, 0.9999, 1e-6, 1.0e30, 0.0)
+    var np0 = res0[0]
+
+    # wd = 0.5.
+    var res_wd = adopt_step(p0, g, m0, v0, lr, 0.9, 0.9999, 1e-6, 1.0e30, wd)
+    var np_wd = res_wd[0]
+
+    var expected_gap = lr * wd * p_val  # 0.1 * 0.5 * 2.0 = 0.1
+    for i in range(N):
+        var a = np0.load[DType.float64](i)
+        var b = np_wd.load[DType.float64](i)
+        # Decayed param is strictly smaller for a positive param.
+        if not (b < a):
+            raise Error("weight decay should reduce a positive param")
+        # Gap equals lr * wd * params exactly.
+        if _abs_diff(a - b, expected_gap) > 1e-9:
+            raise Error("weight-decay gap != lr * wd * params")
+    print("  ✓ nonzero weight decay shifts params by lr*wd*params")
+    print("test_weight_decay_differs_from_zero PASSED")
 
 
 def test_parity_with_reference() raises:
@@ -279,6 +338,8 @@ def main() raises:
     test_reject_shape_mismatch()
     test_reject_dtype_mismatch()
     test_reject_second_moment_shape()
+    test_reject_momentum_shape()
+    test_weight_decay_differs_from_zero()
     test_parity_with_reference()
     test_descent_direction()
     test_second_moment_updates_last()
