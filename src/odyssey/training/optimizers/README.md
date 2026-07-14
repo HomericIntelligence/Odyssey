@@ -9,6 +9,7 @@ This directory contains optimizer implementations for training neural networks i
 | **SGD** | ~1x params | O(n) | Small batch, fast convergence | With momentum (default 0.9) |
 | **Adam** | ~2x params (m + v) | O(n) | General-purpose, adaptive LR | Coupled weight decay |
 | **AdamW** | ~2x params (m + v) | O(n) | General-purpose default | Decoupled weight decay (default 0.01) |
+| **ADOPT** | ~2x params (m + v) | O(n) | General-purpose adaptive | Clamp-min denom (not sqrt(v)+eps); normalizes by previous v; arXiv:2411.02853 |
 | **RMSprop** | ~1x params (v only) | O(n) | RNNs, non-convex problems | Adaptive learning rates |
 | **LARS** | ~1x params | O(n) | Large-batch distributed training | Layer-wise adaptive rate scaling |
 | **Muon** | ~1x params (matrix-only) | O(n) + Newton-Schulz | **Matrix-shaped weights only** | Newton-Schulz orthogonalization; Jordan et al. 2024 |

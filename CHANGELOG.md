@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **ADOPT optimizer** ([arXiv:2411.02853](https://arxiv.org/abs/2411.02853),
+  Taniguchi et al., NeurIPS 2024) — a modified Adam that achieves the optimal
+  `O(1/sqrt(T))` convergence rate for any `beta2 in [0, 1)`. Pure-functional
+  `adopt_step` / `adopt_step_simple` in `training/optimizers/adopt.mojo`,
+  numerically verified against the public `pytorch_optimizer.ADOPT` reference
+  to 1e-9.
+
 ## [0.2.0] - 2026-07-09
 
 ### Added
