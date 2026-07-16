@@ -6,7 +6,7 @@ Tests cover:
   (step 2 uses a different gradient so grad_diff != 0, validating the
   difference-EMA / look-ahead terms that step 1 leaves at zero)
 - adan_step_simple matches adan_step with the default hyperparameters
-- weight_decay path (decoupled AdamW-style decay applied after the step)
+- weight_decay path (divisive decoupled decay: params /= (1 + lr*wd))
 - prev_grad passthrough (new_prev_grad equals the current gradient)
 - descent direction
 """
@@ -184,12 +184,14 @@ def test_step_simple_matches_defaults() raises:
 
 
 def test_weight_decay() raises:
-    """weight_decay applies a decoupled (AdamW-style) decay after the step.
+    """weight_decay applies the paper's divisive decoupled (proximal) decay.
 
     With a zero gradient the gradient step is zero, so the only change is the
-    decoupled decay term `params -= weight_decay * lr * params`. For params = 1,
-    wd = 0.5, lr = 0.01 the result is 1 - 0.5*0.01*1 = 0.995. A nonzero
-    weight_decay must also move params further than wd = 0 on a real gradient.
+    decoupled proximal decay `params /= (1 + lr * weight_decay)` (Algorithm 1
+    of arXiv:2208.06677, matching the official sail-sg release). For
+    params = 1, wd = 0.5, lr = 0.01 the result is 1 / (1 + 0.005)
+    = 0.9950248756218907. A nonzero weight_decay must also move params further
+    than wd = 0 on a real gradient.
     """
     print("Running test_weight_decay...")
     var n = 3
@@ -205,9 +207,12 @@ def test_weight_decay() raises:
     )
     var wnp = wr[0]
     for i in range(n):
-        if _abs_diff(wnp.load[DType.float64](i), 0.995) > 1e-9:
-            raise Error("weight_decay-only result should be 0.995")
-    print("  ok decoupled decay result == 0.995")
+        if _abs_diff(wnp.load[DType.float64](i), 0.9950248756218907) > 1e-9:
+            raise Error(
+                "weight_decay-only result should be 1/(1+lr*wd)"
+                " = 0.9950248756218907"
+            )
+    print("  ok divisive decoupled decay result == 1/(1+lr*wd)")
 
     # With a real gradient, wd != 0 must decrease positive params more than wd=0.
     var p = full([n], 1.0, DType.float64)

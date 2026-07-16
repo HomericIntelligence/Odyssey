@@ -19,6 +19,7 @@ Adan update rule (per step t, 1-indexed):
     params = params
              - (lr / bc1) * (exp_avg / denom)
              - (lr * beta2 / bc2) * (exp_avg_diff / denom)
+    params = params / (1 + lr * weight_decay)   (decoupled proximal decay)
     prev_grad = grad   (stored for the next step)
 
 Key characteristics:
@@ -94,7 +95,9 @@ def adan_step(
         beta2: EMA decay for the gradient difference (default: 0.92).
         beta3: EMA decay for the squared look-ahead gradient (default: 0.99).
         epsilon: Numerical-stability term added to the denominator (default: 1e-8).
-        weight_decay: Decoupled (AdamW-style) weight decay factor (default: 0.0).
+        weight_decay: Decoupled proximal weight-decay factor; applied
+            divisively as params /= (1 + lr * wd) per the paper's Algorithm 1
+            and the official sail-sg implementation (default: 0.0).
 
     Returns:
         Tuple of (new_params, new_exp_avg, new_exp_avg_diff, new_exp_avg_sq,
@@ -168,10 +171,13 @@ def adan_step(
     var new_params = subtract_simd(params, step_avg)
     new_params = subtract_simd(new_params, step_diff)
 
-    # Decoupled weight decay (AdamW-style), applied after the gradient step.
+    # Decoupled proximal weight decay, applied with the parameter update step:
+    # params = params / (1 + lr * wd). This is the divisive form from
+    # Algorithm 1 of the paper and matches the official sail-sg release's
+    # decoupled-decay behavior (its default no_prox=False proximal update).
     if weight_decay != 0.0:
-        var wd_coeff = full_like(params, weight_decay * learning_rate)
-        new_params = subtract_simd(new_params, multiply_simd(wd_coeff, params))
+        var wd_denom = full_like(params, 1.0 + learning_rate * weight_decay)
+        new_params = divide_simd(new_params, wd_denom)
 
     # prev_grad for the next step is a copy of the current gradient.
     var new_prev_grad = add_simd(gradients, full_like(gradients, 0.0))
