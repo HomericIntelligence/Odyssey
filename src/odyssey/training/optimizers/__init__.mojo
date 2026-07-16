@@ -84,6 +84,7 @@ from odyssey.training.optimizers.lion import lion_step, lion_step_simple
 
 # ADOPT optimizer (modified Adam with the optimal convergence rate for any beta2)
 from odyssey.training.optimizers.adopt import adopt_step, adopt_step_simple
+
 # Adan optimizer (adaptive Nesterov momentum — Xie et al. 2022)
 from odyssey.training.optimizers.adan import adan_step, adan_step_simple
 
