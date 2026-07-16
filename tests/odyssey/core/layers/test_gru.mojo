@@ -112,6 +112,36 @@ def test_parity_with_pytorch() raises:
     print("test_parity_with_pytorch PASSED")
 
 
+def test_forward_equals_zero_state_step() raises:
+    """forward(x) must equal step(x, zeros) even with nonzero h->h biases.
+
+    The Module `forward` is documented as a step from a zero initial hidden
+    state. A zero hidden zeros only the hidden-to-hidden WEIGHT terms; the
+    hidden-to-hidden BIASES (b_hr, b_hz, b_hn) still contribute. This asserts
+    `forward` includes them (regression guard: an earlier shortcut dropped
+    them, so forward diverged from step once the biases were trained nonzero).
+    """
+    print("Running test_forward_equals_zero_state_step...")
+    var cell = GRUCell[DType.float64](3, 4)
+    # Seed the hidden-to-hidden biases nonzero (the terms a shortcut would drop).
+    for i in range(4):
+        cell.hr.bias.store[DType.float64](i, Float64(i) * 0.01 + 0.05)
+        cell.hz.bias.store[DType.float64](i, Float64(i) * 0.02 - 0.03)
+        cell.hn.bias.store[DType.float64](i, Float64(i) * 0.015 + 0.02)
+    var x = zeros([2, 3], DType.float64)
+    for i in range(6):
+        x.store[DType.float64](i, Float64(i) * 0.1 - 0.2)
+    var h0 = zeros([2, 4], DType.float64)
+
+    var f = cell.forward(x)
+    var s = cell.step(x, h0)
+    for i in range(8):
+        if _abs_diff(f.load[DType.float64](i), s.load[DType.float64](i)) > 1e-12:
+            raise Error("forward != step(x, zeros) at " + String(i))
+    print("  ok forward(x) == step(x, zeros) with nonzero h->h biases")
+    print("test_forward_equals_zero_state_step PASSED")
+
+
 def main() raises:
     """Run all GRU tests."""
     print("=" * 60)
@@ -121,6 +151,7 @@ def main() raises:
     test_reject_bad_sizes()
     test_parameter_count()
     test_parity_with_pytorch()
+    test_forward_equals_zero_state_step()
     print("=" * 60)
     print("All GRU tests PASSED")
     print("=" * 60)

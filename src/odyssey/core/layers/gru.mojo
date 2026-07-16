@@ -23,7 +23,7 @@ Reference:
 """
 
 from odyssey.tensor.any_tensor import AnyTensor
-from odyssey.tensor.tensor_creation import full_like
+from odyssey.tensor.tensor_creation import full_like, zeros
 from odyssey.core.module import Module
 from odyssey.core.layers.linear import Linear
 from odyssey.core.activation import sigmoid, tanh
@@ -88,6 +88,9 @@ struct GRUCell[dtype: DType = DType.float32](Copyable, Module, Movable):
     def forward(mut self, input: AnyTensor) raises -> AnyTensor:
         """Module `forward` from a zero initial hidden state.
 
+        Runs a single `step` from an all-zero hidden state, so this is exactly
+        `step(input, zeros)` — the hidden-to-hidden projections still contribute
+        their biases (h=0 zeros only the weight terms, not `b_hr`/`b_hz`/`b_hn`).
         Use `step(input, hidden)` to thread a real recurrent hidden state.
 
         Args:
@@ -99,11 +102,9 @@ struct GRUCell[dtype: DType = DType.float32](Copyable, Module, Movable):
         Raises:
             Error: If tensor operations fail.
         """
-        var z = sigmoid(self.iz.forward(input))
-        var n = tanh(self.in_.forward(input))
-        # h0 = 0 -> h' = (1 - z) * n
-        var one_minus_z = subtract_simd(full_like(z, 1.0), z)
-        return multiply_simd(one_minus_z, n)
+        var batch = input.shape()[0]
+        var h0 = zeros([batch, self.hidden_size], Self.dtype)
+        return self.step(input, h0)
 
     def step(mut self, input: AnyTensor, hidden: AnyTensor) raises -> AnyTensor:
         """One GRU step (torch.nn.GRUCell convention).
