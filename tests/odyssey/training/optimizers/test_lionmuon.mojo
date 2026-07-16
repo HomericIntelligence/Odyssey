@@ -23,7 +23,9 @@ def _abs_diff(a: Float64, b: Float64) -> Float64:
     return d
 
 
-def _seed_ramp(mut t: AnyTensor, count: Int, scale: Float64, off: Float64) raises:
+def _seed_ramp(
+    mut t: AnyTensor, count: Int, scale: Float64, off: Float64
+) raises:
     for i in range(count):
         t.store[DType.float64](i, Float64(i) * scale + off)
 
@@ -108,7 +110,12 @@ def test_branches_differ() raises:
     var (p_lion, _) = lionmuon_step(W, G, M, 0.1, 1, 4)  # Lion
     var any_diff = False
     for i in range(12):
-        if _abs_diff(p_muon.load[DType.float64](i), p_lion.load[DType.float64](i)) > 1e-9:
+        if (
+            _abs_diff(
+                p_muon.load[DType.float64](i), p_lion.load[DType.float64](i)
+            )
+            > 1e-9
+        ):
             any_diff = True
     if not any_diff:
         raise Error("Muon and Lion branches produced identical updates")
