@@ -264,7 +264,8 @@ bash scripts/run_primitive_test.sh --list     # list known primitives + paths
 
 A primitive whose test file is not on the current branch is reported as
 `SKIP` (not a failure), so the runner works incrementally as each primitive
-lands. The invocation matches CI (`mojo -I src -I . <test>`).
+lands. The invocation mirrors CI's include paths (`mojo -I src -I . <test>`;
+run `--list` for the authoritative primitive set, which the table documents).
 
 ## Coverage Status
 

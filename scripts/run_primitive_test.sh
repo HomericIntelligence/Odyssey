@@ -14,8 +14,8 @@
 #
 # A primitive whose test file is not present on the current branch is reported
 # as SKIPPED (not a failure) — so this runner works incrementally as each
-# primitive PR merges. Runs inside the pixi env, matching CI's invocation
-# (`mojo -I src -I . <test>`).
+# primitive PR merges. Runs inside the pixi env, mirroring CI's include paths
+# (`mojo -I src -I . <test>`; CI additionally passes --Werror).
 
 set -u
 
@@ -64,7 +64,7 @@ run_one() {
 
 case "${1:-}" in
     ""|-h|--help)
-        sed -n '2,20p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'
+        sed -n '2,18p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'
         exit 0
         ;;
     --list)
