@@ -287,7 +287,14 @@ jobs:
           # were resolved by version floors in pixi.toml and are no longer
           # ignored. Drop the remaining entries once upstream lands a fix.
           set -euo pipefail
-          pip install setuptools wheel
+          # --upgrade is required: without it, pip leaves the runner's
+          # pre-installed setuptools in place ("Requirement already
+          # satisfied"), and pip-audit scans the whole environment — a stale
+          # runner setuptools fails the scan on a vuln unrelated to this
+          # project's declared dependencies (e.g. PYSEC-2026-3447 against
+          # setuptools 79.0.1, fixed in 83.0.0). Same rationale as the pip
+          # upgrade in the "Install pip-audit" step above.
+          pip install --upgrade setuptools wheel
           pip install -e . --no-deps
           pip-audit --skip-editable \
             --ignore-vuln CVE-2026-44708 \
