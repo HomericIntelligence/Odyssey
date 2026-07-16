@@ -2,14 +2,18 @@
 
 Tests cover:
 - Shape/dtype guards on adan_step
-- Numerical parity with the public pytorch_optimizer.Adan (1e-9) on step 1
+- Numerical parity with the public pytorch_optimizer.Adan (1e-9) on steps 1 AND 2
+  (step 2 uses a different gradient so grad_diff != 0, validating the
+  difference-EMA / look-ahead terms that step 1 leaves at zero)
+- adan_step_simple matches adan_step with the default hyperparameters
+- weight_decay path (decoupled AdamW-style decay applied after the step)
 - prev_grad passthrough (new_prev_grad equals the current gradient)
 - descent direction
 """
 
 from odyssey.tensor.any_tensor import AnyTensor
 from odyssey.tensor.tensor_creation import zeros, full
-from odyssey.training.optimizers.adan import adan_step
+from odyssey.training.optimizers.adan import adan_step, adan_step_simple
 
 
 def _abs_diff(a: Float64, b: Float64) -> Float64:
@@ -54,22 +58,96 @@ def test_reject_dtype_mismatch() raises:
 
 
 def test_parity_with_reference() raises:
-    """One Adan step (t=1) must match pytorch_optimizer.Adan to 1e-9.
+    """Two Adan steps must match pytorch_optimizer.Adan to 1e-9.
 
-    Fixed inputs + reference output transcribed from
+    Fixed inputs + reference outputs transcribed from
     parity_refs/adan_parity_reference.py (lr=0.001, betas=(0.98,0.92,0.99),
-    eps=1e-8, no weight decay). Step 1 uses prev_grad = grad (zero initial
-    gradient difference), matching the reference's previous-grad initialization.
+    eps=1e-8, no weight decay); the reference is verified against the real
+    `pytorch_optimizer.Adan` (step-1 and step-2 max abs difference = 0.0).
+
+    Step 1 uses prev_grad = grad1 (zero initial gradient difference), matching
+    the reference's previous-grad initialization. Step 2 feeds a DIFFERENT
+    gradient (grad2) with prev_grad = grad1, so grad_diff != 0 and the
+    difference-EMA (`exp_avg_diff`) and look-ahead term (`u = grad + beta2 *
+    grad_diff`) are exercised for the first time.
     """
     print("Running test_parity_with_reference...")
 
-    var rp = List[Float64]()
-    rp.append(0.0990000002)
-    rp.append(-0.2009999999)
-    rp.append(0.301)
-    rp.append(-0.401)
-    rp.append(0.501)
+    var ref1 = List[Float64]()
+    ref1.append(0.09900000019999997)
+    ref1.append(-0.20099999993333334)
+    ref1.append(0.30099999996)
+    ref1.append(-0.4009999999714286)
+    ref1.append(0.5009999999777778)
 
+    var ref2 = List[Float64]()
+    ref2.append(0.09805363747958667)
+    ref2.append(-0.20146928331938244)
+    ref2.append(0.3019681723416672)
+    ref2.append(-0.401995231928322)
+    ref2.append(0.5018958134034956)
+
+    var n = 5
+    var p = zeros([n], DType.float64)
+    var g1 = zeros([n], DType.float64)
+    var g2 = zeros([n], DType.float64)
+    var m = zeros([n], DType.float64)
+    var dd = zeros([n], DType.float64)
+    var v = zeros([n], DType.float64)
+    p.store[DType.float64](0, 0.1)
+    p.store[DType.float64](1, -0.2)
+    p.store[DType.float64](2, 0.3)
+    p.store[DType.float64](3, -0.4)
+    p.store[DType.float64](4, 0.5)
+    g1.store[DType.float64](0, 0.05)
+    g1.store[DType.float64](1, 0.15)
+    g1.store[DType.float64](2, -0.25)
+    g1.store[DType.float64](3, 0.35)
+    g1.store[DType.float64](4, -0.45)
+    g2.store[DType.float64](0, 0.08)
+    g2.store[DType.float64](1, 0.05)
+    g2.store[DType.float64](2, -0.20)
+    g2.store[DType.float64](3, 0.40)
+    g2.store[DType.float64](4, -0.30)
+
+    # step 1: prev_grad = g1 (grad_diff = 0)
+    var res1 = adan_step(
+        p, g1, m, dd, v, g1, 1, 0.001, 0.98, 0.92, 0.99, 1e-8, 0.0
+    )
+    var np1 = res1[0]
+    for i in range(n):
+        if _abs_diff(np1.load[DType.float64](i), ref1[i]) > 1e-9:
+            raise Error("adan step-1 parity mismatch at " + String(i))
+    print("  ok step 1 matches pytorch_optimizer.Adan to 1e-9")
+
+    # step 2: prev_grad = g1 (returned as res1[4]), grad = g2 (grad_diff != 0)
+    var res2 = adan_step(
+        np1,
+        g2,
+        res1[1],
+        res1[2],
+        res1[3],
+        res1[4],
+        2,
+        0.001,
+        0.98,
+        0.92,
+        0.99,
+        1e-8,
+        0.0,
+    )
+    var np2 = res2[0]
+    for i in range(n):
+        if _abs_diff(np2.load[DType.float64](i), ref2[i]) > 1e-9:
+            raise Error("adan step-2 parity mismatch at " + String(i))
+    print("  ok step 2 matches pytorch_optimizer.Adan to 1e-9")
+    print("test_parity_with_reference PASSED")
+
+
+def test_step_simple_matches_defaults() raises:
+    """adan_step_simple must equal adan_step with the default hyperparameters.
+    """
+    print("Running test_step_simple_matches_defaults...")
     var n = 5
     var p = zeros([n], DType.float64)
     var g = zeros([n], DType.float64)
@@ -87,16 +165,69 @@ def test_parity_with_reference() raises:
     g.store[DType.float64](3, 0.35)
     g.store[DType.float64](4, -0.45)
 
-    # step 1: prev_grad = g
-    var res = adan_step(
+    var simple = adan_step_simple(p, g, m, dd, v, g, 1, 0.001)
+    var full_call = adan_step(
         p, g, m, dd, v, g, 1, 0.001, 0.98, 0.92, 0.99, 1e-8, 0.0
     )
-    var np = res[0]
+    var sp = simple[0]
+    var fp = full_call[0]
     for i in range(n):
-        if _abs_diff(np.load[DType.float64](i), rp[i]) > 1e-9:
-            raise Error("adan parity mismatch at " + String(i))
-    print("  ok matches pytorch_optimizer.Adan to 1e-9")
-    print("test_parity_with_reference PASSED")
+        if (
+            _abs_diff(sp.load[DType.float64](i), fp.load[DType.float64](i))
+            > 1e-12
+        ):
+            raise Error(
+                "adan_step_simple != adan_step defaults at " + String(i)
+            )
+    print("  ok adan_step_simple matches adan_step defaults")
+    print("test_step_simple_matches_defaults PASSED")
+
+
+def test_weight_decay() raises:
+    """weight_decay applies a decoupled (AdamW-style) decay after the step.
+
+    With a zero gradient the gradient step is zero, so the only change is the
+    decoupled decay term `params -= weight_decay * lr * params`. For params = 1,
+    wd = 0.5, lr = 0.01 the result is 1 - 0.5*0.01*1 = 0.995. A nonzero
+    weight_decay must also move params further than wd = 0 on a real gradient.
+    """
+    print("Running test_weight_decay...")
+    var n = 3
+
+    # Isolate the decay term with a zero gradient.
+    var wp = full([n], 1.0, DType.float64)
+    var wg = zeros([n], DType.float64)
+    var wm = zeros([n], DType.float64)
+    var wdd = zeros([n], DType.float64)
+    var wv = zeros([n], DType.float64)
+    var wr = adan_step(
+        wp, wg, wm, wdd, wv, wg, 1, 0.01, 0.98, 0.92, 0.99, 1e-8, 0.5
+    )
+    var wnp = wr[0]
+    for i in range(n):
+        if _abs_diff(wnp.load[DType.float64](i), 0.995) > 1e-9:
+            raise Error("weight_decay-only result should be 0.995")
+    print("  ok decoupled decay result == 0.995")
+
+    # With a real gradient, wd != 0 must decrease positive params more than wd=0.
+    var p = full([n], 1.0, DType.float64)
+    var g = full([n], 0.5, DType.float64)
+    var m0 = zeros([n], DType.float64)
+    var dd0 = zeros([n], DType.float64)
+    var v0 = zeros([n], DType.float64)
+    var no_wd = adan_step(
+        p, g, m0, dd0, v0, g, 1, 0.01, 0.98, 0.92, 0.99, 1e-8, 0.0
+    )
+    var with_wd = adan_step(
+        p, g, m0, dd0, v0, g, 1, 0.01, 0.98, 0.92, 0.99, 1e-8, 0.1
+    )
+    var nwp = no_wd[0]
+    var wwp = with_wd[0]
+    for i in range(n):
+        if not (wwp.load[DType.float64](i) < nwp.load[DType.float64](i)):
+            raise Error("weight_decay > 0 should decrease positive params more")
+    print("  ok weight_decay > 0 decays positive params further")
+    print("test_weight_decay PASSED")
 
 
 def test_prev_grad_passthrough() raises:
@@ -143,6 +274,8 @@ def main() raises:
     test_reject_shape_mismatch()
     test_reject_dtype_mismatch()
     test_parity_with_reference()
+    test_step_simple_matches_defaults()
+    test_weight_decay()
     test_prev_grad_passthrough()
     test_descent_direction()
     print("=" * 60)

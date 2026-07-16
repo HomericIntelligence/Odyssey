@@ -183,3 +183,55 @@ def adan_step(
         new_exp_avg_sq,
         new_prev_grad,
     )
+
+
+def adan_step_simple(
+    params: AnyTensor,
+    gradients: AnyTensor,
+    exp_avg: AnyTensor,
+    exp_avg_diff: AnyTensor,
+    exp_avg_sq: AnyTensor,
+    prev_grad: AnyTensor,
+    step: Int,
+    learning_rate: Float64,
+) raises -> Tuple[AnyTensor, AnyTensor, AnyTensor, AnyTensor, AnyTensor]:
+    """Simplified Adan step with default hyperparameters.
+
+    Convenience wrapper around `adan_step` with the paper's default betas
+    (0.98, 0.92, 0.99), epsilon = 1e-8, and no weight decay. The caller still
+    manages all state, including the integer step `t` and `prev_grad` (pass
+    `prev_grad = gradients` on step 1 so the initial gradient difference is
+    zero).
+
+    Args:
+        params: Model parameters to update.
+        gradients: Gradients of loss with respect to params.
+        exp_avg: EMA of the gradient (first moment).
+        exp_avg_diff: EMA of the gradient difference g_t - g_{t-1}.
+        exp_avg_sq: EMA of the squared look-ahead gradient.
+        prev_grad: Gradient from the previous step (== gradients on step 1).
+        step: 1-indexed step counter (used for bias correction).
+        learning_rate: Step size for parameter updates.
+
+    Returns:
+        Tuple of (new_params, new_exp_avg, new_exp_avg_diff, new_exp_avg_sq,
+        new_prev_grad).
+
+    Raises:
+        Error: If tensor shapes or dtypes don't match.
+    """
+    return adan_step(
+        params,
+        gradients,
+        exp_avg,
+        exp_avg_diff,
+        exp_avg_sq,
+        prev_grad,
+        step,
+        learning_rate=learning_rate,
+        beta1=0.98,
+        beta2=0.92,
+        beta3=0.99,
+        epsilon=1e-8,
+        weight_decay=0.0,
+    )
