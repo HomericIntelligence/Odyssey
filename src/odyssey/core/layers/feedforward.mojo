@@ -8,8 +8,10 @@ non-linearity in between, applied identically to every position.
 
 with an inner (hidden) dimension `d_ff` that is conventionally larger than the
 model dimension `d_model` (the paper uses d_ff = 4 * d_model). The default
-activation is GELU (as used by BERT/GPT); ReLU (the original Transformer choice)
-is available via `use_gelu=False`.
+activation is exact (erf-based) GELU; ReLU (the original Transformer choice) is
+available via `use_gelu=False`. Note BERT/GPT-2 use the *approximate* (tanh) GELU
+form — that variant is not exposed here yet (would be an additive
+`gelu_approximate` flag forwarding to `gelu(..., approximate=True)`).
 
 This is a thin composition of two `Linear` layers and an activation, so it
 inherits their initialization and matmul/bias-broadcast behavior; it exists as a
@@ -60,7 +62,7 @@ struct FeedForward[dtype: DType = DType.float32](Copyable, Module, Movable):
             d_model: Model (input and output) dimension.
             d_ff: Inner hidden dimension. If <= 0, defaults to 4 * d_model
                 (the ratio used in the original Transformer).
-            use_gelu: Use GELU (default, BERT/GPT style) when True; ReLU (the
+            use_gelu: Use exact (erf) GELU (default) when True; ReLU (the
                 original Transformer activation) when False.
 
         Raises:
