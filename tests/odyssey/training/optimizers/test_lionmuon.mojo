@@ -53,20 +53,23 @@ def test_parity_three_step() raises:
     """
     print("Running test_parity_three_step...")
 
-    # Reference params after each step (flattened, 12 elems).
+    # Reference params after each step (flattened, 12 elems). ref0 (Muon branch)
+    # is regenerated from parity_refs/lionmuon_parity_reference.py steps[0].params
+    # — the prior ref0 was stale for elements 4-11 (diverged up to 1.76e-2 from
+    # the committed reference), which left the Muon step effectively unverified.
     var ref0 = List[Float64]()
     ref0.append(-0.485037439)
     ref0.append(-0.390636309)
     ref0.append(-0.296235178)
     ref0.append(-0.201834047)
-    ref0.append(-0.096444531)
-    ref0.append(0.005029844)
-    ref0.append(0.106504219)
-    ref0.append(0.207978594)
-    ref0.append(0.314605953)
-    ref0.append(0.409006623)
-    ref0.append(0.503407294)
-    ref0.append(0.597807965)
+    ref0.append(-0.089532875)
+    ref0.append(0.003772334)
+    ref0.append(0.097077544)
+    ref0.append(0.190382754)
+    ref0.append(0.305971689)
+    ref0.append(0.398180978)
+    ref0.append(0.490390267)
+    ref0.append(0.582599556)
 
     # After step 1 (Lion) — reference params from the numpy transcription.
     var ref1 = List[Float64]()

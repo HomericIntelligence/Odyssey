@@ -15,6 +15,15 @@ Schedule (0-indexed step):
 Both parents consume and return the same one-tensor momentum buffer, so the buffer
 carries continuously across the alternation with no extra state.
 
+[novel — unvalidated] The alternation itself and the SHARED momentum buffer are a
+novel combination, not a published algorithm. Note the two branches write the buffer
+under different laws — Muon uses a heavy-ball accumulator (muon_beta*m + g) while Lion
+uses an EMA (lion_beta2*m + (1-lion_beta2)*g) — so at each alternation boundary the
+buffer's scale/meaning is reinterpreted by the other rule. The "conditioning benefit
+at the periodic refresh" is a heuristic expectation, NOT an established result; the
+shared-buffer semantics are unbenchmarked here. Treat this optimizer as experimental
+until an ablation validates that the shared buffer helps rather than harms.
+
 Reference:
     Lion: Chen, X., Liang, C., Huang, D., et al. (2023). Symbolic Discovery of
     Optimization Algorithms. arXiv:2302.06675.
@@ -62,7 +71,10 @@ def lionmuon_step(
         lion_beta2: Lion's momentum-accumulation beta (default 0.99).
         muon_beta: Muon's momentum decay (default 0.95).
         weight_decay: Weight-decay factor passed to whichever parent runs
-            (default 0.0).
+            (default 0.0). NOTE this default 0.0 is forwarded to the Muon branch
+            too, overriding muon_step's own 0.01 default (the Jordan recipe) — so
+            LionMuon applies NO weight decay unless you pass it explicitly, unlike
+            muon_step_simple.
         ns_steps: Newton-Schulz iterations for the Muon branch (default 5).
         nesterov: Nesterov momentum for the Muon branch (default True).
 
