@@ -41,6 +41,7 @@ from odyssey.core.layers.dropout import DropoutLayer
 from odyssey.core.layers.rnn import RNNCell
 from odyssey.core.layers.lstm import LSTMCell
 from odyssey.core.layers.layernorm import LayerNorm
+from odyssey.core.layers.gru import GRUCell
 
 # from .activation import ReLU, Sigmoid, Tanh
 # from .pooling import MaxPool2D, AvgPool2D
