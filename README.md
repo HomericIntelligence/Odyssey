@@ -247,7 +247,7 @@ bash scripts/run_primitive_test.sh --list     # list known primitives + paths
 ```
 
 | Primitive | Kind | Command |
-|-----------|------|---------|
+| --- | --- | --- |
 | RNN (Elman) | layer | `bash scripts/run_primitive_test.sh rnn` |
 | LSTM | layer | `bash scripts/run_primitive_test.sh lstm` |
 | GRU | layer | `bash scripts/run_primitive_test.sh gru` |
