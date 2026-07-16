@@ -75,6 +75,7 @@ def test_count_test_files_empty_dir(tmp_path: Path) -> None:
         ("[![Tests](https://img.shields.io/badge/tests-122%2B-brightgreen.svg)](tests/)", 122),
         ("[![Tests](https://img.shields.io/badge/tests-300%2B-brightgreen.svg)](tests/)", 300),
         ("[![Tests](https://img.shields.io/badge/tests-1000%2B-brightgreen.svg)](tests/)", 1000),
+        ("[![Tests](https://img.shields.io/badge/tests-298+-brightgreen.svg)](tests/)", 298),
     ],
 )
 def test_parse_badge_count_various_values(tmp_path: Path, badge_url: str, expected: int) -> None:
@@ -144,6 +145,20 @@ def test_update_badge_rewrites_count(tmp_path: Path) -> None:
     content = readme.read_text()
     assert "tests-300%2B-brightgreen.svg" in content
     assert "tests-122" not in content
+
+
+def test_update_badge_rewrites_literal_plus_form(tmp_path: Path) -> None:
+    """Should update badges that use a literal '+' instead of '%2B'.
+
+    Regression test: main went red because README.md used the literal-'+'
+    badge form, which --fix silently failed to rewrite.
+    """
+    readme = tmp_path / "README.md"
+    readme.write_text("[![Tests](https://img.shields.io/badge/tests-298+-brightgreen.svg)](tests/)\n")
+    update_badge(readme, 332)
+    content = readme.read_text()
+    assert "tests-332+-brightgreen.svg" in content
+    assert "tests-298" not in content
 
 
 def test_update_badge_preserves_rest_of_file(tmp_path: Path) -> None:

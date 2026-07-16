@@ -35,8 +35,10 @@ from common import EXCLUDE_DIRS
 # Matches patterns like: tests-247%2B, tests-122%2B, tests-300
 _BADGE_COUNT_RE = re.compile(r"tests-(\d[\d,]*?)(?:%2B|-brightgreen|\+|\.svg|-[a-z])")
 
-# Pattern that identifies the tests badge line in README.md
-_BADGE_LINE_RE = re.compile(r"(https://img\.shields\.io/badge/tests-)(\d[\d,]*)(%2B-brightgreen\.svg)")
+# Pattern that identifies the tests badge line in README.md.
+# Accepts both URL-encoded (%2B) and literal (+) plus signs so --fix can update
+# either form; the existing encoding is preserved by the capture group.
+_BADGE_LINE_RE = re.compile(r"(https://img\.shields\.io/badge/tests-)(\d[\d,]*)((?:%2B|\+)-brightgreen\.svg)")
 
 # Pattern that identifies prose mentions of test count (e.g., "223+ tests")
 _PROSE_COUNT_RE = re.compile(r"(\d[\d,]*?)\+\s+tests")
