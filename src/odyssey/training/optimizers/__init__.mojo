@@ -11,12 +11,16 @@ Includes:
 - LARS (Layer-wise Adaptive Rate Scaling)
 - Muon (Newton-Schulz Orthogonalized Momentum — Jordan et al. 2024)
 - NorMuon (Muon with per-parameter normalization)
+- MGUP-Muon (Muon with selective / max-utilization updates)
+- Muon Hyperball (norm-constrained Muon — Frobenius-ball clamps on update and weights)
 - Lion (EvoLved Sign Momentum — Chen et al. 2023)
 - ADOPT (Modified Adam, optimal convergence for any beta2 — Taniguchi et al. 2024)
 - Adan (Adaptive Nesterov Momentum — Xie et al. 2022)
 - Sophia update step (clipped preconditioned step only, caller-supplied
   Hessian-diagonal estimates; Sophia-H/G estimators not included — Liu et al. 2023)
+- FTRL-Proximal (online learning with L1 sparsity — McMahan et al. 2013)
 - Shampoo (two-sided matrix preconditioner via Newton-Schulz inverse fourth root — Anil et al. 2020)
+- SOAP (Shampoo + Adam in the preconditioner eigenbasis)
 
 All optimizers follow pure functional design - caller manages state
 

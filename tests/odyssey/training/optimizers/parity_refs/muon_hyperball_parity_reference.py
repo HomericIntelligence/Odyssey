@@ -13,7 +13,14 @@ decay — then applies the hyperball projections on top:
 
 A non-positive radius disables the corresponding constraint. This validates the
 hyperball wrapper arithmetic against an independent implementation of the exact same
-math the Mojo path runs. Emits a single-step result for a fixed ramp W/grad.
+math the Mojo path runs. Emits single-step results for a fixed ramp W/grad in two
+regimes:
+
+- Case 1 (saturated): weight_norm_max=1.0 < ||W_new||, so the weight projection
+  rescales the result onto the ball surface (||new_params||_F == weight_norm_max).
+- Case 2 (non-saturated): weight_norm_max=10.0 > ||W_new||, so the weight projection
+  is the identity and the parity assertion pins the unclamped muon+update-clamp
+  arithmetic exactly (no final radial rescale can mask an upstream error).
 
 Run:
     python tests/odyssey/training/optimizers/parity_refs/muon_hyperball_parity_reference.py
@@ -86,26 +93,29 @@ W = np.arange(R * C, dtype=np.float64).reshape(R, C) * 0.1 - 0.5
 G = np.arange(R * C, dtype=np.float64).reshape(R, C) * 0.05 - 0.3
 M = np.zeros((R, C), dtype=np.float64)
 LR = 0.1
-WEIGHT_NORM_MAX, UPDATE_NORM_MAX = 1.0, 0.1
+UPDATE_NORM_MAX = 0.1
 
-new_p, new_m = muon_hyperball_step(W, G, M, LR, WEIGHT_NORM_MAX, UPDATE_NORM_MAX)
+# Case 1: weight ball SATURATED (radius below the unclamped result norm).
+# Case 2: weight ball NOT saturated (radius far above the result norm) — the
+# projection is the identity, so the reference pins the raw arithmetic exactly.
+CASES = {"saturated": 1.0, "non_saturated": 10.0}
 
-print(
-    json.dumps(
-        {
-            "config": {
-                "R": R,
-                "C": C,
-                "lr": LR,
-                "weight_norm_max": WEIGHT_NORM_MAX,
-                "update_norm_max": UPDATE_NORM_MAX,
-            },
-            "W": W.flatten().tolist(),
-            "G": G.flatten().tolist(),
-            "new_params": new_p.flatten().tolist(),
-            "new_momentum": new_m.flatten().tolist(),
-            "new_params_fro_norm": float(np.sqrt(np.sum(new_p * new_p))),
+out = {}
+for name, weight_norm_max in CASES.items():
+    new_p, new_m = muon_hyperball_step(W, G, M, LR, weight_norm_max, UPDATE_NORM_MAX)
+    out[name] = {
+        "config": {
+            "R": R,
+            "C": C,
+            "lr": LR,
+            "weight_norm_max": weight_norm_max,
+            "update_norm_max": UPDATE_NORM_MAX,
         },
-        indent=2,
-    )
-)
+        "W": W.flatten().tolist(),
+        "G": G.flatten().tolist(),
+        "new_params": new_p.flatten().tolist(),
+        "new_momentum": new_m.flatten().tolist(),
+        "new_params_fro_norm": float(np.sqrt(np.sum(new_p * new_p))),
+    }
+
+print(json.dumps(out, indent=2))

@@ -14,6 +14,7 @@ This directory contains optimizer implementations for training neural networks i
 | **LARS** | ~1x params | O(n) | Large-batch distributed training | Layer-wise adaptive rate scaling |
 | **Muon** | ~1x params (matrix-only) | O(n) + Newton-Schulz | **Matrix-shaped weights only** | Newton-Schulz orthogonalization; Jordan et al. 2024 |
 | **NorMuon** | ~1x params (matrix-only) | O(n) + Newton-Schulz + norms | Muon + per-row/col norm scaling | Improved LR stability vs Muon |
+| **Muon Hyperball** | ~1x params (matrix-only) | O(n) + Newton-Schulz | LR transfer across model width/depth | Muon + Frobenius-norm clamps on the per-step update and the weight matrix (one-sided ball projections; radius <= 0 disables a clamp) |
 | **Lion** | ~1x params (1 buffer) | O(n) | Memory-constrained, transfer learning | Signed momentum; **LR 3-10x SMALLER than AdamW** |
 | **Adan** | ~4x params (exp_avg + exp_avg_diff + exp_avg_sq + prev_grad) | O(n) | General-purpose, fast convergence | Nesterov-style look-ahead + gradient-difference momentum; arXiv:2208.06677 |
 | **Shampoo** | ~3x params (L [m×m] + R [n×n] + momentum [m×n]) | O(n³) + Newton-Schulz | Second-order baseline, matrix weights | Two-sided matrix preconditioner; Newton-Schulz inverse fourth root; **rank-2 params only** |
