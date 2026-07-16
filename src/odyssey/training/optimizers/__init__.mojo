@@ -79,6 +79,8 @@ from odyssey.training.optimizers.normuon import (
 from odyssey.training.optimizers.mgup_muon import (
     mgup_muon_step,
     mgup_muon_step_simple,
+)
+
 # Muon Hyperball optimizer (norm-constrained Muon)
 from odyssey.training.optimizers.muon_hyperball import (
     muon_hyperball_step,
