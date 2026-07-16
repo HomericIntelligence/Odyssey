@@ -84,6 +84,9 @@ from odyssey.training.optimizers.lion import lion_step, lion_step_simple
 # ADOPT optimizer (modified Adam with the optimal convergence rate for any beta2)
 from odyssey.training.optimizers.adopt import adopt_step, adopt_step_simple
 
+# FTRL-Proximal optimizer (online learning with L1 sparsity — McMahan et al. 2013)
+from odyssey.training.optimizers.ftrl import ftrl_step, ftrl_step_simple
+
 # Shampoo optimizer (two-sided matrix preconditioner via Newton-Schulz inverse fourth root)
 from odyssey.training.optimizers.shampoo import (
     shampoo_step,
