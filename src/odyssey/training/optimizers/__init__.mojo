@@ -86,6 +86,11 @@ from odyssey.training.optimizers.lion import lion_step, lion_step_simple
 
 # ADOPT optimizer (modified Adam with the optimal convergence rate for any beta2)
 from odyssey.training.optimizers.adopt import adopt_step, adopt_step_simple
+# LionMuon optimizer (alternating Lion / Muon on a fixed period, shared buffer)
+from odyssey.training.optimizers.lionmuon import (
+    lionmuon_step,
+    lionmuon_step_simple,
+)
 
 # Sophia clipped-preconditioned update step (caller-supplied Hessian estimates
 # — Liu et al. 2023)
