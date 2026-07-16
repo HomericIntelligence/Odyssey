@@ -234,6 +234,38 @@ Tests are organized in two tiers:
 
 See [ADR-004](docs/adr/ADR-004-testing-strategy.md) for the complete testing strategy rationale.
 
+### Running an individual optimizer or layer test
+
+Each optimizer and recurrent/normalization layer ships a self-contained unit test
+(shape validation + numerical parity against an independent reference + the
+primitive's defining property). Run any one of them with a single command:
+
+```bash
+bash scripts/run_primitive_test.sh <name>     # run one primitive's test
+bash scripts/run_primitive_test.sh all        # run every primitive test
+bash scripts/run_primitive_test.sh --list     # list known primitives + paths
+```
+
+| Primitive | Kind | Command |
+|-----------|------|---------|
+| RNN (Elman) | layer | `bash scripts/run_primitive_test.sh rnn` |
+| LSTM | layer | `bash scripts/run_primitive_test.sh lstm` |
+| GRU | layer | `bash scripts/run_primitive_test.sh gru` |
+| LayerNorm | layer | `bash scripts/run_primitive_test.sh layernorm` |
+| Transformer FeedForward (FFN) | layer | `bash scripts/run_primitive_test.sh ffn` |
+| ADOPT | optimizer | `bash scripts/run_primitive_test.sh adopt` |
+| Sophia | optimizer | `bash scripts/run_primitive_test.sh sophia` |
+| Adan | optimizer | `bash scripts/run_primitive_test.sh adan` |
+| Muon-Hyperball | optimizer | `bash scripts/run_primitive_test.sh muon_hyperball` |
+| LionMuon | optimizer | `bash scripts/run_primitive_test.sh lionmuon` |
+| MGUP-Muon | optimizer | `bash scripts/run_primitive_test.sh mgup_muon` |
+| SOAP | optimizer | `bash scripts/run_primitive_test.sh soap` |
+| FTRL-Proximal | optimizer | `bash scripts/run_primitive_test.sh ftrl` |
+
+A primitive whose test file is not on the current branch is reported as
+`SKIP` (not a failure), so the runner works incrementally as each primitive
+lands. The invocation matches CI (`mojo -I src -I . <test>`).
+
 ## Coverage Status
 
 Full code coverage metrics are blocked by [Mojo coverage tooling availability](docs/adr/ADR-008-coverage-tool-blocker.md).
