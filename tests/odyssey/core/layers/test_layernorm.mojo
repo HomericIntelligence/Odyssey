@@ -51,6 +51,24 @@ def test_reject_bad_sizes() raises:
     print("test_reject_bad_sizes PASSED")
 
 
+def test_reject_feature_mismatch() raises:
+    """forward() must raise when the input's last dim != num_features.
+
+    Guards the docstring's promised feature-dimension check: gamma/beta are
+    sized num_features, so a mismatched-width input would misindex the affine
+    params. A LayerNorm(4) fed a (2, 5) tensor must raise, not silently misread.
+    """
+    print("Running test_reject_feature_mismatch...")
+    var ln = LayerNorm[DType.float32](4)
+    var x = zeros([2, 5], DType.float32)
+    try:
+        var _ = ln.forward(x)
+        raise Error("Should have rejected feature dim 5 != num_features 4")
+    except e:
+        print("  ok rejected feature-dim mismatch (5 != 4)")
+    print("test_reject_feature_mismatch PASSED")
+
+
 def test_parameter_count() raises:
     """parameters() returns 2 tensors (gamma, beta)."""
     print("Running test_parameter_count...")
@@ -120,6 +138,7 @@ def main() raises:
     print("=" * 60)
     test_shape()
     test_reject_bad_sizes()
+    test_reject_feature_mismatch()
     test_parameter_count()
     test_parity_with_pytorch()
     print("=" * 60)

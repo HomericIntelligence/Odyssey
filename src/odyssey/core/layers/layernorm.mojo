@@ -77,6 +77,22 @@ struct LayerNorm[dtype: DType = DType.float32](Copyable, Module, Movable):
         Raises:
             Error: If tensor operations fail or the feature dimension mismatches.
         """
+        # Guard the feature dimension the docstring promises: gamma/beta are
+        # sized num_features, and the functional layer_norm indexes them by the
+        # last dim, so a mismatch would misindex the affine params. This layer
+        # covers the 1-D normalized_shape convention (2-D (batch, features)
+        # input); the wrapped functional's 4-D per-position affine path is not
+        # constructed here.
+        var shape = input.shape()
+        var last = shape[len(shape) - 1]
+        if last != self.num_features:
+            raise Error(
+                "LayerNorm: input feature dimension ("
+                + String(last)
+                + ") does not match num_features ("
+                + String(self.num_features)
+                + ")"
+            )
         return layer_norm(input, self.gamma, self.beta, self.epsilon)
 
     def parameters(self) raises -> List[AnyTensor]:
