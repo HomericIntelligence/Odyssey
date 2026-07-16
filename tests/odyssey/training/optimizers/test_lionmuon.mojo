@@ -68,15 +68,43 @@ def test_parity_three_step() raises:
     ref0.append(0.503407294)
     ref0.append(0.597807965)
 
-    # After step 1 (Lion): params shift by -lr*sign(...) with the SAME sign pattern
-    # as the seeded grads (all constant sign here), so each entry moves by +/-0.1.
+    # After step 1 (Lion) — reference params from the numpy transcription.
+    var ref1 = List[Float64]()
+    ref1.append(-0.385037439)
+    ref1.append(-0.290636309)
+    ref1.append(-0.196235178)
+    ref1.append(-0.101834047)
+    ref1.append(0.010467125)
+    ref1.append(0.103772334)
+    ref1.append(-0.002922456)
+    ref1.append(0.090382754)
+    ref1.append(0.205971689)
+    ref1.append(0.298180978)
+    ref1.append(0.390390267)
+    ref1.append(0.482599556)
+
+    # After step 2 (Lion) — reference params from the numpy transcription.
+    var ref2 = List[Float64]()
+    ref2.append(-0.285037439)
+    ref2.append(-0.190636309)
+    ref2.append(-0.096235178)
+    ref2.append(-0.001834047)
+    ref2.append(0.110467125)
+    ref2.append(0.203772334)
+    ref2.append(-0.102922456)
+    ref2.append(-0.009617246)
+    ref2.append(0.105971689)
+    ref2.append(0.198180978)
+    ref2.append(0.290390267)
+    ref2.append(0.382599556)
+
     var W = zeros([3, 4], DType.float64)
     _seed_ramp(W, 12, 0.1, -0.5)
     var G = zeros([3, 4], DType.float64)
     _seed_ramp(G, 12, 0.05, -0.3)
     var M = zeros_like(W)
 
-    # Step 0 (Muon).
+    # Step 0 (Muon) — the eigenbasis-orthogonalized branch.
     var (p0, m0) = lionmuon_step(W, G, M, 0.1, 0, 4)
     for i in range(12):
         if _abs_diff(p0.load[DType.float64](i), ref0[i]) > 1e-6:
@@ -84,16 +112,24 @@ def test_parity_three_step() raises:
     W = p0
     M = m0
 
-    # Steps 1 and 2 (Lion) — just require they run and stay finite; the step-0
-    # Muon branch is the numerically distinctive check.
+    # Step 1 (Lion) — asserted numerically against the reference. This also
+    # validates that the shared momentum buffer threaded out of the Muon step
+    # feeds the Lion step correctly (continuity across the alternation).
     var (p1, m1) = lionmuon_step(W, G, M, 0.1, 1, 4)
+    for i in range(12):
+        if _abs_diff(p1.load[DType.float64](i), ref1[i]) > 1e-6:
+            raise Error("LionMuon step-1 (Lion) mismatch at " + String(i))
     W = p1
     M = m1
-    var (p2, _) = lionmuon_step(W, G, M, 0.1, 2, 4)
-    if p2.numel() != 12:
-        raise Error("LionMuon Lion branch produced wrong shape")
 
-    print("  ok Muon branch matches reference to 1e-6; Lion branch runs")
+    # Step 2 (Lion) — asserted numerically; confirms the buffer continues to
+    # thread correctly across successive Lion steps.
+    var (p2, _) = lionmuon_step(W, G, M, 0.1, 2, 4)
+    for i in range(12):
+        if _abs_diff(p2.load[DType.float64](i), ref2[i]) > 1e-6:
+            raise Error("LionMuon step-2 (Lion) mismatch at " + String(i))
+
+    print("  ok both Muon (step 0) and Lion (steps 1-2) branches match to 1e-6")
     print("test_parity_three_step PASSED")
 
 
