@@ -8,7 +8,8 @@ Tests cover:
   rotated Adam, project-back, bias correction, weight decay, and state threading
 """
 
-from odyssey.tensor.any_tensor import AnyTensor, zeros
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros
 from odyssey.training.optimizers.soap import soap_step, init_soap_state
 
 
@@ -42,13 +43,13 @@ def test_reject_non_2d() raises:
             p, g, z, z2, z3, z4, z5, z6, 1, 0.1
         )
         raise Error("Should have rejected 1D params")
-    except e:
+    except _:
         print("  ok rejected 1D params")
     print("test_reject_non_2d PASSED")
 
 
 def test_init_state_shapes() raises:
-    """init_soap_state returns 6 zeroed tensors with the right shapes."""
+    """`init_soap_state` returns 6 zeroed tensors with the right shapes."""
     print("Running test_init_state_shapes...")
     var W = zeros([3, 4], DType.float64)
     var st = init_soap_state(W)

@@ -24,7 +24,8 @@ from tests.odyssey.conftest import (
     create_simple_dataset,
     TestFixtures,
 )
-from odyssey.tensor.any_tensor import AnyTensor, zeros, ones
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros, ones
 from odyssey.core.linear import linear_no_bias
 from odyssey.training.optimizers.sgd import sgd_step_simple
 

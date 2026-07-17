@@ -22,8 +22,8 @@ from tests.odyssey.conftest import (
     assert_true,
     create_test_vector,
 )
-from odyssey.tensor.any_tensor import (
-    AnyTensor,
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import (
     zeros,
     ones,
     zeros_like,
@@ -129,7 +129,7 @@ def test_newton_schulz_square_orthogonality() raises:
 
     # Fill with values simulating random matrix (pseudo-random via index)
     for i in range(X.numel()):
-        var val = Float32((Float64(i) * 0.123 + 0.456).fract())
+        var val = Float32((Float64(i) * 0.123 + 0.456) % 1.0)
         X._set_float64(i, Float64(val))
 
     # Orthogonalize
@@ -173,7 +173,7 @@ def test_newton_schulz_wide_matrix() raises:
     var X = zeros(shape, DType.float32)
 
     for i in range(X.numel()):
-        var val = Float32((Float64(i) * 0.234 + 0.789).fract())
+        var val = Float32((Float64(i) * 0.234 + 0.789) % 1.0)
         X._set_float64(i, Float64(val))
 
     var Y = newton_schulz_orthogonalize(X, steps=5)
@@ -204,7 +204,7 @@ def test_newton_schulz_tall_matrix() raises:
     var X = zeros(shape, DType.float32)
 
     for i in range(X.numel()):
-        var val = Float32((Float64(i) * 0.345 + 0.111).fract())
+        var val = Float32((Float64(i) * 0.345 + 0.111) % 1.0)
         X._set_float64(i, Float64(val))
 
     var Y = newton_schulz_orthogonalize(X, steps=5)
@@ -236,7 +236,7 @@ def test_newton_schulz_convergence_rate() raises:
     var X = zeros(shape, DType.float32)
 
     for i in range(X.numel()):
-        var val = Float32((Float64(i) * 0.456 + 0.222).fract())
+        var val = Float32((Float64(i) * 0.456 + 0.222) % 1.0)
         X._set_float64(i, Float64(val))
 
     # Compute error after 1 step
@@ -518,5 +518,36 @@ def test_muon_step_pure_functional() raises:
         original_p0,
         final_p0,
         tolerance=1e-10,
-        msg="muon_step does not mutate input params",
+        message="muon_step does not mutate input params",
     )
+
+
+def main() raises:
+    """Run all Muon optimizer tests."""
+    print("=" * 60)
+    print("Muon Optimizer Test Suite")
+    print("=" * 60)
+
+    test_is_muon_eligible_rank_1()
+    test_is_muon_eligible_rank_3()
+    test_is_muon_eligible_rank_2_matrix()
+    test_is_muon_eligible_rank_2_small_row()
+    test_is_muon_eligible_rank_2_small_col()
+    test_is_muon_eligible_rank_2_min_size()
+    test_newton_schulz_square_orthogonality()
+    test_newton_schulz_wide_matrix()
+    test_newton_schulz_tall_matrix()
+    test_newton_schulz_convergence_rate()
+    test_muon_step_shape_preservation()
+    test_muon_step_quadratic_descent()
+    test_muon_step_rejects_non_matrix()
+    test_muon_step_dtype_mismatch()
+    test_muon_step_shape_mismatch()
+    test_muon_step_with_nesterov()
+    test_muon_step_with_weight_decay()
+    test_muon_step_simple()
+    test_muon_step_pure_functional()
+
+    print("=" * 60)
+    print("All tests PASSED")
+    print("=" * 60)

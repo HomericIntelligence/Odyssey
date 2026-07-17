@@ -9,8 +9,8 @@ Tests cover:
 - Gradient checking (numerical vs analytical)
 """
 
-from odyssey.tensor.any_tensor import (
-    AnyTensor,
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import (
     zeros,
     zeros_like,
     randn,

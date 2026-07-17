@@ -9,7 +9,8 @@ Tests cover:
 - lambda1 = 0 produces a dense (no exact-zero-forcing) update via ftrl_step_simple
 """
 
-from odyssey.tensor.any_tensor import AnyTensor, zeros
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros
 from odyssey.training.optimizers.ftrl import ftrl_step, ftrl_step_simple
 
 
@@ -44,14 +45,14 @@ def test_reject_shape_mismatch() raises:
     try:
         var (_, _, _) = ftrl_step(p, g, z, n, 1.0)
         raise Error("should have rejected mismatched grad shape")
-    except e:
+    except _:
         print("  ok rejected mismatched grad shape")
     var g2 = zeros([6], DType.float64)
     var z2 = zeros([5], DType.float64)
     try:
         var (_, _, _) = ftrl_step(p, g2, z2, n, 1.0)
         raise Error("should have rejected mismatched z shape")
-    except e:
+    except _:
         print("  ok rejected mismatched z shape")
     print("test_reject_shape_mismatch PASSED")
 

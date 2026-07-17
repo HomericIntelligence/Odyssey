@@ -11,11 +11,8 @@ Tests cover:
 - Second-moment update ordering (v is updated with grad^2 AFTER being used)
 - adopt_step_simple delegates to adopt_step with the default hyperparameters
 """
-from odyssey.tensor.any_tensor import (
-    AnyTensor,
-    zeros,
-    full,
-)
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros, full
 from odyssey.training.optimizers.adopt import adopt_step, adopt_step_simple
 from std.math import abs as math_abs
 
@@ -67,7 +64,7 @@ def test_reject_second_moment_shape() raises:
     try:
         var _ = adopt_step(params, grad, m, v, 0.01)
         raise Error("Should have rejected second_moment shape mismatch")
-    except e:
+    except _:
         print("  ✓ Correctly rejected second_moment shape mismatch")
     print("test_reject_second_moment_shape PASSED")
 
@@ -82,7 +79,7 @@ def test_reject_momentum_shape() raises:
     try:
         var _ = adopt_step(params, grad, m, v, 0.01)
         raise Error("Should have rejected momentum shape mismatch")
-    except e:
+    except _:
         print("  ✓ Correctly rejected momentum shape mismatch")
     print("test_reject_momentum_shape PASSED")
 
@@ -97,7 +94,7 @@ def test_weight_decay_differs_from_zero() raises:
     identical between the two calls since it does not depend on weight_decay).
     """
     print("Running test_weight_decay_differs_from_zero...")
-    alias N = 4
+    comptime N = 4
     var lr = 0.1
     var wd = 0.5
     var p_val = 2.0
@@ -140,7 +137,7 @@ def test_parity_with_reference() raises:
     test for the reproducible reference generator.
     """
     print("Running test_parity_with_reference...")
-    alias N = 6
+    comptime N = 6
     var p = zeros([N], DType.float64)
     var g = zeros([N], DType.float64)
     var m = zeros([N], DType.float64)
@@ -215,7 +212,7 @@ def test_parity_with_reference() raises:
 def test_descent_direction() raises:
     """A positive gradient must decrease the parameter (and vice versa)."""
     print("Running test_descent_direction...")
-    alias N = 3
+    comptime N = 3
     var p = full([N], 1.0, DType.float32)
     var g = full([N], 0.5, DType.float32)  # positive grad
     var m = zeros([N], DType.float32)
@@ -237,7 +234,7 @@ def test_second_moment_updates_last() raises:
     new_v = (1 - beta2) * grad^2 (the beta2 * 0 term vanishes).
     """
     print("Running test_second_moment_updates_last...")
-    alias N = 2
+    comptime N = 2
     var p = zeros([N], DType.float32)
     var g = full([N], 2.0, DType.float32)  # grad^2 = 4
     var m = zeros([N], DType.float32)
@@ -264,7 +261,7 @@ def test_clip_bounds_normalized_gradient() raises:
     param step proportionally versus the un-clipped case.
     """
     print("Running test_clip_bounds_normalized_gradient...")
-    alias N = 4
+    comptime N = 4
     var beta1 = 0.9
     var lr = 0.1
 
@@ -299,9 +296,9 @@ def test_clip_bounds_normalized_gradient() raises:
 
 
 def test_simple_matches_full_defaults() raises:
-    """adopt_step_simple must equal adopt_step with default hyperparameters."""
+    """`adopt_step_simple` must equal `adopt_step` with default hyperparameters."""
     print("Running test_simple_matches_full_defaults...")
-    alias N = 5
+    comptime N = 5
     var p = full([N], 0.2, DType.float64)
     var g = full([N], -0.3, DType.float64)
     var m = zeros([N], DType.float64)

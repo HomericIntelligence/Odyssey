@@ -9,7 +9,8 @@ Tests cover:
 """
 
 from std.math import sqrt as scalar_sqrt
-from odyssey.tensor.any_tensor import AnyTensor, zeros
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros
 from odyssey.core.eigen import symmetric_eigh
 
 
@@ -27,7 +28,7 @@ def test_reject_non_square() raises:
     try:
         var (_, _) = symmetric_eigh(m)
         raise Error("Should have rejected 2x3")
-    except e:
+    except _:
         print("  ok rejected non-square")
     print("test_reject_non_square PASSED")
 

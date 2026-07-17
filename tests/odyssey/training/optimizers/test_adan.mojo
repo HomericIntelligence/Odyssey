@@ -24,7 +24,7 @@ def _abs_diff(a: Float64, b: Float64) -> Float64:
 
 
 def test_reject_shape_mismatch() raises:
-    """adan_step rejects a params/gradients shape mismatch."""
+    """`adan_step` rejects a params/gradients shape mismatch."""
     print("Running test_reject_shape_mismatch...")
     var p = zeros([4], DType.float32)
     var g = zeros([5], DType.float32)
@@ -35,13 +35,13 @@ def test_reject_shape_mismatch() raises:
     try:
         var _ = adan_step(p, g, m, dd, v, pg, 1, 0.001)
         raise Error("Should have rejected shape mismatch")
-    except e:
+    except _:
         print("  ok rejected shape mismatch")
     print("test_reject_shape_mismatch PASSED")
 
 
 def test_reject_dtype_mismatch() raises:
-    """adan_step rejects a params/gradients dtype mismatch."""
+    """`adan_step` rejects a params/gradients dtype mismatch."""
     print("Running test_reject_dtype_mismatch...")
     var p = zeros([4], DType.float32)
     var g = zeros([4], DType.float16)
@@ -52,7 +52,7 @@ def test_reject_dtype_mismatch() raises:
     try:
         var _ = adan_step(p, g, m, dd, v, pg, 1, 0.001)
         raise Error("Should have rejected dtype mismatch")
-    except e:
+    except _:
         print("  ok rejected dtype mismatch")
     print("test_reject_dtype_mismatch PASSED")
 
@@ -145,7 +145,7 @@ def test_parity_with_reference() raises:
 
 
 def test_step_simple_matches_defaults() raises:
-    """adan_step_simple must equal adan_step with the default hyperparameters.
+    """`adan_step_simple` must equal `adan_step` with the default hyperparameters.
     """
     print("Running test_step_simple_matches_defaults...")
     var n = 5
@@ -184,7 +184,7 @@ def test_step_simple_matches_defaults() raises:
 
 
 def test_weight_decay() raises:
-    """weight_decay applies the paper's divisive decoupled (proximal) decay.
+    """`weight_decay` applies the paper's divisive decoupled (proximal) decay.
 
     With a zero gradient the gradient step is zero, so the only change is the
     decoupled proximal decay `params /= (1 + lr * weight_decay)` (Algorithm 1
@@ -236,7 +236,7 @@ def test_weight_decay() raises:
 
 
 def test_prev_grad_passthrough() raises:
-    """new_prev_grad must equal the current gradient (for the next step)."""
+    """`new_prev_grad` must equal the current gradient (for the next step)."""
     print("Running test_prev_grad_passthrough...")
     var n = 3
     var p = zeros([n], DType.float64)
