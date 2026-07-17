@@ -80,7 +80,9 @@ def test_clip_grad_global_norm_f32() raises:
     grad1._set_float64(0, 3.0)
     grad1._set_float64(1, 4.0)
     var grad2 = zeros([2], DType.float32)
-    var grads = List[AnyTensor](grad1, grad2)
+    var grads: List[AnyTensor] = []
+    grads.append(grad1)
+    grads.append(grad2)
 
     var global_norm = clip_grad_global_norm_(grads, 2.5)
 
@@ -98,7 +100,9 @@ def test_clip_grad_global_norm_f64() raises:
     grad1._set_float64(0, 3.0)
     grad1._set_float64(1, 4.0)
     var grad2 = zeros([2], DType.float64)
-    var grads = List[AnyTensor](grad1, grad2)
+    var grads: List[AnyTensor] = []
+    grads.append(grad1)
+    grads.append(grad2)
 
     var global_norm = clip_grad_global_norm_(grads, 2.5)
 
@@ -145,7 +149,9 @@ def test_clip_grad_global_norm_no_clipping_f64() raises:
     grad1._set_float64(0, 1.0)
     grad1._set_float64(1, 2.0)
     var grad2 = zeros([2], DType.float64)
-    var grads = List[AnyTensor](grad1, grad2)
+    var grads: List[AnyTensor] = []
+    grads.append(grad1)
+    grads.append(grad2)
 
     var global_norm = clip_grad_global_norm_(grads, 10.0)
 
