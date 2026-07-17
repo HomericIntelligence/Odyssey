@@ -1,0 +1,92 @@
+name: Comprehensive Test PR Comments
+
+# This trusted default-branch workflow consumes reports as data. It never
+# checks out or executes pull-request code with its write-scoped token.
+on:
+  workflow_run:
+    workflows: ["Comprehensive Tests"]
+    types: [completed]
+
+permissions:
+  contents: read
+
+jobs:
+  post-pr-comments:
+    if: >-
+      github.event.workflow_run.event == 'pull_request' &&
+      github.event.workflow_run.pull_requests[0]
+    runs-on: ubuntu-latest
+    name: "Post Comprehensive Test PR Comments"
+    permissions:
+      actions: read
+      contents: read
+      pull-requests: write
+
+    steps:
+      - name: Download test metrics report
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8
+        with:
+          name: test-metrics
+          path: reports/metrics
+          github-token: ${{ github.token }}
+          run-id: ${{ github.event.workflow_run.id }}
+
+      - name: Download comprehensive test report
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8
+        with:
+          name: comprehensive-test-report
+          path: reports/comprehensive
+          github-token: ${{ github.token }}
+          run-id: ${{ github.event.workflow_run.id }}
+
+      - name: Post or update PR comments
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd  # v8
+        env:
+          PR_NUMBER: ${{ github.event.workflow_run.pull_requests[0].number }}
+        with:
+          script: |
+            const fs = require('fs');
+            const issue_number = Number(process.env.PR_NUMBER);
+            const reports = [
+              {
+                marker: 'Test Metrics Report',
+                path: 'reports/metrics/metrics-pr-comment.md',
+              },
+              {
+                marker: '🧪 Comprehensive Test Results',
+                path: 'reports/comprehensive/test-report.md',
+              },
+            ];
+
+            const comments = await github.paginate(
+              github.rest.issues.listComments,
+              {
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number,
+                per_page: 100,
+              },
+            );
+
+            for (const report of reports) {
+              const body = fs.readFileSync(report.path, 'utf8');
+              const existing = comments.find(comment =>
+                comment.user.type === 'Bot' && comment.body.includes(report.marker)
+              );
+
+              if (existing) {
+                await github.rest.issues.updateComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  comment_id: existing.id,
+                  body,
+                });
+              } else {
+                await github.rest.issues.createComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number,
+                  body,
+                });
+              }
+            }

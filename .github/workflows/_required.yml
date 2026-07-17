@@ -1,5 +1,5 @@
 # Canonical required-checks workflow for the org-wide homeric-main-baseline ruleset.
-# This workflow defines the 9 canonical status-check contexts that branch protection
+# This workflow defines the 12 canonical status-check contexts that branch protection
 # requires. All job name: strings are the EXACT context strings — do not rename.
 #
 # Reference implementation: HomericIntelligence/ProjectScylla _required.yml
@@ -8,6 +8,8 @@ name: Required Checks
 
 on:
   pull_request:
+  merge_group:
+    types: [checks_requested]
   push:
     branches: [main]
 
