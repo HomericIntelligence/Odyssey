@@ -99,9 +99,7 @@ def run(n_steps, period):
         }
         if branch == "lion":
             # Lion moves every element by exactly +/- lr; record the signs.
-            entry["lion_update_signs"] = (
-                np.sign(W_prev - W).flatten().astype(int).tolist()
-            )
+            entry["lion_update_signs"] = np.sign(W_prev - W).flatten().astype(int).tolist()
         steps_out.append(entry)
     return {"config": {"R": R, "C": C, "lr": LR, "period": period}, "steps": steps_out}
 
