@@ -11,7 +11,8 @@ Tests cover:
 - Disabling a constraint (radius <= 0) leaves the corresponding norm unclamped
 """
 
-from odyssey.tensor.any_tensor import AnyTensor, zeros, zeros_like
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros, zeros_like
 from odyssey.training.optimizers.muon_hyperball import (
     muon_hyperball_step,
     muon_hyperball_step_simple,
@@ -40,7 +41,7 @@ def test_reject_non_2d() raises:
     try:
         var (_, _) = muon_hyperball_step(p, g, m, learning_rate=0.01)
         raise Error("Should have rejected 1D params")
-    except e:
+    except _:
         print("  ok rejected 1D params")
     print("test_reject_non_2d PASSED")
 
@@ -54,19 +55,19 @@ def test_parity_with_reference() raises:
     """
     print("Running test_parity_with_reference...")
 
-    var ref = List[Float64]()
-    ref.append(-0.4096168)
-    ref.append(-0.3298968)
-    ref.append(-0.2501768)
-    ref.append(-0.1704568)
-    ref.append(-0.0756045)
-    ref.append(0.003189)
-    ref.append(0.0819826)
-    ref.append(0.1607761)
-    ref.append(0.2584078)
-    ref.append(0.3362749)
-    ref.append(0.414142)
-    ref.append(0.4920091)
+    var ref_vals = List[Float64]()
+    ref_vals.append(-0.4096168)
+    ref_vals.append(-0.3298968)
+    ref_vals.append(-0.2501768)
+    ref_vals.append(-0.1704568)
+    ref_vals.append(-0.0756045)
+    ref_vals.append(0.003189)
+    ref_vals.append(0.0819826)
+    ref_vals.append(0.1607761)
+    ref_vals.append(0.2584078)
+    ref_vals.append(0.3362749)
+    ref_vals.append(0.414142)
+    ref_vals.append(0.4920091)
 
     var W = zeros([3, 4], DType.float64)
     _seed_ramp(W, 12, 0.1, -0.5)
@@ -76,7 +77,7 @@ def test_parity_with_reference() raises:
 
     var (new_p, _) = muon_hyperball_step(W, G, M, 0.1, 1.0, 0.1)
     for i in range(12):
-        if _abs_diff(new_p.load[DType.float64](i), ref[i]) > 1e-6:
+        if _abs_diff(new_p.load[DType.float64](i), ref_vals[i]) > 1e-6:
             raise Error("Muon Hyperball parity mismatch at " + String(i))
     print("  ok matches reference to 1e-6")
     print("test_parity_with_reference PASSED")
@@ -93,19 +94,19 @@ def test_parity_nonsaturated_weight_ball() raises:
     """
     print("Running test_parity_nonsaturated_weight_ball...")
 
-    var ref = List[Float64]()
-    ref.append(-0.4845374394768569)
-    ref.append(-0.3902363086961616)
-    ref.append(-0.295935177915466)
-    ref.append(-0.20163404713477076)
-    ref.append(-0.08943287547482938)
-    ref.append(0.0037723344357082148)
-    ref.append(0.09697754434624539)
-    ref.append(0.19018275425678322)
-    ref.append(0.30567168852719817)
-    ref.append(0.39778097756757763)
-    ref.append(0.48989026660795737)
-    ref.append(0.5819995556483368)
+    var ref_vals = List[Float64]()
+    ref_vals.append(-0.4845374394768569)
+    ref_vals.append(-0.3902363086961616)
+    ref_vals.append(-0.295935177915466)
+    ref_vals.append(-0.20163404713477076)
+    ref_vals.append(-0.08943287547482938)
+    ref_vals.append(0.0037723344357082148)
+    ref_vals.append(0.09697754434624539)
+    ref_vals.append(0.19018275425678322)
+    ref_vals.append(0.30567168852719817)
+    ref_vals.append(0.39778097756757763)
+    ref_vals.append(0.48989026660795737)
+    ref_vals.append(0.5819995556483368)
 
     var W = zeros([3, 4], DType.float64)
     _seed_ramp(W, 12, 0.1, -0.5)
@@ -116,7 +117,7 @@ def test_parity_nonsaturated_weight_ball() raises:
     var weight_norm_max = 10.0
     var (new_p, _) = muon_hyperball_step(W, G, M, 0.1, weight_norm_max, 0.1)
     for i in range(12):
-        if _abs_diff(new_p.load[DType.float64](i), ref[i]) > 1e-6:
+        if _abs_diff(new_p.load[DType.float64](i), ref_vals[i]) > 1e-6:
             raise Error(
                 "Muon Hyperball non-saturated parity mismatch at " + String(i)
             )
