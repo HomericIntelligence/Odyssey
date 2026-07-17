@@ -254,7 +254,7 @@ bash scripts/run_primitive_test.sh --list     # list known primitives + paths
 | LayerNorm | layer | `bash scripts/run_primitive_test.sh layernorm` |
 | Transformer FeedForward (FFN) | layer | `bash scripts/run_primitive_test.sh ffn` |
 | ADOPT | optimizer | `bash scripts/run_primitive_test.sh adopt` |
-| Sophia | optimizer | `bash scripts/run_primitive_test.sh sophia` |
+| Sophia (clipped update step; caller-supplied Hessian estimates) | optimizer | `bash scripts/run_primitive_test.sh sophia` |
 | Adan | optimizer | `bash scripts/run_primitive_test.sh adan` |
 | Muon-Hyperball | optimizer | `bash scripts/run_primitive_test.sh muon_hyperball` |
 | LionMuon | optimizer | `bash scripts/run_primitive_test.sh lionmuon` |

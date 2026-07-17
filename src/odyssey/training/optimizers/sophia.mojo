@@ -1,34 +1,50 @@
-"""Sophia optimizer (Second-order Clipped Stochastic Optimization).
+"""Sophia clipped preconditioned update step (arXiv:2305.14342).
 
-Sophia is a light-weight second-order optimizer that uses a cheap, infrequent
-diagonal Hessian estimate to precondition an EMA of gradients, then CLIPS the
-per-coordinate update. The clipping bounds the influence of coordinates with a
-small or mis-estimated Hessian, giving second-order-like convergence at close to
+SCOPE: this module implements the Sophia-style CLIPPED PRECONDITIONED UPDATE
+STEP only, operating on a CALLER-SUPPLIED diagonal-Hessian estimate. The
+estimators that produce that estimate in the paper — Sophia-H (Hutchinson) and
+Sophia-G (Gauss-Newton-Bartlett) — both require Hessian-vector products /
+higher-order autodiff, which Odyssey's autograd does not provide yet (tracked
+in `src/odyssey/autograd/TODO.md`, Phase 3 "Higher-order gradients" / "Hessian
+computation"). Until then,
+callers must obtain the diagonal Hessian estimate elsewhere and pass it in.
+
+Sophia (Liu et al. 2023) preconditions an EMA of gradients with a cheap,
+infrequently refreshed diagonal-Hessian EMA, then CLIPS the per-coordinate
+update. The clipping bounds the influence of coordinates with a small or
+mis-estimated Hessian, giving second-order-like convergence at close to
 first-order cost.
 
-This module implements the per-step update as a pure function; the caller
-supplies the diagonal Hessian estimate `hessian` (from either the Hutchinson
-estimator, Sophia-H, or the Gauss-Newton-Bartlett estimator, Sophia-G). The
-Hessian is expensive to compute, so in practice it is refreshed only every
-`update_period` steps; between refreshes the caller passes the same stale
-Hessian (its EMA `hessian_moment` simply re-averages the same value), which is
-exactly what the reference implementations do.
-
-Sophia update rule (per step):
+Update rule implemented here (per step):
     momentum       = beta1 * momentum + (1 - beta1) * gradients
-    hessian_moment = beta2 * hessian_moment + (1 - beta2) * hessian
-    update         = clip(momentum / max(hessian_moment, eps), -rho, +rho)
+    update         = clip(momentum / max(gamma * hessian_moment, eps), -rho, +rho)
     params         = params - learning_rate * update
 
-with optional decoupled (AdamW-style) weight decay applied after the step.
+and, on the steps where the caller has a fresh Hessian estimate (every
+`update_period` steps in the reference implementations):
+    hessian_moment = beta2 * hessian_moment + (1 - beta2) * hessian
+via `sophia_update_hessian_moment`.
+
+On the gamma / rho parametrization: the paper's Algorithm 3 writes the update
+as clip(m_t / max(gamma * h_t, eps), 1), and the official implementation
+(github.com/Liuhong99/Sophia, sophia.py) computes
+`ratio = (exp_avg.abs() / (rho * bs * hess + 1e-15)).clamp(None, 1)` — i.e.
+gamma = rho * bs (bs = batch size), so gamma has NO batch-size-free universal
+default. This module therefore exposes gamma explicitly with default 1.0,
+which is exactly the SophiaH parametrization used by pytorch_optimizer
+(kozistr/pytorch_optimizer): the +-rho clip carries the threshold and callers
+fold any gamma = rho * bs scale into the Hessian estimate they supply. To
+reproduce the paper's Algorithm 3 form verbatim, pass gamma explicitly and set
+rho = 1.
 
 Key characteristics:
     - Memory: first-moment `momentum` + diagonal-Hessian EMA `hessian_moment`
       (same footprint as Adam's two buffers).
-    - The clip threshold `rho` (paper default 0.01-0.05) is the fraction of
-      coordinates left un-clipped; it is the single most important hyperparameter.
-    - The denominator is clamped below by `eps` (not `+ eps`), so a zero/negative
-      Hessian estimate degrades gracefully to a large-but-clipped update.
+    - The clip threshold `rho` (paper default 0.01-0.05) bounds every
+      per-coordinate update; it is the single most important hyperparameter.
+    - The denominator is clamped below by `eps` (not `+ eps`), so a
+      zero/negative Hessian estimate degrades gracefully to a
+      large-but-clipped update.
 
 Reference:
     Liu, H., Li, Z., Hall, D., Liang, P., & Ma, T. (2023).
@@ -53,41 +69,43 @@ def sophia_step(
     gradients: AnyTensor,
     momentum: AnyTensor,
     hessian_moment: AnyTensor,
-    # `hessian` and `beta2` are consumed by the companion
-    # `sophia_update_hessian_moment` (which owns the Hessian-EMA refresh), not by
-    # the step body itself; they are accepted here for signature symmetry so the
-    # two functions share one call shape.
-    hessian: AnyTensor,
     learning_rate: Float64,
     beta1: Float64 = 0.96,
-    beta2: Float64 = 0.99,
+    gamma: Float64 = 1.0,
     rho: Float64 = 0.04,
     epsilon: Float64 = 1e-12,
     weight_decay: Float64 = 0.0,
 ) raises -> Tuple[AnyTensor, AnyTensor]:
-    """Perform a single Sophia optimization step - pure functional.
+    """Perform a single Sophia clipped-preconditioned update step.
 
-    Returns new parameters and the new first-moment (momentum) buffer. The
-    second buffer, `hessian_moment`, is updated IN THE CALLER using
-    `sophia_update_hessian_moment` on the steps where a fresh `hessian` estimate
-    is available (typically every `update_period` steps). This split keeps the
-    signature honest: `sophia_step` reads the current `hessian_moment` but does
-    not decide the Hessian refresh schedule, which the caller owns.
+    Pure functional. Returns new parameters and the new first-moment
+    (momentum) buffer. The preconditioner `hessian_moment` is consumed as-is;
+    it is refreshed IN THE CALLER via `sophia_update_hessian_moment` on the
+    steps where a fresh caller-supplied diagonal-Hessian estimate is available
+    (typically every `update_period` steps). This split keeps the signature
+    honest: every parameter of this function participates in the update, and
+    the Hessian refresh schedule — like the Hessian estimator itself (Sophia-H
+    / Sophia-G, not implemented in Odyssey; see module docstring) — is owned
+    by the caller.
 
     Args:
         params: Model parameters to update.
         gradients: Gradients of loss with respect to params.
         momentum: First-moment buffer m (EMA of gradients).
-        hessian_moment: EMA of the diagonal Hessian estimate (current value).
-        hessian: The diagonal Hessian estimate for this step. On steps where no
-            fresh estimate is computed, pass the previous `hessian_moment` (or a
-            zero tensor) — the update simply uses the standing `hessian_moment`.
+        hessian_moment: Diagonal-Hessian EMA used as the preconditioner,
+            maintained by the caller via `sophia_update_hessian_moment`.
         learning_rate: Step size for parameter updates.
         beta1: EMA decay for the first moment (default: 0.96).
-        beta2: EMA decay for the Hessian moment (default: 0.99).
-        rho: Symmetric clip bound on the per-coordinate update (default: 0.04).
-        epsilon: Lower clamp bound on `hessian_moment` in the denominator,
-            i.e. denom = max(hessian_moment, epsilon) (default: 1e-12).
+        gamma: Scale on the preconditioner in the denominator,
+            denom = max(gamma * hessian_moment, epsilon). The official Liu et
+            al. code uses gamma = rho * bs (batch-size coupled, no universal
+            default); the default 1.0 is the SophiaH/pytorch_optimizer
+            parametrization where callers fold that scale into the Hessian
+            estimate they supply. See module docstring.
+        rho: Symmetric clip bound on the per-coordinate update (default: 0.04,
+            the official SophiaG default).
+        epsilon: Lower clamp bound on the scaled denominator,
+            i.e. denom = max(gamma * hessian_moment, epsilon) (default: 1e-12).
         weight_decay: Decoupled (AdamW-style) weight decay factor (default: 0.0).
 
     Returns:
@@ -119,8 +137,10 @@ def sophia_step(
     new_momentum = add_simd(new_momentum, grad_contrib)
 
     # Preconditioned, clipped update:
-    #   update = clip(m / max(hessian_moment, eps), -rho, +rho)
-    var denom = clip(hessian_moment, epsilon, 1.0e30)
+    #   update = clip(m / max(gamma * hessian_moment, eps), -rho, +rho)
+    var gamma_tensor = full_like(hessian_moment, gamma)
+    var scaled_hm = multiply_simd(gamma_tensor, hessian_moment)
+    var denom = clip(scaled_hm, epsilon, 1.0e30)
     var raw_update = divide_simd(new_momentum, denom)
     var update = clip(raw_update, -rho, rho)
 
@@ -143,16 +163,21 @@ def sophia_update_hessian_moment(
     hessian: AnyTensor,
     beta2: Float64 = 0.99,
 ) raises -> AnyTensor:
-    """Update the diagonal-Hessian EMA with a fresh estimate.
+    """Update the diagonal-Hessian EMA with a fresh caller-supplied estimate.
 
-    Call this only on the steps where a fresh Hessian estimate is available
-    (every `update_period` steps in the reference implementation):
+    Call this only on the steps where a fresh diagonal-Hessian estimate is
+    available (every `update_period` steps in the reference implementations):
 
         hessian_moment = beta2 * hessian_moment + (1 - beta2) * hessian
 
+    Note that Odyssey does not implement the Sophia-H (Hutchinson) or Sophia-G
+    (Gauss-Newton-Bartlett) estimators that produce `hessian` in the paper —
+    they need higher-order autodiff, tracked in `src/odyssey/autograd/TODO.md`
+    (Phase 3, "Higher-order gradients"). The estimate is the caller's to supply.
+
     Args:
         hessian_moment: Current Hessian EMA buffer.
-        hessian: Fresh diagonal Hessian estimate.
+        hessian: Fresh caller-supplied diagonal Hessian estimate.
         beta2: EMA decay for the Hessian moment (default: 0.99).
 
     Returns:
@@ -178,21 +203,21 @@ def sophia_step_simple(
     gradients: AnyTensor,
     momentum: AnyTensor,
     hessian_moment: AnyTensor,
-    hessian: AnyTensor,
     learning_rate: Float64,
 ) raises -> Tuple[AnyTensor, AnyTensor]:
-    """Simplified Sophia step with default hyperparameters (Liu et al. 2023).
+    """Simplified Sophia update step with default hyperparameters.
 
-    Convenience wrapper around `sophia_step` with the paper defaults
-    (betas (0.96, 0.99), rho 0.04, eps 1e-12, no weight decay). Caller manages
-    the momentum and hessian_moment buffers (see `sophia_update_hessian_moment`).
+    Convenience wrapper around `sophia_step` with the defaults documented
+    there (beta1 0.96, gamma 1.0, rho 0.04, eps 1e-12, no weight decay).
+    Caller manages the momentum and hessian_moment buffers (see
+    `sophia_update_hessian_moment`) and supplies its own diagonal-Hessian
+    estimates — the Sophia-H/G estimators are not part of this module.
 
     Args:
         params: Model parameters to update.
         gradients: Gradients of loss with respect to params.
         momentum: First-moment buffer m. Initialize to zeros_like(params).
-        hessian_moment: Diagonal-Hessian EMA buffer.
-        hessian: Diagonal Hessian estimate for this step.
+        hessian_moment: Diagonal-Hessian EMA buffer (the preconditioner).
         learning_rate: Step size for parameter updates.
 
     Returns:
@@ -202,5 +227,5 @@ def sophia_step_simple(
         Error: If tensor shapes or dtypes don't match.
     """
     return sophia_step(
-        params, gradients, momentum, hessian_moment, hessian, learning_rate
+        params, gradients, momentum, hessian_moment, learning_rate
     )
