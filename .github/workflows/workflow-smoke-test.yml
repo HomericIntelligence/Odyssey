@@ -6,17 +6,24 @@ name: Workflow Smoke Tests
 #   - pre-commit.yml: pull_request trigger present
 #   - comprehensive-tests.yml: matrix coverage maintained
 #   - validate-configs.yml: agent config validation on PRs
+#   - required-context workflows: merge_group/checks_requested coverage
 
 on:
   pull_request:
+  merge_group:
+    types: [checks_requested]
   push:
     branches:
       - main
     paths:
+      - '.github/workflows/_required.yml'
+      - '.github/workflows/workflow-smoke-test.yml'
       - '.github/workflows/security.yml'
       - '.github/workflows/pre-commit.yml'
       - '.github/workflows/comprehensive-tests.yml'
       - '.github/workflows/validate-configs.yml'
+      - 'configs/github/merge-queue-policy.json'
+      - 'tests/smoke/test_merge_queue_workflow_properties.py'
       - 'tests/smoke/test_security_workflow_properties.py'
       - '.github/workflows/pre-commit.yml'
       - 'tests/smoke/test_pre_commit_workflow_properties.py'
@@ -190,6 +197,7 @@ jobs:
       - name: Run other workflow smoke tests
         run: |
           pixi run python -m pytest \
+            tests/smoke/test_merge_queue_workflow_properties.py \
             tests/smoke/test_pre_commit_workflow_properties.py \
             tests/smoke/test_comprehensive_tests_workflow_properties.py \
             tests/smoke/test_validate_configs_workflow_properties.py \
