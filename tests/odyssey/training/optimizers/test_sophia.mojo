@@ -16,7 +16,7 @@ Tests cover:
 - sophia_step_simple delegating to sophia_step with defaults
 """
 
-from odyssey.tensor.any_tensor import AnyTensor
+From odyssey.tensor.any_tensor import AnyTensor
 from odyssey.tensor.tensor_creation import zeros, full
 from odyssey.training.optimizers.sophia import (
     sophia_step,
@@ -33,7 +33,7 @@ def _abs_diff(a: Float64, b: Float64) -> Float64:
 
 
 def test_reject_shape_mismatch() raises:
-    """sophia_step rejects a params/gradients shape mismatch."""
+    """`sophia_step` rejects a params/gradients shape mismatch."""
     print("Running test_reject_shape_mismatch...")
     var p = zeros([4], DType.float32)
     var g = zeros([5], DType.float32)
@@ -48,7 +48,7 @@ def test_reject_shape_mismatch() raises:
 
 
 def test_reject_dtype_mismatch() raises:
-    """sophia_step rejects a params/gradients dtype mismatch."""
+    """`sophia_step` rejects a params/gradients dtype mismatch."""
     print("Running test_reject_dtype_mismatch...")
     var p = zeros([4], DType.float32)
     var g = zeros([4], DType.float16)
@@ -76,7 +76,7 @@ def test_parity_with_reference() raises:
     is asserted; coordinate 5 saturates the clip (raw update 1.7034 >> rho),
     asserting the +-rho bound.
     """
-    print("Running test_parity_with_reference...")
+    Print("Running test_parity_with_reference...")
 
     var rp = List[Float64]()
     rp.append(0.09958041958041959)
@@ -154,13 +154,13 @@ def test_parity_with_reference() raises:
 
 
 def test_gamma_scales_denominator() raises:
-    """gamma scales the preconditioner: doubling gamma halves an unclipped update.
+    """`gamma` scales the preconditioner: doubling gamma halves an unclipped update.
 
     With zero seed momentum, m2 = (1-beta1)*g; pick hm large enough that the
     update is unclipped for both gamma=1 and gamma=2. Then
     step(gamma=1) = lr * m2 / hm and step(gamma=2) = lr * m2 / (2*hm).
     """
-    print("Running test_gamma_scales_denominator...")
+    Print("Running test_gamma_scales_denominator...")
     var n = 3
     var lr = 0.1
     var p = zeros([n], DType.float64)
@@ -185,12 +185,12 @@ def test_gamma_scales_denominator() raises:
 
 
 def test_clip_bounds_update() raises:
-    """rho must bound the per-coordinate update magnitude.
+    """`rho` must bound the per-coordinate update magnitude.
 
     With a small Hessian moment, m / (gamma*hm) is large; the update should
     saturate to +-rho, so the param step magnitude is exactly lr * rho.
     """
-    print("Running test_clip_bounds_update...")
+    Print("Running test_clip_bounds_update...")
     var n = 3
     var lr = 0.1
     var rho = 0.05
@@ -211,7 +211,7 @@ def test_clip_bounds_update() raises:
 
 
 def test_weight_decay_decoupled() raises:
-    """weight_decay != 0 subtracts the decoupled AdamW term wd*lr*params_orig.
+    """`weight_decay` != 0 subtracts the decoupled AdamW term wd*lr*params_orig.
 
     Sophia's decoupled decay (like AdamW) is applied AFTER the gradient step and
     scales the ORIGINAL params: new_params -= weight_decay * lr * params. So the
@@ -219,7 +219,7 @@ def test_weight_decay_decoupled() raises:
     coordinate. All other inputs (grad, momentum, hessian moment) are held
     identical.
     """
-    print("Running test_weight_decay_decoupled...")
+    Print("Running test_weight_decay_decoupled...")
     var n = 4
     var lr = 0.1
     var wd = 0.05
@@ -258,7 +258,7 @@ def test_weight_decay_decoupled() raises:
 
 
 def test_hessian_moment_ema() raises:
-    """sophia_update_hessian_moment does the beta2 EMA correctly."""
+    """`sophia_update_hessian_moment` does the beta2 EMA correctly."""
     print("Running test_hessian_moment_ema...")
     var n = 2
     var hm = full([n], 0.0, DType.float64)
@@ -274,7 +274,7 @@ def test_hessian_moment_ema() raises:
 
 
 def test_simple_matches_full_defaults() raises:
-    """sophia_step_simple equals sophia_step with default hyperparameters."""
+    """`sophia_step_simple` equals sophia_step with default hyperparameters."""
     print("Running test_simple_matches_full_defaults...")
     var n = 4
     var p = full([n], 0.2, DType.float64)
@@ -299,7 +299,7 @@ def test_simple_matches_full_defaults() raises:
 
 def main() raises:
     """Run all Sophia tests."""
-    print("=" * 60)
+    Print("=" * 60)
     print("Sophia Clipped-Preconditioned Update Step Test Suite")
     print("=" * 60)
     test_reject_shape_mismatch()
