@@ -53,6 +53,10 @@ def sophia_step(
     gradients: AnyTensor,
     momentum: AnyTensor,
     hessian_moment: AnyTensor,
+    # `hessian` and `beta2` are consumed by the companion
+    # `sophia_update_hessian_moment` (which owns the Hessian-EMA refresh), not by
+    # the step body itself; they are accepted here for signature symmetry so the
+    # two functions share one call shape.
     hessian: AnyTensor,
     learning_rate: Float64,
     beta1: Float64 = 0.96,

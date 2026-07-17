@@ -4,6 +4,7 @@ Tests cover:
 - Shape/dtype guards on sophia_step
 - Numerical parity with the SophiaH reference algorithm (1e-9) on a fixed vector
 - The clip bound (rho) on the per-coordinate update
+- Decoupled (AdamW-style) weight_decay != 0 branch
 - sophia_update_hessian_moment EMA behavior
 - sophia_step_simple delegating to sophia_step with defaults
 """
@@ -160,6 +161,55 @@ def test_clip_bounds_update() raises:
     print("test_clip_bounds_update PASSED")
 
 
+def test_weight_decay_decoupled() raises:
+    """weight_decay != 0 subtracts the decoupled AdamW term wd*lr*params_orig.
+
+    Sophia's decoupled decay (like AdamW) is applied AFTER the gradient step and
+    scales the ORIGINAL params: new_params -= weight_decay * lr * params. So the
+    wd!=0 result must differ from the wd=0 result by exactly wd*lr*params[i] per
+    coordinate. All other inputs (grad, momentum, hessian) are held identical.
+    """
+    print("Running test_weight_decay_decoupled...")
+    var n = 4
+    var lr = 0.1
+    var wd = 0.05
+    # Non-zero params so the decoupled term is non-trivial per coordinate.
+    var p = zeros([n], DType.float64)
+    p.store[DType.float64](0, 0.2)
+    p.store[DType.float64](1, -0.4)
+    p.store[DType.float64](2, 0.6)
+    p.store[DType.float64](3, -0.8)
+    var g = full([n], 0.1, DType.float64)
+    var m = zeros([n], DType.float64)
+    var hm = full([n], 0.5, DType.float64)
+    var h = full([n], 0.5, DType.float64)
+
+    # Same step, once without decay and once with decay.
+    var res_no_wd = sophia_step(
+        p, g, m, hm, h, lr, 0.96, 0.99, 0.04, 1e-12, 0.0
+    )
+    var res_wd = sophia_step(p, g, m, hm, h, lr, 0.96, 0.99, 0.04, 1e-12, wd)
+    var np_no_wd = res_no_wd[0]
+    var np_wd = res_wd[0]
+
+    for i in range(n):
+        var diff = np_no_wd.load[DType.float64](i) - np_wd.load[DType.float64](
+            i
+        )
+        var expected = wd * lr * p.load[DType.float64](i)
+        if _abs_diff(diff, expected) > 1e-12:
+            raise Error(
+                "decoupled weight decay wrong at "
+                + String(i)
+                + ": got "
+                + String(diff)
+                + " expected "
+                + String(expected)
+            )
+    print("  ok wd!=0 differs from wd=0 by wd*lr*params (decoupled)")
+    print("test_weight_decay_decoupled PASSED")
+
+
 def test_hessian_moment_ema() raises:
     """sophia_update_hessian_moment does the beta2 EMA correctly."""
     print("Running test_hessian_moment_ema...")
@@ -210,6 +260,7 @@ def main() raises:
     test_reject_dtype_mismatch()
     test_parity_with_reference()
     test_clip_bounds_update()
+    test_weight_decay_decoupled()
     test_hessian_moment_ema()
     test_simple_matches_full_defaults()
     print("=" * 60)

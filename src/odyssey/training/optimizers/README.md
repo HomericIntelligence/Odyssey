@@ -17,6 +17,7 @@ This directory contains optimizer implementations for training neural networks i
 | **Lion** | ~1x params (1 buffer) | O(n) | Memory-constrained, transfer learning | Signed momentum; **LR 3-10x SMALLER than AdamW** |
 | **Adan** | ~4x params (exp_avg + exp_avg_diff + exp_avg_sq + prev_grad) | O(n) | General-purpose, fast convergence | Nesterov-style look-ahead + gradient-difference momentum; arXiv:2208.06677 |
 | **Shampoo** | ~3x params (L [m×m] + R [n×n] + momentum [m×n]) | O(n³) + Newton-Schulz | Second-order baseline, matrix weights | Two-sided matrix preconditioner; Newton-Schulz inverse fourth root; **rank-2 params only** |
+| **Sophia** | ~2x params (momentum + hessian_moment) | O(n) + periodic Hessian | LLM pretraining / second-order-lite | Clipped Hessian-preconditioned momentum; arXiv:2305.14342 |
 
 ## Quick Selection Guide
 
