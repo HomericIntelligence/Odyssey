@@ -1,6 +1,6 @@
 context:
-  version: "0.1.0"
-  mojo_version: ">=1.0.0b1"
+  version: "0.2.0"
+  mojo_version: ">=1.0.0b2"
 
 package:
   name: "odyssey"
