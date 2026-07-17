@@ -21,7 +21,7 @@ from odyssey.data.batch_utils import (
 from odyssey.data.constants import DatasetInfo
 from odyssey.data.datasets import CIFAR10Dataset, get_cifar10_classes
 from odyssey.training.metrics import evaluate_logits_batch
-from model import MobileNetV1
+from examples.mobilenetv1_cifar10.model import MobileNetV1
 
 
 def evaluate_model(

@@ -54,7 +54,7 @@ Requirements:
     - Dataset location: datasets/cifar10/
 """
 
-from model import MobileNetV1
+from examples.mobilenetv1_cifar10.model import MobileNetV1
 from odyssey.data.datasets import CIFAR10Dataset
 from odyssey.data.formats import one_hot_encode
 from odyssey.data.constants import DatasetInfo
