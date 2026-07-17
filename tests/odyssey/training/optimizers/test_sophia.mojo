@@ -76,7 +76,7 @@ def test_parity_with_reference() raises:
     is asserted; coordinate 5 saturates the clip (raw update 1.7034 >> rho),
     asserting the +-rho bound.
     """
-    Print("Running test_parity_with_reference...")
+    print("Running test_parity_with_reference...")
 
     var rp = List[Float64]()
     rp.append(0.09958041958041959)
@@ -160,7 +160,7 @@ def test_gamma_scales_denominator() raises:
     update is unclipped for both gamma=1 and gamma=2. Then
     step(gamma=1) = lr * m2 / hm and step(gamma=2) = lr * m2 / (2*hm).
     """
-    Print("Running test_gamma_scales_denominator...")
+    print("Running test_gamma_scales_denominator...")
     var n = 3
     var lr = 0.1
     var p = zeros([n], DType.float64)
@@ -190,7 +190,7 @@ def test_clip_bounds_update() raises:
     With a small Hessian moment, m / (gamma*hm) is large; the update should
     saturate to +-rho, so the param step magnitude is exactly lr * rho.
     """
-    Print("Running test_clip_bounds_update...")
+    print("Running test_clip_bounds_update...")
     var n = 3
     var lr = 0.1
     var rho = 0.05
@@ -219,7 +219,7 @@ def test_weight_decay_decoupled() raises:
     coordinate. All other inputs (grad, momentum, hessian moment) are held
     identical.
     """
-    Print("Running test_weight_decay_decoupled...")
+    print("Running test_weight_decay_decoupled...")
     var n = 4
     var lr = 0.1
     var wd = 0.05
@@ -299,7 +299,7 @@ def test_simple_matches_full_defaults() raises:
 
 def main() raises:
     """Run all Sophia tests."""
-    Print("=" * 60)
+    print("=" * 60)
     print("Sophia Clipped-Preconditioned Update Step Test Suite")
     print("=" * 60)
     test_reject_shape_mismatch()
