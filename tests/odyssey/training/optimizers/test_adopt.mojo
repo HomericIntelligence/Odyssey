@@ -296,7 +296,8 @@ def test_clip_bounds_normalized_gradient() raises:
 
 
 def test_simple_matches_full_defaults() raises:
-    """`adopt_step_simple` must equal `adopt_step` with default hyperparameters."""
+    """`adopt_step_simple` must equal `adopt_step` with default hyperparameters.
+    """
     print("Running test_simple_matches_full_defaults...")
     comptime N = 5
     var p = full([N], 0.2, DType.float64)

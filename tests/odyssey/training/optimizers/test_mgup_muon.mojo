@@ -25,7 +25,9 @@ def _abs_diff(a: Float64, b: Float64) -> Float64:
     return d
 
 
-def _seed_ramp(mut t: AnyTensor, count: Int, scale: Float64, off: Float64) raises:
+def _seed_ramp(
+    mut t: AnyTensor, count: Int, scale: Float64, off: Float64
+) raises:
     for i in range(count):
         t.store[DType.float64](i, Float64(i) * scale + off)
 
@@ -94,9 +96,19 @@ def test_reduces_to_muon_when_disabled() raises:
     var (p_frac0, _) = mgup_muon_step(W, G, M, 0.1, 0.0, 2.0)
     var (p_scale1, _) = mgup_muon_step(W, G, M, 0.1, 0.25, 1.0)
     for i in range(12):
-        if _abs_diff(p_muon.load[DType.float64](i), p_frac0.load[DType.float64](i)) > 1e-12:
+        if (
+            _abs_diff(
+                p_muon.load[DType.float64](i), p_frac0.load[DType.float64](i)
+            )
+            > 1e-12
+        ):
             raise Error("fraction=0 should equal plain Muon at " + String(i))
-        if _abs_diff(p_muon.load[DType.float64](i), p_scale1.load[DType.float64](i)) > 1e-12:
+        if (
+            _abs_diff(
+                p_muon.load[DType.float64](i), p_scale1.load[DType.float64](i)
+            )
+            > 1e-12
+        ):
             raise Error("scale=1 should equal plain Muon at " + String(i))
     print("  ok fraction=0 and scale=1 both reduce to Muon")
     print("test_reduces_to_muon_when_disabled PASSED")
@@ -119,8 +131,12 @@ def test_selected_move_further() raises:
     var (p_mgup, _) = mgup_muon_step(W, G, M, 0.1, 0.25, 2.0)
     var any_larger = False
     for i in range(12):
-        var d_muon = _abs_diff(p_muon.load[DType.float64](i), W.load[DType.float64](i))
-        var d_mgup = _abs_diff(p_mgup.load[DType.float64](i), W.load[DType.float64](i))
+        var d_muon = _abs_diff(
+            p_muon.load[DType.float64](i), W.load[DType.float64](i)
+        )
+        var d_mgup = _abs_diff(
+            p_mgup.load[DType.float64](i), W.load[DType.float64](i)
+        )
         if d_mgup > d_muon + 1e-9:
             any_larger = True
     if not any_larger:

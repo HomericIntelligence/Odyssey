@@ -20,7 +20,7 @@ def _abs_diff(a: Float64, b: Float64) -> Float64:
 
 
 def test_shape() raises:
-    """step maps (batch, input) x (batch, hidden) -> (batch, hidden)."""
+    """`step` maps (batch, input) x (batch, hidden) -> (batch, hidden)."""
     print("Running test_shape...")
     var cell = RNNCell[DType.float32](3, 4)
     var x = zeros([2, 3], DType.float32)
@@ -38,18 +38,18 @@ def test_reject_bad_sizes() raises:
     try:
         var _ = RNNCell[DType.float32](0, 4)
         raise Error("Should have rejected input_size = 0")
-    except e:
+    except _:
         print("  ok rejected input_size = 0")
     try:
         var _ = RNNCell[DType.float32](3, 0)
         raise Error("Should have rejected hidden_size = 0")
-    except e:
+    except _:
         print("  ok rejected hidden_size = 0")
     print("test_reject_bad_sizes PASSED")
 
 
 def test_parameter_count() raises:
-    """parameters() returns 4 tensors."""
+    """`parameters()` returns 4 tensors."""
     print("Running test_parameter_count...")
     var cell = RNNCell[DType.float32](3, 4)
     if len(cell.parameters()) != 4:
@@ -59,7 +59,7 @@ def test_parameter_count() raises:
 
 
 def test_parity_with_pytorch() raises:
-    """step must match torch.nn.RNNCell(tanh) on fixed ramp weights to 1e-5.
+    """`step` must match torch.nn.RNNCell(tanh) on fixed ramp weights to 1e-5.
 
     Reference values from parity_refs/rnn_parity_reference.py (input=3,
     hidden=4, batch=2). Odyssey Linear uses W (in, out); the reference sets
@@ -67,15 +67,15 @@ def test_parity_with_pytorch() raises:
     """
     print("Running test_parity_with_pytorch...")
 
-    var ref = List[Float64]()
-    ref.append(-0.0479632)
-    ref.append(-0.005)
-    ref.append(0.0379817)
-    ref.append(0.0808233)
-    ref.append(-0.0659043)
-    ref.append(0.003)
-    ref.append(0.0718758)
-    ref.append(0.140073)
+    var ref_vals = List[Float64]()
+    ref_vals.append(-0.0479632)
+    ref_vals.append(-0.005)
+    ref_vals.append(0.0379817)
+    ref_vals.append(0.0808233)
+    ref_vals.append(-0.0659043)
+    ref_vals.append(0.003)
+    ref_vals.append(0.0718758)
+    ref_vals.append(0.140073)
 
     var cell = RNNCell[DType.float64](3, 4)
     for i in range(12):
@@ -95,14 +95,14 @@ def test_parity_with_pytorch() raises:
 
     var out = cell.step(x, h)
     for i in range(8):
-        if _abs_diff(out.load[DType.float64](i), ref[i]) > 1e-5:
+        if _abs_diff(out.load[DType.float64](i), ref_vals[i]) > 1e-5:
             raise Error("RNN parity mismatch at " + String(i))
     print("  ok matches torch.nn.RNNCell to 1e-5")
     print("test_parity_with_pytorch PASSED")
 
 
 def test_forward_equals_zero_state_step() raises:
-    """forward(x) must equal step(x, zeros) even with a nonzero b_hh.
+    """`forward(x)` must equal step(x, zeros) even with a nonzero b_hh.
 
     A zero initial hidden zeros only the hidden-to-hidden WEIGHT term, not its
     bias b_hh. This asserts forward() includes b_hh (regression guard: an earlier
@@ -121,14 +121,17 @@ def test_forward_equals_zero_state_step() raises:
     var f = cell.forward(x)
     var s = cell.step(x, h0)
     for i in range(8):
-        if _abs_diff(f.load[DType.float64](i), s.load[DType.float64](i)) > 1e-12:
+        if (
+            _abs_diff(f.load[DType.float64](i), s.load[DType.float64](i))
+            > 1e-12
+        ):
             raise Error("forward != step(x, zeros) at " + String(i))
     print("  ok forward(x) == step(x, zeros) with nonzero b_hh")
     print("test_forward_equals_zero_state_step PASSED")
 
 
 def test_parameter_order() raises:
-    """parameters() must return [ih.weight, ih.bias, hh.weight, hh.bias] in order.
+    """`parameters()` must return [ih.weight, ih.bias, hh.weight, hh.bias] in order.
 
     A consumer that threads per-parameter state (e.g. the PC error chain) relies
     on this positional contract, so assert identity by numel, not just count.

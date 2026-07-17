@@ -27,7 +27,9 @@ def _abs_diff(a: Float64, b: Float64) -> Float64:
     return d
 
 
-def _seed_ramp(mut t: AnyTensor, count: Int, scale: Float64, off: Float64) raises:
+def _seed_ramp(
+    mut t: AnyTensor, count: Int, scale: Float64, off: Float64
+) raises:
     for i in range(count):
         t.store[DType.float64](i, Float64(i) * scale + off)
 
@@ -134,12 +136,17 @@ def test_parity_nonsaturated_weight_ball() raises:
         )
     if _abs_diff(norm, 1.1829041645848064) > 1e-6:
         raise Error("non-saturated result norm drifted: " + String(norm))
-    print("  ok matches non-saturated reference to 1e-6 (||W_new||_F = " + String(norm) + " < 10.0)")
+    print(
+        "  ok matches non-saturated reference to 1e-6 (||W_new||_F = "
+        + String(norm)
+        + " < 10.0)"
+    )
     print("test_parity_nonsaturated_weight_ball PASSED")
 
 
 def test_weight_norm_constraint_active() raises:
-    """||W_new||_F must not exceed weight_norm_max when the update overshoots it."""
+    """||W_new||_F must not exceed weight_norm_max when the update overshoots it.
+    """
     print("Running test_weight_norm_constraint_active...")
     var W = zeros([3, 4], DType.float64)
     _seed_ramp(W, 12, 0.1, -0.5)
@@ -152,14 +159,18 @@ def test_weight_norm_constraint_active() raises:
     var norm = compute_tensor_l2_norm(new_p)
     if norm > radius + 1e-6:
         raise Error(
-            "weight-norm constraint violated: " + String(norm) + " > " + String(radius)
+            "weight-norm constraint violated: "
+            + String(norm)
+            + " > "
+            + String(radius)
         )
     print("  ok ||W_new||_F <= weight_norm_max (" + String(norm) + ")")
     print("test_weight_norm_constraint_active PASSED")
 
 
 def test_update_norm_constraint_active() raises:
-    """||W_new - W||_F must not exceed update_norm_max (weight clamp disabled)."""
+    """||W_new - W||_F must not exceed update_norm_max (weight clamp disabled).
+    """
     print("Running test_update_norm_constraint_active...")
     var W = zeros([3, 4], DType.float64)
     _seed_ramp(W, 12, 0.1, -0.5)

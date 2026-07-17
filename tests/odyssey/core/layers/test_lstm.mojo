@@ -30,7 +30,7 @@ def _seed_ramp(
 
 
 def test_shape() raises:
-    """step maps (batch, in) x (batch, hid) x (batch, hid) -> two (batch, hid).
+    """`step` maps (batch, in) x (batch, hid) x (batch, hid) -> two (batch, hid).
     """
     print("Running test_shape...")
     var cell = LSTMCell[DType.float32](3, 4)
@@ -52,18 +52,18 @@ def test_reject_bad_sizes() raises:
     try:
         var _ = LSTMCell[DType.float32](0, 4)
         raise Error("Should have rejected input_size = 0")
-    except e:
+    except _:
         print("  ok rejected input_size = 0")
     try:
         var _ = LSTMCell[DType.float32](3, 0)
         raise Error("Should have rejected hidden_size = 0")
-    except e:
+    except _:
         print("  ok rejected hidden_size = 0")
     print("test_reject_bad_sizes PASSED")
 
 
 def test_parameter_count() raises:
-    """parameters() returns 16 tensors (weight+bias of eight projections)."""
+    """`parameters()` returns 16 tensors (weight+bias of eight projections)."""
     print("Running test_parameter_count...")
     var cell = LSTMCell[DType.float32](3, 4)
     if len(cell.parameters()) != 16:
@@ -73,8 +73,7 @@ def test_parameter_count() raises:
 
 
 def test_parity_with_pytorch() raises:
-    """step must match torch.nn.LSTMCell on fixed ramp weights to 1e-5.
-
+    """`step` must match torch.nn.LSTMCell on fixed ramp weights to 1e-5.
     Reference values from parity_refs/lstm_parity_reference.py (input=3,
     hidden=4, batch=2). Odyssey Linear uses W (in, out); the reference sets
     torch's packed (4H, in)/(4H, H) weight to the per-gate transpose. Both the
@@ -140,8 +139,7 @@ def test_parity_with_pytorch() raises:
 
 
 def test_forward_equals_zero_state_step() raises:
-    """forward(x) must equal step(x, zeros, zeros)[0] with nonzero h->h biases.
-
+    """`forward(x)` must equal `step(x, zeros, zeros)[0]` with nonzero h->h biases.
     A zero initial (hidden, cell) zeros only the hidden-to-hidden WEIGHT terms,
     not the biases b_hi/b_hf/b_hg/b_ho. This asserts forward() includes them
     (regression guard: an earlier shortcut dropped the h->h biases, so forward

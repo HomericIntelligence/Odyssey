@@ -158,9 +158,7 @@ def _hash_unit(i: Int, seed: UInt32) -> Float64:
     return Float64(h) / 4294967296.0 - 0.5
 
 
-def _gram_identity_residual(
-    G: AnyTensor, dim: Int
-) raises -> Float64:
+def _gram_identity_residual(G: AnyTensor, dim: Int) raises -> Float64:
     """Return ||G - I_dim||_F for a square Gram matrix G."""
     var error = zeros_like(G)
     for i in range(G.numel()):
