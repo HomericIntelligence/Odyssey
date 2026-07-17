@@ -85,6 +85,7 @@ from odyssey.training.optimizers.lion import lion_step, lion_step_simple
 
 # ADOPT optimizer (modified Adam with the optimal convergence rate for any beta2)
 from odyssey.training.optimizers.adopt import adopt_step, adopt_step_simple
+
 # Sophia optimizer (second-order clipped stochastic optimization — Liu et al. 2023)
 from odyssey.training.optimizers.sophia import (
     sophia_step,
