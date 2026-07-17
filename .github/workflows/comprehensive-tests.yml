@@ -34,7 +34,6 @@ on:
 
 permissions:
   contents: read
-  pull-requests: write  # For PR comments
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -1149,6 +1148,9 @@ jobs:
       - name: Display metrics
         run: cat metrics.md
 
+      - name: Build PR comment report
+        run: python scripts/build_pr_comment.py --metrics-file metrics.md --output-file metrics-pr-comment.md
+
       - name: Upload metrics artifact
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7
         with:
@@ -1156,18 +1158,8 @@ jobs:
           path: |
             metrics.json
             metrics.md
+            metrics-pr-comment.md
           retention-days: 90
-
-      - name: Build PR comment report
-        if: github.event_name == 'pull_request'
-        run: python scripts/build_pr_comment.py --metrics-file metrics.md --output-file metrics-pr-comment.md
-
-      - name: Comment on PR with metrics
-        if: github.event_name == 'pull_request'
-        uses: ./.github/actions/pr-comment
-        with:
-          report-file: metrics-pr-comment.md
-          comment-marker: "Test Metrics Report"
 
   # ============================================================================
   # Combined Test Report with Metrics
@@ -1288,13 +1280,6 @@ jobs:
           name: comprehensive-test-report
           path: test-report.md
           retention-days: 30
-
-      - name: Comment on PR
-        if: github.event_name == 'pull_request'
-        uses: ./.github/actions/pr-comment
-        with:
-          report-file: test-report.md
-          comment-marker: "\U0001F9EA Comprehensive Test Results"
 
       - name: Fail if any tests failed
         run: |

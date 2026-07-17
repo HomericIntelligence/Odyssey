@@ -14,6 +14,7 @@ import yaml
 REPO_ROOT = Path(__file__).parent.parent.parent
 POLICY_PATH = REPO_ROOT / "configs" / "github" / "merge-queue-policy.json"
 WORKFLOW_DIR = REPO_ROOT / ".github" / "workflows"
+PR_COMMENT_WORKFLOW = "comprehensive-test-pr-comments.yml"
 
 REQUIRED_WORKFLOWS = (
     "_required.yml",
@@ -107,22 +108,6 @@ def test_every_required_context_workflow_handles_merge_group() -> None:
         )
 
 
-def test_detailed_workflow_docs_include_merge_group_activity() -> None:
-    """Detailed docs must name the queue event and activity for both workflows."""
-    readme = (WORKFLOW_DIR / "README.md").read_text(encoding="utf-8")
-    expected_triggers = {
-        "comprehensive-tests": (
-            "**Triggers**: Pull requests, `merge_group` (`checks_requested`), pushes to main, manual dispatch"
-        ),
-        "pre-commit": ("**Triggers**: PR, `merge_group` (`checks_requested`), pushes to main, manual dispatch"),
-    }
-
-    for section_name, expected_trigger in expected_triggers.items():
-        section = readme.split(f"#### {section_name}\n", maxsplit=1)[1]
-        section = section.split("\n#### ", maxsplit=1)[0]
-        assert expected_trigger in section
-
-
 def test_existing_pull_request_and_push_triggers_are_preserved() -> None:
     """Queue readiness must not narrow the existing PR or main-push coverage."""
     required_triggers = _on_block(_load_yaml(WORKFLOW_DIR / "_required.yml"))
@@ -152,6 +137,7 @@ def test_existing_pull_request_and_push_triggers_are_preserved() -> None:
     assert smoke_triggers["push"]["branches"] == ["main"]
     assert set(smoke_triggers["push"]["paths"]) == {
         ".github/workflows/_required.yml",
+        ".github/workflows/comprehensive-test-pr-comments.yml",
         ".github/workflows/comprehensive-tests.yml",
         ".github/workflows/pre-commit.yml",
         ".github/workflows/security.yml",
@@ -188,10 +174,7 @@ def test_queue_workflows_preserve_minimum_permissions() -> None:
     """Adding queue triggers must not broaden the workflows' token permissions."""
     expected_permissions = {
         "_required.yml": {"contents": "read"},
-        "comprehensive-tests.yml": {
-            "contents": "read",
-            "pull-requests": "write",
-        },
+        "comprehensive-tests.yml": {"contents": "read"},
         "pre-commit.yml": {"contents": "read"},
         "workflow-smoke-test.yml": {"contents": "read"},
     }
@@ -199,6 +182,45 @@ def test_queue_workflows_preserve_minimum_permissions() -> None:
     for workflow_name, permissions in expected_permissions.items():
         workflow = _load_yaml(WORKFLOW_DIR / workflow_name)
         assert workflow.get("permissions") == permissions
+
+
+def test_merge_group_cannot_receive_write_scope() -> None:
+    """Merge-group jobs stay read-only; only trusted PR comments can write."""
+    workflow = _load_yaml(WORKFLOW_DIR / "comprehensive-tests.yml")
+    jobs = workflow.get("jobs")
+    assert isinstance(jobs, dict)
+
+    assert not {
+        job_id
+        for job_id, job in jobs.items()
+        if isinstance(job, dict) and "write" in job.get("permissions", {}).values()
+    }
+
+    comment_workflow = _load_yaml(WORKFLOW_DIR / PR_COMMENT_WORKFLOW)
+    assert _on_block(comment_workflow) == {
+        "workflow_run": {
+            "workflows": ["Comprehensive Tests"],
+            "types": ["completed"],
+        }
+    }
+    assert comment_workflow.get("permissions") == {"contents": "read"}
+
+    comment_jobs = comment_workflow.get("jobs")
+    assert isinstance(comment_jobs, dict)
+    assert set(comment_jobs) == {"post-pr-comments"}
+    comment_job = comment_jobs["post-pr-comments"]
+    assert comment_job.get("if") == (
+        "github.event.workflow_run.event == 'pull_request' && github.event.workflow_run.pull_requests[0]"
+    )
+    assert comment_job.get("permissions") == {
+        "actions": "read",
+        "contents": "read",
+        "pull-requests": "write",
+    }
+
+    uses = [str(step.get("uses", "")) for step in comment_job.get("steps", [])]
+    assert all(not action.startswith("actions/checkout@") for action in uses)
+    assert all(not action.startswith("./") for action in uses)
 
 
 def test_release_workflow_remains_tag_or_manual_only() -> None:

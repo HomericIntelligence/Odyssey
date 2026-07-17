@@ -17,6 +17,7 @@ on:
       - main
     paths:
       - '.github/workflows/_required.yml'
+      - '.github/workflows/comprehensive-test-pr-comments.yml'
       - '.github/workflows/workflow-smoke-test.yml'
       - '.github/workflows/security.yml'
       - '.github/workflows/pre-commit.yml'

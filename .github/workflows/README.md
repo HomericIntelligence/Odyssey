@@ -68,6 +68,7 @@ ls .github/workflows/*.yml | wc -l
 | --- | --- | --- | --- |
 | **Test Workflows** | | | |
 | [comprehensive-tests.yml](#comprehensive-tests) | PR, merge queue, push main, manual | All Mojo tests in 17 groups | < 10 min |
+| [comprehensive-test-pr-comments.yml](#comprehensive-test-pr-comments) | Completed comprehensive PR tests | Trusted test-report PR comments | < 1 min |
 | [test-gradients.yml](#test-gradients) | PR on gradient changes, push main | Backward pass validation | < 5 min |
 | [test-data-utilities.yml](#test-data-utilities) | PR/push on data changes | Data loading and processing | < 5 min |
 | [coverage.yml](#coverage) | PR, push main, manual | Code coverage tracking | < 5 min |
@@ -160,6 +161,20 @@ ls .github/workflows/*.yml | wc -l
 
 - `fail-fast: false` - all groups run even if one fails
 - Overall workflow fails if any tests fail
+
+---
+
+#### comprehensive-test-pr-comments
+
+**File**: `comprehensive-test-pr-comments.yml`
+
+**Triggers**: Completed `Comprehensive Tests` runs whose source event is `pull_request`
+
+**Purpose**: Post or update the test-metrics and comprehensive-test reports on the pull request.
+The workflow runs from the trusted default branch, downloads reports as data, and never checks out
+or executes pull-request code with its narrowly scoped `pull-requests: write` token.
+
+**Artifacts**: Consumes `test-metrics` and `comprehensive-test-report`; creates none
 
 ---
 
