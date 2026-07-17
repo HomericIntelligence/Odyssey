@@ -148,11 +148,19 @@ def test_l1_sparsity() raises:
 def test_simple_no_reg_is_dense() raises:
     """The ftrl_step_simple (lambda1=0) produces a dense update — no forced zeros.
 
-    With no L1 term the soft-threshold never clips to zero, so every nonzero
-    gradient yields a nonzero weight (the update is dense).
+    With no L1 term the soft-threshold never clips to zero, so every coordinate
+    with a nonzero accumulated z yields a nonzero weight (w = -z / denom).
+
+    Input caveat: "dense" means no THRESHOLD-forced zeros, but z itself can be
+    exactly zero by arithmetic cancellation: on step 1 from zero state,
+    z = g - (|g|/alpha)*w0, which is exactly 0.0 whenever w0 == alpha*sign(g).
+    The shared fixture (w0[0]=0.10 == alpha=0.1, g[0]=0.05 > 0) hits exactly
+    that trap — w[0] = -0/denom = 0 is CORRECT dense behavior, not a bug. So
+    this test uses w0[0]=0.15 to keep every z nonzero (numpy fp64 reference:
+    z = [-0.025, 0.45, -1.0, 1.75, -2.7, 3.85], no zeros).
     """
     print("Running test_simple_no_reg_is_dense...")
-    var params0 = _lst(0.10, -0.20, 0.30, -0.40, 0.50, -0.60)
+    var params0 = _lst(0.15, -0.20, 0.30, -0.40, 0.50, -0.60)
     var grad_a = _lst(0.05, 0.15, -0.25, 0.35, -0.45, 0.55)
 
     var w = zeros([6], DType.float64)

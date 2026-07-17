@@ -101,11 +101,16 @@ def is_muon_eligible(params: AnyTensor) -> Bool:
 def newton_schulz_orthogonalize(
     X: AnyTensor, steps: Int = 5
 ) raises -> AnyTensor:
-    """Apply Newton-Schulz iteration to orthogonalize a matrix.
+    """Apply Newton-Schulz iteration to approximately orthogonalize a matrix.
 
-    Newton-Schulz iteration converges to the orthogonal matrix nearest X in the
-    Frobenius norm. It is a fixed-point iteration: at convergence, the result Y
-    satisfies Y @ Y^T ≈ I_rows (if rows <= cols) or Y^T @ Y ≈ I_cols (if rows > cols).
+    Classical Newton-Schulz converges to the orthogonal polar factor of X, but
+    this variant uses Jordan's tuned quintic coefficients, which trade exact
+    convergence for speed: after 5 steps every singular value of Y lands in
+    roughly [0.68, 1.13] and then oscillates in that band (it does NOT
+    converge to 1). The result satisfies Y @ Y^T ~ I_rows (if rows <= cols) or
+    Y^T @ Y ~ I_cols (if rows > cols) only to within that singular-value band
+    — Muon needs only an approximately-orthogonal update direction, so this
+    looseness is deliberate (see the Jordan writeup linked below).
 
     Algorithm (Jordan et al. 2024):
         1. Pre-normalize X by its Frobenius norm (spectral pre-normalization)
@@ -117,13 +122,15 @@ def newton_schulz_orthogonalize(
         4. Transpose back if needed
 
     The coefficients (a, b, c) = (3.4445, -4.7750, 2.0315) are from the published
-    recipe. They are optimized for fast convergence to orthogonality in 5 steps.
+    recipe. They maximize how fast small singular values are pushed up toward 1,
+    at the cost of never converging exactly (singular values end in ~[0.68, 1.13]).
     See: https://github.com/KellerJordan/Muon/blob/main/muon/torch/optim.py
 
     Args:
         X: A rank-2 tensor (matrix) to orthogonalize.
         steps: Number of Newton-Schulz iterations (default: 5).
-               5 iterations typically achieves singular values within 1e-5 of 1.0.
+               5 iterations typically lands singular values in ~[0.68, 1.13];
+               more steps do NOT tighten the band (the iteration oscillates).
 
     Returns:
         Orthogonalized matrix Y with the same shape as X.
@@ -136,8 +143,8 @@ def newton_schulz_orthogonalize(
         var X = zeros([8, 16], DType.float32)  # Tall matrix (8 rows, 16 cols)
         # Fill X with random values...
         var Y = newton_schulz_orthogonalize(X, steps=5)
-        # Y satisfies: Y @ Y^T ≈ I_8 (rows orthonormal)
-        # Frobenius norm of (Y @ Y^T - I) < 1e-5 in fp32
+        # Y satisfies: Y @ Y^T ~ I_8 to within the singular-value band
+        # (all singular values of Y in ~[0.68, 1.13] for well-conditioned X)
         ```
 
     Note:
