@@ -14,6 +14,7 @@ Includes:
 - Lion (EvoLved Sign Momentum — Chen et al. 2023)
 - ADOPT (Modified Adam, optimal convergence for any beta2 — Taniguchi et al. 2024)
 - Adan (Adaptive Nesterov Momentum — Xie et al. 2022)
+- Sophia (Second-order Clipped Stochastic Optimization — Liu et al. 2023)
 - Shampoo (two-sided matrix preconditioner via Newton-Schulz inverse fourth root — Anil et al. 2020)
 
 All optimizers follow pure functional design - caller manages state
@@ -84,6 +85,12 @@ from odyssey.training.optimizers.lion import lion_step, lion_step_simple
 
 # ADOPT optimizer (modified Adam with the optimal convergence rate for any beta2)
 from odyssey.training.optimizers.adopt import adopt_step, adopt_step_simple
+# Sophia optimizer (second-order clipped stochastic optimization — Liu et al. 2023)
+from odyssey.training.optimizers.sophia import (
+    sophia_step,
+    sophia_step_simple,
+    sophia_update_hessian_moment,
+)
 
 # Adan optimizer (adaptive Nesterov momentum — Xie et al. 2022)
 from odyssey.training.optimizers.adan import adan_step, adan_step_simple
