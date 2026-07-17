@@ -42,7 +42,7 @@ def test_reject_shape_mismatch() raises:
     try:
         var _ = sophia_step(p, g, m, hm, 0.06)
         raise Error("Should have rejected shape mismatch")
-    except e:
+    except:
         print("  ok rejected shape mismatch")
     print("test_reject_shape_mismatch PASSED")
 
@@ -57,7 +57,7 @@ def test_reject_dtype_mismatch() raises:
     try:
         var _ = sophia_step(p, g, m, hm, 0.06)
         raise Error("Should have rejected dtype mismatch")
-    except e:
+    except:
         print("  ok rejected dtype mismatch")
     print("test_reject_dtype_mismatch PASSED")
 
