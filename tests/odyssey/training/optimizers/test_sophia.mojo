@@ -16,7 +16,7 @@ Tests cover:
 - sophia_step_simple delegating to sophia_step with defaults
 """
 
-From odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.any_tensor import AnyTensor
 from odyssey.tensor.tensor_creation import zeros, full
 from odyssey.training.optimizers.sophia import (
     sophia_step,
