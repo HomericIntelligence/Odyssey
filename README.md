@@ -261,6 +261,7 @@ bash scripts/run_primitive_test.sh --list     # list known primitives + paths
 | MGUP-Muon | optimizer | `bash scripts/run_primitive_test.sh mgup_muon` |
 | SOAP | optimizer | `bash scripts/run_primitive_test.sh soap` |
 | FTRL-Proximal | optimizer | `bash scripts/run_primitive_test.sh ftrl` |
+| ScheduleFree+ (large-batch-stable schedule-free) | optimizer | `bash scripts/run_primitive_test.sh schedule_free_plus` |
 
 A primitive whose test file is not on the current branch is reported as
 `SKIP` (not a failure), so the runner works incrementally as each primitive

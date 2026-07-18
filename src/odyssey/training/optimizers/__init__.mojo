@@ -132,6 +132,12 @@ from odyssey.training.optimizers.soap import (
     init_soap_state,
 )
 
+# ScheduleFree+ optimizer (large-batch-stable schedule-free — Defazio 2026)
+from odyssey.training.optimizers.schedule_free_plus import (
+    schedule_free_plus_step,
+    schedule_free_plus_step_simple,
+)
+
 # Optimizer utilities (common helper functions)
 from odyssey.training.optimizers.optimizer_utils import (
     initialize_optimizer_state,
