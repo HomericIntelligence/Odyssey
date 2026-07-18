@@ -10,6 +10,7 @@ Components:
     - ReLU: Rectified Linear Unit activation
     - RNNCell: Vanilla (Elman) recurrent cell (tanh)
     - FeedForward: Transformer position-wise feed-forward (Linear->act->Linear)
+    - MLPMixerBlock: 1-layer MLP-Mixer block (token-mixing + channel-mixing MLPs)
     - Sigmoid: Sigmoid activation function
     - Tanh: Hyperbolic tangent activation
     - BatchNorm: Batch normalization
@@ -44,6 +45,7 @@ from odyssey.core.layers.lstm import LSTMCell
 from odyssey.core.layers.layernorm import LayerNorm
 from odyssey.core.layers.gru import GRUCell
 from odyssey.core.layers.feedforward import FeedForward
+from odyssey.core.layers.mlp_mixer import MLPMixerBlock
 
 # from .activation import ReLU, Sigmoid, Tanh
 # from .pooling import MaxPool2D, AvgPool2D
