@@ -41,6 +41,7 @@ TEST[layernorm]="tests/odyssey/core/layers/test_layernorm.mojo"
 TEST[lstm]="tests/odyssey/core/layers/test_lstm.mojo"
 TEST[mlp_mixer]="tests/odyssey/core/layers/test_mlp_mixer.mojo"
 TEST[rnn]="tests/odyssey/core/layers/test_rnn.mojo"
+TEST[ssm]="tests/odyssey/core/layers/test_ssm.mojo"
 
 run_one() {
     local name="$1"
