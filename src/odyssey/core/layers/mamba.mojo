@@ -2,8 +2,9 @@
 
 A single selective state-space (S6) block from Gu & Dao 2023, "Mamba:
 Linear-Time Sequence Modeling with Selective State Spaces" (arXiv:2312.00752),
-Sec. 3.2, Algorithm 2 (SSM + Selection). Unlike the LTI S4 sibling
-(`ssm.mojo`, `DiagonalSSM`), whose B/C/Δ are fixed parameters, the S6 block makes
+Sec. 3.2, Algorithm 2 (SSM + Selection). Unlike an LTI S4 block (such as the
+planned S4-LTI sibling `DiagonalSSM` in PR #5636), whose B/C/Δ are fixed
+parameters, the S6 block makes
 B, C, and Δ *functions of the input* (Sec. 3.1, "Selection") while keeping the
 diagonal state matrix A input-independent. This block also adds the two structural
 pieces that surround the selective scan in Mamba: a short CAUSAL depthwise
@@ -42,8 +43,9 @@ factor — this is the intentional S6-vs-S4 discretization difference.
 internally over all timesteps. Because B/C/Δ and the causal conv are all
 input-dependent, there is no independent RNN-cell `step` interface (the selective
 parameters are recomputed per timestep from the conv'd input); a caller must pass
-a full sequence [batch, seq, dim] to `forward`. This mirrors the established
-convention note from the S4 sibling (`DiagonalSSM.forward`): `forward` consumes a
+a full sequence [batch, seq, dim] to `forward`. This follows the same
+full-sequence `forward` convention planned for the S4-LTI sibling
+(`DiagonalSSM.forward`, PR #5636): `forward` consumes a
 FULL sequence, not a single timestep.
 
 Dtypes: parameters and all internal accumulation are the layer's `dtype` (default
@@ -84,8 +86,8 @@ from odyssey.core.module import Module
 def _exp_scalar[T: DType](x: Scalar[T]) -> Scalar[T]:
     """Scalar exp with a dtype-concrete cast (proves the float constraint).
 
-    Mirrors `odyssey.core.layers.ssm._exp_scalar`: cast to a concrete floating
-    width before calling `math.exp`, so a generic `T` still type-checks.
+    Casts to a concrete floating width before calling `math.exp`, so a generic
+    `T` still type-checks (a bare `math.exp(Scalar[T])` does not).
     """
     comptime if T == DType.float16 or T == DType.float32:
         return Scalar[T](math_exp(Float32(x)))
@@ -213,7 +215,8 @@ struct MambaBlock[dtype: DType = DType.float32](Copyable, Module, Movable):
     def forward(mut self, input: AnyTensor) raises -> AnyTensor:
         """Run the full selective-SSM (S6) block over a sequence.
 
-        Convention note (mirrors `DiagonalSSM.forward`): this `forward` takes the
+        Convention note (same full-sequence convention planned for the S4-LTI
+        sibling `DiagonalSSM.forward`, PR #5636): this `forward` takes the
         rank-3 FULL sequence `(batch, seq, dim)` and scans internally over all
         timesteps. There is no per-timestep `step` interface — the selective
         parameters B/C/Δ and the causal conv are input-dependent and recomputed
