@@ -114,6 +114,13 @@ from odyssey.training.optimizers.sophia import (
 # Adan optimizer (adaptive Nesterov momentum — Xie et al. 2022)
 from odyssey.training.optimizers.adan import adan_step, adan_step_simple
 
+# SF-NorMuon optimizer (schedule-free spectral: y/z/x averaging + row-normalized
+# polar/Newton-Schulz update — Defazio et al. 2024 + Jordan/Bernstein 2024)
+from odyssey.training.optimizers.sf_normuon import (
+    sf_normuon_step,
+    sf_normuon_step_simple,
+)
+
 # FTRL-Proximal optimizer (online learning with L1 sparsity — McMahan et al. 2013)
 from odyssey.training.optimizers.ftrl import ftrl_step, ftrl_step_simple
 

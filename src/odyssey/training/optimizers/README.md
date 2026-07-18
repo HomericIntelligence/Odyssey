@@ -19,6 +19,7 @@ This directory contains optimizer implementations for training neural networks i
 | **Adan** | ~4x params (exp_avg + exp_avg_diff + exp_avg_sq + prev_grad) | O(n) | General-purpose, fast convergence | Nesterov-style look-ahead + gradient-difference momentum; arXiv:2208.06677 |
 | **Shampoo** | ~3x params (L [m×m] + R [n×n] + momentum [m×n]) | O(n³) + Newton-Schulz | Second-order baseline, matrix weights | Two-sided matrix preconditioner; Newton-Schulz inverse fourth root; **rank-2 params only** |
 | **Sophia** (update step only) | ~2x params (momentum + hessian_moment) | O(n) | LLM pretraining / second-order-lite | Sophia-style clipped preconditioned update step, `clip(m / max(γ·h, ε), ±ρ)`; Hessian-diagonal estimates are CALLER-SUPPLIED (Sophia-H/G estimators need HVPs — not yet in Odyssey autograd, see `src/odyssey/autograd/TODO.md`); arXiv:2305.14342 |
+| **SF-NorMuon** | ~3x params (z + x + momentum, matrix-only) | O(n) + Newton-Schulz + row norms | Anytime + matrix weights (no LR schedule) | Schedule-Free y/z/x averaging + row-normalized polar (Newton-Schulz) update; weight decay on the fast iterate z; arXiv:2405.15682 + kellerjordan.github.io/posts/muon |
 
 ## Quick Selection Guide
 
