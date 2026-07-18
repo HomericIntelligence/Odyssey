@@ -16,6 +16,7 @@ Components:
     - LayerNorm: Layer normalization
     - MaxPool2D: 2D max pooling
     - AvgPool2D: 2D average pooling
+    - MambaBlock: Selective state-space (S6) block (input-dependent B/C/Delta)
 
 Example:
     ```mojo
@@ -44,6 +45,7 @@ from odyssey.core.layers.lstm import LSTMCell
 from odyssey.core.layers.layernorm import LayerNorm
 from odyssey.core.layers.gru import GRUCell
 from odyssey.core.layers.feedforward import FeedForward
+from odyssey.core.layers.mamba import MambaBlock
 
 # from .activation import ReLU, Sigmoid, Tanh
 # from .pooling import MaxPool2D, AvgPool2D

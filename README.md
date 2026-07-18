@@ -253,6 +253,7 @@ bash scripts/run_primitive_test.sh --list     # list known primitives + paths
 | GRU | layer | `bash scripts/run_primitive_test.sh gru` |
 | LayerNorm | layer | `bash scripts/run_primitive_test.sh layernorm` |
 | Transformer FeedForward (FFN) | layer | `bash scripts/run_primitive_test.sh ffn` |
+| Mamba (selective SSM / S6) | layer | `bash scripts/run_primitive_test.sh mamba` |
 | ADOPT | optimizer | `bash scripts/run_primitive_test.sh adopt` |
 | Sophia (clipped update step; caller-supplied Hessian estimates) | optimizer | `bash scripts/run_primitive_test.sh sophia` |
 | Adan | optimizer | `bash scripts/run_primitive_test.sh adan` |
