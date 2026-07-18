@@ -204,7 +204,7 @@ def sf_normuon_step(
 
     # Momentum EMA: m_t = mu * m_{t-1} + (1 - mu) * g_t
     var mu_t = full_like(momentum, mu)
-    var one_minus_mu = full_like(gradients, 1.0 - mu)
+    var one_minus_mu = full_like(momentum, 1.0 - mu)
     var new_m = add_simd(
         multiply_simd(mu_t, momentum),
         multiply_simd(one_minus_mu, gradients),
