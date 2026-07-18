@@ -117,6 +117,10 @@ def schedule_free_step(
         raise Error(
             "schedule_free_step: params and gradients must have the same dtype"
         )
+    if params.dtype() != z.dtype():
+        raise Error("schedule_free_step: params and z must have the same dtype")
+    if params.dtype() != x.dtype():
+        raise Error("schedule_free_step: params and x must have the same dtype")
 
     # Fast sequence: z_{t+1} = z_t - gamma * g_t
     var lr_t = full_like(z, learning_rate)

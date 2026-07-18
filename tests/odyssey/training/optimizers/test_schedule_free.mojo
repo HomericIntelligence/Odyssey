@@ -70,6 +70,11 @@ def test_parity_with_reference() raises:
     z and x are initialized to params (so y_1 = params); each step feeds the
     gradient evaluated at the current query point y_t. Three steps exercise the
     evolving averaging weight c_{t+1} = 1/(t+1): c_2=1/2, c_3=1/3, c_4=1/4.
+
+    All three returned sequences are asserted against the reference: the fast
+    sequence z, the averaged iterate x, AND the next query point y_next =
+    (1-beta)*z + beta*x (res[2]) — so an interpolation sign/coefficient bug in
+    the y blend is caught independently of the z/x math.
     """
     print("Running test_parity_with_reference...")
 
@@ -115,6 +120,26 @@ def test_parity_with_reference() raises:
     x3.append(-0.45125000000000004)
     x3.append(0.555)
 
+    # --- reference y_next after each step (the NEXT query point, res[2]) ---
+    var y1 = List[Float64]()
+    y1.append(0.09725)
+    y1.append(-0.20825000000000002)
+    y1.append(0.31375)
+    y1.append(-0.41924999999999996)
+    y1.append(0.52475)
+    var y2 = List[Float64]()
+    y2.append(0.09330000000000001)
+    y2.append(-0.21250000000000002)
+    y2.append(0.3255)
+    y2.append(-0.4405)
+    y2.append(0.5435000000000001)
+    var y3 = List[Float64]()
+    y3.append(0.09237500000000001)
+    y3.append(-0.21762500000000004)
+    y3.append(0.33525)
+    y3.append(-0.45562500000000006)
+    y3.append(0.5595000000000001)
+
     var p = zeros([n], DType.float64)
     var g1 = zeros([n], DType.float64)
     var g2 = zeros([n], DType.float64)
@@ -144,32 +169,41 @@ def test_parity_with_reference() raises:
     var res1 = schedule_free_step(p, g1, p, p, 1, 0.1, 0.9, 0.0)
     var nz1 = res1[0]
     var nx1 = res1[1]
+    var ny1 = res1[2]
     for i in range(n):
         if _abs_diff(nz1.load[DType.float64](i), z1[i]) > 1e-9:
             raise Error("schedule-free step-1 z mismatch at " + String(i))
         if _abs_diff(nx1.load[DType.float64](i), x1[i]) > 1e-9:
             raise Error("schedule-free step-1 x mismatch at " + String(i))
-    print("  ok step 1 z/x match reference to 1e-9")
+        if _abs_diff(ny1.load[DType.float64](i), y1[i]) > 1e-9:
+            raise Error("schedule-free step-1 y_next mismatch at " + String(i))
+    print("  ok step 1 z/x/y_next match reference to 1e-9")
 
     var res2 = schedule_free_step(p, g2, res1[0], res1[1], 2, 0.1, 0.9, 0.0)
     var nz2 = res2[0]
     var nx2 = res2[1]
+    var ny2 = res2[2]
     for i in range(n):
         if _abs_diff(nz2.load[DType.float64](i), z2[i]) > 1e-9:
             raise Error("schedule-free step-2 z mismatch at " + String(i))
         if _abs_diff(nx2.load[DType.float64](i), x2[i]) > 1e-9:
             raise Error("schedule-free step-2 x mismatch at " + String(i))
-    print("  ok step 2 z/x match reference to 1e-9 (c_3 = 1/3)")
+        if _abs_diff(ny2.load[DType.float64](i), y2[i]) > 1e-9:
+            raise Error("schedule-free step-2 y_next mismatch at " + String(i))
+    print("  ok step 2 z/x/y_next match reference to 1e-9 (c_3 = 1/3)")
 
     var res3 = schedule_free_step(p, g3, res2[0], res2[1], 3, 0.1, 0.9, 0.0)
     var nz3 = res3[0]
     var nx3 = res3[1]
+    var ny3 = res3[2]
     for i in range(n):
         if _abs_diff(nz3.load[DType.float64](i), z3[i]) > 1e-9:
             raise Error("schedule-free step-3 z mismatch at " + String(i))
         if _abs_diff(nx3.load[DType.float64](i), x3[i]) > 1e-9:
             raise Error("schedule-free step-3 x mismatch at " + String(i))
-    print("  ok step 3 z/x match reference to 1e-9 (c_4 = 1/4)")
+        if _abs_diff(ny3.load[DType.float64](i), y3[i]) > 1e-9:
+            raise Error("schedule-free step-3 y_next mismatch at " + String(i))
+    print("  ok step 3 z/x/y_next match reference to 1e-9 (c_4 = 1/4)")
     print("test_parity_with_reference PASSED")
 
 
