@@ -23,16 +23,18 @@ Composition / reuse posture (the crux of this block):
     (self-attention sub-layer, `attention.mojo`), `LayerNorm` (`layernorm.mojo`),
     and `FeedForward` (`feedforward.mojo`). None of them is reimplemented here;
     the block only wires them into the two pre-norm residual sub-layers and
-    forwards their parameters. This mirrors `MLPMixerBlock`'s reuse of `LayerNorm`
-    + `FeedForward` (`mlp_mixer.mojo`).
+    forwards their parameters. This is the same reuse posture `FeedForward` itself
+    takes toward `Linear` (`feedforward.mojo`) and `ReLULayer` takes toward the
+    functional `relu` (`relu.mojo`) — compose existing `Module`s, add no new math.
   * `MultiHeadAttention.forward` consumes the 3D `[B, S, d_model]` sequence
     directly (it does its own head split/merge and −∞ causal masking).
   * `LayerNorm.forward` and `FeedForward.forward` are POSITION-WISE 2D ops
     (they matmul/normalize over the last feature axis and reject a 3D input), so
     each is applied by flattening `[B, S, d_model] -> [B*S, d_model]`, running the
-    sub-layer, and reshaping back — exactly as `MLPMixerBlock` applies its
-    channel-mixing MLP. The transform is identical for every (b, s) position,
-    which is the intended per-position semantics of both LayerNorm and the FFN.
+    sub-layer, and reshaping back. The transform is identical for every (b, s)
+    position, which is the intended per-position semantics of both LayerNorm and
+    the FFN (the pending MLP-Mixer block, PR #5654, applies its channel-mixing MLP
+    the same way).
 
 Design/convention notes:
   * Batch-first `[batch, seq, d_model]`; `forward()` consumes the FULL sequence at
