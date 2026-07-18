@@ -18,6 +18,11 @@ position `j` iff `j <= i` AND `j` lies in the union of two sets:
   * strided       A_i^(2) = { j : (i − j) mod stride == 0 }
     — every `stride`-th earlier position (§4.2, "every l-th location").
 
+`window` and `stride` are decoupled here (the paper ties both to its single
+symbol `l`, whose local set A_i^(1) has cardinality `l + 1`): passing
+`window = l + 1` with `stride = l` recovers the paper's exact strided
+configuration.
+
 A query attends to `j` iff  j <= i  AND  ( (i − j) < window  OR  (i − j) mod
 stride == 0 ). Every other (masked) score is set to true −∞ before the softmax,
 so its post-softmax attention weight is EXACTLY 0. Because `i − i == 0` is always
