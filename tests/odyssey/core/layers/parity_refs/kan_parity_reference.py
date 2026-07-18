@@ -4,8 +4,9 @@ Computes the forward pass of a single KAN layer in float64 numpy with FIXED
 ramp parameters and FIXED inputs, and prints the flattened output as JSON so the
 Mojo KAN test can transcribe the same constants and assert equality to 1e-5.
 
-KAN layer (Liu et al. 2024, arXiv:2404.19756, §2.2 Eq. 2.10), residual
-activation on each edge (i -> j):
+KAN layer (Liu et al. 2024, arXiv:2404.19756, §2.2), residual activation on each
+edge (i -> j) — a variant of Eq. 2.10 with independent base/spline scales (as in
+the reference pykan implementation), rather than the paper's single shared scale:
 
     phi_{j,i}(x) = w_base_{j,i} * silu(x) + w_spline_{j,i} * spline_{j,i}(x)
     spline_{j,i}(x) = sum_m c_{j,i,m} * B_{m,k}(x)
@@ -17,9 +18,14 @@ Cox-de Boor recursion below, TRANSCRIBED IDENTICALLY into the Mojo layer
 an external spline library.
 
 Config: in_features=4, out_features=4, grid_size=5, spline_order=3,
-grid range [-1, 1]. Two input rows: one in-range point and one BELOW the grid
-minimum (x < -1) so the out-of-range compact-support behavior is exercised
-(spline branch -> 0, base branch only). Parameters are deterministic ramps.
+grid range [-1, 1]. Note the B-spline support is WIDER than the interior grid:
+it extends by spline_order*h per side, so support = [-2.2, 2.2] at these
+defaults. Two input rows: one fully in-range row, and one row whose first
+component (x = -1.3) sits in the PARTIAL-SUPPORT edge — below the interior grid
+minimum but still inside the extended support, so its spline branch is nonzero
+(basis sum ~0.93). Genuine zero-support (spline -> 0) is exercised separately by
+the Mojo unit test at |x| >= 2.2, not in these parity rows. Parameters are
+deterministic ramps.
 """
 
 import json
@@ -78,7 +84,9 @@ base_w = (np.arange(IN_F * OUT_F, dtype=np.float64) * 0.01 - 0.05).reshape(IN_F,
 spline_w = (np.arange(IN_F * OUT_F, dtype=np.float64) * 0.02 - 0.10).reshape(IN_F, OUT_F)
 coeff = (np.arange(IN_F * OUT_F * N_COEFF, dtype=np.float64) * 0.003 - 0.05).reshape(IN_F, OUT_F, N_COEFF)
 
-# Two input rows: row 0 in-range, row 1 has a component below grid_min (-1.3).
+# Two input rows: row 0 fully in-range; row 1's first component (-1.3) is in the
+# partial-support edge (below the interior grid min -1 but inside the extended
+# support [-2.2, 2.2]), so its spline branch is nonzero (basis sum ~0.93).
 X = np.array(
     [
         [-0.7, -0.2, 0.35, 0.9],

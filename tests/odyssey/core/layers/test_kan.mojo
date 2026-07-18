@@ -6,11 +6,15 @@ Tests cover:
 - Coefficient count per edge (grid_size + spline_order)
 - Argument validation (rejects non-positive dims, grid_max <= grid_min)
 - Input-rank validation (rejects non-2D / wrong last dim)
-- Out-of-range compact support: an input outside [grid_min, grid_max] has an
-  all-zero spline branch (edge output = base branch only)
+- Compact support: the B-spline support is the EXTENDED span [-2.2, 2.2] (grid
+  range extended by spline_order*h per side), not the interior grid [-1, 1]. An
+  input inside the extended support but below the interior grid still has a
+  nonzero spline; only an input beyond the support edge (|x| >= 2.2) has an
+  all-zero spline branch (edge output = base branch only). Both are tested.
 - Numerical parity with a numpy reference (Cox-de Boor B-spline basis + residual
-  activation) on fixed ramp params + inputs (tolerance 1e-5), including an
-  in-range row and a below-grid-min row (grid-boundary / out-of-range coverage)
+  activation) on fixed ramp params + inputs (tolerance 1e-5): an in-range row and
+  a partial-support-edge row (x = -1.3, below the interior grid but inside the
+  support, spline nonzero).
 """
 
 from odyssey.tensor.any_tensor import AnyTensor
@@ -105,12 +109,17 @@ def test_reject_bad_input_rank() raises:
 
 
 def test_out_of_range_spline_zero() raises:
-    """Input outside [grid_min, grid_max] => spline branch is zero.
+    """Spline support is the EXTENDED span, not the interior grid.
 
-    With base_weight = 0 and only spline_weight/coeff set, an in-range input
-    produces a nonzero output while a far-out-of-range input produces exactly 0
-    (the B-spline basis has compact support). This directly exercises the
-    documented grid-range behavior.
+    The B-spline support for G=5, k=3, range [-1, 1] is [-2.2, 2.2] (the grid
+    extended by spline_order*h = 1.2 per side). With base_weight = 0 and only
+    spline_weight/coeff set, we assert:
+      - in-range centre (x=0)      -> spline nonzero,
+      - partial-support edge (x=-1.3, below interior grid but inside support)
+        -> spline STILL nonzero (this is the case the parity row uses),
+      - beyond support (x=5.0 and x=-3.0, both |x| >= 2.2)
+        -> spline exactly 0 (edge = base branch only).
+    This directly exercises the documented extended-support behavior.
     """
     print("Running test_out_of_range_spline_zero...")
     var kan = KAN[DType.float64](1, 1, grid_size=5, spline_order=3)
@@ -127,15 +136,39 @@ def test_out_of_range_spline_zero() raises:
     if v_in <= 0.0:
         raise Error("in-range spline output should be positive")
 
-    var x_out = zeros([1, 1], DType.float64)
-    x_out.store[DType.float64](0, Float64(5.0))  # far outside [-1, 1]
-    var y_out = kan.forward(x_out)
-    var v_out = y_out.load[DType.float64](0)
-    if v_out < 0:
-        v_out = -v_out
-    if v_out > 1e-12:
-        raise Error("out-of-range spline branch must be zero")
-    print("  ok in-range nonzero, out-of-range spline = 0")
+    # Partial-support edge: below the interior grid min (-1) but inside the
+    # extended support [-2.2, 2.2] => spline nonzero (NOT zero).
+    var x_edge = zeros([1, 1], DType.float64)
+    x_edge.store[DType.float64](0, Float64(-1.3))
+    var y_edge = kan.forward(x_edge)
+    var v_edge = y_edge.load[DType.float64](0)
+    if v_edge <= 0.0:
+        raise Error("partial-support (x=-1.3) spline should be nonzero")
+
+    # Beyond support on the positive side (x=5.0 > 2.2) => spline exactly 0.
+    var x_hi = zeros([1, 1], DType.float64)
+    x_hi.store[DType.float64](0, Float64(5.0))
+    var y_hi = kan.forward(x_hi)
+    var v_hi = y_hi.load[DType.float64](0)
+    if v_hi < 0:
+        v_hi = -v_hi
+    if v_hi > 1e-12:
+        raise Error("beyond-support (x=5.0) spline branch must be zero")
+
+    # Beyond support on the negative side (x=-3.0 < -2.2) => spline exactly 0.
+    # This is the genuine below-support case (x=-1.3 is NOT below support).
+    var x_lo = zeros([1, 1], DType.float64)
+    x_lo.store[DType.float64](0, Float64(-3.0))
+    var y_lo = kan.forward(x_lo)
+    var v_lo = y_lo.load[DType.float64](0)
+    if v_lo < 0:
+        v_lo = -v_lo
+    if v_lo > 1e-12:
+        raise Error("below-support (x=-3.0) spline branch must be zero")
+
+    print(
+        "  ok in-range + partial-support nonzero; beyond-support (|x|>=2.2) = 0"
+    )
     print("test_out_of_range_spline_zero PASSED")
 
 
@@ -145,8 +178,10 @@ def test_parity_with_reference() raises:
     Fixed ramp params + inputs and the reference output are transcribed from
     parity_refs/kan_parity_reference.py (numpy, float64, in=4, out=4,
     grid_size=5, spline_order=3, range [-1, 1], batch=2). Row 1 includes a
-    below-grid-min component (x = -1.3) so out-of-range compact support is
-    covered. The B-spline recursion is identical on both sides, so parity is
+    partial-support-edge component (x = -1.3): below the interior grid min (-1)
+    but inside the extended support [-2.2, 2.2], so its spline branch is nonzero
+    (genuine zero-support is tested in test_out_of_range_spline_zero). The
+    B-spline recursion is identical on both sides, so parity is
     exact-by-construction.
     """
     print("Running test_parity_with_reference...")

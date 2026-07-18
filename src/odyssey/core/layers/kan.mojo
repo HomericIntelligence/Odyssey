@@ -7,8 +7,10 @@ input feature `i` to output feature `j`, carries an activation function
 
     phi_{j,i}(x) = w_base_{j,i} * silu(x) + w_spline_{j,i} * spline_{j,i}(x)
 
-("residual activation function", paper §2.2 Eq. 2.10), where the base branch
-`silu(x) = x * sigmoid(x)` is a fixed shortcut and
+(the "residual activation function" — a variant of paper §2.2 Eq. 2.10, which
+writes `phi(x) = w * (b(x) + spline(x))` with ONE shared scale `w`; we use
+independent `w_base`/`w_spline` scales as in the reference pykan implementation),
+where the base branch `silu(x) = x * sigmoid(x)` is a fixed shortcut and
 
     spline_{j,i}(x) = sum_{m=0}^{G+k-1} c_{j,i,m} * B_{m,k}(x)
 
@@ -27,18 +29,32 @@ KAN block composes as a drop-in dense-block replacement in the sibling layers'
 stacks. A `[batch, seq, features]` caller flattens the leading axes before the
 call, exactly as they would for `Linear`.
 
-Grid-range behavior. The B-spline basis has *compact support*: an input `x`
-outside the closed grid range `[grid_min, grid_max]` evaluates every basis
-`B_{m,k}(x)` to 0, so the spline branch contributes nothing there and the edge
-output degenerates to the base branch `w_base * silu(x)`. This is the natural
-"extrapolate via the base branch" behavior (paper §2.2 motivates the base
-shortcut precisely as a well-behaved fallback). We deliberately do NOT clamp the
-input into range: clamping would fold out-of-range points onto the boundary knot
-and distort the learned shape. The numerical note is that the transition at the
-boundary is continuous (the boundary basis values reach 0 there), so there is no
-discontinuity as `x` crosses `grid_max`/`grid_min` — only a loss of the spline
-term. Training the grid-range/adaptivity (paper's grid extension) is out of scope
-for this 1-layer research block; the grid is fixed at construction.
+Grid-range / support behavior. The B-spline basis has *compact support*, but the
+support is WIDER than the interior grid range `[grid_min, grid_max]`. The knot
+vector extends by `spline_order` extra knots (step `h = (grid_max-grid_min)/G`)
+on each side, so the full support is
+
+    [knot(0), knot(n_knots-1)] = [grid_min - spline_order*h,
+                                  grid_max + spline_order*h].
+
+For the defaults (G=5, k=3, range [-1, 1], h=0.4) the support is [-2.2, 2.2].
+Every basis `B_{m,k}(x)` is 0 only for `x` OUTSIDE that extended span; there the
+spline branch contributes nothing and the edge output degenerates to the base
+branch `w_base * silu(x)` ("extrapolate via the base branch"; paper §2.2
+motivates the base shortcut as a well-behaved fallback). Between `grid_max` and
+the support edge (e.g. x in (1.0, 2.2] at defaults) the spline is NOT zero — it
+decays smoothly toward 0 as `x` approaches the support edge (measured basis sum
+≈ 0.93 at x = -1.3, ≈ 3e-6 at x = ±2.19, exactly 0 at |x| >= 2.2).
+
+We deliberately do NOT clamp the input: clamping would fold points onto a
+boundary knot and distort the learned shape. Numerical note: the spline is
+continuous everywhere, including at `x = grid_max`/`grid_min` (at x = 1.0 the
+basis sum is exactly 1.0 — the function is nonzero and continuous there, NOT
+zero), and it decays continuously to 0 at the support edges, so there is no
+discontinuity anywhere — only a gradual loss of the spline term past the interior
+grid, reaching pure-base beyond the support. Training the grid-range/adaptivity
+(paper's grid extension) is out of scope for this 1-layer research block; the
+grid is fixed at construction.
 
 dtype contract. The struct is generic over `dtype` (default float32, the package
 API dtype). Scalar loads/stores use the tensor's own `Self.dtype` — the
@@ -176,11 +192,13 @@ struct KAN[dtype: DType = DType.float32](Copyable, Module, Movable):
             B_{m,p}(x) =  (x - t_m)/(t_{m+p} - t_m)       * B_{m,p-1}(x)
                         + (t_{m+p+1} - x)/(t_{m+p+1} - t_{m+1}) * B_{m+1,p-1}(x)
 
-        with the convention that a zero denominator contributes a zero term. `x`
-        outside `[grid_min, grid_max]` yields all-zero basis (compact support),
-        which is the documented out-of-range behavior. This is transcribed
-        IDENTICALLY in the torch/numpy parity reference so parity is
-        exact-by-construction.
+        with the convention that a zero denominator contributes a zero term. The
+        basis is all-zero (compact support) only for `x` outside the EXTENDED
+        support `[knot(0), knot(n_knots-1)] = [grid_min - k*h, grid_max + k*h]`
+        (= [-2.2, 2.2] at the defaults), NOT merely outside `[grid_min,
+        grid_max]`; between the interior grid and the support edge the basis is
+        nonzero and decays smoothly. This recursion is transcribed IDENTICALLY in
+        the numpy parity reference so parity is exact-by-construction.
 
         Args:
             x: Scalar input value in `Self.dtype`.
