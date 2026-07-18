@@ -21,6 +21,8 @@ Includes:
 - FTRL-Proximal (online learning with L1 sparsity — McMahan et al. 2013)
 - Shampoo (two-sided matrix preconditioner via Newton-Schulz inverse fourth root — Anil et al. 2020)
 - SOAP (Shampoo + Adam in the preconditioner eigenbasis)
+- SPlus (Stable whitening — element-wise sign in the eigenbasis + iterate
+  averaging — Frans et al. 2025)
 
 All optimizers follow pure functional design - caller manages state
 
@@ -130,6 +132,12 @@ from odyssey.training.optimizers.shampoo import (
 from odyssey.training.optimizers.soap import (
     soap_step,
     init_soap_state,
+)
+
+# SPlus optimizer (stable whitening — element-wise sign in the eigenbasis + iterate averaging)
+from odyssey.training.optimizers.splus import (
+    splus_step,
+    init_splus_state,
 )
 
 # Optimizer utilities (common helper functions)

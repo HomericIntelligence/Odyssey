@@ -33,6 +33,7 @@ TEST[lionmuon]="tests/odyssey/training/optimizers/test_lionmuon.mojo"
 TEST[mgup_muon]="tests/odyssey/training/optimizers/test_mgup_muon.mojo"
 TEST[muon_hyperball]="tests/odyssey/training/optimizers/test_muon_hyperball.mojo"
 TEST[soap]="tests/odyssey/training/optimizers/test_soap.mojo"
+TEST[splus]="tests/odyssey/training/optimizers/test_splus.mojo"
 TEST[sophia]="tests/odyssey/training/optimizers/test_sophia.mojo"
 # --- layers ---
 TEST[ffn]="tests/odyssey/core/layers/test_feedforward.mojo"

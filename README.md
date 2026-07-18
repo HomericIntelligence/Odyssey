@@ -260,6 +260,7 @@ bash scripts/run_primitive_test.sh --list     # list known primitives + paths
 | LionMuon | optimizer | `bash scripts/run_primitive_test.sh lionmuon` |
 | MGUP-Muon | optimizer | `bash scripts/run_primitive_test.sh mgup_muon` |
 | SOAP | optimizer | `bash scripts/run_primitive_test.sh soap` |
+| SPlus | optimizer | `bash scripts/run_primitive_test.sh splus` |
 | FTRL-Proximal | optimizer | `bash scripts/run_primitive_test.sh ftrl` |
 
 A primitive whose test file is not on the current branch is reported as
