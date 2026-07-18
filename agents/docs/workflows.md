@@ -1321,7 +1321,7 @@ Documentation Specialist:
 ```text
 Documentation Engineer:
   - Writes getting started guide:
-    * Installation (pixi, Mojo setup)
+    * Installation (uv, Mojo setup)
     * Quick start (train LeNet-5 in 5 minutes)
     * Repository tour (where to find things)
     * Next steps (how to implement a paper)

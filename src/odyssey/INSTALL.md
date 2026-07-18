@@ -216,11 +216,11 @@ If you're using Pixi for environment management:
 
 ```bash
 # Install dependencies
-pixi install
+uv sync --locked
 
 # Run commands in Pixi environment
-pixi run mojo --version
-pixi run mojo package shared --install
+uv run mojo --version
+uv run mojo package shared --install
 ```text
 
 ### Manual Setup
@@ -297,7 +297,7 @@ mojo repl
 
 1. Check Mojo version: `mojo --version` (requires 24.5+)
 1. Clean build artifacts: `rm -rf build/`
-1. Update dependencies in `pixi.toml`
+1. Update dependencies in `pyproject.toml` (then run `uv lock`)
 1. Report issue if problem persists
 
 ### Additional Solutions
@@ -547,19 +547,19 @@ git clone https://github.com/HomericIntelligence/Odyssey.git
 cd Odyssey
 
 # Install development dependencies
-pixi install
+uv sync --locked
 
 # Install pre-commit hooks
 pre-commit install
 
 # Install shared library in development mode
-pixi run mojo package shared --install
+uv run mojo package shared --install
 
 # Run tests to verify setup
-pixi run mojo test tests/odyssey/
+uv run mojo test tests/odyssey/
 
 # Format code
-pixi run mojo format src/odyssey/
+uv run mojo format src/odyssey/
 ```text
 
 ### IDE Setup
@@ -568,12 +568,12 @@ pixi run mojo format src/odyssey/
 
 1. Install Mojo extension
 1. Set Mojo path in settings
-1. Configure formatter: `pixi run mojo format`
+1. Configure formatter: `uv run mojo format`
 
 ### Other Editors
 
 - Configure LSP for Mojo (if available)
-- Set formatter to `pixi run mojo format`
+- Set formatter to `uv run mojo format`
 - Configure syntax highlighting
 
 ## Next Steps

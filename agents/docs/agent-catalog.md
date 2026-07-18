@@ -117,7 +117,7 @@ repository sections
 
 - Setting up initial repository structure
 - Creating or reorganizing directory hierarchies
-- Managing configuration files (pixi.toml, .gitignore, etc.)
+- Managing configuration files (pyproject.toml, .gitignore, etc.)
 - Establishing foundational documentation
 - Coordinating infrastructure setup
 

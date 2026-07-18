@@ -14,7 +14,7 @@
 #
 # A primitive whose test file is not present on the current branch is reported
 # as SKIPPED (not a failure) — so this runner works incrementally as each
-# primitive PR merges. Runs inside the pixi env, mirroring CI's include paths
+# primitive PR merges. Runs inside the uv env, mirroring CI's include paths
 # (`mojo -I src -I . <test>`; CI additionally passes --Werror).
 
 set -u
@@ -69,7 +69,7 @@ run_one() {
         return 3
     fi
     echo "▶  $name  ($path)"
-    if pixi run mojo -I src -I . "$path"; then
+    if uv run mojo -I src -I . "$path"; then
         echo "✅ $name PASSED"
         return 0
     else

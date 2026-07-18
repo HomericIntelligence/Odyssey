@@ -15,7 +15,7 @@ functions in the module.
 """Unit tests for shared.core.dtype_dispatch.
 
 Run with: mojo run tests/shared/core/test_dtype_dispatch.mojo
-Or via:   pixi run python scripts/run_mojo_tests.py tests/shared/core/test_dtype_dispatch.mojo
+Or via:   uv run python scripts/run_mojo_tests.py tests/shared/core/test_dtype_dispatch.mojo
 """
 
 from testing import TestSuite, assert_equal, assert_raises
@@ -61,7 +61,7 @@ def main() raises:
 Odyssey's existing test files (e.g. `tests/shared/core/test_dtype_dispatch.mojo`)
 **already have a hand-rolled `def main()` block** that explicitly calls every
 `test_*` function and prints a `✓` per pass. These files run on 1.0.0b2 via
-`pixi run mojo run <file>` **without any conversion** to `TestSuite`.
+`uv run mojo run <file>` **without any conversion** to `TestSuite`.
 
 The conversion below is for files that DON'T already have a manual main, or
 when you want to migrate to auto-discovery. The trade-off: `TestSuite` auto-
@@ -98,7 +98,7 @@ When migrating a `tests/**/test_*.mojo` file from 0.26 to 1.0:
    - Any old `mojo test` runner code.
 
 5. **Verify**:
-   - `pixi run mojo run tests/path/test_foo.mojo` — should print test results.
+   - `uv run mojo run tests/path/test_foo.mojo` — should print test results.
 
 ---
 
@@ -109,13 +109,13 @@ direct `mojo run`:
 
 ```bash
 # Run one file:
-pixi run python scripts/run_mojo_tests.py tests/shared/core/test_shape.mojo
+uv run python scripts/run_mojo_tests.py tests/shared/core/test_shape.mojo
 
 # Run a directory:
-pixi run python scripts/run_mojo_tests.py tests/shared/core/
+uv run python scripts/run_mojo_tests.py tests/shared/core/
 
 # Filter by glob (replicates `just test-group PATH PATTERN`):
-pixi run python scripts/run_mojo_tests.py tests/shared/core/ "test_dtype*.mojo"
+uv run python scripts/run_mojo_tests.py tests/shared/core/ "test_dtype*.mojo"
 ```
 
 The runner walks for `test_*.mojo`, runs each via `mojo run`, captures

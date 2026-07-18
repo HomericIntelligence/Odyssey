@@ -32,12 +32,12 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
 
-      - name: Set up Pixi
-        uses: ./.github/actions/setup-pixi
+      - name: Set up uv
+        uses: ./.github/actions/setup-uv
 
       - name: Install pre-commit
         run: |
-          pixi run pip install pre-commit
+          uv pip install pre-commit
 
       - name: Cache pre-commit environments
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v5
@@ -59,7 +59,7 @@ jobs:
           START=$SECONDS
           # Skip mojo-format — it is advisory/non-blocking (same as pre-commit.yml)
           # because the Mojo 0.26.1 formatter has known bugs.
-          SKIP=mojo-format pixi run pre-commit run --all-files --show-diff-on-failure
+          SKIP=mojo-format uv run pre-commit run --all-files --show-diff-on-failure
           HOOK_EXIT=$?
           ELAPSED=$((SECONDS - START))
           echo "elapsed=$ELAPSED" >> "$GITHUB_OUTPUT"
@@ -76,7 +76,7 @@ jobs:
           FILE_COUNT: ${{ steps.count-files.outputs.file_count }}
           HOOK_STATUS: ${{ steps.time-hooks.outputs.status }}
         run: |
-          pixi run python scripts/bench_precommit.py \
+          uv run python scripts/bench_precommit.py \
             --elapsed "${ELAPSED:-0}" \
             --files "${FILE_COUNT:-0}" \
             --status "${HOOK_STATUS:-unknown}"

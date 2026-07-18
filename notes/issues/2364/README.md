@@ -145,7 +145,7 @@ then maintains constant LR.
 
 ```text
 $ cd /home/mvillmow/worktrees/2364-schedulers
-$ pixi run mojo tests/odyssey/training/test_schedulers.mojo
+$ uv run mojo tests/odyssey/training/test_schedulers.mojo
 
 Running CosineAnnealingLR tests...
 Running ReduceLROnPlateau tests...
@@ -155,7 +155,7 @@ All scheduler tests passed! ✓
 ```
 
 ```text
-$ pixi run mojo tests/odyssey/training/test_warmup_scheduler.mojo
+$ uv run mojo tests/odyssey/training/test_warmup_scheduler.mojo
 
 Running WarmupLR core tests...
 Running warmup period tests...

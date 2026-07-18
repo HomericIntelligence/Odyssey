@@ -1,5 +1,17 @@
 # ML Odyssey - Mojo Development Environment
 # Multi-stage Dockerfile
+#
+# Toolchain: uv-managed (Odysseus ADR-018). The Mojo compiler is installed from
+# the Modular PyPI index via `uv sync` (pyproject.toml [tool.uv] configures the
+# index + prerelease handling) — NOT from conda/pixi anymore.
+
+# ---------------------------
+# Stage 0: uv binary (named-stage COPY source, Scylla PR #2054 pattern)
+# ---------------------------
+# Pinned by version + digest. The digest was verified against the ghcr manifest
+# API (HTTP 200) before use — a wrong digest yields 'manifest unknown'. Bump the
+# tag AND re-resolve the digest together when upgrading uv.
+FROM ghcr.io/astral-sh/uv:0.11.21@sha256:ff07b86af50d4d9391d9daf4ff89ce427bc544f9aae87057e69a1cc0aa369946 AS uv
 
 # ---------------------------
 # Stage 1: Base image with system deps
@@ -36,6 +48,9 @@ RUN mkdir -p -m 755 /etc/apt/keyrings \
 # Install just tool (pre-built binary for faster installation)
 RUN curl -fsSL https://just.systems/install.sh | bash -s -- --to /usr/local/bin --tag 1.14.0
 
+# Install the uv binary from the pinned uv image stage (Scylla PR #2054 pattern).
+COPY --from=uv /uv /uvx /usr/local/bin/
+
 # ---------------------------
 # Stage 1.5: Create dev user
 # ---------------------------
@@ -51,14 +66,14 @@ RUN groupadd -g ${GROUP_ID} ${USER_NAME} 2>/dev/null || \
 
 # Allow dev user to fix bind-mount ownership at container startup.
 # The workspace is bind-mounted as root:root at runtime; entrypoint.sh uses
-# sudo chown to reclaim specific subdirs (build/, .pixi/, test fixtures).
+# sudo chown to reclaim specific subdirs (build/, .venv/, test fixtures).
 RUN printf 'dev ALL=(root) NOPASSWD: /bin/mkdir\ndev ALL=(root) NOPASSWD: /bin/chown\ndev ALL=(root) NOPASSWD: /bin/chmod\n' \
     > /etc/sudoers.d/dev-workspace \
     && chmod 440 /etc/sudoers.d/dev-workspace
 
 # Set environment for dev user
 ENV HOME=/home/${USER_NAME}
-ENV PATH="$HOME/.local/bin:$HOME/.pixi/bin:$PATH"
+ENV PATH="$HOME/.local/bin:$HOME/.venv/bin:$PATH"
 
 # ---------------------------
 # Stage 2: Development environment
@@ -77,36 +92,26 @@ WORKDIR /workspace
 # Installs into ~/.local/bin which is in PATH.
 RUN curl -fsSL https://claude.ai/install.sh | bash -s -- stable
 
-# Ensure Pixi home and cache directories exist
-ENV PIXI_HOME=/home/${USER_NAME}/.pixi
-ENV PIXI_CACHE_DIR=/home/${USER_NAME}/.cache/pixi
-RUN mkdir -p $PIXI_HOME $PIXI_CACHE_DIR $HOME/.cache/rattler
+# uv cache + Modular home. Keeping the venv inside the image (not /workspace)
+# means the runtime bind-mount does not shadow it.
+ENV UV_CACHE_DIR=/home/${USER_NAME}/.cache/uv
+ENV UV_PROJECT_ENVIRONMENT=/home/${USER_NAME}/.venv
+# uv must not try to manage/patch the interpreter it downloads read-only later.
+ENV UV_PYTHON_INSTALL_DIR=/home/${USER_NAME}/.local/share/uv/python
+RUN mkdir -p $UV_CACHE_DIR $HOME/.modular
 
-# Install Pixi as dev user (pinned version for reproducible builds).
-# Must be >= the pixi that writes pixi.lock locally (0.70.x -> lockfile v7).
-# Older pixi (<=0.67) cannot read a v7 lock and fails with a misleading
-# "missing `version` field in lock file" error (#5589 bumped Dockerfile.ci,
-# setup-pixi, and _required.yml to 0.70.2 but missed this Dockerfile).
-ENV PIXI_VERSION=0.70.2
-RUN curl -fsSL https://pixi.sh/install.sh | PIXI_VERSION=${PIXI_VERSION} bash
+# Copy dependency manifests first for layer caching. The venv is built into the
+# per-user home ($UV_PROJECT_ENVIRONMENT) so the runtime bind-mount of /workspace
+# does not shadow it (mirrors the former detached-pixi-env layout).
+COPY --chown=${USER_NAME}:${USER_NAME} pyproject.toml uv.lock .python-version .pre-commit-config.yaml ./
 
-# Copy dependency manifests first for layer caching.
-# .pixi/config.toml (detached-environments = true) is copied here so that
-# pixi install bakes the env into the per-user cache dir rather than
-# /workspace/.pixi/envs/. This matches the runtime layout where the workspace
-# is bind-mounted and the bind-mount shadows any in-workspace env.
-# Note: requirements*.txt are auto-generated lockfiles from pixi.toml (see scripts/sync_requirements.py)
-COPY --chown=${USER_NAME}:${USER_NAME} pixi.toml pixi.lock pyproject.toml requirements.txt requirements-dev.txt .pre-commit-config.yaml ./
-COPY --chown=${USER_NAME}:${USER_NAME} .pixi/config.toml .pixi/config.toml
+# Install project dependencies incl. the Mojo compiler (cached unless manifests
+# change). --no-install-project: only third-party deps + the toolchain are
+# baked in here; the workspace source is bind-mounted at runtime.
+RUN uv sync --locked --no-install-project
 
-# Install project dependencies (cached unless manifests change)
-# Env installs into $HOME/.cache/pixi/envs/<workspace-hash>/ per detached-environments config.
-RUN pixi install
-
-# Ensure pre-commit is available in Pixi environment
-# (pip and pre-commit are already installed by pixi install via pixi.toml;
-#  avoid `pip install --upgrade pip` which can fail with directory conflicts)
-RUN pixi run pre-commit --version
+# Ensure pre-commit is available in the uv environment
+RUN uv run pre-commit --version
 
 # Install pre-commit hooks (cached unless .pre-commit-config.yaml changes).
 # Build context lacks .git, but `pre-commit install-hooks` still requires
@@ -117,9 +122,9 @@ RUN git config --global user.email "build@odyssey.local" && \
     git config --global init.defaultBranch main && \
     git init -q . && \
     if [ -d .git ]; then \
-        pixi run pre-commit install --install-hooks; \
+        uv run pre-commit install --install-hooks; \
     else \
-        pixi run pre-commit install-hooks; \
+        uv run pre-commit install-hooks; \
     fi
 
 # Copy entrypoint script for container initialization
@@ -132,8 +137,8 @@ COPY --chown=${USER_NAME}:${USER_NAME} . .
 # Set Python path
 ENV PYTHONPATH=/workspace:${PYTHONPATH:-}
 
-# Default shell
-CMD ["pixi", "shell"]
+# Default shell (uv-managed env is on PATH via $HOME/.venv/bin)
+CMD ["/bin/bash"]
 
 
 # ---------------------------
@@ -141,7 +146,7 @@ CMD ["pixi", "shell"]
 # ---------------------------
 FROM development AS ci
 
-CMD ["pixi", "run", "pytest", "tests/", "-v"]
+CMD ["uv", "run", "pytest", "tests/", "-v"]
 
 # ---------------------------
 # Stage 4: Production
@@ -151,14 +156,13 @@ FROM base AS production
 # Re-declare ARG so it's available in this stage (ARGs don't persist across FROM)
 ARG USER_NAME=dev
 
-# Copy only what's needed: pixi env and project source (no dev tools)
-COPY --from=development /home/${USER_NAME}/.pixi /home/${USER_NAME}/.pixi
+# Copy only what's needed: the uv-managed venv and project source (no dev tools)
+COPY --from=development /home/${USER_NAME}/.venv /home/${USER_NAME}/.venv
 COPY --from=development /workspace /workspace
 
 ENV ENVIRONMENT=production
-ENV PIXI_HOME=/home/${USER_NAME}/.pixi
-ENV PATH="/home/${USER_NAME}/.pixi/bin:${PATH}"
+ENV PATH="/home/${USER_NAME}/.venv/bin:${PATH}"
 USER ${USER_NAME}
 WORKDIR /workspace
 
-CMD ["pixi", "run", "python", "-c", "print('Odyssey production image ready')"]
+CMD ["python", "-c", "print('Odyssey production image ready')"]

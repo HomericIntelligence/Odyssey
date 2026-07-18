@@ -56,7 +56,7 @@ to guide remediation.
 
 **Lint Failures**:
 
-- Code formatting (pixi run mojo format)
+- Code formatting (uv run mojo format)
 - Markdown linting
 - YAML syntax
 - Trailing whitespace, line endings

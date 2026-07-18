@@ -18,16 +18,16 @@ on:
     paths:
       - 'Dockerfile.ci'
       - 'docker-compose.yml'
-      - 'pixi.toml'
-      - 'pixi.lock'
+      - 'pyproject.toml'
+      - 'uv.lock'
       - '.github/workflows/container-publish.yml'
   pull_request:
     branches: [main]
     paths:
       - 'Dockerfile.ci'
       - 'docker-compose.yml'
-      - 'pixi.toml'
-      - 'pixi.lock'
+      - 'pyproject.toml'
+      - 'uv.lock'
       - '.github/workflows/container-publish.yml'
 
   # On-demand manual rebuild.
@@ -211,7 +211,7 @@ jobs:
         run: |
           echo "Testing runtime image..."
           podman run --rm "$REGISTRY/$IMAGE_NAME:$IMAGE_TAG" \
-            pixi run mojo --version
+            uv run mojo --version
           echo "Runtime image working"
 
       - name: Test production image
@@ -220,7 +220,7 @@ jobs:
         run: |
           echo "Testing production image..."
           podman run --rm "$REGISTRY/$IMAGE_NAME:${IMAGE_TAG}-prod" \
-            pixi run mojo --version
+            uv run mojo --version
           echo "Production image working"
 
       - name: Smoke test — non-root user (#5147)
@@ -239,8 +239,8 @@ jobs:
               set -euo pipefail
               whoami
               test "$(id -un)" != "root"
-              pixi run mojo --version
-              pixi run pre-commit --version'
+              uv run mojo --version
+              uv run pre-commit --version'
           done
           echo "Non-root user smoke test passed"
 
@@ -249,8 +249,20 @@ jobs:
           IMAGE_TAG: ${{ github.ref_name }}
         run: |
           echo "Running smoke tests in container..."
-          podman run --rm "$REGISTRY/$IMAGE_NAME:$IMAGE_TAG" \
-            pixi run mojo test -I . tests/smoke/ || echo "Smoke tests not found or failed"
+          # The PyPI Mojo build has no `mojo test` subcommand (ADR-018); run each
+          # smoke test file as a plain `mojo <file>`, the same mechanism the
+          # justfile's _test-group-inner uses.
+          podman run --rm "$REGISTRY/$IMAGE_NAME:$IMAGE_TAG" bash -c '
+            shopt -s nullglob
+            files=(tests/smoke/test_*.mojo)
+            if [ ${#files[@]} -eq 0 ]; then
+              echo "No smoke tests found — skipping"
+              exit 0
+            fi
+            for f in "${files[@]}"; do
+              echo "Running $f"
+              uv run mojo --Werror -I src -I . "$f"
+            done'
 
   # ============================================================================
   # Security Scan

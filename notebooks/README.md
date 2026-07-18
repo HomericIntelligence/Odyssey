@@ -34,10 +34,10 @@ Then navigate to `http://localhost:8888` in your browser.
 
 ### 1. Install Dependencies
 
-All dependencies are already configured in `pixi.toml`. Just ensure you're using pixi:
+All dependencies are already configured in `pyproject.toml`. Just sync the uv environment (and prefix commands with `uv run`, or activate `.venv`):
 
 ```bash
-pixi install
+uv sync --locked
 ```
 
 ### 2. Optional: Download Datasets (for training notebooks)
@@ -77,7 +77,7 @@ The notebook infrastructure bridges Python and Mojo:
                │
       ┌────────▼──────────────┐
       │  Mojo Bridge Calls    │
-      │ (subprocess + pixi)   │
+      │ (subprocess + uv)     │
       └────────┬──────────────┘
                │
       ┌────────▼──────────────────┐
@@ -219,10 +219,10 @@ just jupyter-validate
 FileNotFoundError: Script not found or mojo not in PATH
 ```
 
-**Solution**: Ensure you're in the pixi environment:
+**Solution**: Ensure the uv env is active (`source .venv/bin/activate` or prefix with `uv run`):
 
 ```bash
-pixi shell
+source .venv/bin/activate
 just jupyter
 ```
 

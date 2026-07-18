@@ -11,7 +11,7 @@
 
 set -uo pipefail
 
-output=$(pixi run mojo format "$@" 2>&1)
+output=$(uv run mojo format "$@" 2>&1)
 exit_code=$?
 
 if echo "$output" | grep -q "GLIBC_2\." && echo "$output" | grep -q "not found"; then
@@ -23,15 +23,15 @@ if echo "$output" | grep -q "GLIBC_2\." && echo "$output" | grep -q "not found";
     echo "         If you push without running format inside Docker, expect surprise"
     echo "         diff noise on your first PR. Avoid this by running:"
     echo "             just shell"
-    echo "             pixi run mojo format <files>"
+    echo "             uv run mojo format <files>"
     echo "         before committing (see #5331)."
     echo "         See docs/dev/mojo-glibc-compatibility.md for details."
     exit 0
 fi
 
 if echo "$output" | grep -q "unable to resolve Mojo formatter"; then
-    echo "WARNING: mojo-format skipped: mojo binary not found in pixi environment."
-    echo "         Run 'pixi install' or install the Mojo SDK to enable formatting."
+    echo "WARNING: mojo-format skipped: mojo binary not found in uv environment."
+    echo "         Run 'uv sync --locked' or install the Mojo SDK to enable formatting."
     exit 0
 fi
 

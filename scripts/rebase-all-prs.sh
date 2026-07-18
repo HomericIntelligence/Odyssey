@@ -7,7 +7,7 @@ set -o pipefail
 # For each open PR:
 #   1. Check out the PR branch in an existing worktree or create one
 #   2. Rebase against origin/main
-#   3. Run pixi run pre-commit run --all-files
+#   3. Run uv run pre-commit run --all-files
 #   4. If pre-commit modified files, commit them
 #   5. If everything succeeded, force-push (with lease) to update the PR
 #
@@ -240,7 +240,7 @@ for i in "${!PR_NUMBERS[@]}"; do
     # Run pre-commit
     if [ $SKIP_PRECOMMIT -eq 0 ]; then
         echo -e "  Running pre-commit..."
-        PRECOMMIT_OUTPUT=$(pixi run pre-commit run --all-files 2>&1)
+        PRECOMMIT_OUTPUT=$(uv run pre-commit run --all-files 2>&1)
         PRECOMMIT_EXIT=$?
 
         # Check if pre-commit modified any files
@@ -257,7 +257,7 @@ EOF
             echo -e "${GREEN}  ✓ Committed pre-commit fixes${NC}"
 
             # Run pre-commit again to verify fixes are clean
-            PRECOMMIT_OUTPUT=$(pixi run pre-commit run --all-files 2>&1)
+            PRECOMMIT_OUTPUT=$(uv run pre-commit run --all-files 2>&1)
             PRECOMMIT_EXIT=$?
         fi
 

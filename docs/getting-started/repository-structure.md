@@ -73,7 +73,7 @@ just test-group tests/odyssey/core "test_*.mojo"
 just test-group tests/papers/lenet5 "test_*.mojo"
 
 # Single test file
-pixi run mojo tests/odyssey/core/test_creation_part1.mojo
+uv run mojo tests/odyssey/core/test_creation_part1.mojo
 ```
 
 **See**: `tests/README.md` for testing guidelines
@@ -84,7 +84,7 @@ pixi run mojo tests/odyssey/core/test_creation_part1.mojo
 
 ```bash
 # Run benchmarks
-pixi run mojo src/odyssey/benchmarking/run_benchmarks.mojo
+uv run mojo src/odyssey/benchmarking/run_benchmarks.mojo
 
 # Run with release build for accurate numbers
 just build-release
@@ -299,7 +299,7 @@ just test-group tests/odyssey/core "test_*.mojo"
 
    ```bash
    just build-release
-   pixi run mojo src/odyssey/benchmarking/run_benchmarks.mojo
+   uv run mojo src/odyssey/benchmarking/run_benchmarks.mojo
    ```
 
 1. **Optimize**:
@@ -312,7 +312,7 @@ just test-group tests/odyssey/core "test_*.mojo"
 
    ```bash
    just build-release
-   pixi run mojo src/odyssey/benchmarking/run_benchmarks.mojo
+   uv run mojo src/odyssey/benchmarking/run_benchmarks.mojo
    ```
 
 1. **Document**:
@@ -440,7 +440,7 @@ just pre-commit-all
 
 ```bash
 # Verify environment
-pixi run mojo --version
+uv run mojo --version
 
 # Build project
 just build
@@ -468,7 +468,8 @@ just pre-commit-all
 | `README.md` | Project overview |
 | `AGENTS.md` | Claude Code conventions |
 | `justfile` | All available build/test/train recipes |
-| `pixi.toml` | Dependencies and environment (Mojo 0.26.1) |
+| `pyproject.toml` | Dependencies and environment (single source of truth, Mojo 1.0.0b2) |
+| `uv.lock` | Locked dependency versions |
 
 ### Essential Directories
 
@@ -485,7 +486,7 @@ just pre-commit-all
 ### For New Contributors
 
 1. **Setup**: Follow [installation guide](installation.md)
-2. **Verify**: Run `pixi run mojo --version`
+2. **Verify**: Run `uv run mojo --version`
 3. **Explore**: Read `src/odyssey/README.md` for the shared library
 4. **Try**: Run `just test-mojo` to verify everything works
 5. **Ask**: Use GitHub issues for questions
@@ -523,7 +524,7 @@ just pre-commit-all
 
 1. **Organization**: Repository is logically organized by purpose
 2. **Locations**: Use decision tree to find right location
-3. **Build system**: All commands go through `just` or `pixi run`
+3. **Build system**: All commands go through `just` or `uv run`
 4. **Validation**: Run `just pre-commit-all` before committing
 
 **Remember**:

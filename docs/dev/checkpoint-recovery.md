@@ -32,7 +32,7 @@ else can age out per a policy of your choosing.
 If the training host is lost:
 
 1. Identify the most recent checkpoint in your backup target.
-2. Restore to a fresh host with the same Mojo / pixi environment.
+2. Restore to a fresh host with the same Mojo / uv environment.
 3. Resume training with `just train --resume <path/to/checkpoint>` (when
    resume support lands — tracked in #5184).
 

@@ -1,5 +1,5 @@
 # Dependabot configuration for Odyssey
-# Manages Python dependencies, GitHub Actions, and future Pixi support
+# Manages Python dependencies (uv/pyproject.toml), GitHub Actions, and containers
 # Documentation: https://docs.github.com/en/code-security/dependabot/dependabot-version-updates
 
 version: 2
@@ -10,7 +10,7 @@ updates:
   # ============================================================================
   # Purpose: Keep Python tooling and development dependencies current
   # Frequency: Weekly (Tuesdays) to batch updates
-  # Scope: pixi.toml dependencies and any future requirements.txt files
+  # Scope: pyproject.toml [project.dependencies] + [dependency-groups]
   - package-ecosystem: "pip"
     directory: "/"
     schedule:

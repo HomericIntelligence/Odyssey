@@ -55,7 +55,7 @@ git checkout -b <issue-number>-<description>
 
 # 3. Validate
 just pre-commit-all
-pixi run mojo test tests/
+uv run mojo test tests/
 
 # 4. Commit with issue reference
 git add . && git commit -m "fix(scope): description

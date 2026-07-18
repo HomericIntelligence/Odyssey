@@ -7,9 +7,9 @@ This guide is for developers who want to use ML Odyssey's `src/odyssey/` library
 
 | Requirement | Version | Notes |
 | --- | --- | --- |
-| Mojo | 1.0.0b2+ | Install via `pixi add modular` or [mojolang.org](https://mojolang.org/) |
+| Mojo | 1.0.0b2+ | Installed via `uv sync --locked` from the Modular PyPI index, or [mojolang.org](https://mojolang.org/) |
 | glibc | ≥ 2.32 | Ubuntu 22.04+, Debian 12+, or use Podman (see below) |
-| [Pixi](https://pixi.sh/) | latest | Environment and package manager |
+| [uv](https://docs.astral.sh/uv/) | latest | Environment and package manager |
 
 ### GLIBC Compatibility
 
@@ -40,15 +40,14 @@ Mojo package path:
 ```bash
 git clone https://github.com/HomericIntelligence/Odyssey.git
 cd Odyssey
-pixi install          # installs Mojo 1.0.0b2 and all Python tooling
+uv sync --locked      # installs Mojo 1.0.0b2 and all Python tooling
 just build            # compiles src/odyssey/ into .mojopkg artifacts
 ```
 
-Then, in your project's `pixi.toml`, add the `src/odyssey/` directory to `MOJO_PATH`:
+Then, in your project, add the `src/odyssey/` directory to `MOJO_PATH`:
 
-```toml
-[feature.default.activation.env]
-MOJO_PATH = "/path/to/Odyssey/shared"
+```bash
+export MOJO_PATH="/path/to/Odyssey/shared"
 ```
 
 ## Importing the Shared Library
@@ -81,5 +80,5 @@ projects via `MOJO_PATH` or `--import-path`.
 | --- | --- |
 | `GLIBC_2.32 not found` | Use Ubuntu 22.04+, Debian 12+, or `just shell` in Podman |
 | `cannot find module 'shared'` | Verify `MOJO_PATH` includes `Odyssey/shared` |
-| `mojo: command not found` | Run `pixi install` first; Mojo is installed by pixi |
+| `mojo: command not found` | Run `uv sync --locked` first; Mojo is installed by uv |
 | Build fails with import errors | Run `just build` before importing; compiled artifacts are required |

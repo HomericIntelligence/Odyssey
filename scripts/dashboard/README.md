@@ -14,7 +14,7 @@ Flask-based web dashboard for monitoring training runs.
 
 ```bash
 # Start the dashboard server
-pixi run python scripts/dashboard/server.py
+uv run python scripts/dashboard/server.py
 
 # Open in browser
 # http://127.0.0.1:5000
@@ -23,7 +23,7 @@ pixi run python scripts/dashboard/server.py
 ## Command Line Options
 
 ```bash
-pixi run python scripts/dashboard/server.py --help
+uv run python scripts/dashboard/server.py --help
 
 Options:
   --port PORT       Port to run server on (default: 5000)

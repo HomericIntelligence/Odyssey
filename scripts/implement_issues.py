@@ -3087,7 +3087,7 @@ PR #{pr_number} has failing CI checks:
 1. Analyze the failure logs to understand what's broken
 2. Use the Read tool to examine the failing code
 3. Use the Edit tool to fix the issues in the code
-4. Run tests with `pixi run mojo test` to verify fixes
+4. Run tests with `uv run mojo test` to verify fixes
 5. COMMIT your changes before finishing using: git add -A && git commit -m "fix: Address CI failures for #{issue}"
 6. DO NOT just output text - you MUST make actual file changes AND commit them
 
@@ -3096,7 +3096,7 @@ PR #{pr_number} has failing CI checks:
 - You MUST commit your changes before finishing - branches with uncommitted changes are not acceptable
 - Use absolute paths starting with {worktree}
 - Follow Mojo v0.26.1+ syntax (out self for constructors, mut self for mutating methods)
-- If logs are empty, run `pixi run mojo test` to see the actual errors
+- If logs are empty, run `uv run mojo test` to see the actual errors
 """
 
         # Run Claude to fix
@@ -3400,7 +3400,7 @@ You are on branch: {worktree.name}
 2. Create or modify the necessary files to implement the plan
 3. Use the Write tool to create new files and Edit tool to modify existing files
 4. Write clean, well-documented Mojo code following the existing patterns in src/odyssey/core/
-5. Run tests with `pixi run mojo test` if applicable
+5. Run tests with `uv run mojo test` if applicable
 6. COMMIT your changes before finishing using: git add -A && git commit -m "feat: Implement #{issue}"
 7. DO NOT just output text - you MUST make actual file changes AND commit them
 

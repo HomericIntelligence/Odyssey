@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Build/compile Mojo files with mode-specific flags.
-# Runs INSIDE the container — uses pixi run mojo directly.
+# Runs INSIDE the container — uses uv run mojo directly.
 #
 # Usage: bash scripts/build_mojo.sh [mode]
 #   mode: debug (default) | release | test | ci
@@ -58,7 +58,7 @@ find . -name "*.mojo" \
         out="$BUILD_DIR/$(basename "$file" .mojo)"
         echo "→ Building: $file"
 
-        if ! pixi run mojo build $FLAGS -I "$REPO_ROOT" "$file" -o "$out" 2>&1; then
+        if ! uv run mojo build $FLAGS -I "$REPO_ROOT" "$file" -o "$out" 2>&1; then
             echo "❌ Failed: $file"
             FAILED=1
             if [[ "$FAIL_ON_ERROR" -eq 1 ]]; then

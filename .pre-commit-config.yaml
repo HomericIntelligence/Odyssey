@@ -49,19 +49,19 @@ repos:
         exclude: ^\.github/workflows/_required\.yml$
         pass_filenames: true
 
-  # Version sync check — ensures pyproject.toml, pixi.toml, mojo.toml, and VERSION
+  # Version sync check — ensures pyproject.toml, mojo.toml, and VERSION
   # all carry the same version string. Fails if any file drifts. Use `just bump-version`
-  # to update all files atomically. Resolves #5327 and #5190.
+  # to update all files atomically. Resolves #5327 and #5190. (pixi.toml removed — ADR-018.)
   - repo: local
     hooks:
       - id: check-version-sync
         name: Check Version Sync
         description: >-
-          Ensure version in pyproject.toml, pixi.toml, mojo.toml, and VERSION are all in sync.
+          Ensure version in pyproject.toml, mojo.toml, and VERSION are all in sync.
           Use `just bump-version <new_version>` to bump atomically.
         entry: python3 scripts/check_version_sync.py
         language: system
-        files: ^(pyproject\.toml|pixi\.toml|mojo\.toml|VERSION)$
+        files: ^(pyproject\.toml|mojo\.toml|VERSION)$
         pass_filenames: false
 
   # mojo-format: Requires Mojo binary (glibc >= 2.32, i.e., Ubuntu 22.04+, Debian 12+).
@@ -101,23 +101,21 @@ repos:
         pass_filenames: false
         always_run: true
 
-  # Prevent accidental in-workspace pixi env
+  # Prevent accidentally committing the uv-managed venv (ADR-018 replacement for
+  # the former no-pixi-env-in-workspace guard). The venv is developer-local and
+  # must never be tracked — CI builds it into the image / via `uv sync`.
   - repo: local
     hooks:
-      - id: no-pixi-env-in-workspace
-        name: Forbid real .pixi/envs/ in workspace (use detached-environments)
+      - id: no-venv-tracked
+        name: Forbid tracking the uv .venv/ in the repo
         description: >-
-          Ensures pixi stores envs in the per-user cache dir (detached-environments = true
-          in .pixi/config.toml), not inside the workspace. A symlink at .pixi/envs
-          (created by pixi as a convenience pointer) is acceptable; an actual directory
-          with a real installation collides between host and container at the same path.
+          Ensures the uv-managed virtual environment (.venv/) is never committed.
+          It is developer-local; CI materialises it via `uv sync`.
         entry: >-
           bash -c
           'if [ "${CI:-false}" = "true" ]; then exit 0; fi;
-          if [ -d .pixi/envs ] && [ ! -L .pixi/envs ]; then
-          echo "ERROR .pixi/envs/ is a real directory, not a symlink. pixi detached-environments is not active.";
-          echo "Fix ensure .pixi/config.toml contains detached-environments = true";
-          echo "Then run rm -rf .pixi/envs && pixi install";
+          if git ls-files --error-unmatch .venv >/dev/null 2>&1; then
+          echo "ERROR .venv/ is tracked by git. Remove it: git rm -r --cached .venv";
           exit 1; fi'
         language: system
         pass_filenames: false
@@ -190,33 +188,35 @@ repos:
       - id: bandit
         name: Bandit Security Scan
         description: Scan Python files for security vulnerabilities using bandit
-        entry: pixi run bandit -ll
+        entry: uv run bandit -ll
         language: system
         files: ^(scripts|tests|tools|examples)/.*\.py$
         types: [python]
         pass_filenames: true
 
-  # Dependency sync check — ensures pixi.toml, pyproject.toml, and requirements*.txt
-  # stay consistent with each other (Issue #5137).
+  # Dependency lock freshness — ensures uv.lock is consistent with pyproject.toml
+  # (ADR-018 replacement for the former pixi.toml↔requirements*.txt sync check,
+  # Issue #5137). `uv lock --check` fails if the lockfile is stale.
   - repo: local
     hooks:
-      - id: check-dep-sync
-        name: Check Dependency Sync
-        description: Validate dependency consistency across pixi.toml, pyproject.toml, and requirements*.txt (Issue #5137)
-        entry: python3 scripts/check_dep_sync.py
+      - id: check-uv-lock
+        name: Check uv.lock Freshness
+        description: Validate that uv.lock is up-to-date with pyproject.toml (ADR-018)
+        entry: uv lock --check
         language: system
-        files: ^(pixi\.toml|pyproject\.toml|requirements.*\.txt)$
+        files: ^(pyproject\.toml|uv\.lock)$
         pass_filenames: false
 
-  # Version consistency check — ensures .pre-commit-config.yaml revs match pixi.toml (Issue #4030)
+  # Version consistency check — ensures .pre-commit-config.yaml revs match the
+  # pins in pyproject.toml (Issue #4030).
   - repo: local
     hooks:
       - id: check-precommit-versions
         name: Check Pre-commit Version Consistency
-        description: Ensure .pre-commit-config.yaml revs match pixi.toml versions (Issue #4030)
+        description: Ensure .pre-commit-config.yaml revs match pyproject.toml versions (Issue #4030)
         entry: python scripts/check_precommit_versions.py
         language: system
-        files: ^(\.pre-commit-config\.yaml|pixi\.toml)$
+        files: ^(\.pre-commit-config\.yaml|pyproject\.toml)$
         pass_filenames: false
 
   # Python type checking
@@ -236,7 +236,7 @@ repos:
       - id: mypy-examples
         name: mypy (examples)
         description: Type-check Python files in examples/ one file at a time
-        entry: pixi run python scripts/mypy-each-file.py --ignore-missing-imports --no-strict-optional --explicit-package-bases --check-untyped-defs --python-version 3.10
+        entry: uv run python scripts/mypy-each-file.py --ignore-missing-imports --no-strict-optional --explicit-package-bases --check-untyped-defs --python-version 3.10
         language: system
         files: ^examples/.*\.py$
         types: [python]
@@ -247,16 +247,16 @@ repos:
     hooks:
       - id: ruff-format-python
         name: Ruff Format Python
-        description: Format Python files in scripts/, examples/, tests/, tools/ and all subdirectories using pixi run ruff format
-        entry: pixi run ruff format
+        description: Format Python files in scripts/, examples/, tests/, tools/ and all subdirectories using uv run ruff format
+        entry: uv run ruff format
         language: system
         files: ^(scripts|examples|tests|tools)/.*\.py$
         types: [python]
         pass_filenames: true
       - id: ruff-check-python
         name: Ruff Check Python
-        description: Lint Python files in scripts/, examples/, tests/, tools/ and all subdirectories using pixi run ruff check
-        entry: pixi run ruff check --fix
+        description: Lint Python files in scripts/, examples/, tests/, tools/ and all subdirectories using uv run ruff check
+        entry: uv run ruff check --fix
         language: system
         files: ^(scripts|examples|tests|tools)/.*\.py$
         types: [python]
@@ -294,12 +294,12 @@ repos:
         files: ^README\.md$
         pass_filenames: false
       - id: check-precommit-versions
-        name: Check pre-commit vs pixi version drift
-        description: Fail if rev tags in .pre-commit-config.yaml drift from pixi.lock versions
+        name: Check pre-commit vs uv version drift
+        description: Fail if rev tags in .pre-commit-config.yaml drift from pyproject.toml versions
         entry: python scripts/check_precommit_versions.py
         language: system
         pass_filenames: false
-        files: ^(\.pre-commit-config\.yaml|pixi\.toml|pixi\.lock)$
+        files: ^(\.pre-commit-config\.yaml|pyproject\.toml|uv\.lock)$
 
   # Markdown linting
   - repo: https://github.com/DavidAnson/markdownlint-cli2

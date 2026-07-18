@@ -53,7 +53,7 @@ Tools can be integrated into GitHub Actions workflows:
 # .github/workflows/benchmark.yml
 - name: Run performance benchmarks
   run: |
-    pixi run mojo test benchmarks/
+    uv run mojo test benchmarks/
 ```text
 
 #### Example: Code Generation Validation
@@ -128,7 +128,7 @@ from tests.shared.fixtures import generate_batch, ModelFixture
 
 ```bash
 # 1. Run benchmarks
-pixi run mojo test benchmarks/
+uv run mojo test benchmarks/
 
 # 2. Use shared benchmarking module in code
 from odyssey.benchmarking import benchmark_function, print_benchmark_report
@@ -283,7 +283,7 @@ ls tools/paper-scaffold/scaffold.py
 export MOJO_PATH=/path/to/Odyssey
 
 # Verify imports in Mojo REPL
-pixi run mojo
+uv run mojo
 >>> from tests.shared.fixtures import create_test_tensor
 ```text
 
@@ -325,7 +325,7 @@ python tools/codegen/training_template.py \
 # Use tests/odyssey/fixtures/ in test files
 
 # 6. Run benchmarks
-pixi run mojo test benchmarks/
+uv run mojo test benchmarks/
 ```text
 
 ## References

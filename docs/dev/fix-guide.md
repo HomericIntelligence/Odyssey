@@ -356,7 +356,7 @@ Fixes 17 errors - unblocks all test compilation
 5. src/odyssey/data/transforms.mojo (lines 621, 400)
 ```text
 
-**After Step 1**: Run `pixi run mojo -I . tests/odyssey/data/run_all_tests.mojo` to check progress
+**After Step 1**: Run `uv run mojo -I . tests/odyssey/data/run_all_tests.mojo` to check progress
 
 ### Step 2: Fix AnyTensor Ownership (15 min)
 
@@ -370,7 +370,7 @@ Fixes 11 errors - enables transform tests
 4. Line 814: return data^ (RandomErasing path 3)
 ```text
 
-**After Step 2**: Run `pixi run mojo -I . tests/odyssey/data/run_all_tests.mojo` to check progress
+**After Step 2**: Run `uv run mojo -I . tests/odyssey/data/run_all_tests.mojo` to check progress
 
 ### Step 3: Fix Tensor Import (10 min)
 
@@ -413,7 +413,7 @@ Fixes 9 cascading errors - proper type safety
 After each fix step, run:
 
 ```bash
-pixi run mojo -I . tests/odyssey/data/run_all_tests.mojo
+uv run mojo -I . tests/odyssey/data/run_all_tests.mojo
 ```text
 
 ### After Step 1 (Fix **init**)
@@ -524,7 +524,7 @@ struct MyStruct(Copyable, Movable):
 
 All fixes complete when:
 
-- `pixi run mojo -I . tests/odyssey/data/run_all_tests.mojo` executes without compilation errors
+- `uv run mojo -I . tests/odyssey/data/run_all_tests.mojo` executes without compilation errors
 - Test output shows: `Total Tests: 43`, `Passed: X`, `Failed: Y`
 - No errors of the 5 types listed above appear
 

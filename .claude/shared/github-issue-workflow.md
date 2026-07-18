@@ -98,7 +98,7 @@ gh issue comment <number> --body "$(cat <<'EOF'
 - Coverage: [percentage if known]
 
 ### Verification
-- [x] `pixi run test` passes
+- [x] `uv run pytest` passes
 - [x] `just pre-commit-all` passes
 - [x] Manual testing complete
 EOF

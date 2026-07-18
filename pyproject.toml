@@ -1,5 +1,11 @@
-# Dependencies are managed in pixi.toml (single source of truth).
-# This file provides project metadata and tool configuration only.
+# pyproject.toml — single source of truth for Odyssey's Python + Mojo toolchain
+# (uv-managed, per Odysseus ADR-018). Replaces pixi.toml / pixi.lock.
+#
+# The Mojo compiler is installed from the Modular PyPI index (see
+# [[tool.uv.index]] "modular" below) via the `mojo` package — NOT from conda
+# anymore. `uv sync` resolves `mojo == 1.0.0b2` (the same tagged beta the conda
+# pin targeted) and drops the `mojo` / `mojo-compiler` binaries into the venv,
+# so `uv run mojo ...` works with no conda / MAX channel.
 
 [build-system]
 requires = ["setuptools>=82.0.1", "wheel"]
@@ -16,6 +22,118 @@ authors = [
     {name = "Micah Villmow", email = "4211002+mvillmow@users.noreply.github.com"}
 ]
 
+# Runtime + toolchain dependencies (moved verbatim from pixi.toml [dependencies]
+# and [pypi-dependencies]). Version floors preserved, including the transitive
+# CVE floors (#5386) that force the resolver past known vulnerabilities.
+dependencies = [
+    # Language runtime — the Mojo compiler, from the Modular PyPI index.
+    # Tagged beta 1.0.0b2 (identical build id to the former conda pin
+    # `mojo == 1.0.0b2`). Proven to compile + run Odyssey's Mojo code (ADR-018).
+    "mojo==1.0.0b2",
+
+    # Core libraries
+    "numpy>=2.3.5,<3",
+    "jinja2>=3.1.0,<4",
+    "pyyaml>=6.0.0,<7",
+    "click>=8.0.0,<9",
+    "tqdm>=4.67.0,<5",
+    "defusedxml>=0.0.1",
+    # Utilities
+    "prettytable>=3.17.0,<4",
+    "pygithub>=2.8.1,<3",
+    "jsonschema>=4.0",
+    "nbformat>=5.10.0,<6",
+    "nbconvert>=7.16.0,<8",
+    "pydantic>=2.12.5,<3",
+
+    # PyPI-only deps (were [pypi-dependencies] in pixi.toml)
+    "homericintelligence-hephaestus>=0.9.0,<1",
+    "pip-licenses>=4.0.0,<5",
+
+    # Transitive-dependency CVE floors (#5386). Not imported by project code;
+    # the constraints force the resolver past known CVEs:
+    #   authlib    CVE-2026-41425
+    #   gitpython  CVE-2026-42215 / -42284 / -44244 / GHSA-mv93-w799-cj2w
+    #   mistune    CVE-2026-33079 / -44897
+    "authlib>=1.6.11",
+    "gitpython>=3.1.50",
+    "mistune>=3.2.1",
+]
+
+[dependency-groups]
+# Dev-only tools (were [feature.dev.dependencies] in pixi.toml).
+dev = [
+    "flask>=3.0.0,<4",
+    "pip>=26.1",  # CVE-2026-1703 / -6357 (#5386)
+    # Python build frontend — used by `just wheel` to produce the odyssey wheel.
+    "build>=1.2,<2",
+
+    # Testing
+    "pytest>=9.0.3",  # CVE-2025-71176 (#5386)
+    "pytest-cov>=6.0.0,<7",
+    "pytest-timeout>=2.1.0,<3",
+    "pytest-xdist>=3.0.0,<4",
+    "pytest-benchmark>=5.0.0,<6",
+
+    # Code quality
+    "ruff>=0.14.7,<0.16",
+    "bandit>=1.7.5",
+    "mypy>=1.19.1,<2",
+    "types-PyYAML>=6.0",
+    "safety>=3.0.0,<4",
+    "pip-audit>=2.7.0,<3",
+
+    # Pre-commit
+    "pre-commit>=3.5.0",
+    "pre-commit-hooks>=4.5.0,<4.6",  # pinned to match .pre-commit-config.yaml rev (Issue #4030)
+    "nbstripout>=0.7.1",             # tracked to keep in sync with .pre-commit-config.yaml (Issue #4030)
+
+    # Documentation
+    "mkdocs>=1.6.0,<2",
+    "mkdocs-material>=9.0.0,<10",
+]
+
+# Notebook extras (were [feature.notebook.dependencies] in pixi.toml).
+notebook = [
+    "jupyterlab>=4.3.0,<5",
+    "matplotlib>=3.9.0,<4",
+    "ipywidgets>=8.1.0,<9",
+    "seaborn>=0.13.0,<1",
+]
+
+# ── uv configuration ─────────────────────────────────────────────────────────
+[tool.uv]
+# The `dev` group installs by default with `uv sync`; `notebook` is opt-in via
+# `uv sync --group notebook`.
+default-groups = ["dev"]
+
+# The Modular `mojo` compiler is published only as a pre-release (1.0.0b2), so
+# the resolver must accept pre-releases. `explicit` scoping keeps this from
+# pulling pre-releases of any OTHER dependency.
+prerelease = "allow"
+
+# NOTE on Python version (Scylla PR #2054 py-version-drift trap): the resolver
+# interpreter is pinned to 3.11 via the checked-in `.python-version` file so
+# `uv sync` resolves against the SAME Python minor the repo targets
+# (requires-python = ">=3.11"), not whatever newest interpreter (e.g. 3.14) the
+# runner happens to have. This keeps the transitive resolution identical to the
+# former pixi env and avoids latent version-delta bugs.
+
+# Modular's PyPI index hosts the `mojo` compiler package (and its
+# mojo-compiler / mojo-lldb-libs / mblack chain). Registered as a supplemental
+# index (explicit = false) so the resolver falls back to it for `mojo` while
+# still preferring PyPI (default) for everything else. This mirrors the proven
+# `uv pip install mojo --extra-index-url https://modular.gateway.scarf.sh/simple/`
+# invocation (ADR-018). The scarf gateway does not serve a browsable
+# `/simple/mojo/` page to plain GETs, but resolves correctly via uv's index
+# protocol; an `explicit`-scoped named source fails to find the package, so it
+# is intentionally left as a supplemental index.
+[[tool.uv.index]]
+name = "modular"
+url = "https://modular.gateway.scarf.sh/simple/"
+explicit = false
+
+# ── tooling config (unchanged from the pre-migration pyproject.toml) ──────────
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["scripts*"]

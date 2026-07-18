@@ -25,7 +25,7 @@ Mojo code.
 
 Before starting, ensure you have:
 
-- Completed the [Quickstart Guide](quickstart.md) and confirmed `pixi run mojo --version` works
+- Completed the [Quickstart Guide](quickstart.md) and confirmed `uv run mojo --version` works
 - Basic familiarity with neural network concepts (forward pass, loss, backpropagation)
 
 ## The Shared Library
@@ -117,7 +117,7 @@ Full example: `examples/getting_started/first_model_train.mojo`
 Execute your training script:
 
 ```bash
-pixi run mojo run train.mojo
+uv run mojo run train.mojo
 ```
 
 You should see output like:
@@ -167,7 +167,7 @@ fn main() raises:
 Run evaluation:
 
 ```bash
-pixi run mojo run evaluate.mojo
+uv run mojo run evaluate.mojo
 ```
 
 Expected output:
@@ -288,7 +288,7 @@ var train_loader = BatchLoader(train_data, batch_size=128)
 ```
 
 ```bash
-pixi run mojo build --release train.mojo
+uv run mojo build --release train.mojo
 ./train
 ```
 
@@ -318,7 +318,7 @@ cd Odyssey/examples/first_model
 
 # Run from repository root
 cd ../..
-pixi run mojo run examples/first_model/train.mojo
+uv run mojo run examples/first_model/train.mojo
 ```
 
 ## Understanding the Training Loop
