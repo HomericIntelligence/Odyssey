@@ -254,6 +254,7 @@ bash scripts/run_primitive_test.sh --list     # list known primitives + paths
 | LayerNorm | layer | `bash scripts/run_primitive_test.sh layernorm` |
 | Transformer FeedForward (FFN) | layer | `bash scripts/run_primitive_test.sh ffn` |
 | Multi-Head Attention (scaled dot-product self-attention) | layer | `bash scripts/run_primitive_test.sh attention` |
+| Transformer encoder block (pre-LN attention + FFN) | layer | `bash scripts/run_primitive_test.sh transformer` |
 | ADOPT | optimizer | `bash scripts/run_primitive_test.sh adopt` |
 | Sophia (clipped update step; caller-supplied Hessian estimates) | optimizer | `bash scripts/run_primitive_test.sh sophia` |
 | Adan | optimizer | `bash scripts/run_primitive_test.sh adan` |
