@@ -21,6 +21,7 @@ Includes:
 - FTRL-Proximal (online learning with L1 sparsity — McMahan et al. 2013)
 - Shampoo (two-sided matrix preconditioner via Newton-Schulz inverse fourth root — Anil et al. 2020)
 - SOAP (Shampoo + Adam in the preconditioner eigenbasis)
+- KL-Shampoo (Adam-free stable Shampoo via KL-divergence minimization — Lin et al. 2025)
 
 All optimizers follow pure functional design - caller manages state
 
@@ -130,6 +131,14 @@ from odyssey.training.optimizers.shampoo import (
 from odyssey.training.optimizers.soap import (
     soap_step,
     init_soap_state,
+)
+
+# KL-Shampoo optimizer (Adam-free stable Shampoo via KL-divergence minimization)
+from odyssey.training.optimizers.kl_shampoo import (
+    kl_shampoo_step,
+    kl_shampoo_step_simple,
+    init_kl_shampoo_state,
+    is_kl_shampoo_eligible,
 )
 
 # Optimizer utilities (common helper functions)
