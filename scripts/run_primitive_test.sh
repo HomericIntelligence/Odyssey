@@ -37,6 +37,7 @@ TEST[sophia]="tests/odyssey/training/optimizers/test_sophia.mojo"
 # --- layers ---
 TEST[ffn]="tests/odyssey/core/layers/test_feedforward.mojo"
 TEST[gru]="tests/odyssey/core/layers/test_gru.mojo"
+TEST[kan]="tests/odyssey/core/layers/test_kan.mojo"
 TEST[layernorm]="tests/odyssey/core/layers/test_layernorm.mojo"
 TEST[lstm]="tests/odyssey/core/layers/test_lstm.mojo"
 TEST[rnn]="tests/odyssey/core/layers/test_rnn.mojo"
