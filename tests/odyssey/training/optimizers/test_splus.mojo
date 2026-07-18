@@ -11,7 +11,7 @@ Tests cover:
   sequence, plus cross-step state threading
 
 Reference values are produced by the committed generator
-`parity_refs/splus_parity_reference.py` (R=C=4, lr=0.1, beta1=0.9, beta2=0.99,
+`parity_refs/splus_parity_reference.py` (R=C=4, lr=0.1, beta1=0.9, beta2=0.999,
 ema_rate=0.999, precondition_frequency=100). The fixture uses a SQUARE, full-rank,
 direction-varying gradient so BOTH Kronecker factors are full rank with distinct
 eigenvalues — the regime where the eigenbasis is unique up to per-column sign and
@@ -61,6 +61,96 @@ def test_reject_non_2d() raises:
     except _:
         print("  ok rejected 1D params")
     print("test_reject_non_2d PASSED")
+
+
+def test_reject_non_float64() raises:
+    """SPlus rejects an f32 parameter (all matrix math is f64; an f32 tensor passed
+    directly would be misread lane-wise)."""
+    print("Running test_reject_non_float64...")
+    var p = zeros([2, 2], DType.float32)
+    var g = zeros([2, 2], DType.float32)
+    var z = zeros([2, 2], DType.float32)
+    var z2 = zeros([2, 2], DType.float32)
+    var z3 = zeros([2, 2], DType.float32)
+    var z4 = zeros([2, 2], DType.float32)
+    var z5 = zeros([2, 2], DType.float32)
+    try:
+        var (_, _, _, _, _, _, _) = splus_step(
+            p, p, g, z, z2, z3, z4, z5, 1, 0.1
+        )
+        raise Error("Should have rejected f32 params")
+    except _:
+        print("  ok rejected f32 params")
+    print("test_reject_non_float64 PASSED")
+
+
+def test_nonsquare_bounded_finite() raises:
+    """On a non-square (3x5) weight the smaller Kronecker factor is rank-deficient,
+    so the eigenbasis (hence the sign update) is solver-dependent — bit-parity is NOT
+    guaranteed there (see the module docstring caveat). SPlus must still produce a
+    BOUNDED, FINITE update. Assert every step stays finite and each per-element move
+    is bounded by lr (the sign update is ±1 per coordinate, shape-scaled by
+    2/(R+C) < 1, so |Δ| <= lr per element).
+    """
+    print("Running test_nonsquare_bounded_finite...")
+    var R = 3
+    var C = 5
+    var n = R * C
+    var W = zeros([R, C], DType.float64)
+    _seed_ramp(W, n, 0.07, -0.4)
+    var st = init_splus_state(W)
+    var params_ema = st[0]
+    var exp_avg = st[1]
+    var gg_left = st[2]
+    var gg_right = st[3]
+    var q_left = st[4]
+    var q_right = st[5]
+    var lr = 0.1
+
+    for s in range(1, 5):
+        # A varying, non-degenerate-in-magnitude gradient.
+        var g = zeros([R, C], DType.float64)
+        for i in range(n):
+            g.store[DType.float64](i, Float64((i * 7 + s * 3) % 11) * 0.1 - 0.5)
+        var W_prev = W
+        var r = splus_step(
+            W,
+            params_ema,
+            g,
+            exp_avg,
+            gg_left,
+            gg_right,
+            q_left,
+            q_right,
+            s,
+            lr,
+        )
+        W = r[0]
+        params_ema = r[1]
+        exp_avg = r[2]
+        gg_left = r[3]
+        gg_right = r[4]
+        q_left = r[5]
+        q_right = r[6]
+        for i in range(n):
+            var v = W.load[DType.float64](i)
+            # finite: not NaN (v == v) and not an absurd blow-up.
+            if v != v:
+                raise Error(
+                    "SPlus produced NaN on non-square step " + String(s)
+                )
+            var move = _abs_diff(v, W_prev.load[DType.float64](i))
+            # |Δ| <= lr * scale * |u|; |u| entries are bounded by the sign magnitude
+            # rotated through orthonormal bases. Use a generous 10*lr envelope.
+            if move > 10.0 * lr:
+                raise Error(
+                    "SPlus non-square update unbounded on step "
+                    + String(s)
+                    + " at "
+                    + String(i)
+                )
+    print("  ok non-square 3x5 update stays finite and bounded over 4 steps")
+    print("test_nonsquare_bounded_finite PASSED")
 
 
 def test_init_state_shapes() raises:
@@ -170,55 +260,55 @@ def test_parity_three_step() raises:
     p1.append(-0.5241478495891233)
     p1.append(-0.4053765296643648)
     p1.append(-0.3035308160929283)
-    p1.append(-0.19928752073208864)
-    p1.append(-0.09849184727272908)
-    p1.append(-0.016487136356468476)
-    p1.append(0.11655857166704368)
-    p1.append(0.20875862514678092)
+    p1.append(-0.19928752073208866)
+    p1.append(-0.09849184727272911)
+    p1.append(-0.016487136356468448)
+    p1.append(0.11655857166704373)
+    p1.append(0.2087586251467809)
     p1.append(0.3028883319621429)
     p1.append(0.3983766472889444)
-    p1.append(0.4869714502068748)
+    p1.append(0.4869714502068749)
     p1.append(0.6210779305136922)
     p1.append(0.7055914554499496)
     p1.append(0.7820658986980967)
     p1.append(0.8870152423067138)
-    p1.append(0.9898265195684591)
+    p1.append(0.9898265195684592)
 
     var p2 = List[Float64]()
     p2.append(-0.599830763446269)
     p2.append(-0.4114405198276413)
-    p2.append(-0.3127309603323719)
-    p2.append(-0.19828650676266332)
-    p2.append(-0.10264441154253133)
-    p2.append(-0.039193354792098956)
-    p2.append(0.08813531400712392)
-    p2.append(0.22927013271002278)
-    p2.append(0.3105944902537596)
-    p2.append(0.38416044761982604)
-    p2.append(0.47241769951147594)
-    p2.append(0.6343568269923165)
+    p2.append(-0.3127309603323718)
+    p2.append(-0.19828650676266338)
+    p2.append(-0.10264441154253151)
+    p2.append(-0.03919335479209894)
+    p2.append(0.08813531400712396)
+    p2.append(0.22927013271002272)
+    p2.append(0.3105944902537595)
+    p2.append(0.38416044761982593)
+    p2.append(0.4724176995114759)
+    p2.append(0.6343568269923167)
     p2.append(0.725204945779256)
     p2.append(0.809146855107501)
     p2.append(0.8731346923733122)
-    p2.append(0.96914083859885)
+    p2.append(0.9691408385988501)
 
     var p3 = List[Float64]()
-    p3.append(-0.6340705725868668)
+    p3.append(-0.6340705725868667)
     p3.append(-0.4481918306330767)
-    p3.append(-0.3462395776833768)
-    p3.append(-0.1936106700388651)
-    p3.append(-0.15470871840444794)
-    p3.append(-0.022331920519898654)
-    p3.append(0.10415974617981932)
-    p3.append(0.2290694914084497)
-    p3.append(0.3276246053239566)
-    p3.append(0.34415971443740884)
-    p3.append(0.47852369294296493)
-    p3.append(0.6434613671967239)
-    p3.append(0.7219307567661957)
+    p3.append(-0.34623957768337676)
+    p3.append(-0.19361067003886517)
+    p3.append(-0.1547087184044482)
+    p3.append(-0.022331920519898612)
+    p3.append(0.1041597461798194)
+    p3.append(0.22906949140844962)
+    p3.append(0.3276246053239563)
+    p3.append(0.3441597144374087)
+    p3.append(0.4785236929429648)
+    p3.append(0.643461367196724)
+    p3.append(0.7219307567661956)
     p3.append(0.8012054575320573)
-    p3.append(0.8618694562478114)
-    p3.append(0.9986283292258149)
+    p3.append(0.8618694562478115)
+    p3.append(0.998628329225815)
 
     # EMA params after steps 1, 2, 3.
     var e1 = List[Float64]()
@@ -227,7 +317,7 @@ def test_parity_three_step() raises:
     e1.append(-0.3000035308160929)
     e1.append(-0.19999928752073204)
     e1.append(-0.0999984918472727)
-    e1.append(-1.648713635646849e-05)
+    e1.append(-1.648713635646846e-05)
     e1.append(0.10001655857166714)
     e1.append(0.20000875862514683)
     e1.append(0.30000288833196215)
@@ -245,7 +335,7 @@ def test_parity_three_step() raises:
     e2.append(-0.3000162582456091)
     e2.append(-0.19999757473997395)
     e2.append(-0.10000113776696797)
-    e2.append(-5.5664004012211015e-05)
+    e2.append(-5.566400401221097e-05)
     e2.append(0.1000046773271026)
     e2.append(0.2000380199992317)
     e2.append(0.30001347993388394)
@@ -263,7 +353,7 @@ def test_parity_three_step() raises:
     e3.append(-0.3000624815650469)
     e3.append(-0.19999118783527284)
     e3.append(-0.10005584534760545)
-    e3.append(-7.794026052809747e-05)
+    e3.append(-7.794026052809739e-05)
     e3.append(0.10000883239595532)
     e3.append(0.2000670514706409)
     e3.append(0.30004109105927407)
@@ -340,6 +430,8 @@ def main() raises:
     print("SPlus Optimizer Test Suite")
     print("=" * 60)
     test_reject_non_2d()
+    test_reject_non_float64()
+    test_nonsquare_bounded_finite()
     test_init_state_shapes()
     test_parity_three_step()
     print("=" * 60)

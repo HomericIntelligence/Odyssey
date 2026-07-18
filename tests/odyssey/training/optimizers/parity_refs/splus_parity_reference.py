@@ -16,7 +16,7 @@ whose wording wins over any paper ambiguity:
     # Kronecker factors + their eigenbases (historical eigenbasis, as in SOAP):
     L        = EMA_b2(g gᵀ)            # R×R
     M        = EMA_b2(gᵀ g)            # C×C
-    Q_L, Q_R = eig(L), eig(M)          # refreshed every `precondition_frequency`
+    Q_L, Q_R = eig(L+εI), eig(M+εI)    # ridge ε=1e-30; refreshed every `precondition_frequency`
 
     # Momentum on the RAW gradient (first moment), projected into the eigenbasis:
     m        = EMA_b1(g)               # R×C
@@ -66,9 +66,16 @@ import json
 import numpy as np
 
 
-def eigh_flipped(gg):
-    """Full symmetric eigendecomposition, columns flipped to descending eigenvalue."""
-    _, q = np.linalg.eigh(gg)  # ascending
+def eigh_flipped(gg, eig_eps):
+    """Full symmetric eigendecomposition of the RIDGE-regularized factor.
+
+    Matches the torch/optax SPlus reference, which eigh-decomposes `L + eig_eps·I`
+    (eig_eps = 1e-30) rather than the raw EMA factor — keeping the decomposition
+    well-posed on a factor with an exact zero eigenvalue. Columns are flipped to
+    descending eigenvalue (torch.flip(dims=[1])).
+    """
+    n = gg.shape[0]
+    _, q = np.linalg.eigh(gg + eig_eps * np.eye(n))  # ascending
     return np.flip(q, axis=1)  # descending columns (torch.flip(dims=[1]))
 
 
@@ -100,11 +107,12 @@ def splus_step(
     step,
     lr,
     beta1=0.9,
-    beta2=0.99,
+    beta2=0.999,
     ema_rate=0.999,
     weight_decay=0.0,
     precondition_frequency=100,
     sign_eps=1e-12,
+    eig_eps=1e-30,
 ):
     # 1. Kronecker factors: L = EMA(g gᵀ), M = EMA(gᵀ g).
     new_gg_left = beta2 * gg_left + (1.0 - beta2) * (g @ g.T)
@@ -113,8 +121,8 @@ def splus_step(
     # 2. Eigenbasis (build on step 1, refresh every precondition_frequency).
     new_q_left, new_q_right = q_left, q_right
     if step == 1 or step % precondition_frequency == 0:
-        new_q_left = eigh_flipped(new_gg_left)
-        new_q_right = eigh_flipped(new_gg_right)
+        new_q_left = eigh_flipped(new_gg_left, eig_eps)
+        new_q_right = eigh_flipped(new_gg_right, eig_eps)
 
     # 3. Momentum on the raw gradient (first moment).
     new_exp_avg = beta1 * exp_avg + (1.0 - beta1) * g
@@ -214,7 +222,7 @@ print(
                 "C": C,
                 "lr": LR,
                 "beta1": 0.9,
-                "beta2": 0.99,
+                "beta2": 0.999,
                 "ema_rate": 0.999,
                 "precondition_frequency": 100,
             },

@@ -16,7 +16,7 @@ steps. Each step:
 
     L        = β2 L + (1-β2) g gᵀ            # left Kronecker factor
     M        = β2 M + (1-β2) gᵀ g            # right Kronecker factor
-    Q_L, Q_R = eig(L), eig(M)                # historical eigenbasis (refreshed)
+    Q_L, Q_R = eig(L+εI), eig(M+εI)          # historical eigenbasis (ε ridge; refreshed)
     m        = β1 m + (1-β1) g               # first moment on the RAW grad
     m'       = Q_Lᵀ m Q_R                   # project the first moment
     u        = Q_L sign(m') Q_Rᵀ            # SIGN in the eigenbasis, rotated back
@@ -30,12 +30,34 @@ per-coordinate update to ±1 in the eigenbasis, which is the "stable" in SPlus. 
 live parameters `W` train fast; downstream evaluation uses the slowly-averaged
 `W_ema`.
 
+The eigendecomposition is taken of a ridge-regularized factor `L + eig_eps·I` (and
+`M + eig_eps·I`), matching the reference (torch/optax SPlus eigh `L + 1e-30·I`). The
+ridge keeps the decomposition well-posed on a factor with an exact zero eigenvalue;
+it does not affect the eigenvectors of a well-conditioned full-rank factor.
+
+**Runtime caveat — rank-deficient / degenerate factors.** SPlus's update is
+solver-dependent whenever a Kronecker factor is rank-deficient or has a degenerate
+(repeated) eigenvalue: within a degenerate eigen-subspace the eigenbasis orientation
+is not unique, and because `sign(·)` is nonlinear the rotated-back update depends on
+which orthonormal basis the eigensolver happens to return. This is a genuine runtime
+property, not merely a fixture concern — on such a factor the update can differ by
+O(0.25) between two correct eigensolvers, and `sign_eps` does NOT rescue it (the
+ambiguous projected entries are O(0.1), far above the deadzone). Concretely this
+arises for any non-square weight (`R != C` forces the smaller factor rank-deficient)
+and for weights whose gradient covariance has repeated eigenvalues. The optimizer
+still produces a bounded, finite update in those cases — it is well-behaved to run —
+but **cross-implementation bit-parity is only guaranteed on well-conditioned,
+full-rank factors with distinct eigenvalues** (which is why the parity fixture uses a
+square, full-rank, direction-varying gradient). The `sign_eps` deadzone's guarantee
+is scoped to *numerically-zero* components only (|m'| below the deadzone → 0); it
+makes no promise about ambiguous O(0.1) entries in a degenerate subspace.
+
 **Numerics:** Odyssey's matmul raises on mixed dtypes, and f32 preconditioner math
 against f64 state produces garbage (the SOAP lesson). All state and matrix math here
-are float64; the caller keeps every buffer in float64 and casts the final delta back
-to the parameter dtype at the call site. Pure-functional: the caller owns all state
-(exp_avg, the two Kronecker factors, the two eigenbases, and the EMA params) and
-threads it across steps.
+are float64 — `splus_step` raises if `params` is not float64; the caller keeps every
+buffer in float64 and casts the final delta back to the parameter dtype at the call
+site. Pure-functional: the caller owns all state (exp_avg, the two Kronecker factors,
+the two eigenbases, and the EMA params) and threads it across steps.
 
 Reference:
     Frans, K., Levine, S., & Abbeel, P. (2025). A Stable Whitening Optimizer for
@@ -61,11 +83,12 @@ def splus_step(
     step: Int,
     learning_rate: Float64,
     beta1: Float64 = 0.9,
-    beta2: Float64 = 0.99,
+    beta2: Float64 = 0.999,
     ema_rate: Float64 = 0.999,
     weight_decay: Float64 = 0.0,
     precondition_frequency: Int = 100,
     sign_eps: Float64 = 1e-12,
+    eig_eps: Float64 = 1e-30,
 ) raises -> Tuple[
     AnyTensor,
     AnyTensor,
@@ -95,7 +118,7 @@ def splus_step(
         step: 1-indexed global step (increment before calling).
         learning_rate: Base learning rate (SPlus uses a width-invariant, high LR).
         beta1: First-moment decay (default 0.9).
-        beta2: Kronecker-factor EMA decay (default 0.99).
+        beta2: Kronecker-factor EMA decay (default 0.999, matching the reference).
         ema_rate: Iterate-averaging decay for `params_ema` (default 0.999).
         weight_decay: Decoupled weight-decay factor on the live params (default 0.0).
         precondition_frequency: Eigenbasis refresh period (default 100).
@@ -104,17 +127,28 @@ def splus_step(
             1e-12). This suppresses the sign of numerically-zero eigen-directions
             (e.g. every off-diagonal on step 1, where the freshly-built eigenbasis
             exactly diagonalizes the gradient), keeping the update well-defined and
-            eigensolver-independent.
+            eigensolver-independent. Scoped to numerically-zero components only — it
+            does NOT resolve the O(0.1) ambiguity of a degenerate eigen-subspace (see
+            the module docstring's rank-deficient/degenerate caveat).
+        eig_eps: Ridge added to the diagonal of each Kronecker factor before the
+            eigendecomposition (`eig(L + eig_eps·I)`), matching the reference
+            (torch/optax SPlus, `1e-30`). Keeps the decomposition well-posed on a
+            factor with an exact zero eigenvalue; negligible for full-rank factors.
 
     Returns:
         Tuple `(new_params, new_params_ema, new_exp_avg, new_gg_left, new_gg_right,
         new_q_left, new_q_right)`.
 
     Raises:
-        Error: If params is not rank-2.
+        Error: If params is not rank-2, or if params is not float64.
     """
     if params.ndim() != 2:
         raise Error("splus_step requires a rank-2 (matrix) parameter")
+    if params.dtype() != DType.float64:
+        raise Error(
+            "splus_step requires float64 params/state (all matrix math is f64 —"
+            " up-cast at the call site; see init_splus_state)"
+        )
 
     var shape = params.shape()
     var R = shape[0]
@@ -132,8 +166,11 @@ def splus_step(
     var new_q_right = q_right
     var need_eig = step == 1 or (step % precondition_frequency == 0)
     if need_eig:
-        var el = symmetric_eigh(new_gg_left)
-        var er = symmetric_eigh(new_gg_right)
+        # Ridge-regularize (L + eig_eps·I) before eigh, matching the reference
+        # (torch/optax SPlus eigh `L + 1e-30·I`) — keeps it well-posed on a factor
+        # with an exact zero eigenvalue.
+        var el = symmetric_eigh(_add_ridge(new_gg_left, eig_eps))
+        var er = symmetric_eigh(_add_ridge(new_gg_right, eig_eps))
         # symmetric_eigh returns ascending eigenvalues; flip columns to descending
         # (matching SOAP / torch.flip(dims=[1])).
         new_q_left = _flip_columns(el[1])
@@ -243,6 +280,20 @@ def _sign_tensor(x: AnyTensor, eps: Float64) raises -> AnyTensor:
         if av >= eps:
             s = 1.0 if v > 0.0 else -1.0
         out.store[DType.float64](i, s)
+    return out
+
+
+def _add_ridge(m: AnyTensor, eps: Float64) raises -> AnyTensor:
+    """Return `m + eps·I` for a square rank-2 matrix (fresh tensor)."""
+    var shape = m.shape()
+    var n = shape[0]
+    var out = zeros_like(m)
+    var total = m.numel()
+    for i in range(total):
+        out.store[DType.float64](i, m.load[DType.float64](i))
+    for d in range(n):
+        var idx = d * n + d
+        out.store[DType.float64](idx, out.load[DType.float64](idx) + eps)
     return out
 
 
