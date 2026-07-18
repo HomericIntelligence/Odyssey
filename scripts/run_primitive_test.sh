@@ -36,6 +36,7 @@ TEST[soap]="tests/odyssey/training/optimizers/test_soap.mojo"
 TEST[sophia]="tests/odyssey/training/optimizers/test_sophia.mojo"
 # --- layers ---
 TEST[attention]="tests/odyssey/core/layers/test_attention.mojo"
+TEST[sparse_attention]="tests/odyssey/core/layers/test_sparse_attention.mojo"
 TEST[ffn]="tests/odyssey/core/layers/test_feedforward.mojo"
 TEST[gru]="tests/odyssey/core/layers/test_gru.mojo"
 TEST[layernorm]="tests/odyssey/core/layers/test_layernorm.mojo"

@@ -11,6 +11,7 @@ Components:
     - RNNCell: Vanilla (Elman) recurrent cell (tanh)
     - FeedForward: Transformer position-wise feed-forward (Linear->act->Linear)
     - MultiHeadAttention: scaled dot-product self-attention block (Vaswani 2017)
+    - SparseAttention: strided factorized sparse self-attention (Child et al. 2019)
     - Sigmoid: Sigmoid activation function
     - Tanh: Hyperbolic tangent activation
     - BatchNorm: Batch normalization
@@ -46,6 +47,7 @@ from odyssey.core.layers.layernorm import LayerNorm
 from odyssey.core.layers.gru import GRUCell
 from odyssey.core.layers.feedforward import FeedForward
 from odyssey.core.layers.attention import MultiHeadAttention
+from odyssey.core.layers.sparse_attention import SparseAttention
 
 # from .activation import ReLU, Sigmoid, Tanh
 # from .pooling import MaxPool2D, AvgPool2D
