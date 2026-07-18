@@ -58,6 +58,16 @@ Key characteristics:
       params dtype; the step raises on a params/gradients dtype OR shape mismatch
       (see the guards below). No mixed dtypes: float32 params with float16
       gradients raises.
+    - Polyak floor: the numerator `max(0, f(y_t) + beta_sf*<g, z-x>)` bakes in
+      the Polyak floor `f* = 0`, i.e. it assumes `f(y_t) >= 0`. A persistently
+      negative objective drives `lr_t -> 0` and freezes the fast sequence `z`.
+    - Freeze semantics: when `lr_t == 0` the fast step is a no-op so
+      `new_z == z` (frozen), but `new_x` and `y_next` still interpolate toward
+      the (frozen) `z` via the outer momentum and keep moving.
+    - No bias correction: neither EMA (the inner-momentum buffer `m` nor the
+      L1-EMA `gnorm`) is bias-corrected, so a warm-from-zero step-1 can report a
+      large `lr_t` (e.g. ~4.8 in the parity fixture) while the still-small `m`
+      keeps the actual parameter step small.
 
 References:
     Base Schedule-Free method:
