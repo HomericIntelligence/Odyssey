@@ -45,9 +45,15 @@ Numerical assumptions:
       trainable parameter. Callers that train it should keep it positive (e.g.
       via a softplus reparameterization in the caller) — the cell itself does NOT
       clamp tau, to preserve byte-identical forward behavior.
-    - The fused solver is unconditionally stable for dt > 0 given 1/tau + f > 0;
-      with tanh, f in (-1, 1), so 1/tau + f > 0 requires tau < 1 in the worst
-      case. At the default tau = 1.0 and the small dt used in tests this holds.
+    - With dt = elapsed/L <= 1 the denominator 1 + dt*(1/tau + f) > 0 for every
+      tau > 0 (since 1/tau + f > -1 >= -1/dt); the paper's stronger 1/tau + f > 0
+      property additionally holds when tau < 1.
+    - Denominator positivity is guaranteed only for dt <= 1. With elapsed/L > 1
+      (i.e. elapsed > solver_steps) and a learned tau > 1/(1 - 1/dt), the
+      denominator can reach <= 0 and the update blows up — so keep
+      elapsed <= solver_steps (or clamp tau in the caller). The cell adds NO
+      runtime guard: a clamp would break the byte-identical forward contract, so
+      this is a documented caller responsibility.
     - Scalar loads use the tensor's own dtype (`Self.dtype`) — the compile-time
       dtype contract used across this package.
 
