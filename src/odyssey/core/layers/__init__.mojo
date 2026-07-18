@@ -45,6 +45,7 @@ from odyssey.core.layers.lstm import LSTMCell
 from odyssey.core.layers.layernorm import LayerNorm
 from odyssey.core.layers.gru import GRUCell
 from odyssey.core.layers.feedforward import FeedForward
+from odyssey.core.layers.attention import MultiHeadAttention
 
 # from .activation import ReLU, Sigmoid, Tanh
 # from .pooling import MaxPool2D, AvgPool2D

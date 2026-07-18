@@ -23,7 +23,18 @@ the transpose.
 from odyssey.tensor.any_tensor import AnyTensor
 from odyssey.tensor.tensor_creation import zeros
 from odyssey.core.layers.attention import MultiHeadAttention
+
+# Package-path import (via core/layers/__init__.mojo) — asserts the public
+# export exists; if the __init__ export line is dropped, this fails to compile.
+from odyssey.core.layers import MultiHeadAttention as MultiHeadAttentionPkg
 from odyssey.core.layers.linear import Linear
+
+# Functional attention core — used only by the raises-regression tripwire.
+from odyssey.core.attention import (
+    scaled_dot_product_attention_masked,
+    multi_head_attention_masked,
+    MultiHeadAttentionWeights,
+)
 
 
 def _seed_ramp(
@@ -231,6 +242,79 @@ def test_parity_multi_head_causal() raises:
     print("test_parity_multi_head_causal PASSED")
 
 
+def test_package_path_export() raises:
+    """`from odyssey.core.layers import MultiHeadAttention` must resolve.
+
+    The alias `MultiHeadAttentionPkg` is imported at module top via the package
+    `__init__` (not the submodule). Constructing through it proves the public
+    export line in `core/layers/__init__.mojo` is present — if that line is
+    dropped, this test file fails to COMPILE, so the export can never silently
+    vanish again (PR #5640 review MAJOR-1).
+    """
+    print("Running test_package_path_export...")
+    var attn = MultiHeadAttentionPkg[DType.float32](8, num_heads=2)
+    if attn.d_model != 8 or attn.num_heads != 2:
+        raise Error("package-path export constructed the wrong layer")
+    print("  ok imported via odyssey.core.layers package path")
+    print("test_package_path_export PASSED")
+
+
+def test_functional_core_still_broken_tripwire() raises:
+    """Tripwire: the functional attention core still RAISES on all inputs.
+
+    `MultiHeadAttention` reimplements the forward instead of delegating to the
+    functional core (`core/attention.mojo`) because that core's `transpose(key)`
+    reverses ALL axes rather than swapping only the last two, so its QKᵀ matmul
+    raises on every documented input (Odyssey#5648, PR #5640 review MAJOR-2).
+
+    This test asserts BOTH functional paths still raise. When Odyssey#5648 is
+    fixed, this test starts FAILING — that is intentional: its failure message
+    is the actionable TODO to collapse the twin into a real cross-parity test
+    asserting `MultiHeadAttention.forward == multi_head_attention_masked` on a
+    shared input.
+    """
+    print("Running test_functional_core_still_broken_tripwire...")
+    var x = zeros([2, 3, 4], DType.float64)  # batch=2, seq=3, d_model=4
+    var empty = zeros(List[Int](), DType.float64)
+
+    # 3D path: scaled_dot_product_attention_masked reverses [B,S,d_k] fully.
+    var sdpa_raised = False
+    try:
+        var _ = scaled_dot_product_attention_masked(x, x, x, empty)
+    except _:
+        sdpa_raised = True
+    if not sdpa_raised:
+        raise Error(
+            "functional attention core no longer raises (3D path): the"
+            " transpose bug (Odyssey#5648) appears fixed — replace this"
+            " tripwire with a true cross-parity test asserting"
+            " MultiHeadAttention == multi_head_attention_masked (see PR #5640"
+            " review MAJOR-2)"
+        )
+
+    # 4D / multi-head path: multi_head_attention_masked, num_heads=2.
+    var wq = zeros([4, 4], DType.float64)
+    var wk = zeros([4, 4], DType.float64)
+    var wv = zeros([4, 4], DType.float64)
+    var wo = zeros([4, 4], DType.float64)
+    var w = MultiHeadAttentionWeights(wq, wk, wv, wo)
+    var mha_raised = False
+    try:
+        var _ = multi_head_attention_masked(x, x, x, w, 2, empty)
+    except _:
+        mha_raised = True
+    if not mha_raised:
+        raise Error(
+            "functional attention core no longer raises (multi-head path): the"
+            " transpose bug (Odyssey#5648) appears fixed — replace this"
+            " tripwire with a true cross-parity test asserting"
+            " MultiHeadAttention == multi_head_attention_masked (see PR #5640"
+            " review MAJOR-2)"
+        )
+    print("  ok both functional paths still raise (Odyssey#5648 open)")
+    print("test_functional_core_still_broken_tripwire PASSED")
+
+
 def main() raises:
     """Run all MultiHeadAttention tests."""
     print("=" * 60)
@@ -243,6 +327,8 @@ def main() raises:
     test_parameter_count()
     test_parity_single_head()
     test_parity_multi_head_causal()
+    test_package_path_export()
+    test_functional_core_still_broken_tripwire()
     print("=" * 60)
     print("All MultiHeadAttention tests PASSED")
     print("=" * 60)
