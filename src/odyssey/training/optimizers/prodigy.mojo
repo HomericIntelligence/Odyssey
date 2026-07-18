@@ -31,7 +31,8 @@ per-coordinate tensors. `gamma` is the base step-size SCHEDULE, default 1.0:
 Prodigy has "no learning rate to tune", so `gamma` normally stays fixed at 1.0
 and the d-estimate supplies the step scale. A `growth_rate` cap limits how fast
 d may grow per step (`d' <= growth_rate * d`), acting as a natural warmup; the
-default `inf` disables the cap (matching the paper's base algorithm).
+default (`1e30`) effectively disables the cap (matching the paper's base
+algorithm).
 
 Key characteristics:
     - No learning rate. `d` is estimated online and is monotone non-decreasing.
