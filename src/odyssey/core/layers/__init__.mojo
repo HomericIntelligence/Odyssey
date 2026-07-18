@@ -10,6 +10,7 @@ Components:
     - ReLU: Rectified Linear Unit activation
     - RNNCell: Vanilla (Elman) recurrent cell (tanh)
     - FeedForward: Transformer position-wise feed-forward (Linear->act->Linear)
+    - MultiHeadAttention: scaled dot-product self-attention block (Vaswani 2017)
     - Sigmoid: Sigmoid activation function
     - Tanh: Hyperbolic tangent activation
     - BatchNorm: Batch normalization
