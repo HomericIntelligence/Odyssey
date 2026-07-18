@@ -132,6 +132,12 @@ from odyssey.training.optimizers.soap import (
     init_soap_state,
 )
 
+# Schedule-Free optimizer (online iterate averaging — anytime; Defazio et al. 2024)
+from odyssey.training.optimizers.schedule_free import (
+    schedule_free_step,
+    schedule_free_step_simple,
+)
+
 # Optimizer utilities (common helper functions)
 from odyssey.training.optimizers.optimizer_utils import (
     initialize_optimizer_state,
