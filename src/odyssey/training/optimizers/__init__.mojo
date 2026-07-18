@@ -132,6 +132,12 @@ from odyssey.training.optimizers.soap import (
     init_soap_state,
 )
 
+# Prodigy optimizer (parameter-free step-size estimation — Mishchenko & Defazio 2023)
+from odyssey.training.optimizers.prodigy import (
+    prodigy_step,
+    prodigy_step_simple,
+)
+
 # Optimizer utilities (common helper functions)
 from odyssey.training.optimizers.optimizer_utils import (
     initialize_optimizer_state,

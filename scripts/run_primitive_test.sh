@@ -32,6 +32,7 @@ TEST[ftrl]="tests/odyssey/training/optimizers/test_ftrl.mojo"
 TEST[lionmuon]="tests/odyssey/training/optimizers/test_lionmuon.mojo"
 TEST[mgup_muon]="tests/odyssey/training/optimizers/test_mgup_muon.mojo"
 TEST[muon_hyperball]="tests/odyssey/training/optimizers/test_muon_hyperball.mojo"
+TEST[prodigy]="tests/odyssey/training/optimizers/test_prodigy.mojo"
 TEST[soap]="tests/odyssey/training/optimizers/test_soap.mojo"
 TEST[sophia]="tests/odyssey/training/optimizers/test_sophia.mojo"
 # --- layers ---
