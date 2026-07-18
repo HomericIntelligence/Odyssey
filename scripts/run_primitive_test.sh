@@ -35,6 +35,7 @@ TEST[muon_hyperball]="tests/odyssey/training/optimizers/test_muon_hyperball.mojo
 TEST[soap]="tests/odyssey/training/optimizers/test_soap.mojo"
 TEST[sophia]="tests/odyssey/training/optimizers/test_sophia.mojo"
 # --- layers ---
+TEST[deepsets]="tests/odyssey/core/layers/test_deepsets.mojo"
 TEST[ffn]="tests/odyssey/core/layers/test_feedforward.mojo"
 TEST[gru]="tests/odyssey/core/layers/test_gru.mojo"
 TEST[layernorm]="tests/odyssey/core/layers/test_layernorm.mojo"
