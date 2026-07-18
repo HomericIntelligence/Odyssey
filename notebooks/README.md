@@ -34,7 +34,8 @@ Then navigate to `http://localhost:8888` in your browser.
 
 ### 1. Install Dependencies
 
-All dependencies are already configured in `pyproject.toml`. Just sync the uv environment (and prefix commands with `uv run`, or activate `.venv`):
+All dependencies are already configured in `pyproject.toml`. Just sync the uv environment (and prefix
+commands with `uv run`, or activate `.venv`):
 
 ```bash
 uv sync --locked

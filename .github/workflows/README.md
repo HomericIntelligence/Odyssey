@@ -7,7 +7,8 @@ on their purpose: testing, validation, security, and performance monitoring.
 
 The CI/CD strategy uses GitHub Actions with the following principles:
 
-1. **uv-based Setup**: All workflows use uv for environment management (incl. the Mojo compiler from the Modular PyPI index) instead of modular/setup-mojo
+1. **uv-based Setup**: All workflows use uv for environment management (incl. the Mojo compiler from the
+   Modular PyPI index) instead of modular/setup-mojo
 2. **Justfile Integration**: Workflows use justfile recipes for consistency between local and CI environments
 3. **Parallel Execution**: Test workflows use matrix strategies for parallelization
 4. **Fail-Fast Control**: Strategic use of `fail-fast: false` allows complete test runs without early stopping
@@ -815,7 +816,8 @@ All Mojo workflows use the shared composite action:
 ```
 
 The composite action at `.github/actions/setup-uv/action.yml` installs uv via
-`astral-sh/setup-uv@v7` (enable-cache) keyed on `uv.lock`, and caches the uv download cache using an explicit `actions/cache@v5` step keyed on `uv.lock`.
+`astral-sh/setup-uv@v7` (enable-cache) keyed on `uv.lock`, and caches the uv download cache using an
+explicit `actions/cache@v5` step keyed on `uv.lock`.
 The explicit cache step is intentional — `cache: true` was found unreliable on v0.9.4.
 
 ### Matrix Strategies for Parallelization
@@ -984,7 +986,8 @@ on:
 
 ### uv Configuration
 
-All Mojo workflows depend on `pyproject.toml` + `uv.lock` at repository root. The Mojo compiler installs via uv from the Modular PyPI index (ADR-018). Key points:
+All Mojo workflows depend on `pyproject.toml` + `uv.lock` at repository root. The Mojo compiler installs
+via uv from the Modular PyPI index (ADR-018). Key points:
 
 - Specify `mojo` version (pinned)
 - Include Python dependencies for scripts

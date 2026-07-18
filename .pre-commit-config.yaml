@@ -188,7 +188,7 @@ repos:
       - id: bandit
         name: Bandit Security Scan
         description: Scan Python files for security vulnerabilities using bandit
-        entry: uv run bandit -ll
+        entry: uv run bandit --ini .bandit -ll
         language: system
         files: ^(scripts|tests|tools|examples)/.*\.py$
         types: [python]
