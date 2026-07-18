@@ -10,6 +10,8 @@ Tests cover:
 - KEY PROPERTY: the O(N) associativity order (φ(K)ᵀV summarized once) equals the
   naive O(N²) order (φ(Q)φ(K)ᵀ then ·V) to tight tolerance (1e-10, f64).
 - Denominator positivity: φ = elu + 1 > 0 keeps the normalizer strictly positive.
+- eps-guard saturation: with φ(K) forced to its floor (≈ e⁻⁵⁰, below eps), the
+  guarded forward stays finite — the reason eps exists.
 
 Reference values are transcribed from the committed JSON fixture
 parity_refs/linear_attention_parity_reference.json (produced by
@@ -20,6 +22,8 @@ weight+bias, X), so only the reference OUTPUTS are transcribed — never the
 weights. Odyssey Linear uses W (in, out); the reference sets torch's (out, in)
 weight to the transpose.
 """
+
+from std.math import isnan, isinf
 
 from odyssey.tensor.any_tensor import AnyTensor
 from odyssey.tensor.tensor_creation import zeros, full_like
@@ -427,9 +431,11 @@ def test_denominator_positive() raises:
     """φ = elu + 1 > 0, so the normalizer Z = Σ_j φ(K_j) is strictly positive.
 
     Directly checks the feature-map positivity the denominator guard relies on:
-    for an input spanning strongly negative to positive values, every entry of
-    φ(K) must be > 0 (elu(x) > −1 for all x), hence every summed-key normalizer
-    entry is > 0 and the division is well-posed even before the eps guard.
+    for a mixed-sign K span (here roughly [-1.4, 0.2] after projection), every
+    entry of φ(K) must be > 0 (elu(x) > −1 for all x), hence every summed-key
+    normalizer entry is > 0 and the division is well-posed even before the eps
+    guard. The genuine near-floor saturation case (φ → 0⁺, where eps actually
+    matters) is exercised separately in `test_denominator_eps_guard_saturation`.
     """
     print("Running test_denominator_positive...")
     var d_model = 8
@@ -452,6 +458,109 @@ def test_denominator_positive() raises:
             )
     print("  ok phi(K) = elu(K) + 1 > 0 everywhere (normalizer positive)")
     print("test_denominator_positive PASSED")
+
+
+def _saturated_attn(
+    eps: Float64,
+) raises -> LinearAttention[DType.float64]:
+    """Build a LinearAttention whose key projection forces φ(K) to its floor.
+
+    Seeds `k_proj.weight = 0` and `k_proj.bias = -50`, so K = −50 for every
+    position regardless of the input. `elu(-50)+1` underflows to Odyssey's floor
+    (empirically φ(K) ≈ 2e-9, well below eps=1e-6), driving the summed-key
+    normalizer Z = Σ_j φ(K_j) — and hence the pre-eps denominator φ(Q)·Zᵀ (≈
+    4e-8 on this config) — far below the eps floor. All other projections use the
+    generator's ramp seeds.
+    """
+    var d_model = 8
+    var attn = LinearAttention[DType.float64](d_model, num_heads=2, eps=eps)
+    _seed_all(attn, d_model)
+    for i in range(d_model * d_model):
+        attn.k_proj.weight.store[DType.float64](i, 0.0)
+    for i in range(d_model):
+        attn.k_proj.bias.store[DType.float64](i, -50.0)
+    return attn^
+
+
+def test_denominator_eps_guard_saturation() raises:
+    """The eps guard is load-bearing when φ(K) saturates toward 0⁺.
+
+    This is the reason `eps` exists. We force the key feature map to its floor
+    (see `_saturated_attn`): φ(K) ≈ 2e-9, so the pre-eps denominator φ(Q)·Zᵀ ≈
+    4e-8 — well BELOW eps=1e-6. The guard therefore dominates the normalizer:
+    context = numerator / (denom + eps) with denom ≪ eps, bounding the output by
+    |numerator|/eps instead of dividing by a near-zero normalizer.
+
+    Two assertions, both property-only (no parity fixture, nothing regenerates
+    the committed JSON):
+      1. The guarded (eps=1e-6) forward is finite everywhere (no NaN / ±inf).
+      2. The guard is ACTIVE, not decorative: the guarded output differs
+         materially from the unguarded (eps=0) output — since denom ≪ eps, the
+         two divide by ~eps vs ~denom (a ~25x-different normalizer here), so a
+         non-trivial per-entry gap proves eps is doing work.
+    """
+    print("Running test_denominator_eps_guard_saturation...")
+    var d_model = 8
+
+    # Sanity: φ(K) is genuinely below the eps floor under this seeding.
+    var probe = _saturated_attn(EPS)
+    var x = zeros([2, 4, d_model], DType.float64)
+    _seed_ramp(x, 2 * 4 * d_model, 0.05, -0.4)
+    var k_flat = LinearAttention[DType.float64]._project(
+        probe.k_proj, x, d_model
+    )
+    var k = probe._split_heads(k_flat, 2, 4)
+    var phi_k = _feature_map(k)
+    var max_phi_k = phi_k.load[DType.float64](0)
+    for i in range(phi_k.numel()):
+        var val = phi_k.load[DType.float64](i)
+        if val > max_phi_k:
+            max_phi_k = val
+    if max_phi_k >= 1e-6:
+        raise Error(
+            "saturation setup failed: phi(K) not below the eps floor (max ="
+            + String(max_phi_k)
+            + ")"
+        )
+
+    # (1) Guarded forward stays finite.
+    var guarded = _saturated_attn(EPS)
+    var y_guarded = guarded.forward(x)
+    for i in range(y_guarded.numel()):
+        var v = y_guarded.load[DType.float64](i)
+        if isnan(v) or isinf(v):
+            raise Error(
+                "eps guard failed: guarded forward produced a non-finite value"
+                " at index "
+                + String(i)
+            )
+
+    # (2) Guard is active: eps=0 gives a materially different result.
+    var unguarded = _saturated_attn(0.0)
+    var y_unguarded = unguarded.forward(x)
+    var max_gap = 0.0
+    for i in range(y_guarded.numel()):
+        var d = y_guarded.load[DType.float64](i) - y_unguarded.load[
+            DType.float64
+        ](i)
+        if d < 0:
+            d = -d
+        if d > max_gap:
+            max_gap = d
+    if max_gap <= 1e-9:
+        raise Error(
+            "eps guard appears decorative: guarded and unguarded (eps=0)"
+            " outputs are identical under saturation (max gap ="
+            + String(max_gap)
+            + ")"
+        )
+    print(
+        "  ok guarded forward finite AND eps materially changes the result"
+        " under saturation (max gap = "
+        + String(max_gap)
+        + ")"
+    )
+    print("test_denominator_eps_guard_saturation PASSED")
 
 
 def test_package_path_export() raises:
@@ -485,6 +594,7 @@ def main() raises:
     test_parity_multi_head()
     test_on_vs_naive_order_equivalence()
     test_denominator_positive()
+    test_denominator_eps_guard_saturation()
     test_package_path_export()
     print("=" * 60)
     print("All LinearAttention tests PASSED")
