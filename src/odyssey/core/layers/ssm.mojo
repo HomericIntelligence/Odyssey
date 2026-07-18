@@ -121,6 +121,10 @@ struct DiagonalSSM[dtype: DType = DType.float32](Copyable, Module, Movable):
             A  = -exp(a_log);  dt = exp(log_dt)
             dA = exp(dt * A);  dB = (dA - 1) / A * B
 
+        `a_log` and `log_dt` are assumed O(1): the stable regime dA in (0, 1]
+        holds for such values, but the pre-discretization `exp(a_log)` /
+        `exp(log_dt)` overflow to +inf in float32 once either exceeds ~89.
+
         Returns:
             Tuple (dA, dB) of shape [dim, state].
 
@@ -182,6 +186,13 @@ struct DiagonalSSM[dtype: DType = DType.float32](Copyable, Module, Movable):
 
     def forward(mut self, input: AnyTensor) raises -> AnyTensor:
         """Run the full sequence from a zero initial state.
+
+        Convention note: unlike the RNN-cell siblings (`GRUCell.forward` /
+        `LSTMCell.forward`), whose `forward` takes a rank-2 SINGLE timestep
+        `(batch, dim)` and delegates to one `step`, this `forward` takes the
+        rank-3 FULL sequence `(batch, seq, dim)` and scans internally over all
+        timesteps — so a polymorphic caller must pass a full sequence here, not
+        a single step. Use `step(u_t, x)` for the per-timestep interface.
 
         Args:
             input: Input tensor of shape (batch, seq, dim), batch-first.
