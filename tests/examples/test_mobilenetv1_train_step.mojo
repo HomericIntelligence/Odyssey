@@ -12,12 +12,12 @@ the four acceptance criteria from #5525:
 
 Runs as: pixi run mojo -I src -I . ./tests/examples/test_mobilenetv1_train_step.mojo
 
-The example modules are imported as package submodules (examples has an
-__init__.mojo, as does examples/mobilenetv1_cifar10), so the compiler resolves
+The example modules are imported as package submodules (both examples/ and
+examples/mobilenetv1_cifar10/ carry an __init__.mojo), so the compiler resolves
 them via the repository-root include path used by the test group runner.
 """
 
-from math import isnan, isinf
+from std.math import isnan, isinf
 
 from odyssey.tensor.any_tensor import AnyTensor
 from odyssey.tensor.tensor_creation import ones, zeros

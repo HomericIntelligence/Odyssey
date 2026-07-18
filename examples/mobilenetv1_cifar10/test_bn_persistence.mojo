@@ -8,7 +8,7 @@ stats via `out, _, _ = batch_norm2d(...)`, so inference silently used stale
 init values and produced wrong results.
 """
 
-from model import MobileNetV1
+from examples.mobilenetv1_cifar10.model import MobileNetV1
 from odyssey.tensor.any_tensor import AnyTensor
 from odyssey.tensor.tensor_creation import zeros
 

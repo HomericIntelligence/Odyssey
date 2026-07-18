@@ -411,8 +411,6 @@ def create_simple_dataset(
 
     # Generate samples
     for i in range(n_samples):
-        var item_seed = seed_value + i
-
         # Generate input features
         var input_features = List[Float32]()
         for j in range(input_dim):

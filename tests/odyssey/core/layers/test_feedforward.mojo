@@ -28,7 +28,7 @@ def test_shape_preserved() raises:
 
 
 def test_default_inner_dim() raises:
-    """d_ff defaults to 4 * d_model when not given."""
+    """`d_ff` defaults to 4 * d_model when not given."""
     print("Running test_default_inner_dim...")
     var ffn = FeedForward[DType.float32](16)
     if ffn.d_ff != 64:
@@ -38,7 +38,7 @@ def test_default_inner_dim() raises:
 
 
 def test_parameter_count() raises:
-    """parameters() returns 4 tensors (two Linear layers)."""
+    """`parameters()` returns 4 tensors (two Linear layers)."""
     print("Running test_parameter_count...")
     var ffn = FeedForward[DType.float32](8, 16)
     var params = ffn.parameters()
@@ -54,7 +54,7 @@ def test_reject_bad_d_model() raises:
     try:
         var _ = FeedForward[DType.float32](0)
         raise Error("Should have rejected d_model = 0")
-    except e:
+    except _:
         print("  ok rejected d_model = 0")
     print("test_reject_bad_d_model PASSED")
 
@@ -70,15 +70,15 @@ def test_parity_with_pytorch() raises:
     print("Running test_parity_with_pytorch...")
 
     # Build the reference output list first, before any tensor stores.
-    var ref = List[Float64]()
-    ref.append(-0.045003)
-    ref.append(-0.014435)
-    ref.append(0.016133)
-    ref.append(0.046701)
-    ref.append(-0.038288)
-    ref.append(-0.007493)
-    ref.append(0.023302)
-    ref.append(0.054096)
+    var ref_vals = List[Float64]()
+    ref_vals.append(-0.045003)
+    ref_vals.append(-0.014435)
+    ref_vals.append(0.016133)
+    ref_vals.append(0.046701)
+    ref_vals.append(-0.038288)
+    ref_vals.append(-0.007493)
+    ref_vals.append(0.023302)
+    ref_vals.append(0.054096)
 
     var ffn = FeedForward[DType.float64](4, 8)
     for i in range(32):
@@ -96,7 +96,7 @@ def test_parity_with_pytorch() raises:
 
     var y = ffn.forward(x)
     for i in range(8):
-        var d = y.load[DType.float64](i) - ref[i]
+        var d = y.load[DType.float64](i) - ref_vals[i]
         if d < 0:
             d = -d
         if d > 1e-5:
@@ -106,7 +106,7 @@ def test_parity_with_pytorch() raises:
 
 
 def test_relu_variant_runs() raises:
-    """use_gelu=False (ReLU activation) runs and preserves shape."""
+    """`use_gelu=False` (ReLU activation) runs and preserves shape."""
     print("Running test_relu_variant_runs...")
     var ffn = FeedForward[DType.float32](8, 16, use_gelu=False)
     var x = zeros([2, 8], DType.float32)

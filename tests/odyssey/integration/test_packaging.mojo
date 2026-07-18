@@ -16,8 +16,8 @@ from odyssey.training import (
     LossTracker,
     MSELoss,
     ModelCheckpoint,
-    SGD,
     StepLR,
+    TrainingLoopSGD as SGD,
 )
 from odyssey.data import (
     AnyTensorDataset,

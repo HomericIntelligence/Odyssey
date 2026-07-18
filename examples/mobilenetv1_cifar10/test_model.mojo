@@ -1,6 +1,6 @@
 """Quick integration test for MobileNetV1 model."""
 
-from model import MobileNetV1
+from examples.mobilenetv1_cifar10.model import MobileNetV1
 from odyssey.tensor.any_tensor import AnyTensor
 from odyssey.tensor.tensor_creation import zeros
 

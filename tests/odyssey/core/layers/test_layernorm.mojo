@@ -29,7 +29,7 @@ def _seed_ramp(
 
 
 def test_shape() raises:
-    """forward preserves (batch, features)."""
+    """`forward` preserves (batch, features)."""
     print("Running test_shape...")
     var ln = LayerNorm[DType.float32](4)
     var x = zeros([2, 4], DType.float32)
@@ -46,14 +46,13 @@ def test_reject_bad_sizes() raises:
     try:
         var _ = LayerNorm[DType.float32](0)
         raise Error("Should have rejected num_features = 0")
-    except e:
+    except _:
         print("  ok rejected num_features = 0")
     print("test_reject_bad_sizes PASSED")
 
 
 def test_reject_feature_mismatch() raises:
-    """forward() must raise when the input's last dim != num_features.
-
+    """`forward()` must raise when the input's last dim != num_features.
     Guards the docstring's promised feature-dimension check: gamma/beta are
     sized num_features, so a mismatched-width input would misindex the affine
     params. A LayerNorm(4) fed a (2, 5) tensor must raise, not silently misread.
@@ -64,13 +63,13 @@ def test_reject_feature_mismatch() raises:
     try:
         var _ = ln.forward(x)
         raise Error("Should have rejected feature dim 5 != num_features 4")
-    except e:
+    except _:
         print("  ok rejected feature-dim mismatch (5 != 4)")
     print("test_reject_feature_mismatch PASSED")
 
 
 def test_parameter_count() raises:
-    """parameters() returns 2 tensors (gamma, beta)."""
+    """`parameters()` returns 2 tensors (gamma, beta)."""
     print("Running test_parameter_count...")
     var ln = LayerNorm[DType.float32](4)
     if len(ln.parameters()) != 2:
@@ -80,8 +79,7 @@ def test_parameter_count() raises:
 
 
 def test_parity_with_pytorch() raises:
-    """forward must match torch.nn.LayerNorm on a fixed ramp input to 1e-5.
-
+    """`forward` must match torch.nn.LayerNorm on a fixed ramp input to 1e-5.
     Reference values from parity_refs/layernorm_parity_reference.py (batch=2,
     features=4, eps=1e-5). Two cases: default affine (gamma=1, beta=0) and a
     custom affine.

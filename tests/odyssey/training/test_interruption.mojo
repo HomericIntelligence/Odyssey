@@ -8,6 +8,7 @@ Tests cover:
 """
 
 from odyssey.training.interruption import (
+    ShutdownFlag,
     ShutdownReason,
     WallClockTimer,
     TrainingResult,
@@ -85,23 +86,44 @@ def test_wall_clock_timer_has_elapsed_negative() raises:
 
 
 def test_shutdown_flag_default_false() raises:
-    """Test that shutdown flag starts as False."""
+    """Test that `ShutdownFlag` starts as False and the free fn agrees.
+
+    `is_shutdown_requested()` is a documented placeholder that ALWAYS
+    returns False in Mojo 1.0 (no global state; see interruption.mojo) —
+    the stateful API is the `ShutdownFlag` struct, which the set/reset
+    tests below exercise.
+    """
     reset_shutdown_flag()
     assert_false(is_shutdown_requested())
+    var flag = ShutdownFlag()
+    assert_false(flag.is_set())
 
 
 def test_shutdown_flag_set() raises:
-    """Test setting the shutdown flag."""
-    reset_shutdown_flag()
+    """Test setting the shutdown flag (`ShutdownFlag` struct, the stateful API).
+
+    The old assertion `is_shutdown_requested() == True` after
+    `request_shutdown()` could NEVER pass: both free functions are
+    documented no-op placeholders in Mojo 1.0 (no globals). It went
+    unnoticed only because the CI harness swallowed the failure (PR #5625).
+    """
+    var flag = ShutdownFlag()
+    flag.set()
+    assert_true(flag.is_set())
+    # The placeholder free functions keep their documented contract:
+    # request_shutdown() is a no-op, is_shutdown_requested() stays False.
     request_shutdown()
-    assert_true(is_shutdown_requested())
+    assert_false(is_shutdown_requested())
 
 
 def test_shutdown_flag_reset() raises:
-    """Test resetting the shutdown flag."""
-    reset_shutdown_flag()
-    request_shutdown()
-    assert_true(is_shutdown_requested())
+    """Test resetting the shutdown flag (`ShutdownFlag` struct)."""
+    var flag = ShutdownFlag()
+    flag.set()
+    assert_true(flag.is_set())
+    flag.reset()
+    assert_false(flag.is_set())
+    # Placeholder free fn: reset is a documented no-op, flag reads False.
     reset_shutdown_flag()
     assert_false(is_shutdown_requested())
 
@@ -155,12 +177,16 @@ def test_wall_clock_timer_monotonic() raises:
 
 
 def test_shutdown_flag_idempotent_set() raises:
-    """Test that multiple request_shutdown() calls are safe."""
-    reset_shutdown_flag()
+    """Test that multiple set() calls are safe (`ShutdownFlag` struct)."""
+    var flag = ShutdownFlag()
+    flag.set()
+    flag.set()
+    flag.set()
+    assert_true(flag.is_set())
+    # Placeholder free fns stay no-ops however many times they are called.
     request_shutdown()
     request_shutdown()
-    request_shutdown()
-    assert_true(is_shutdown_requested())
+    assert_false(is_shutdown_requested())
 
 
 def main() raises:

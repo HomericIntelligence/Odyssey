@@ -55,7 +55,7 @@ from odyssey.data.datasets import CIFAR10Dataset
 from odyssey.data import one_hot_encode
 from odyssey.training.schedulers import step_lr
 from odyssey.utils.training_args import parse_training_args_with_defaults
-from model import MobileNetV1
+from examples.mobilenetv1_cifar10.model import MobileNetV1
 
 
 def compute_gradients(

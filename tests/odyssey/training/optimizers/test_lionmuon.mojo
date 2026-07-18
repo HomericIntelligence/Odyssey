@@ -20,7 +20,8 @@ output, 12 decimal places); the script threads state sequentially, so
 ref_{n+1} == rule(ref_n) by construction.
 """
 
-from odyssey.tensor.any_tensor import AnyTensor, zeros, zeros_like
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros, zeros_like
 from odyssey.training.optimizers.lionmuon import (
     lionmuon_step,
     lionmuon_step_simple,
@@ -59,7 +60,7 @@ def test_reject_bad_period() raises:
     try:
         var (_, _, _) = lionmuon_step(W, G, LM, MM, 0.1, 0, 0)
         raise Error("Should have rejected period = 0")
-    except e:
+    except _:
         print("  ok rejected period = 0")
     print("test_reject_bad_period PASSED")
 

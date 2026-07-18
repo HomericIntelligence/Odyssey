@@ -996,15 +996,23 @@ _test-group-inner path pattern:
             if ! ulimit -v unlimited 2>/dev/null; then
                 echo "warn: 'ulimit -v unlimited' rejected by environment" >&2
             fi
-            test_exit=0
-            if ! pixi run mojo --Werror -debug-level=line-tables -I "$REPO_ROOT/src" -I "$REPO_ROOT" -I . "$test_file"; then
-                test_exit=$?
-            fi
+            # Capture the real exit code. The previous idiom
+            # (`if ! mojo ...; then test_exit=$?`) read $? AFTER the `!`
+            # negation, so a failing compile/run yielded test_exit=0 and
+            # every failure — including Mojo parse errors — was counted as
+            # a PASS (false-green, see run 29513897485). `set +e` + direct
+            # `$?` capture makes compile failures count as test failures.
+            set +e
+            pixi run mojo --Werror -debug-level=line-tables -I "$REPO_ROOT/src" -I "$REPO_ROOT" -I . "$test_file"
+            test_exit=$?
+            set -e
             if [ "${test_exit}" -eq 0 ]; then
+                echo "✅ PASSED: $test_file"
                 passed_count=$((passed_count + 1))
             else
+                echo "❌ FAILED (exit ${test_exit}): $test_file"
                 failed_count=$((failed_count + 1))
-                failed_tests="$failed_tests\n  - $test_file"
+                failed_tests="$failed_tests\n  - $test_file (exit ${test_exit})"
             fi
         fi
     done
@@ -1021,6 +1029,16 @@ _test-group-inner path pattern:
     if [ $test_count -eq 0 ]; then
         echo ""
         echo "❌ ERROR: No tests were executed"
+        exit 1
+    fi
+
+    # Accounting guard: every attempted file MUST have been recorded as
+    # exactly one of pass/fail. A mismatch means a run produced neither
+    # verdict (control-flow bug in this recipe) — fail loudly, never green.
+    if [ $((passed_count + failed_count)) -ne $test_count ]; then
+        echo ""
+        echo "❌ ERROR: test accounting mismatch: passed ($passed_count) + failed ($failed_count) != total ($test_count)"
+        echo "   A test file was attempted but produced neither a pass nor a fail verdict."
         exit 1
     fi
 

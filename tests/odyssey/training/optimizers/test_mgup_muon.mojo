@@ -9,7 +9,8 @@ Tests cover:
   coordinates move further than the un-amplified Muon step)
 """
 
-from odyssey.tensor.any_tensor import AnyTensor, zeros, zeros_like
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros, zeros_like
 from odyssey.training.optimizers.mgup_muon import (
     mgup_muon_step,
     mgup_muon_step_simple,
@@ -24,7 +25,9 @@ def _abs_diff(a: Float64, b: Float64) -> Float64:
     return d
 
 
-def _seed_ramp(mut t: AnyTensor, count: Int, scale: Float64, off: Float64) raises:
+def _seed_ramp(
+    mut t: AnyTensor, count: Int, scale: Float64, off: Float64
+) raises:
     for i in range(count):
         t.store[DType.float64](i, Float64(i) * scale + off)
 
@@ -38,7 +41,7 @@ def test_reject_non_2d() raises:
     try:
         var (_, _) = mgup_muon_step(p, g, m, learning_rate=0.01)
         raise Error("Should have rejected 1D params")
-    except e:
+    except _:
         print("  ok rejected 1D params")
     print("test_reject_non_2d PASSED")
 
@@ -52,19 +55,19 @@ def test_parity_with_reference() raises:
     """
     print("Running test_parity_with_reference...")
 
-    var ref = List[Float64]()
-    ref.append(-0.4690749)
-    ref.append(-0.3902363)
-    ref.append(-0.2959352)
-    ref.append(-0.201634)
-    ref.append(-0.0788658)
-    ref.append(0.0037723)
-    ref.append(0.0969775)
-    ref.append(0.1901828)
-    ref.append(0.3056717)
-    ref.append(0.397781)
-    ref.append(0.4898903)
-    ref.append(0.5639991)
+    var ref_vals = List[Float64]()
+    ref_vals.append(-0.4690749)
+    ref_vals.append(-0.3902363)
+    ref_vals.append(-0.2959352)
+    ref_vals.append(-0.201634)
+    ref_vals.append(-0.0788658)
+    ref_vals.append(0.0037723)
+    ref_vals.append(0.0969775)
+    ref_vals.append(0.1901828)
+    ref_vals.append(0.3056717)
+    ref_vals.append(0.397781)
+    ref_vals.append(0.4898903)
+    ref_vals.append(0.5639991)
 
     var W = zeros([3, 4], DType.float64)
     _seed_ramp(W, 12, 0.1, -0.5)
@@ -74,14 +77,14 @@ def test_parity_with_reference() raises:
 
     var (new_p, _) = mgup_muon_step(W, G, M, 0.1, 0.25, 2.0)
     for i in range(12):
-        if _abs_diff(new_p.load[DType.float64](i), ref[i]) > 1e-6:
+        if _abs_diff(new_p.load[DType.float64](i), ref_vals[i]) > 1e-6:
             raise Error("MGUP-Muon parity mismatch at " + String(i))
     print("  ok matches reference to 1e-6")
     print("test_parity_with_reference PASSED")
 
 
 def test_reduces_to_muon_when_disabled() raises:
-    """fraction=0 or scale=1 must reproduce a plain Muon step exactly."""
+    """`fraction=0` or `scale=1` must reproduce a plain Muon step exactly."""
     print("Running test_reduces_to_muon_when_disabled...")
     var W = zeros([3, 4], DType.float64)
     _seed_ramp(W, 12, 0.1, -0.5)
@@ -93,9 +96,19 @@ def test_reduces_to_muon_when_disabled() raises:
     var (p_frac0, _) = mgup_muon_step(W, G, M, 0.1, 0.0, 2.0)
     var (p_scale1, _) = mgup_muon_step(W, G, M, 0.1, 0.25, 1.0)
     for i in range(12):
-        if _abs_diff(p_muon.load[DType.float64](i), p_frac0.load[DType.float64](i)) > 1e-12:
+        if (
+            _abs_diff(
+                p_muon.load[DType.float64](i), p_frac0.load[DType.float64](i)
+            )
+            > 1e-12
+        ):
             raise Error("fraction=0 should equal plain Muon at " + String(i))
-        if _abs_diff(p_muon.load[DType.float64](i), p_scale1.load[DType.float64](i)) > 1e-12:
+        if (
+            _abs_diff(
+                p_muon.load[DType.float64](i), p_scale1.load[DType.float64](i)
+            )
+            > 1e-12
+        ):
             raise Error("scale=1 should equal plain Muon at " + String(i))
     print("  ok fraction=0 and scale=1 both reduce to Muon")
     print("test_reduces_to_muon_when_disabled PASSED")
@@ -118,8 +131,12 @@ def test_selected_move_further() raises:
     var (p_mgup, _) = mgup_muon_step(W, G, M, 0.1, 0.25, 2.0)
     var any_larger = False
     for i in range(12):
-        var d_muon = _abs_diff(p_muon.load[DType.float64](i), W.load[DType.float64](i))
-        var d_mgup = _abs_diff(p_mgup.load[DType.float64](i), W.load[DType.float64](i))
+        var d_muon = _abs_diff(
+            p_muon.load[DType.float64](i), W.load[DType.float64](i)
+        )
+        var d_mgup = _abs_diff(
+            p_mgup.load[DType.float64](i), W.load[DType.float64](i)
+        )
         if d_mgup > d_muon + 1e-9:
             any_larger = True
     if not any_larger:
@@ -155,19 +172,19 @@ def test_float32_matches_float64() raises:
     print("Running test_float32_matches_float64...")
 
     # float64 reference values (same fixture as test_parity_with_reference).
-    var ref = List[Float64]()
-    ref.append(-0.4690749)
-    ref.append(-0.3902363)
-    ref.append(-0.2959352)
-    ref.append(-0.201634)
-    ref.append(-0.0788658)
-    ref.append(0.0037723)
-    ref.append(0.0969775)
-    ref.append(0.1901828)
-    ref.append(0.3056717)
-    ref.append(0.397781)
-    ref.append(0.4898903)
-    ref.append(0.5639991)
+    var ref_vals = List[Float64]()
+    ref_vals.append(-0.4690749)
+    ref_vals.append(-0.3902363)
+    ref_vals.append(-0.2959352)
+    ref_vals.append(-0.201634)
+    ref_vals.append(-0.0788658)
+    ref_vals.append(0.0037723)
+    ref_vals.append(0.0969775)
+    ref_vals.append(0.1901828)
+    ref_vals.append(0.3056717)
+    ref_vals.append(0.397781)
+    ref_vals.append(0.4898903)
+    ref_vals.append(0.5639991)
 
     var W = zeros([3, 4], DType.float32)
     for i in range(12):
@@ -180,7 +197,7 @@ def test_float32_matches_float64() raises:
     var (new_p, _) = mgup_muon_step(W, G, M, 0.1, 0.25, 2.0)
     for i in range(12):
         var got = Float64(new_p.load[DType.float32](i))
-        if _abs_diff(got, ref[i]) > 1e-5:
+        if _abs_diff(got, ref_vals[i]) > 1e-5:
             raise Error("MGUP float32 mismatch vs float64 at " + String(i))
     print("  ok float32 step matches float64 reference to 1e-5")
     print("test_float32_matches_float64 PASSED")

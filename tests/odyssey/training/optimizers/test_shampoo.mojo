@@ -12,8 +12,8 @@ Tests cover:
 - Genuine descent on quadratic objectives
 """
 
-from odyssey.tensor.any_tensor import (
-    AnyTensor,
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import (
     zeros,
     zeros_like,
     randn,
@@ -442,8 +442,12 @@ def test_descent_on_quadratic() raises:
         var grad = multiply_simd(two, W_t)
 
         # Step
+        # max_precond_norm clamps the Gram accumulators before the inverse
+        # fourth-root so the fixed-step Newton-Schulz iteration stays inside its
+        # convergence basin over this multi-step descent (else the internal
+        # _newton_schulz_inv_sqrt correctly raises "failed to converge").
         var (W_new, L_new, R_new, m_new) = shampoo_step(
-            W_t, grad, L_t, R_t, m_t, learning_rate=0.01
+            W_t, grad, L_t, R_t, m_t, learning_rate=0.01, max_precond_norm=1e2
         )
 
         W_t = W_new
@@ -494,8 +498,12 @@ def test_descent_on_non_square() raises:
         var two = full_like(W_t, 2.0)
         var grad = multiply_simd(two, W_t)
 
+        # max_precond_norm clamps the Gram accumulators before the inverse
+        # fourth-root so the fixed-step Newton-Schulz iteration stays inside its
+        # convergence basin over this multi-step descent (else the internal
+        # _newton_schulz_inv_sqrt correctly raises "failed to converge").
         var (W_new, L_new, R_new, m_new) = shampoo_step(
-            W_t, grad, L_t, R_t, m_t, learning_rate=0.01
+            W_t, grad, L_t, R_t, m_t, learning_rate=0.01, max_precond_norm=1e2
         )
 
         W_t = W_new
