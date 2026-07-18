@@ -65,6 +65,60 @@ def test_reject_shape_mismatch() raises:
     print("test_reject_shape_mismatch PASSED")
 
 
+def test_reject_float32_params() raises:
+    """KL-Shampoo is float64-only: an f32 param raises at the final subtraction.
+
+    All preconditioner math (and the resulting delta) is float64; the parameter
+    update `subtract_simd(params, delta)` requires params to share that dtype, so
+    an f32 param raises "Cannot subtract tensors with different dtypes". This pins
+    the float64-only contract (same posture as SOAP — no f32 fast path).
+    """
+    print("Running test_reject_float32_params...")
+    var p = zeros([3, 4], DType.float32)
+    var g = zeros([3, 4], DType.float32)
+    # State is always float64 (init_kl_shampoo_state emits f64 factors); build f64
+    # identity factors to isolate the param-dtype contract at the final subtraction.
+    var s_a = zeros([3, 3], DType.float64)
+    var s_b = zeros([4, 4], DType.float64)
+    for i in range(3):
+        s_a.store[DType.float64](i * 3 + i, 1.0)
+    for i in range(4):
+        s_b.store[DType.float64](i * 4 + i, 1.0)
+    try:
+        var (_, _, _) = kl_shampoo_step(p, g, s_a, s_b, 0.1)
+        raise Error("Should have rejected float32 params")
+    except _:
+        print("  ok rejected float32 params (float64-only contract)")
+    print("test_reject_float32_params PASSED")
+
+
+def test_reject_degenerate_dim() raises:
+    """KL-Shampoo rejects a matrix with a dimension < 2 (1×N) in step AND init.
+
+    `is_kl_shampoo_eligible` requires both dims >= 2; the step and init guards must
+    agree so an "ineligible" 1×N param is not silently accepted.
+    """
+    print("Running test_reject_degenerate_dim...")
+    var p = zeros([1, 4], DType.float64)
+    var g = zeros([1, 4], DType.float64)
+    var s_a = zeros([1, 1], DType.float64)
+    s_a.store[DType.float64](0, 1.0)
+    var s_b = zeros([4, 4], DType.float64)
+    for i in range(4):
+        s_b.store[DType.float64](i * 4 + i, 1.0)
+    try:
+        var (_, _, _) = kl_shampoo_step(p, g, s_a, s_b, 0.1)
+        raise Error("kl_shampoo_step should have rejected a 1×4 param")
+    except _:
+        print("  ok kl_shampoo_step rejected 1×4 (dim < 2)")
+    try:
+        var _st = init_kl_shampoo_state(p)
+        raise Error("init_kl_shampoo_state should have rejected a 1×4 param")
+    except _:
+        print("  ok init_kl_shampoo_state rejected 1×4 (dim < 2)")
+    print("test_reject_degenerate_dim PASSED")
+
+
 def test_eligibility() raises:
     """`is_kl_shampoo_eligible` accepts matrices, rejects vectors / degenerate.
     """
@@ -197,6 +251,8 @@ def main() raises:
     print("=" * 60)
     test_reject_non_2d()
     test_reject_shape_mismatch()
+    test_reject_float32_params()
+    test_reject_degenerate_dim()
     test_eligibility()
     test_init_state_shapes()
     test_parity_three_step()

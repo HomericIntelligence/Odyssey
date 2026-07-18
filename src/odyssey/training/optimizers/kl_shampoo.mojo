@@ -31,10 +31,13 @@ S_B^{-1/2}` — an inverse SQUARE root per factor. Standard Shampoo accumulates 
 `G Gᵀ` and therefore uses the inverse FOURTH root `G^{-1/(2k)}` (k=2 ⇒ -1/4). Do
 not port Shampoo's -1/4 here.
 
-**Numerics (SOAP lesson):** Odyssey's `matmul` raises on mixed dtypes and f32
-preconditioner math with f64 state produces garbage, so ALL state is float64 and
-every matrix root/inverse is computed in float64; only the final `W` inherits the
-input dtype through `subtract_simd`. The factor inverses and inverse-square-roots
+**Numerics (SOAP lesson) — float64 params only:** Odyssey's `matmul` raises on
+mixed dtypes and f32 preconditioner math with f64 state produces garbage, so ALL
+state, the gradient, and the preconditioned delta are float64, and the parameter
+subtraction (`subtract_simd`) requires the delta and `params` to share a dtype.
+The params must therefore be **float64** — an f32 param raises "Cannot subtract
+tensors with different dtypes" at the final update (same posture as SOAP; there is
+no f32 fast path). The factor inverses and inverse-square-roots
 are computed from a single symmetric eigendecomposition (`symmetric_eigh`) per
 factor — `S⁻¹ = Q diag(1/λ) Qᵀ` and `S^{-1/2} = Q diag(λ^{-1/2}) Qᵀ` — which is the
 same exact-eigenbasis approach SOAP uses (not Newton-Schulz), and is exact and
@@ -94,7 +97,8 @@ def init_kl_shampoo_state(
         Tuple `(S_A, S_B)` of two identity float64 matrices (R×R and C×C).
 
     Raises:
-        Error: If params is not rank-2.
+        Error: If params is not rank-2, or either dimension is < 2 (a degenerate
+            1×N / N×1 matrix is not KL-Shampoo-eligible).
     """
     if params.ndim() != 2:
         raise Error(
@@ -103,6 +107,11 @@ def init_kl_shampoo_state(
     var shape = params.shape()
     var R = shape[0]
     var C = shape[1]
+    if R < 2 or C < 2:
+        raise Error(
+            "init_kl_shampoo_state requires both dimensions >= 2 (a degenerate"
+            " 1×N / N×1 matrix is not KL-Shampoo-eligible)"
+        )
     var S_A = eye(R, R, 0, DType.float64)
     var S_B = eye(C, C, 0, DType.float64)
     return (S_A, S_B)
@@ -127,11 +136,13 @@ def kl_shampoo_step(
     steps; both are initialized to the identity via `init_kl_shampoo_state`.
 
     All state is float64 and every root/inverse is computed in float64 (Odyssey's
-    `matmul` raises on mixed dtypes); only the returned parameters inherit the input
-    parameter dtype through `subtract_simd`.
+    `matmul` raises on mixed dtypes). The preconditioned delta is float64, and the
+    final `subtract_simd(params, delta)` requires `params` to be **float64** too —
+    an f32 param raises "Cannot subtract tensors with different dtypes" (same
+    float64-only posture as SOAP; there is no f32 fast path).
 
     Args:
-        params: Model parameter `W` (rank-2, R×C).
+        params: Model parameter `W` (rank-2, R×C, float64).
         gradients: Gradient `G` (R×C, same shape as params).
         s_a: Left Kronecker factor `S_A` (R×R; identity initially).
         s_b: Right Kronecker factor `S_B` (C×C; identity initially).
@@ -145,10 +156,17 @@ def kl_shampoo_step(
         Tuple `(new_params, new_s_a, new_s_b)`.
 
     Raises:
-        Error: If params is not rank-2, or shapes / dtypes are inconsistent.
+        Error: If params is not rank-2, either dimension is < 2, or shapes /
+            dtypes are inconsistent (including a non-float64 param, which raises
+            at the final subtraction).
     """
     if params.ndim() != 2:
         raise Error("kl_shampoo_step requires a rank-2 (matrix) parameter")
+    if params.shape()[0] < 2 or params.shape()[1] < 2:
+        raise Error(
+            "kl_shampoo_step requires both dimensions >= 2 (a degenerate 1×N /"
+            " N×1 matrix is not KL-Shampoo-eligible)"
+        )
     if params.shape() != gradients.shape():
         raise Error(
             "kl_shampoo_step: params and gradients must have same shape"
@@ -168,9 +186,10 @@ def kl_shampoo_step(
     if s_b_shape[0] != C or s_b_shape[1] != C:
         raise Error("kl_shampoo_step: S_B must be C×C")
 
-    # Cast gradient to float64 so all preconditioner math stays in f64 (the SOAP
-    # mixed-dtype lesson). The final delta is cast back to the param dtype by
-    # subtract_simd, which reads params at its native dtype.
+    # Copy gradient into a fresh float64 tensor so all preconditioner math stays
+    # in f64 (the SOAP mixed-dtype lesson). The final delta is float64, so the
+    # subtract_simd against params requires params to be float64 too (an f32 param
+    # raises there — this optimizer is float64-only, like SOAP).
     var g64 = _to_f64(gradients)
     var gt = transpose(g64, None)
 
