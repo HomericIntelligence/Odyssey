@@ -40,6 +40,7 @@ TEST[sparse_attention]="tests/odyssey/core/layers/test_sparse_attention.mojo"
 TEST[ffn]="tests/odyssey/core/layers/test_feedforward.mojo"
 TEST[gru]="tests/odyssey/core/layers/test_gru.mojo"
 TEST[layernorm]="tests/odyssey/core/layers/test_layernorm.mojo"
+TEST[linear_attention]="tests/odyssey/core/layers/test_linear_attention.mojo"
 TEST[lstm]="tests/odyssey/core/layers/test_lstm.mojo"
 TEST[rnn]="tests/odyssey/core/layers/test_rnn.mojo"
 
