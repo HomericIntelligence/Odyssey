@@ -33,4 +33,14 @@ runs:
       # `uv sync --locked` fails fast if uv.lock is stale — the same guarantee
       # the old `pixi install --locked` gave. The Modular index + prerelease
       # handling live in pyproject.toml ([tool.uv]), so no extra flags needed.
-      run: uv sync --locked --python "${{ inputs.python-version }}" ${{ inputs.sync-args }}
+      #
+      # Inputs are passed via `env:` (not interpolated into the `run:` string)
+      # so untrusted values cannot be spliced into the shell command line —
+      # this is the fix for Semgrep's `run-shell-injection` rule. `$SYNC_ARGS`
+      # is intentionally left unquoted so multiple args (e.g. "--group notebook")
+      # word-split into separate argv entries, while `$PYTHON_VERSION` is quoted
+      # because it is a single token.
+      env:
+        PYTHON_VERSION: ${{ inputs.python-version }}
+        SYNC_ARGS: ${{ inputs.sync-args }}
+      run: uv sync --locked --python "$PYTHON_VERSION" $SYNC_ARGS
