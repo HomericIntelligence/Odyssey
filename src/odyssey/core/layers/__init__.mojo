@@ -9,6 +9,7 @@ Components:
     - Conv2D: 2D convolutional layers
     - ReLU: Rectified Linear Unit activation
     - RNNCell: Vanilla (Elman) recurrent cell (tanh)
+    - LTCCell: Liquid Time-constant recurrent cell (fused ODE solver)
     - FeedForward: Transformer position-wise feed-forward (Linear->act->Linear)
     - MultiHeadAttention: scaled dot-product self-attention block (Vaswani 2017)
     - SparseAttention: strided factorized sparse self-attention (Child et al. 2019)
@@ -42,6 +43,7 @@ from odyssey.core.layers.batchnorm import BatchNorm2dLayer
 from odyssey.core.layers.relu import ReLULayer
 from odyssey.core.layers.dropout import DropoutLayer
 from odyssey.core.layers.rnn import RNNCell
+from odyssey.core.layers.ltc import LTCCell
 from odyssey.core.layers.lstm import LSTMCell
 from odyssey.core.layers.layernorm import LayerNorm
 from odyssey.core.layers.gru import GRUCell
