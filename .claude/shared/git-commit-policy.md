@@ -84,4 +84,4 @@ If you're stuck with a hook failure:
 - Pre-commit configuration: `.pre-commit-config.yaml`
 - Pre-commit hooks skill: `.claude/skills/run-precommit/SKILL.md`
 - Formatting skill: `.claude/skills/quality-fix-formatting/SKILL.md`
-- Main project docs: `CLAUDE.md` section "Pre-commit Hooks"
+- Main project docs: `AGENTS.md` section "Pre-commit Hooks"

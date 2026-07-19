@@ -487,4 +487,4 @@ pixi run pytest tests/agents/failing_test.py -v -s
 - **CI/CD Workflows**: `.github/workflows/`
 - **Test Helpers**: `tests/helpers/`
 - **Test Fixtures**: `tests/odyssey/fixtures/`
-- **GitHub Issues**: Implementation tracked in GitHub issues per CLAUDE.md
+- **GitHub Issues**: Implementation tracked in GitHub issues per AGENTS.md

@@ -76,7 +76,7 @@ docs/
 ### Documentation Standards
 
 - Use markdown for all documentation
-- Follow markdown linting rules (see CLAUDE.md)
+- Follow markdown linting rules (see AGENTS.md)
 - Include code examples with language tags
 - Keep line length under 120 characters
 - Add blank lines around code blocks and lists

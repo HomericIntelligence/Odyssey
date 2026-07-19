@@ -466,7 +466,7 @@ just pre-commit-all
 | File | Purpose |
 | --- | --- |
 | `README.md` | Project overview |
-| `CLAUDE.md` | Claude Code conventions |
+| `AGENTS.md` | Claude Code conventions |
 | `justfile` | All available build/test/train recipes |
 | `pixi.toml` | Dependencies and environment (Mojo 0.26.1) |
 

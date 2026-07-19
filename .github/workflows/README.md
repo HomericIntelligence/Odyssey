@@ -684,7 +684,7 @@ All CI workflows use justfile recipes for consistent command execution between l
 - `just validate` - Full validation (build + test)
 - `just pre-commit` - Run pre-commit hooks
 
-**See**: `/justfile` for complete implementation and `CLAUDE.md` for developer documentation.
+**See**: `/justfile` for complete implementation and `AGENTS.md` for developer documentation.
 
 ### SHA-Pinned Action References
 
@@ -1066,7 +1066,7 @@ ls .github/workflows/*.yml | wc -l
 - **Pre-commit Hooks**: See `.pre-commit-config.yaml` for local validation
 - **Agent System**: See `.claude/agents/` for AI agent configuration testing
 - **Security Policy**: See `SECURITY.md` for vulnerability reporting
-- **Development Guide**: See `CLAUDE.md` for development workflow and best practices
+- **Development Guide**: See `AGENTS.md` for development workflow and best practices
 
 ---
 

@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
 """
-Audit .claude/shared/ files for missing link-backs in CLAUDE.md
+Audit .claude/shared/ files for missing link-backs in AGENTS.md
 
 Verifies that every file in .claude/shared/ is listed in the Quick Links
-section of CLAUDE.md. Exits non-zero if any shared file is missing.
+section of AGENTS.md. Exits non-zero if any shared file is missing.
 
 Usage:
     python scripts/audit_shared_links.py [--claude-md PATH] [--shared-dir PATH]
 
 Exit codes:
-    0: All shared files are linked in CLAUDE.md Quick Links
+    0: All shared files are linked in AGENTS.md Quick Links
     1: One or more shared files are missing from Quick Links
 """
 
@@ -46,13 +46,13 @@ def list_shared_files(shared_dir: Path, suffixes: Set[str] = None) -> List[str]:
 
 def extract_quick_links_section(claude_md_content: str) -> str:
     """
-    Extract the Quick Links section from CLAUDE.md content.
+    Extract the Quick Links section from AGENTS.md content.
 
     Captures text from '## Quick Links' up to (but not including) the next
     level-2 heading.
 
     Args:
-        claude_md_content: Full content of CLAUDE.md
+        claude_md_content: Full content of AGENTS.md
 
     Returns:
         The Quick Links section as a string, or empty string if not found
@@ -89,10 +89,10 @@ def audit(
     shared_dir: Path,
 ) -> Tuple[List[str], List[str]]:
     """
-    Audit shared files against CLAUDE.md Quick Links.
+    Audit shared files against AGENTS.md Quick Links.
 
     Args:
-        claude_md_content: Full text of CLAUDE.md
+        claude_md_content: Full text of AGENTS.md
         shared_dir: Path to .claude/shared/ directory
 
     Returns:
@@ -120,8 +120,8 @@ def main(argv: List[str] | None = None) -> int:
     parser.add_argument(
         "--claude-md",
         type=Path,
-        default=repo_root / "CLAUDE.md",
-        help="Path to CLAUDE.md (default: repo root)",
+        default=repo_root / "AGENTS.md",
+        help="Path to AGENTS.md (default: repo root)",
     )
     parser.add_argument(
         "--shared-dir",
@@ -135,7 +135,7 @@ def main(argv: List[str] | None = None) -> int:
     shared_dir: Path = args.shared_dir
 
     if not claude_md_path.exists():
-        print(f"ERROR: CLAUDE.md not found: {claude_md_path}", file=sys.stderr)
+        print(f"ERROR: AGENTS.md not found: {claude_md_path}", file=sys.stderr)
         return 1
 
     if not shared_dir.exists():
@@ -147,14 +147,14 @@ def main(argv: List[str] | None = None) -> int:
 
     if missing:
         print("AUDIT FAILED: The following .claude/shared/ files are not linked")
-        print("in the Quick Links section of CLAUDE.md:\n")
+        print("in the Quick Links section of AGENTS.md:\n")
         for path in missing:
             print(f"  - {path}")
         print(f"\n{len(missing)} file(s) missing, {len(present)} file(s) present.")
-        print("\nAdd the missing files to the '### Core Guidelines' list in CLAUDE.md.")
+        print("\nAdd the missing files to the '### Core Guidelines' list in AGENTS.md.")
         return 1
 
-    print(f"AUDIT PASSED: All {len(present)} .claude/shared/ file(s) are linked in CLAUDE.md Quick Links.")
+    print(f"AUDIT PASSED: All {len(present)} .claude/shared/ file(s) are linked in AGENTS.md Quick Links.")
     return 0
 
 

@@ -151,7 +151,7 @@ The `main` branch is protected. All changes must go through pull requests:
 - Even single-line fixes require a PR
 - This ensures code review and CI validation
 
-See [CLAUDE.md](CLAUDE.md#-critical-rules---read-first) for complete branch protection rules.
+See [AGENTS.md](AGENTS.md#-critical-rules---read-first) for complete branch protection rules.
 
 ## Running Tests
 
@@ -261,7 +261,7 @@ All documentation files follow markdown standards and must pass `markdownlint-cl
 - Lines should not exceed 120 characters
 - Use relative links when possible
 
-See [CLAUDE.md](CLAUDE.md#markdown-standards) for complete markdown standards.
+See [AGENTS.md](AGENTS.md#markdown-standards) for complete markdown standards.
 
 ### Security Scanning
 
@@ -555,14 +555,14 @@ See [Testing Strategy](docs/dev/testing-strategy.md) for comprehensive documenta
 
 If you have questions:
 
-1. Check existing documentation in [CLAUDE.md](CLAUDE.md) and [agents/](agents/)
+1. Check existing documentation in [AGENTS.md](AGENTS.md) and [agents/](agents/)
 2. Search existing GitHub issues
 3. Create a new discussion or issue with your question
 4. Contact the maintainers
 
 ## Additional Resources
 
-- [Project Architecture](CLAUDE.md) - Complete project reference
+- [Project Architecture](AGENTS.md) - Complete project reference
 - [Mojo Guidelines](.claude/shared/mojo-guidelines.md) - Mojo syntax reference
 - [PR Workflow](.claude/shared/pr-workflow.md) - Pull request process
 - [Mojo Documentation](https://docs.modular.com/mojo/manual/) - Official Mojo docs

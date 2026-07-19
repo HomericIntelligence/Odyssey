@@ -369,7 +369,7 @@ _build-inner mode="debug":
     # Parallel per-file build with a bounded worker pool.
     #
     # Each `mojo build` is CPU- and memory-heavy (~1.5-3 GB), so we cap
-    # concurrency rather than fan out unbounded (see CLAUDE.md host limits:
+    # concurrency rather than fan out unbounded (see AGENTS.md host limits:
     # never `-j$(nproc)` across concurrent builds). Wall-clock previously grew
     # linearly with the example/binary count and hit the build-validation 30-min
     # timeout once the autograd example ports landed (#5454); bounded parallelism
