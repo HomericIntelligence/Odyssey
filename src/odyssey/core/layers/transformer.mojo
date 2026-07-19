@@ -33,8 +33,8 @@ Composition / reuse posture (the crux of this block):
     each is applied by flattening `[B, S, d_model] -> [B*S, d_model]`, running the
     sub-layer, and reshaping back. The transform is identical for every (b, s)
     position, which is the intended per-position semantics of both LayerNorm and
-    the FFN (the pending MLP-Mixer block, PR #5654, applies its channel-mixing MLP
-    the same way).
+    the FFN (the MLP-Mixer block, `core/layers/mlp_mixer.mojo`, applies its
+    channel-mixing MLP the same way).
 
 Design/convention notes:
   * Batch-first `[batch, seq, d_model]`; `forward()` consumes the FULL sequence at

@@ -53,9 +53,9 @@ head-split / head-merge conventions but replaces the softmax score matrix with
 the kernel-feature factorization above, so no S×S score matrix is ever
 materialized. It does NOT call the functional softmax attention core
 (`core/attention.mojo`), which is broken at this SHA (Odyssey#5648) and computes
-softmax attention regardless. (A `Module`-conforming softmax `MultiHeadAttention`
-layer is pending in PR #5640; when it lands it will sit alongside this one at
-`core/layers/attention.mojo` — this module does not depend on it.)
+softmax attention regardless. (The `Module`-conforming softmax `MultiHeadAttention`
+layer sits alongside this one at `core/layers/attention.mojo` — this module does
+not depend on it.)
 
 Cached surface (for a downstream PC activation-cache wrapper): unlike the
 softmax block, there is no `scores`/`weights` S×S matrix here. A PC wrapper that
