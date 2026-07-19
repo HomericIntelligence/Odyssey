@@ -1,6 +1,6 @@
 # ML Odyssey - Claude Coding Rules
 
-> **Note**: For comprehensive project documentation, workflows, and conventions, see [CLAUDE.md](CLAUDE.md).
+> **Note**: For comprehensive project documentation, workflows, and conventions, see [AGENTS.md](AGENTS.md).
 > This file contains quick reference templates and troubleshooting tips.
 
 ## Code Templates
@@ -23,7 +23,7 @@ set -o pipefail  # Catch errors in pipelines
 
 ```mojo
 # Mojo implementation template
-# Follow Mojo best practices from CLAUDE.md
+# Follow Mojo best practices from AGENTS.md
 
 from memory import memset_zero
 from sys.info import simdwidthof
@@ -131,7 +131,7 @@ npx markdownlint-cli2 path/to/file.md
 
 ## See Also
 
-- [CLAUDE.md](CLAUDE.md) - Comprehensive project documentation
+- [AGENTS.md](AGENTS.md) - Comprehensive project documentation
 - [README.md](README.md) - Main project README
 - [scripts/README.md](scripts/README.md) - Scripts documentation
 - [agents/README.md](agents/README.md) - Agent system documentation

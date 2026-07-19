@@ -74,4 +74,4 @@ git worktree prune
 
 **Important:** Always clean up after merge to avoid accumulating stale worktrees and branches.
 
-See [CLAUDE.md](../../CLAUDE.md#git-workflow) for complete PR creation instructions.
+See [AGENTS.md](../../AGENTS.md#git-workflow) for complete PR creation instructions.

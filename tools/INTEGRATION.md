@@ -334,7 +334,7 @@ pixi run mojo test benchmarks/
 - [Scripts README](../scripts/README.md) - Automation scripts
 - [ADR-001](../docs/adr/ADR-001-language-selection-tooling.md) - Language selection
 - [Agent Hierarchy](../agents/hierarchy.md) - Agent system overview
-- [CLAUDE.md](../CLAUDE.md) - Project guidelines
+- [AGENTS.md](../AGENTS.md) - Project guidelines
 
 ---
 

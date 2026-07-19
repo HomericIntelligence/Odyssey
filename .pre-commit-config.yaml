@@ -262,15 +262,15 @@ repos:
         types: [python]
         pass_filenames: true
 
-  # Audit .claude/shared/ link-backs in CLAUDE.md
+  # Audit .claude/shared/ link-backs in AGENTS.md
   - repo: local
     hooks:
       - id: audit-shared-links
-        name: Audit .claude/shared/ links in CLAUDE.md
-        description: Ensure every .claude/shared/*.md file is listed in CLAUDE.md Quick Links
+        name: Audit .claude/shared/ links in AGENTS.md
+        description: Ensure every .claude/shared/*.md file is listed in AGENTS.md Quick Links
         entry: python scripts/audit_shared_links.py
         language: system
-        files: ^(CLAUDE\.md|\.claude/shared/.*)$
+        files: ^(AGENTS\.md|\.claude/shared/.*)$
         pass_filenames: false
 
   # Test coverage validation

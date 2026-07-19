@@ -4,7 +4,7 @@
 #
 # Dependency-management note: this file is intentionally minimal and is
 # NOT a source of truth for the project's dependencies. The repo-level
-# `pixi.toml` remains the single source of truth per CLAUDE.md. This
+# `pixi.toml` remains the single source of truth per AGENTS.md. This
 # pyproject.toml is consulted only when building the wheel.
 
 [build-system]

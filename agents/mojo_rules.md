@@ -7,7 +7,7 @@ from the shared reference files.
 
 - [Mojo Guidelines](../.claude/shared/mojo-guidelines.md) - Syntax standards and conventions
 - [Mojo Anti-Patterns](../.claude/shared/mojo-anti-patterns.md) - Common mistakes to avoid
-- [CLAUDE.md Mojo Section](../CLAUDE.md#mojo-syntax-standards-v0257) - Complete reference
+- [AGENTS.md Mojo Section](../AGENTS.md#mojo-syntax-standards-v0257) - Complete reference
 
 ## Quick Rules (Must Know)
 

@@ -43,7 +43,7 @@ scripts/
 ├── common.py                           # Repo-specific constants (LABEL_COLORS, EXCLUDE_DIRS)
 ├── analyze_issues.py                   # GitHub issue complexity analysis
 ├── analyze_warnings.py                 # Compiler warning analysis
-├── audit_shared_links.py               # Audit .claude/shared/ link-backs in CLAUDE.md
+├── audit_shared_links.py               # Audit .claude/shared/ link-backs in AGENTS.md
 ├── bench_precommit.py                  # Pre-commit hook performance benchmarking
 ├── build_pr_comment.py                 # Build PR comment bodies from test results
 ├── check_coverage.py                   # Test coverage reporting

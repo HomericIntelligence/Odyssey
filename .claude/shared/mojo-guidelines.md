@@ -176,4 +176,4 @@ mojo build shared/core/activation.mojo       # ❌ Fails with relative import er
 - [ ] List initialization uses literals: `[1, 2, 3]` not `List[Int](1, 2, 3)`
 
 See [mojo-anti-patterns.md](mojo-anti-patterns.md) for common mistakes.
-See [CLAUDE.md](../../CLAUDE.md#mojo-syntax-standards-v0257) for complete reference.
+See [AGENTS.md](../../AGENTS.md#mojo-syntax-standards-v0257) for complete reference.

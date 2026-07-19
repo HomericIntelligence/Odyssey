@@ -67,7 +67,7 @@ jobs:
             echo "Use list literals instead: var shape = [3, 4, 5]"
             echo ""
             echo "See: https://docs.modular.com/mojo/manual/types#list"
-            echo "See: CLAUDE.md section 'List Initialization'"
+            echo "See: AGENTS.md section 'List Initialization'"
             exit 1
           else
             echo ""
@@ -271,7 +271,7 @@ jobs:
         run: python scripts/check_source_coverage.py
 
   # ============================================================================
-  # Audit Shared Links - Verify .claude/shared/ files are documented in CLAUDE.md
+  # Audit Shared Links - Verify .claude/shared/ files are documented in AGENTS.md
   # ============================================================================
   audit-shared-links:
     runs-on: ubuntu-latest
@@ -290,7 +290,7 @@ jobs:
       - name: Install dependencies
         run: pip install "homericintelligence-hephaestus>=0.9.0,<1"
 
-      - name: Audit src/odyssey links in CLAUDE.md
+      - name: Audit src/odyssey links in AGENTS.md
         run: |
           python scripts/audit_shared_links.py
 

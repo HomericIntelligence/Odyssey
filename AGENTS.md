@@ -1,0 +1,1118 @@
+# AGENTS.md — Odyssey
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+## Project Overview
+
+ML Odyssey is a Mojo-based AI research platform for reproducing classic research papers. The project uses a
+comprehensive 4-level hierarchical planning structure with automated GitHub issue creation.
+
+**Current Status**: Active implementation — Mojo 1.0 migration complete, 6 neural network
+architectures implemented (~198K lines of Mojo), 298+ tests across 433 test files.
+
+## Ecosystem Context
+
+Odyssey is part of the
+[HomericIntelligence](https://github.com/HomericIntelligence) organization.
+It is a **standalone ML training framework** — not a distributed agent or
+microservice.
+
+**This repo's role**: Mojo-based ML framework for reproducing classic research
+papers. The shared library (`src/odyssey/`) provides tensor ops, autograd, layers,
+and training infrastructure that all paper implementations build on.
+
+**What this repo is NOT** (to prevent AI agents from making incorrect
+assumptions):
+
+- **Not part of a distributed agent mesh.** Zero integration with ai-maestro,
+  NATS, or any agent registration/task queue. AchaeanFleet and Myrmidons
+  handle that.
+- **No promotion path to AchaeanFleet.** Implementations live entirely in this
+  repo as Mojo libraries and executables.
+- **No REST API.** No agent registration endpoint, no REST client.
+- **"Agents" here = Claude Code automation** (`.claude/agents/`) for
+  development workflow (code generation, PR creation, CI), not runtime
+  distributed services.
+
+**Key sibling repos** (see
+[README.md](README.md#part-of-homericintelligence) for the full table):
+
+| Repository | Role |
+| --- | --- |
+| [Odysseus](https://github.com/HomericIntelligence/Odysseus) | Ecosystem meta-repo and architecture docs |
+| [AchaeanFleet](https://github.com/HomericIntelligence/AchaeanFleet) | Container images for the agent mesh (separate from this repo) |
+| [ProjectMnemosyne](https://github.com/HomericIntelligence/ProjectMnemosyne) | Skills marketplace and team learnings |
+| [ProjectHephaestus](https://github.com/HomericIntelligence/ProjectHephaestus) | Shared utilities used across the ecosystem |
+
+## ⚠️ CRITICAL RULES - READ FIRST
+
+### 🚫 NEVER Push Directly to Main
+
+**The `main` branch is protected. ALL changes MUST go through a pull request.**
+
+❌ **ABSOLUTELY PROHIBITED:**
+
+```bash
+git checkout main
+git add <files>
+git commit -m "changes"
+git push origin main  # ❌ BLOCKED - Will be rejected by GitHub
+```
+
+**Why this is prohibited:**
+
+- Bypasses code review and CI checks
+- Can break production immediately
+- Violates GitHub branch protection rules
+- Makes it impossible to track changes properly
+
+✅ **CORRECT WORKFLOW (Always Use PRs):**
+
+```bash
+# 1. Create feature branch
+git checkout -b <issue-number>-description
+
+# 2. Make changes and commit
+git add <files>
+git commit -m "type(scope): description"
+
+# 3. Push feature branch
+git push -u origin <issue-number>-description
+
+# 4. Create pull request
+gh pr create \
+  --title "Brief description" \
+  --body "Closes #<issue-number>" \
+  --label "appropriate-label"
+
+# 5. Enable auto-merge
+gh pr merge --auto --rebase
+```
+
+**Emergency Situations:**
+
+- Even for critical CI fixes, CREATE A PR
+- Even for one-line changes, CREATE A PR
+- Even if you're fixing your own mistake, CREATE A PR
+- NO EXCEPTIONS - Always use the PR workflow
+
+**See Also:**
+
+- PR Best Practices: [PR Workflow](/.claude/shared/pr-workflow.md)
+
+## Quick Links
+
+### Core Guidelines
+
+- [Mojo Syntax & Patterns](/.claude/shared/mojo-guidelines.md)
+- [Mojo Anti-Patterns](/.claude/shared/mojo-anti-patterns.md) - 64+ failure patterns
+- [Mojo UnsafePointer Memory Safety](docs/dev/mojo-memory-safety.md) - when/how to use UnsafePointer safely
+- [Mojo TSAN/tcmalloc Incompatibility](docs/dev/mojo-tsan-tcmalloc-incompatibility.md) - why test-mojo-tsan aborts
+- [PR Workflow](/.claude/shared/pr-workflow.md)
+- [GitHub Issue Workflow](/.claude/shared/github-issue-workflow.md)
+- [Common Constraints](/.claude/shared/common-constraints.md)
+- [Documentation Rules](/.claude/shared/documentation-rules.md)
+- [Error Handling](/.claude/shared/error-handling.md)
+- [Git Commit Policy](/.claude/shared/git-commit-policy.md)
+- [Output Style Guidelines](/.claude/shared/output-style-guidelines.md)
+- [Tool Use Optimization](/.claude/shared/tool-use-optimization.md)
+
+### Agent System & Skills
+
+- [Agent Hierarchy](/agents/hierarchy.md) - 6-level hierarchy
+- [Agent Configurations](/.claude/agents/) - 29 agents
+- [Skills](https://github.com/HomericIntelligence/ProjectMnemosyne) - 61 skills total;
+  57 live in the external ProjectMnemosyne repo, 4 remain local. Use `/mnemosyne:advise`
+  to search skills by category or functionality.
+
+## Working with Agents
+
+This project uses a hierarchical agent system for all development work. **Always use agents** as the primary
+method for completing tasks.
+
+### Agent Hierarchy
+
+See [agents/hierarchy.md](agents/hierarchy.md) for the complete agent hierarchy including:
+
+- 6-level hierarchy (L0 Chief Architect → L5 Junior Engineers)
+- Model assignments (Opus, Sonnet, Haiku)
+- All 29 agents with roles and responsibilities
+
+### Key Agent Principles
+
+1. **Always start with orchestrators** for new section work
+1. **All outputs** must be posted as comments on the GitHub issue
+1. **Link all PRs** to issues using `gh pr create --issue <number>` or "Closes #123" in description
+1. **Minimal changes only** - smallest change that solves the problem
+1. **No scope creep** - focus only on issue requirements
+1. **Reply to each review comment** with `✅ Fixed - [brief description]`
+1. **Delegate to skills** - Use "Use the X skill to..." pattern for automation
+
+### Skill Delegation Patterns
+
+Agents delegate to skills using five patterns: **Direct** (invoke for specific action),
+**Conditional** (decide based on condition), **Multi-Skill Workflow** (chain skills for a goal),
+**Skill Selection** (pick skill based on analysis), **Background vs Foreground** (automatic
+`run-precommit` vs explicit `gh-create-pr-linked`).
+
+**Available Skills** (58 total across 11 categories):
+
+- **GitHub**: gh-review-pr, gh-fix-pr-feedback, gh-create-pr-linked, gh-check-ci-status,
+  gh-implement-issue, gh-reply-review-comment, gh-get-review-comments, gh-batch-merge-by-labels,
+  verify-pr-ready
+- **Worktree**: worktree-create, worktree-cleanup, worktree-switch, worktree-sync
+- **Phase Workflow**: phase-plan-generate, phase-test-tdd, phase-implement, phase-package,
+  phase-cleanup
+- **Mojo**: mojo-format, mojo-test-runner, mojo-build-package, mojo-simd-optimize,
+  mojo-memory-check, mojo-type-safety, mojo-lint-syntax, validate-mojo-patterns,
+  check-memory-safety, analyze-simd-usage
+- **Agent System**: agent-validate-config, agent-test-delegation, agent-run-orchestrator,
+  agent-coverage-check, agent-hierarchy-diagram
+- **Documentation**: doc-generate-adr, doc-issue-readme, doc-validate-markdown,
+  doc-update-blog
+- **CI/CD**: run-precommit, validate-workflow, fix-ci-failures, install-workflow,
+  analyze-ci-failure-logs, build-run-local
+- **Quality**: quality-run-linters, quality-fix-formatting, quality-security-scan,
+  quality-coverage-report, quality-complexity-check
+- **Testing & Analysis**: test-diff-analyzer, extract-test-failures, generate-fix-suggestions,
+  track-implementation-progress
+- **Review**: review-pr-changes, create-review-checklist
+
+See [ProjectMnemosyne](https://github.com/HomericIntelligence/ProjectMnemosyne) for complete
+implementations. Skills have been migrated to a flat `skills/<name>.md` format. Use
+`/mnemosyne:advise` to search skills by category or functionality.
+
+### Key Development Principles
+
+1. KISS - *K*eep *I*t *S*imple *S*tupid -> Don't add complexity when a simpler solution works
+1. YAGNI - *Y*ou *A*in't *G*onna *N*eed *I*t -> Don't add things until they are required
+1. TDD - *T*est *D*riven *D*evelopment -> Write tests to drive the implementation
+1. DRY - *D*on't *R*epeat *Y*ourself -> Don't duplicate functionality, data structures, or algorithms
+1. SOLID - *S**O**L**I**D* ->
+  . Single Responsibility
+  . Open-Closed
+  . Liskov Substitution
+  . Interface Segregation
+  . Dependency Inversion
+1. Modularity - Develop independent modules through well defined interfaces
+1. POLA - *P*rinciple *O*f *L*east *A*stonishment - Create intuitive and predictable interfaces to not surprise users
+
+Relevant links:
+
+- [Core Principles of Software Development](<https://softjourn.com/insights/core-principles-of-software-development>)
+- [7 Common Programming Principles](<https://www.geeksforgeeks.org/blogs/7-common-programming-principles-that-every-developer-must-follow/>)
+- [Software Development Principles](<https://coderower.com/blogs/software-development-principles-software-engineering>)
+- [Clean Coding Principles](<https://www.pullchecklist.com/posts/clean-coding-principles>)
+
+### Documentation Rules
+
+- **Issue-specific outputs**: Post as comments on the GitHub issue using `gh issue comment <number>`
+- **Developer documentation**: `/docs/dev/` (architectural decisions, design docs)
+- **Team guides**: `/agents/` (quick start, hierarchy, templates)
+- **Never duplicate** documentation across locations - link instead
+- See `.claude/shared/github-issue-workflow.md` for GitHub issue read/write patterns
+
+### Language Preference
+
+#### Mojo First - With Pragmatic Exceptions
+
+**Default to Mojo** for ALL ML/AI implementations:
+
+- ✅ Neural network implementations (forward/backward passes, layers)
+- ✅ Training loops and optimization algorithms
+- ✅ Tensor operations and SIMD kernels
+- ✅ Performance-critical data processing
+- ✅ Type-safe model components
+- ✅ Gradient computation and backpropagation
+- ✅ Model inference engines
+
+**Use Python for Automation** when technical limitations require it:
+
+- ✅ Subprocess output capture (Mojo v1.0 limitation - cannot capture stdout/stderr)
+- ✅ Regex-heavy text processing (no Mojo regex support in stdlib)
+- ✅ GitHub API interaction via Python libraries (`gh` CLI, REST API)
+- ⚠️ **MUST document justification** (see ADR-001 for header template)
+
+**Rule of Thumb** (Decision Tree):
+
+1. **ML/AI implementation?** → Mojo (required)
+1. **Automation needing subprocess output?** → Python (allowed, document why)
+1. **Automation needing regex?** → Python (allowed, document why)
+1. **Interface with Python-only libraries?** → Python (allowed, document why)
+1. **Everything else?** → Mojo (default)
+
+### Why Mojo for ML/AI
+
+- Performance: Faster for ML workloads
+- Type safety: Catch errors at compile time
+- Memory safety: Built-in ownership and borrow checking
+- SIMD optimization: Parallel tensor operations
+- Future-proof: Designed for AI/ML from the ground up
+
+### Why Python for Automation
+
+- Mojo's subprocess API lacks exit code access (causes silent failures)
+- Regex support not production-ready (mojo-regex is alpha stage)
+- Python is the right tool for automation - not a temporary workaround
+
+**See**: [ADR-001: Language Selection for Tooling](docs/adr/ADR-001-language-selection-tooling.md)
+for complete language selection strategy, technical evidence (test results), and justification
+requirements
+
+See `/agents/README.md` for complete agent documentation and `/agents/hierarchy.md` for visual hierarchy.
+
+### Tensor Architecture
+
+The project uses a dual-type tensor system (see [ADR-012](docs/adr/ADR-012-parametric-dtype-tensor-architecture.md)):
+
+- **`Tensor[dtype: DType]`** -- compile-time typed tensor with SIMD-like element access. Used inside layer implementations.
+- **`AnyTensor`** -- runtime-typed tensor for trait interfaces, collections, serialization, and autograd tape.
+
+Both conform to `TensorLike` trait. Zero-copy conversion via `as_tensor[dtype]()` and `as_any()`.
+
+```mojo
+from odyssey.core.any_tensor import AnyTensor, zeros
+from odyssey.tensor.tensor import Tensor
+```
+
+## Claude 4 & Claude Code Optimization
+
+This section provides guidance on optimizing interactions with Claude 4 (Sonnet and Opus) and
+Claude Code features including extended thinking, agent skills, sub-agents, hooks, and output
+styles.
+
+### Extended Thinking
+
+**When to Use Extended Thinking**: Claude 4 models support extended thinking for complex
+reasoning tasks. Use extended thinking when:
+
+- Analyzing complex codebases or architectural decisions
+- Debugging multi-layered issues with unclear root causes
+- Planning multi-step refactoring or migrations
+- Evaluating tradeoffs between multiple design approaches
+- Reasoning about edge cases and failure modes
+
+**When NOT to Use Extended Thinking**:
+
+- Simple CRUD operations or boilerplate code
+- Well-defined tasks with clear specifications
+- Repetitive tasks (formatting, linting, etc.)
+- Tasks with clear step-by-step instructions already provided
+
+### Thinking Budget Guidelines
+
+Extended thinking consumes tokens. Use appropriate budgets based on task complexity:
+
+| Task Type | Budget | Examples | Rationale |
+| --- | --- | --- | --- |
+| **Simple** | None | Fix typo | Mechanical changes |
+| **Standard** | 5K-10K | Add test, function | Well-defined |
+| **Complex** | 10K-20K | Restructure, migrate | Dependencies |
+| **Architecture** | 20K-50K | Design pattern | Deep analysis |
+| **System-wide** | 50K+ | CI failures | Root cause |
+
+**Budget Conservation Tips**:
+
+1. **Provide context upfront** - Include relevant file contents, error messages, and constraints
+2. **Break down complex tasks** - Split large problems into smaller, focused subtasks
+3. **Use examples** - Show expected patterns rather than describing them
+4. **Reference existing code** - Point to similar implementations as templates
+
+### Agent Skills vs Sub-Agents
+
+**Decision Tree**: Choose between skills and sub-agents based on task characteristics:
+
+```text
+Is the task well-defined with predictable steps?
+├─ YES → Use a Skill from ProjectMnemosyne
+│   ├─ Is it a GitHub operation? → Use gh-* skills
+│   ├─ Is it a Mojo operation? → Use mojo-* skills
+│   ├─ Is it a CI/CD task? → Use ci-* skills
+│   └─ Is it a documentation task? → Use doc-* skills
+│
+└─ NO → Use a Sub-Agent
+    ├─ Does it require exploration/discovery? → Use sub-agent
+    ├─ Does it need adaptive decision-making? → Use sub-agent
+    ├─ Is the workflow dynamic/context-dependent? → Use sub-agent
+    └─ Does it need extended thinking? → Use sub-agent
+```
+
+**Skills** - Use for automation with predictable workflows (available in ProjectMnemosyne):
+
+- **Characteristics**: Declarative YAML, fixed steps, composable, fast
+- **Best for**: GitHub API calls, running tests, formatting code, CI workflows
+- **Examples**: `gh-create-pr-linked`, `mojo-format`, `run-precommit`
+- **Access**: Use `/mnemosyne:advise` to search and invoke skills
+
+**Sub-Agents** - Use for tasks requiring reasoning and adaptation:
+
+- **Characteristics**: Full Claude instance, extended thinking, exploratory, slower
+- **Best for**: Architecture decisions, debugging, code review, complex refactoring
+- **Examples**: Documentation Engineer, Implementation Specialist, Review Engineer
+
+**Hybrid Approach**: Sub-agents can delegate to skills mid-workflow (e.g., call `gh-create-pr-linked`
+after completing analysis and drafting).
+
+### Hooks Best Practices
+
+Hooks enable proactive automation and safety checks. Use hooks for guardrails and background tasks.
+
+**Hook Design Principles**:
+
+1. **Fail fast** - Catch errors early in the development cycle
+2. **Clear messages** - Explain WHY the hook triggered and HOW to fix
+3. **Strict enforcement** - NEVER use `--no-verify`. Fix hook failures instead of bypassing.
+4. **Idempotent** - Hooks should be safe to run multiple times
+
+**Common Hooks for ML Odyssey**:
+
+| Hook Type | Trigger | Purpose | Implementation |
+| --- | --- | --- | --- |
+| **Safety** | compile | Zero-warnings | Fail on warnings |
+| **Safety** | pr_create | Issue link | Block if missing |
+| **Safety** | git_push | Block main | Fail if direct |
+| **Automation** | file_save | Auto-format | Run pixi run mojo format |
+| **Automation** | git_commit | Pre-commit | Execute hooks |
+| **Automation** | pr_merge | Cleanup | Remove worktree |
+
+See `.claude/shared/error-handling.md` for retry strategies and timeout handling in hooks.
+
+### Output Style Guidelines
+
+Use repo-relative file paths with line numbers for code references. Structure PR/issue comments with
+`## Summary`, `## Changes Made`, `## Files Modified`, `## Verification` sections. Prioritize code
+review feedback by severity (Critical / Important / Nice to Have).
+
+See [Output Style Guidelines](.claude/shared/output-style-guidelines.md) for complete examples.
+
+### Tool Use Optimization
+
+Make independent tool calls in parallel (Read, Grep, Glob). Use absolute paths in Bash commands
+(cwd resets between calls). Use dedicated tools (Read/Grep/Glob/Edit) rather than Bash for
+file operations. Prefer `&&`-chained commands for atomicity.
+
+See [Tool Use Optimization](.claude/shared/tool-use-optimization.md) for complete examples.
+
+### Agentic Loop Patterns
+
+For complex tasks, follow Exploration → Planning → Execution: gather context first (Read/Grep/Glob),
+design solution with subtasks, then implement iteratively with early verification. Iterate on
+failures rather than perfecting upfront.
+
+Use agentic loops for: complex refactoring, unclear root-cause debugging, design tradeoff decisions.
+Skip for: simple well-defined tasks, boilerplate generation, mechanical changes.
+
+See [Tool Use Optimization](.claude/shared/tool-use-optimization.md#agentic-loop-patterns) for details.
+
+## Delegation to Agent Hub
+
+.claude/ is the centralized location for agentic descriptions. Sub-agents reference
+`.claude/agents/*.md` for roles, capabilities, and prod fix learnings. Skills have been migrated to ProjectMnemosyne.
+
+### Shared Reference Files
+
+All agents and skills reference these shared files to avoid duplication:
+
+| File | Purpose |
+| --- | --- |
+| `.claude/shared/common-constraints.md` | Minimal changes principle, scope discipline |
+| `.claude/shared/documentation-rules.md` | Output locations, before-starting checklist |
+| `.claude/shared/pr-workflow.md` | PR creation, verification, review responses |
+| `.claude/shared/mojo-guidelines.md` | Mojo v1.0+ syntax, parameter conventions |
+| `.claude/shared/mojo-anti-patterns.md` | 64+ test failure patterns from PRs |
+| `.claude/shared/error-handling.md` | Retry strategy, timeout handling, escalation |
+
+### MCP Integration
+
+**DEPRECATED**: GitHub MCP integration is being removed. Use `gh` CLI directly for all
+GitHub operations to avoid token overhead.
+
+Skills with `mcp_fallback` in YAML frontmatter will be updated to use direct CLI calls only.
+
+### Mojo Development Guidelines
+
+This project uses **Mojo 1.0.0b2** (pinned in pixi.toml).
+Official docs: <https://mojolang.org/docs/>
+
+**Quick Reference**: See [mojo-guidelines.md](/.claude/shared/mojo-guidelines.md) for v1.0+ syntax
+
+**Critical Patterns** (1.0):
+
+- **Constructors**: Use `out self` (not `mut self`)
+- **Mutating methods**: Use `mut self`
+- **Ownership transfer**: Use `^` operator for List/Dict/String
+- **List initialization**: Use literals `[1, 2, 3]` not `List[Int](1, 2, 3)`
+- **Parametric function values**: Add `thin` keyword to function-value parameter
+  types — `op: def[T: DType](Scalar[T]) thin -> Scalar[T]` (the `thin` is required
+  in 1.0; was implicit in 0.26)
+- **Closure capture**: `def foo() {mut}:` or `def foo() capturing[_]:` — the
+  `unified` keyword was removed in 1.0
+- **Tests**: existing hand-rolled `def main()` test files run via `mojo run`
+  (not `mojo test` — that subcommand was removed in 1.0)
+- **UnsafePointer**: non-null by design; use `Optional[UnsafePointer[T]]` for
+  nullable pointers and check via `is None` / `is not None`
+
+**Migration recipes** (for code still using 0.26 idioms): see
+[docs/dev/mojo-1.0-migration-recipe.md](docs/dev/mojo-1.0-migration-recipe.md).
+
+**Common Mistakes**: See [mojo-anti-patterns.md](/.claude/shared/mojo-anti-patterns.md) for 64+ failure patterns
+
+**Compiler as Truth**: When uncertain, test with `mojo build` - the compiler is authoritative
+
+**Compile-Time Import Constraints**:
+
+- Import failures in Mojo are compile-time errors with no runtime exception handling
+- Cannot write "negative import tests" (tests that expect imports to fail)
+- Invalid imports cause compilation to fail before any code executes
+- This differs from Python where import errors can be caught at runtime
+- Plan test coverage accordingly: only test valid imports that compile successfully
+
+**JIT stability**: Mojo JIT is stable as of `1.0.0b2.dev2026052506` (upstream fix for
+[modular/modular#6413](https://github.com/modular/modular/issues/6413)). Execution crashes
+(`mojo: error: execution crashed`, `libKGENCompilerRTShared.so` stack frames, SIGILL) are
+real bugs. Do NOT add retry loops, `continue-on-error: true`, or skip markers to work around
+them. File a minimal reproducer at modular/modular and fix forward.
+
+## Environment Setup
+
+This project uses Pixi for environment management:
+
+```bash
+# Pixi is already configured - dependencies are in pixi.toml
+# Mojo is the primary language target for future implementations
+```
+
+**`pixi.toml` is the single source of truth for all dependencies** (Python packages, Mojo
+version, dev tools, and scripts) — including inside Docker/container contexts. Do NOT add
+dependencies to `requirements*.txt` or `pyproject.toml` — those files are not used by this
+project and carry no authority. Always update `pixi.toml` when adding or changing a dependency.
+
+**Environment Variables**: Copy `.env.example` to `.env` and customize for your system:
+
+```bash
+cp .env.example .env
+```
+
+See `.env.example` for all available variables (container user mapping, native vs Podman
+execution, log levels, etc.). The justfile auto-detects most values, so `.env` is optional
+for typical setups.
+
+**Pixi env layout (detached-environments)**: `.pixi/config.toml` sets
+`detached-environments = true`, so pixi stores environments in the per-user cache
+directory (`~/.cache/pixi/envs/…`) rather than inside the workspace. This prevents
+the host and container pixi envs from colliding at the same filesystem path:
+
+- **Host env** (`~/.cache/pixi/…`) — used by pre-commit hooks and direct `pixi run`
+  calls on the host (Python tools: ruff, mypy, bandit).
+- **Container env** (`/home/dev/.cache/pixi/…`) — used by `just build`, `just test-mojo`,
+  and all other justfile recipes that route through `podman compose exec`. Mojo must run
+  from the container because it requires glibc ≥ 2.32 (host glibc may be older).
+
+Pixi creates a convenience **symlink** at `.pixi/envs → <per-user-cache>/envs` pointing to
+the actual env location. This symlink is expected and harmless (it's ignored by git via
+`.pixi/.gitignore`). An actual directory at `.pixi/envs/` would indicate a misconfiguration;
+a pre-commit guard catches that case. If `.pixi/envs` is an actual directory, run
+`rm -rf .pixi/envs && pixi install`.
+
+**GLIBC Constraint**: CI runners use Ubuntu with GLIBC 2.35 (Mojo requires 2.32+). Any
+native binaries built locally must be compatible with this version to avoid CI failures.
+If you're unable to run tests locally due to GLIBC version mismatch, see the
+Troubleshooting section "Mojo Test Execution and GLIBC Compatibility" for solutions.
+
+## Common Commands
+
+### Justfile Build System
+
+The project uses [Just](<https://just.systems/>) as a unified command runner for local development and CI/CD consistency.
+
+#### Quick Reference
+
+```bash
+# Show all available recipes
+just --list
+
+# Get help
+just help
+
+# Development commands
+just build                  # Build project in debug mode
+just test                   # Run all tests
+just test-mojo             # Run only Mojo tests
+just format                # Format all files
+
+# CI-specific commands (match GitHub Actions)
+just validate           # Full validation (build + test)
+just build              # Build shared package
+just package           # Compile package (validation only)
+just test-mojo          # Run all Mojo tests
+just test-group PATH PATTERN  # Run specific test group
+just pre-commit               # Run pre-commit hooks
+just pre-commit-all               # Run pre-commit hooks on all files
+
+# Training and inference
+just train                 # Train LeNet-5 with defaults
+just train lenet5 fp16 20  # Train with FP16, 20 epochs
+just infer lenet5 ./weights  # Run inference
+
+# Podman management
+just podman-up             # Start development environment
+just podman-down           # Stop environment
+just shell          # Open shell in container
+```
+
+### Container Registry (GHCR)
+
+Images published to GHCR: `ghcr.io/HomericIntelligence/Odyssey:{main,main-ci,main-prod}`.
+
+```bash
+podman pull ghcr.io/HomericIntelligence/Odyssey:main  # ~2GB runtime
+just podman-up    # Start dev environment
+just shell        # Open shell in container
+just podman-build-ci runtime  # Build locally
+```
+
+### Why Use Justfile?
+
+1. **Consistency**: Same commands work locally and in CI
+2. **Simplicity**: Easy-to-read recipes vs complex bash scripts
+3. **Documentation**: Self-documenting with `just --list`
+4. **Reliability**: Ensures identical flags between local dev and CI
+
+### CI Integration
+
+GitHub Actions workflows use justfile recipes to ensure consistency:
+
+```yaml
+# Example from comprehensive-tests.yml
+- name: Run test group
+  run: just test-group "tests/shared/core" "test_*.mojo"
+
+# Example from build-validation.yml
+- name: Build package
+  run: just build
+```
+
+This ensures developers can run `just validate` locally to reproduce CI results exactly.
+
+**See**: `justfile` for complete recipe list and implementation details.
+
+### Development Workflows
+
+**Pull Requests**: See [pr-workflow.md](/.claude/shared/pr-workflow.md)
+
+- Creating PRs with `gh pr create --body "Closes #<number>"`
+- Responding to review comments (use GitHub API, not `gh pr comment`)
+- Post-merge cleanup (worktree removal, branch deletion)
+
+**GitHub Issues**: See [github-issue-workflow.md](/.claude/shared/github-issue-workflow.md)
+
+- Read context: `gh issue view <number> --comments`
+- Post updates: `gh issue comment <number> --body "..."`
+
+**Git Workflow**: Feature branch → PR → Auto-merge (never push to main)
+
+### Agent Testing
+
+Agent configurations are validated in CI on all PRs. Run locally before committing:
+
+```bash
+# Run all agent tests
+for script in tests/agents/test_*.py tests/agents/validate_*.py; do
+    python3 "$script" .claude/agents/
+done
+```
+
+Tests cover: YAML config validation, agent discovery, delegation patterns, workflow integration,
+and Mojo-specific patterns. CI runs these via `.github/workflows/test-agents.yml`.
+
+### Pre-commit Hooks
+
+Pre-commit hooks automatically check code quality before commits. The hooks include a GLIBC-aware
+`mojo-format` wrapper (`scripts/mojo-format-compat.sh`) for Mojo code and markdown linting for documentation.
+
+```bash
+# Install pre-commit hooks (one-time setup)
+pixi run pre-commit install
+
+# Run hooks manually on all files
+just pre-commit-all
+
+# Run hooks manually on staged files only
+just precommit
+
+# NEVER skip hooks with --no-verify
+# If a hook fails, fix the code instead
+# If a specific hook is broken, use SKIP=hook-id:
+SKIP=trailing-whitespace git commit -m "message"
+
+# Note: SKIP=mojo-format is not needed — use scripts/mojo-format-compat.sh or just shell on incompatible hosts
+```
+
+**Mojo Format Compatibility**: The `mojo-format` hook uses `scripts/mojo-format-compat.sh`,
+which detects GLIBC incompatibility (Mojo requires GLIBC 2.32+) and exits `0` with a warning
+instead of failing the commit on older hosts (Debian Buster/Bullseye, Ubuntu 20.04, etc.).
+CI runs on Ubuntu 24.04 (glibc 2.39) and always enforces formatting.
+See `docs/dev/mojo-glibc-compatibility.md` for details.
+
+### Pre-Commit Hook Policy - STRICT ENFORCEMENT
+
+`--no-verify` is **ABSOLUTELY PROHIBITED**. No exceptions.
+
+**If hooks fail:**
+
+1. Read the error message to understand what failed
+2. Fix the code to pass the hook
+3. Re-run `just precommit` to verify fixes
+4. Commit again
+
+**Valid alternatives to --no-verify:**
+
+- Fix the code (preferred)
+- Use `SKIP=hook-id` for specific broken hooks (must document reason)
+  - For `mojo-format` compatibility issues, see `docs/dev/mojo-glibc-compatibility.md`
+- Disable the hook in `.pre-commit-config.yaml` if permanently problematic
+
+**Invalid alternatives:**
+
+- ❌ `git commit --no-verify`
+- ❌ `git commit -n`
+- ❌ Any command that bypasses all hooks
+
+### Configured Hooks
+
+- `mojo format` - Auto-format Mojo code (`.mojo`, `.🔥` files)
+- `markdownlint-cli2` - Lint markdown files
+- `trailing-whitespace` - Remove trailing whitespace
+- `end-of-file-fixer` - Ensure files end with newline
+- `check-yaml` - Validate YAML syntax
+- `check-added-large-files` - Prevent large files (max 1MB)
+- `mixed-line-ending` - Fix mixed line endings
+
+**CI Enforcement**: The `.github/workflows/pre-commit.yml` workflow runs these checks on
+all PRs and pushes to `main`.
+
+**See:** [Git Commit Policy](.claude/shared/git-commit-policy.md) for complete enforcement rules.
+
+## Repository Architecture
+
+### Project Structure
+
+```text
+Odyssey/
+├── agents/                      # Team documentation
+│   ├── README.md                # Quick start guide
+│   ├── hierarchy.md             # Visual hierarchy diagram and complete agent specifications
+│   ├── delegation-rules.md      # Coordination patterns
+│   └── templates/               # Agent configuration templates
+├── notes/
+│   └── review/                  # Comprehensive specs & decisions
+│       ├── agent-architecture-review.md
+│       ├── skills-design.md
+│       └── orchestration-patterns.md
+├── scripts/                     # Python automation scripts
+├── logs/                        # Execution logs and state files
+└── .clinerules                 # Claude Code conventions
+```
+
+### Planning Hierarchy
+
+**4 Levels** (managed through GitHub issues):
+
+1. **Section** (e.g., 01-foundation) - Major area of work
+1. **Subsection** (e.g., 01-directory-structure) - Logical grouping
+1. **Component** (e.g., 01-create-papers-dir) - Specific deliverable
+1. **Subcomponent** (e.g., 01-create-base-dir) - Atomic task
+
+All planning documentation is tracked in GitHub issues. Use `gh issue view <number>` to read plans.
+
+### Documentation Organization
+
+The repository uses three separate locations for documentation to avoid duplication:
+
+#### 1. Team Documentation (`/agents/`)
+
+**Purpose**: Quick start guides, visual references, and templates for team onboarding.
+
+### Contents
+
+- Quick start guides (README.md)
+- Visual diagrams (hierarchy.md)
+- Quick reference cards (delegation-rules.md)
+- Configuration templates (templates/)
+
+**When to Use**: Creating new documentation for team onboarding or quick reference.
+
+#### 2. Developer Documentation (`/docs/dev/`)
+
+**Purpose**: Detailed architectural decisions, comprehensive specifications, and design documents.
+
+### Contents
+
+- Mojo patterns and error handling (mojo-test-failure-patterns.md)
+- Orchestration patterns (orchestration-patterns.md)
+- Backward pass catalog (backward-pass-catalog.md)
+- Skills architecture and design (see ProjectMnemosyne for current implementations)
+
+**When to Use**: Writing detailed specifications, architectural decisions, or comprehensive guides.
+
+#### 3. Issue-Specific Documentation (GitHub Issue Comments)
+
+**Purpose**: Implementation notes, findings, and decisions specific to a single GitHub issue.
+
+**Location**: Post directly to the GitHub issue as comments using `gh issue comment`.
+
+See [github-issue-workflow.md](/.claude/shared/github-issue-workflow.md) for read/write patterns
+(`gh issue view <number> --comments`, `gh issue comment <number> --body "..."`).
+
+### Important Rules
+
+- ✅ DO: Post issue-specific findings and decisions as comments
+- ✅ DO: Link to comprehensive docs in `/agents/` and `/docs/dev/`
+- ✅ DO: Reference related issues with `#<number>` format
+- ❌ DON'T: Duplicate comprehensive documentation
+- ❌ DON'T: Create local files for issue tracking
+
+### 5-Phase Development Workflow
+
+Every component follows a hierarchical workflow with clear dependencies:
+
+**Workflow**: Plan → [Test | Implementation | Package] → Cleanup
+
+1. **Plan** - Design and documentation (MUST complete first)
+1. **Test** - Write tests following TDD (parallel after Plan)
+1. **Implementation** - Build the functionality (parallel after Plan)
+1. **Package** - Create distributable packages (parallel after Plan)
+   - Build binary packages (`.mojopkg` files for Mojo modules)
+   - Create distribution archives (`.tar.gz`, `.zip` for tooling/docs)
+   - Configure package metadata and installation procedures
+   - Add components to existing packages
+   - Test package installation in clean environments
+   - Create CI/CD packaging workflows
+   - **NOT just documenting** - must create actual distributable artifacts
+1. **Cleanup** - Refactor and finalize (runs after parallel phases complete)
+
+### Key Points
+
+- Plan phase produces specifications for all other phases
+- Test/Implementation/Package can run in parallel after Plan completes
+- Cleanup collects issues discovered during the parallel phases
+- Each phase has a separate GitHub issue with detailed instructions
+
+## Testing Strategy
+
+Two-tier architecture: **Tier 1** layerwise unit tests (every PR, ~12 min, FP-representable special
+values 0.0/0.5/1.0/1.5/-1.0/-0.5, all 7 models) and **Tier 2** E2E integration tests (weekly,
+real EMNIST/CIFAR-10 datasets). Parametric layers validated with gradient checking (seed=42,
+epsilon=1e-5). Run with: `pixi run mojo test tests/models/test_<model>_layers.mojo`
+
+See [Testing Strategy Guide](docs/dev/testing-strategy.md) for full documentation.
+
+## GitHub Issue Structure
+
+All planning is done through GitHub issues with clear structure:
+
+### Issue Body Format
+
+```markdown
+## Objective
+Brief description (2-3 sentences)
+
+## Deliverables
+- [ ] Deliverable 1
+- [ ] Deliverable 2
+
+## Success Criteria
+- [ ] Criterion 1
+- [ ] Criterion 2
+
+## Dependencies
+- Depends on #<parent-issue>
+- Related: #<sibling-issue>
+
+## Notes
+Additional context
+```
+
+### Issue Labels
+
+- `planning` - Design phase
+- `testing` - Test development
+- `implementation` - Code implementation
+- `packaging` - Distribution packages
+- `cleanup` - Finalization
+
+### Linking Issues
+
+- Reference in body: `Depends on #123`
+- Reference in commits: `Implements #123`
+- Close via PR: `Closes #123`
+
+## Working with GitHub Issues
+
+All planning and documentation is managed through GitHub issues directly.
+
+### Creating New Work Items
+
+1. Create a GitHub issue with clear description and acceptance criteria
+2. Use appropriate labels (planning, testing, implementation, packaging, cleanup)
+3. Link related issues using `#<number>` references
+
+### Tracking Implementation
+
+1. Read issue context: `gh issue view <number> --comments`
+2. Post progress updates as issue comments
+3. Link PRs to issues: `gh pr create --body "Closes #<number>"`
+
+### Documentation Workflow
+
+1. **Read context first**: `gh issue view <number> --comments`
+2. **Post updates**: `gh issue comment <number> --body "..."`
+3. **Reference in commits**: "Implements #<number>" or "Closes #<number>"
+
+See `.claude/shared/github-issue-workflow.md` for complete workflow patterns.
+
+### File Locations
+
+- **Scripts**: `scripts/*.py`
+- **Logs**: `logs/*.log`
+- **Tracked Docs**: `docs/dev/`, `agents/` (reference these in commits)
+- **Issue Docs**: GitHub issue comments (not local files)
+
+## Git Workflow
+
+### Branch Naming
+
+- `main` - Production branch (protected, requires PR)
+- `<issue-number>-<description>` - Feature/fix branches (e.g., `1928-consolidate-test-assertions`)
+
+### Development Workflow
+
+**IMPORTANT:** The `main` branch is protected. All changes must go through a pull request.
+
+#### Creating a PR (Standard Workflow)
+
+1. **Create a feature branch:**
+
+   ```bash
+   git checkout -b <issue-number>-<description>
+   ```
+
+1. **Make your changes and commit:**
+
+   ```bash
+   git add <files>
+   git commit -m "$(cat <<'EOF'
+   type(scope): Brief description
+
+   Detailed explanation of changes.
+
+   🤖 Generated with [Claude Code](<https://claude.com/claude-code>)
+
+   Co-Authored-By: Claude <noreply@anthropic.com>
+   EOF
+   )"
+   ```
+
+1. **Push the feature branch:**
+
+   ```bash
+   git push -u origin <branch-name>
+   ```
+
+1. **Create pull request:**
+
+   ```bash
+   gh pr create \
+     --title "[Type] Brief description" \
+     --body "Closes #<issue-number>" \
+     --label "appropriate-label"
+   ```
+
+1. **Enable auto-merge:**
+
+   ```bash
+   gh pr merge --auto --rebase
+   ```
+
+   **Always enable auto-merge** so PRs merge automatically once CI passes.
+
+### 🚫 Never Push Directly to Main
+
+**⚠️ CRITICAL:** See [CRITICAL RULES section](#️-critical-rules---read-first) at the top of this document.
+
+**This rule has NO EXCEPTIONS - not even for emergencies.** Always use the PR workflow described there.
+
+## Commit Message Format
+
+Follow conventional commits:
+
+```text
+feat(section): Add new component
+fix(scripts): Correct parsing issue
+docs(readme): Update instructions
+refactor(plans): Standardize to Template 1
+```
+
+### Worktree and PR Discipline
+
+**One PR per Issue:**
+
+- Each GitHub issue should have exactly ONE pull request
+- Do not combine multiple issues into a single PR
+- Branch naming: `<issue-number>-<description>`
+
+**Worktree Directory:**
+
+- Create all worktrees in the `worktrees/` subdirectory within the repo
+- Naming convention: `<issue-number>-<description>`
+- Example: `git worktree add worktrees/123-fix-bug 123-fix-bug`
+
+**Post-Merge Cleanup:**
+
+After a PR is merged/rebased to main:
+
+1. Remove the worktree: `git worktree remove worktrees/<issue-number>-<description>`
+2. Delete local branch: `git branch -d <branch-name>`
+3. Delete remote branch: `git push origin --delete <branch-name>`
+4. Prune stale references: `git worktree prune`
+
+## Labels
+
+Standard labels automatically created by scripts:
+
+- `planning` - Design phase (light purple: #d4c5f9)
+- `documentation` - Documentation work (blue: #0075ca)
+- `testing` - Testing phase (yellow: #fbca04)
+- `tdd` - Test-driven development (yellow: #fbca04)
+- `implementation` - Implementation phase (dark blue: #1d76db)
+- `packaging` - Integration/packaging (light green: #c2e0c6)
+- `integration` - Integration tasks (light green: #c2e0c6)
+- `cleanup` - Cleanup/finalization (red: #d93f0b)
+
+## Python Coding Standards
+
+```python
+
+#!/usr/bin/env python3
+
+"""
+Script description
+
+Usage:
+    python scripts/script_name.py [options]
+"""
+
+# Standard imports first
+
+import sys
+import re
+from pathlib import Path
+from typing import List, Dict, Optional
+
+def function_name(param: str) -> bool:
+    """Clear docstring with purpose, params, returns."""
+    pass
+```
+
+### Requirements
+
+- Python 3.7+
+- Type hints required for all functions
+- Clear docstrings for public functions
+- Comprehensive error handling
+- Logging for important operations
+
+## Markdown Standards
+
+All markdown files must follow these standards to pass `markdownlint-cli2` linting:
+
+- **MD031/MD040**: Fenced code blocks must have blank lines before/after and a language tag
+  (` ```python `, ` ```bash `, ` ```mojo `, ` ```yaml `, ` ```text `, etc.)
+- **MD032**: Lists must be surrounded by blank lines
+- **MD022**: Headings must be surrounded by blank lines
+- **MD013**: Lines must not exceed 120 characters (code blocks and URLs exempt)
+
+**Quick check before committing**: blank lines around all code blocks, lists, and headings;
+language on all code fences; no lines >120 chars; file ends with newline.
+
+```bash
+# Lint markdown locally
+pixi run npx markdownlint-cli2 path/to/file.md
+```
+
+## Debugging
+
+### Check Logs
+
+```bash
+# View script logs
+tail -100 logs/*.log
+
+# View specific log
+cat logs/<script>_*.log
+```
+
+## Troubleshooting
+
+### GitHub CLI Issues
+
+```bash
+# Check authentication
+gh auth status
+
+# If missing scopes, refresh authentication
+gh auth refresh -h github.com
+```
+
+### Issue Access Problems
+
+- Check GitHub CLI auth: `gh auth status`
+- Verify repository access: `gh repo view`
+- Test issue access: `gh issue list`
+
+### Script Errors
+
+- Verify Python version: `python3 --version` (requires 3.7+)
+- Check file permissions
+- Review error logs in `logs/` directory
+
+### Mojo Test Execution and GLIBC Compatibility
+
+**Issue**: Tests fail to run locally with errors about GLIBC version or missing libraries.
+
+**Root Cause**: Mojo requires GLIBC 2.32+ for test execution, but many Linux distributions
+(especially Debian 10, Ubuntu 18.04) ship with older GLIBC versions (2.28, 2.29). Even if
+the local Mojo compiler works, the test runtime may fail due to binary incompatibility.
+
+**Solution**: Use Podman or CI for test validation instead of running tests locally:
+
+```bash
+# Option 1: Use Podman (recommended for local testing)
+just podman-up              # Start container with GLIBC 2.35
+just shell                  # Open shell in container
+# Inside container:
+just test-mojo              # Run tests in container
+
+# Option 2: Use CI for validation
+git push origin <branch>    # Push to GitHub
+# GitHub Actions will run tests on Ubuntu with GLIBC 2.35
+```
+
+**Verification**: Check your local GLIBC version:
+
+```bash
+ldd --version | head -1     # Shows GLIBC version
+# If output shows < 2.32, use Podman or CI for testing
+```
+
+**Note**: The CI environment uses Ubuntu with GLIBC 2.35. Any binaries built locally
+must be compatible with this version, or they will fail in CI. Use Podman containers
+matching the CI environment to develop locally.
+
+## Important Files
+
+- `.clinerules` - Comprehensive Claude Code conventions
+- `docs/dev/` - Developer documentation (Mojo patterns, skills architecture)
+- `scripts/README.md` - Complete scripts documentation
+- `README.md` - Main project documentation
+- `.claude/shared/github-issue-workflow.md` - GitHub issue read/write patterns

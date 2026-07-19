@@ -52,7 +52,7 @@ See [template.md](template.md) for the standard ADR format used in this project.
 ## Quick Links
 
 - [ADR Template](template.md)
-- [CLAUDE.md](/CLAUDE.md) - Project guidelines
+- [AGENTS.md](/AGENTS.md) - Project guidelines
 - [Mojo Guidelines](/.claude/shared/mojo-guidelines.md) - Mojo-specific patterns
 
 ## References

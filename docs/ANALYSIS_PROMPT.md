@@ -28,7 +28,7 @@ Analyze ALL of the following components. Read the relevant files before grading 
 
 ### 1. Project Architecture & Structure
 
-Files: `README.md`, `CLAUDE.md`, `docs/core/project-structure.md`, `docs/dev/architecture.md`,
+Files: `README.md`, `AGENTS.md`, `docs/core/project-structure.md`, `docs/dev/architecture.md`,
 `justfile`, `pixi.toml`
 
 Evaluate: Directory layout clarity, separation of concerns, whether structure matches stated
@@ -50,7 +50,7 @@ justified vs. over-engineered, coverage gaps, activation trigger quality.
 ### 3. Skills System
 
 Files: `.claude/skills/` directory (all SKILL.md files and a sample of scripts),
-`docs/dev/skills-design.md`, `CLAUDE.md` skills section
+`docs/dev/skills-design.md`, `AGENTS.md` skills section
 
 Evaluate: Skill decomposition, reusability, whether 82+ skills is justified, script quality,
 YAML frontmatter consistency, MCP deprecation handling.
