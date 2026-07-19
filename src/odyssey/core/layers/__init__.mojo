@@ -13,6 +13,7 @@ Components:
     - FeedForward: Transformer position-wise feed-forward (Linear->act->Linear)
     - MultiHeadAttention: scaled dot-product self-attention block (Vaswani 2017)
     - SparseAttention: strided factorized sparse self-attention (Child et al. 2019)
+    - DiagonalSSM: Diagonal state-space (S4-style) sequence block
     - TransformerEncoderBlock: pre-LN Transformer block (attention + FFN)
     - LinearAttention: Linear (kernel-feature) self-attention (arXiv:2006.16236)
     - MambaBlock: Selective state-space (S6) block (input-dependent B/C/Delta)
