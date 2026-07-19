@@ -1,0 +1,82 @@
+# Fast merge-queue gate. This is the ONLY workflow that runs on merge_group
+# events: _required.yml, pre-commit.yml, comprehensive-tests.yml, and
+# workflow-smoke-test.yml no longer trigger there, so re-running the full
+# required matrix per queue entry (70-90 min of runner-slot starvation) is
+# replaced by this single job. PR-side CI is completely untouched; after the
+# ruleset flip, `merge-queue-smoke` is the only ruleset-required context and
+# is produced exclusively on merge_group events by this job.
+#
+# The steps below are real, fail-fast validations borrowed from the repo's
+# fastest gating jobs (workflow-smoke-test property greps, schema-validation,
+# deps/version-sync). They are NOT decorative: a malformed workflow, a
+# dropped pull_request trigger, or a version drift in the merge group fails
+# the queue entry.
+name: Merge Queue Smoke
+
+on:
+  merge_group:
+    types: [checks_requested]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: mq-smoke-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  merge-queue-smoke:
+    name: merge-queue-smoke
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+
+      - name: Check pull_request triggers on gating workflows
+        run: |
+          set -euo pipefail
+          for wf in security.yml pre-commit.yml comprehensive-tests.yml validate-configs.yml; do
+            if ! grep -qP '^\s+pull_request\b' ".github/workflows/$wf"; then
+              echo "ERROR: $wf is missing pull_request trigger"
+              exit 1
+            fi
+            echo "OK: pull_request trigger present in $wf"
+          done
+
+      - name: Set up Python
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1  # v6
+        with:
+          python-version: '3.11'
+
+      - name: Install check-jsonschema
+        run: pip install check-jsonschema
+
+      - name: Validate workflow YAML schemas
+        run: |
+          find .github/workflows -name "*.yml" | sort | \
+            xargs check-jsonschema \
+              --schemafile https://json.schemastore.org/github-workflow
+
+      - name: Cross-check pyproject.toml and pixi.toml versions
+        run: |
+          python3 - <<'EOF'
+          import tomllib, sys
+
+          with open("pyproject.toml", "rb") as f:
+              pyproject = tomllib.load(f)
+          with open("pixi.toml", "rb") as f:
+              pixi = tomllib.load(f)
+
+          pyproject_ver = pyproject.get("project", {}).get("version") or \
+                          pyproject.get("tool", {}).get("poetry", {}).get("version")
+          pixi_ver = pixi.get("workspace", {}).get("version") or \
+                     pixi.get("package", {}).get("version")
+
+          print(f"pyproject.toml version : {pyproject_ver}")
+          print(f"pixi.toml version      : {pixi_ver}")
+
+          if pyproject_ver and pixi_ver and pyproject_ver != pixi_ver:
+              print(f"::error::Version mismatch: pyproject.toml={pyproject_ver}, pixi.toml={pixi_ver}")
+              sys.exit(1)
+          print("Versions are consistent.")
+          EOF

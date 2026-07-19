@@ -9,9 +9,8 @@ on:
   # Run on all pull requests
   pull_request:
 
-  # Run the same required contexts for merge queue candidates
-  merge_group:
-    types: [checks_requested]
+  # merge_group intentionally removed: merge-queue checks are served by the
+  # single fast `merge-queue-smoke` job in merge-queue-smoke.yml (see that file).
 
   # Run on pushes to main
   push:

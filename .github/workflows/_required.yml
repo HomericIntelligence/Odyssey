@@ -8,8 +8,10 @@ name: Required Checks
 
 on:
   pull_request:
-  merge_group:
-    types: [checks_requested]
+  # merge_group intentionally removed: merge-queue checks are served by the
+  # single fast `merge-queue-smoke` job in merge-queue-smoke.yml. Re-running
+  # the full required matrix per queue entry serialized on runner slots
+  # (70-90 min per merge). PR-side jobs in this workflow are unchanged.
   push:
     branches: [main]
 

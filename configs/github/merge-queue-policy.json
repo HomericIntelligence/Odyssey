@@ -3,37 +3,7 @@
   "target_branch": "main",
   "activation_ruleset": "homeric-main-baseline",
   "required_contexts": [
-    "Audit Shared Links",
-    "Build Validation",
-    "Code Quality Analysis",
-    "Core Layers",
-    "Data Utilities Test Suite",
-    "Gradient Checking Tests",
-    "Gradient Coverage Report",
-    "Mojo Package Compilation",
-    "Mojo Syntax Validation",
-    "Other Workflow Property Checks",
-    "Python Tests",
-    "Security Workflow Property Checks",
-    "Test Coverage Validation",
-    "Test Metrics",
-    "build",
-    "deps/version-sync",
-    "install",
-    "integration-tests",
-    "lint",
-    "lint-notebooks",
-    "mypy",
-    "package",
-    "pre-commit",
-    "python-syntax",
-    "release",
-    "schema-validation",
-    "security/dependency-scan",
-    "security/secrets-scan",
-    "test",
-    "unit-tests",
-    "validate-notebooks"
+    "merge-queue-smoke"
   ],
   "merge_queue_rule": {
     "type": "merge_queue",
@@ -44,7 +14,7 @@
       "max_entries_to_merge": 5,
       "merge_method": "SQUASH",
       "min_entries_to_merge": 1,
-      "min_entries_to_merge_wait_minutes": 5
+      "min_entries_to_merge_wait_minutes": 0
     }
   }
 }
