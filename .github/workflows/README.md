@@ -28,8 +28,11 @@ jq -r '.required_contexts[]' "$POLICY"
 jq '.merge_queue_rule' "$POLICY"
 ```
 
-The workflows that emit required contexts all handle `merge_group` with the
-`checks_requested` activity while retaining their existing pull request and push triggers:
+Merge-queue checks are served by EXACTLY ONE workflow: `merge-queue-smoke.yml`, whose single
+fast `merge-queue-smoke` job (< 5 min, one runner slot) handles `merge_group` with the
+`checks_requested` activity. The workflows that emit the PR-side contexts retain their
+existing pull request and push triggers but intentionally do NOT run for merge groups
+(re-running the full matrix per queue entry serialized on runner slots, 70-90 min per merge):
 
 - `_required.yml`
 - `comprehensive-tests.yml`
@@ -39,19 +42,23 @@ The workflows that emit required contexts all handle `merge_group` with the
 The publishing workflow in `release.yml` remains tag/manual-only and must not run for merge
 groups. Focused executable coverage lives in
 `tests/smoke/test_merge_queue_workflow_properties.py` and verifies trigger boundaries, exact
-policy values, and one-to-one required-context emission.
+policy values, single-workflow merge-group ownership, and one-emission of every PR context.
 
 This repository does not activate or mutate live GitHub rulesets. The Odysseus rollout tracked
 by `HomericIntelligence/Odysseus#386` is the sole activation authority. That operator must:
 
 1. Snapshot every active `main` ruleset and retain the pre-edit activation-ruleset snapshot as
    the rollback payload.
-2. Refuse activation unless the union of live required contexts exactly equals
-   `.required_contexts` and the target ruleset has no existing `merge_queue` rule.
+2. Replace ALL `required_status_checks` contexts (in every ruleset) with exactly
+   `.required_contexts` (the single `merge-queue-smoke` context) and set
+   `min_entries_to_merge_wait_minutes` to 0. PR-side checks keep running but become
+   non-blocking. Until that flip lands, the queue must not be used: `merge_group` no longer
+   produces the old contexts.
 3. Append exactly `.merge_queue_rule`, read it back, and restore the snapshot if read-back differs.
-4. Queue a representative pull request and select actual `merge_group` runs for the four workflows.
-5. Confirm each policy context appears exactly once and completes successfully before recording
-   the live response, run URLs, and queued merge result on Odyssey issue #5624.
+4. Queue a representative pull request and select the actual `merge_group` run of
+   `merge-queue-smoke.yml`.
+5. Confirm the `merge-queue-smoke` context appears exactly once and completes successfully before
+   recording the live response, run URLs, and queued merge result on Odyssey issue #5624.
 
 Keep issue #5624 open until activation and queued smoke evidence are recorded. A readiness PR
 references the issue with `Refs #5624`; it does not close it.
@@ -67,7 +74,7 @@ ls .github/workflows/*.yml | wc -l
 | Workflow | Trigger | Purpose | Duration |
 | --- | --- | --- | --- |
 | **Test Workflows** | | | |
-| [comprehensive-tests.yml](#comprehensive-tests) | PR, merge queue, push main, manual | All Mojo tests in 17 groups | < 10 min |
+| [comprehensive-tests.yml](#comprehensive-tests) | PR, push main, manual | All Mojo tests in 17 groups | < 10 min |
 | [comprehensive-test-pr-comments.yml](#comprehensive-test-pr-comments) | Completed comprehensive PR tests | Trusted test-report PR comments | < 1 min |
 | [test-gradients.yml](#test-gradients) | PR on gradient changes, push main | Backward pass validation | < 5 min |
 | [test-data-utilities.yml](#test-data-utilities) | PR/push on data changes | Data loading and processing | < 5 min |
@@ -77,7 +84,7 @@ ls .github/workflows/*.yml | wc -l
 | [validate-configs.yml](#validate-configs) | PR/push on config changes | YAML and schema validation | < 5 min |
 | [test-agents.yml](#test-agents) | PR on agent configs, push main | Agent configuration testing | < 3 min |
 | [validate-workflows.yml](#validate-workflows) | PR, push main on .github/ | Validate workflow checkout order | < 3 min |
-| [pre-commit.yml](#pre-commit) | PR, merge queue, push main, manual | Code formatting and linting | < 5 min |
+| [pre-commit.yml](#pre-commit) | PR, push main, manual | Code formatting and linting | < 5 min |
 | [type-check.yml](#type-check) | PR on scripts, push main, manual | Python type checking | < 3 min |
 | [notebook-validation.yml](#notebook-validation) | PR/push on notebooks | Jupyter notebook validation | < 5 min |
 | [paper-validation.yml](#paper-validation) | PR/push on papers/, manual | Paper implementation validation | < 15 min |
@@ -96,8 +103,9 @@ ls .github/workflows/*.yml | wc -l
 | precommit-benchmark.yml | Push main, manual | Pre-commit hook performance tracking | < 5 min |
 | **Maintenance Workflows** | | | |
 | [mojo-version-check.yml](#mojo-version-check) | Weekly Sunday 3 AM UTC, manual | Check for new Mojo releases | < 3 min |
-| workflow-smoke-test.yml | PR, merge queue, push main, manual | Workflow validation smoke tests | < 2 min |
+| workflow-smoke-test.yml | PR, push main, manual | Workflow validation smoke tests | < 2 min |
 | worktree-sync-check.yml | PR | Check if PR branch is significantly behind origin/main | < 2 min |
+| merge-queue-smoke.yml | Merge queue | Single fast `merge-queue-smoke` job for merge-queue entries | < 5 min |
 | **AI/Automation Workflows** | | | |
 | [claude.yml](#claude) | Issue/PR comments mentioning @claude | Claude Code agent integration | N/A |
 | [claude-code-review.yml](#claude-code-review) | PR opened/synchronized | Automated Claude code review | < 5 min |
@@ -110,7 +118,7 @@ ls .github/workflows/*.yml | wc -l
 
 **File**: `comprehensive-tests.yml`
 
-**Triggers**: Pull requests, `merge_group` (`checks_requested`), pushes to main, manual dispatch
+**Triggers**: Pull requests, pushes to main, manual dispatch (merge-queue checks run in `merge-queue-smoke.yml`)
 
 **Purpose**: Run all Mojo tests organized into 17 logical groups for comprehensive coverage.
 
@@ -321,7 +329,7 @@ or executes pull-request code with its narrowly scoped `pull-requests: write` to
 
 **File**: `pre-commit.yml`
 
-**Triggers**: PR, `merge_group` (`checks_requested`), pushes to main, manual dispatch
+**Triggers**: PR, pushes to main, manual dispatch (merge-queue checks run in `merge-queue-smoke.yml`)
 
 **Purpose**: Run pre-commit hooks for code formatting and linting.
 
