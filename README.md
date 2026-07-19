@@ -251,6 +251,7 @@ bash scripts/run_primitive_test.sh --list     # list known primitives + paths
 | RNN (Elman) | layer | `bash scripts/run_primitive_test.sh rnn` |
 | LSTM | layer | `bash scripts/run_primitive_test.sh lstm` |
 | GRU | layer | `bash scripts/run_primitive_test.sh gru` |
+| Diagonal SSM (S4-style state-space block) | layer | `bash scripts/run_primitive_test.sh ssm` |
 | LayerNorm | layer | `bash scripts/run_primitive_test.sh layernorm` |
 | Transformer FeedForward (FFN) | layer | `bash scripts/run_primitive_test.sh ffn` |
 | Multi-Head Attention (scaled dot-product self-attention) | layer | `bash scripts/run_primitive_test.sh attention` |

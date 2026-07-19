@@ -45,6 +45,7 @@ from odyssey.core.layers.rnn import RNNCell
 from odyssey.core.layers.lstm import LSTMCell
 from odyssey.core.layers.layernorm import LayerNorm
 from odyssey.core.layers.gru import GRUCell
+from odyssey.core.layers.ssm import DiagonalSSM
 from odyssey.core.layers.feedforward import FeedForward
 from odyssey.core.layers.attention import MultiHeadAttention
 from odyssey.core.layers.sparse_attention import SparseAttention
