@@ -42,6 +42,7 @@ TEST[gru]="tests/odyssey/core/layers/test_gru.mojo"
 TEST[layernorm]="tests/odyssey/core/layers/test_layernorm.mojo"
 TEST[linear_attention]="tests/odyssey/core/layers/test_linear_attention.mojo"
 TEST[lstm]="tests/odyssey/core/layers/test_lstm.mojo"
+TEST[mamba]="tests/odyssey/core/layers/test_mamba.mojo"
 TEST[rnn]="tests/odyssey/core/layers/test_rnn.mojo"
 TEST[ssm]="tests/odyssey/core/layers/test_ssm.mojo"
 
