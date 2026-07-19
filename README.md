@@ -249,10 +249,20 @@ bash scripts/run_primitive_test.sh --list     # list known primitives + paths
 | Primitive | Kind | Command |
 | --- | --- | --- |
 | RNN (Elman) | layer | `bash scripts/run_primitive_test.sh rnn` |
+| LTC (Liquid Time-constant) | layer | `bash scripts/run_primitive_test.sh ltc` |
 | LSTM | layer | `bash scripts/run_primitive_test.sh lstm` |
 | GRU | layer | `bash scripts/run_primitive_test.sh gru` |
+| Diagonal SSM (S4-style state-space block) | layer | `bash scripts/run_primitive_test.sh ssm` |
 | LayerNorm | layer | `bash scripts/run_primitive_test.sh layernorm` |
 | Transformer FeedForward (FFN) | layer | `bash scripts/run_primitive_test.sh ffn` |
+| Multi-Head Attention (scaled dot-product self-attention) | layer | `bash scripts/run_primitive_test.sh attention` |
+| Sparse Attention (strided factorized self-attention; Child et al. 2019) | layer | `bash scripts/run_primitive_test.sh sparse_attention` |
+| Linear attention (kernel-feature, arXiv:2006.16236) | layer | `bash scripts/run_primitive_test.sh linear_attention` |
+| Transformer encoder block (pre-LN attention + FFN) | layer | `bash scripts/run_primitive_test.sh transformer` |
+| Mamba (selective SSM / S6) | layer | `bash scripts/run_primitive_test.sh mamba` |
+| MLP-Mixer block (1-layer) | layer | `bash scripts/run_primitive_test.sh mlp_mixer` |
+| KAN (Kolmogorov-Arnold, 1-layer) | layer | `bash scripts/run_primitive_test.sh kan` |
+| DeepSets (permutation-equivariant linear block) | layer | `bash scripts/run_primitive_test.sh deepsets` |
 | ADOPT | optimizer | `bash scripts/run_primitive_test.sh adopt` |
 | Sophia (clipped update step; caller-supplied Hessian estimates) | optimizer | `bash scripts/run_primitive_test.sh sophia` |
 | Adan | optimizer | `bash scripts/run_primitive_test.sh adan` |
@@ -260,7 +270,13 @@ bash scripts/run_primitive_test.sh --list     # list known primitives + paths
 | LionMuon | optimizer | `bash scripts/run_primitive_test.sh lionmuon` |
 | MGUP-Muon | optimizer | `bash scripts/run_primitive_test.sh mgup_muon` |
 | SOAP | optimizer | `bash scripts/run_primitive_test.sh soap` |
+| KL-Shampoo (Adam-free stable Shampoo) | optimizer | `bash scripts/run_primitive_test.sh kl_shampoo` |
 | FTRL-Proximal | optimizer | `bash scripts/run_primitive_test.sh ftrl` |
+| Schedule-Free (online iterate averaging — anytime) | optimizer | `bash scripts/run_primitive_test.sh schedule_free` |
+| ScheduleFree+ (large-batch-stable schedule-free) | optimizer | `bash scripts/run_primitive_test.sh schedule_free_plus` |
+| SF-NorMuon (schedule-free spectral) | optimizer | `bash scripts/run_primitive_test.sh sf_normuon` |
+| SPlus | optimizer | `bash scripts/run_primitive_test.sh splus` |
+| Prodigy (parameter-free step-size estimation) | optimizer | `bash scripts/run_primitive_test.sh prodigy` |
 
 A primitive whose test file is not on the current branch is reported as
 `SKIP` (not a failure), so the runner works incrementally as each primitive

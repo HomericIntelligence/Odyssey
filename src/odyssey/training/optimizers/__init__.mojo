@@ -21,6 +21,9 @@ Includes:
 - FTRL-Proximal (online learning with L1 sparsity — McMahan et al. 2013)
 - Shampoo (two-sided matrix preconditioner via Newton-Schulz inverse fourth root — Anil et al. 2020)
 - SOAP (Shampoo + Adam in the preconditioner eigenbasis)
+- KL-Shampoo (Adam-free stable Shampoo via KL-divergence minimization — Lin et al. 2025)
+- SPlus (Stable whitening — element-wise sign in the eigenbasis + iterate
+  averaging — Frans et al. 2025)
 
 All optimizers follow pure functional design - caller manages state
 
@@ -114,6 +117,13 @@ from odyssey.training.optimizers.sophia import (
 # Adan optimizer (adaptive Nesterov momentum — Xie et al. 2022)
 from odyssey.training.optimizers.adan import adan_step, adan_step_simple
 
+# SF-NorMuon optimizer (schedule-free spectral: y/z/x averaging + row-normalized
+# polar/Newton-Schulz update — Defazio et al. 2024 + Jordan/Bernstein 2024)
+from odyssey.training.optimizers.sf_normuon import (
+    sf_normuon_step,
+    sf_normuon_step_simple,
+)
+
 # FTRL-Proximal optimizer (online learning with L1 sparsity — McMahan et al. 2013)
 from odyssey.training.optimizers.ftrl import ftrl_step, ftrl_step_simple
 
@@ -130,6 +140,38 @@ from odyssey.training.optimizers.shampoo import (
 from odyssey.training.optimizers.soap import (
     soap_step,
     init_soap_state,
+)
+
+# KL-Shampoo optimizer (Adam-free stable Shampoo via KL-divergence minimization)
+from odyssey.training.optimizers.kl_shampoo import (
+    kl_shampoo_step,
+    kl_shampoo_step_simple,
+    init_kl_shampoo_state,
+    is_kl_shampoo_eligible,
+)
+
+# SPlus optimizer (stable whitening — element-wise sign in the eigenbasis + iterate averaging)
+from odyssey.training.optimizers.splus import (
+    splus_step,
+    init_splus_state,
+)
+
+# Schedule-Free optimizer (online iterate averaging — anytime; Defazio et al. 2024)
+from odyssey.training.optimizers.schedule_free import (
+    schedule_free_step,
+    schedule_free_step_simple,
+)
+
+# ScheduleFree+ optimizer (large-batch-stable schedule-free — Defazio 2026)
+from odyssey.training.optimizers.schedule_free_plus import (
+    schedule_free_plus_step,
+    schedule_free_plus_step_simple,
+)
+
+# Prodigy optimizer (parameter-free step-size estimation — Mishchenko & Defazio 2023)
+from odyssey.training.optimizers.prodigy import (
+    prodigy_step,
+    prodigy_step_simple,
 )
 
 # Optimizer utilities (common helper functions)
