@@ -321,7 +321,11 @@ jobs:
   # ============================================================================
   test-mojo-comprehensive:
     needs: [mojo-compilation, validate-test-coverage]
-    runs-on: ubuntu-latest
+    # Uses the repo's own setup-container composite action (rootless podman
+    # compose, managed directly on the runner host) — no job-level
+    # `container:` wrapper here, since nesting that action's podman inside
+    # another container would be podman-in-podman.
+    runs-on: [self-hosted, self-hosted-aeolus]
     # Fanned out into 6 parallel matrix jobs (one per `group`). modular/modular#6433
     # — Mojo's unconditional ~3.6 GB virtual address reservation per invocation —
     # was fixed upstream and confirmed in the nightly the project is pinned to

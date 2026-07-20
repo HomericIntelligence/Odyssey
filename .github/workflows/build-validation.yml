@@ -31,7 +31,11 @@ concurrency:
 
 jobs:
   build-validation:
-    runs-on: ubuntu-latest
+    # Uses the repo's own setup-container composite action (rootless podman
+    # compose, managed directly on the runner host) — no job-level
+    # `container:` wrapper here, since nesting that action's podman inside
+    # another container would be podman-in-podman.
+    runs-on: [self-hosted, self-hosted-aeolus]
     timeout-minutes: 30
 
     steps:
