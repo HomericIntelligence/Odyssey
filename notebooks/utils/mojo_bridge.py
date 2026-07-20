@@ -37,7 +37,7 @@ def run_mojo_script(
     if not script.exists():
         raise FileNotFoundError(f"Script not found: {script_path}")
 
-    cmd = ["pixi", "run", "mojo", "run", "-I", ".", str(script)]
+    cmd = ["uv", "run", "mojo", "run", "-I", ".", str(script)]
     if args:
         cmd.extend(args)
 
@@ -86,7 +86,7 @@ def compile_mojo_binary(
         print(f"Error: Source file not found: {source_path}")
         return False
 
-    cmd = ["pixi", "run", "mojo", "build", "-I", ".", str(source), "-o", output_path]
+    cmd = ["uv", "run", "mojo", "build", "-I", ".", str(source), "-o", output_path]
     if flags:
         cmd.extend(flags)
 

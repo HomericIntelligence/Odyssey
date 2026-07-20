@@ -37,26 +37,32 @@ jobs:
       - name: Get current pinned version
         id: current
         run: |
-          # Extract version from pixi.toml
-          PINNED=$(grep 'mojo = ' pixi.toml | sed -E 's/.*">=([^,]+).*/\1/')
+          # Extract the mojo pin from pyproject.toml [project.dependencies]
+          # (ADR-018: mojo now comes from the Modular PyPI index, e.g.
+          # "mojo==1.0.0b2"). Grab the version after == / >=.
+          PINNED=$(grep -E '"mojo(==|>=)' pyproject.toml | head -1 | sed -E 's/.*"mojo(==|>=)([^",]+).*/\2/')
           echo "version=$PINNED" >> "$GITHUB_OUTPUT"
           echo "Current pinned version: $PINNED"
 
       - name: Get installed Mojo version
         id: installed
         run: |
-          INSTALLED=$(podman compose exec -T odyssey-dev pixi run mojo --version 2>/dev/null | head -1 | awk '{print $2}')
+          INSTALLED=$(podman compose exec -T odyssey-dev uv run mojo --version 2>/dev/null | head -1 | awk '{print $2}')
           echo "version=$INSTALLED" >> "$GITHUB_OUTPUT"
           echo "Installed version: $INSTALLED"
 
-      - name: Check for latest version from conda
+      - name: Check for latest version from the Modular PyPI index
         id: latest
         run: |
-          # Query conda for latest mojo version from max-nightly channel
-          LATEST=$(podman compose exec -T odyssey-dev pixi search mojo --channel https://conda.modular.com/max-nightly 2>/dev/null | grep -E '^mojo\s+' | head -1 | awk '{print $2}' || echo "")
+          # Query the Modular PyPI index for the newest `mojo` release. uv's
+          # resolver can surface the newest available version via a dry-run
+          # install with --prerelease allow (mojo ships as a pre-release).
+          LATEST=$(podman compose exec -T odyssey-dev bash -c \
+            "uv pip install 'mojo' --prerelease allow --extra-index-url https://modular.gateway.scarf.sh/simple/ --dry-run 2>&1 \
+             | grep -oE 'mojo==[0-9][^ ]*' | head -1 | sed 's/mojo==//'" || echo "")
 
           if [ -z "$LATEST" ]; then
-            echo "Could not fetch latest version from conda"
+            echo "Could not fetch latest version from the Modular index"
             LATEST="${{ steps.installed.outputs.version }}"
           fi
 
@@ -123,7 +129,8 @@ jobs:
           ## Upgrade Checklist
 
           - [ ] Review Mojo release notes for breaking changes at https://docs.modular.com/mojo/manual/
-          - [ ] Update pixi.toml with new version constraint
+          - [ ] Update the `mojo` pin in pyproject.toml [project.dependencies]
+          - [ ] Run `uv lock` and commit uv.lock
           - [ ] Update .mojo-version file
           - [ ] Run full test suite locally
           - [ ] Verify all CI workflows pass
@@ -131,15 +138,17 @@ jobs:
 
           ## Files to Update
 
-          1. pixi.toml (line 24): Update mojo version constraint
-          2. .mojo-version: Update version string
+          1. pyproject.toml: Update the `mojo` version constraint
+          2. uv.lock: Regenerate with `uv lock`
+          3. .mojo-version: Update version string
 
           ## Testing Steps
 
           ```bash
-          # Update pixi.toml manually, then:
-          pixi install
-          pixi run mojo --version
+          # Update the mojo pin in pyproject.toml, then:
+          uv lock
+          uv sync --locked
+          uv run mojo --version
           just ci-validate
           ```
 

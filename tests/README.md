@@ -51,18 +51,18 @@ tests/
 
 ### Mojo Tests
 
-Mojo tests are executed individually using `pixi run mojo <file>`:
+Mojo tests are executed individually using `uv run mojo <file>`:
 
 ```bash
 # Run a single test file
-pixi run mojo tests/odyssey/core/test_tensors.mojo
+uv run mojo tests/odyssey/core/test_tensors.mojo
 
 # Run test in a subdirectory
-pixi run mojo tests/odyssey/training/test_optimizers.mojo
+uv run mojo tests/odyssey/training/test_optimizers.mojo
 
 # Run multiple test files (sequential)
-pixi run mojo tests/odyssey/core/test_arithmetic_part1.mojo
-pixi run mojo tests/odyssey/core/test_layers.mojo
+uv run mojo tests/odyssey/core/test_arithmetic_part1.mojo
+uv run mojo tests/odyssey/core/test_layers.mojo
 ```text
 
 ### Python Tests
@@ -71,16 +71,16 @@ Python tests use pytest:
 
 ```bash
 # Run all Python tests
-pixi run pytest tests/
+uv run pytest tests/
 
 # Run specific test file
-pixi run pytest tests/agents/test_integration.py
+uv run pytest tests/agents/test_integration.py
 
 # Run with verbose output
-pixi run pytest tests/ -v
+uv run pytest tests/ -v
 
 # Run with coverage report
-pixi run pytest tests/ --cov=. --cov-report=html
+uv run pytest tests/ --cov=. --cov-report=html
 ```text
 
 ### Running Test Groups
@@ -89,13 +89,13 @@ The test suite is organized into 17 logical groups (see comprehensive-tests.yml)
 
 ```bash
 # Core tensor operations
-cd tests/odyssey/core && pixi run mojo test_tensors.mojo
+cd tests/odyssey/core && uv run mojo test_tensors.mojo
 
 # Training optimizers
-cd tests/odyssey/training && pixi run mojo test_optimizers.mojo
+cd tests/odyssey/training && uv run mojo test_optimizers.mojo
 
 # Data transforms
-cd tests/odyssey/data && pixi run mojo test_transforms.mojo
+cd tests/odyssey/data && uv run mojo test_transforms.mojo
 ```text
 
 ## Test Organization & Classification
@@ -141,7 +141,7 @@ The project runs tests automatically in GitHub Actions across 4 dedicated workfl
 
 ```bash
 # Equivalent local run
-pixi run pytest tests/unit/ --cov
+uv run pytest tests/unit/ --cov
 ```text
 
 ### 2. `test-gradients.yml` - Gradient Checking (2 min target)
@@ -157,7 +157,7 @@ pixi run pytest tests/unit/ --cov
 
 ```bash
 # Local equivalent
-pixi run mojo tests/odyssey/core/test_gradient_checking.mojo
+uv run mojo tests/odyssey/core/test_gradient_checking.mojo
 ```text
 
 ### 3. `integration-tests.yml` - Integration Tests (8 min target)
@@ -180,8 +180,8 @@ pixi run mojo tests/odyssey/core/test_gradient_checking.mojo
 
 ```bash
 # Local equivalent - run each test file individually
-pixi run mojo tests/odyssey/integration/test_end_to_end.mojo
-pixi run mojo tests/odyssey/integration/test_training_workflow.mojo
+uv run mojo tests/odyssey/integration/test_end_to_end.mojo
+uv run mojo tests/odyssey/integration/test_training_workflow.mojo
 ```text
 
 ### 4. `comprehensive-tests.yml` - Complete Test Suite (10 min target)
@@ -215,9 +215,9 @@ pixi run mojo tests/odyssey/integration/test_training_workflow.mojo
 ```bash
 # Run one test group locally
 cd tests/odyssey/core
-pixi run mojo test_tensors.mojo
-pixi run mojo test_arithmetic_part1.mojo
-pixi run mojo test_layers.mojo
+uv run mojo test_tensors.mojo
+uv run mojo test_arithmetic_part1.mojo
+uv run mojo test_layers.mojo
 ```text
 
 ## Test Naming Conventions
@@ -467,13 +467,13 @@ Check the detailed test output in GitHub Actions:
 
 ```bash
 # Run failing test locally for debugging
-pixi run mojo tests/odyssey/core/failing_test.mojo
+uv run mojo tests/odyssey/core/failing_test.mojo
 
 # Run with additional output
-pixi run mojo tests/odyssey/core/failing_test.mojo 2>&1 | tail -100
+uv run mojo tests/odyssey/core/failing_test.mojo 2>&1 | tail -100
 
 # Run with Python debugger (for Python tests)
-pixi run pytest tests/agents/failing_test.py -v -s
+uv run pytest tests/agents/failing_test.py -v -s
 ```text
 
 ### Timeout Issues

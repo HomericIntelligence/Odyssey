@@ -65,7 +65,7 @@ based on the in-flight CI workflow.
 
 ```bash
 for i in 1..10:
-  pixi run mojo run -I src -I . repro/<file>.mojo
+  uv run mojo run -I src -I . repro/<file>.mojo
 ```
 
 Tally per file: clean exits, nonzero exits, any `execution crashed` /

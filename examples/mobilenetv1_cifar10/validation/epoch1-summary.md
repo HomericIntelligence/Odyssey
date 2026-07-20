@@ -9,7 +9,7 @@ training epoch of MobileNetV1 on CIFAR-10, executed with
 | Field | Value |
 | --- | --- |
 | Date | 2026-07-04 |
-| Command | `pixi run mojo run -I src -I . examples/mobilenetv1_cifar10/train.mojo --epochs 1 --batch-size 128 --lr 0.01 --data-dir datasets/cifar10` |
+| Command | `uv run mojo run -I src -I . examples/mobilenetv1_cifar10/train.mojo --epochs 1 --batch-size 128 --lr 0.01 --data-dir datasets/cifar10` |
 | Started | 2026-07-04T13:05:59-07:00 |
 | Finished | 2026-07-04T13:39:06-07:00 (33 min wall clock, CPU) |
 | Mojo exit code | 0 |

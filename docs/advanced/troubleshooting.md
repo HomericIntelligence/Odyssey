@@ -30,26 +30,26 @@ Use this 5-point checklist to identify the problem category:
 mojo --version
 ```
 
-1. If not found, activate the Pixi environment:
+1. If not found, activate the uv environment:
 
 ```bash
 cd /path/to/Odyssey
-pixi shell
+source .venv/bin/activate
 mojo --version
 ```
 
-1. If still not found, reinstall Pixi dependencies:
+1. If still not found, reinstall uv dependencies:
 
 ```bash
-pixi install --force
-pixi shell
+uv sync --locked
+source .venv/bin/activate
 mojo --version
 ```
 
-1. Verify you are in the correct directory with `pixi.toml`:
+1. Verify you are in the correct directory with `pyproject.toml`:
 
 ```bash
-ls pixi.toml
+ls pyproject.toml
 ```
 
 ### Symptom: "Error: module 'shared' not found" or "No module named shared"
@@ -67,8 +67,8 @@ mojo build examples/train.mojo
 # CORRECT - Include current directory in import path
 mojo build -I . examples/train.mojo
 
-# CORRECT - Using pixi run (includes -I . automatically)
-pixi run mojo build examples/train.mojo
+# CORRECT - Using uv run (includes -I . automatically)
+uv run mojo build examples/train.mojo
 ```
 
 For Python scripts, ensure the working directory is the repository root:
@@ -98,19 +98,19 @@ cd /path/to/Odyssey
 python3 -c "import sys; sys.path.insert(0, '.'); from scripts import your_script"
 ```
 
-### Symptom: Pixi environment issues or "pixi: command not found"
+### Symptom: uv environment issues or "uv: command not found"
 
-**Cause**: Pixi is not installed or shell is not configured.
+**Cause**: uv is not installed or shell is not configured.
 
 **Solution**:
 
-1. Install Pixi globally:
+1. Install uv globally:
 
 ```bash
-curl -fsSL https://pixi.sh/install.sh | bash
+curl -fsSL https://astral.sh/uv/install.sh | sh
 ```
 
-1. Activate Pixi in current shell:
+1. Activate uv in current shell:
 
 ```bash
 source "$HOME/.local/bin/env"
@@ -119,15 +119,15 @@ source "$HOME/.local/bin/env"
 1. Verify installation:
 
 ```bash
-pixi --version
+uv --version
 ```
 
 1. Navigate to repository and create environment:
 
 ```bash
 cd /path/to/Odyssey
-pixi install
-pixi shell
+uv sync --locked
+source .venv/bin/activate
 ```
 
 ---
@@ -205,27 +205,27 @@ mojo package src/odyssey/training -o dist/training-0.1.0.mojopkg
 mojo --version
 ```
 
-1. Check required version in `pixi.toml` or `AGENTS.md`:
+1. Check required version in `pyproject.toml` or `AGENTS.md`:
 
 ```bash
-grep -A5 "mojo" pixi.toml
+grep -A5 "mojo" pyproject.toml
 ```
 
-1. Update Mojo via Pixi:
+1. Update Mojo via uv:
 
 ```bash
-pixi update mojo
-pixi shell
+uv lock --upgrade-package mojo
+uv sync --locked
+source .venv/bin/activate
 mojo --version
 ```
 
 1. If still incompatible, create a new environment:
 
 ```bash
-pixi remove --all
-rm -rf .pixi/
-pixi install
-pixi shell
+rm -rf .venv/
+uv sync --locked
+source .venv/bin/activate
 ```
 
 ### Symptom: "error: cannot build package without '**init**.mojo'" or similar package errors
@@ -614,7 +614,7 @@ wrong precision.
 
 ```bash
 # Time individual components
-time pixi run mojo test tests/models/test_lenet5_layers.mojo
+time uv run mojo test tests/models/test_lenet5_layers.mojo
 ```
 
 1. Increase batch size (within memory limits):
@@ -778,13 +778,13 @@ fn test_with_assertions():
 
 ```bash
 # Run single test file
-pixi run mojo test tests/models/test_lenet5_layers.mojo
+uv run mojo test tests/models/test_lenet5_layers.mojo
 
 # Run all tests in directory
-pixi run mojo test tests/models/
+uv run mojo test tests/models/
 
 # Run specific test (if supported)
-pixi run mojo test tests/models/test_lenet5_layers.mojo::test_forward_pass
+uv run mojo test tests/models/test_lenet5_layers.mojo::test_forward_pass
 ```
 
 ### Symptom: "Test failed: assertion error" with cryptic message
@@ -869,7 +869,7 @@ for i in range(10):
 just --show test
 
 # Run with extended timeout if needed
-timeout 120 pixi run mojo test tests/models/test_lenet5_layers.mojo
+timeout 120 uv run mojo test tests/models/test_lenet5_layers.mojo
 ```
 
 ### Symptom: "CI workflow failed" but tests pass locally
@@ -883,8 +883,8 @@ timeout 120 pixi run mojo test tests/models/test_lenet5_layers.mojo
 ```bash
 # Use same commands as CI workflow
 cd /path/to/Odyssey
-pixi install
-pixi shell
+uv sync --locked
+source .venv/bin/activate
 just validate  # Runs all CI checks locally
 ```
 
@@ -903,18 +903,18 @@ gh run view <run-id>
 just pre-commit-all
 
 # Individual checks
-pixi run mojo format tests/
-pixi run npx markdownlint-cli2 docs/
+uv run mojo format tests/
+uv run npx markdownlint-cli2 docs/
 ```
 
 1. Verify Mojo version matches CI:
 
 ```bash
-# Check pixi.toml for exact version
-grep mojo pixi.toml
+# Check pyproject.toml for exact version
+grep mojo pyproject.toml
 
 # Update if needed
-pixi update mojo
+uv lock --upgrade-package mojo && uv sync --locked
 mojo --version
 ```
 
@@ -939,7 +939,7 @@ gh search issues "your error message"
 ```bash
 # System information
 mojo --version
-pixi --version
+uv --version
 python3 --version
 
 # Error output
@@ -960,7 +960,7 @@ gh issue create \
 Error message here
 
 ## Steps to Reproduce
-1. Run pixi run mojo test tests/models/test_lenet5_layers.mojo
+1. Run uv run mojo test tests/models/test_lenet5_layers.mojo
 1. Observe failure
 
 ## Environment

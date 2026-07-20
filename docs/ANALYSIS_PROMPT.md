@@ -29,7 +29,7 @@ Analyze ALL of the following components. Read the relevant files before grading 
 ### 1. Project Architecture & Structure
 
 Files: `README.md`, `AGENTS.md`, `docs/core/project-structure.md`, `docs/dev/architecture.md`,
-`justfile`, `pixi.toml`
+`justfile`, `pyproject.toml`
 
 Evaluate: Directory layout clarity, separation of concerns, whether structure matches stated
 goals, over-engineering vs. simplicity.
@@ -120,7 +120,7 @@ catch real issues, bypass prevention.
 ### 10. Docker & Environment Setup
 
 Files: `Dockerfile` (or `docker/`), `docker-compose.yml` (if present),
-`.github/workflows/docker.yml`, `pixi.toml`, `docs/dev/docker.md`
+`.github/workflows/docker.yml`, `pyproject.toml`, `docs/dev/docker.md`
 
 Evaluate: Image layering, size optimization, environment reproducibility, dev vs. prod
 image separation, GHCR publishing setup.

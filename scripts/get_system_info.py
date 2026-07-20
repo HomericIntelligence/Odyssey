@@ -162,12 +162,12 @@ def main():
         print("  Not found")
     print()
 
-    # Pixi version
-    print("Pixi:")
-    pixi_version, pixi_path = get_tool_info("pixi", version_extract=lambda x: extract_version_word(x, 1))
-    if pixi_path:
-        print(f"  Version: {pixi_version}")
-        print(f"  Path: {pixi_path}")
+    # uv version
+    print("uv:")
+    uv_version, uv_path = get_tool_info("uv", version_extract=lambda x: extract_version_word(x, 1))
+    if uv_path:
+        print(f"  Version: {uv_version}")
+        print(f"  Path: {uv_path}")
     else:
         print("  Not found")
     print()

@@ -29,17 +29,17 @@ This downloads the MNIST dataset (60,000 training samples, 10,000 test samples, 
 ### 2. Train Model
 
 ```bash
-pixi run mojo run -I . examples/mnist/train.mojo --epochs 10 --batch-size 32 --lr 0.01
+uv run mojo run -I . examples/mnist/train.mojo --epochs 10 --batch-size 32 --lr 0.01
 ```
 
-**Note**: Use `pixi run mojo` (not just `mojo`) since Mojo is installed via pixi. The `-I .` flag
+**Note**: Use `uv run mojo` (not just `mojo`) since Mojo is installed via uv. The `-I .` flag
 includes the current directory in the module search path.
 
 ### 3. Run Inference
 
 ```bash
 # Evaluate on test set (coming soon)
-pixi run mojo run -I . examples/mnist/inference.mojo \
+uv run mojo run -I . examples/mnist/inference.mojo \
     --weights-dir mnist_weights \
     --data-dir datasets/mnist
 ```
@@ -119,7 +119,7 @@ examples/mnist/
 ### Training Options
 
 ```bash
-pixi run mojo run -I . examples/mnist/train.mojo \
+uv run mojo run -I . examples/mnist/train.mojo \
     --epochs 10 \
     --batch-size 32 \
     --lr 0.01 \

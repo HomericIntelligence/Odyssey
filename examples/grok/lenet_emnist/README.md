@@ -111,7 +111,7 @@ files exist.)
 ./examples/grok/lenet_emnist/train.sh full
 ```
 
-Each profile is a single invocation of `pixi run mojo run -I src
+Each profile is a single invocation of `uv run mojo run -I src
 examples/grok/lenet_emnist/run_train.mojo` with profile-specific flags
 preset. Extra arguments are appended, so e.g. `./train.sh smoke
 --weight-decay 0.5` overrides the default for that run.

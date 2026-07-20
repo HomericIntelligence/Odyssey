@@ -7,7 +7,7 @@ Complete, runnable examples demonstrating ML Odyssey's features and patterns.
 This directory contains standalone Mojo code examples referenced throughout the documentation. Each example is:
 
 - **Complete**: Includes all necessary imports and code
-- **Runnable**: Can be executed directly with `pixi run mojo run`
+- **Runnable**: Can be executed directly with `uv run mojo run`
 - **Documented**: Has clear docstrings explaining what it demonstrates
 - **Tested**: Designed to compile and run without errors
 
@@ -27,11 +27,11 @@ examples/
 
 ```bash
 # Run any example
-pixi run mojo run examples/getting_started/quickstart_example.mojo
+uv run mojo run examples/getting_started/quickstart_example.mojo
 
 # Or navigate to examples directory first
 cd examples
-pixi run mojo run getting_started/quickstart_example.mojo
+uv run mojo run getting_started/quickstart_example.mojo
 ```text
 
 ### Example Categories
@@ -123,7 +123,7 @@ Each example follows this template:
 Brief description of what this example demonstrates.
 
 Usage:
-    pixi run mojo run examples/[category]/[filename].mojo
+    uv run mojo run examples/[category]/[filename].mojo
 
 See documentation: docs/[path]/[doc-file].md
 """
@@ -155,7 +155,7 @@ When adding new examples:
 ### Pattern 1: Simple Execution
 
 ```bash
-pixi run mojo run examples/getting_started/quickstart_example.mojo
+uv run mojo run examples/getting_started/quickstart_example.mojo
 ```text
 
 ### Pattern 2: With Custom Data
@@ -175,7 +175,7 @@ Use examples as starting points:
 ```bash
 cp examples/getting_started/quickstart_example.mojo my_model.mojo
 # Edit my_model.mojo with your changes
-pixi run mojo run my_model.mojo
+uv run mojo run my_model.mojo
 ```text
 
 ## Documentation Links
@@ -200,7 +200,7 @@ cd /path/to/Odyssey
 ls src/odyssey/
 
 # Run from repository root
-pixi run mojo run examples/getting_started/quickstart_example.mojo
+uv run mojo run examples/getting_started/quickstart_example.mojo
 ```text
 
 ### Placeholder Data

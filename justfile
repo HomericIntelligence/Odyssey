@@ -80,12 +80,12 @@ _run cmd:
 				-v "$BUILD_ROOT":/ext-build:Z \
 				{{podman_service}} bash -c "$REWRITTEN_CMD"
 		else
-			# Prepend a HOME-fixup fragment so mojo/pixi can always write their
+			# Prepend a HOME-fixup fragment so mojo/uv can always write their
 			# caches even when the container image was built with a different UID
 			# than the process UID (rootless Podman UID-mapping on CI runners).
 			# Also bump core ulimit unconditionally — compose-level `ulimits`
 			# does not propagate through `podman compose exec` invocations.
-			HOME_FIXUP='if [ ! -w "$HOME" ]; then export HOME="/tmp/mojo-home-$(id -u)"; mkdir -p "$HOME/.modular" "$HOME/.pixi"; fi; ulimit -c unlimited 2>/dev/null || echo "warn: ulimit -c rejected" >&2;'
+			HOME_FIXUP='if [ ! -w "$HOME" ]; then export HOME="/tmp/mojo-home-$(id -u)"; mkdir -p "$HOME/.modular" "$HOME/.cache/uv"; fi; ulimit -c unlimited 2>/dev/null || echo "warn: ulimit -c rejected" >&2;'
 			podman compose exec \
 				-e USER_ID={{USER_ID}} -e GROUP_ID={{GROUP_ID}} \
 				-T {{podman_service}} bash -c "$HOME_FIXUP {{cmd}}"
@@ -212,13 +212,13 @@ podman-release target="runtime":
 # Test container image locally
 podman-test-image target="runtime":
     @echo "Testing {{target}} image..."
-    @podman run --rm {{REGISTRY}}/{{REPO_NAME}}:{{target}} pixi run mojo --version
+    @podman run --rm {{REGISTRY}}/{{REPO_NAME}}:{{target}} uv run mojo --version
     @echo "✅ Image {{target}} is working"
 
 # Run tests in container image
 podman-run-tests target="runtime":
     @podman run --rm {{REGISTRY}}/{{REPO_NAME}}:{{target}} \
-        pixi run mojo test -I . tests/
+        uv run mojo test -I . tests/
 
 # Interactive shell in container image
 podman-run-shell target="runtime":
@@ -314,7 +314,7 @@ _build-inner mode="debug":
     # `mojo package` only accepts a small subset of compiler flags
     # (no -g / --no-optimization / -O3 / --sanitize). Pass STRICT only.
     echo "→ Packaging shared library"
-    pixi run mojo package $STRICT -I "$REPO_ROOT/src" src/odyssey \
+    uv run mojo package $STRICT -I "$REPO_ROOT/src" src/odyssey \
         -o "$BUILD_DIR/odyssey.mojopkg"
 
     # ------------------------------------------------------------
@@ -404,7 +404,7 @@ _build-inner mode="debug":
         local out_name; out_name="$(status_key "$file")"
         local out="$BUILD_DIR/$out_name"
         echo "→ Building: $file"
-        if pixi run mojo build $FLAGS ${JOBS:-} \
+        if uv run mojo build $FLAGS ${JOBS:-} \
                 -I "$REPO_ROOT/src" -I "$REPO_ROOT" \
                 -Xlinker -lm "$file" -o "$out" > "$STATUS_DIR/$out_name.log" 2>&1; then
             echo "ok" > "$STATUS_DIR/$out_name.status"
@@ -545,7 +545,7 @@ _check-inner:
     OUT=$(mktemp -d)
     trap "rm -rf $OUT" EXIT
 
-    if pixi run mojo package --Werror -I "$REPO_ROOT/src" src/odyssey -o "$OUT/odyssey.mojopkg" 2>&1; then
+    if uv run mojo package --Werror -I "$REPO_ROOT/src" src/odyssey -o "$OUT/odyssey.mojopkg" 2>&1; then
         echo "✅ src/odyssey/ type-check passed"
     else
         echo "❌ src/odyssey/ has compilation errors"
@@ -579,7 +579,7 @@ _package-inner mode="debug":
 
     echo "Packaging shared library in $MODE mode..."
     echo "Flags: $FLAGS"
-    pixi run mojo package $FLAGS -I "$REPO_ROOT/src" src/odyssey -o "build/$MODE/odyssey.mojopkg"
+    uv run mojo package $FLAGS -I "$REPO_ROOT/src" src/odyssey -o "build/$MODE/odyssey.mojopkg"
 
 # Package debug version
 package-debug: (package "debug")
@@ -607,7 +607,20 @@ _build-recipe-inner:
     set -e
     echo "Building conda package via rattler-build…"
     mkdir -p build/recipe
-    pixi exec --spec rattler-build -- rattler-build build \
+    # rattler-build is a prebuilt Rust binary (not a PyPI package), so it cannot
+    # come from uv. Fetch the official standalone binary on demand if it is not
+    # already on PATH — this replaces the former `pixi exec --spec rattler-build`
+    # invocation now that pixi is removed (ADR-018). Conda-package publishing is
+    # a conda-ecosystem concern, intentionally kept outside the uv env.
+    if ! command -v rattler-build >/dev/null 2>&1; then
+        echo "rattler-build not found — installing standalone binary to build/.bin"
+        mkdir -p build/.bin
+        curl -fsSL https://github.com/prefix-dev/rattler-build/releases/latest/download/rattler-build-x86_64-unknown-linux-musl \
+            -o build/.bin/rattler-build
+        chmod +x build/.bin/rattler-build
+        export PATH="$PWD/build/.bin:$PATH"
+    fi
+    rattler-build build \
         --recipe conda.recipe/recipe.yaml \
         -c conda-forge -c https://conda.modular.com/max \
         -c https://repo.prefix.dev/modular-community \
@@ -641,10 +654,11 @@ publish-dry-run:
 
 # Build the wheel: produces dist/odyssey-<version>-py3-none-any.whl
 #
-# Runs inside the dev container so `pixi` is available (GitHub-hosted runners
-# don't ship pixi at the host level, and `package-release` already populates
-# build/release/ as the container uid — keeping wheel in-container avoids
-# the same uid-mismatch perms issue that `build-recipe` hit in #5422).
+# Runs inside the dev container so the uv-managed env (incl. `build`) is
+# available (GitHub-hosted runners don't ship the toolchain at the host level,
+# and `package-release` already populates build/release/ as the container uid —
+# keeping wheel in-container avoids the same uid-mismatch perms issue that
+# `build-recipe` hit in #5422).
 wheel: package-release
     @just _run "just _wheel-inner"
 
@@ -656,7 +670,7 @@ _wheel-inner:
     mkdir -p python/odyssey/_data
     cp build/release/odyssey.mojopkg python/odyssey/_data/
     echo "Building wheel via python -m build…"
-    cd python && pixi run python -m build --wheel --outdir ../dist
+    cd python && uv run python -m build --wheel --outdir ../dist
     cd ..
     # Make wheel outputs readable by the host (release.yml's `find -exec cp`,
     # checksum generation, twine validation all run host-side). Chmod only the
@@ -678,7 +692,7 @@ train model="lenet_emnist" precision="fp32" epochs="10" batch_size="32" lr="0.00
     MODEL="{{model}}"
     if [ "$MODEL" = "lenet" ] || [ "$MODEL" = "lenet5" ]; then MODEL="lenet_emnist"; fi
     echo "Training $MODEL with precision={{precision}}, epochs={{epochs}}"
-    just _run "pixi run mojo run -I . examples/$MODEL/run_train.mojo \
+    just _run "uv run mojo run -I . examples/$MODEL/run_train.mojo \
         --epochs {{epochs}} --batch-size {{batch_size}} \
         --lr {{lr}} --precision {{precision}}"
 
@@ -688,7 +702,7 @@ infer model="lenet_emnist" checkpoint="lenet5_weights":
     MODEL="{{model}}"
     if [ "$MODEL" = "lenet" ] || [ "$MODEL" = "lenet5" ]; then MODEL="lenet_emnist"; fi
     echo "Running inference for $MODEL with checkpoint={{checkpoint}}"
-    just _run "pixi run mojo run -I . examples/$MODEL/run_infer.mojo \
+    just _run "uv run mojo run -I . examples/$MODEL/run_infer.mojo \
         --checkpoint {{checkpoint}} --test-set"
 
 # Run inference on single image. Accepts lenet/lenet5 as aliases for lenet_emnist.
@@ -697,14 +711,14 @@ infer-image checkpoint image_path model="lenet_emnist":
     MODEL="{{model}}"
     if [ "$MODEL" = "lenet" ] || [ "$MODEL" = "lenet5" ]; then MODEL="lenet_emnist"; fi
     echo "Running inference on {{image_path}}"
-    just _run "pixi run mojo run -I . examples/$MODEL/run_infer.mojo \
+    just _run "uv run mojo run -I . examples/$MODEL/run_infer.mojo \
         --checkpoint {{checkpoint}} --image {{image_path}}"
 
 # Download EMNIST dataset (balanced split) and flatten to datasets/emnist/
 download-emnist:
     #!/usr/bin/env bash
     set -euo pipefail
-    just _run "pixi run python scripts/download_emnist.py emnist datasets/emnist --split balanced"
+    just _run "uv run python scripts/download_emnist.py emnist datasets/emnist --split balanced"
     just _run "bash -c 'cd datasets/emnist && for f in gzip/emnist-balanced-*.gz; do [ -f \"\$f\" ] && gunzip -c \"\$f\" > \"\$(basename \"\$f\" .gz)\"; done'"
 
 # List available models
@@ -718,11 +732,11 @@ list-models:
 
 # Launch Jupyter Lab
 jupyter:
-    @pixi run -e notebook jupyter lab --no-browser --ip=127.0.0.1
+    @uv run --group notebook jupyter lab --no-browser --ip=127.0.0.1
 
 # Launch Jupyter Notebook (classic)
 jupyter-notebook:
-    @pixi run -e notebook jupyter notebook --no-browser --ip=127.0.0.1
+    @uv run --group notebook jupyter notebook --no-browser --ip=127.0.0.1
 
 # Execute all notebooks (for CI validation)
 jupyter-validate:
@@ -735,7 +749,7 @@ jupyter-validate:
         if [ -f "$notebook" ]; then
             echo "Validating: $notebook"
             NOTEBOOK_COUNT=$((NOTEBOOK_COUNT + 1))
-            if pixi run -e notebook jupyter nbconvert --execute --to notebook --inplace "$notebook" 2>&1; then
+            if uv run --group notebook jupyter nbconvert --execute --to notebook --inplace "$notebook" 2>&1; then
                 PASSED=$((PASSED + 1))
             else
                 echo "❌ Failed to validate: $notebook"
@@ -759,7 +773,7 @@ jupyter-clear:
         if [ -f "$notebook" ]; then
             echo "Clearing: $notebook"
             NOTEBOOK_COUNT=$((NOTEBOOK_COUNT + 1))
-            pixi run -e notebook jupyter nbconvert --clear-output --inplace "$notebook"
+            uv run --group notebook jupyter nbconvert --clear-output --inplace "$notebook"
         fi
     done
     echo "Cleared outputs from $NOTEBOOK_COUNT notebooks"
@@ -775,24 +789,24 @@ bootstrap:
     echo "Setting up ML Odyssey development environment..."
     echo ""
 
-    # Step 1: Install pixi dependencies
-    echo "==> Installing pixi dependencies..."
-    pixi install
+    # Step 1: Install project dependencies (incl. the Mojo compiler) via uv
+    echo "==> Installing dependencies (uv sync)..."
+    uv sync --locked
     echo "    Done."
     echo ""
 
     # Step 2: Install pre-commit hooks
     echo "==> Installing pre-commit hooks..."
-    pixi run pre-commit install
+    uv run pre-commit install
     echo "    Done."
     echo ""
 
     # Step 3: Validate the setup
     echo "==> Validating setup..."
-    echo -n "    Mojo:    "; pixi run mojo --version 2>/dev/null || echo "not available (use Podman for Mojo)"
+    echo -n "    Mojo:    "; uv run mojo --version 2>/dev/null || echo "not available (use Podman for Mojo)"
     echo -n "    Python:  "; python3 --version 2>/dev/null || echo "not found"
     echo -n "    Just:    "; just --version 2>/dev/null || echo "not found"
-    echo -n "    Pixi:    "; pixi --version 2>/dev/null || echo "not found"
+    echo -n "    uv:      "; uv --version 2>/dev/null || echo "not found"
     echo ""
 
     # Step 4: GLIBC compatibility check (informational only — host may lack glibc)
@@ -896,7 +910,7 @@ bench-precommit:
     set -e
     FILE_COUNT=$(git ls-files | wc -l | tr -d ' ')
     START=$SECONDS
-    pixi run pre-commit run --all-files
+    uv run pre-commit run --all-files
     ELAPSED=$((SECONDS - START))
     echo ""
     echo "Hook runtime: ${ELAPSED}s"
@@ -905,7 +919,8 @@ bench-precommit:
 # CI: Full validation (build + package + test)
 validate:
     @echo "Validating configuration..."
-    @test -f pixi.toml && echo "✅ pixi.toml exists"
+    @test -f pyproject.toml && echo "✅ pyproject.toml exists"
+    @test -f uv.lock && echo "✅ uv.lock exists"
     @test -f docker-compose.yml && echo "✅ docker-compose.yml exists"
     @echo "Running full CI validation..."
     @just ci-build
@@ -924,7 +939,7 @@ test:
 
 # Run only Python tests
 test-python:
-    @just _run "pixi run pytest tests/ -v --timeout=300"
+    @just _run "uv run pytest tests/ -v --timeout=300"
 
 # Test group of Mojo files with -Werror enforcement
 test-group path pattern:
@@ -1003,7 +1018,7 @@ _test-group-inner path pattern:
             # a PASS (false-green, see run 29513897485). `set +e` + direct
             # `$?` capture makes compile failures count as test failures.
             set +e
-            pixi run mojo --Werror -debug-level=line-tables -I "$REPO_ROOT/src" -I "$REPO_ROOT" -I . "$test_file"
+            uv run mojo --Werror -debug-level=line-tables -I "$REPO_ROOT/src" -I "$REPO_ROOT" -I . "$test_file"
             test_exit=$?
             set -e
             if [ "${test_exit}" -eq 0 ]; then
@@ -1105,7 +1120,7 @@ _test-group-asan-inner path pattern:
             # not just "❌ FAILED" with empty captures. Capture exit status via PIPESTATUS.
             echo "--- build ---"
             set +e
-            pixi run mojo build {{MOJO_ASAN}} {{MOJO_STRICT}} -I "$REPO_ROOT/src" -I "$REPO_ROOT" -I . -Xlinker -lm "$test_file" -o "$BINARY" 2>&1
+            uv run mojo build {{MOJO_ASAN}} {{MOJO_STRICT}} -I "$REPO_ROOT/src" -I "$REPO_ROOT" -I . -Xlinker -lm "$test_file" -o "$BINARY" 2>&1
             build_status=$?
             run_status=-1
             if [ $build_status -eq 0 ]; then
@@ -1216,7 +1231,7 @@ _test-mojo-sanitized-inner sanitizer:
         # docs/dev/mojo-tsan-tcmalloc-incompatibility.md). This is an upstream
         # runtime limitation, not a test or codegen defect. ASAN binaries run
         # normally. Both are compiled here for coverage and upstream tracking.
-        if pixi run mojo build $SAN_FLAGS --Werror $JOBS \
+        if uv run mojo build $SAN_FLAGS --Werror $JOBS \
                 -I "$REPO_ROOT/src" -I "$REPO_ROOT" -I . -Xlinker -lm \
                 "$test_file" -o "$BINARY" 2>&1 \
            && "$BINARY" 2>&1; then
@@ -1270,7 +1285,7 @@ _test-mojo-inner:
     failed_tests=""
     for test_file in "${test_files[@]}"; do
         echo "Testing: $test_file"
-        if ! pixi run mojo --Werror -I "$REPO_ROOT/src" -I "$REPO_ROOT" -I . "$test_file"; then
+        if ! uv run mojo --Werror -I "$REPO_ROOT/src" -I "$REPO_ROOT" -I . "$test_file"; then
             failed=$((failed + 1))
             failed_tests="$failed_tests\n  - $test_file"
         fi
@@ -1326,8 +1341,8 @@ status:
     @python3 --version || echo "Python not found"
     @podman --version || echo "Podman not found"
     @just --version || echo "Just not found"
-    @pixi --version
-    @pixi --list
+    @uv --version || echo "uv not found"
+    @uv tree --depth 1 2>/dev/null || echo "uv tree unavailable"
 
 # Clean build artifacts
 clean:
@@ -1373,7 +1388,7 @@ audit:
 # Version Management
 # ==============================================================================
 
-# Check that version numbers are in sync across pyproject.toml, pixi.toml, mojo.toml, and VERSION
+# Check that version numbers are in sync across pyproject.toml, mojo.toml, and VERSION
 check-version-sync:
     @python3 scripts/check_version_sync.py
 
@@ -1391,8 +1406,6 @@ bump-version new_version:
     echo "{{new_version}}" > VERSION
     # pyproject.toml — update [project] version line
     sed -i 's/^\(version\s*=\s*\)"[^"]*"/\1"{{new_version}}"/' pyproject.toml
-    # pixi.toml — update top-level version line
-    sed -i 's/^\(version\s*=\s*\)"[^"]*"/\1"{{new_version}}"/' pixi.toml
     # mojo.toml — update version line
     sed -i 's/^\(version\s*=\s*\)"[^"]*"/\1"{{new_version}}"/' mojo.toml
     echo "All files updated. Verifying sync..."
@@ -1451,7 +1464,7 @@ _test-example-backward-inner:
         # AOT-only flag (correcting the "only helps for AOT" hedge in
         # notes/mojo-cpu-detection-source-review.md). Harmless where AVX-512 is
         # absent (features are simply already-off).
-        if ! pixi run mojo run --Werror {{MOJO_TARGET_CPU}} \
+        if ! uv run mojo run --Werror {{MOJO_TARGET_CPU}} \
                 -I "$REPO_ROOT/src" -I "$REPO_ROOT" \
                 -I "$REPO_ROOT/examples/$ex" -Xlinker -lm "$f"; then
             echo "FAILED: $f"
@@ -1483,7 +1496,7 @@ _training-smoke-one-inner example entry:
     # --epochs 1 is REQUIRED: some models loop `for epoch in range(epochs)`
     # (default up to 200); --max-batches only caps batches PER epoch. The
     # {{MOJO_TARGET_CPU}} strip is the #6413 AVX-512 workaround (see MOJO_TARGET_CPU def).
-    out=$(pixi run mojo run --Werror {{MOJO_TARGET_CPU}} \
+    out=$(uv run mojo run --Werror {{MOJO_TARGET_CPU}} \
             -I "$REPO_ROOT/src" -I "$REPO_ROOT" \
             -I "$REPO_ROOT/examples/$ex" -Xlinker -lm "$f" \
             --smoke --max-batches 3 --batch-size 4 --epochs 1 2>&1)

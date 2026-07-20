@@ -47,7 +47,7 @@ def run_mojo_benchmark(benchmark_file: Path, timeout: int = 300) -> Dict[str, An
     start_time = time.perf_counter()
     try:
         result = subprocess.run(
-            ["pixi", "run", "mojo", "run", str(benchmark_file)],
+            ["uv", "run", "mojo", "run", str(benchmark_file)],
             capture_output=True,
             text=True,
             timeout=timeout,
@@ -150,7 +150,7 @@ def get_environment_info() -> Dict[str, str]:
     mojo_version = "unknown"
     try:
         result = subprocess.run(
-            ["pixi", "run", "mojo", "--version"],
+            ["uv", "run", "mojo", "--version"],
             capture_output=True,
             text=True,
             timeout=10,

@@ -85,15 +85,15 @@ echo ""
 run_test \
     "Standalone reproducer crashes" \
     "crash" \
-    "pixi run mojo run $SCRIPT_DIR/repro_crash_standalone.mojo"
+    "uv run mojo run $SCRIPT_DIR/repro_crash_standalone.mojo"
 
 # ==========================================================================
 echo "--- 2. ASAN Proves Heap-Use-After-Free ---"
 echo ""
 # ==========================================================================
 
-echo "  Building: pixi run mojo build --sanitize address -g -o $SCRIPT_DIR/repro_asan $SCRIPT_DIR/repro_crash_standalone.mojo"
-pixi run mojo build --sanitize address -g \
+echo "  Building: uv run mojo build --sanitize address -g -o $SCRIPT_DIR/repro_asan $SCRIPT_DIR/repro_crash_standalone.mojo"
+uv run mojo build --sanitize address -g \
     -o "$SCRIPT_DIR/repro_asan" \
     "$SCRIPT_DIR/repro_crash_standalone.mojo" 2>&1 | tail -3
 echo ""
@@ -120,8 +120,8 @@ END {
 }
 ' "$SCRIPT_DIR/repro_crash_standalone.mojo" > "$SCRIPT_DIR/repro_fixed.mojo"
 
-echo "  Building: pixi run mojo build --sanitize address -g -o $SCRIPT_DIR/repro_fixed_bin $SCRIPT_DIR/repro_fixed.mojo"
-pixi run mojo build --sanitize address -g \
+echo "  Building: uv run mojo build --sanitize address -g -o $SCRIPT_DIR/repro_fixed_bin $SCRIPT_DIR/repro_fixed.mojo"
+uv run mojo build --sanitize address -g \
     -o "$SCRIPT_DIR/repro_fixed_bin" \
     "$SCRIPT_DIR/repro_fixed.mojo" 2>&1 | tail -3
 echo ""
@@ -146,7 +146,7 @@ cp "$SCRIPT_DIR/bug_repro_vgg16_e2e_part1_pre_fix.mojo.bug" \
 run_test \
     "Pre-workaround VGG16 part1 crashes" \
     "crash" \
-    "pixi run mojo run tests/models/_tmp_pre_fix_part1.mojo"
+    "uv run mojo run tests/models/_tmp_pre_fix_part1.mojo"
 
 rm -f "$REPO_ROOT/tests/models/_tmp_pre_fix_part1.mojo"
 
@@ -158,17 +158,17 @@ echo ""
 run_test \
     "Fixed VGG16 part1 passes" \
     "pass" \
-    "pixi run mojo run tests/models/test_vgg16_e2e_part1.mojo"
+    "uv run mojo run tests/models/test_vgg16_e2e_part1.mojo"
 
 run_test \
     "Fixed VGG16 part2 passes" \
     "pass" \
-    "pixi run mojo run tests/models/test_vgg16_e2e_part2.mojo"
+    "uv run mojo run tests/models/test_vgg16_e2e_part2.mojo"
 
 run_test \
     "Fixed VGG16 layers part2 passes" \
     "pass" \
-    "pixi run mojo run tests/models/test_vgg16_layers_part2.mojo"
+    "uv run mojo run tests/models/test_vgg16_layers_part2.mojo"
 
 # ==========================================================================
 echo "--- 6. Project-Import Reproducers Crash ---"
@@ -178,12 +178,12 @@ echo ""
 run_test \
     "repro_libkgen_crash.mojo crashes" \
     "crash" \
-    "pixi run mojo run $SCRIPT_DIR/repro_libkgen_crash.mojo"
+    "uv run mojo run $SCRIPT_DIR/repro_libkgen_crash.mojo"
 
 run_test \
     "repro_libasyncrt_crash.mojo crashes" \
     "crash" \
-    "pixi run mojo run $SCRIPT_DIR/repro_libasyncrt_crash.mojo"
+    "uv run mojo run $SCRIPT_DIR/repro_libasyncrt_crash.mojo"
 
 # ==========================================================================
 echo "--- 7. LeNet-5 Monolithic File Crashes (ADR-009 — Same Bug) ---"
@@ -192,14 +192,14 @@ echo ""
 
 # The original 24-test monolithic file from Dec 2025 (Issue #2942).
 # This requires the shared library to be built. If not available, skip gracefully.
-echo "  Note: This test requires 'pixi run just build' to have been run first."
+echo "  Note: This test requires 'uv run just build' to have been run first."
 echo "  The monolithic file uses project imports (from odyssey.core.*)."
 echo ""
 
 run_test \
     "LeNet-5 monolithic (24 tests) crashes after ~15" \
     "crash" \
-    "cp $SCRIPT_DIR/bug_repro_lenet5_layers_monolithic.mojo.bug $REPO_ROOT/tests/models/_tmp_lenet5_monolithic.mojo && pixi run mojo run tests/models/_tmp_lenet5_monolithic.mojo; ret=\$?; rm -f $REPO_ROOT/tests/models/_tmp_lenet5_monolithic.mojo; exit \$ret"
+    "cp $SCRIPT_DIR/bug_repro_lenet5_layers_monolithic.mojo.bug $REPO_ROOT/tests/models/_tmp_lenet5_monolithic.mojo && uv run mojo run tests/models/_tmp_lenet5_monolithic.mojo; ret=\$?; rm -f $REPO_ROOT/tests/models/_tmp_lenet5_monolithic.mojo; exit \$ret"
 
 # ==========================================================================
 echo "--- 8. LeNet-5 Split Files Pass (ADR-009 Workaround) ---"
@@ -210,12 +210,12 @@ echo ""
 run_test \
     "LeNet-5 conv layers (6 tests) passes" \
     "pass" \
-    "pixi run mojo run tests/models/test_lenet5_conv_layers.mojo"
+    "uv run mojo run tests/models/test_lenet5_conv_layers.mojo"
 
 run_test \
     "LeNet-5 activation layers (3 tests) passes" \
     "pass" \
-    "pixi run mojo run tests/models/test_lenet5_activation_layers.mojo"
+    "uv run mojo run tests/models/test_lenet5_activation_layers.mojo"
 
 # ==========================================================================
 echo "========================================"

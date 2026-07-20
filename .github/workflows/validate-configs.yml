@@ -308,12 +308,12 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
 
-      - name: Set up Pixi
-        uses: ./.github/actions/setup-pixi
+      - name: Set up uv
+        uses: ./.github/actions/setup-uv
 
       - name: Install validation tools
         run: |
-          pixi run pip install ruff pyyaml
+          uv pip install ruff pyyaml
 
       - name: Find Python scripts
         id: find-scripts
@@ -363,7 +363,7 @@ jobs:
             echo "No scripts to lint"
             exit 0
           fi
-          pixi run ruff check scripts/ --output-format=github || {
+          uv run ruff check scripts/ --output-format=github || {
             echo "Linting issues found"
             exit 1
           }
@@ -377,8 +377,8 @@ jobs:
             echo "No scripts to check formatting"
             exit 0
           fi
-          pixi run ruff format --check scripts/ || {
-            echo "Formatting issues found. Run: pixi run ruff format scripts/"
+          uv run ruff format --check scripts/ || {
+            echo "Formatting issues found. Run: uv run ruff format scripts/"
             exit 1
           }
           echo "✅ All scripts are properly formatted"
@@ -478,8 +478,8 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
 
-      - name: Set up Pixi
-        uses: ./.github/actions/setup-pixi
+      - name: Set up uv
+        uses: ./.github/actions/setup-uv
 
       - name: Check implementation completeness
         run: |
@@ -557,11 +557,11 @@ jobs:
           for paper_dir in $PAPER_DIRS; do
             echo "Running training for: $paper_dir"
             if [ -f "$paper_dir/train.py" ]; then
-              if ! podman compose exec -T odyssey-dev bash -c "pixi run python $paper_dir/train.py --quick-validation --epochs 1"; then
+              if ! podman compose exec -T odyssey-dev bash -c "uv run python $paper_dir/train.py --quick-validation --epochs 1"; then
                 failed_papers+=("$paper_dir (python)")
               fi
             elif [ -f "$paper_dir/train.mojo" ]; then
-              if ! podman compose exec -T odyssey-dev bash -c "pixi run mojo -I . $paper_dir/train.mojo --quick-validation --epochs 1"; then
+              if ! podman compose exec -T odyssey-dev bash -c "uv run mojo -I . $paper_dir/train.mojo --quick-validation --epochs 1"; then
                 failed_papers+=("$paper_dir (mojo)")
               fi
             fi

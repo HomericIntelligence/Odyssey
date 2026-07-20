@@ -133,7 +133,7 @@ The `src/odyssey/` directory contains the ML components used by all paper implem
 
 ### Prerequisites
 
-- [Pixi](https://pixi.sh/) for environment management
+- [uv](https://docs.astral.sh/uv/) for environment management
 - Git
 
 ### Installation
@@ -144,7 +144,7 @@ git clone https://github.com/HomericIntelligence/Odyssey.git
 cd odyssey
 
 # Install all dependencies (Mojo, Python tools, etc.)
-pixi install
+uv sync --locked
 ```
 
 ### Run Tests
@@ -154,10 +154,10 @@ pixi install
 just test-mojo
 
 # Run layerwise tests for a specific model
-pixi run mojo test tests/models/test_lenet5_layers.mojo
+uv run mojo test tests/models/test_lenet5_layers.mojo
 
 # Run all tests for a model
-pixi run mojo test tests/models/test_lenet5_layers.mojo tests/models/test_lenet5_e2e.mojo
+uv run mojo test tests/models/test_lenet5_layers.mojo tests/models/test_lenet5_e2e.mojo
 ```
 
 ### Build the Shared Library

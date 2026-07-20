@@ -3,7 +3,8 @@
 Check that version numbers are in sync across all version files.
 
 Source of truth: pyproject.toml [project] version field.
-Verified against: pixi.toml, mojo.toml, VERSION
+Verified against: mojo.toml, VERSION
+(pixi.toml removed in the uv migration — ADR-018.)
 
 Usage:
     python scripts/check_version_sync.py
@@ -22,7 +23,6 @@ REPO_ROOT = Path(__file__).parent.parent
 
 VERSION_FILE = REPO_ROOT / "VERSION"
 PYPROJECT_TOML = REPO_ROOT / "pyproject.toml"
-PIXI_TOML = REPO_ROOT / "pixi.toml"
 MOJO_TOML = REPO_ROOT / "mojo.toml"
 
 
@@ -37,15 +37,6 @@ def read_pyproject_version() -> str:
     )
     if not match:
         raise ValueError(f"Could not find [project] version in {PYPROJECT_TOML}")
-    return match.group(1)
-
-
-def read_pixi_version() -> str:
-    """Read version from pixi.toml [package] section."""
-    text = PIXI_TOML.read_text()
-    match = re.search(r'^version\s*=\s*["\']([^"\']+)["\']', text, re.MULTILINE)
-    if not match:
-        raise ValueError(f"Could not find version in {PIXI_TOML}")
     return match.group(1)
 
 
@@ -68,7 +59,6 @@ def check_sync() -> int:
     canonical = read_pyproject_version()
 
     checks = [
-        ("pixi.toml", read_pixi_version),
         ("mojo.toml", read_mojo_version),
         ("VERSION", read_version_file),
     ]

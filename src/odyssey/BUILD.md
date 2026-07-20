@@ -365,17 +365,17 @@ export MOJO_VERBOSE="1"
 set -e
 
 # Install dependencies
-pixi install
+uv sync --locked
 
 # Build package
-pixi run mojo package shared --release -o dist/ml_odyssey_shared.mojopkg
+uv run mojo package shared --release -o dist/ml_odyssey_shared.mojopkg
 
 # Run tests
-pixi run mojo test tests/odyssey/
+uv run mojo test tests/odyssey/
 
 # Verify installation
-pixi run mojo package shared --install
-pixi run mojo run scripts/verify_installation.mojo
+uv run mojo package shared --install
+uv run mojo run scripts/verify_installation.mojo
 
 # Create distribution
 sha256sum dist/ml_odyssey_shared.mojopkg > dist/checksums.txt
@@ -420,7 +420,7 @@ jobs:
 
 1. Check Mojo version: `mojo --version`
 1. Clean build artifacts: `rm -rf build/`
-1. Update dependencies: `pixi install`
+1. Update dependencies: `uv sync --locked`
 1. Check for syntax errors in `.mojo` files
 
 **Problem**: Out of memory during build

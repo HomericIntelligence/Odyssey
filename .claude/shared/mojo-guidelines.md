@@ -2,7 +2,7 @@
 
 Shared Mojo language guidelines for all agents. Reference this file instead of duplicating.
 
-**Mojo Version**: 1.0.0b2 (pinned in pixi.toml).
+**Mojo Version**: 1.0.0b2 (pinned as `mojo==1.0.0b2` in pyproject.toml).
 Official docs: <https://mojolang.org/docs/>
 
 ## ⚠️ Mojo 1.0 migration (in progress)

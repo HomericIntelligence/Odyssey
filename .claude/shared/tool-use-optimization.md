@@ -42,10 +42,10 @@ grep_structs = Grep(pattern="struct .*", glob="*.mojo")
 
 ```bash
 # GOOD - Absolute paths
-cd /home/user/Odyssey && pixi run mojo test tests/shared/core/test_tensor.mojo
+cd /home/user/Odyssey && uv run mojo test tests/shared/core/test_tensor.mojo
 
 # BAD - Relative paths (cwd not guaranteed)
-cd Odyssey && pixi run mojo test tests/shared/core/test_tensor.mojo
+cd Odyssey && uv run mojo test tests/shared/core/test_tensor.mojo
 ```
 
 **DO**: Combine related commands with && for atomicity:
@@ -68,11 +68,11 @@ git add CLAUDE.md
 ```bash
 # GOOD - Capture and parse output
 cd /home/user/Odyssey && \
-  pixi run mojo test tests/ 2>&1 | tee test_output.log && \
+  uv run mojo test tests/ 2>&1 | tee test_output.log && \
   grep -c PASSED test_output.log
 
 # BAD - Output lost between calls
-cd /home/user/Odyssey && pixi run mojo test tests/
+cd /home/user/Odyssey && uv run mojo test tests/
 # Output is gone, can't analyze it
 ```
 

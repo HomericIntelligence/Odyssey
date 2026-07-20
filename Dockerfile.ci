@@ -1,5 +1,15 @@
 # ML Odyssey - CI/Production Optimized Dockerfile
 # Multi-stage build for minimal image size and fast CI builds
+#
+# Toolchain: uv-managed (Odysseus ADR-018). Dependencies incl. the Mojo compiler
+# come from `uv sync --locked` (Modular PyPI index configured in pyproject.toml).
+
+# ==============================================================================
+# Stage 0: uv binary (named-stage COPY source, Scylla PR #2054 pattern)
+# ==============================================================================
+# Pinned by version + digest; digest verified against the ghcr manifest API
+# (HTTP 200) before use. Bump the tag AND re-resolve the digest together.
+FROM ghcr.io/astral-sh/uv:0.11.21@sha256:ff07b86af50d4d9391d9daf4ff89ce427bc544f9aae87057e69a1cc0aa369946 AS uv
 
 # ==============================================================================
 # Stage 1: Builder - Install dependencies and build packages
@@ -7,7 +17,6 @@
 FROM mcr.microsoft.com/mirror/docker/library/ubuntu:24.04 AS builder
 
 ENV DEBIAN_FRONTEND=noninteractive
-ENV PIXI_VERSION=0.70.2
 
 # Install system dependencies (as root)
 RUN apt-get update && apt-get install -y \
@@ -16,6 +25,9 @@ RUN apt-get update && apt-get install -y \
     build-essential \
     ca-certificates \
     && rm -rf /var/lib/apt/lists/*
+
+# uv binary from the pinned uv image stage.
+COPY --from=uv /uv /uvx /usr/local/bin/
 
 # Create non-root user (matches main Dockerfile pattern)
 ARG USER_ID=1000
@@ -28,7 +40,10 @@ RUN groupadd -g ${GROUP_ID} ${USER_NAME} 2>/dev/null || \
     usermod -l ${USER_NAME} -d /home/${USER_NAME} -m $(id -nu ${USER_ID} 2>/dev/null || echo nobody)
 
 ENV HOME=/home/${USER_NAME}
-ENV PATH="${HOME}/.pixi/bin:$PATH"
+# Keep the uv-managed venv inside the image at a fixed, username-independent path.
+ENV UV_PROJECT_ENVIRONMENT=/home/${USER_NAME}/.venv
+ENV UV_CACHE_DIR=/home/${USER_NAME}/.cache/uv
+ENV PATH="${HOME}/.venv/bin:$PATH"
 
 # Use a fixed build output directory decoupled from USER_NAME.
 # Docker does not expand ARGs in COPY --from source paths, so we cannot use
@@ -37,24 +52,21 @@ ENV PATH="${HOME}/.pixi/bin:$PATH"
 ARG BUILD_DIR=/build
 RUN mkdir -p ${BUILD_DIR} && chown ${USER_ID}:${GROUP_ID} ${BUILD_DIR}
 
-# Switch to non-root user for pixi install and build
+# Switch to non-root user for uv sync and build
 USER ${USER_NAME}
 WORKDIR ${BUILD_DIR}
 
-# Install Pixi (pinned version for reproducible builds)
-RUN curl -fsSL https://pixi.sh/install.sh | PIXI_VERSION=${PIXI_VERSION} bash
-
 # Copy dependency files first (better layer caching)
-COPY --chown=${USER_NAME}:${USER_NAME} pixi.toml pixi.lock ./
+COPY --chown=${USER_NAME}:${USER_NAME} pyproject.toml uv.lock .python-version ./
 
-# Install dependencies (this is the slow step - cached if pixi.toml unchanged)
-RUN pixi install --frozen
+# Install dependencies incl. the Mojo compiler (slow step — cached if the
+# manifests are unchanged). --no-install-project: source is copied separately.
+RUN uv sync --locked --no-install-project
 
 # Copy source code
-# Note: requirements*.txt are auto-generated lockfiles from pixi.toml (see scripts/sync_requirements.py)
 COPY --chown=${USER_NAME}:${USER_NAME} src/odyssey/ ./src/odyssey/
 COPY --chown=${USER_NAME}:${USER_NAME} tests/ ./tests/
-COPY --chown=${USER_NAME}:${USER_NAME} pyproject.toml requirements.txt requirements-dev.txt ./
+COPY --chown=${USER_NAME}:${USER_NAME} pyproject.toml ./
 
 # ==============================================================================
 # Stage 2: Runtime - Minimal image for running tests/inference
@@ -62,13 +74,15 @@ COPY --chown=${USER_NAME}:${USER_NAME} pyproject.toml requirements.txt requireme
 FROM mcr.microsoft.com/mirror/docker/library/ubuntu:24.04 AS runtime
 
 ENV DEBIAN_FRONTEND=noninteractive
-ENV PIXI_VERSION=0.70.2
 
 # Install minimal runtime dependencies (as root)
 RUN apt-get update && apt-get install -y \
     curl \
     ca-certificates \
     && rm -rf /var/lib/apt/lists/*
+
+# uv binary from the pinned uv image stage.
+COPY --from=uv /uv /uvx /usr/local/bin/
 
 # Create non-root user (new FROM requires its own user creation)
 ARG USER_ID=1000
@@ -81,30 +95,31 @@ RUN groupadd -g ${GROUP_ID} ${USER_NAME} 2>/dev/null || \
     usermod -l ${USER_NAME} -d /home/${USER_NAME} -m $(id -nu ${USER_ID} 2>/dev/null || echo nobody)
 
 ENV HOME=/home/${USER_NAME}
-ENV PATH="${HOME}/.pixi/bin:$PATH"
+ENV UV_PROJECT_ENVIRONMENT=/home/${USER_NAME}/.venv
+ENV UV_CACHE_DIR=/home/${USER_NAME}/.cache/uv
+ENV PATH="${HOME}/.venv/bin:$PATH"
 ENV PYTHONPATH=/app
 
 # Switch to non-root user
 USER ${USER_NAME}
 WORKDIR /app
 
-# Install Pixi (pinned version for reproducible builds)
-RUN curl -fsSL https://pixi.sh/install.sh | PIXI_VERSION=${PIXI_VERSION} bash
-
 # Copy dependency files
-COPY --chown=${USER_NAME}:${USER_NAME} pixi.toml pixi.lock ./
+COPY --chown=${USER_NAME}:${USER_NAME} pyproject.toml uv.lock .python-version ./
 
-# Install runtime dependencies only
-RUN pixi install --frozen
+# Install runtime dependencies only (incl. Mojo compiler)
+RUN uv sync --locked --no-install-project
 
 # Copy built artifacts and source
 # /build is the fixed WORKDIR set in builder stage (username-independent)
 COPY --chown=${USER_NAME}:${USER_NAME} --from=builder /build/src/odyssey/ ./src/odyssey/
 COPY --chown=${USER_NAME}:${USER_NAME} --from=builder /build/tests/ ./tests/
-COPY --chown=${USER_NAME}:${USER_NAME} pyproject.toml requirements.txt ./
+COPY --chown=${USER_NAME}:${USER_NAME} pyproject.toml ./
 
-# Default command runs tests
-CMD ["pixi", "run", "mojo", "test", "-I", ".", "tests/"]
+# Default command runs the Mojo test files via `uv run mojo` (the PyPI mojo
+# build has no `mojo test` subcommand — tests are plain `mojo <file>` runs, the
+# same mechanism the justfile's _test-group-inner uses).
+CMD ["sh", "-c", "for f in $(find tests -name 'test_*.mojo'); do uv run mojo --Werror -I src -I . \"$f\" || exit 1; done"]
 
 # ==============================================================================
 # Stage 3: CI - Extended with test tooling
@@ -129,8 +144,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Explicitly run as non-root user (inherited from runtime, but stated for clarity)
 USER ${USER_NAME}
 
-# Copy additional test dependencies
-COPY --chown=${USER_NAME}:${USER_NAME} requirements-dev.txt ./
+# Copy pre-commit config
 COPY --chown=${USER_NAME}:${USER_NAME} .pre-commit-config.yaml ./
 
 # Install pre-commit hooks. Build context lacks .git but `pre-commit
@@ -141,16 +155,16 @@ RUN git config --global user.email "build@odyssey.local" && \
     git config --global init.defaultBranch main && \
     git init -q . && \
     if [ -d .git ]; then \
-        pixi run pre-commit install --install-hooks; \
+        uv run pre-commit install --install-hooks; \
     else \
-        pixi run pre-commit install-hooks; \
+        uv run pre-commit install-hooks; \
     fi
 
 # CI-specific environment
 ENV CI=true
 ENV ENVIRONMENT=ci
 
-CMD ["pixi", "run", "pytest", "tests/", "-v", "--timeout=300"]
+CMD ["uv", "run", "pytest", "tests/", "-v", "--timeout=300"]
 
 # ==============================================================================
 # Stage 4: Production - Minimal production image
@@ -168,5 +182,5 @@ ENV ENVIRONMENT=production
 # Remove test files for smaller image
 RUN rm -rf tests/
 
-# Default to shell for interactive use
-CMD ["pixi", "shell"]
+# Default to an interactive shell (uv-managed env is on PATH via .venv/bin)
+CMD ["/bin/bash"]

@@ -28,13 +28,13 @@
         "editor.insertSpaces": true,
         "editor.tabSize": 4,
         "files.eol": "\n",
-        "python.defaultInterpreterPath": "/workspace/.pixi/envs/default/bin/python",
+        "python.defaultInterpreterPath": "/home/dev/.venv/bin/python",
         "markdownlint.config": {
           "MD013": { "line_length": 120 }
         }
       }
     }
   },
-  "postCreateCommand": "pixi install && pixi run pre-commit install",
+  "postCreateCommand": "uv sync --locked && uv run pre-commit install",
   "features": {}
 }

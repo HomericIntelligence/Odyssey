@@ -28,17 +28,17 @@ This downloads the EMNIST Balanced split (131,600 training samples, 18,800 test 
 ### 2. Train Model
 
 ```bash
-pixi run mojo run -I . examples/lenet_emnist/train.mojo --epochs 10 --batch-size 32 --lr 0.01
+uv run mojo run -I . examples/lenet_emnist/train.mojo --epochs 10 --batch-size 32 --lr 0.01
 ```text
 
-**Note**: Use `pixi run mojo` (not just `mojo`) since Mojo is installed via pixi. The `-I .` flag includes the
+**Note**: Use `uv run mojo` (not just `mojo`) since Mojo is installed via uv. The `-I .` flag includes the
 current directory in the module search path.
 
 ### 3. Run Inference
 
 ```bash
 # Evaluate on test set
-pixi run mojo run -I . examples/lenet_emnist/inference.mojo \
+uv run mojo run -I . examples/lenet_emnist/inference.mojo \
     --weights-dir lenet5_weights \
     --data-dir datasets/emnist
 ```text
@@ -131,7 +131,7 @@ examples/lenet_emnist/
 ### Training Options
 
 ```bash
-pixi run mojo run -I . examples/lenet_emnist/train.mojo \
+uv run mojo run -I . examples/lenet_emnist/train.mojo \
     --epochs 10 \
     --batch-size 32 \
     --lr 0.01 \
@@ -151,7 +151,7 @@ pixi run mojo run -I . examples/lenet_emnist/train.mojo \
 
 ```bash
 # Test set evaluation
-pixi run mojo run -I . examples/lenet_emnist/inference.mojo \
+uv run mojo run -I . examples/lenet_emnist/inference.mojo \
     --weights-dir lenet5_weights \
     --data-dir datasets/emnist
 ```text
@@ -258,7 +258,7 @@ convert any PNG or JPEG image:
 
 ```bash
 python scripts/convert_image_to_idx.py my_digit.png my_digit.idx
-pixi run mojo run -I . examples/lenet_emnist/run_infer.mojo \
+uv run mojo run -I . examples/lenet_emnist/run_infer.mojo \
     --checkpoint lenet5_weights \
     --image my_digit.idx
 ```

@@ -197,16 +197,16 @@ Run optimizer tests:
 
 ```bash
 # Test all optimizers
-pixi run mojo test tests/odyssey/training/
+uv run mojo test tests/odyssey/training/
 
 # Test Lion (in the shared optimizer suite)
-pixi run mojo test tests/odyssey/training/test_optimizers.mojo
+uv run mojo test tests/odyssey/training/test_optimizers.mojo
 
 # Test Muon specifically
-pixi run mojo test tests/odyssey/training/test_muon.mojo
+uv run mojo test tests/odyssey/training/test_muon.mojo
 
 # Test a single Muon test
-pixi run mojo test tests/odyssey/training/test_muon.mojo::test_muon_step_quadratic_descent
+uv run mojo test tests/odyssey/training/test_muon.mojo::test_muon_step_quadratic_descent
 ```
 
 Tests verify:

@@ -56,15 +56,15 @@ BLOCKED_PATTERNS = [
 
 # Safety: allowed command prefixes (execute only these)
 ALLOWED_PREFIXES = [
-    "pixi run",
-    "pixi install",
-    "pixi info",
-    "pixi run mojo build",
-    "pixi run mojo test",
-    "pixi run mojo format",
-    "pixi run mojo --version",
+    "uv run",
+    "uv sync",
+    "uv lock",
+    "uv run mojo build",
+    "uv run mojo test",
+    "uv run mojo format",
+    "uv run mojo --version",
     "just precommit",
-    "pixi run pre-commit install",
+    "uv run pre-commit install",
     "python3 -m py_compile",
     "python3 --version",
     "gh auth status",

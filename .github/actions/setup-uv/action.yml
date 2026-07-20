@@ -1,0 +1,46 @@
+name: Set Up uv Environment
+description: >-
+  Install uv and materialise the locked project environment (incl. the Mojo
+  compiler from the Modular PyPI index) via `uv sync --locked`. Replaces the
+  former setup-pixi action per Odysseus ADR-018.
+
+inputs:
+  python-version:
+    description: Python version uv should use for the project env.
+    required: false
+    # Must match .python-version / requires-python (>=3.11). Pinning here keeps
+    # the resolver on the same minor the lockfile was generated against and
+    # avoids the Scylla PR #2054 py-version-drift trap.
+    default: "3.11"
+  sync-args:
+    description: Extra args appended to `uv sync` (e.g. "--group notebook").
+    required: false
+    default: ""
+
+runs:
+  using: composite
+  steps:
+    - name: Install uv
+      uses: astral-sh/setup-uv@37802adc94f370d6bfd71619e3f0bf239e1f3b78  # v7
+      with:
+        # Enable the built-in uv cache keyed on uv.lock so repeat runs skip
+        # re-downloading the (large) Mojo compiler wheels.
+        enable-cache: true
+        cache-dependency-glob: "uv.lock"
+
+    - name: Sync locked environment (installs Mojo from the Modular index)
+      shell: bash
+      # `uv sync --locked` fails fast if uv.lock is stale — the same guarantee
+      # the old `pixi install --locked` gave. The Modular index + prerelease
+      # handling live in pyproject.toml ([tool.uv]), so no extra flags needed.
+      #
+      # Inputs are passed via `env:` (not interpolated into the `run:` string)
+      # so untrusted values cannot be spliced into the shell command line —
+      # this is the fix for Semgrep's `run-shell-injection` rule. `$SYNC_ARGS`
+      # is intentionally left unquoted so multiple args (e.g. "--group notebook")
+      # word-split into separate argv entries, while `$PYTHON_VERSION` is quoted
+      # because it is a single token.
+      env:
+        PYTHON_VERSION: ${{ inputs.python-version }}
+        SYNC_ARGS: ${{ inputs.sync-args }}
+      run: uv sync --locked --python "$PYTHON_VERSION" $SYNC_ARGS
