@@ -51,9 +51,7 @@ def _torch_reference():
 
     p = torch.tensor(params, dtype=torch.float64, requires_grad=True)
     p.grad = torch.tensor(grad, dtype=torch.float64)
-    opt = torch.optim.SGD(
-        [p], lr=LR, momentum=MOMENTUM, weight_decay=WEIGHT_DECAY, dampening=0.0
-    )
+    opt = torch.optim.SGD([p], lr=LR, momentum=MOMENTUM, weight_decay=WEIGHT_DECAY, dampening=0.0)
     # Seed the momentum buffer to our fixed `velocity` so the single step is
     # deterministic and matches the Odyssey hand-seeded call.
     opt.state[p]["momentum_buffer"] = torch.tensor(velocity, dtype=torch.float64)

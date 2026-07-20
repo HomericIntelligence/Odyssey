@@ -41,9 +41,7 @@ def _torch_reference():
 
     p = torch.tensor(params, dtype=torch.float64, requires_grad=True)
     p.grad = torch.tensor(grad, dtype=torch.float64)
-    opt = torch.optim.RMSprop(
-        [p], lr=LR, alpha=ALPHA, eps=EPS, weight_decay=WD, momentum=0.0, centered=False
-    )
+    opt = torch.optim.RMSprop([p], lr=LR, alpha=ALPHA, eps=EPS, weight_decay=WD, momentum=0.0, centered=False)
     opt.state[p]["step"] = torch.tensor(0.0)
     opt.state[p]["square_avg"] = torch.tensor(square_avg, dtype=torch.float64)
     opt.step()

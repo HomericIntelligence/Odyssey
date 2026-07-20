@@ -54,9 +54,7 @@ def _torch_reference():
 
     p = torch.tensor(params, dtype=torch.float64, requires_grad=True)
     p.grad = torch.tensor(grad, dtype=torch.float64)
-    opt = torch.optim.Adam(
-        [p], lr=LR, betas=(B1, B2), eps=EPS, weight_decay=WD, amsgrad=False
-    )
+    opt = torch.optim.Adam([p], lr=LR, betas=(B1, B2), eps=EPS, weight_decay=WD, amsgrad=False)
     st = opt.state[p]
     st["step"] = torch.tensor(float(T - 1))
     st["exp_avg"] = torch.tensor(m, dtype=torch.float64)
