@@ -51,7 +51,7 @@ boolean-py==5.0
 build==1.5.0
 cachecontrol==0.14.4
     # via pip-audit
-certifi==2026.6.17
+certifi==2026.7.22
     # via
     #   httpcore
     #   httpx
@@ -125,7 +125,7 @@ executing==2.2.1
     # via stack-data
 fastjsonschema==2.21.2
     # via nbformat
-filelock==3.31.0
+filelock==3.32.0
     # via
     #   cachecontrol
     #   python-discovery
@@ -140,7 +140,7 @@ ghp-import==2.1.0
     # via mkdocs
 gitdb==4.0.12
     # via gitpython
-gitpython==3.1.52
+gitpython==3.1.54
     # via odyssey
 h11==0.16.0
     # via httpcore
@@ -190,7 +190,7 @@ jinja2==3.1.6
     #   safety
 joblib==1.5.3
     # via nltk
-joserfc==1.7.3
+joserfc==1.7.4
     # via authlib
 json5==0.15.0
     # via jupyterlab-server
@@ -383,7 +383,7 @@ pip-licenses==4.5.1
     # via odyssey
 pip-requirements-parser==32.0.1
     # via pip-audit
-platformdirs==4.10.1
+platformdirs==4.11.0
     # via
     #   jupyter-core
     #   mblack
@@ -395,8 +395,8 @@ pluggy==1.6.0
     # via
     #   pytest
     #   pytest-cov
-pre-commit==4.6.0
-pre-commit-hooks==4.5.0
+pre-commit==4.6.1
+pre-commit-hooks==4.6.0
 prettytable==3.18.0
     # via
     #   odyssey
@@ -467,7 +467,7 @@ python-dateutil==2.9.0.post0
     #   jupyter-client
     #   matplotlib
     #   pandas
-python-discovery==1.4.4
+python-discovery==1.5.0
     # via virtualenv
 python-json-logger==4.1.0
     # via jupyter-events
@@ -499,7 +499,7 @@ referencing==0.37.0
     #   jsonschema
     #   jsonschema-specifications
     #   jupyter-events
-regex==2026.7.10
+regex==2026.7.19
     # via nltk
 requests==2.34.2
     # via
@@ -534,7 +534,7 @@ ruamel-yaml==0.19.1
     #   safety-schemas
 ruff==0.15.22
 safety==3.8.1
-safety-schemas==0.0.16
+safety-schemas==0.0.19
     # via safety
 seaborn==0.13.2
 send2trash==2.1.0
@@ -549,7 +549,7 @@ smmap==5.0.3
     # via gitdb
 sortedcontainers==2.4.0
     # via cyclonedx-python-lib
-soupsieve==2.8.4
+soupsieve==2.9.1
     # via beautifulsoup4
 stack-data==0.6.3
     # via ipython
@@ -600,7 +600,7 @@ traitlets==5.15.1
     #   nbformat
 truststore==0.10.4
     # via safety
-typer==0.25.1
+typer==0.27.0
     # via safety
 types-pyyaml==6.0.12.20260518
 typing-extensions==4.16.0
@@ -631,7 +631,7 @@ urllib3==2.7.0
     # via
     #   pygithub
     #   requests
-virtualenv==21.6.1
+virtualenv==21.7.0
     # via pre-commit
 watchdog==6.0.0
     # via mkdocs
