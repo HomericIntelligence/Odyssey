@@ -102,11 +102,11 @@ jobs:
           echo "OK: validate-configs.yml includes agent validation"
 
       # Full pytest run for comprehensive assertions
-      - name: Set up Pixi
-        uses: ./.github/actions/setup-pixi
+      - name: Set up uv
+        uses: ./.github/actions/setup-uv
 
       - name: Run security workflow smoke tests
-        run: pixi run python -m pytest tests/smoke/test_security_workflow_properties.py -v
+        run: uv run python -m pytest tests/smoke/test_security_workflow_properties.py -v
 
   smoke-test-other-workflows:
     name: Other Workflow Property Checks
@@ -192,12 +192,12 @@ jobs:
           echo "OK: yamllint present in validate-configs.yml"
 
       # Full pytest run for comprehensive assertions
-      - name: Set up Pixi
-        uses: ./.github/actions/setup-pixi
+      - name: Set up uv
+        uses: ./.github/actions/setup-uv
 
       - name: Run other workflow smoke tests
         run: |
-          pixi run python -m pytest \
+          uv run python -m pytest \
             tests/smoke/test_merge_queue_workflow_properties.py \
             tests/smoke/test_pre_commit_workflow_properties.py \
             tests/smoke/test_comprehensive_tests_workflow_properties.py \

@@ -7,7 +7,8 @@ on their purpose: testing, validation, security, and performance monitoring.
 
 The CI/CD strategy uses GitHub Actions with the following principles:
 
-1. **Pixi-based Setup**: All workflows use Pixi for environment management instead of modular/setup-mojo
+1. **uv-based Setup**: All workflows use uv for environment management (incl. the Mojo compiler from the
+   Modular PyPI index) instead of modular/setup-mojo
 2. **Justfile Integration**: Workflows use justfile recipes for consistency between local and CI environments
 3. **Parallel Execution**: Test workflows use matrix strategies for parallelization
 4. **Fail-Fast Control**: Strategic use of `fail-fast: false` allows complete test runs without early stopping
@@ -156,7 +157,7 @@ ls .github/workflows/*.yml | wc -l
 
 **Cache Strategy**:
 
-- Pixi environments (key: pixi.toml)
+- uv cache (key: uv.lock)
 
 **PR Comments**: Yes - Comprehensive test results with per-group breakdown
 
@@ -263,7 +264,7 @@ or executes pull-request code with its narrowly scoped `pull-requests: write` to
 
 **Summary Output**: Comprehensive validation checklist with all checks performed
 
-**Failure Help**: Displays local fix instructions including pixi commands
+**Failure Help**: Displays local fix instructions including uv commands
 
 ---
 
@@ -335,7 +336,7 @@ or executes pull-request code with its narrowly scoped `pull-requests: write` to
 
 **Hook Types**:
 
-- `pixi run mojo format` - Auto-format Mojo code (`.mojo`, `.🔥` files)
+- `uv run mojo format` - Auto-format Mojo code (`.mojo`, `.🔥` files)
 - `markdownlint-cli2` - Lint markdown files
 - `trailing-whitespace` - Remove trailing whitespace
 - `end-of-file-fixer` - Ensure files end with newline
@@ -373,7 +374,7 @@ or executes pull-request code with its narrowly scoped `pull-requests: write` to
 **Key Features**:
 
 - Path-triggered: only runs when notebooks change
-- Uses `actions/setup-python` (no Pixi dependency)
+- Uses `actions/setup-python` (no uv dependency)
 
 ---
 
@@ -388,7 +389,7 @@ or executes pull-request code with its narrowly scoped `pull-requests: write` to
 **Key Features**:
 
 - Path-triggered: only runs when papers/ changes
-- Uses `.github/actions/setup-pixi` composite action for Mojo/Pixi environment
+- Uses `.github/actions/setup-uv` composite action for the Mojo/uv environment
 
 ---
 
@@ -426,7 +427,7 @@ or executes pull-request code with its narrowly scoped `pull-requests: write` to
 **Scanning Jobs (scheduled weekly)**:
 
 1. **python-audit** - Safety and pip-audit for vulnerability scanning
-2. **pixi-audit** - Pixi/Conda package listing and version tracking
+2. **pixi-audit** - uv/PyPI package listing and version tracking (job id unchanged)
 3. **license-audit** - License compliance checking (blocks GPL-3.0, AGPL-3.0)
 
 **Critical Failure Conditions**:
@@ -488,7 +489,7 @@ or executes pull-request code with its narrowly scoped `pull-requests: write` to
 
 - Tag-triggered: runs on `v*` tags
 - Manual dispatch allows specifying version and pre-release flag
-- Uses `.github/actions/setup-pixi` composite action for Mojo environment
+- Uses `.github/actions/setup-uv` composite action for Mojo environment
 
 ---
 
@@ -533,7 +534,7 @@ or executes pull-request code with its narrowly scoped `pull-requests: write` to
 **Key Features**:
 
 - Suite selection via `workflow_dispatch` input (all, tensor-ops, model-training, data-loading)
-- Uses `.github/actions/setup-pixi` composite action for Mojo environment
+- Uses `.github/actions/setup-uv` composite action for Mojo environment
 - Target duration: < 30 minutes with parallel execution
 
 ---
@@ -582,7 +583,7 @@ or executes pull-request code with its narrowly scoped `pull-requests: write` to
 
 **Key Features**:
 
-- Compares pinned version in `pixi.toml` against latest available
+- Compares the `mojo` pin in `pyproject.toml` against latest on the Modular PyPI index
 - Creates GitHub issue with upgrade checklist when update available
 - Updates existing issue comment if one already exists
 - Uses `.mojo-version` file as additional version tracking
@@ -604,7 +605,7 @@ or executes pull-request code with its narrowly scoped `pull-requests: write` to
 **Key Features**:
 
 - Conditional execution: only runs when `@claude` appears in the triggering content
-- No Pixi or Mojo dependency
+- No uv or Mojo dependency
 
 ---
 
@@ -619,7 +620,7 @@ or executes pull-request code with its narrowly scoped `pull-requests: write` to
 **Key Features**:
 
 - Runs on all PRs (can be filtered by author association)
-- No Pixi or Mojo dependency
+- No uv or Mojo dependency
 
 ---
 
@@ -627,9 +628,9 @@ or executes pull-request code with its narrowly scoped `pull-requests: write` to
 
 ### Composite Actions
 
-The `.github/actions/setup-pixi/` composite action wraps `prefix-dev/setup-pixi` and an
-explicit `actions/cache@v5` step. All 13 Mojo/Pixi workflows use this composite action
-via `uses: ./.github/actions/setup-pixi`.
+The `.github/actions/setup-uv/` composite action wraps `astral-sh/setup-uv` and an
+explicit `actions/cache@v5` step. All Mojo/uv workflows use this composite action
+via `uses: ./.github/actions/setup-uv`.
 
 **Migrated workflows** (completed in #3979):
 
@@ -652,7 +653,7 @@ via `uses: ./.github/actions/setup-pixi`.
 To verify no inline duplication remains:
 
 ```bash
-grep -rl "prefix-dev/setup-pixi" .github/workflows/*.yml | wc -l
+grep -rl "astral-sh/setup-uv" .github/workflows/*.yml | wc -l
 # Expected: 0
 ```
 
@@ -706,8 +707,8 @@ to a malicious commit.
 - name: Checkout code
   uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
 
-- name: Set up Pixi
-  uses: prefix-dev/setup-pixi@ba3bb36eb2066252b2363392b7739741bb777659  # v0.9.3
+- name: Set up uv
+  uses: astral-sh/setup-uv@ba3bb36eb2066252b2363392b7739741bb777659  # v0.9.3
 ```
 
 **Incorrect pattern** (mutable tag — do not use):
@@ -716,8 +717,8 @@ to a malicious commit.
 - name: Checkout code
   uses: actions/checkout@v4  # ❌ tag can be moved
 
-- name: Set up Pixi
-  uses: prefix-dev/setup-pixi@v0.9.3  # ❌ tag can be moved
+- name: Set up uv
+  uses: astral-sh/setup-uv@v7  # ❌ tag can be moved
 ```
 
 **Finding the correct SHA**: Use `gh release view` on the action's repository or check the
@@ -778,8 +779,8 @@ jobs:
       - name: Checkout code          # MUST come first
         uses: actions/checkout@v4
 
-      - name: Set up Pixi            # composite action — safe because checkout already ran
-        uses: ./.github/actions/setup-pixi
+      - name: Set up uv            # composite action — safe because checkout already ran
+        uses: ./.github/actions/setup-uv
 ```
 
 **Incorrect pattern** (will fail):
@@ -789,8 +790,8 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Set up Pixi            # ERROR: checkout has not run yet
-        uses: ./.github/actions/setup-pixi
+      - name: Set up uv            # ERROR: checkout has not run yet
+        uses: ./.github/actions/setup-uv
 
       - name: Checkout code
         uses: actions/checkout@v4
@@ -805,18 +806,18 @@ python3 scripts/validate_workflow_checkout_order.py .github/workflows/
 **CI enforcement**: The `validate-workflows.yml` workflow runs this check automatically on all pull
 requests that touch `.github/` files.
 
-### Pixi-Based Environment Setup
+### uv-Based Environment Setup
 
 All Mojo workflows use the shared composite action:
 
 ```yaml
-- name: Set up Pixi
-  uses: ./.github/actions/setup-pixi
+- name: Set up uv
+  uses: ./.github/actions/setup-uv
 ```
 
-The composite action at `.github/actions/setup-pixi/action.yml` installs Pixi via
-`prefix-dev/setup-pixi@v0.9.4` and caches `.pixi`, `~/.pixi/bin`, and
-`~/.cache/rattler/cache` using an explicit `actions/cache@v5` step keyed on `pixi.lock`.
+The composite action at `.github/actions/setup-uv/action.yml` installs uv via
+`astral-sh/setup-uv@v7` (enable-cache) keyed on `uv.lock`, and caches the uv download cache using an
+explicit `actions/cache@v5` step keyed on `uv.lock`.
 The explicit cache step is intentional — `cache: true` was found unreliable on v0.9.4.
 
 ### Matrix Strategies for Parallelization
@@ -884,8 +885,8 @@ The `always()` condition allows report generation even when tests fail.
 **Solutions**:
 
 1. Ensure you're using the same Python version: `python3 --version`
-2. Update Pixi: `pixi self-update`
-3. Clear Pixi cache: `rm -rf ~/.pixi && pixi install`
+2. Update uv: `uv self update`
+3. Clear uv cache: `uv cache clean && uv sync --locked`
 4. Check for uncommitted changes that affect tests
 
 ### Workflows Timing Out
@@ -894,7 +895,7 @@ The `always()` condition allows report generation even when tests fail.
 
 **Solutions**:
 
-1. Check for hanging tests: `timeout 60 pixi run pytest tests/test_file.py`
+1. Check for hanging tests: `timeout 60 uv run pytest tests/test_file.py`
 2. Split tests across more matrix jobs
 3. Increase timeout-minutes in workflow YAML (was designed for specific durations)
 
@@ -918,13 +919,13 @@ The `always()` condition allows report generation even when tests fail.
 2. Use `# gitleaks:allow` comment in files (temporary)
 3. Configure allowlist in `.gitleaksignore` file
 
-### Pixi Cache Not Working
+### uv Cache Not Working
 
-**Issue**: Pixi environments rebuilt despite cache
+**Issue**: uv environments rebuilt despite cache
 
 **Solutions**:
 
-1. Verify `pixi.toml` hasn't changed unexpectedly
+1. Verify `pyproject.toml` / `uv.lock` haven't changed unexpectedly
 2. Check cache action configuration: `uses: actions/cache@v4`
 3. Clear cache: Settings > Actions > Clear all caches
 
@@ -948,7 +949,7 @@ The comprehensive test workflow uses 17 parallel jobs to reduce total duration f
 
 All workflows implement multi-level caching:
 
-1. **Pixi Cache**: Environment directory (`~/.pixi`)
+1. **uv Cache**: uv cache directory (`~/.cache/uv`)
 2. **Pip Cache**: Python packages (`~/.cache/pip`)
 3. **Pre-commit Cache**: Hook environments (`~/.cache/pre-commit`)
 4. **Test Data Cache**: Fixtures directory
@@ -983,9 +984,10 @@ on:
 - Check benchmark artifacts for performance degradation
 - Update workflow dependencies (actions versions)
 
-### Pixi Configuration
+### uv Configuration
 
-All Mojo workflows depend on `pixi.toml` at repository root. Key points:
+All Mojo workflows depend on `pyproject.toml` + `uv.lock` at repository root. The Mojo compiler installs
+via uv from the Modular PyPI index (ADR-018). Key points:
 
 - Specify `mojo` version (pinned)
 - Include Python dependencies for scripts
@@ -1006,12 +1008,12 @@ When adding new workflows:
 
 1. **Name**: Use descriptive name with `.yml` extension
 2. **Triggers**: Define clear triggering conditions
-3. **Caching**: Add appropriate caching (Pixi, pip, tool-specific)
+3. **Caching**: Add appropriate caching (uv, pip, tool-specific)
 4. **Timeouts**: Set realistic timeout-minutes
 5. **Permissions**: Request minimum required (contents: read, pull-requests: write if commenting)
 6. **Documentation**: Add entry to this README with workflow details
 7. **Testing**: Test in feature branch before merging
-8. **Pixi setup**: Use `uses: ./.github/actions/setup-pixi` (not inline `prefix-dev/setup-pixi`)
+8. **uv setup**: Use `uses: ./.github/actions/setup-uv` (not inline `astral-sh/setup-uv`)
 
 ---
 
@@ -1057,10 +1059,10 @@ gh workflow view script-validation.yml
 
 ```bash
 # Count workflows using the composite action
-grep -rl "setup-pixi" .github/workflows/*.yml | wc -l
+grep -rl "setup-uv" .github/workflows/*.yml | wc -l
 
-# Verify no inline prefix-dev/setup-pixi remains (should be 0)
-grep -rl "prefix-dev/setup-pixi" .github/workflows/*.yml | wc -l
+# Verify no inline astral-sh/setup-uv remains (should be 0)
+grep -rl "astral-sh/setup-uv" .github/workflows/*.yml | wc -l
 
 # Count total workflows
 ls .github/workflows/*.yml | wc -l
@@ -1070,7 +1072,7 @@ ls .github/workflows/*.yml | wc -l
 
 ## Related Documentation
 
-- **Pixi Setup**: See `pixi.toml` for environment configuration
+- **uv Setup**: See `pyproject.toml` for environment configuration
 - **Pre-commit Hooks**: See `.pre-commit-config.yaml` for local validation
 - **Agent System**: See `.claude/agents/` for AI agent configuration testing
 - **Security Policy**: See `SECURITY.md` for vulnerability reporting

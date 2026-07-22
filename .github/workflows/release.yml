@@ -200,7 +200,7 @@ jobs:
       - name: Create build manifest
         run: |
           echo "Creating build manifest..."
-          MOJO_VERSION=$(podman compose exec -T odyssey-dev pixi run mojo --version 2>&1 || echo "Not available")
+          MOJO_VERSION=$(podman compose exec -T odyssey-dev uv run mojo --version 2>&1 || echo "Not available")
 
           cat > dist/BUILD_MANIFEST.txt <<EOF
           ML Odyssey Release Build
@@ -317,7 +317,7 @@ jobs:
           git clone https://github.com/${{ github.repository }}.git
           cd Odyssey
           git checkout ${{ needs.validate-version.outputs.version }}
-          pixi install
+          uv sync --locked
           ```
 
           ### Checksums

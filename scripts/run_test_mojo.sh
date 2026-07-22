@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Run all Mojo test files under tests/.
-# Runs INSIDE the container — uses pixi run mojo directly.
+# Runs INSIDE the container — uses uv run mojo directly.
 #
 # Usage: bash scripts/test_mojo.sh
 
@@ -13,7 +13,7 @@ failed=0
 for test_file in tests/**/*.mojo; do
     if [ -f "$test_file" ]; then
         echo "Testing: $test_file"
-        if ! pixi run mojo -I "$REPO_ROOT" -I . "$test_file"; then
+        if ! uv run mojo -I "$REPO_ROOT" -I . "$test_file"; then
             failed=1
         fi
     fi

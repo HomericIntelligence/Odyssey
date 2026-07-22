@@ -1,5 +1,13 @@
 # Skill: fix-mojo-ci-nightly-divergence
 
+> **HISTORICAL (ADR-018):** This skill described the conda `max-nightly` vs
+> `max` channel divergence problem. After the uv migration, Odyssey no longer
+> uses conda channels at all — the Mojo compiler is pinned (`mojo==1.0.0b2`) in
+> `pyproject.toml` and locked in `uv.lock`, installed from the single Modular
+> PyPI index. CI and local dev therefore resolve the exact same Mojo build by
+> construction, so channel-divergence can no longer occur. Kept for historical
+> reference; the commands below are updated to their uv equivalents.
+
 ## Overview
 
 | Field | Value |
@@ -26,24 +34,21 @@ Check if CI and local use different Mojo versions:
 
 ```bash
 # Local version
-pixi run mojo --version
+uv run mojo --version
 
-# Check pixi.toml channel
-grep channels pixi.toml
-# If "max-nightly" → CI uses nightly builds (different APIs)
-# If "max" → CI uses stable release (same as local)
+# Check the pinned mojo version (single Modular PyPI index, no channels)
+grep '"mojo' pyproject.toml
+# Under uv there is only one source, so CI and local always match.
 ```
 
-### Step 2: Pin to Stable Channel (Preferred Fix)
+### Step 2: Pin the Mojo version (uv)
 
 ```bash
-# In pixi.toml, change:
-channels = ["https://conda.modular.com/max-nightly", "conda-forge"]
-# To:
-channels = ["https://conda.modular.com/max", "conda-forge"]
-
-# Regenerate lockfile
-pixi install
+# In pyproject.toml [project.dependencies], set the exact pin, e.g.:
+#   "mojo==1.0.0b2",
+# Then regenerate the lockfile:
+uv lock
+uv sync --locked
 ```
 
 This ensures CI uses the exact same Mojo version as local development.

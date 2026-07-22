@@ -22,16 +22,16 @@ for your help. This document provides guidelines and instructions for contributi
 - Git
 - GitHub CLI (`gh`) for PR workflows
 
-### Environment Setup with Pixi
+### Environment Setup with uv
 
-We use [Pixi](https://pixi.sh/) for environment management. This ensures everyone uses the same dependencies.
+We use [uv](https://docs.astral.sh/uv/) for environment management. This ensures everyone uses the same dependencies.
 
 ```bash
-# Install Pixi (if not already installed)
-# Visit https://pixi.sh/ for installation instructions
+# Install uv (if not already installed)
+# Visit https://docs.astral.sh/uv/ for installation instructions
 
-# Create and activate the development environment
-pixi shell
+# Install all dependencies (Mojo compiler + Python tools) from the lockfile
+uv sync --locked
 ```
 
 ### Verify Your Setup
@@ -278,10 +278,10 @@ Python files in `scripts/`, `tests/`, and `tools/` are scanned for security issu
 
 ```bash
 # Scan all Python scripts (same flags as pre-commit)
-pixi run bandit -ll --skip B310,B202,B301 scripts/ tests/ tools/
+uv run bandit -ll --skip B310,B202,B301 scripts/ tests/ tools/
 
 # Check a single file
-pixi run bandit -ll scripts/my_script.py
+uv run bandit -ll scripts/my_script.py
 ```
 
 Bandit runs automatically on every commit via the `bandit` pre-commit hook.
@@ -346,19 +346,18 @@ code will still be format-checked. To format locally on an incompatible host, us
 ```bash
 just shell
 # Inside container:
-pixi run mojo format path/to/file.mojo
+uv run mojo format path/to/file.mojo
 ```
 
 See [docs/dev/mojo-glibc-compatibility.md](docs/dev/mojo-glibc-compatibility.md) for full details.
 
 ## Version Bump Process
 
-The project version is defined in four files that must always stay in sync:
+The project version is defined in three files that must always stay in sync:
 
 | File | Format | Field |
 | --- | --- | --- |
 | `pyproject.toml` | TOML | `[project] version` (authoritative source) |
-| `pixi.toml` | TOML | top-level `version` |
 | `mojo.toml` | TOML | top-level `version` |
 | `VERSION` | plain text | entire file content |
 
@@ -367,13 +366,13 @@ Any commit that touches one of these files but leaves the others out of sync wil
 
 ### How to Bump the Version
 
-Use the `just bump-version` recipe to update all four files atomically:
+Use the `just bump-version` recipe to update all three files atomically:
 
 ```bash
 just bump-version 0.2.0
 ```
 
-This updates all four files and then calls `scripts/check_version_sync.py` to verify the
+This updates all three files and then calls `scripts/check_version_sync.py` to verify the
 result before you commit.
 
 ### Manual Verification

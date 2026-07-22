@@ -23,7 +23,7 @@ runs:
         # UID is included so a cached image built with USER_ID=1000 is never
         # reused on a runner where id -u returns 1001.  Mismatched UID causes
         # /home/dev to be unwritable inside the container.
-        key: container-image-uid${{ steps.uid.outputs.user_id }}-${{ hashFiles('Dockerfile', 'pixi.toml', 'pixi.lock') }}
+        key: container-image-uid${{ steps.uid.outputs.user_id }}-${{ hashFiles('Dockerfile', 'pyproject.toml', 'uv.lock') }}
 
     - name: Start Podman socket
       shell: bash
@@ -50,41 +50,12 @@ runs:
           podman save -o /tmp/podman-image-cache/dev.tar odyssey:dev
         fi
 
-    - name: Seed pixi-cache volume from image layer
-      shell: bash
-      run: |
-        # The pixi-cache named volume holds the detached pixi environments
-        # (detached-environments = true in .pixi/config.toml). On each fresh CI
-        # runner the volume starts empty, causing the entrypoint to run
-        # `pixi install` from scratch. This can consume significant resources.
-        #
-        # Seed the pixi-cache volume from the image's baked-in per-user cache
-        # (/home/dev/.cache/pixi) BEFORE starting the dev container so the
-        # entrypoint's pixi-info probe finds mojo already installed.
-        # The volume name is prefixed with the Compose project name.
-        VOLUME_NAME="odyssey_pixi-cache"
-        # Idempotent: volume may already exist. `podman volume inspect` exits 0
-        # only when the volume is present.
-        if ! podman volume inspect "$VOLUME_NAME" >/dev/null 2>&1; then
-          podman volume create "$VOLUME_NAME"
-        fi
-        # Check if already seeded (any mojo binary present under the volume)
-        SEEDED=$(podman run --rm \
-          --user root \
-          -v "${VOLUME_NAME}:/mnt/pixi-seed" \
-          odyssey:dev \
-          bash -c "find /mnt/pixi-seed -name 'mojo' -type f 2>/dev/null | grep -q . && echo yes || echo no")
-        if [ "$SEEDED" = "no" ]; then
-          echo "Seeding pixi-cache volume from image layer..."
-          podman run --rm \
-            --user root \
-            -v "${VOLUME_NAME}:/mnt/pixi-seed" \
-            odyssey:dev \
-            bash -c "cp -a /home/dev/.cache/pixi/. /mnt/pixi-seed/"
-          echo "Seeding complete."
-        else
-          echo "pixi-cache volume already seeded — skipping."
-        fi
+    # NOTE (ADR-018): the former "Seed pixi-cache volume" step is gone. The
+    # uv-managed venv (incl. the Mojo compiler) is baked into the image at
+    # /home/dev/.venv ($UV_PROJECT_ENVIRONMENT) and is NOT shadowed by any
+    # runtime volume mount, so the entrypoint's `uv sync` check finds mojo
+    # already present with no per-run seeding. The `uv-cache` volume only holds
+    # the download cache and may start empty without any correctness impact.
 
     - name: Fix workspace permissions
       shell: bash
@@ -96,13 +67,8 @@ runs:
         # ephemeral single-use VMs.
         #
         # Must run BEFORE `podman compose up -d` because the container
-        # entrypoint immediately tries to write `.pixi/.gitignore` and
-        # symlink `.pixi/envs` during `pixi install` — racing this chmod
-        # caused intermittent "Permission denied" failures on CI runs that
-        # bypassed the pixi-cache seed.
-        #
-        # Some files (e.g. socket inodes inside .pixi/) cannot be chmod'd —
-        # log unexpected failures to stderr but do not fail the job.
+        # entrypoint may write into the workspace at startup — racing this
+        # chmod caused intermittent "Permission denied" failures.
         if ! chmod -R a+rwX .; then
           echo "warn: 'chmod -R a+rwX .' encountered files it could not modify" >&2
         fi
@@ -119,7 +85,7 @@ runs:
             | xargs -r podman inspect -f '{{.State.Running}}' 2>/dev/null \
             | grep -q true; then
             echo "Container is running"
-            podman compose exec -T odyssey-dev pixi run mojo --version
+            podman compose exec -T odyssey-dev uv run mojo --version
             exit 0
           fi
           echo "Waiting for container... ($i/30)"

@@ -233,7 +233,7 @@ git push --force-with-lease origin dependabot/github_actions/github-actions-1bd4
 ### For PR #3117 (pre-commit failure)
 
 - Investigate the `pre-commit` failure - likely legitimate issue
-- May need to run `pixi run pre-commit` locally and fix formatting
+- May need to run `uv run pre-commit` locally and fix formatting
 - `Core Utilities` failure may be flaky (re-run workflow)
 
 ### For PR #3116 (Core NN Modules failure)

@@ -18,7 +18,7 @@ from typing import Optional, Dict
 sys.path.insert(0, str(Path(__file__).parent))
 from hephaestus.utils import get_repo_root
 
-# defusedxml is a hard dependency (see pixi.toml) and is required for secure
+# defusedxml is a hard dependency (see pyproject.toml) and is required for secure
 # XML parsing. We intentionally do NOT fall back to the stdlib xml.etree parser,
 # which is vulnerable to XXE / billion-laughs attacks (CWE-611). Falling back
 # would silently downgrade security and also trips Semgrep's

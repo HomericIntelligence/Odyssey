@@ -76,7 +76,7 @@ If you're stuck with a hook failure:
 
 1. Read the hook's error message carefully
 2. Check `.pre-commit-config.yaml` for hook configuration
-3. Run the hook manually: `pixi run pre-commit hook-name --all-files`
+3. Run the hook manually: `uv run pre-commit hook-name --all-files`
 4. Ask for help in issue/PR comments
 
 ## References

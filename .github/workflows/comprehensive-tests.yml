@@ -294,7 +294,10 @@ jobs:
           python scripts/audit_shared_links.py
 
   # ============================================================================
-  # Dependency Sync Validation - pixi.toml is single source of truth
+  # Dependency Sync Validation - pyproject.toml + uv.lock are the single source
+  # of truth (ADR-018). The former check reconciled auto-generated
+  # requirements*.txt against pixi.toml; under uv, `uv lock --check` is the
+  # authoritative freshness gate (it fails if uv.lock is stale vs pyproject.toml).
   # ============================================================================
   validate-dep-sync:
     runs-on: ubuntu-latest
@@ -305,16 +308,18 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
 
-      - name: Set up Python
-        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1  # v6
+      - name: Install uv
+        uses: astral-sh/setup-uv@37802adc94f370d6bfd71619e3f0bf239e1f3b78  # v7
         with:
-          python-version: '3.11'
+          enable-cache: true
+          cache-dependency-glob: "uv.lock"
 
-      - name: Install hephaestus
-        run: pip install "homericintelligence-hephaestus>=0.9.0,<1"
-
-      - name: Validate dependency consistency
-        run: python scripts/check_dep_sync.py
+      - name: Validate uv.lock is consistent with pyproject.toml
+        run: |
+          if ! uv lock --check; then
+            echo "::error::uv.lock is stale — run 'uv lock' locally and commit uv.lock"
+            exit 1
+          fi
 
   # ============================================================================
   # Comprehensive Mojo Test Suite - Parallelized by Test Group
@@ -550,7 +555,7 @@ jobs:
   # ============================================================================
   # NOTE: previously had a single-element matrix as a #6433 workaround placeholder.
   # That workaround was removed once modular/modular#6433 was fixed upstream
-  # (confirmed in the Mojo nightly pinned in pixi.toml).
+  # (confirmed in the Mojo compiler version pinned in pyproject.toml).
   # `test-mojo-comprehensive` above now provides the real `matrix:` /
   # `fail-fast:` literals required by the workflow-property smoke tests.
   test-configs:

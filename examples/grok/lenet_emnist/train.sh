@@ -77,8 +77,8 @@ COMMON_FLAGS=(
 )
 
 echo "==> profile: $PROFILE"
-echo "==> command: pixi run mojo run -I src examples/grok/lenet_emnist/run_train.mojo ${COMMON_FLAGS[*]} ${PROFILE_FLAGS[*]} $*"
+echo "==> command: uv run mojo run -I src examples/grok/lenet_emnist/run_train.mojo ${COMMON_FLAGS[*]} ${PROFILE_FLAGS[*]} $*"
 echo
 
-exec pixi run mojo run -I src examples/grok/lenet_emnist/run_train.mojo \
+exec uv run mojo run -I src examples/grok/lenet_emnist/run_train.mojo \
   "${COMMON_FLAGS[@]}" "${PROFILE_FLAGS[@]}" "$@"

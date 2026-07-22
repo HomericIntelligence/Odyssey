@@ -11,7 +11,7 @@ This wheel bundles the compiled `odyssey.mojopkg` so consumers can
 
 Then in your Mojo project:
 
-    pixi run mojo run -I "$(python -c 'import odyssey; print(odyssey.import_dir())')" main.mojo
+    uv run mojo run -I "$(python -c 'import odyssey; print(odyssey.import_dir())')" main.mojo
 
 The wheel is pure-Python — no compiled bindings. Mojo→Python bindings via
 `@export def PyInit_*` + `mojo build --emit shared-lib` are out of scope

@@ -3,7 +3,7 @@
 # requires. All job name: strings are the EXACT context strings — do not rename.
 #
 # Reference implementation: HomericIntelligence/ProjectScylla _required.yml
-# Stack: Mixed Python + Mojo (pixi-managed), pytest for Python tests, mojo test for Mojo.
+# Stack: Mixed Python + Mojo (uv-managed, ADR-018), pytest for Python tests, `mojo <file>` runs for Mojo.
 name: Required Checks
 
 on:
@@ -120,11 +120,11 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Set up Pixi
-        uses: ./.github/actions/setup-pixi
+      - name: Set up uv
+        uses: ./.github/actions/setup-uv
 
       - name: Install pre-commit
-        run: pixi run pip install pre-commit
+        run: uv pip install pre-commit
 
       - name: Cache pre-commit environments
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v5
@@ -137,7 +137,7 @@ jobs:
       - name: Run pre-commit (all files, skip mojo-format)
         # mojo-format is advisory/non-blocking due to Mojo 0.26.x formatter limitations —
         # see docs/dev/mojo-glibc-compatibility.md. All other hooks are enforced.
-        run: SKIP=mojo-format pixi run pre-commit run --all-files --show-diff-on-failure
+        run: SKIP=mojo-format uv run pre-commit run --all-files --show-diff-on-failure
 
       - name: Enforce no .__matmul__() call sites
         run: |
@@ -158,13 +158,13 @@ jobs:
           fi
 
       - name: Install mypy and stubs
-        run: pixi run pip install mypy types-PyYAML
+        run: uv pip install mypy types-PyYAML
 
       - name: Run mypy
         # mypy.ini at repo root is the single source of truth for mypy config.
         # Exclude generators/ due to module path ambiguity (same as pre-commit.yml).
         run: |
-          pixi run mypy --exclude 'generators/' scripts/
+          uv run mypy --exclude 'generators/' scripts/
 
   # ── 2. unit-tests ──────────────────────────────────────────────────────────
   unit-tests:
@@ -175,15 +175,15 @@ jobs:
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
 
-      - name: Set up Pixi
-        uses: ./.github/actions/setup-pixi
+      - name: Set up uv
+        uses: ./.github/actions/setup-uv
 
-      - name: Check pre-commit vs pixi version drift
-        run: pixi run python scripts/check_precommit_versions.py
+      - name: Check pre-commit vs uv version drift
+        run: uv run python scripts/check_precommit_versions.py
 
       - name: Run Python unit tests
         run: |
-          pixi run pytest tests/unit/ \
+          uv run pytest tests/unit/ \
             --override-ini="addopts=" \
             -v --strict-markers \
             --cov=scripts \
@@ -210,8 +210,8 @@ jobs:
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
 
-      - name: Set up Pixi
-        uses: ./.github/actions/setup-pixi
+      - name: Set up uv
+        uses: ./.github/actions/setup-uv
 
       - name: Run Python integration tests
         # tests/integration/ contains architecture-level tests that validate
@@ -220,7 +220,7 @@ jobs:
         # Exit code 5 means no tests collected (integration dir has only .mojo tests).
         run: |
           set +e
-          pixi run pytest tests/integration/ \
+          uv run pytest tests/integration/ \
             --override-ini="addopts=" \
             -v --strict-markers \
             --junitxml=junit-integration.xml
@@ -236,11 +236,11 @@ jobs:
         # Secondary integration validator: ensures all YAML configs in configs/
         # parse correctly and pass yamllint structure checks.
         run: |
-          pixi run pip install yamllint
+          uv pip install yamllint
           find configs/ -type f \( -name "*.yaml" -o -name "*.yml" \) 2>/dev/null | \
             sort | while read -r f; do
               echo "Validating $f ..."
-              pixi run python3 -c "import yaml; yaml.safe_load(open('$f'))" || exit 1
+              uv run python3 -c "import yaml; yaml.safe_load(open('$f'))" || exit 1
             done
           echo "All config YAML files are valid."
 
@@ -288,7 +288,7 @@ jobs:
           #
           # Three transitive-dep CVEs remain allowlisted because upstream has
           # not published a fix version (tracked in #5386). The other 10 CVEs
-          # were resolved by version floors in pixi.toml and are no longer
+          # were resolved by version floors in pyproject.toml and are no longer
           # ignored. Drop the remaining entries once upstream lands a fix.
           set -euo pipefail
           # --upgrade is required: without it, pip leaves the runner's
@@ -359,17 +359,17 @@ jobs:
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
 
-      - name: Set up Pixi
-        uses: ./.github/actions/setup-pixi
+      - name: Set up uv
+        uses: ./.github/actions/setup-uv
 
       - name: Build Python package (sdist + wheel)
-        # pixi.toml has no build task; use python -m build directly.
+        # pyproject.toml has no build task; use python -m build directly.
         # The Mojo src/odyssey library is validated separately in build-validation.yml
         # (requires the Mojo runtime / container setup).
         # Use isolated build (default) so build dependencies are fetched automatically.
         run: |
-          pixi run pip install build
-          pixi run python -m build
+          uv pip install build
+          uv run python -m build
           ls -lh dist/
 
   # ── 7. schema-validation ───────────────────────────────────────────────────
@@ -413,38 +413,47 @@ jobs:
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
 
-      - name: Cross-check pyproject.toml and pixi.toml versions
+      - name: Cross-check pyproject.toml and mojo.toml versions
+        # pixi.toml is gone (ADR-018); pyproject.toml is now the single source of
+        # truth. Cross-check it against mojo.toml so a version bump that touches
+        # only one still trips this required check.
         run: |
           python3 - <<'EOF'
-          import tomllib, sys
+          import re, sys, tomllib
 
           with open("pyproject.toml", "rb") as f:
               pyproject = tomllib.load(f)
-          with open("pixi.toml", "rb") as f:
-              pixi = tomllib.load(f)
-
           pyproject_ver = pyproject.get("project", {}).get("version") or \
                           pyproject.get("tool", {}).get("poetry", {}).get("version")
-          # pixi.toml stores version under [workspace] in this repo
-          pixi_ver = pixi.get("workspace", {}).get("version") or \
-                     pixi.get("package", {}).get("version")
+
+          # mojo.toml stores version under [package]
+          with open("mojo.toml", "rb") as f:
+              mojo = tomllib.load(f)
+          mojo_ver = mojo.get("package", {}).get("version")
 
           print(f"pyproject.toml version : {pyproject_ver}")
-          print(f"pixi.toml version      : {pixi_ver}")
+          print(f"mojo.toml version      : {mojo_ver}")
 
-          if pyproject_ver and pixi_ver and pyproject_ver != pixi_ver:
-              print(f"::error::Version mismatch: pyproject.toml={pyproject_ver}, pixi.toml={pixi_ver}")
+          if pyproject_ver and mojo_ver and pyproject_ver != mojo_ver:
+              print(f"::error::Version mismatch: pyproject.toml={pyproject_ver}, mojo.toml={mojo_ver}")
               sys.exit(1)
           print("Versions are consistent.")
           EOF
 
-      - name: Set up Pixi
-        uses: ./.github/actions/setup-pixi
+      - name: Install uv
+        uses: astral-sh/setup-uv@37802adc94f370d6bfd71619e3f0bf239e1f3b78  # v7
+        with:
+          enable-cache: true
+          cache-dependency-glob: "uv.lock"
 
-      - name: Validate pixi.lock is up-to-date
+      - name: Validate uv.lock is up-to-date
+        # `uv lock --check` resolves in-memory and fails if uv.lock is stale
+        # relative to pyproject.toml — the uv equivalent of the former
+        # `pixi install --locked` freshness gate. Does not download the (large)
+        # Mojo compiler, so no full `uv sync` is needed here.
         run: |
-          if ! pixi install --locked 2>/dev/null; then
-            echo "::error::pixi.lock is stale — run 'pixi install' locally and commit pixi.lock"
+          if ! uv lock --check; then
+            echo "::error::uv.lock is stale — run 'uv lock' locally and commit uv.lock"
             exit 1
           fi
 
@@ -664,11 +673,12 @@ jobs:
             exit 1
           fi
 
-          # 2. Version must agree with pixi.toml (single-source-of-truth guard).
-          pixi_version="$(python3 -c "import tomllib; d=tomllib.load(open('pixi.toml','rb')); print(d.get('workspace',{}).get('version') or d.get('package',{}).get('version') or '')")"
-          echo "pixi.toml version: $pixi_version"
-          if [ -n "$pixi_version" ] && [ "$pixi_version" != "$version" ]; then
-            echo "::error::Version mismatch: pyproject.toml=$version pixi.toml=$pixi_version"
+          # 2. Version must agree with mojo.toml (single-source-of-truth guard;
+          #    pixi.toml was removed in the uv migration — ADR-018).
+          mojo_version="$(python3 -c "import tomllib; d=tomllib.load(open('mojo.toml','rb')); print(d.get('package',{}).get('version') or '')")"
+          echo "mojo.toml version: $mojo_version"
+          if [ -n "$mojo_version" ] && [ "$mojo_version" != "$version" ]; then
+            echo "::error::Version mismatch: pyproject.toml=$version mojo.toml=$mojo_version"
             exit 1
           fi
 

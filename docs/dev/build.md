@@ -71,14 +71,14 @@ git clone https://github.com/HomericIntelligence/Odyssey.git
 cd Odyssey
 docker-compose up -d Odyssey-dev
 docker-compose exec Odyssey-dev bash
-pixi run pytest tests/
+uv run pytest tests/
 ```
 
-**Pixi Local**:
+**uv Local**:
 
 ```bash
-pixi install
-pixi shell
+uv sync --locked
+source .venv/bin/activate
 pre-commit install
 pytest tests/
 ```
@@ -91,8 +91,8 @@ pytest tests/
 
 ## Build Instructions
 
-**File**: `BUILD_INSTRUCTIONS.md`, `EXECUTE_BUILD.md`: pixi.toml deps, mojo package steps.
+**File**: `BUILD_INSTRUCTIONS.md`, `EXECUTE_BUILD.md`: pyproject.toml deps, mojo package steps.
 
-**Troubleshooting**: Docker perms, pixi cache rm, mojo version 0.26.1+.
+**Troubleshooting**: Docker perms, uv cache clean, mojo 1.0.0b2.
 
 Updated: 2025-11-24

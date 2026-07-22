@@ -23,10 +23,11 @@
 # Changes to these files require extra scrutiny due to project-wide impact
 
 # Repository Configuration
-# - Pixi environment affects all developers
+# - The uv-managed environment (pyproject.toml + uv.lock) affects all developers
 # - Pre-commit hooks enforce code quality
 # - Git configuration impacts workflows
-pixi.toml                           @mvillmow
+pyproject.toml                      @mvillmow
+uv.lock                             @mvillmow
 .pre-commit-config.yaml             @mvillmow
 .gitignore                          @mvillmow
 .gitattributes                      @mvillmow

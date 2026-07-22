@@ -371,7 +371,7 @@ Hooks enable proactive automation and safety checks. Use hooks for guardrails an
 | **Safety** | compile | Zero-warnings | Fail on warnings |
 | **Safety** | pr_create | Issue link | Block if missing |
 | **Safety** | git_push | Block main | Fail if direct |
-| **Automation** | file_save | Auto-format | Run pixi run mojo format |
+| **Automation** | file_save | Auto-format | Run uv run mojo format |
 | **Automation** | git_commit | Pre-commit | Execute hooks |
 | **Automation** | pr_merge | Cleanup | Remove worktree |
 
@@ -431,7 +431,8 @@ Skills with `mcp_fallback` in YAML frontmatter will be updated to use direct CLI
 
 ### Mojo Development Guidelines
 
-This project uses **Mojo 1.0.0b2** (pinned in pixi.toml).
+This project uses **Mojo 1.0.0b2** (pinned as `mojo==1.0.0b2` in `pyproject.toml`).
+The Mojo compiler is now installed via uv from the Modular PyPI index (ADR-018).
 Official docs: <https://mojolang.org/docs/>
 
 **Quick Reference**: See [mojo-guidelines.md](/.claude/shared/mojo-guidelines.md) for v1.0+ syntax
@@ -475,17 +476,22 @@ them. File a minimal reproducer at modular/modular and fix forward.
 
 ## Environment Setup
 
-This project uses Pixi for environment management:
+This project uses [uv](https://docs.astral.sh/uv/) for environment management:
 
 ```bash
-# Pixi is already configured - dependencies are in pixi.toml
+# Install all dependencies (Python tools + Mojo compiler) from the lockfile
+uv sync --locked
 # Mojo is the primary language target for future implementations
 ```
 
-**`pixi.toml` is the single source of truth for all dependencies** (Python packages, Mojo
-version, dev tools, and scripts) — including inside Docker/container contexts. Do NOT add
-dependencies to `requirements*.txt` or `pyproject.toml` — those files are not used by this
-project and carry no authority. Always update `pixi.toml` when adding or changing a dependency.
+**`pyproject.toml` is the single source of truth for all dependencies** (Python packages, Mojo
+version, and dev tools), locked in `uv.lock` — including inside Docker/container contexts. The
+Mojo compiler is installed via uv from the Modular PyPI index (ADR-018), version pinned
+`mojo==1.0.0b2`, configured in `pyproject.toml` under `[tool.uv]` as an index named `modular`
+(`extra-index-url https://modular.gateway.scarf.sh/simple/`). It is **no longer** installed from
+conda/pixi. To add or change a dependency, edit `pyproject.toml` then run `uv lock`; dev tools
+live under `[dependency-groups] dev`. Do NOT hand-edit `requirements*.txt` — they are generated
+from `pyproject.toml`.
 
 **Environment Variables**: Copy `.env.example` to `.env` and customize for your system:
 
@@ -497,22 +503,17 @@ See `.env.example` for all available variables (container user mapping, native v
 execution, log levels, etc.). The justfile auto-detects most values, so `.env` is optional
 for typical setups.
 
-**Pixi env layout (detached-environments)**: `.pixi/config.toml` sets
-`detached-environments = true`, so pixi stores environments in the per-user cache
-directory (`~/.cache/pixi/envs/…`) rather than inside the workspace. This prevents
-the host and container pixi envs from colliding at the same filesystem path:
+**uv env layout**: `uv sync --locked` creates a `.venv/` in the workspace root from the
+`uv.lock` lockfile. This keeps the host and container environments separate:
 
-- **Host env** (`~/.cache/pixi/…`) — used by pre-commit hooks and direct `pixi run`
-  calls on the host (Python tools: ruff, mypy, bandit).
-- **Container env** (`/home/dev/.cache/pixi/…`) — used by `just build`, `just test-mojo`,
-  and all other justfile recipes that route through `podman compose exec`. Mojo must run
-  from the container because it requires glibc ≥ 2.32 (host glibc may be older).
+- **Host env** — used by pre-commit hooks and direct `uv run` calls on the host
+  (Python tools: ruff, mypy, bandit).
+- **Container env** — used by `just build`, `just test-mojo`, and all other justfile
+  recipes that route through `podman compose exec`. Mojo must run from the container
+  because it requires glibc ≥ 2.32 (host glibc may be older).
 
-Pixi creates a convenience **symlink** at `.pixi/envs → <per-user-cache>/envs` pointing to
-the actual env location. This symlink is expected and harmless (it's ignored by git via
-`.pixi/.gitignore`). An actual directory at `.pixi/envs/` would indicate a misconfiguration;
-a pre-commit guard catches that case. If `.pixi/envs` is an actual directory, run
-`rm -rf .pixi/envs && pixi install`.
+If the workspace `.venv/` becomes inconsistent, run `rm -rf .venv && uv sync --locked` to
+recreate it from the lockfile.
 
 **GLIBC Constraint**: CI runners use Ubuntu with GLIBC 2.35 (Mojo requires 2.32+). Any
 native binaries built locally must be compatible with this version to avoid CI failures.
@@ -632,7 +633,7 @@ Pre-commit hooks automatically check code quality before commits. The hooks incl
 
 ```bash
 # Install pre-commit hooks (one-time setup)
-pixi run pre-commit install
+uv run pre-commit install
 
 # Run hooks manually on all files
 just pre-commit-all
@@ -803,7 +804,7 @@ Every component follows a hierarchical workflow with clear dependencies:
 Two-tier architecture: **Tier 1** layerwise unit tests (every PR, ~12 min, FP-representable special
 values 0.0/0.5/1.0/1.5/-1.0/-0.5, all 7 models) and **Tier 2** E2E integration tests (weekly,
 real EMNIST/CIFAR-10 datasets). Parametric layers validated with gradient checking (seed=42,
-epsilon=1e-5). Run with: `pixi run mojo test tests/models/test_<model>_layers.mojo`
+epsilon=1e-5). Run with: `uv run mojo test tests/models/test_<model>_layers.mojo`
 
 See [Testing Strategy Guide](docs/dev/testing-strategy.md) for full documentation.
 
@@ -1037,7 +1038,7 @@ language on all code fences; no lines >120 chars; file ends with newline.
 
 ```bash
 # Lint markdown locally
-pixi run npx markdownlint-cli2 path/to/file.md
+uv run npx markdownlint-cli2 path/to/file.md
 ```
 
 ## Debugging

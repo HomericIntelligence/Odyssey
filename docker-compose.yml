@@ -13,7 +13,7 @@ services:
     image: odyssey:dev
     volumes:
       - .:/workspace:Z
-      - pixi-cache:/home/${USER_NAME:-dev}/.cache/pixi
+      - uv-cache:/home/${USER_NAME:-dev}/.cache/uv
       - pre-commit-cache:/home/${USER_NAME:-dev}/.cache/pre-commit
       - ${HOME}/.gitconfig:/home/${USER_NAME:-dev}/.gitconfig:ro
     entrypoint: ["/usr/local/bin/entrypoint.sh"]
@@ -23,8 +23,8 @@ services:
       - GROUP_ID=${GROUP_ID}
       - ENVIRONMENT=development
       - TERM=xterm-256color
-      - PIXI_HOME=/home/${USER_NAME:-dev}/.pixi
-      - PIXI_CACHE_DIR=/home/${USER_NAME:-dev}/.cache/pixi
+      - UV_CACHE_DIR=/home/${USER_NAME:-dev}/.cache/uv
+      - UV_PROJECT_ENVIRONMENT=/home/${USER_NAME:-dev}/.venv
     working_dir: /workspace
     stdin_open: true
     tty: true
@@ -58,7 +58,7 @@ services:
     image: odyssey:ci
     volumes:
       - .:/workspace
-      - pixi-cache:/home/${USER_NAME:-dev}/.cache/pixi
+      - uv-cache:/home/${USER_NAME:-dev}/.cache/uv
     entrypoint: ["/usr/local/bin/entrypoint.sh"]
     environment:
       - HOME=/home/${USER_NAME:-dev}
@@ -66,8 +66,8 @@ services:
       - GROUP_ID=${GROUP_ID}
       - ENVIRONMENT=ci
       - CI=true
-      - PIXI_HOME=/home/${USER_NAME:-dev}/.pixi
-      - PIXI_CACHE_DIR=/home/${USER_NAME:-dev}/.cache/pixi
+      - UV_CACHE_DIR=/home/${USER_NAME:-dev}/.cache/uv
+      - UV_PROJECT_ENVIRONMENT=/home/${USER_NAME:-dev}/.venv
     working_dir: /workspace
     # Resource limits guard the host from runaway CI jobs OOMing the box
     # (#5313/#5317). Tunable via env vars; same defaults as the dev service.
@@ -101,7 +101,6 @@ services:
       - USER_ID=${USER_ID}
       - GROUP_ID=${GROUP_ID}
       - ENVIRONMENT=production
-      - PIXI_HOME=/home/${USER_NAME:-dev}/.pixi
     working_dir: /workspace
     # Resource limits guard the host from runaway training jobs OOMing the box
     # (#5313/#5317). Tunable via env vars; same defaults as the dev service.
@@ -113,7 +112,7 @@ services:
     cpus: ${ODYSSEY_CPU_LIMIT:-6.0}
 
 volumes:
-  pixi-cache:
+  uv-cache:
     driver: local
   pre-commit-cache:
     driver: local

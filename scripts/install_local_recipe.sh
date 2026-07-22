@@ -1,7 +1,14 @@
 #!/usr/bin/env bash
 #
-# Smoke-test the locally-built conda package by installing it into a scratch
-# pixi env and running a one-line import. Called by `just install-local`.
+# Smoke-test the locally-built *conda* package by installing it into a scratch
+# pixi/conda env and running a one-line import. Called by `just install-local`.
+#
+# INTENTIONAL pixi/conda EXCEPTION (ADR-018): the rest of the repo migrated to
+# uv, but this script tests the CONDA distributable published to
+# modular-community. Installing a `.conda` artifact is inherently a
+# conda-ecosystem operation, so it still shells out to `pixi`/conda. This runs
+# only at conda-release time via `just install-local` (never a required CI
+# check), and requires `pixi` on PATH. It has no bearing on the uv dev workflow.
 #
 # Why a shell script? `pixi add --channel <local-path>` requires shelling out
 # and the surrounding logic is `mkdir`/`pixi init`/`pixi run` — no Mojo or
@@ -54,8 +61,8 @@ def main() raises:
     print("install-local smoke test: OK")
 EOF
 
-echo "▶️  pixi run mojo run smoke_test.mojo"
-pixi run mojo run smoke_test.mojo
+echo "▶️  uv run mojo run smoke_test.mojo"
+uv run mojo run smoke_test.mojo
 
 echo
 echo "✅ Local recipe install validated."

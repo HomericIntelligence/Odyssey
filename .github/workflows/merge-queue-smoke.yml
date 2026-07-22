@@ -57,26 +57,28 @@ jobs:
             xargs check-jsonschema \
               --schemafile https://json.schemastore.org/github-workflow
 
-      - name: Cross-check pyproject.toml and pixi.toml versions
+      - name: Cross-check pyproject.toml and mojo.toml versions
+        # pixi.toml is gone (ADR-018); pyproject.toml is now the single source of
+        # truth. Cross-check it against mojo.toml so a version bump that touches
+        # only one still trips this required check.
         run: |
           python3 - <<'EOF'
           import tomllib, sys
 
           with open("pyproject.toml", "rb") as f:
               pyproject = tomllib.load(f)
-          with open("pixi.toml", "rb") as f:
-              pixi = tomllib.load(f)
+          with open("mojo.toml", "rb") as f:
+              mojo = tomllib.load(f)
 
           pyproject_ver = pyproject.get("project", {}).get("version") or \
                           pyproject.get("tool", {}).get("poetry", {}).get("version")
-          pixi_ver = pixi.get("workspace", {}).get("version") or \
-                     pixi.get("package", {}).get("version")
+          mojo_ver = mojo.get("package", {}).get("version")
 
           print(f"pyproject.toml version : {pyproject_ver}")
-          print(f"pixi.toml version      : {pixi_ver}")
+          print(f"mojo.toml version      : {mojo_ver}")
 
-          if pyproject_ver and pixi_ver and pyproject_ver != pixi_ver:
-              print(f"::error::Version mismatch: pyproject.toml={pyproject_ver}, pixi.toml={pixi_ver}")
+          if pyproject_ver and mojo_ver and pyproject_ver != mojo_ver:
+              print(f"::error::Version mismatch: pyproject.toml={pyproject_ver}, mojo.toml={mojo_ver}")
               sys.exit(1)
           print("Versions are consistent.")
           EOF

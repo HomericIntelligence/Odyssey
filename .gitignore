@@ -1,6 +1,8 @@
-# pixi environments
-.pixi/*
-!.pixi/config.toml
+# uv-managed virtual environment + caches (ADR-018)
+.venv/
+.uv-cache/
+# Legacy pixi env dirs (kept ignored in case a stale checkout still has them)
+.pixi/
 
 # Python cache directories
 __pycache__
@@ -58,3 +60,4 @@ checkpoints/
 /test_cumulative.mojo
 lenet5_weights_autograd/
 .claude-prompt-*.md
+__pycache__/

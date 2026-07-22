@@ -10,7 +10,7 @@ This is the swarm-agent reference: when an agent hits an error in Phase D
 
 ## How to use this document
 
-1. Run `pixi run mojo build <file> -I .` (or `mojo package` for libraries).
+1. Run `uv run mojo build <file> -I .` (or `mojo package` for libraries).
 2. Match the first error message against a recipe section below.
 3. Apply the fix, re-run build, repeat.
 4. If the error is not listed here, escalate: file an upstream issue at
@@ -255,7 +255,7 @@ Run with `mojo run tests/path/test_foo.mojo`.
 
 The repo's test runner is being replaced wholesale in Phase B. Once
 `scripts/run_mojo_tests.py` exists, agents should NOT invoke `mojo run`
-directly — call `pixi run python scripts/run_mojo_tests.py <path>` instead.
+directly — call `uv run python scripts/run_mojo_tests.py <path>` instead.
 
 ### Reference
 

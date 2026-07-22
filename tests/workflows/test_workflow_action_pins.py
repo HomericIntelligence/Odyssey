@@ -43,7 +43,7 @@ def test_no_tag_pinned_actions(workflow_file: Path) -> None:
 def test_sha_pinned_actions_have_version_comment(workflow_file: Path) -> None:
     """Every SHA-pinned 'uses:' line must include a '#' comment for human readability."""
     for i, line in enumerate(workflow_file.read_text().splitlines(), 1):
-        # Skip local composite action references (e.g. uses: ./.github/actions/setup-pixi)
+        # Skip local composite action references (e.g. uses: ./.github/actions/setup-uv)
         if SHA_RE.search(line) and "./.github" not in line:
             assert COMMENT_RE.search(line), (
                 f"{workflow_file.name}:{i}: SHA-pinned action missing version comment: {line.strip()}"

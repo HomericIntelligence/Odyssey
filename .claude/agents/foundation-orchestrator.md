@@ -144,7 +144,7 @@ Spawn sub-agent: Research optimal build system patterns for Mojo projects
 
 **Context:**
 - Section spec: `/docs/specs/foundation-setup.md:40-100`
-- Existing configs: `/pixi.toml:1-50`
+- Existing configs: `/pyproject.toml:1-50`
 - Requirements: Multi-platform support, CI/CD integration
 - Related issues: #123, #124
 

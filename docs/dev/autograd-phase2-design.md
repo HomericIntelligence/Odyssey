@@ -135,7 +135,7 @@ wrappers and dispatch arms).
   `optimizer.step(params, tape)`. Manual `*_backward` chain eliminated.
 - Loss curve + final test accuracy within 1 percentage point of the existing manual-grad version after 10 epochs.
 - 6+ new `variable_*` ops in `variable.mojo` (flatten, linear, conv2d, maxpool2d, cross_entropy, optionally batch_norm2d).
-- Tests pass at `pixi run mojo run tests/odyssey/autograd/test_variable_layers.mojo`.
+- Tests pass at `uv run mojo run tests/odyssey/autograd/test_variable_layers.mojo`.
 - autograd/README.md status updated, TODO.md Phase 2 items checked off.
 - All pre-commit hooks pass (no `--no-verify`).
 - PR opened, auto-merge enabled.

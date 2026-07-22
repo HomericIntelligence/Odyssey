@@ -254,14 +254,15 @@ jobs:
 
               # Run Python tests if they exist
               if [ -n "$(find "$paper_dir/tests" -name 'test_*.py' 2>/dev/null)" ]; then
-                if ! podman compose exec -T odyssey-dev bash -c "pixi run pytest $paper_dir/tests --verbose"; then
+                if ! podman compose exec -T odyssey-dev bash -c "uv run pytest $paper_dir/tests --verbose"; then
                   failed_papers+=("$paper_dir (pytest)")
                 fi
               fi
 
-              # Run Mojo tests if they exist
+              # Run Mojo tests if they exist. The PyPI Mojo build has no `mojo
+              # test` subcommand (ADR-018) — run each test file as `mojo <file>`.
               if [ -n "$(find "$paper_dir/tests" -name 'test_*.mojo' 2>/dev/null)" ]; then
-                if ! podman compose exec -T odyssey-dev bash -c "pixi run mojo test -I . $paper_dir/tests --verbose"; then
+                if ! podman compose exec -T odyssey-dev bash -c "for f in \$(find $paper_dir/tests -name 'test_*.mojo'); do echo \"Running \$f\"; uv run mojo --Werror -I src -I . \"\$f\" || exit 1; done"; then
                   failed_papers+=("$paper_dir (mojo test)")
                 fi
               fi
@@ -320,11 +321,11 @@ jobs:
 
             # Run training script with quick validation mode
             if [ -f "$paper_dir/train.py" ]; then
-              if ! podman compose exec -T odyssey-dev bash -c "pixi run python $paper_dir/train.py --quick-validation --epochs 1"; then
+              if ! podman compose exec -T odyssey-dev bash -c "uv run python $paper_dir/train.py --quick-validation --epochs 1"; then
                 failed_papers+=("$paper_dir (python)")
               fi
             elif [ -f "$paper_dir/train.mojo" ]; then
-              if ! podman compose exec -T odyssey-dev bash -c "pixi run mojo -I . $paper_dir/train.mojo --quick-validation --epochs 1"; then
+              if ! podman compose exec -T odyssey-dev bash -c "uv run mojo -I . $paper_dir/train.mojo --quick-validation --epochs 1"; then
                 failed_papers+=("$paper_dir (mojo)")
               fi
             fi

@@ -22,28 +22,16 @@ if [ ! -d "${HOME}/.modular" ]; then
     }
 fi
 
-# Ensure the workspace pixi environment is installed.
-# With detached-environments = true (.pixi/config.toml), pixi stores each env
-# in the per-user cache dir instead of <workspace>/.pixi/envs/. The path varies
-# by user and workspace hash, so we probe via `pixi info` rather than checking
-# a hardcoded path.
-_pixi_default_prefix() {
-    pixi info --json 2>/dev/null \
-        | python3 -c "
-import json, sys
-d = json.load(sys.stdin)
-for e in d.get('environments_info', []):
-    if e.get('name') == 'default':
-        print(e.get('prefix', ''))
-        break
-" 2>/dev/null || echo ""
-}
-_prefix=$(_pixi_default_prefix)
-if [ -z "$_prefix" ] || [ ! -x "$_prefix/bin/mojo" ]; then
-    echo "Initializing pixi environment inside container..."
-    pixi install
+# Ensure the workspace uv environment is present (incl. the Mojo compiler).
+# The venv lives at $UV_PROJECT_ENVIRONMENT (baked into the per-user home in the
+# image so the /workspace bind-mount does not shadow it). If the mojo binary is
+# missing — e.g. a fresh cache volume — materialise it via `uv sync --locked`.
+_UV_ENV="${UV_PROJECT_ENVIRONMENT:-$HOME/.venv}"
+if [ ! -x "$_UV_ENV/bin/mojo" ]; then
+    echo "Initializing uv environment inside container..."
+    uv sync --locked --no-install-project
 fi
-unset _prefix
+unset _UV_ENV
 
 # ---------------------------------------------------------------------------
 # Ensure test fixture directories are writable.
@@ -79,7 +67,6 @@ _ensure_writable() {
 
 _ensure_writable \
     build \
-    .pixi \
     datasets \
     lenet5_weights \
     tests/configs/fixtures \
@@ -93,7 +80,7 @@ _ensure_writable \
 # ---------------------------------------------------------------------------
 if [ -d ".git" ] && [ ! -f ".git/hooks/pre-commit" ]; then
     echo "Installing pre-commit git hooks..."
-    if ! pixi run pre-commit install --install-hooks 2>/dev/null; then
+    if ! uv run pre-commit install --install-hooks 2>/dev/null; then
         echo "warn: pre-commit install failed at container start (continuing — hooks can be installed later via 'just precommit')" >&2
     fi
 fi

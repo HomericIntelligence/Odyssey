@@ -88,7 +88,7 @@ gh pr checks <pr-number> --web
 # Run the same pre-commit checks that CI runs
 just pre-commit-all
 
-# Or if using pixi
+# Or if using uv
 just pre-commit-all
 ```text
 

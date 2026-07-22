@@ -111,10 +111,10 @@ just podman-clean
 just podman-rebuild
 ```
 
-### Pixi Lock Mismatch
+### uv Lock Mismatch
 
 ```bash
 # Update lockfile before building
-pixi install
-git add pixi.lock
+uv lock
+git add uv.lock
 ```

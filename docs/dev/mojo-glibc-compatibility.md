@@ -5,10 +5,10 @@
 The Mojo binary requires `GLIBC_2.32`, `GLIBC_2.33`, and `GLIBC_2.34`, which were introduced
 in glibc 2.32 (released 2020). Debian 10 (Buster) ships with glibc 2.28, which is too old.
 
-When running `pixi run mojo format` on an incompatible host, the binary fails with:
+When running `uv run mojo format` on an incompatible host, the binary fails with:
 
 ```text
-/home/user/.pixi/envs/default/bin/mojo: /lib/x86_64-linux-gnu/libc.so.6: version
+/home/user/.venv/bin/mojo: /lib/x86_64-linux-gnu/libc.so.6: version
 `GLIBC_2.32' not found
 ```
 
@@ -30,13 +30,13 @@ Debian 10 hosts to use `SKIP=mojo-format` as a persistent workaround.
 
 ## Solution
 
-A wrapper script `scripts/mojo-format-compat.sh` wraps `pixi run mojo format` and detects
+A wrapper script `scripts/mojo-format-compat.sh` wraps `uv run mojo format` and detects
 the GLIBC error at runtime. On incompatible hosts it exits `0` (skip) with a clear warning
 message instead of exiting `1` (failure). On compatible hosts it behaves identically to
 calling `mojo format` directly.
 
 The `.pre-commit-config.yaml` has been updated to use this wrapper with `language: script`
-so pre-commit invokes it directly without needing `pixi run` as the entrypoint.
+so pre-commit invokes it directly without needing `uv run` as the entrypoint.
 
 ### Wrapper Behavior
 
@@ -75,5 +75,5 @@ To format Mojo files on an incompatible host, run inside Docker:
 ```bash
 just shell
 # Inside container:
-pixi run mojo format path/to/file.mojo
+uv run mojo format path/to/file.mojo
 ```
