@@ -181,6 +181,23 @@ should be replaced with a delegating wrapper per this guide. New
 optimizers MUST NOT INLINE math in their OO wrapper — they must call
 `<name>_step`.
 
+## Test provenance
+
+| Test file | Introduced in |
+| --- | --- |
+| `tests/odyssey/training/optimizers/test_optimizer_delegator_equivalence.mojo` | PR #5684 (`bd8d6d99`) |
+
+Role: byte-identical regression barrier between `<name>_step` (functional)
+and `optimizers_oo/<name>.mojo` (OO). Assertions cover K=1, K=3, and
+raise-contract invocation shapes. See `## Drift prevention` for the
+rationale.
+
+Confirmed via
+`git log --follow tests/odyssey/training/optimizers/test_optimizer_delegator_equivalence.mojo`:
+the first commit in chronological order is `bd8d6d99`, the squash-merge
+of PR #5684. This is the canonical answer for any future contributor or
+agent investigating the test file's origin.
+
 ## Reference list (canonical examples)
 
 | Optimizer | Functional core | OO wrapper (canonical home: `optimizers_oo/`) |
