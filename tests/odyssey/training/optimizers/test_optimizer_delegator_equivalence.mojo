@@ -551,10 +551,12 @@ def test_adam_oo_matches_canonical_k3() raises:
     grads_c.append(_allocate_filled(n, g3_vals, DType.float64))
     for k in range(3):
         var t_c = k + 1
-        var out = adam_step(p_c, grads_c[k], m_c, v_c, t_c, lr, b1, b2, eps, wd)
-        p_c = out[0]
-        m_c = out[1]
-        v_c = out[2]
+        var out_func = adam_step(
+            p_c, grads_c[k], m_c, v_c, t_c, lr, b1, b2, eps, wd
+        )
+        p_c = out_func[0]
+        m_c = out_func[1]
+        v_c = out_func[2]
 
     # === OO (state threaded internally by `param_id` from one Variable) ===
     var p_oo = _allocate_filled(n, p_vals, DType.float64)
@@ -625,12 +627,12 @@ def test_rmsprop_with_momentum_oo_matches_canonical_k3() raises:
     grads_c.append(_allocate_filled(n, g2_vals, DType.float64))
     grads_c.append(_allocate_filled(n, g3_vals, DType.float64))
     for k in range(3):
-        var out = rmsprop_step(
+        var out_func = rmsprop_step(
             p_c, grads_c[k], square_c, 1, lr, alpha, eps, wd, momentum, buf_c
         )
-        p_c = out[0]
-        square_c = out[1]
-        buf_c = out[2]
+        p_c = out_func[0]
+        square_c = out_func[1]
+        buf_c = out_func[2]
 
     # === OO ===
     var p_oo = _allocate_filled(n, p_vals, DType.float64)
@@ -692,9 +694,9 @@ def test_adagrad_with_wd_oo_matches_canonical_k3() raises:
     grads_c.append(_allocate_filled(n, g2_vals, DType.float64))
     grads_c.append(_allocate_filled(n, g3_vals, DType.float64))
     for k in range(3):
-        var out = adagrad_step(p_c, grads_c[k], accum_c, lr, eps, wd)
-        p_c = out[0]
-        accum_c = out[1]
+        var out_func = adagrad_step(p_c, grads_c[k], accum_c, lr, eps, wd)
+        p_c = out_func[0]
+        accum_c = out_func[1]
 
     # === OO ===
     var p_oo = _allocate_filled(n, p_vals, DType.float64)
@@ -912,9 +914,9 @@ def test_lion_oo_matches_canonical_k3() raises:
     grads_c.append(_allocate_filled(n, g2_vals, DType.float64))
     grads_c.append(_allocate_filled(n, g3_vals, DType.float64))
     for k in range(3):
-        var out = lion_step(p_c, grads_c[k], m_c, lr, b1, b2, wd)
-        p_c = out[0]
-        m_c = out[1]
+        var out_func = lion_step(p_c, grads_c[k], m_c, lr, b1, b2, wd)
+        p_c = out_func[0]
+        m_c = out_func[1]
 
     # === OO (momenta[pid] threads via param_id + result[1]) ===
     var p_oo = _allocate_filled(n, p_vals, DType.float64)
@@ -970,9 +972,11 @@ def test_lars_oo_matches_canonical_k3() raises:
     grads_c.append(_allocate_filled(n, g2_vals, DType.float64))
     grads_c.append(_allocate_filled(n, g3_vals, DType.float64))
     for k in range(3):
-        var out = lars_step(p_c, grads_c[k], v_c, lr, momentum, wd, trust, eps)
-        p_c = out[0]
-        v_c = out[1]
+        var out_func = lars_step(
+            p_c, grads_c[k], v_c, lr, momentum, wd, trust, eps
+        )
+        p_c = out_func[0]
+        v_c = out_func[1]
 
     # === OO (velocities[pid] threads via param_id + result[1]) ===
     var p_oo = _allocate_filled(n, p_vals, DType.float64)
@@ -1036,12 +1040,12 @@ def test_ftrl_oo_matches_canonical_k3() raises:
     grads_c.append(_allocate_filled(n, g2_vals, DType.float64))
     grads_c.append(_allocate_filled(n, g3_vals, DType.float64))
     for k in range(3):
-        var out = ftrl_step(
+        var out_func = ftrl_step(
             p_c, grads_c[k], z_c, n_c, lr, alpha, beta, lambda1, lambda2
         )
-        p_c = out[0]
-        z_c = out[1]
-        n_c = out[2]
+        p_c = out_func[0]
+        z_c = out_func[1]
+        n_c = out_func[2]
 
     # === OO (both z_buffers AND n_buffers thread via result[1], result[2]) ===
     var p_oo = _allocate_filled(n, p_vals, DType.float64)
@@ -1308,12 +1312,12 @@ def test_adamw_oo_matches_canonical_k3() raises:
     grads_c.append(_allocate_filled(n, g3_vals, DType.float64))
     for k in range(3):
         var t_c = k + 1
-        var out = adamw_step(
+        var out_func = adamw_step(
             p_c, grads_c[k], m_c, v_c, t_c, lr, b1, b2, eps, wd
         )
-        p_c = out[0]
-        m_c = out[1]
-        v_c = out[2]
+        p_c = out_func[0]
+        m_c = out_func[1]
+        v_c = out_func[2]
 
     # OO (state threaded internally by `param_id` from one Variable)
     var p_oo = _allocate_filled(n, p_vals, DType.float64)
