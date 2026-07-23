@@ -522,21 +522,141 @@ def test_descent_on_non_square() raises:
 
 
 def test_shampoo_step_simple() raises:
-    """Smoke test for the convenience wrapper."""
+    """`shampoo_step_simple` matches the full step at documented defaults
+    (delegation parity — not just a smoke test).
+
+    The simple wrapper delegates to `shampoo_step` with
+    `beta_precond=0.95`, `beta_momentum=0.95`, `weight_decay=0.0`,
+    `ns_steps=8`, `eps=1e-10`, `max_precond_norm=1e6` (per shampoo.mojo).
+    Asserts exact equality on ALL FOUR output slots (params / L / R / momentum).
+    L and R accumulate the gradient Gram products and so drift per step; the
+    momentum buffer is updated on every step; with all-zero gradients the
+    trivially-passes case masks a regression in the simple wrapper's
+    delegation contract, so we additionally drive one step with a non-zero
+    gradient to exercise the actual update path. A future regression is
+    caught here rather than as a downstream divergent loss.
+    """
     print("Running test_shampoo_step_simple...")
 
+    # --- Pass 1: zero gradients — exercises the preconditioner-init path ---
+    # All-zero input tasks both wrappers with the same trivial state, so a
+    # delegation break that ALSO produces no-op output slips through — add a
+    # positive no-op assertion (the delegated step must produce a valid
+    # zero-grad result, NOT a default-constructed garbage array).
     var params = zeros([8, 16], DType.float32)
     var grad = zeros([8, 16], DType.float32)
-    var (L, R, m) = initialize_shampoo_state(params)
-
-    # Should not raise
-    var (p_new, _, _, _) = shampoo_step_simple(
-        params, grad, L, R, m, learning_rate=0.01
+    var (Lf, Rf, mf) = initialize_shampoo_state(params)
+    var (Ls, Rs, ms) = initialize_shampoo_state(params)
+    var full_p1 = shampoo_step(params, grad, Lf, Rf, mf, learning_rate=0.01)
+    var simple_p1 = shampoo_step_simple(
+        params, grad, Ls, Rs, ms, learning_rate=0.01
     )
+    # Positive no-op: the zero-grad step must leave params unchanged AND
+    # advance the L/R preconditioner toward beta_precond * I (not stay at
+    # the identity I). Gradient Gram products on zero grads are zero, so
+    # L_t = beta*L_{t-1} + 0 = beta*I = 0.95*I. A broken delegation that
+    # returns an uninitialized buffer would land near 0.0 or NaN here.
+    _require(
+        full_p1[0]._get_float64(0) == 0.0,
+        "zero-grad params must stay at 0.0 (init)",
+    )
+    _require(
+        math_abs(full_p1[1]._get_float64(0) - 0.95) < 1e-5,
+        "zero-grad L[0,0] must equal beta_precond=0.95 (NOT identity=1.0)",
+    )
+    # Equality on every output slot. Use the file's canonical raw-buffer
+    # accessor `_get_float64` (see test_inv_fourth_root_diagonal etc.)
+    # rather than a `load[dtype]`-and-cast round-trip.
+    var n_total = 8 * 16
+    var n_L = 8 * 8
+    var n_R = 16 * 16
+    for i in range(n_total):
+        if (
+            _abs_diff(
+                full_p1[0]._get_float64(i),
+                simple_p1[0]._get_float64(i),
+            )
+            > 1e-12
+        ):
+            raise Error("shampoo_step_simple params diverged at " + String(i))
+        if (
+            _abs_diff(
+                full_p1[3]._get_float64(i),
+                simple_p1[3]._get_float64(i),
+            )
+            > 1e-12
+        ):
+            raise Error("shampoo_step_simple momentum diverged at " + String(i))
+    for i in range(n_L):
+        if (
+            _abs_diff(full_p1[1]._get_float64(i), simple_p1[1]._get_float64(i))
+            > 1e-12
+        ):
+            raise Error("shampoo_step_simple L diverged at " + String(i))
+    for i in range(n_R):
+        if (
+            _abs_diff(full_p1[2]._get_float64(i), simple_p1[2]._get_float64(i))
+            > 1e-12
+        ):
+            raise Error("shampoo_step_simple R diverged at " + String(i))
 
-    var p_shape = p_new.shape()
-    _require(p_shape[0] == 8 and p_shape[1] == 16, "Shape mismatch")
+    # --- Pass 2: non-zero gradient — actually exercises the update path ---
+    # With all-zero gradients the params/momentum stay unchanged, so a
+    # broken simple wrapper can pass the zero-grad pass above without
+    # being detected. Drive one step with a non-zero gradient so the
+    # Newton-Schulz preconditioner, weight-decay term, and momentum
+    # update all engage. If the simple wrapper's delegation contract
+    # regresses (e.g. it forgets to call shampoo_step and returns zeros),
+    # the params will diverge below this fixture's reference value and
+    # the test fails on the very first coord.
+    var params2 = full([8, 16], 0.5, DType.float32)
+    var grad2 = full([8, 16], 0.1, DType.float32)
+    var (Lf2, Rf2, mf2) = initialize_shampoo_state(params2)
+    var (Ls2, Rs2, ms2) = initialize_shampoo_state(params2)
+    var full_p2 = shampoo_step(
+        params2, grad2, Lf2, Rf2, mf2, learning_rate=0.01
+    )
+    var simple_p2 = shampoo_step_simple(
+        params2, grad2, Ls2, Rs2, ms2, learning_rate=0.01
+    )
+    for i in range(n_total):
+        if (
+            _abs_diff(full_p2[0]._get_float64(i), simple_p2[0]._get_float64(i))
+            > 1e-12
+        ):
+            raise Error(
+                "shampoo_step_simple (non-zero grad) params diverged at "
+                + String(i)
+            )
+        if (
+            _abs_diff(full_p2[3]._get_float64(i), simple_p2[3]._get_float64(i))
+            > 1e-12
+        ):
+            raise Error(
+                "shampoo_step_simple (non-zero grad) momentum diverged at "
+                + String(i)
+            )
+    for i in range(n_L):
+        if (
+            _abs_diff(full_p2[1]._get_float64(i), simple_p2[1]._get_float64(i))
+            > 1e-12
+        ):
+            raise Error(
+                "shampoo_step_simple (non-zero grad) L diverged at " + String(i)
+            )
+    for i in range(n_R):
+        if (
+            _abs_diff(full_p2[2]._get_float64(i), simple_p2[2]._get_float64(i))
+            > 1e-12
+        ):
+            raise Error(
+                "shampoo_step_simple (non-zero grad) R diverged at " + String(i)
+            )
 
+    print(
+        "  ok shampoo_step_simple delegates to shampoo_step defaults"
+        " (params/L/R/momentum across 2 paths)"
+    )
     print("test_shampoo_step_simple PASSED")
 
 

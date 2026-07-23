@@ -48,25 +48,43 @@ from odyssey.training.optimizers.sgd import (
     sgd_momentum_update_inplace,
     initialize_velocities,
     initialize_velocities_from_params,
+    init_sgd_state,
 )
 
 # Adam optimizer (functional implementation)
-from odyssey.training.optimizers.adam import adam_step, adam_step_simple
+from odyssey.training.optimizers.adam import (
+    adam_step,
+    adam_step_simple,
+    init_adam_state,
+)
 
 # AdamW optimizer (functional implementation with decoupled weight decay)
 from odyssey.training.optimizers.adamw import (
     adamw_step,
     adamw_step_simple,
+    init_adamw_state,
 )
 
 # RMSprop optimizer (functional implementation)
 from odyssey.training.optimizers.rmsprop import (
     rmsprop_step,
     rmsprop_step_simple,
+    init_rmsprop_state,
+)
+
+# AdaGrad optimizer (functional implementation)
+from odyssey.training.optimizers.adagrad import (
+    adagrad_step,
+    adagrad_step_simple,
+    init_adagrad_state,
 )
 
 # LARS optimizer (Layer-wise Adaptive Rate Scaling)
-from odyssey.training.optimizers.lars import lars_step, lars_step_simple
+from odyssey.training.optimizers.lars import (
+    lars_step,
+    lars_step_simple,
+    init_lars_state,
+)
 
 # Muon optimizer (Newton-Schulz orthogonalized momentum for matrix-shaped parameters)
 from odyssey.training.optimizers.muon import (
@@ -74,36 +92,49 @@ from odyssey.training.optimizers.muon import (
     muon_step_simple,
     newton_schulz_orthogonalize,
     is_muon_eligible,
+    init_muon_state,
 )
 
 # NorMuon optimizer (Muon with per-parameter normalization)
 from odyssey.training.optimizers.normuon import (
     normuon_step,
     normuon_step_simple,
+    init_normuon_state,
 )
 
 # MGUP-Muon optimizer (Muon with selective / max-utilization updates)
 from odyssey.training.optimizers.mgup_muon import (
     mgup_muon_step,
     mgup_muon_step_simple,
+    init_mgup_muon_state,
 )
 
 # Muon Hyperball optimizer (norm-constrained Muon)
 from odyssey.training.optimizers.muon_hyperball import (
     muon_hyperball_step,
     muon_hyperball_step_simple,
+    init_muon_hyperball_state,
 )
 
 # Lion optimizer (EvoLved Sign Momentum — Chen et al. 2023)
-from odyssey.training.optimizers.lion import lion_step, lion_step_simple
+from odyssey.training.optimizers.lion import (
+    lion_step,
+    lion_step_simple,
+    init_lion_state,
+)
 
 # ADOPT optimizer (modified Adam with the optimal convergence rate for any beta2)
-from odyssey.training.optimizers.adopt import adopt_step, adopt_step_simple
+from odyssey.training.optimizers.adopt import (
+    adopt_step,
+    adopt_step_simple,
+    init_adopt_state,
+)
 
 # LionMuon optimizer (alternating Lion / Muon, separate per-rule buffers)
 from odyssey.training.optimizers.lionmuon import (
     lionmuon_step,
     lionmuon_step_simple,
+    init_lionmuon_state,
 )
 
 # Sophia clipped-preconditioned update step (caller-supplied Hessian estimates
@@ -112,20 +143,30 @@ from odyssey.training.optimizers.sophia import (
     sophia_step,
     sophia_step_simple,
     sophia_update_hessian_moment,
+    init_sophia_state,
 )
 
 # Adan optimizer (adaptive Nesterov momentum — Xie et al. 2022)
-from odyssey.training.optimizers.adan import adan_step, adan_step_simple
+from odyssey.training.optimizers.adan import (
+    adan_step,
+    adan_step_simple,
+    init_adan_state,
+)
 
 # SF-NorMuon optimizer (schedule-free spectral: y/z/x averaging + row-normalized
 # polar/Newton-Schulz update — Defazio et al. 2024 + Jordan/Bernstein 2024)
 from odyssey.training.optimizers.sf_normuon import (
     sf_normuon_step,
     sf_normuon_step_simple,
+    init_sf_normuon_state,
 )
 
 # FTRL-Proximal optimizer (online learning with L1 sparsity — McMahan et al. 2013)
-from odyssey.training.optimizers.ftrl import ftrl_step, ftrl_step_simple
+from odyssey.training.optimizers.ftrl import (
+    ftrl_step,
+    ftrl_step_simple,
+    init_ftrl_state,
+)
 
 # Shampoo optimizer (two-sided matrix preconditioner via Newton-Schulz inverse fourth root)
 from odyssey.training.optimizers.shampoo import (
@@ -134,6 +175,7 @@ from odyssey.training.optimizers.shampoo import (
     newton_schulz_inv_fourth_root,
     is_shampoo_eligible,
     initialize_shampoo_state,
+    init_shampoo_state,
 )
 
 # SOAP optimizer (Shampoo + Adam in the preconditioner eigenbasis)
@@ -160,18 +202,21 @@ from odyssey.training.optimizers.splus import (
 from odyssey.training.optimizers.schedule_free import (
     schedule_free_step,
     schedule_free_step_simple,
+    init_schedule_free_state,
 )
 
 # ScheduleFree+ optimizer (large-batch-stable schedule-free — Defazio 2026)
 from odyssey.training.optimizers.schedule_free_plus import (
     schedule_free_plus_step,
     schedule_free_plus_step_simple,
+    init_schedule_free_plus_state,
 )
 
 # Prodigy optimizer (parameter-free step-size estimation — Mishchenko & Defazio 2023)
 from odyssey.training.optimizers.prodigy import (
     prodigy_step,
     prodigy_step_simple,
+    init_prodigy_state,
 )
 
 # Optimizer utilities (common helper functions)

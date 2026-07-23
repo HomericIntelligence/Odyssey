@@ -386,3 +386,46 @@ State: 3 buffers per eligible parameter — `L [m, m]`, `R [n, n]`, `momentum [m
 - Chen, X., et al. (2023). *Symbolic Discovery of Optimization Algorithms*. arXiv:2302.06675 [Lion]
 - Anil, R., Gupta, V., Koren, T., & Singer, Y. (2020). *Scalable Second Order Optimization for
   Deep Learning*. arXiv:2002.09018 [Shampoo]
+
+## Lifecycle: `init → step → update_state`
+
+Every optimizer ships a uniform
+`init_<name>_state(params_list, *, force_f64=False) -> List[List[AnyTensor]]`
+helper. The return is a list of state-buffer lists, one entry per parameter
+(preserving the input order for `zip`), with inner length matching the
+per-parameter state count for that optimizer.
+
+| Optimizer | State tensors per param | Special init |
+| --- | --- | --- |
+| `sgd` | 1 | — |
+| `adam` | 2 | — |
+| `adamw` | 2 | — |
+| `adagrad` | 1 | — |
+| `lion` | 1 | — |
+| `rmsprop` | 2 | — |
+| `adopt` | 2 | — |
+| `adan` | 4 | — |
+| `lars` | 1 | — |
+| `prodigy` | 3 | — |
+| `sophia` | 2 | — |
+| `ftrl` | 2 | — |
+| `muon` | 1 | — |
+| `normuon` | 1 | — |
+| `mgup_muon` | 1 | — |
+| `muon_hyperball` | 1 | — |
+| `sf_normuon` | 3 | — |
+| `lionmuon` | 2 | — |
+| `schedule_free` | 2 | — |
+| `schedule_free_plus` | 3 | — |
+| `shampoo` | 3 | — L/R eye + momentum zeros (matrix-only) |
+| `kl_shampoo` | 2 | — matrix-only, identity S_A/S_B |
+| `soap` | 6 | — matrix-only, all zeros |
+| `splus` | 6 | — matrix-only, params_ema seeded |
+
+Matrix-only optimizers (`kl_shampoo`, `soap`, `splus`, `shampoo`) emit an
+empty list `[]` for rank-1 params (preserves 1:1 indexing so callers
+`zip(params_list, states)` cleanly route non-matrix params via AdamW).
+
+Scalar or non-tensor state (e.g. Prodigy's `r`/`d`, Schedule-Free+'s
+`gnorm`, Schedule-Free's `step` integer) is NOT packed into the init
+return; callers maintain those scalars themselves between calls.

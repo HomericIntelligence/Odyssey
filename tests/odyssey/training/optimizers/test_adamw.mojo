@@ -203,19 +203,48 @@ def test_zero_wd_collapses_to_adam_params() raises:
 
 
 def test_adamw_step_simple_delegates() raises:
-    """`adamw_step_simple` runs and returns finite state with defaults."""
+    """`adamw_step_simple` matches the full step at documented defaults.
+
+    The simple wrapper delegates to `adamw_step` with `beta1=0.9`,
+    `beta2=0.999`, `eps=1e-8`, `weight_decay=0.01` (per adamw.mojo).
+    Asserts exact equality on EVERY coordinate of params, m, AND v so a
+    future regression in the simple wrapper's delegation contract is
+    caught here rather than as a downstream divergent loss.
+    """
     print("Running test_adamw_step_simple_delegates...")
     var n = 4
     var p = full([n], 0.5, DType.float64)
     var g = full([n], 0.1, DType.float64)
     var m = zeros([n], DType.float64)
     var v = zeros([n], DType.float64)
-    var out = adamw_step_simple(p, g, m, v, 1, 0.001)
-    # smoke: params moved off the starting 0.5 and stayed finite
-    var moved = _abs_diff(out[0].load[DType.float64](0), 0.5) > 0.0
-    if not moved:
-        raise Error("adamw_step_simple did not update params")
-    print("  ok adamw_step_simple produced a finite update")
+    var full_out = adamw_step(p, g, m, v, 1, 0.001, 0.9, 0.999, 1e-8, 0.01)
+    var simple_out = adamw_step_simple(p, g, m, v, 1, 0.001)
+    for i in range(n):
+        if (
+            _abs_diff(
+                full_out[0].load[DType.float64](i),
+                simple_out[0].load[DType.float64](i),
+            )
+            > 1e-12
+        ):
+            raise Error("adamw_step_simple params diverged at " + String(i))
+        if (
+            _abs_diff(
+                full_out[1].load[DType.float64](i),
+                simple_out[1].load[DType.float64](i),
+            )
+            > 1e-12
+        ):
+            raise Error("adamw_step_simple m diverged at " + String(i))
+        if (
+            _abs_diff(
+                full_out[2].load[DType.float64](i),
+                simple_out[2].load[DType.float64](i),
+            )
+            > 1e-12
+        ):
+            raise Error("adamw_step_simple v diverged at " + String(i))
+    print("  ok adamw_step_simple delegates to adamw_step defaults")
     print("test_adamw_step_simple_delegates PASSED")
 
 

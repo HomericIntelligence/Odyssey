@@ -168,7 +168,7 @@ def soap_step(
     )
 
 
-def init_soap_state(
+def _init_soap_state_single_matrix(
     params: AnyTensor,
 ) raises -> Tuple[
     AnyTensor, AnyTensor, AnyTensor, AnyTensor, AnyTensor, AnyTensor
@@ -259,3 +259,35 @@ def _pow(base: Float64, exp: Int) raises -> Float64:
     for _ in range(exp):
         r = r * base
     return r
+
+
+def init_soap_state(
+    params_list: List[AnyTensor],
+    *,
+    force_f64: Bool = True,
+) raises -> List[List[AnyTensor]]:
+    """Allocate per-parameter soap state buffers (matrix-only).
+
+    For rank-2 matrix params emits 6 buffer tensors matching the `_init_soap_state_single_matrix()` tuple. For non-matrix params emits an empty list.
+
+    Args:
+        params_list: Model parameters.
+        force_f64: Ignored -- this optimizer always emits float64 state.
+
+    Returns:
+        A list of state buffer lists in the same order as `params_list`. Matrix params get 6 buffers; non-matrix get `[]`.
+    """
+    var all_states: List[List[AnyTensor]] = []
+    for i in range(len(params_list)):
+        var p = params_list[i]
+        var per: List[AnyTensor] = []
+        if p.ndim() == 2:
+            var unpacked = _init_soap_state_single_matrix(p)
+            per.append(unpacked[0])
+            per.append(unpacked[1])
+            per.append(unpacked[2])
+            per.append(unpacked[3])
+            per.append(unpacked[4])
+            per.append(unpacked[5])
+        all_states.append(per^)
+    return all_states^

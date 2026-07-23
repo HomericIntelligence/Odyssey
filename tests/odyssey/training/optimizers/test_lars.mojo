@@ -133,19 +133,42 @@ def test_parity_with_reference() raises:
     print("test_parity_with_reference PASSED")
 
 
-def test_lars_step_simple_runs() raises:
-    """`lars_step_simple` runs with defaults and produces a finite update."""
-    print("Running test_lars_step_simple_runs...")
+def test_lars_step_simple_delegates() raises:
+    """`lars_step_simple` matches the full step at its documented defaults.
+
+    The simple wrapper delegates to `lars_step` with
+    `momentum=0.9`, `weight_decay=0.0001`, `trust_coefficient=0.001`,
+    `epsilon=1e-8` (per lars.mojo). Asserts exact equality on every
+    coordinate (params AND velocity) so a future regression that
+    breaks the simple wrapper's delegation contract is caught here
+    rather than as a downstream divergent loss.
+    """
+    print("Running test_lars_step_simple_delegates...")
     var n = 4
     var p = full([n], 0.5, DType.float64)
     var g = full([n], 0.1, DType.float64)
     var v = zeros([n], DType.float64)
-    var out = lars_step_simple(p, g, v, 0.1)
-    # smoke: params moved off 0.5 and stayed finite
-    if _abs_diff(out[0].load[DType.float64](0), 0.5) == 0.0:
-        raise Error("lars_step_simple did not update params")
-    print("  ok lars_step_simple produced a finite update")
-    print("test_lars_step_simple_runs PASSED")
+    var full_out = lars_step(p, g, v, 0.1, 0.9, 0.0001, 0.001, 1e-8)
+    var simple_out = lars_step_simple(p, g, v, 0.1)
+    for i in range(n):
+        if (
+            _abs_diff(
+                full_out[0].load[DType.float64](i),
+                simple_out[0].load[DType.float64](i),
+            )
+            > 1e-12
+        ):
+            raise Error("lars_step_simple params diverged at " + String(i))
+        if (
+            _abs_diff(
+                full_out[1].load[DType.float64](i),
+                simple_out[1].load[DType.float64](i),
+            )
+            > 1e-12
+        ):
+            raise Error("lars_step_simple velocity diverged at " + String(i))
+    print("  ok lars_step_simple delegates to lars_step defaults")
+    print("test_lars_step_simple_delegates PASSED")
 
 
 def main() raises:
@@ -153,5 +176,5 @@ def main() raises:
     test_reject_dtype_mismatch()
     test_reject_empty_velocity()
     test_parity_with_reference()
-    test_lars_step_simple_runs()
+    test_lars_step_simple_delegates()
     print("\nAll LARS parity tests PASSED")

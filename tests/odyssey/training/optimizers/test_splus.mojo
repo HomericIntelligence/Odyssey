@@ -98,7 +98,8 @@ def test_nonsquare_bounded_finite() raises:
     var n = R * C
     var W = zeros([R, C], DType.float64)
     _seed_ramp(W, n, 0.07, -0.4)
-    var st = init_splus_state(W)
+    var w_st = init_splus_state(W)
+    var st = w_st[0]
     var params_ema = st[0]
     var exp_avg = st[1]
     var gg_left = st[2]
@@ -158,7 +159,8 @@ def test_init_state_shapes() raises:
     print("Running test_init_state_shapes...")
     var W = zeros([3, 4], DType.float64)
     _seed_ramp(W, 12, 0.1, -0.5)
-    var st = init_splus_state(W)
+    var w_st = init_splus_state(W)
+    var st = w_st[0]
     # params_ema, exp_avg: 3x4 = 12; gg_left: 3x3 = 9; gg_right: 4x4 = 16;
     # q_left: 9; q_right: 16.
     if st[0].numel() != 12 or st[1].numel() != 12:
@@ -367,7 +369,8 @@ def test_parity_three_step() raises:
 
     var W = zeros([4, 4], DType.float64)
     _seed_ramp(W, 16, 0.1, -0.5)
-    var st = init_splus_state(W)
+    var w_st = init_splus_state(W)
+    var st = w_st[0]
     var params_ema = st[0]
     var exp_avg = st[1]
     var gg_left = st[2]
