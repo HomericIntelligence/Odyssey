@@ -107,11 +107,11 @@ def _run_oo_step[
     """
     var tape = GradientTape()
     tape.enable()
-    var pv = Variable(p_init^, True, tape)
+    var pv = Variable(p_init, True, tape)
     var pid = pv.id
     var params: List[Variable] = []
     params.append(pv.copy())
-    tape.registry.set_grad(pid, g_init^)
+    tape.registry.set_grad(pid, g_init)
     opt.step(params, tape)
     return params[0].data
 
@@ -148,12 +148,13 @@ def _run_oo_k3_steps[
         )
     var tape = GradientTape()
     tape.enable()
-    var pv = Variable(p_init^, True, tape)
+    var pv = Variable(p_init, True, tape)
     var pid = pv.id
     var params: List[Variable] = []
     params.append(pv.copy())
     for k in range(3):
-        tape.registry.set_grad(pid, grads[k]^)
+        var g_k = grads[k]
+        tape.registry.set_grad(pid, g_k^)
         opt.step(params, tape)
         opt.zero_grad(tape)
     return params[0].data
@@ -1098,7 +1099,7 @@ def test_adam_dtypes_mismatch_raises() raises:
 
     var can_raised = False
     try:
-        adam_step(p_can, g_can, m_c, v_c, 1, 0.001, 0.9, 0.999, 1e-8, 0.0)
+        _ = adam_step(p_can, g_can, m_c, v_c, 1, 0.001, 0.9, 0.999, 1e-8, 0.0)
     except e:
         can_raised = True
     if not can_raised:
@@ -1162,7 +1163,7 @@ def test_adam_shape_mismatch_raises() raises:
 
     var can_raised = False
     try:
-        adam_step(p, g, m_c, v_c, 1, 0.001, 0.9, 0.999, 1e-8, 0.0)
+        _ = adam_step(p, g, m_c, v_c, 1, 0.001, 0.9, 0.999, 1e-8, 0.0)
     except e:
         can_raised = True
     if not can_raised:
@@ -1225,7 +1226,7 @@ def test_adam_t_nonpositive_raises() raises:
 
     var can_raised_t0 = False
     try:
-        adam_step(p, g, m_c, v_c, 0, 0.001, 0.9, 0.999, 1e-8, 0.0)
+        _ = adam_step(p, g, m_c, v_c, 0, 0.001, 0.9, 0.999, 1e-8, 0.0)
     except e:
         can_raised_t0 = True
     if not can_raised_t0:
@@ -1233,7 +1234,7 @@ def test_adam_t_nonpositive_raises() raises:
 
     var can_raised_neg = False
     try:
-        adam_step(p, g, m_c, v_c, -1, 0.001, 0.9, 0.999, 1e-8, 0.0)
+        _ = adam_step(p, g, m_c, v_c, -1, 0.001, 0.9, 0.999, 1e-8, 0.0)
     except e:
         can_raised_neg = True
     if not can_raised_neg:
