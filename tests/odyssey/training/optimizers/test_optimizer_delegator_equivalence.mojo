@@ -31,11 +31,17 @@ from odyssey.autograd.optimizers_oo.adam import Adam
 from odyssey.autograd.optimizers_oo.adamw import AdamW
 from odyssey.autograd.optimizers_oo.adagrad import AdaGrad
 from odyssey.autograd.optimizers_oo.rmsprop import RMSprop
+from odyssey.autograd.optimizers_oo.lion import Lion
+from odyssey.autograd.optimizers_oo.lars import LARS
+from odyssey.autograd.optimizers_oo.ftrl import FTRLProximal
 from odyssey.training.optimizers.sgd import sgd_step
 from odyssey.training.optimizers.adam import adam_step
 from odyssey.training.optimizers.adamw import adamw_step
 from odyssey.training.optimizers.adagrad import adagrad_step
 from odyssey.training.optimizers.rmsprop import rmsprop_step
+from odyssey.training.optimizers.lion import lion_step
+from odyssey.training.optimizers.lars import lars_step
+from odyssey.training.optimizers.ftrl import ftrl_step
 
 
 # ============================================================================
@@ -704,6 +710,167 @@ def test_adagrad_with_wd_oo_matches_canonical_k3() raises:
     print("test_adagrad_with_wd_oo_matches_canonical_k3 PASSED")
 
 
+def test_lion_oo_matches_canonical() raises:
+    """Lion: OO `Lion.step()` == canonical `lion_step`.
+
+    Pins the K=1 byte-identical claim for the Lion OO wrapper: the OO
+    lazy-inits `momenta[pid] = zeros_like(param)` on first sight
+    (matching the zero-initialised `m_func` we pass to the canonical
+    here), and forwards all hyperparameters unchanged into `lion_step`.
+    """
+    print("Running test_lion_oo_matches_canonical...")
+    var p_vals = List[Float64]()
+    p_vals.append(0.10)
+    p_vals.append(-0.20)
+    p_vals.append(0.30)
+    p_vals.append(-0.40)
+    p_vals.append(0.50)
+    p_vals.append(-0.60)
+    var g_vals = List[Float64]()
+    g_vals.append(0.02)
+    g_vals.append(-0.03)
+    g_vals.append(0.015)
+    g_vals.append(0.025)
+    g_vals.append(-0.01)
+    g_vals.append(0.04)
+    # Lion uses 3-10x smaller LR than AdamW; pick a representative midpoint.
+    var lr = 0.0001
+    var b1 = 0.9
+    var b2 = 0.99
+    var wd = 0.0
+
+    # Functional canonical (zero momentum init).
+    var p_func = _allocate_filled(6, p_vals, DType.float64)
+    var g_func = _allocate_filled(6, g_vals, DType.float64)
+    var m_func = zeros([6], DType.float64)
+    var out_func = lion_step(p_func, g_func, m_func, lr, b1, b2, wd)
+    var p_func_out = out_func[0]
+
+    # OO delegator lazy-inits momenta[pid] = zeros_like(param) on first call.
+    var p_oo = _allocate_filled(6, p_vals, DType.float64)
+    var g_oo = _allocate_filled(6, g_vals, DType.float64)
+    var opt = Lion(learning_rate=lr, beta1=b1, beta2=b2, weight_decay=wd)
+    var p_oo_out = _run_oo_step(opt, p_oo, g_oo)
+
+    _assert_tensors_byte_equal(p_func_out, p_oo_out, "Lion")
+    print("  ok Lion byte-identical to canonical lion_step")
+    print("test_lion_oo_matches_canonical PASSED")
+
+
+def test_lars_oo_matches_canonical() raises:
+    """LARS: OO `LARS.step()` == canonical `lars_step`.
+
+    Pins the K=1 byte-identical claim for the LARS OO wrapper: the OO
+    lazy-inits `velocities[pid] = zeros_like(param)` on first sight
+    (matching the zero-initialised `v_func`), and forwards all
+    hyperparameters unchanged into `lars_step`. The trust-ratio scaling
+    is computed inside `lars_step` itself.
+    """
+    print("Running test_lars_oo_matches_canonical...")
+    var p_vals = List[Float64]()
+    p_vals.append(0.10)
+    p_vals.append(-0.20)
+    p_vals.append(0.30)
+    p_vals.append(-0.40)
+    p_vals.append(0.50)
+    p_vals.append(-0.60)
+    var g_vals = List[Float64]()
+    g_vals.append(0.02)
+    g_vals.append(-0.03)
+    g_vals.append(0.015)
+    g_vals.append(0.025)
+    g_vals.append(-0.01)
+    g_vals.append(0.04)
+    var lr = 0.1
+    var momentum = 0.9
+    var wd = 0.0001
+    var trust = 0.001
+    var eps = 1e-8
+
+    # Functional canonical (zero velocity).
+    var p_func = _allocate_filled(6, p_vals, DType.float64)
+    var g_func = _allocate_filled(6, g_vals, DType.float64)
+    var v_func = zeros([6], DType.float64)
+    var out_func = lars_step(
+        p_func, g_func, v_func, lr, momentum, wd, trust, eps
+    )
+    var p_func_out = out_func[0]
+
+    # OO delegator lazy-inits velocities[pid] = zeros_like(param) on first call.
+    var p_oo = _allocate_filled(6, p_vals, DType.float64)
+    var g_oo = _allocate_filled(6, g_vals, DType.float64)
+    var opt = LARS(
+        learning_rate=lr,
+        momentum=momentum,
+        weight_decay=wd,
+        trust_coefficient=trust,
+        epsilon=eps,
+    )
+    var p_oo_out = _run_oo_step(opt, p_oo, g_oo)
+
+    _assert_tensors_byte_equal(p_func_out, p_oo_out, "LARS")
+    print("  ok LARS byte-identical to canonical lars_step")
+    print("test_lars_oo_matches_canonical PASSED")
+
+
+def test_ftrl_oo_matches_canonical() raises:
+    """FTRL-Proximal (lambda1=lambda2=0): OO == canonical.
+
+    Pins the K=1 byte-identical claim for FTRL-Proximal OO wrapper:
+    the OO lazy-inits BOTH `z_buffers[pid]` and `n_buffers[pid]` to
+    `zeros_like(param)` on first sight (matching the two zero-initialised
+    `z_func, n_func` passed to canonical). Picking `lambda1=lambda2=0`
+    keeps the test dense so byte-equality is element-wise stable.
+    """
+    print("Running test_ftrl_oo_matches_canonical...")
+    var p_vals = List[Float64]()
+    p_vals.append(0.10)
+    p_vals.append(-0.20)
+    p_vals.append(0.30)
+    p_vals.append(-0.40)
+    p_vals.append(0.50)
+    p_vals.append(-0.60)
+    var g_vals = List[Float64]()
+    g_vals.append(0.02)
+    g_vals.append(-0.03)
+    g_vals.append(0.015)
+    g_vals.append(0.025)
+    g_vals.append(-0.01)
+    g_vals.append(0.04)
+    # lr=1.0 -> textbook FTRL (per-coord rate lives in `alpha`).
+    var lr = 1.0
+    var alpha = 0.1
+    var beta = 1.0
+    var lambda1 = 0.0
+    var lambda2 = 0.0
+
+    # Functional canonical (both z and n start zero on K=1).
+    var p_func = _allocate_filled(6, p_vals, DType.float64)
+    var g_func = _allocate_filled(6, g_vals, DType.float64)
+    var z_func = zeros([6], DType.float64)
+    var n_func = zeros([6], DType.float64)
+    var out_func = ftrl_step(
+        p_func, g_func, z_func, n_func, lr, alpha, beta, lambda1, lambda2
+    )
+    var p_func_out = out_func[0]
+
+    # OO delegator lazy-inits z_buffers AND n_buffers on first call.
+    var p_oo = _allocate_filled(6, p_vals, DType.float64)
+    var g_oo = _allocate_filled(6, g_vals, DType.float64)
+    var opt = FTRLProximal(
+        learning_rate=lr,
+        alpha=alpha,
+        beta=beta,
+        lambda1=lambda1,
+        lambda2=lambda2,
+    )
+    var p_oo_out = _run_oo_step(opt, p_oo, g_oo)
+
+    _assert_tensors_byte_equal(p_func_out, p_oo_out, "FTRL")
+    print("  ok FTRL byte-identical to canonical ftrl_step")
+    print("test_ftrl_oo_matches_canonical PASSED")
+
+
 # ============================================================================
 # Raise-contract equivalence tests
 # ============================================================================
@@ -996,7 +1163,10 @@ def main() raises:
     test_adam_shape_mismatch_raises()
     test_adam_t_nonpositive_raises()
     test_adamw_oo_matches_canonical_k3()
+    test_lion_oo_matches_canonical()
+    test_lars_oo_matches_canonical()
+    test_ftrl_oo_matches_canonical()
     print(
         "\nAll optimizer delegator-equivalence tests PASSED"
-        " (K=1 + K=3 + raise-contract + AdamW K=3)"
+        " (K=1 + K=3 + raise-contract + AdamW K=3 + Lion/LARS/FTRL)"
     )
