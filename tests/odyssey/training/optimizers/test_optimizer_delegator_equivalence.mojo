@@ -871,6 +871,200 @@ def test_ftrl_oo_matches_canonical() raises:
     print("test_ftrl_oo_matches_canonical PASSED")
 
 
+def test_lion_oo_matches_canonical_k3() raises:
+    """Lion K=3: OO `momenta[pid]` carry-over across 3 successive steps
+    matches the canonical caller-managed `m_c` thread.
+
+    Pins the multi-step byte-identical claim for the Lion OO wrapper:
+    the OO lazy-inits `momenta[pid] = zeros_like(param)` on iter 1
+    and threads via `result[1]` on subsequent iters; canonical mirrors
+    that pattern with caller-managed `m_c`. A regression that re-lazy-
+    inits `momenta` on each call diverges from canonical on step 2 + 3.
+    """
+    print("Running test_lion_oo_matches_canonical_k3...")
+    var n = 3
+    var p_vals = List[Float64]()
+    p_vals.append(0.10)
+    p_vals.append(-0.20)
+    p_vals.append(0.30)
+    var g1_vals = List[Float64]()
+    g1_vals.append(0.02)
+    g1_vals.append(-0.03)
+    g1_vals.append(0.015)
+    var g2_vals = List[Float64]()
+    g2_vals.append(-0.015)
+    g2_vals.append(0.025)
+    g2_vals.append(-0.010)
+    var g3_vals = List[Float64]()
+    g3_vals.append(0.010)
+    g3_vals.append(-0.020)
+    g3_vals.append(0.005)
+    var lr = 0.0001
+    var b1 = 0.9
+    var b2 = 0.99
+    var wd = 0.0
+
+    # === Canonical (m_c threaded across iters) ===
+    var p_c = _allocate_filled(n, p_vals, DType.float64)
+    var m_c = zeros([n], DType.float64)
+    var grads_c = List[AnyTensor]()
+    grads_c.append(_allocate_filled(n, g1_vals, DType.float64))
+    grads_c.append(_allocate_filled(n, g2_vals, DType.float64))
+    grads_c.append(_allocate_filled(n, g3_vals, DType.float64))
+    for k in range(3):
+        var out_func = lion_step(p_c, grads_c[k], m_c, lr, b1, b2, wd)
+        p_c = out_func[0]
+        m_c = out_func[1]
+
+    # === OO (momenta[pid] threads via param_id + result[1]) ===
+    var p_oo = _allocate_filled(n, p_vals, DType.float64)
+    var grads_oo = List[AnyTensor]()
+    grads_oo.append(_allocate_filled(n, g1_vals, DType.float64))
+    grads_oo.append(_allocate_filled(n, g2_vals, DType.float64))
+    grads_oo.append(_allocate_filled(n, g3_vals, DType.float64))
+    var opt = Lion(learning_rate=lr, beta1=b1, beta2=b2, weight_decay=wd)
+    var p_oo_out = _run_oo_k3_steps(opt, p_oo, grads_oo)
+
+    _assert_tensors_byte_equal(p_c, p_oo_out, "Lion K=3")
+    print("  ok Lion K=3 byte-identical to canonical across 3 steps")
+    print("test_lion_oo_matches_canonical_k3 PASSED")
+
+
+def test_lars_oo_matches_canonical_k3() raises:
+    """LARS K=3: OO `velocities[pid]` carry-over across 3 successive steps
+    matches the canonical caller-managed `v_c` thread.
+
+    Pins the multi-step byte-identical claim for LARS OO wrapper:
+    OO lazy-inits `velocities[pid] = zeros_like(param)` on iter 1 and
+    threads via `result[1]` on subsequent iters; canonical mirrors.
+    """
+    print("Running test_lars_oo_matches_canonical_k3...")
+    var n = 3
+    var p_vals = List[Float64]()
+    p_vals.append(0.10)
+    p_vals.append(-0.20)
+    p_vals.append(0.30)
+    var g1_vals = List[Float64]()
+    g1_vals.append(0.02)
+    g1_vals.append(-0.03)
+    g1_vals.append(0.015)
+    var g2_vals = List[Float64]()
+    g2_vals.append(-0.015)
+    g2_vals.append(0.025)
+    g2_vals.append(-0.010)
+    var g3_vals = List[Float64]()
+    g3_vals.append(0.010)
+    g3_vals.append(-0.020)
+    g3_vals.append(0.005)
+    var lr = 0.1
+    var momentum = 0.9
+    var wd = 0.0001
+    var trust = 0.001
+    var eps = 1e-8
+
+    # === Canonical (v_c threaded across iters) ===
+    var p_c = _allocate_filled(n, p_vals, DType.float64)
+    var v_c = zeros([n], DType.float64)
+    var grads_c = List[AnyTensor]()
+    grads_c.append(_allocate_filled(n, g1_vals, DType.float64))
+    grads_c.append(_allocate_filled(n, g2_vals, DType.float64))
+    grads_c.append(_allocate_filled(n, g3_vals, DType.float64))
+    for k in range(3):
+        var out_func = lars_step(
+            p_c, grads_c[k], v_c, lr, momentum, wd, trust, eps
+        )
+        p_c = out_func[0]
+        v_c = out_func[1]
+
+    # === OO (velocities[pid] threads via param_id + result[1]) ===
+    var p_oo = _allocate_filled(n, p_vals, DType.float64)
+    var grads_oo = List[AnyTensor]()
+    grads_oo.append(_allocate_filled(n, g1_vals, DType.float64))
+    grads_oo.append(_allocate_filled(n, g2_vals, DType.float64))
+    grads_oo.append(_allocate_filled(n, g3_vals, DType.float64))
+    var opt = LARS(
+        learning_rate=lr,
+        momentum=momentum,
+        weight_decay=wd,
+        trust_coefficient=trust,
+        epsilon=eps,
+    )
+    var p_oo_out = _run_oo_k3_steps(opt, p_oo, grads_oo)
+
+    _assert_tensors_byte_equal(p_c, p_oo_out, "LARS K=3")
+    print("  ok LARS K=3 byte-identical to canonical across 3 steps")
+    print("test_lars_oo_matches_canonical_k3 PASSED")
+
+
+def test_ftrl_oo_matches_canonical_k3() raises:
+    """FTRL-Proximal K=3 (lambda1=lambda2=0): OO threads BOTH
+    `z_buffers[pid]` AND `n_buffers[pid]` correctly across 3 steps.
+
+    FTRL is the most state-bearing of the 8 wrappers (2 buffers per param).
+    Its K>1 inversion `params = -z/n` matches canonical only when BOTH
+    `z` and `n` are threaded across calls. A regression that re-lazy-inits
+    either buffer per call diverges from canonical on step 2.
+    """
+    print("Running test_ftrl_oo_matches_canonical_k3...")
+    var n = 3
+    var p_vals = List[Float64]()
+    p_vals.append(0.10)
+    p_vals.append(-0.20)
+    p_vals.append(0.30)
+    var g1_vals = List[Float64]()
+    g1_vals.append(0.02)
+    g1_vals.append(-0.03)
+    g1_vals.append(0.015)
+    var g2_vals = List[Float64]()
+    g2_vals.append(-0.015)
+    g2_vals.append(0.025)
+    g2_vals.append(-0.010)
+    var g3_vals = List[Float64]()
+    g3_vals.append(0.010)
+    g3_vals.append(-0.020)
+    g3_vals.append(0.005)
+    var lr = 1.0
+    var alpha = 0.1
+    var beta = 1.0
+    var lambda1 = 0.0
+    var lambda2 = 0.0
+
+    # === Canonical (z_c + n_c threaded across iters) ===
+    var p_c = _allocate_filled(n, p_vals, DType.float64)
+    var z_c = zeros([n], DType.float64)
+    var n_c = zeros([n], DType.float64)
+    var grads_c = List[AnyTensor]()
+    grads_c.append(_allocate_filled(n, g1_vals, DType.float64))
+    grads_c.append(_allocate_filled(n, g2_vals, DType.float64))
+    grads_c.append(_allocate_filled(n, g3_vals, DType.float64))
+    for k in range(3):
+        var out_func = ftrl_step(
+            p_c, grads_c[k], z_c, n_c, lr, alpha, beta, lambda1, lambda2
+        )
+        p_c = out_func[0]
+        z_c = out_func[1]
+        n_c = out_func[2]
+
+    # === OO (both z_buffers AND n_buffers thread via result[1], result[2]) ===
+    var p_oo = _allocate_filled(n, p_vals, DType.float64)
+    var grads_oo = List[AnyTensor]()
+    grads_oo.append(_allocate_filled(n, g1_vals, DType.float64))
+    grads_oo.append(_allocate_filled(n, g2_vals, DType.float64))
+    grads_oo.append(_allocate_filled(n, g3_vals, DType.float64))
+    var opt = FTRLProximal(
+        learning_rate=lr,
+        alpha=alpha,
+        beta=beta,
+        lambda1=lambda1,
+        lambda2=lambda2,
+    )
+    var p_oo_out = _run_oo_k3_steps(opt, p_oo, grads_oo)
+
+    _assert_tensors_byte_equal(p_c, p_oo_out, "FTRL K=3")
+    print("  ok FTRL K=3 byte-identical to canonical across 3 steps")
+    print("test_ftrl_oo_matches_canonical_k3 PASSED")
+
+
 # ============================================================================
 # Raise-contract equivalence tests
 # ============================================================================
@@ -1166,6 +1360,9 @@ def main() raises:
     test_lion_oo_matches_canonical()
     test_lars_oo_matches_canonical()
     test_ftrl_oo_matches_canonical()
+    test_lion_oo_matches_canonical_k3()
+    test_lars_oo_matches_canonical_k3()
+    test_ftrl_oo_matches_canonical_k3()
     print(
         "\nAll optimizer delegator-equivalence tests PASSED"
         " (K=1 + K=3 + raise-contract + AdamW K=3 + Lion/LARS/FTRL)"
