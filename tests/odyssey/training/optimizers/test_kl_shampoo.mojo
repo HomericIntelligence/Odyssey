@@ -17,6 +17,7 @@ from odyssey.tensor.any_tensor import AnyTensor
 from odyssey.tensor.tensor_creation import zeros
 from odyssey.training.optimizers.kl_shampoo import (
     kl_shampoo_step,
+    kl_shampoo_step_simple,
     init_kl_shampoo_state,
     is_kl_shampoo_eligible,
 )
@@ -56,7 +57,8 @@ def test_reject_shape_mismatch() raises:
     print("Running test_reject_shape_mismatch...")
     var p = zeros([3, 4], DType.float64)
     var g = zeros([3, 5], DType.float64)
-    var st = init_kl_shampoo_state(p)
+    var w_st = init_kl_shampoo_state(p)
+    var st = w_st[0]
     try:
         var (_, _, _) = kl_shampoo_step(p, g, st[0], st[1], 0.1)
         raise Error("Should have rejected shape-mismatched gradient")
@@ -141,7 +143,8 @@ def test_init_state_shapes() raises:
     """
     print("Running test_init_state_shapes...")
     var W = zeros([3, 4], DType.float64)
-    var st = init_kl_shampoo_state(W)
+    var w_st = init_kl_shampoo_state(W)
+    var st = w_st[0]
     # S_A: 3x3 = 9 ; S_B: 4x4 = 16.
     if st[0].numel() != 9:
         raise Error("S_A should be 3x3")
@@ -216,7 +219,8 @@ def test_parity_three_step() raises:
 
     var W = zeros([3, 4], DType.float64)
     _seed_ramp(W, 12, 0.1, -0.5)
-    var st = init_kl_shampoo_state(W)
+    var w_st = init_kl_shampoo_state(W)
+    var st = w_st[0]
     var s_a = st[0]
     var s_b = st[1]
 
@@ -244,6 +248,72 @@ def test_parity_three_step() raises:
     print("test_parity_three_step PASSED")
 
 
+def test_kl_shampoo_step_simple_delegates() raises:
+    """`kl_shampoo_step_simple` matches the full step at documented defaults.
+
+    The simple wrapper delegates to `kl_shampoo_step` with `beta=0.95`,
+    `weight_decay=0.0`, `ridge=1e-8` (per kl_shampoo.mojo). Asserts exact
+    equality on params AND on the S_A / S_B preconditioner factors — both
+    factors accumulate the gradient Kronecker products and so drift per
+    step; silent drift = silent divergence. A future regression in the
+    simple wrapper's delegation contract is caught here rather than as
+    a downstream divergent loss.
+    """
+    print("Running test_kl_shampoo_step_simple_delegates...")
+    var W = zeros([3, 4], DType.float64)
+    _seed_ramp(W, 12, 0.1, -0.5)
+    var w_st = init_kl_shampoo_state(W)
+    var st = w_st[0]
+    var s_a_full = st[0]
+    var s_b_full = st[1]
+    # Independent state buffers so we can compare both at the same step.
+    var st2 = init_kl_shampoo_state(W)
+    var s_a_simple = st2[0]
+    var s_b_simple = st2[1]
+    var g = zeros([3, 4], DType.float64)
+    _seed_ramp(g, 12, 0.05, -0.3)
+
+    var full_out = kl_shampoo_step(
+        W, g, s_a_full, s_b_full, 0.1, 0.95, 0.0, 1e-8
+    )
+    var simple_out = kl_shampoo_step_simple(W, g, s_a_simple, s_b_simple, 0.1)
+
+    # params (12)
+    for i in range(12):
+        if (
+            _abs_diff(
+                full_out[0].load[DType.float64](i),
+                simple_out[0].load[DType.float64](i),
+            )
+            > 1e-12
+        ):
+            raise Error(
+                "kl_shampoo_step_simple params diverged at " + String(i)
+            )
+    # S_A is 3x3 = 9
+    for i in range(9):
+        if (
+            _abs_diff(
+                full_out[1].load[DType.float64](i),
+                simple_out[1].load[DType.float64](i),
+            )
+            > 1e-12
+        ):
+            raise Error("kl_shampoo_step_simple S_A diverged at " + String(i))
+    # S_B is 4x4 = 16
+    for i in range(16):
+        if (
+            _abs_diff(
+                full_out[2].load[DType.float64](i),
+                simple_out[2].load[DType.float64](i),
+            )
+            > 1e-12
+        ):
+            raise Error("kl_shampoo_step_simple S_B diverged at " + String(i))
+    print("  ok kl_shampoo_step_simple delegates to the full step at defaults")
+    print("test_kl_shampoo_step_simple_delegates PASSED")
+
+
 def main() raises:
     """Run all KL-Shampoo tests."""
     print("=" * 60)
@@ -256,6 +326,7 @@ def main() raises:
     test_eligibility()
     test_init_state_shapes()
     test_parity_three_step()
+    test_kl_shampoo_step_simple_delegates()
     print("=" * 60)
     print("All KL-Shampoo tests PASSED")
     print("=" * 60)

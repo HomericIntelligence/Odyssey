@@ -80,7 +80,7 @@ def is_kl_shampoo_eligible(params: AnyTensor) -> Bool:
     return shape[0] >= 2 and shape[1] >= 2
 
 
-def init_kl_shampoo_state(
+def _init_kl_shampoo_state_single_matrix(
     params: AnyTensor,
 ) raises -> Tuple[AnyTensor, AnyTensor]:
     """Allocate KL-Shampoo state for a 2-D parameter `W (R×C)`.
@@ -325,3 +325,35 @@ def _sym_inv_sqrt(s: AnyTensor, ridge: Float64) raises -> AnyTensor:
         var lam = vals.load[DType.float64](i) + ridge
         inv_sqrt_vals.append(1.0 / scalar_sqrt(lam))
     return _reconstruct(q, inv_sqrt_vals, n)
+
+
+def init_kl_shampoo_state(
+    params_list: List[AnyTensor],
+    *,
+    force_f64: Bool = True,
+) raises -> List[List[AnyTensor]]:
+    """Allocate per-parameter KL-Shampoo state buffers (matrix-only).
+
+    For rank-2 matrix params (both dims >= 2) emits two identity float64 Kronecker factors `[S_A, S_B]`. For non-matrix params emits an empty list (caller routes via AdamW).
+
+    Args:
+        params_list: Model parameters.
+        force_f64: Ignored -- this optimizer always emits float64 state.
+
+    Returns:
+        A list of state buffer lists in the same order as `params_list`. Matrix params get `[S_A, S_B]`; non-matrix get `[]`.
+    """
+    var all_states: List[List[AnyTensor]] = []
+    for i in range(len(params_list)):
+        var p = params_list[i]
+        var per: List[AnyTensor] = []
+        if p.ndim() == 2:
+            var sh = p.shape()
+            var R = sh[0]
+            var C = sh[1]
+            if R >= 2 and C >= 2:
+                var unpacked = _init_kl_shampoo_state_single_matrix(p)
+                per.append(unpacked[0])
+                per.append(unpacked[1])
+        all_states.append(per^)
+    return all_states^

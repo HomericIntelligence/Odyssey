@@ -290,3 +290,37 @@ def normuon_step_simple(
         weight_decay=0.0,
         ns_steps=5,
     )
+
+
+def init_normuon_state(
+    params_list: List[AnyTensor],
+    *,
+    force_f64: Bool = False,
+) raises -> List[List[AnyTensor]]:
+    """Allocate per-parameter state buffers for the normuon optimizer.
+
+    Returns a `List[List[AnyTensor]]` with outer length == `len(params_list)` (one entry per parameter) and inner length == 1 (one entry per state buffer the optimizer threads across calls).
+
+    Each state buffer starts at zero with the parameter's shape. The dtype matches the parameter, or float64 if `force_f64=True`.
+
+    Args:
+        params_list: Model parameters.
+        force_f64: Up-cast all state buffers to float64 regardless of param dtype.
+
+    Returns:
+        A list of state buffer lists in the same order as `params_list`.
+
+    Raises:
+        Error: If shape contracts cannot be honored.
+    """
+    from odyssey.tensor.tensor_creation import zeros
+
+    var all_states: List[List[AnyTensor]] = []
+    for i in range(len(params_list)):
+        var p = params_list[i]
+        var d = p.dtype() if not force_f64 else DType.float64
+        var per: List[AnyTensor] = []
+        for _ in range(1):
+            per.append(zeros(p.shape(), d))
+        all_states.append(per^)
+    return all_states^

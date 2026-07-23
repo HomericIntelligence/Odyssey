@@ -65,6 +65,13 @@ from odyssey.training.optimizers.rmsprop import (
     rmsprop_step_simple,
 )
 
+# AdaGrad optimizer (functional implementation)
+from odyssey.training.optimizers.adagrad import (
+    adagrad_step,
+    adagrad_step_simple,
+    init_adagrad_state,
+)
+
 # LARS optimizer (Layer-wise Adaptive Rate Scaling)
 from odyssey.training.optimizers.lars import lars_step, lars_step_simple
 
@@ -154,6 +161,26 @@ from odyssey.training.optimizers.kl_shampoo import (
 from odyssey.training.optimizers.splus import (
     splus_step,
     init_splus_state,
+    init_adam_state,
+    init_adamw_state,
+    init_adan_state,
+    init_adopt_state,
+    init_ftrl_state,
+    init_lars_state,
+    init_lion_state,
+    init_lionmuon_state,
+    init_mgup_muon_state,
+    init_muon_hyperball_state,
+    init_muon_state,
+    init_normuon_state,
+    init_prodigy_state,
+    init_rmsprop_state,
+    init_schedule_free_plus_state,
+    init_schedule_free_state,
+    init_sf_normuon_state,
+    init_sgd_state,
+    init_shampoo_state,
+    init_sophia_state,
 )
 
 # Schedule-Free optimizer (online iterate averaging — anytime; Defazio et al. 2024)

@@ -671,3 +671,37 @@ def shampoo_step_simple(
         eps=1e-10,
         max_precond_norm=1e6,
     )
+
+
+def init_shampoo_state(
+    params_list: List[AnyTensor],
+    *,
+    force_f64: Bool = False,
+) raises -> List[List[AnyTensor]]:
+    """Allocate per-parameter Shampoo state buffers.
+
+    For rank-2 matrix parameters (matrix-preconditioner eligible, both dims >= 2) emits three buffers: `L` (m*m, identity-initialized), `R` (n*n, identity-initialized), `momentum` (zeros). For non-matrix params emits an empty list (caller is expected to route those via AdamW).
+
+    Args:
+        params_list: Model parameters.
+        force_f64: Up-cast state buffers to float64 (Shampoo math benefits).
+
+    Returns:
+        A list of state buffer lists in the same order as `params_list`. Matrix params get `[L, R, momentum]`; non-matrix get `[]`.
+    """
+    from odyssey.tensor.tensor_creation import eye, zeros_like
+
+    var all_states: List[List[AnyTensor]] = []
+    for i in range(len(params_list)):
+        var p = params_list[i]
+        var per: List[AnyTensor] = []
+        if is_shampoo_eligible(p):
+            var dtype = p.dtype() if not force_f64 else DType.float64
+            var sh = p.shape()
+            var m = sh[0]
+            var n = sh[1]
+            per.append(eye(m, m, 0, dtype))
+            per.append(eye(n, n, 0, dtype))
+            per.append(zeros_like(p))
+        all_states.append(per^)
+    return all_states^
