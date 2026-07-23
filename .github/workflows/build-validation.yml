@@ -31,6 +31,16 @@ concurrency:
 
 jobs:
   build-validation:
+    # Uses the repo's own setup-container composite action (rootless podman
+    # compose, managed directly on the runner host) — no job-level
+    # `container:` wrapper here, since nesting that action's podman inside
+    # another container would be podman-in-podman.
+    # PR #5675: keep this on `ubuntu-latest` GitHub-hosted runners until the
+    # self-hosted `aeolus` runner is provisioned with SIMD-capable CPUs
+    # (Mojo 1.0.0b2 binary SIGILLs at `mojo --version` exit 132 on the
+    # current aeolus hardware). The setup-container/action.yml plumbing
+    # (linger-enable + sudo handling) is preserved + hardened; the
+    # self-hosted migration is deferred to a follow-up issue.
     runs-on: ubuntu-latest
     timeout-minutes: 30
 

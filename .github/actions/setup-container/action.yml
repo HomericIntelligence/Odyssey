@@ -31,6 +31,26 @@ runs:
         # Best-effort: socket may already be active. Warn on unexpected failure
         # rather than fail the workflow (the DOCKER_HOST assignment below will
         # surface a real problem when the socket is genuinely unavailable).
+        # PR #5675: enable user lingering so `systemctl --user` works on
+        # self-hosted runners. Without linger, podman.service is killed when
+        # the runner session closes, the socket never starts, and
+        # `podman compose` falls back to invoking /usr/bin/docker-compose
+        # (which doesn't exist in a rootless podman-only env).
+        # Guard the linger call on BOTH loginctl and systemctl being available:
+        # - `&& command -v systemctl` short-circuits the linger block when the
+        #   runner has no systemctl at all (some containerized runner hosts),
+        #   since systemctl --user is meaningless without it.
+        # If the next step (systemctl --user start podman.socket) still fails,
+        # the explicit warn message below names the failure.
+        if command -v loginctl >/dev/null 2>&1 \
+           && command -v systemctl >/dev/null 2>&1 \
+           && ! loginctl show-user "$(id -u -n)" 2>/dev/null | grep -q '^Linger=yes'; then
+          # `sudo` may be absent on hardened runner hosts (passwordless sudo
+          # stripped for security). Surface this distinctly from a `loginctl`
+          # -level failure so operators can grep for the right keyword.
+          sudo loginctl enable-linger "$(id -u -n)" 2>/dev/null \
+            || echo "warn: sudo loginctl enable-linger failed (sudo may be absent); continuing without linger" >&2
+        fi
         if ! systemctl --user start podman.socket; then
           echo "warn: 'systemctl --user start podman.socket' failed (may already be running)" >&2
         fi
