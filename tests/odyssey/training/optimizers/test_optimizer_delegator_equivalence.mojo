@@ -110,6 +110,49 @@ def _run_oo_step[
     return params[0].data
 
 
+def _run_oo_k3_steps[
+    OOType: Optimizer
+](
+    mut opt: OOType,
+    p_init: AnyTensor,
+    mut grads: List[AnyTensor],
+) raises -> AnyTensor:
+    """Run `opt.step([Variable])` 3 successive times on a single param.
+
+    Reuses the same `Variable + param_id` across all 3 iterations so the
+    OO's per-parameter state buffers (`m_buffers` / `v_buffers` /
+    `G_buffers` / RMSprop `m_buffers`) carry-over across calls — proving
+    that the OO optimizers thread their lazy-initialised state via
+    `parameters[i].id` exactly the way the caller-managed canonical path
+    threads `m, v, accum, buf`.
+
+    Args:
+        opt: OO optimizer state (hyperparameters already set at construct).
+        p_init: initial parameter tensor (owned; consumed).
+        grads: exactly 3 gradient tensors (each consumed in turn).
+
+    Returns the parameter tensor after the 3rd step (zero-tolerance byte
+    equality expected against the canonical-K=3 result).
+    """
+    if len(grads) != 3:
+        raise Error(
+            "_run_oo_k3_steps requires exactly 3 grads (got "
+            + String(len(grads))
+            + ")"
+        )
+    var tape = GradientTape()
+    tape.enable()
+    var pv = Variable(p_init^, True, tape)
+    var pid = pv.id
+    var params: List[Variable] = []
+    params.append(pv.copy())
+    for k in range(3):
+        tape.registry.set_grad(pid, grads[k]^)
+        opt.step(params, tape)
+        opt.zero_grad(tape)
+    return params[0].data
+
+
 # ============================================================================
 # Tests
 # ============================================================================
@@ -458,6 +501,209 @@ def test_rmsprop_oo_matches_canonical_with_momentum() raises:
     print("test_rmsprop_oo_matches_canonical_with_momentum PASSED")
 
 
+def test_adam_oo_matches_canonical_k3() raises:
+    """Adam K=3: across 3 successive steps OO.t / m_buffers / v_buffers
+    threading via `param_id` matches canonical's caller-managed
+    `m_c, v_c, t_c` (t advances 1→2→3 across calls).
+
+    The K=3 byte-identical assertion is the regression barrier against
+    state-threading drift — if the OO re-lazy-inits buffers on each
+    call, or threads `t` incorrectly, the second + third steps diverge
+    from the canonical.
+    """
+    print("Running test_adam_oo_matches_canonical_k3...")
+    var n = 3
+    var p_vals = List[Float64]()
+    p_vals.append(0.10)
+    p_vals.append(-0.20)
+    p_vals.append(0.30)
+    var g1_vals = List[Float64]()
+    g1_vals.append(0.02)
+    g1_vals.append(-0.03)
+    g1_vals.append(0.015)
+    var g2_vals = List[Float64]()
+    g2_vals.append(-0.04)
+    g2_vals.append(0.05)
+    g2_vals.append(-0.01)
+    var g3_vals = List[Float64]()
+    g3_vals.append(0.03)
+    g3_vals.append(-0.02)
+    g3_vals.append(0.04)
+    var lr = 0.001
+    var b1 = 0.9
+    var b2 = 0.999
+    var eps = 1e-8
+    var wd = 0.0
+
+    # === Canonical (caller-managed m_c, v_c; t_c = k+1 each iter = 1, 2, 3) ===
+    var p_c = _allocate_filled(n, p_vals, DType.float64)
+    var m_c = zeros([n], DType.float64)
+    var v_c = zeros([n], DType.float64)
+    var grads_c = List[AnyTensor]()
+    grads_c.append(_allocate_filled(n, g1_vals, DType.float64))
+    grads_c.append(_allocate_filled(n, g2_vals, DType.float64))
+    grads_c.append(_allocate_filled(n, g3_vals, DType.float64))
+    for k in range(3):
+        var t_c = k + 1
+        var out = adam_step(p_c, grads_c[k], m_c, v_c, t_c, lr, b1, b2, eps, wd)
+        p_c = out[0]
+        m_c = out[1]
+        v_c = out[2]
+
+    # === OO (state threaded internally by `param_id` from one Variable) ===
+    var p_oo = _allocate_filled(n, p_vals, DType.float64)
+    var grads_oo = List[AnyTensor]()
+    grads_oo.append(_allocate_filled(n, g1_vals, DType.float64))
+    grads_oo.append(_allocate_filled(n, g2_vals, DType.float64))
+    grads_oo.append(_allocate_filled(n, g3_vals, DType.float64))
+    var opt = Adam(
+        learning_rate=lr, beta1=b1, beta2=b2, epsilon=eps, weight_decay=wd
+    )
+    var p_oo_out = _run_oo_k3_steps(opt, p_oo, grads_oo)
+
+    _assert_tensors_byte_equal(p_c, p_oo_out, "Adam K=3")
+    print("  ok Adam K=3 byte-identical to canonical across 3 steps")
+    print("test_adam_oo_matches_canonical_k3 PASSED")
+
+
+def test_rmsprop_with_momentum_oo_matches_canonical_k3() raises:
+    """RMSprop-with-momentum K=3: OO `m_buffers[pid]` carry-over matches
+    canonical's caller-managed `buf_c` thread.
+
+    The OO lazy-inits `m_buffers[pid] = zeros_like(param)` on iter 1
+    (when `momentum > 0`) and threads via `result[2]` on subsequent
+    iters; canonical mirrors the exact same pattern.
+    """
+    print("Running test_rmsprop_with_momentum_oo_matches_canonical_k3...")
+    var n = 6
+    var p_vals = List[Float64]()
+    p_vals.append(0.10)
+    p_vals.append(-0.20)
+    p_vals.append(0.30)
+    p_vals.append(-0.40)
+    p_vals.append(0.50)
+    p_vals.append(-0.60)
+    var g1_vals = List[Float64]()
+    g1_vals.append(0.02)
+    g1_vals.append(-0.03)
+    g1_vals.append(0.015)
+    g1_vals.append(0.025)
+    g1_vals.append(-0.01)
+    g1_vals.append(0.04)
+    var g2_vals = List[Float64]()
+    g2_vals.append(-0.015)
+    g2_vals.append(0.025)
+    g2_vals.append(-0.010)
+    g2_vals.append(0.020)
+    g2_vals.append(-0.005)
+    g2_vals.append(0.030)
+    var g3_vals = List[Float64]()
+    g3_vals.append(0.010)
+    g3_vals.append(-0.020)
+    g3_vals.append(0.005)
+    g3_vals.append(-0.015)
+    g3_vals.append(0.020)
+    g3_vals.append(-0.025)
+    var lr = 0.01
+    var alpha = 0.99
+    var eps = 1e-8
+    var wd = 0.0
+    var momentum = 0.9
+
+    # === Canonical (square_c + buf_c threaded across iters) ===
+    var p_c = _allocate_filled(n, p_vals, DType.float64)
+    var square_c = zeros([n], DType.float64)
+    var buf_c = zeros([n], DType.float64)
+    var grads_c = List[AnyTensor]()
+    grads_c.append(_allocate_filled(n, g1_vals, DType.float64))
+    grads_c.append(_allocate_filled(n, g2_vals, DType.float64))
+    grads_c.append(_allocate_filled(n, g3_vals, DType.float64))
+    for k in range(3):
+        var out = rmsprop_step(
+            p_c, grads_c[k], square_c, 1, lr, alpha, eps, wd, momentum, buf_c
+        )
+        p_c = out[0]
+        square_c = out[1]
+        buf_c = out[2]
+
+    # === OO ===
+    var p_oo = _allocate_filled(n, p_vals, DType.float64)
+    var grads_oo = List[AnyTensor]()
+    grads_oo.append(_allocate_filled(n, g1_vals, DType.float64))
+    grads_oo.append(_allocate_filled(n, g2_vals, DType.float64))
+    grads_oo.append(_allocate_filled(n, g3_vals, DType.float64))
+    var opt = RMSprop(
+        learning_rate=lr,
+        alpha=alpha,
+        epsilon=eps,
+        weight_decay=wd,
+        momentum=momentum,
+    )
+    var p_oo_out = _run_oo_k3_steps(opt, p_oo, grads_oo)
+
+    _assert_tensors_byte_equal(p_c, p_oo_out, "RMSprop(m) K=3")
+    print("  ok RMSprop(m) K=3 byte-identical to canonical across 3 steps")
+    print("test_rmsprop_with_momentum_oo_matches_canonical_k3 PASSED")
+
+
+def test_adagrad_with_wd_oo_matches_canonical_k3() raises:
+    """AdaGrad-with-wd K=3: OO `G_buffers[pid] += grad²` carry-over
+    matches canonical's caller-managed `accum` thread.
+
+    The OO lazy-inits `G_buffers[pid] = zeros_like(param)` on iter 1 and
+    threads via `result[1]` (the new accumulator) on subsequent iters;
+    canonical mirrors. With `wd>0`, weight decay is applied OUTSIDE the
+    adaptive scaling (legacy semantics) so this test additionally pins
+    that quirky additive-WD contract for multi-step iterates.
+    """
+    print("Running test_adagrad_with_wd_oo_matches_canonical_k3...")
+    var n = 3
+    var p_vals = List[Float64]()
+    p_vals.append(0.50)
+    p_vals.append(-0.50)
+    p_vals.append(0.25)
+    var g1_vals = List[Float64]()
+    g1_vals.append(0.10)
+    g1_vals.append(-0.20)
+    g1_vals.append(0.05)
+    var g2_vals = List[Float64]()
+    g2_vals.append(0.08)
+    g2_vals.append(-0.15)
+    g2_vals.append(0.07)
+    var g3_vals = List[Float64]()
+    g3_vals.append(-0.05)
+    g3_vals.append(0.10)
+    g3_vals.append(-0.03)
+    var lr = 0.01
+    var eps = 1e-10
+    var wd = 1e-3
+
+    # === Canonical (accum_c threaded across iters) ===
+    var p_c = _allocate_filled(n, p_vals, DType.float64)
+    var accum_c = zeros([n], DType.float64)
+    var grads_c = List[AnyTensor]()
+    grads_c.append(_allocate_filled(n, g1_vals, DType.float64))
+    grads_c.append(_allocate_filled(n, g2_vals, DType.float64))
+    grads_c.append(_allocate_filled(n, g3_vals, DType.float64))
+    for k in range(3):
+        var out = adagrad_step(p_c, grads_c[k], accum_c, lr, eps, wd)
+        p_c = out[0]
+        accum_c = out[1]
+
+    # === OO ===
+    var p_oo = _allocate_filled(n, p_vals, DType.float64)
+    var grads_oo = List[AnyTensor]()
+    grads_oo.append(_allocate_filled(n, g1_vals, DType.float64))
+    grads_oo.append(_allocate_filled(n, g2_vals, DType.float64))
+    grads_oo.append(_allocate_filled(n, g3_vals, DType.float64))
+    var opt = AdaGrad(learning_rate=lr, epsilon=eps, weight_decay=wd)
+    var p_oo_out = _run_oo_k3_steps(opt, p_oo, grads_oo)
+
+    _assert_tensors_byte_equal(p_c, p_oo_out, "AdaGrad(wd>0) K=3")
+    print("  ok AdaGrad(wd>0) K=3 byte-identical to canonical across 3 steps")
+    print("test_adagrad_with_wd_oo_matches_canonical_k3 PASSED")
+
+
 # ============================================================================
 # Test main
 # ============================================================================
@@ -472,4 +718,7 @@ def main() raises:
     test_adagrad_oo_matches_canonical_with_wd()
     test_rmsprop_oo_matches_canonical_plain()
     test_rmsprop_oo_matches_canonical_with_momentum()
-    print("\nAll optimizer delegator-equivalence tests PASSED")
+    test_adam_oo_matches_canonical_k3()
+    test_rmsprop_with_momentum_oo_matches_canonical_k3()
+    test_adagrad_with_wd_oo_matches_canonical_k3()
+    print("\nAll optimizer delegator-equivalence tests PASSED (K=1 + K=3)")
