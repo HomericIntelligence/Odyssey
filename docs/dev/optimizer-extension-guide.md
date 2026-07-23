@@ -193,16 +193,21 @@ optimizers MUST NOT INLINE math in their OO wrapper — they must call
 | Lion | `src/odyssey/training/optimizers/lion.mojo` | `src/odyssey/autograd/optimizers_oo/lion.mojo` |
 | LARS | `src/odyssey/training/optimizers/lars.mojo` | `src/odyssey/autograd/optimizers_oo/lars.mojo` |
 | FTRL | `src/odyssey/training/optimizers/ftrl.mojo` | `src/odyssey/autograd/optimizers_oo/ftrl.mojo` |
-| Prodigy | `src/odyssey/training/optimizers/prodigy.mojo` | `src/odyssey/autograd/optimizers_oo/prodigy.mojo` |
-| Muon family (5) | `src/odyssey/training/optimizers/muon*.mojo` | `src/odyssey/autograd/optimizers_oo/muon_family.mojo` |
-| Shampoo family (4) | `src/odyssey/training/optimizers/{shampoo,soap,kl_shampoo,splus}.mojo` | `src/odyssey/autograd/optimizers_oo/shampoo_family.mojo` |
-| Schedule-Free family (3) | `src/odyssey/training/optimizers/{schedule_free,schedule_free_plus,sf_normuon}.mojo` | `src/odyssey/autograd/optimizers_oo/schedule_free.mojo` |
-| Sophia, Adan, AdOpt | `src/odyssey/training/optimizers/{sophia,adan,adopt}.mojo` | `src/odyssey/autograd/optimizers_oo/adam_family.mojo` |
+| Sophia, Adan, AdOpt | `{sophia,adan,adopt}.mojo` (functional-only) | **queued** |
+| Prodigy | `prodigy.mojo` (functional-only) | **queued** |
+| Muon family (5) | `{muon,normuon,mgup_muon,muon_hyperball,lionmuon}.mojo` (functional-only) | **queued** |
+| Shampoo family (4) | `{shampoo,soap,kl_shampoo,splus}.mojo` (functional-only) | **queued** |
+| Schedule-Free family (3) | `{schedule_free,schedule_free_plus,sf_normuon}.mojo` (functional-only) | **queued** |
 
-> Historical note: The five core OO structs (SGD, Adam, AdamW, AdaGrad,
-> RMSprop) previously lived inline in
-> `src/odyssey/autograd/optimizers.mojo`. After the single-source-of-truth
-> refactor they were moved to `optimizers_oo/<name>.mojo`; the legacy
-> file is now a 5-line re-export shim. `from odyssey.autograd.optimizers
-> import SGD, ...` still works for back-compat, but new code should
-> import directly from `odyssey.autograd.optimizers_oo`.
+> **Coverage scope today (this PR).** The OO wrappers live at `optimizers_oo/<name>.mojo`
+> for the **8 optimizers** at the top of the table (the 5 historical core + Lion/LARS/FTRL).
+> The remaining 15+ functional-only optimizers are still consumed via their `<name>_step`
+> / `init_<name>_state` API; their OO wrappers are tracked as **queued** above and land
+> in follow-up PRs. Adding a new OO wrapper means adding a file at `optimizers_oo/<name>.mojo`
+> and one import line in `optimizers_oo/__init__.mojo` — the recipe in this guide is unchanged.
+>
+> Historical note: The five core OO structs (SGD, Adam, AdamW, AdaGrad, RMSprop) previously
+> lived inline in `src/odyssey/autograd/optimizers.mojo`. After the single-source-of-truth
+> refactor they were moved to `optimizers_oo/<name>.mojo`; the legacy file is now a re-export
+> shim. `from odyssey.autograd.optimizers import SGD, ...` still works for back-compat, but
+> new code should import directly from `odyssey.autograd.optimizers_oo`.

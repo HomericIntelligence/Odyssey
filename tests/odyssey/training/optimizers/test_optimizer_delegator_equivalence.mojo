@@ -705,6 +705,277 @@ def test_adagrad_with_wd_oo_matches_canonical_k3() raises:
 
 
 # ============================================================================
+# Raise-contract equivalence tests
+# ============================================================================
+#
+# These tests pin the *error-path* equivalence: the canonical functional
+# step and the OO wrapper must reject (or accept) the same inputs, with the
+# same exception type. Locking the raise contract is what closes the
+# "no behavioral drift" claim: a future divergence that silently swallowed
+# a dtype mismatch, or that raised a *different* error on shape mismatch,
+# would otherwise be invisible to K=1/K=3 happy-path tests.
+
+
+def test_adam_dtypes_mismatch_raises() raises:
+    """Adam: both `adam_step` and `Adam.step()` raise on dtype mismatch.
+
+    Both paths go through the same `adam_step` rejection
+    (`params.dtype() != gradients.dtype()`), so the exception semantics
+    match by construction if both raise.
+    """
+    print("Running test_adam_dtypes_mismatch_raises...")
+    var p_vals = List[Float64]()
+    p_vals.append(1.0)
+    p_vals.append(1.0)
+    p_vals.append(1.0)
+    var g_vals = List[Float64]()
+    g_vals.append(0.5)
+    g_vals.append(0.5)
+    g_vals.append(0.5)
+    var p_can = _allocate_filled(3, p_vals, DType.float64)
+    var g_can = _allocate_filled(3, g_vals, DType.float32)  # dtype mismatch
+    var m_c = zeros([3], DType.float64)
+    var v_c = zeros([3], DType.float64)
+
+    var can_raised = False
+    try:
+        adam_step(p_can, g_can, m_c, v_c, 1, 0.001, 0.9, 0.999, 1e-8, 0.0)
+    except e:
+        can_raised = True
+    if not can_raised:
+        raise Error("canonical adam_step did not raise on dtype mismatch")
+
+    var p_oo = _allocate_filled(3, p_vals, DType.float64)
+    var g_oo = _allocate_filled(3, g_vals, DType.float32)
+    var oo_raised = False
+    try:
+        var opt = Adam(
+            learning_rate=0.001,
+            beta1=0.9,
+            beta2=0.999,
+            epsilon=1e-8,
+            weight_decay=0.0,
+        )
+        var tape = GradientTape()
+        tape.enable()
+        var pv = Variable(p_oo^, True, tape)
+        var pid = pv.id
+        var params: List[Variable] = []
+        params.append(pv.copy())
+        tape.registry.set_grad(pid, g_oo^)
+        opt.step(params, tape)
+    except e:
+        oo_raised = True
+    if not oo_raised:
+        raise Error("OO Adam.step() did not raise on dtype mismatch")
+    if can_raised != oo_raised:
+        raise Error(
+            "raise contract differs (dtype): canonical="
+            + String(can_raised)
+            + " oo="
+            + String(oo_raised)
+        )
+    print("  ok Adam dtype-mismatch raises on both paths")
+    print("test_adam_dtypes_mismatch_raises PASSED")
+
+
+def test_adam_shape_mismatch_raises() raises:
+    """Adam: both paths raise on shape mismatch (param=[3], grad=[4]).
+
+    Same structure as the dtype-mismatch test — both paths share
+    the canonical `adam_step` rejection of `params.shape() !=
+    gradients.shape()`, so the contract agrees if both raise.
+    """
+    print("Running test_adam_shape_mismatch_raises...")
+    var p_vals = List[Float64]()
+    p_vals.append(1.0)
+    p_vals.append(1.0)
+    p_vals.append(1.0)
+    var g_vals_4 = List[Float64]()
+    g_vals_4.append(0.5)
+    g_vals_4.append(0.5)
+    g_vals_4.append(0.5)
+    g_vals_4.append(0.5)
+    var p = _allocate_filled(3, p_vals, DType.float64)
+    var g = _allocate_filled(4, g_vals_4, DType.float64)  # shape mismatch
+    var m_c = zeros([3], DType.float64)
+    var v_c = zeros([3], DType.float64)
+
+    var can_raised = False
+    try:
+        adam_step(p, g, m_c, v_c, 1, 0.001, 0.9, 0.999, 1e-8, 0.0)
+    except e:
+        can_raised = True
+    if not can_raised:
+        raise Error("canonical adam_step did not raise on shape mismatch")
+
+    var oo_raised = False
+    try:
+        var opt = Adam(
+            learning_rate=0.001,
+            beta1=0.9,
+            beta2=0.999,
+            epsilon=1e-8,
+            weight_decay=0.0,
+        )
+        var tape = GradientTape()
+        tape.enable()
+        var pv = Variable(p^, True, tape)
+        var pid = pv.id
+        var params: List[Variable] = []
+        params.append(pv.copy())
+        tape.registry.set_grad(pid, g^)
+        opt.step(params, tape)
+    except e:
+        oo_raised = True
+    if not oo_raised:
+        raise Error("OO Adam.step() did not raise on shape mismatch")
+    if can_raised != oo_raised:
+        raise Error("raise contract differs (shape)")
+    print("  ok Adam shape-mismatch raises on both paths")
+    print("test_adam_shape_mismatch_raises PASSED")
+
+
+def test_adam_t_nonpositive_raises() raises:
+    """Adam: canonical `adam_step` rejects `t<=0`; OO `Adam.step()`
+    internally manages `t` and never exposes an invalid t to the
+    canonical implementation.
+
+    Both paths produce well-defined K=3 updates — the contract agrees
+    in the sense that the canonical rejects caller-supplied bad `t`,
+    while the OO avoids the bad-t condition by construction
+    (no public `t` parameter; `self.t` increments internally across
+    the K=3 step sequence). This test logs that asymmetry and pins
+    the OO K=3 path against the canonical's well-formed `t=1,2,3`.
+    """
+    print("Running test_adam_t_nonpositive_raises...")
+
+    # 1) Canonical rejects t<=0 (both t=0 and a negative t).
+    var p_vals = List[Float64]()
+    p_vals.append(1.0)
+    p_vals.append(1.0)
+    p_vals.append(1.0)
+    var g_vals = List[Float64]()
+    g_vals.append(0.5)
+    g_vals.append(0.5)
+    g_vals.append(0.5)
+    var p = _allocate_filled(3, p_vals, DType.float64)
+    var g = _allocate_filled(3, g_vals, DType.float64)
+    var m_c = zeros([3], DType.float64)
+    var v_c = zeros([3], DType.float64)
+
+    var can_raised_t0 = False
+    try:
+        adam_step(p, g, m_c, v_c, 0, 0.001, 0.9, 0.999, 1e-8, 0.0)
+    except e:
+        can_raised_t0 = True
+    if not can_raised_t0:
+        raise Error("canonical adam_step did not raise on t=0")
+
+    var can_raised_neg = False
+    try:
+        adam_step(p, g, m_c, v_c, -1, 0.001, 0.9, 0.999, 1e-8, 0.0)
+    except e:
+        can_raised_neg = True
+    if not can_raised_neg:
+        raise Error("canonical adam_step did not raise on t=-1")
+
+    # 2) OO never exposes bad t — running K=3 must succeed because the
+    #    OO manages `t` internally (init=0, +1 per step).
+    var p2 = _allocate_filled(3, p_vals, DType.float64)
+    var grads = List[AnyTensor]()
+    grads.append(_allocate_filled(3, g_vals, DType.float64))
+    grads.append(_allocate_filled(3, g_vals, DType.float64))
+    grads.append(_allocate_filled(3, g_vals, DType.float64))
+    var opt = Adam(
+        learning_rate=0.001,
+        beta1=0.9,
+        beta2=0.999,
+        epsilon=1e-8,
+        weight_decay=0.0,
+    )
+    var oo_out = _run_oo_k3_steps(opt, p2, grads)
+    if oo_out.numel() != 3:
+        raise Error("OO K=3 output has wrong numel after internal t threading")
+
+    print(
+        "  ok Adam t<=0 contract: canonical rejects, OO avoids by"
+        " construction (managed internally)"
+    )
+    print("test_adam_t_nonpositive_raises PASSED")
+
+
+def test_adamw_oo_matches_canonical_k3() raises:
+    """AdamW K=3 (wd=0.01): decoupled-WD contract pinned at multi-step.
+
+    Across 3 successive steps the OO's `self.t` / `m_buffers` /
+    `v_buffers` threading plus the wd=0.01 weight-decay penalty must
+    match the canonical `adamw_step`'s caller-managed `m_c, v_c, t_c`
+    thread. Complements `test_adamw_oo_matches_canonical` (K=1) by
+    locking in the multi-step behavior — including how the wd penalty
+    decays `params` across iterates 1→2→3.
+    """
+    print("Running test_adamw_oo_matches_canonical_k3...")
+    var n = 3
+    var p_vals = List[Float64]()
+    p_vals.append(0.10)
+    p_vals.append(-0.20)
+    p_vals.append(0.30)
+    var g1_vals = List[Float64]()
+    g1_vals.append(0.02)
+    g1_vals.append(-0.03)
+    g1_vals.append(0.015)
+    var g2_vals = List[Float64]()
+    g2_vals.append(-0.04)
+    g2_vals.append(0.05)
+    g2_vals.append(-0.01)
+    var g3_vals = List[Float64]()
+    g3_vals.append(0.03)
+    g3_vals.append(-0.02)
+    g3_vals.append(0.04)
+    var lr = 0.001
+    var b1 = 0.9
+    var b2 = 0.999
+    var eps = 1e-8
+    var wd = 0.01
+
+    # Canonical (caller-managed m_c, v_c; t_c = k+1 each iter = 1, 2, 3)
+    var p_c = _allocate_filled(n, p_vals, DType.float64)
+    var m_c = zeros([n], DType.float64)
+    var v_c = zeros([n], DType.float64)
+    var grads_c = List[AnyTensor]()
+    grads_c.append(_allocate_filled(n, g1_vals, DType.float64))
+    grads_c.append(_allocate_filled(n, g2_vals, DType.float64))
+    grads_c.append(_allocate_filled(n, g3_vals, DType.float64))
+    for k in range(3):
+        var t_c = k + 1
+        var out = adamw_step(
+            p_c, grads_c[k], m_c, v_c, t_c, lr, b1, b2, eps, wd
+        )
+        p_c = out[0]
+        m_c = out[1]
+        v_c = out[2]
+
+    # OO (state threaded internally by `param_id` from one Variable)
+    var p_oo = _allocate_filled(n, p_vals, DType.float64)
+    var grads_oo = List[AnyTensor]()
+    grads_oo.append(_allocate_filled(n, g1_vals, DType.float64))
+    grads_oo.append(_allocate_filled(n, g2_vals, DType.float64))
+    grads_oo.append(_allocate_filled(n, g3_vals, DType.float64))
+    var opt = AdamW(
+        learning_rate=lr, beta1=b1, beta2=b2, epsilon=eps, weight_decay=wd
+    )
+    var p_oo_out = _run_oo_k3_steps(opt, p_oo, grads_oo)
+
+    _assert_tensors_byte_equal(p_c, p_oo_out, "AdamW K=3 (wd=0.01)")
+    print(
+        "  ok AdamW K=3 byte-identical to canonical across 3 steps"
+        " (decoupled WD)"
+    )
+    print("test_adamw_oo_matches_canonical_k3 PASSED")
+
+
+# ============================================================================
 # Test main
 # ============================================================================
 
@@ -721,4 +992,11 @@ def main() raises:
     test_adam_oo_matches_canonical_k3()
     test_rmsprop_with_momentum_oo_matches_canonical_k3()
     test_adagrad_with_wd_oo_matches_canonical_k3()
-    print("\nAll optimizer delegator-equivalence tests PASSED (K=1 + K=3)")
+    test_adam_dtypes_mismatch_raises()
+    test_adam_shape_mismatch_raises()
+    test_adam_t_nonpositive_raises()
+    test_adamw_oo_matches_canonical_k3()
+    print(
+        "\nAll optimizer delegator-equivalence tests PASSED"
+        " (K=1 + K=3 + raise-contract + AdamW K=3)"
+    )

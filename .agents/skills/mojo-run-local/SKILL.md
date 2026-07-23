@@ -1,14 +1,14 @@
 ---
 name: mojo-run-local
-description: Resolve `mojo: error: unable to locate module 'odyssey'` by passing the canonical 3-flag include triple `-I src -I "$REPO_ROOT" -I .` that the justfile already uses. Use when a raw `uv run mojo run <file>` fails to resolve a project package.
+description: `-I src -I "$REPO_ROOT" -I .` fixes `unable to locate module 'odyssey'` from `mojo run`. Mirrors `_test-mojo-inner`.
 ---
 
 # Run Mojo locally outside the justfile
 
-The repo's `mojo.toml` (`[packages]` block at `mojo.toml:13-16`) declares
+The repo's `mojo.toml` (`[packages]` block at `mojo.toml:17-21`) declares
 `odyssey = "src/odyssey"`, but `mojo run` does NOT auto-include `src/`
-on the include path. The justfile's `_test-mojo-inner` recipe (around
-`justfile:646`) works because it passes the canonical 3-flag triple:
+on the include path. The justfile's `_test-mojo-inner` recipe (at
+`justfile:1258`) works because it passes the canonical 3-flag triple:
 
 ```bash
 uv run mojo --Werror -I "$REPO_ROOT/src" -I "$REPO_ROOT" -I . "$test_file"
@@ -91,13 +91,14 @@ uv run --locked mojo run -I src -I "$REPO_ROOT" -I . \
   skill resolves only the `unable to locate module 'odyssey'`
   failure.
 
-## Cross-references (line-numbered)
+## Cross-references (line-numbered, verified via `grep -n`)
 
-- `justfile:646-660` — `_test-mojo-inner` recipe, the canonical
+- `justfile:1258` — `_test-mojo-inner` recipe, the canonical
   working invocation.
-- `justfile:574-602` — `_test-group-inner`, identical 3-flag pattern.
-- `mojo.toml:13-16` — `[packages]` block that declares
-  `odyssey = "src/odyssey"`.
+- `justfile:953` — `_test-group-inner`, identical 3-flag pattern.
+- `mojo.toml:17-21` — `[packages]` block that declares
+  `odyssey = "src/odyssey"` and the sibling `examples` / `tests` /
+  `benchmarks` packages.
 - `AGENTS.md` § "Mojo Test Execution and GLIBC Compatibility" — if the
   failure is GLIBC-related rather than include-path, use
   `just podman-up` instead of this skill.
