@@ -6,9 +6,10 @@ updates can have large per-row magnitudes that destabilize training at higher
 learning rates.
 
 Reference:
-    Jordan/Bernstein 2024 follow-up to "Muon: An optimizer for hidden layers
-    in neural networks" — https://kellerjordan.github.io/posts/muon/
-    (Normalization technique described in the Muon post's appendix)
+    NorMuon: "NorMuon: Making Muon more efficient and scalable" (Li et al.,
+    2025, arXiv:2510.05491). Built on the canonical Muon optimizer from
+    Jordan et al. 2024 — https://kellerjordan.github.io/posts/muon/ — with
+    per-axis normalization for stability at higher learning rates.
 
 Key Points:
     - Wraps muon_step internally, adding per-row/column normalization
@@ -260,7 +261,7 @@ def normuon_step_simple(
     """Simplified NorMuon step with default hyperparameters.
 
     Convenience wrapper around normuon_step using standard defaults from
-    the Jordan/Bernstein paper appendix.
+    the NorMuon paper (Li et al., 2025; arXiv:2510.05491).
 
     Args:
         params: Model parameters to update.
