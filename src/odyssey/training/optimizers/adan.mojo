@@ -282,10 +282,10 @@ def adan_default_hyperparams() -> Dict[String, Float64]:
 
     These are the defaults that the official sail-sg/Adan reference
     implementation uses (https://github.com/sail-sg/Adan) and that the paper
-    documents (Xie et al., 2022 — arXiv:2208.06677). The dict keys match
-    `adan_step`'s `beta1` / `beta2` / `beta3` / `epsilon` keyword-argument
-    names verbatim, so a caller can copy the values into an `adan_step` call
-    by name without renaming:
+    documents (Xie et al., 2022 -- arXiv:2208.06677). The four
+    hyperparameter-keyword names match the keyword-argument names in
+    `adan_step` by name, so a caller can copy the values into an `adan_step`
+    call by name without renaming:
 
     ```mojo
     var defaults = adan_default_hyperparams()
@@ -297,6 +297,10 @@ def adan_default_hyperparams() -> Dict[String, Float64]:
         epsilon=defaults["epsilon"],
     )
     ```
+
+    `weight_decay` is intentionally omitted from the example: its paper
+    default is 0.0, so most callers opt in through a separate config field
+    rather than this hyperparameters lookup.
 
     Returns:
         Dict mapping hyperparameter name (`"beta1"`, `"beta2"`, `"beta3"`,
