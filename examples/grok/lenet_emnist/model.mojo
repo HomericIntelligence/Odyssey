@@ -22,7 +22,7 @@ References:
 from odyssey.tensor.any_tensor import AnyTensor
 from odyssey.tensor.tensor_creation import zeros, zeros_like
 from odyssey.training.optimizers.adamw import adamw_step
-from odyssey.training.optimizers.shampoo import initialize_shampoo_state
+from odyssey.training.optimizers.shampoo import unpack_shampoo_state
 from odyssey.core.conv import conv2d, conv2d_backward
 from odyssey.core.pooling import maxpool2d, maxpool2d_backward
 from odyssey.core.linear import linear, linear_backward
@@ -263,21 +263,21 @@ struct LeNet5(Model, Movable):
         self.conv2_bias_m = zeros_like(self.conv2_bias)
 
         # FC1 weights: Shampoo state (L [m,m], R [n,n], momentum [m,n])
-        var fc1_shampoo = initialize_shampoo_state(self.fc1_weights)
+        var fc1_shampoo = unpack_shampoo_state(self.fc1_weights)
         self.fc1_weights_L = fc1_shampoo[0]
         self.fc1_weights_R = fc1_shampoo[1]
         self.fc1_weights_m = fc1_shampoo[2]
         self.fc1_bias_m = zeros_like(self.fc1_bias)
 
         # FC2 weights: Shampoo state (L [m,m], R [n,n], momentum [m,n])
-        var fc2_shampoo = initialize_shampoo_state(self.fc2_weights)
+        var fc2_shampoo = unpack_shampoo_state(self.fc2_weights)
         self.fc2_weights_L = fc2_shampoo[0]
         self.fc2_weights_R = fc2_shampoo[1]
         self.fc2_weights_m = fc2_shampoo[2]
         self.fc2_bias_m = zeros_like(self.fc2_bias)
 
         # FC3 weights: Shampoo state (L [m,m], R [n,n], momentum [m,n])
-        var fc3_shampoo = initialize_shampoo_state(self.fc3_weights)
+        var fc3_shampoo = unpack_shampoo_state(self.fc3_weights)
         self.fc3_weights_L = fc3_shampoo[0]
         self.fc3_weights_R = fc3_shampoo[1]
         self.fc3_weights_m = fc3_shampoo[2]
