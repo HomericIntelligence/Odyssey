@@ -705,3 +705,47 @@ def init_shampoo_state(
             per.append(zeros_like(p))
         all_states.append(per^)
     return all_states^
+
+
+def unpack_shampoo_state(
+    params: AnyTensor,
+    *,
+    force_f64: Bool = False,
+) raises -> Tuple[AnyTensor, AnyTensor, AnyTensor]:
+    """Allocate and unpack Shampoo state buffers for a single matrix-shaped parameter.
+
+    Sugar over `init_shampoo_state([params])` that returns the canonical 3-tuple
+    `(L, R, momentum)` directly, so call sites collapse from:
+
+        var _sh_states = init_shampoo_state([params])
+        var L = _sh_states[0][0]
+        var R = _sh_states[0][1]
+        var momentum = _sh_states[0][2]
+
+    to:
+
+        var (L, R, momentum) = unpack_shampoo_state(params)
+
+    The eligibility check (`is_shampoo_eligible(params)`) is enforced before any
+    allocation; non-matrix params raise rather than return a degenerate triple
+    of wrong-shape buffers. This matches the contract of the legacy
+    `initialize_shampoo_state` helper that this function supersedes for new code.
+
+    Args:
+        params: Single matrix-shaped parameter (must be rank-2, both dims >= 2).
+        force_f64: Up-cast state buffers to float64 (Shampoo math benefits).
+
+    Returns:
+        Tuple `(L, R, momentum)` of column-major identity-initialized `L [m,m]`,
+        identity-initialized `R [n,n]`, and zero-initialized `momentum [m,n]`.
+
+    Raises:
+        Error: If `params` is not rank-2 or has any dimension < 2.
+    """
+    if not is_shampoo_eligible(params):
+        raise Error(
+            "unpack_shampoo_state requires a rank-2 (matrix) parameter with"
+            " both dimensions >= 2"
+        )
+    var states = init_shampoo_state([params], force_f64=force_f64)
+    return (states[0][0], states[0][1], states[0][2])
