@@ -57,8 +57,8 @@ def test_reject_shape_mismatch() raises:
     print("Running test_reject_shape_mismatch...")
     var p = zeros([3, 4], DType.float64)
     var g = zeros([3, 5], DType.float64)
-    var w_st = init_kl_shampoo_state(p)
-    var st = w_st[0]
+    var w_st = init_kl_shampoo_state([p])
+    var st = w_st[0].copy()
     try:
         var (_, _, _) = kl_shampoo_step(p, g, st[0], st[1], 0.1)
         raise Error("Should have rejected shape-mismatched gradient")
@@ -114,7 +114,7 @@ def test_reject_degenerate_dim() raises:
     except _:
         print("  ok kl_shampoo_step rejected 1×4 (dim < 2)")
     try:
-        var _st = init_kl_shampoo_state(p)
+        var _st = init_kl_shampoo_state([p])
         raise Error("init_kl_shampoo_state should have rejected a 1×4 param")
     except _:
         print("  ok init_kl_shampoo_state rejected 1×4 (dim < 2)")
@@ -143,8 +143,8 @@ def test_init_state_shapes() raises:
     """
     print("Running test_init_state_shapes...")
     var W = zeros([3, 4], DType.float64)
-    var w_st = init_kl_shampoo_state(W)
-    var st = w_st[0]
+    var w_st = init_kl_shampoo_state([W])
+    var st = w_st[0].copy()
     # S_A: 3x3 = 9 ; S_B: 4x4 = 16.
     if st[0].numel() != 9:
         raise Error("S_A should be 3x3")
@@ -219,8 +219,8 @@ def test_parity_three_step() raises:
 
     var W = zeros([3, 4], DType.float64)
     _seed_ramp(W, 12, 0.1, -0.5)
-    var w_st = init_kl_shampoo_state(W)
-    var st = w_st[0]
+    var w_st = init_kl_shampoo_state([W])
+    var st = w_st[0].copy()
     var s_a = st[0]
     var s_b = st[1]
 
@@ -262,12 +262,12 @@ def test_kl_shampoo_step_simple_delegates() raises:
     print("Running test_kl_shampoo_step_simple_delegates...")
     var W = zeros([3, 4], DType.float64)
     _seed_ramp(W, 12, 0.1, -0.5)
-    var w_st = init_kl_shampoo_state(W)
-    var st = w_st[0]
+    var w_st = init_kl_shampoo_state([W])
+    var st = w_st[0].copy()
     var s_a_full = st[0]
     var s_b_full = st[1]
     # Independent state buffers so we can compare both at the same step.
-    var st2 = init_kl_shampoo_state(W)
+    var st2 = init_kl_shampoo_state([W])[0].copy()
     var s_a_simple = st2[0]
     var s_b_simple = st2[1]
     var g = zeros([3, 4], DType.float64)
