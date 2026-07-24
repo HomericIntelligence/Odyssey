@@ -1,0 +1,2510 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Mojo-based AI research platform for reproducing classic research papers">
+      
+      
+      
+        <link rel="canonical" href="https://github.com/HomericIntelligence/Odyssey/dev/mojo-test-failure-patterns/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Mojo Test Failure Learnings - Comprehensive Pattern Analysis - ML Odyssey</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#mojo-test-failure-learnings-comprehensive-pattern-analysis" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="ML Odyssey" class="md-header__button md-logo" aria-label="ML Odyssey" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            ML Odyssey
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Mojo Test Failure Learnings - Comprehensive Pattern Analysis
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/HomericIntelligence/Odyssey" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    HomericIntelligence/Odyssey
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../glossary/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Glossary
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../release-process/" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../integration/supporting-directories/" class="md-tabs__link">
+          
+  
+  
+  Integration
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="ML Odyssey" class="md-nav__button md-logo" aria-label="ML Odyssey" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    ML Odyssey
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/HomericIntelligence/Odyssey" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    HomericIntelligence/Odyssey
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../glossary/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Glossary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/quickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quickstart
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/first_model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    First Model
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/repository-structure/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Repository Structure
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../release-process/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Release Process
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Integration
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Integration
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../integration/supporting-directories/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Supporting Directories
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../integration/papers-shared-integration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Papers & Shared Integration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../integration/quick-start-new-paper/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start New Paper
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#executive-summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Executive Summary
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#category-1-ownership-and-borrowing-violations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Category 1: Ownership and Borrowing Violations
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Category 1: Ownership and Borrowing Violations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#11-temporary-rvalue-ownership-transfer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.1 Temporary Rvalue Ownership Transfer
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#12-implicitlycopyable-trait-violations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.2 ImplicitlyCopyable Trait Violations
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#13-missing-transfer-operator" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.3 Missing Transfer Operator
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#category-2-constructor-and-method-signatures" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Category 2: Constructor and Method Signatures
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Category 2: Constructor and Method Signatures">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21-out-self-vs-mut-self-in-constructors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1 out self vs mut self in Constructors
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22-missing-main-functions-in-executables" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.2 Missing Main Functions in Executables
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#23-missing-package-exports" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.3 Missing Package Exports
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#24-missing-api-methods" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.4 Missing API Methods
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#category-3-syntax-and-declaration-errors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Category 3: Syntax and Declaration Errors
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Category 3: Syntax and Declaration Errors">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31-missing-space-after-var-keyword" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1 Missing Space After var Keyword
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32-invalid-list-indexing-for-initialization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2 Invalid List Indexing for Initialization
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#33-missing-closing-parentheses" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.3 Missing Closing Parentheses
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#category-4-type-system-issues" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Category 4: Type System Issues
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Category 4: Type System Issues">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#41-dtype-not-comparable" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.1 DType Not Comparable
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#42-property-vs-method-access" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.2 Property vs Method Access
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#43-missing-escaping-keyword-for-closures" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.3 Missing escaping Keyword for Closures
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#44-explicit-list-copy-required" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.4 Explicit List Copy Required
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#category-5-runtime-errors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Category 5: Runtime Errors
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Category 5: Runtime Errors">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#51-uninitialized-list-elements" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.1 Uninitialized List Elements
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#52-uninitialized-tensor-data" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.2 Uninitialized Tensor Data
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#53-uninitialized-memory-in-forward-pass" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.3 Uninitialized Memory in Forward Pass
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#54-incorrect-range-bounds-for-tanh" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.4 Incorrect Range Bounds for tanh
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#category-6-parameter-ordering-issues" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Category 6: Parameter Ordering Issues
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Category 6: Parameter Ordering Issues">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#61-optional-parameters-before-required" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.1 Optional Parameters Before Required
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#category-7-comment-syntax-issues" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Category 7: Comment Syntax Issues
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Category 7: Comment Syntax Issues">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#71-invalid-comment-prefix" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.1 Invalid Comment Prefix
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#quick-reference-cheat-sheet" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quick Reference Cheat Sheet
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Quick Reference Cheat Sheet">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#constructor-signatures" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Constructor Signatures
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ownership-transfer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Ownership Transfer
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#list-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        List Operations
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#trait-conformance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Trait Conformance
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tensor-initialization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tensor Initialization
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#type-comparisons" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Type Comparisons
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#integration-recommendations-for-claudemd" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Integration Recommendations for CLAUDE.md
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Integration Recommendations for CLAUDE.md">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#section-1-add-to-mojo-syntax-standards" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Section 1: Add to "Mojo Syntax Standards"
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#section-3-add-pre-commit-hook-checks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Section 3: Add Pre-commit Hook Checks
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#section-4-add-to-testing-best-practices" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Section 4: Add to "Testing Best Practices"
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Section 4: Add to &#34;Testing Best Practices&#34;">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#initialize-all-tensor-elements" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Initialize ALL Tensor Elements
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#use-explicit-copies-in-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Use Explicit Copies in Tests
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#conclusion" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Conclusion
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="mojo-test-failure-learnings-comprehensive-pattern-analysis">Mojo Test Failure Learnings - Comprehensive Pattern Analysis</h1>
+<p><strong>Generated from</strong>: 10 PRs fixing test compilation and runtime failures (PRs #2037-#2046)
+<strong>Date</strong>: 2025-11-26
+<strong>Context</strong>: Issue #2025 - Systematic analysis of all Mojo test failures</p>
+<h2 id="executive-summary">Executive Summary</h2>
+<p>Analysis of 10 PRs revealed 7 major categories of errors affecting 50+ test files. The root
+causes fall into three groups:</p>
+<ol>
+<li><strong>Ownership/Memory Safety Violations</strong> (40% of errors) - Mojo's ownership model requires
+   explicit transfer operators</li>
+<li><strong>Syntax/Declaration Errors</strong> (35% of errors) - Typos and incorrect Mojo syntax patterns</li>
+<li><strong>API Design Issues</strong> (25% of errors) - Missing constructors, incorrect signatures,
+   uninitialized data</li>
+</ol>
+<p><strong>Key Finding</strong>: Most errors stem from misunderstanding Mojo v0.26.1+ ownership semantics and
+constructor conventions. The <code>out self</code> vs <code>mut self</code> distinction is critical.</p>
+<hr />
+<h2 id="category-1-ownership-and-borrowing-violations">Category 1: Ownership and Borrowing Violations</h2>
+<h3 id="11-temporary-rvalue-ownership-transfer">1.1 Temporary Rvalue Ownership Transfer</h3>
+<p><strong>Anti-pattern</strong>: Passing temporary <code>List[Int]()</code> directly to function requiring ownership</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># WRONG - Cannot transfer ownership of temporary</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="k">var</span><span class="w"> </span><span class="nv">labels</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">AnyTensor</span><span class="p">(</span><span class="nb">List</span><span class="p">[</span><span class="nb">Int</span><span class="p">](),</span><span class="w"> </span><span class="nb">DType</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+</code></pre></div>
+<p><strong>Error Message</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>error: cannot implicitly convert &#39;NoneType&#39; to &#39;List[Int]&#39;
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>  var labels = AnyTensor(List[Int](), DType.int32)
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>                        ^~~~~~~~~~~~
+</code></pre></div>
+<p><strong>Root Cause</strong>: Mojo cannot transfer ownership of an rvalue (temporary expression). The
+<code>List[Int]()</code> constructor returns a value that doesn't have a name/lifetime.</p>
+<p><strong>Correct Pattern</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1"># CORRECT - Named variable can be transferred</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="k">var</span><span class="w"> </span><span class="nv">labels_shape</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">List</span><span class="p">[</span><span class="nb">Int</span><span class="p">]()</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="k">var</span><span class="w"> </span><span class="nv">labels</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">AnyTensor</span><span class="p">(</span><span class="n">labels_shape</span><span class="p">,</span><span class="w"> </span><span class="nb">DType</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+</code></pre></div>
+<p><strong>Why This Works</strong>: The named variable <code>labels_shape</code> has storage and a lifetime, so its
+ownership can be transferred to the AnyTensor constructor.</p>
+<p><strong>Prevention</strong>:</p>
+<ul>
+<li>Never pass temporary expressions to <code>var</code> parameters</li>
+<li>Always create named variables for ownership transfer</li>
+<li>Use <code>read</code> parameters if the function doesn't need ownership</li>
+</ul>
+<p><strong>Files Affected</strong>: PR #2037</p>
+<ul>
+<li><code>tests/test_core_operations.mojo</code> (5 violations)</li>
+<li><code>tests/training/test_confusion_matrix.mojo</code> (10 violations)</li>
+</ul>
+<hr />
+<h3 id="12-implicitlycopyable-trait-violations">1.2 ImplicitlyCopyable Trait Violations</h3>
+<p><strong>Anti-pattern</strong>: Marking structs with <code>ImplicitlyCopyable</code> when fields are not copyable</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1"># WRONG - List[Float32] is NOT ImplicitlyCopyable</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="k">struct</span><span class="w"> </span><span class="n n-Struct">SimpleMLP</span><span class="p">(</span><span class="nb">Copyable</span><span class="p">,</span><span class="w"> </span><span class="nb">Movable</span><span class="p">,</span><span class="w"> </span><span class="n">ImplicitlyCopyable</span><span class="p">,</span><span class="w"> </span><span class="n">Model</span><span class="p">):</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">    </span><span class="k">var</span><span class="w"> </span><span class="nv">weights</span><span class="p">:</span><span class="w"> </span><span class="nb">List</span><span class="p">[</span><span class="nb">Float32</span><span class="p">]</span><span class="w">  </span><span class="c1"># Not implicitly copyable!</span>
+</code></pre></div>
+<p><strong>Error Message</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>error: &#39;SimpleMLP&#39; does not conform to trait &#39;ImplicitlyCopyable&#39;
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>  struct SimpleMLP(Copyable, Movable, ImplicitlyCopyable, Model):
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>                                      ^~~~~~~~~~~~~~~~~~~~
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>note: &#39;List[Float32]&#39; does not conform to &#39;ImplicitlyCopyable&#39;
+</code></pre></div>
+<p><strong>Root Cause</strong>: <code>ImplicitlyCopyable</code> requires ALL fields to be trivially copyable (like Int,
+Float32). Collections like <code>List</code>, <code>Dict</code>, <code>String</code> are NOT implicitly copyable.</p>
+<p><strong>Correct Pattern</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="c1"># CORRECT - Only use traits that all fields support</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="k">struct</span><span class="w"> </span><span class="n n-Struct">SimpleMLP</span><span class="p">(</span><span class="nb">Copyable</span><span class="p">,</span><span class="w"> </span><span class="nb">Movable</span><span class="p">,</span><span class="w"> </span><span class="n">Model</span><span class="p">):</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">    </span><span class="k">var</span><span class="w"> </span><span class="nv">weights</span><span class="p">:</span><span class="w"> </span><span class="nb">List</span><span class="p">[</span><span class="nb">Float32</span><span class="p">]</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="w">    </span><span class="c1"># Explicit transfer operator for returns</span>
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="w">    </span><span class="k">fn</span><span class="w"> </span><span class="nf">get_weights</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nb">List</span><span class="p">[</span><span class="nb">Float32</span><span class="p">]:</span>
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">weights</span><span class="o">^</span><span class="w">  </span><span class="c1"># Explicit ownership transfer</span>
+</code></pre></div>
+<p><strong>When to Use ImplicitlyCopyable</strong>:</p>
+<ul>
+<li>✅ Structs with only POD fields (Int, Float, Bool, DType)</li>
+<li>✅ Numeric value types</li>
+<li>❌ Structs containing List, Dict, String</li>
+<li>❌ Structs with heap-allocated data</li>
+</ul>
+<p><strong>Prevention</strong>:</p>
+<ul>
+<li>Check ALL fields before adding <code>ImplicitlyCopyable</code></li>
+<li>Use <code>^</code> transfer operator for non-copyable types</li>
+<li>Add <code>Movable</code> trait instead if you need transfer semantics</li>
+<li>For generic types, add <code>&amp; Movable</code> trait bounds</li>
+</ul>
+<p><strong>Files Affected</strong>: PR #2045</p>
+<ul>
+<li><code>src/odyssey/testing/test_models.mojo</code> (SimpleMLP)</li>
+<li><code>src/odyssey/training/__init__.mojo</code> (TrainingLoop generics)</li>
+<li><code>tests/odyssey/training/test_training_loop.mojo</code></li>
+<li><code>tests/odyssey/training/test_validation_loop.mojo</code></li>
+<li><code>tests/odyssey/training/test_numerical_safety.mojo</code></li>
+</ul>
+<hr />
+<h3 id="13-missing-transfer-operator">1.3 Missing Transfer Operator</h3>
+<p><strong>Anti-pattern</strong>: Returning non-copyable types without transfer operator</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="c1"># WRONG - List is not implicitly copyable</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="k">fn</span><span class="w"> </span><span class="nf">get_params</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nb">List</span><span class="p">[</span><span class="nb">Float32</span><span class="p">]:</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="w">  </span><span class="c1"># Implicit copy attempt fails</span>
+</code></pre></div>
+<p><strong>Error Message</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>error: &#39;List[Float32]&#39; is not implicitly copyable
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>  return self.params
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>         ^~~~~~~~~~~
+</code></pre></div>
+<p><strong>Correct Pattern</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="c1"># CORRECT - Explicit transfer with ^</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="k">fn</span><span class="w"> </span><span class="nf">get_params</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nb">List</span><span class="p">[</span><span class="nb">Float32</span><span class="p">]:</span>
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">^</span><span class="w">  </span><span class="c1"># Transfer ownership</span>
+</code></pre></div>
+<p><strong>Alternative - Read-only Access</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="c1"># If you want to keep ownership, use ref parameter</span>
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="k">fn</span><span class="w"> </span><span class="nf">process_params</span><span class="p">(</span><span class="n">ref</span><span class="w"> </span><span class="n">params</span><span class="p">:</span><span class="w"> </span><span class="nb">List</span><span class="p">[</span><span class="nb">Float32</span><span class="p">]):</span>
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="w">    </span><span class="c1"># Can read but not take ownership</span>
+</code></pre></div>
+<p><strong>Prevention</strong>:</p>
+<ul>
+<li>Use <code>^</code> for all List, Dict, String returns</li>
+<li>Consider returning references if ownership isn't needed</li>
+<li>Add <code>Movable</code> trait to generic parameters: <code>T: Movable</code></li>
+</ul>
+<p><strong>Files Affected</strong>: PR #2045, PR #2039</p>
+<ul>
+<li><code>tests/odyssey/benchmarks/bench_optimizers.mojo</code></li>
+<li><code>src/odyssey/testing/test_models.mojo</code></li>
+</ul>
+<hr />
+<h2 id="category-2-constructor-and-method-signatures">Category 2: Constructor and Method Signatures</h2>
+<h3 id="21-out-self-vs-mut-self-in-constructors">2.1 out self vs mut self in Constructors</h3>
+<p><strong>Anti-pattern</strong>: Using <code>mut self</code> in <code>__init__</code> constructors</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="c1"># WRONG - Constructors create new instances, not mutate existing</span>
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="k">struct</span><span class="w"> </span><span class="n n-Struct">FileDataset</span><span class="p">(</span><span class="n">Dataset</span><span class="p">):</span>
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="w">    </span><span class="k">fn</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="n">mut</span><span class="w"> </span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">file_paths</span><span class="p">:</span><span class="w"> </span><span class="nb">List</span><span class="p">[</span><span class="nb">String</span><span class="p">]):</span><span class="w">  </span><span class="c1"># Wrong!</span>
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="w">        </span><span class="bp">self</span><span class="o">.</span><span class="n">paths</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">file_paths</span>
+</code></pre></div>
+<p><strong>Error Message</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>error: &#39;mut self&#39; is not valid in constructor &#39;__init__&#39;
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>  fn __init__(mut self, file_paths: List[String]):
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>             ^~~~~~~~
+<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>note: use &#39;out self&#39; for constructors
+</code></pre></div>
+<p><strong>Root Cause</strong>: Mojo v0.26.1+ distinguishes between:</p>
+<ul>
+<li><code>out self</code> - Creates a new instance (constructors)</li>
+<li><code>mut self</code> - Mutates an existing instance (methods)</li>
+</ul>
+<p><strong>Correct Pattern</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="c1"># CORRECT - out self for constructors</span>
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="k">struct</span><span class="w"> </span><span class="n n-Struct">FileDataset</span><span class="p">(</span><span class="n">Dataset</span><span class="p">):</span>
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="w">    </span><span class="k">fn</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="n">out</span><span class="w"> </span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">file_paths</span><span class="p">:</span><span class="w"> </span><span class="nb">List</span><span class="p">[</span><span class="nb">String</span><span class="p">]):</span>
+<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a><span class="w">        </span><span class="bp">self</span><span class="o">.</span><span class="n">paths</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">file_paths</span>
+</code></pre></div>
+<p><strong>Complete Convention Table</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Context</th>
+<th>Keyword</th>
+<th>Use Case</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Constructor</td>
+<td><code>out self</code></td>
+<td>Create new instance</td>
+<td><code>__init__(out self, ...)</code></td>
+</tr>
+<tr>
+<td>Move Initializer</td>
+<td><code>out self</code></td>
+<td>Move from existing</td>
+<td><code>__moveinit__(out self, deinit existing)</code></td>
+</tr>
+<tr>
+<td>Copy Initializer</td>
+<td><code>out self</code></td>
+<td>Copy from existing</td>
+<td><code>__copyinit__(out self, existing)</code></td>
+</tr>
+<tr>
+<td>Mutating Method</td>
+<td><code>mut self</code></td>
+<td>Modify instance</td>
+<td><code>fn modify(mut self)</code></td>
+</tr>
+<tr>
+<td>Read-only Method</td>
+<td><code>read</code> (implicit)</td>
+<td>Read instance</td>
+<td><code>fn get_value(self)</code></td>
+</tr>
+<tr>
+<td>Generic Reference</td>
+<td><code>ref [mutability]</code></td>
+<td>Parametric mutability</td>
+<td><code>ref [M] self</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Prevention</strong>:</p>
+<ul>
+<li><strong>All</strong> <code>__init__</code> methods use <code>out self</code></li>
+<li><strong>All</strong> <code>__moveinit__</code> methods use <code>out self, deinit existing</code></li>
+<li><strong>All</strong> <code>__copyinit__</code> methods use <code>out self, existing</code></li>
+<li>Mutating methods use <code>mut self</code></li>
+<li>Read-only methods omit keyword (implicit <code>read</code>)</li>
+</ul>
+<p><strong>Files Affected</strong>: PR #2038</p>
+<ul>
+<li><code>src/odyssey/data/datasets.mojo</code> (FileDataset)</li>
+<li><code>src/odyssey/data/loaders.mojo</code> (Batch, BaseLoader, BatchLoader)</li>
+<li><code>tests/odyssey/data/loaders/test_base_loader.mojo</code> (StubDataLoader, StubBatch)</li>
+</ul>
+<p><strong>Additional Files</strong>: PR #2044</p>
+<ul>
+<li><code>src/odyssey/data/transforms.mojo</code> (Resize, RandomRotation, RandomErasing)</li>
+<li><code>src/odyssey/data/text_transforms.mojo</code> (RandomInsertion, RandomSynonymReplacement)</li>
+<li><code>src/odyssey/training/stubs.mojo</code> (MockTrainer)</li>
+</ul>
+<hr />
+<h3 id="22-missing-main-functions-in-executables">2.2 Missing Main Functions in Executables</h3>
+<p><strong>Anti-pattern</strong>: Creating <code>.mojo</code> files without main() entry points</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="c1"># WRONG - No main() function, cannot be executed</span>
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="c1"># bench_layers.mojo</span>
+<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a><span class="k">fn</span><span class="w"> </span><span class="nf">bench_linear_forward</span><span class="p">()</span><span class="w"> </span><span class="n">raises</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nb">List</span><span class="p">[</span><span class="n">BenchmarkResult</span><span class="p">]:</span>
+<a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a><span class="w">    </span><span class="c1"># ... benchmark code ...</span>
+<a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">results</span>
+</code></pre></div>
+<p><strong>Error Message</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>error: &#39;bench_layers.mojo&#39; does not contain a &#39;main&#39; function
+</code></pre></div>
+<p><strong>Root Cause</strong>: Mojo requires executable files to have a <code>main()</code> function as the entry
+point.</p>
+<p><strong>Correct Pattern</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="c1"># CORRECT - Add main() to orchestrate benchmarks</span>
+<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a><span class="k">fn</span><span class="w"> </span><span class="nf">bench_linear_forward</span><span class="p">()</span><span class="w"> </span><span class="n">raises</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nb">List</span><span class="p">[</span><span class="n">BenchmarkResult</span><span class="p">]:</span>
+<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a><span class="w">    </span><span class="c1"># ... benchmark code ...</span>
+<a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">results</span><span class="o">^</span><span class="w">  </span><span class="c1"># Note transfer operator for List</span>
+<a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a>
+<a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a><span class="k">fn</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span><span class="w"> </span><span class="n">raises</span><span class="p">:</span>
+<a id="__codelineno-15-7" name="__codelineno-15-7" href="#__codelineno-15-7"></a><span class="w">    </span><span class="s2">&quot;&quot;&quot;Entry point for benchmark suite.&quot;&quot;&quot;</span>
+<a id="__codelineno-15-8" name="__codelineno-15-8" href="#__codelineno-15-8"></a><span class="w">    </span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Running benchmarks...&quot;</span><span class="p">)</span>
+<a id="__codelineno-15-9" name="__codelineno-15-9" href="#__codelineno-15-9"></a>
+<a id="__codelineno-15-10" name="__codelineno-15-10" href="#__codelineno-15-10"></a><span class="w">    </span><span class="k">var</span><span class="w"> </span><span class="nv">results</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bench_linear_forward</span><span class="p">()</span>
+<a id="__codelineno-15-11" name="__codelineno-15-11" href="#__codelineno-15-11"></a><span class="w">    </span><span class="n">print_benchmark_results</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
+<a id="__codelineno-15-12" name="__codelineno-15-12" href="#__codelineno-15-12"></a>
+<a id="__codelineno-15-13" name="__codelineno-15-13" href="#__codelineno-15-13"></a><span class="w">    </span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Benchmarks complete&quot;</span><span class="p">)</span>
+</code></pre></div>
+<p><strong>Best Practices</strong>:</p>
+<ul>
+<li>Every executable <code>.mojo</code> file needs <code>main()</code></li>
+<li><code>main()</code> can call helper functions</li>
+<li>Use <code>raises</code> if any called functions can raise</li>
+<li>Return <code>List</code> from helpers with <code>^</code> transfer operator</li>
+</ul>
+<p><strong>Prevention</strong>:</p>
+<ul>
+<li>Template for new benchmark files with <code>main()</code> skeleton</li>
+<li>Pre-commit hook to check for <code>main()</code> in executable files</li>
+<li>CI check for compilable executables</li>
+</ul>
+<p><strong>Files Affected</strong>: PR #2039</p>
+<ul>
+<li><code>tests/odyssey/benchmarks/bench_data_loading.mojo</code></li>
+<li><code>tests/odyssey/benchmarks/bench_layers.mojo</code></li>
+<li><code>tests/odyssey/benchmarks/bench_optimizers.mojo</code> (had main but needed <code>^</code> fixes)</li>
+</ul>
+<hr />
+<h3 id="23-missing-package-exports">2.3 Missing Package Exports</h3>
+<p><strong>Anti-pattern</strong>: Implementing functions but not exporting through <code>__init__.mojo</code></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="c1"># src/odyssey/core/shape.mojo - Implementation exists</span>
+<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a><span class="k">fn</span><span class="w"> </span><span class="nf">reshape</span><span class="p">(</span><span class="n">tensor</span><span class="p">:</span><span class="w"> </span><span class="n">AnyTensor</span><span class="p">,</span><span class="w"> </span><span class="n">shape</span><span class="p">:</span><span class="w"> </span><span class="nb">List</span><span class="p">[</span><span class="nb">Int</span><span class="p">])</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">AnyTensor</span><span class="p">:</span>
+<a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a><span class="w">    </span><span class="c1"># ... implementation ...</span>
+<a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a>
+<a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a><span class="c1"># src/odyssey/core/__init__.mojo - NOT exported!</span>
+<a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a><span class="c1"># Missing: from .shape import reshape</span>
+</code></pre></div>
+<p><strong>Error Message</strong> (in test file):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>error: cannot find &#39;reshape&#39; in module &#39;shared.core&#39;
+<a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>  from odyssey.core import reshape
+<a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a>                          ^~~~~~~
+</code></pre></div>
+<p><strong>Root Cause</strong>: Mojo package structure requires explicit exports in <code>__init__.mojo</code>.
+Functions in submodules are NOT automatically available at package level.</p>
+<p><strong>Correct Pattern</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="c1"># src/odyssey/core/__init__.mojo - Must export explicitly</span>
+<a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">.shape</span><span class="w"> </span><span class="kn">import</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a><span class="w">    </span><span class="n">reshape</span><span class="p">,</span>
+<a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a><span class="w">    </span><span class="n">squeeze</span><span class="p">,</span>
+<a id="__codelineno-18-5" name="__codelineno-18-5" href="#__codelineno-18-5"></a><span class="w">    </span><span class="n">unsqueeze</span><span class="p">,</span>
+<a id="__codelineno-18-6" name="__codelineno-18-6" href="#__codelineno-18-6"></a><span class="w">    </span><span class="n">expand_dims</span><span class="p">,</span>
+<a id="__codelineno-18-7" name="__codelineno-18-7" href="#__codelineno-18-7"></a><span class="w">    </span><span class="n">flatten</span><span class="p">,</span>
+<a id="__codelineno-18-8" name="__codelineno-18-8" href="#__codelineno-18-8"></a><span class="w">    </span><span class="n">ravel</span><span class="p">,</span>
+<a id="__codelineno-18-9" name="__codelineno-18-9" href="#__codelineno-18-9"></a><span class="w">    </span><span class="n">concatenate</span><span class="p">,</span>
+<a id="__codelineno-18-10" name="__codelineno-18-10" href="#__codelineno-18-10"></a><span class="w">    </span><span class="n">stack</span><span class="p">,</span>
+<a id="__codelineno-18-11" name="__codelineno-18-11" href="#__codelineno-18-11"></a><span class="p">)</span>
+</code></pre></div>
+<p><strong>Import Patterns</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="c1"># CORRECT - Package-level import</span>
+<a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">odyssey.core</span><span class="w"> </span><span class="kn">import</span><span class="w"> </span><span class="n">reshape</span>
+<a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a>
+<a id="__codelineno-19-4" name="__codelineno-19-4" href="#__codelineno-19-4"></a><span class="c1"># WRONG - Direct module import (deprecated syntax)</span>
+<a id="__codelineno-19-5" name="__codelineno-19-5" href="#__codelineno-19-5"></a><span class="kn">from</span><span class="w"> </span><span class="nn">odyssey.core.shape</span><span class="p">()</span><span class="w"> </span><span class="kn">import</span><span class="w"> </span><span class="nn">reshape</span>
+</code></pre></div>
+<p><strong>Prevention</strong>:</p>
+<ul>
+<li>Update <code>__init__.mojo</code> when adding new functions</li>
+<li>Test imports from package level, not module level</li>
+<li>CI check to verify exports match implementations</li>
+</ul>
+<p><strong>Files Affected</strong>: PR #2040</p>
+<ul>
+<li><code>src/odyssey/core/__init__.mojo</code> (added shape operation exports)</li>
+<li><code>tests/odyssey/core/test_shape_regression.mojo</code> (updated import)</li>
+</ul>
+<hr />
+<h3 id="24-missing-api-methods">2.4 Missing API Methods</h3>
+<p><strong>Anti-pattern</strong>: Test code assuming constructors that don't exist</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="c1"># Test code expects this to work</span>
+<a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a><span class="k">var</span><span class="w"> </span><span class="nv">tensor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">AnyTensor</span><span class="p">(</span><span class="nb">List</span><span class="p">[</span><span class="nb">Float32</span><span class="p">](</span><span class="mf">1.0</span><span class="p">,</span><span class="w"> </span><span class="mf">2.0</span><span class="p">,</span><span class="w"> </span><span class="mf">3.0</span><span class="p">))</span>
+<a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a>
+<a id="__codelineno-20-4" name="__codelineno-20-4" href="#__codelineno-20-4"></a><span class="c1"># But AnyTensor only has:</span>
+<a id="__codelineno-20-5" name="__codelineno-20-5" href="#__codelineno-20-5"></a><span class="c1"># fn __init__(out self, shape: List[Int], dtype: DType)</span>
+</code></pre></div>
+<p><strong>Error Message</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a>error: no matching constructor for &#39;AnyTensor.__init__&#39;
+<a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a>  var tensor = AnyTensor(List[Float32](1.0, 2.0, 3.0))
+<a id="__codelineno-21-3" name="__codelineno-21-3" href="#__codelineno-21-3"></a>               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+<a id="__codelineno-21-4" name="__codelineno-21-4" href="#__codelineno-21-4"></a>note: candidate: fn __init__(out self, shape: List[Int], dtype: DType)
+</code></pre></div>
+<p><strong>Root Cause</strong>: TDD tests were written before API implementations, assuming convenience
+constructors.</p>
+<p><strong>Correct Pattern</strong> - Add missing constructors:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a><span class="c1"># src/odyssey/core/any_tensor.mojo - Add convenience constructors</span>
+<a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a><span class="k">struct</span><span class="w"> </span><span class="n n-Struct">AnyTensor</span><span class="p">:</span>
+<a id="__codelineno-22-3" name="__codelineno-22-3" href="#__codelineno-22-3"></a><span class="w">    </span><span class="c1"># Existing constructor</span>
+<a id="__codelineno-22-4" name="__codelineno-22-4" href="#__codelineno-22-4"></a><span class="w">    </span><span class="k">fn</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="n">out</span><span class="w"> </span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">shape</span><span class="p">:</span><span class="w"> </span><span class="nb">List</span><span class="p">[</span><span class="nb">Int</span><span class="p">],</span><span class="w"> </span><span class="n">dtype</span><span class="p">:</span><span class="w"> </span><span class="nb">DType</span><span class="p">):</span>
+<a id="__codelineno-22-5" name="__codelineno-22-5" href="#__codelineno-22-5"></a><span class="w">        </span><span class="c1"># ...</span>
+<a id="__codelineno-22-6" name="__codelineno-22-6" href="#__codelineno-22-6"></a>
+<a id="__codelineno-22-7" name="__codelineno-22-7" href="#__codelineno-22-7"></a><span class="w">    </span><span class="c1"># NEW - Convenience constructor from List[Float32]</span>
+<a id="__codelineno-22-8" name="__codelineno-22-8" href="#__codelineno-22-8"></a><span class="w">    </span><span class="k">fn</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="n">out</span><span class="w"> </span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="k">var</span><span class="w"> </span><span class="nv">data</span><span class="p">:</span><span class="w"> </span><span class="nb">List</span><span class="p">[</span><span class="nb">Float32</span><span class="p">])</span><span class="w"> </span><span class="n">raises</span><span class="p">:</span>
+<a id="__codelineno-22-9" name="__codelineno-22-9" href="#__codelineno-22-9"></a><span class="w">        </span><span class="s2">&quot;&quot;&quot;Create 1D tensor from List[Float32].&quot;&quot;&quot;</span>
+<a id="__codelineno-22-10" name="__codelineno-22-10" href="#__codelineno-22-10"></a><span class="w">        </span><span class="k">var</span><span class="w"> </span><span class="nv">shape</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">List</span><span class="p">[</span><span class="nb">Int</span><span class="p">]()</span>
+<a id="__codelineno-22-11" name="__codelineno-22-11" href="#__codelineno-22-11"></a><span class="w">        </span><span class="n">shape</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">))</span>
+<a id="__codelineno-22-12" name="__codelineno-22-12" href="#__codelineno-22-12"></a><span class="w">        </span><span class="bp">self</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span><span class="w"> </span><span class="nb">DType</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+<a id="__codelineno-22-13" name="__codelineno-22-13" href="#__codelineno-22-13"></a><span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)):</span>
+<a id="__codelineno-22-14" name="__codelineno-22-14" href="#__codelineno-22-14"></a><span class="w">            </span><span class="bp">self</span><span class="o">.</span><span class="n">_set_float32</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+<a id="__codelineno-22-15" name="__codelineno-22-15" href="#__codelineno-22-15"></a>
+<a id="__codelineno-22-16" name="__codelineno-22-16" href="#__codelineno-22-16"></a><span class="w">    </span><span class="c1"># NEW - Convenience constructor from List[Int]</span>
+<a id="__codelineno-22-17" name="__codelineno-22-17" href="#__codelineno-22-17"></a><span class="w">    </span><span class="k">fn</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="n">out</span><span class="w"> </span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="k">var</span><span class="w"> </span><span class="nv">data</span><span class="p">:</span><span class="w"> </span><span class="nb">List</span><span class="p">[</span><span class="nb">Int</span><span class="p">])</span><span class="w"> </span><span class="n">raises</span><span class="p">:</span>
+<a id="__codelineno-22-18" name="__codelineno-22-18" href="#__codelineno-22-18"></a><span class="w">        </span><span class="s2">&quot;&quot;&quot;Create 1D tensor from List[Int].&quot;&quot;&quot;</span>
+<a id="__codelineno-22-19" name="__codelineno-22-19" href="#__codelineno-22-19"></a><span class="w">        </span><span class="k">var</span><span class="w"> </span><span class="nv">shape</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">List</span><span class="p">[</span><span class="nb">Int</span><span class="p">]()</span>
+<a id="__codelineno-22-20" name="__codelineno-22-20" href="#__codelineno-22-20"></a><span class="w">        </span><span class="n">shape</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">))</span>
+<a id="__codelineno-22-21" name="__codelineno-22-21" href="#__codelineno-22-21"></a><span class="w">        </span><span class="bp">self</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span><span class="w"> </span><span class="nb">DType</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
+<a id="__codelineno-22-22" name="__codelineno-22-22" href="#__codelineno-22-22"></a><span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)):</span>
+<a id="__codelineno-22-23" name="__codelineno-22-23" href="#__codelineno-22-23"></a><span class="w">            </span><span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="o">.</span><span class="n">bitcast</span><span class="p">[</span><span class="nb">Int64</span><span class="p">]()[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">Int64</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+</code></pre></div>
+<p><strong>Prevention</strong>:</p>
+<ul>
+<li>Design API before writing TDD tests</li>
+<li>Document all constructors in API spec</li>
+<li>Use type stubs for planned APIs</li>
+<li>Review test requirements during planning phase</li>
+</ul>
+<p><strong>Files Affected</strong>: PR #2044</p>
+<ul>
+<li><code>src/odyssey/core/any_tensor.mojo</code> (added List constructors)</li>
+<li>Multiple test files expecting this API</li>
+</ul>
+<hr />
+<h2 id="category-3-syntax-and-declaration-errors">Category 3: Syntax and Declaration Errors</h2>
+<h3 id="31-missing-space-after-var-keyword">3.1 Missing Space After var Keyword</h3>
+<p><strong>Anti-pattern</strong>: Typo causing <code>vara</code> instead of <code>var a</code></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a><span class="c1"># WRONG - Typo (missing space)</span>
+<a id="__codelineno-23-2" name="__codelineno-23-2" href="#__codelineno-23-2"></a><span class="n">vara</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ones</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span><span class="w"> </span><span class="nb">DType</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+<a id="__codelineno-23-3" name="__codelineno-23-3" href="#__codelineno-23-3"></a><span class="n">varb</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ones</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span><span class="w"> </span><span class="nb">DType</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+</code></pre></div>
+<p><strong>Error Message</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a>error: use of undeclared identifier &#39;vara&#39;
+<a id="__codelineno-24-2" name="__codelineno-24-2" href="#__codelineno-24-2"></a>  varc = add(vara, varb)
+<a id="__codelineno-24-3" name="__codelineno-24-3" href="#__codelineno-24-3"></a>             ^~~~
+</code></pre></div>
+<p><strong>Root Cause</strong>: Copy-paste error or auto-completion mistake. The Mojo parser sees <code>vara</code> as
+an undeclared identifier, not a variable declaration.</p>
+<p><strong>Correct Pattern</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a><span class="c1"># CORRECT - Space after var</span>
+<a id="__codelineno-25-2" name="__codelineno-25-2" href="#__codelineno-25-2"></a><span class="k">var</span><span class="w"> </span><span class="nv">a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ones</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span><span class="w"> </span><span class="nb">DType</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+<a id="__codelineno-25-3" name="__codelineno-25-3" href="#__codelineno-25-3"></a><span class="k">var</span><span class="w"> </span><span class="nv">b</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ones</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span><span class="w"> </span><span class="nb">DType</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+<a id="__codelineno-25-4" name="__codelineno-25-4" href="#__codelineno-25-4"></a><span class="k">var</span><span class="w"> </span><span class="nv">c</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">add</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="p">)</span>
+</code></pre></div>
+<p><strong>Prevention</strong>:</p>
+<ul>
+<li>Linter rule: Check <code>var[a-z]</code> pattern (variable name immediately after var)</li>
+<li>Code review checklist</li>
+<li>Search for <code>var[a-z]</code> before committing</li>
+</ul>
+<p><strong>Files Affected</strong>: PR #2042, PR #2041, PR #2043</p>
+<ul>
+<li><code>tests/odyssey/core/test_backward.mojo</code></li>
+<li><code>tests/odyssey/core/test_broadcasting.mojo</code></li>
+<li><code>tests/odyssey/core/test_comparison_ops.mojo</code></li>
+<li><code>tests/odyssey/core/test_creation.mojo</code></li>
+<li><code>tests/odyssey/core/test_edge_cases.mojo</code></li>
+<li><code>tests/odyssey/core/test_elementwise_forward.mojo</code></li>
+<li><code>tests/odyssey/core/test_properties.mojo</code></li>
+<li><code>tests/odyssey/core/test_reduction_forward.mojo</code></li>
+<li><code>tests/odyssey/core/test_shape.mojo</code></li>
+<li><code>tests/odyssey/core/test_utility.mojo</code></li>
+</ul>
+<hr />
+<h3 id="32-invalid-list-indexing-for-initialization">3.2 Invalid List Indexing for Initialization</h3>
+<p><strong>Anti-pattern</strong>: Using <code>list[index] = value</code> to initialize new elements</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a><span class="c1"># WRONG - Cannot assign to uninitialized index</span>
+<a id="__codelineno-26-2" name="__codelineno-26-2" href="#__codelineno-26-2"></a><span class="k">var</span><span class="w"> </span><span class="nv">tensors</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">List</span><span class="p">[</span><span class="n">AnyTensor</span><span class="p">]()</span>
+<a id="__codelineno-26-3" name="__codelineno-26-3" href="#__codelineno-26-3"></a><span class="n">tensors</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">a</span><span class="w">  </span><span class="c1"># Runtime error - index out of bounds</span>
+<a id="__codelineno-26-4" name="__codelineno-26-4" href="#__codelineno-26-4"></a><span class="n">tensors</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">b</span>
+</code></pre></div>
+<p><strong>Error Message</strong> (runtime):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-27-1" name="__codelineno-27-1" href="#__codelineno-27-1"></a>Assertion failed: index &lt; self._size
+</code></pre></div>
+<p><strong>Root Cause</strong>: Mojo <code>List</code> requires elements to exist before assignment. Unlike Python,
+you cannot "grow" a list by assigning to new indices.</p>
+<p><strong>Correct Pattern</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-28-1" name="__codelineno-28-1" href="#__codelineno-28-1"></a><span class="c1"># CORRECT - Use append() to add elements</span>
+<a id="__codelineno-28-2" name="__codelineno-28-2" href="#__codelineno-28-2"></a><span class="k">var</span><span class="w"> </span><span class="nv">tensors</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">List</span><span class="p">[</span><span class="n">AnyTensor</span><span class="p">]()</span>
+<a id="__codelineno-28-3" name="__codelineno-28-3" href="#__codelineno-28-3"></a><span class="n">tensors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">a</span><span class="p">)</span><span class="w">  </span><span class="c1"># Creates index 0</span>
+<a id="__codelineno-28-4" name="__codelineno-28-4" href="#__codelineno-28-4"></a><span class="n">tensors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">b</span><span class="p">)</span><span class="w">  </span><span class="c1"># Creates index 1</span>
+<a id="__codelineno-28-5" name="__codelineno-28-5" href="#__codelineno-28-5"></a>
+<a id="__codelineno-28-6" name="__codelineno-28-6" href="#__codelineno-28-6"></a><span class="c1"># Or pre-allocate with capacity</span>
+<a id="__codelineno-28-7" name="__codelineno-28-7" href="#__codelineno-28-7"></a><span class="k">var</span><span class="w"> </span><span class="nv">tensors</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">List</span><span class="p">[</span><span class="n">AnyTensor</span><span class="p">](</span><span class="n">capacity</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+<a id="__codelineno-28-8" name="__codelineno-28-8" href="#__codelineno-28-8"></a><span class="c1"># But still must append, not assign to empty slots</span>
+</code></pre></div>
+<p><strong>List Operations</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-29-1" name="__codelineno-29-1" href="#__codelineno-29-1"></a><span class="c1"># ✅ VALID operations</span>
+<a id="__codelineno-29-2" name="__codelineno-29-2" href="#__codelineno-29-2"></a><span class="k">var</span><span class="w"> </span><span class="nv">list</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">List</span><span class="p">[</span><span class="nb">Int</span><span class="p">]()</span>
+<a id="__codelineno-29-3" name="__codelineno-29-3" href="#__codelineno-29-3"></a><span class="nb">list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span><span class="w">           </span><span class="c1"># Add to end</span>
+<a id="__codelineno-29-4" name="__codelineno-29-4" href="#__codelineno-29-4"></a><span class="nb">list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">100</span><span class="w">            </span><span class="c1"># Modify existing element</span>
+<a id="__codelineno-29-5" name="__codelineno-29-5" href="#__codelineno-29-5"></a><span class="k">var</span><span class="w"> </span><span class="nv">val</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w">        </span><span class="c1"># Read existing element</span>
+<a id="__codelineno-29-6" name="__codelineno-29-6" href="#__codelineno-29-6"></a><span class="n">_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">len</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span><span class="w">            </span><span class="c1"># Get size</span>
+<a id="__codelineno-29-7" name="__codelineno-29-7" href="#__codelineno-29-7"></a>
+<a id="__codelineno-29-8" name="__codelineno-29-8" href="#__codelineno-29-8"></a><span class="c1"># ❌ INVALID operations</span>
+<a id="__codelineno-29-9" name="__codelineno-29-9" href="#__codelineno-29-9"></a><span class="nb">list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">42</span><span class="w">             </span><span class="c1"># ERROR if list is empty</span>
+<a id="__codelineno-29-10" name="__codelineno-29-10" href="#__codelineno-29-10"></a><span class="nb">list</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">100</span><span class="w">            </span><span class="c1"># ERROR if size &lt; 6</span>
+</code></pre></div>
+<p><strong>Prevention</strong>:</p>
+<ul>
+<li>Always use <code>append()</code> to add new elements</li>
+<li>Only use <code>list[i] = value</code> for existing indices</li>
+<li>Pre-allocate with <code>capacity</code> hint for performance, but still append</li>
+</ul>
+<p><strong>Files Affected</strong>: PR #2041</p>
+<ul>
+<li><code>tests/odyssey/core/test_shape.mojo</code> (multiple concatenate/stack tests)</li>
+</ul>
+<hr />
+<h3 id="33-missing-closing-parentheses">3.3 Missing Closing Parentheses</h3>
+<p><strong>Anti-pattern</strong>: Inline comments breaking function calls</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-30-1" name="__codelineno-30-1" href="#__codelineno-30-1"></a><span class="c1"># WRONG - Missing closing paren before comment</span>
+<a id="__codelineno-30-2" name="__codelineno-30-2" href="#__codelineno-30-2"></a><span class="n">new_shape</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="w">  </span><span class="c1"># Infer: should be 4)</span>
+</code></pre></div>
+<p><strong>Error Message</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-31-1" name="__codelineno-31-1" href="#__codelineno-31-1"></a>error: expected &#39;)&#39; to close &#39;(&#39; at start of parameter list
+<a id="__codelineno-31-2" name="__codelineno-31-2" href="#__codelineno-31-2"></a>  new_shape.append(-1  # Infer: should be 4)
+<a id="__codelineno-31-3" name="__codelineno-31-3" href="#__codelineno-31-3"></a>                       ^
+</code></pre></div>
+<p><strong>Correct Pattern</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-32-1" name="__codelineno-32-1" href="#__codelineno-32-1"></a><span class="c1"># CORRECT - Close paren before comment</span>
+<a id="__codelineno-32-2" name="__codelineno-32-2" href="#__codelineno-32-2"></a><span class="n">new_shape</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="w">  </span><span class="c1"># Infer: should be 4</span>
+</code></pre></div>
+<p><strong>Prevention</strong>:</p>
+<ul>
+<li>Formatter can detect unmatched parentheses</li>
+<li>Syntax highlighting helps spot issues</li>
+<li>Linter rule for balanced parentheses</li>
+</ul>
+<p><strong>Files Affected</strong>: PR #2041, PR #2042</p>
+<ul>
+<li><code>tests/odyssey/core/test_shape.mojo</code></li>
+<li><code>tests/odyssey/core/test_backward.mojo</code></li>
+</ul>
+<hr />
+<h2 id="category-4-type-system-issues">Category 4: Type System Issues</h2>
+<h3 id="41-dtype-not-comparable">4.1 DType Not Comparable</h3>
+<p><strong>Anti-pattern</strong>: Using <code>assert_equal()</code> for DType comparison</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-33-1" name="__codelineno-33-1" href="#__codelineno-33-1"></a><span class="c1"># WRONG - DType doesn&#39;t conform to Comparable trait</span>
+<a id="__codelineno-33-2" name="__codelineno-33-2" href="#__codelineno-33-2"></a><span class="n">assert_equal</span><span class="p">(</span><span class="n">W</span><span class="o">.</span><span class="n">_dtype</span><span class="p">,</span><span class="w"> </span><span class="nb">DType</span><span class="o">.</span><span class="n">float16</span><span class="p">)</span>
+</code></pre></div>
+<p><strong>Error Message</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-34-1" name="__codelineno-34-1" href="#__codelineno-34-1"></a>error: &#39;DType&#39; does not conform to trait &#39;Comparable&#39;
+<a id="__codelineno-34-2" name="__codelineno-34-2" href="#__codelineno-34-2"></a>  assert_equal(W._dtype, DType.float16)
+<a id="__codelineno-34-3" name="__codelineno-34-3" href="#__codelineno-34-3"></a>  ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+</code></pre></div>
+<p><strong>Root Cause</strong>: <code>assert_equal()</code> requires the <code>Comparable</code> trait. <code>DType</code> is an enum that
+doesn't implement comparison operators for the assertion framework.</p>
+<p><strong>Correct Pattern</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-35-1" name="__codelineno-35-1" href="#__codelineno-35-1"></a><span class="c1"># CORRECT - Use == operator with assert_true</span>
+<a id="__codelineno-35-2" name="__codelineno-35-2" href="#__codelineno-35-2"></a><span class="n">assert_true</span><span class="p">(</span><span class="n">W</span><span class="o">.</span><span class="n">_dtype</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="nb">DType</span><span class="o">.</span><span class="n">float16</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;Xavier normal should have float16 dtype&quot;</span><span class="p">)</span>
+</code></pre></div>
+<p><strong>Why This Works</strong>: The <code>==</code> operator works for DType (returns Bool), but the assertion
+framework needs <code>Comparable</code> trait for generic comparisons.</p>
+<p><strong>Prevention</strong>:</p>
+<ul>
+<li>Use <code>assert_true(a == b, msg)</code> for DType comparisons</li>
+<li>Document DType comparison pattern in test utils</li>
+<li>Consider adding <code>Comparable</code> to DType if possible</li>
+</ul>
+<p><strong>Files Affected</strong>: PR #2043</p>
+<ul>
+<li><code>tests/odyssey/core/test_initializers.mojo</code> (lines 721, 755, 768)</li>
+</ul>
+<hr />
+<h3 id="42-property-vs-method-access">4.2 Property vs Method Access</h3>
+<p><strong>Anti-pattern</strong>: Accessing method as property</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-36-1" name="__codelineno-36-1" href="#__codelineno-36-1"></a><span class="c1"># WRONG - .dtype is a method, not a property</span>
+<a id="__codelineno-36-2" name="__codelineno-36-2" href="#__codelineno-36-2"></a><span class="k">if</span><span class="w"> </span><span class="n">tensor</span><span class="o">.</span><span class="n">dtype</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="nb">DType</span><span class="o">.</span><span class="n">float32</span><span class="p">:</span>
+<a id="__codelineno-36-3" name="__codelineno-36-3" href="#__codelineno-36-3"></a><span class="w">    </span><span class="c1"># ...</span>
+</code></pre></div>
+<p><strong>Error Message</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-37-1" name="__codelineno-37-1" href="#__codelineno-37-1"></a>error: &#39;dtype&#39; is a method, not a property
+<a id="__codelineno-37-2" name="__codelineno-37-2" href="#__codelineno-37-2"></a>  if tensor.dtype == DType.float32:
+<a id="__codelineno-37-3" name="__codelineno-37-3" href="#__codelineno-37-3"></a>           ^~~~~~
+<a id="__codelineno-37-4" name="__codelineno-37-4" href="#__codelineno-37-4"></a>note: did you mean &#39;tensor.dtype()&#39;?
+</code></pre></div>
+<p><strong>Correct Pattern</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-38-1" name="__codelineno-38-1" href="#__codelineno-38-1"></a><span class="c1"># CORRECT - Call method with ()</span>
+<a id="__codelineno-38-2" name="__codelineno-38-2" href="#__codelineno-38-2"></a><span class="k">if</span><span class="w"> </span><span class="n">tensor</span><span class="o">.</span><span class="n">dtype</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="nb">DType</span><span class="o">.</span><span class="n">float32</span><span class="p">:</span>
+<a id="__codelineno-38-3" name="__codelineno-38-3" href="#__codelineno-38-3"></a><span class="w">    </span><span class="c1"># ...</span>
+</code></pre></div>
+<p><strong>Mojo Property vs Method</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-39-1" name="__codelineno-39-1" href="#__codelineno-39-1"></a><span class="c1"># Property (no parens)</span>
+<a id="__codelineno-39-2" name="__codelineno-39-2" href="#__codelineno-39-2"></a><span class="k">var</span><span class="w"> </span><span class="nv">size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tensor</span><span class="o">.</span><span class="n">shape</span><span class="w">  </span><span class="c1"># If shape is a field</span>
+<a id="__codelineno-39-3" name="__codelineno-39-3" href="#__codelineno-39-3"></a>
+<a id="__codelineno-39-4" name="__codelineno-39-4" href="#__codelineno-39-4"></a><span class="c1"># Method (requires parens)</span>
+<a id="__codelineno-39-5" name="__codelineno-39-5" href="#__codelineno-39-5"></a><span class="k">var</span><span class="w"> </span><span class="nv">dt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tensor</span><span class="o">.</span><span class="n">dtype</span><span class="p">()</span><span class="w">  </span><span class="c1"># dtype is a method</span>
+</code></pre></div>
+<p><strong>Prevention</strong>:</p>
+<ul>
+<li>Check API docs for field vs method</li>
+<li>Use IDE autocomplete to see signature</li>
+<li>Compiler error messages are clear about this</li>
+</ul>
+<p><strong>Files Affected</strong>: PR #2043</p>
+<ul>
+<li><code>tests/odyssey/core/test_initializers_validation.mojo</code> (lines 40, 43, 46, 58, 60, 63,
+  66, 69, 350-356)</li>
+</ul>
+<hr />
+<h3 id="43-missing-escaping-keyword-for-closures">4.3 Missing escaping Keyword for Closures</h3>
+<p><strong>Anti-pattern</strong>: Closure function without <code>escaping</code> keyword</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-40-1" name="__codelineno-40-1" href="#__codelineno-40-1"></a><span class="c1"># WRONG - Missing escaping for closure passed to check_gradient</span>
+<a id="__codelineno-40-2" name="__codelineno-40-2" href="#__codelineno-40-2"></a><span class="k">fn</span><span class="w"> </span><span class="nf">forward</span><span class="p">(</span><span class="n">inp</span><span class="p">:</span><span class="w"> </span><span class="n">AnyTensor</span><span class="p">)</span><span class="w"> </span><span class="n">raises</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">AnyTensor</span><span class="p">:</span>
+<a id="__codelineno-40-3" name="__codelineno-40-3" href="#__codelineno-40-3"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nb">sum</span><span class="p">(</span><span class="n">inp</span><span class="p">,</span><span class="w"> </span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<a id="__codelineno-40-4" name="__codelineno-40-4" href="#__codelineno-40-4"></a>
+<a id="__codelineno-40-5" name="__codelineno-40-5" href="#__codelineno-40-5"></a><span class="n">check_gradient</span><span class="p">(</span><span class="n">forward</span><span class="p">,</span><span class="w"> </span><span class="n">x</span><span class="p">)</span><span class="w">  </span><span class="c1"># Error - forward escapes scope</span>
+</code></pre></div>
+<p><strong>Error Message</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-41-1" name="__codelineno-41-1" href="#__codelineno-41-1"></a>error: captured function &#39;forward&#39; must be marked &#39;escaping&#39;
+<a id="__codelineno-41-2" name="__codelineno-41-2" href="#__codelineno-41-2"></a>  check_gradient(forward, x)
+<a id="__codelineno-41-3" name="__codelineno-41-3" href="#__codelineno-41-3"></a>                 ^~~~~~~
+</code></pre></div>
+<p><strong>Root Cause</strong>: When a function is captured by another function (like <code>check_gradient</code>),
+it "escapes" the current scope. Mojo requires explicit marking for safety.</p>
+<p><strong>Correct Pattern</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-42-1" name="__codelineno-42-1" href="#__codelineno-42-1"></a><span class="c1"># CORRECT - Add escaping keyword</span>
+<a id="__codelineno-42-2" name="__codelineno-42-2" href="#__codelineno-42-2"></a><span class="k">fn</span><span class="w"> </span><span class="nf">forward</span><span class="p">(</span><span class="n">inp</span><span class="p">:</span><span class="w"> </span><span class="n">AnyTensor</span><span class="p">)</span><span class="w"> </span><span class="n">raises</span><span class="w"> </span><span class="n">escaping</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">AnyTensor</span><span class="p">:</span>
+<a id="__codelineno-42-3" name="__codelineno-42-3" href="#__codelineno-42-3"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nb">sum</span><span class="p">(</span><span class="n">inp</span><span class="p">,</span><span class="w"> </span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<a id="__codelineno-42-4" name="__codelineno-42-4" href="#__codelineno-42-4"></a>
+<a id="__codelineno-42-5" name="__codelineno-42-5" href="#__codelineno-42-5"></a><span class="k">fn</span><span class="w"> </span><span class="nf">backward</span><span class="p">(</span><span class="n">grad</span><span class="p">:</span><span class="w"> </span><span class="n">AnyTensor</span><span class="p">,</span><span class="w"> </span><span class="n">inp</span><span class="p">:</span><span class="w"> </span><span class="n">AnyTensor</span><span class="p">)</span><span class="w"> </span><span class="n">raises</span><span class="w"> </span><span class="n">escaping</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">AnyTensor</span><span class="p">:</span>
+<a id="__codelineno-42-6" name="__codelineno-42-6" href="#__codelineno-42-6"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">sum_backward</span><span class="p">(</span><span class="n">grad</span><span class="p">,</span><span class="w"> </span><span class="n">inp</span><span class="p">,</span><span class="w"> </span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<a id="__codelineno-42-7" name="__codelineno-42-7" href="#__codelineno-42-7"></a>
+<a id="__codelineno-42-8" name="__codelineno-42-8" href="#__codelineno-42-8"></a><span class="n">check_gradient</span><span class="p">(</span><span class="n">forward</span><span class="p">,</span><span class="w"> </span><span class="n">backward</span><span class="p">,</span><span class="w"> </span><span class="n">x</span><span class="p">)</span>
+</code></pre></div>
+<p><strong>When to Use escaping</strong>:</p>
+<ul>
+<li>Functions passed as parameters to other functions</li>
+<li>Closures that capture local variables</li>
+<li>Callbacks and function pointers</li>
+</ul>
+<p><strong>Prevention</strong>:</p>
+<ul>
+<li>Add <code>escaping</code> to all closure/callback functions</li>
+<li>Document <code>escaping</code> requirement for function parameters</li>
+<li>Compiler error is clear about this requirement</li>
+</ul>
+<p><strong>Files Affected</strong>: PR #2043</p>
+<ul>
+<li><code>tests/odyssey/core/test_reduction.mojo</code> (lines 88, 95, 149, 156, 208, 215, 267, 274)</li>
+</ul>
+<hr />
+<h3 id="44-explicit-list-copy-required">4.4 Explicit List Copy Required</h3>
+<p><strong>Anti-pattern</strong>: Implicit copy of non-copyable List</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-43-1" name="__codelineno-43-1" href="#__codelineno-43-1"></a><span class="c1"># WRONG - List[Int] is not ImplicitlyCopyable</span>
+<a id="__codelineno-43-2" name="__codelineno-43-2" href="#__codelineno-43-2"></a><span class="k">var</span><span class="w"> </span><span class="nv">test_coords</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">coords</span><span class="w">  </span><span class="c1"># Implicit copy attempt</span>
+</code></pre></div>
+<p><strong>Error Message</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-44-1" name="__codelineno-44-1" href="#__codelineno-44-1"></a>error: &#39;List[Int]&#39; is not implicitly copyable
+<a id="__codelineno-44-2" name="__codelineno-44-2" href="#__codelineno-44-2"></a>  var test_coords = coords
+<a id="__codelineno-44-3" name="__codelineno-44-3" href="#__codelineno-44-3"></a>                    ^~~~~~
+</code></pre></div>
+<p><strong>Correct Pattern</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-45-1" name="__codelineno-45-1" href="#__codelineno-45-1"></a><span class="c1"># CORRECT - Explicit copy constructor</span>
+<a id="__codelineno-45-2" name="__codelineno-45-2" href="#__codelineno-45-2"></a><span class="k">var</span><span class="w"> </span><span class="nv">test_coords</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">List</span><span class="p">[</span><span class="nb">Int</span><span class="p">](</span><span class="n">coords</span><span class="p">)</span>
+</code></pre></div>
+<p><strong>Copy Patterns</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-46-1" name="__codelineno-46-1" href="#__codelineno-46-1"></a><span class="c1"># Explicit copy</span>
+<a id="__codelineno-46-2" name="__codelineno-46-2" href="#__codelineno-46-2"></a><span class="k">var</span><span class="w"> </span><span class="nv">copy</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">List</span><span class="p">[</span><span class="nb">Int</span><span class="p">](</span><span class="n">original</span><span class="p">)</span>
+<a id="__codelineno-46-3" name="__codelineno-46-3" href="#__codelineno-46-3"></a>
+<a id="__codelineno-46-4" name="__codelineno-46-4" href="#__codelineno-46-4"></a><span class="c1"># Transfer ownership</span>
+<a id="__codelineno-46-5" name="__codelineno-46-5" href="#__codelineno-46-5"></a><span class="k">var</span><span class="w"> </span><span class="nv">moved</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">original</span><span class="o">^</span>
+<a id="__codelineno-46-6" name="__codelineno-46-6" href="#__codelineno-46-6"></a>
+<a id="__codelineno-46-7" name="__codelineno-46-7" href="#__codelineno-46-7"></a><span class="c1"># Borrow (read-only)</span>
+<a id="__codelineno-46-8" name="__codelineno-46-8" href="#__codelineno-46-8"></a><span class="k">fn</span><span class="w"> </span><span class="nf">process</span><span class="p">(</span><span class="n">ref</span><span class="w"> </span><span class="nb">list</span><span class="p">:</span><span class="w"> </span><span class="nb">List</span><span class="p">[</span><span class="nb">Int</span><span class="p">]):</span>
+<a id="__codelineno-46-9" name="__codelineno-46-9" href="#__codelineno-46-9"></a><span class="w">    </span><span class="c1"># Can read but not copy or move</span>
+</code></pre></div>
+<p><strong>Prevention</strong>:</p>
+<ul>
+<li>Never rely on implicit copies for List, Dict, String</li>
+<li>Use explicit <code>List[T](source)</code> constructor for copies</li>
+<li>Use <code>^</code> for ownership transfer</li>
+<li>Use <code>ref</code> for read-only access</li>
+</ul>
+<p><strong>Files Affected</strong>: PR #2043</p>
+<ul>
+<li><code>src/odyssey/core/reduction.mojo</code> (lines 629, 640, 763, 774)</li>
+</ul>
+<hr />
+<h2 id="category-5-runtime-errors">Category 5: Runtime Errors</h2>
+<h3 id="51-uninitialized-list-elements">5.1 Uninitialized List Elements</h3>
+<p><strong>Anti-pattern</strong>: Writing to list indices without initializing</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-47-1" name="__codelineno-47-1" href="#__codelineno-47-1"></a><span class="c1"># WRONG - shape5 is empty, no index 0-4 exists</span>
+<a id="__codelineno-47-2" name="__codelineno-47-2" href="#__codelineno-47-2"></a><span class="k">var</span><span class="w"> </span><span class="nv">shape5</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">List</span><span class="p">[</span><span class="nb">Int</span><span class="p">]()</span>
+<a id="__codelineno-47-3" name="__codelineno-47-3" href="#__codelineno-47-3"></a><span class="k">for</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">):</span>
+<a id="__codelineno-47-4" name="__codelineno-47-4" href="#__codelineno-47-4"></a><span class="w">    </span><span class="n">shape5</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span><span class="w">  </span><span class="c1"># Runtime error: index out of bounds</span>
+</code></pre></div>
+<p><strong>Error</strong> (runtime):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-48-1" name="__codelineno-48-1" href="#__codelineno-48-1"></a>Assertion failed: index &lt; self._size
+<a id="__codelineno-48-2" name="__codelineno-48-2" href="#__codelineno-48-2"></a>Program crashed
+</code></pre></div>
+<p><strong>Root Cause</strong>: Mojo List requires elements to exist before modification. Cannot "grow" by
+assignment.</p>
+<p><strong>Correct Pattern</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-49-1" name="__codelineno-49-1" href="#__codelineno-49-1"></a><span class="c1"># CORRECT - Use append to create elements</span>
+<a id="__codelineno-49-2" name="__codelineno-49-2" href="#__codelineno-49-2"></a><span class="k">var</span><span class="w"> </span><span class="nv">shape5</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">List</span><span class="p">[</span><span class="nb">Int</span><span class="p">]()</span>
+<a id="__codelineno-49-3" name="__codelineno-49-3" href="#__codelineno-49-3"></a><span class="k">for</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">):</span>
+<a id="__codelineno-49-4" name="__codelineno-49-4" href="#__codelineno-49-4"></a><span class="w">    </span><span class="n">shape5</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+</code></pre></div>
+<p><strong>Prevention</strong>:</p>
+<ul>
+<li>Use <code>append()</code> to add elements</li>
+<li>Pre-allocate if needed: <code>List[Int](capacity=100)</code> (but still must append)</li>
+<li>Test with small datasets first</li>
+</ul>
+<p><strong>Files Affected</strong>: PR #2046</p>
+<ul>
+<li><code>tests/odyssey/core/test_tensors.mojo</code> (line 423-426)</li>
+</ul>
+<hr />
+<h3 id="52-uninitialized-tensor-data">5.2 Uninitialized Tensor Data</h3>
+<p><strong>Anti-pattern</strong>: Creating AnyTensor with empty shape but accessing indices</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-50-1" name="__codelineno-50-1" href="#__codelineno-50-1"></a><span class="c1"># WRONG - Empty shape means 0D scalar, but code accesses multiple indices</span>
+<a id="__codelineno-50-2" name="__codelineno-50-2" href="#__codelineno-50-2"></a><span class="k">var</span><span class="w"> </span><span class="nv">shape</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">List</span><span class="p">[</span><span class="nb">Int</span><span class="p">]()</span><span class="w">  </span><span class="c1"># Empty = 0D scalar</span>
+<a id="__codelineno-50-3" name="__codelineno-50-3" href="#__codelineno-50-3"></a><span class="k">var</span><span class="w"> </span><span class="nv">predictions</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">AnyTensor</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span><span class="w"> </span><span class="nb">DType</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+<a id="__codelineno-50-4" name="__codelineno-50-4" href="#__codelineno-50-4"></a><span class="c1"># Later: accessing _data[0], _data[1], etc. - segfault!</span>
+<a id="__codelineno-50-5" name="__codelineno-50-5" href="#__codelineno-50-5"></a><span class="n">predictions</span><span class="o">.</span><span class="n">_data</span><span class="o">.</span><span class="n">bitcast</span><span class="p">[</span><span class="nb">Float32</span><span class="p">]()[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.5</span>
+<a id="__codelineno-50-6" name="__codelineno-50-6" href="#__codelineno-50-6"></a><span class="n">predictions</span><span class="o">.</span><span class="n">_data</span><span class="o">.</span><span class="n">bitcast</span><span class="p">[</span><span class="nb">Float32</span><span class="p">]()[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.7</span><span class="w">  </span><span class="c1"># Segfault - out of bounds</span>
+</code></pre></div>
+<p><strong>Error</strong> (runtime):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-51-1" name="__codelineno-51-1" href="#__codelineno-51-1"></a>Segmentation fault (core dumped)
+</code></pre></div>
+<p><strong>Root Cause</strong>: An AnyTensor created with empty shape has only 1 element (0D scalar).
+Accessing beyond that causes memory corruption.</p>
+<p><strong>Correct Pattern</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-52-1" name="__codelineno-52-1" href="#__codelineno-52-1"></a><span class="c1"># CORRECT - Specify shape dimension</span>
+<a id="__codelineno-52-2" name="__codelineno-52-2" href="#__codelineno-52-2"></a><span class="k">var</span><span class="w"> </span><span class="nv">shape</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">List</span><span class="p">[</span><span class="nb">Int</span><span class="p">]()</span>
+<a id="__codelineno-52-3" name="__codelineno-52-3" href="#__codelineno-52-3"></a><span class="n">shape</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span><span class="w">  </span><span class="c1"># 1D tensor with 4 elements</span>
+<a id="__codelineno-52-4" name="__codelineno-52-4" href="#__codelineno-52-4"></a><span class="k">var</span><span class="w"> </span><span class="nv">predictions</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">AnyTensor</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span><span class="w"> </span><span class="nb">DType</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+<a id="__codelineno-52-5" name="__codelineno-52-5" href="#__codelineno-52-5"></a><span class="n">predictions</span><span class="o">.</span><span class="n">_data</span><span class="o">.</span><span class="n">bitcast</span><span class="p">[</span><span class="nb">Float32</span><span class="p">]()[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.5</span>
+<a id="__codelineno-52-6" name="__codelineno-52-6" href="#__codelineno-52-6"></a><span class="n">predictions</span><span class="o">.</span><span class="n">_data</span><span class="o">.</span><span class="n">bitcast</span><span class="p">[</span><span class="nb">Float32</span><span class="p">]()[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.7</span>
+<a id="__codelineno-52-7" name="__codelineno-52-7" href="#__codelineno-52-7"></a><span class="n">predictions</span><span class="o">.</span><span class="n">_data</span><span class="o">.</span><span class="n">bitcast</span><span class="p">[</span><span class="nb">Float32</span><span class="p">]()[</span><span class="mi">2</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.9</span>
+<a id="__codelineno-52-8" name="__codelineno-52-8" href="#__codelineno-52-8"></a><span class="n">predictions</span><span class="o">.</span><span class="n">_data</span><span class="o">.</span><span class="n">bitcast</span><span class="p">[</span><span class="nb">Float32</span><span class="p">]()[</span><span class="mi">3</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.3</span>
+</code></pre></div>
+<p><strong>Prevention</strong>:</p>
+<ul>
+<li>Always initialize shape with <code>append()</code> before creating AnyTensor</li>
+<li>Verify <code>tensor.numel()</code> matches expected element count</li>
+<li>Add bounds checking in debug builds</li>
+</ul>
+<p><strong>Files Affected</strong>: PR #2046</p>
+<ul>
+<li><code>tests/odyssey/core/test_losses.mojo</code> (9 test functions)</li>
+</ul>
+<hr />
+<h3 id="53-uninitialized-memory-in-forward-pass">5.3 Uninitialized Memory in Forward Pass</h3>
+<p><strong>Anti-pattern</strong>: Partially initializing tensor data</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-53-1" name="__codelineno-53-1" href="#__codelineno-53-1"></a><span class="c1"># WRONG - Only 4 elements initialized, but shape is 3x4 (12 elements)</span>
+<a id="__codelineno-53-2" name="__codelineno-53-2" href="#__codelineno-53-2"></a><span class="k">var</span><span class="w"> </span><span class="nv">input</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zeros</span><span class="p">(</span><span class="nb">List</span><span class="p">[</span><span class="nb">Int</span><span class="p">](</span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">),</span><span class="w"> </span><span class="nb">DType</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+<a id="__codelineno-53-3" name="__codelineno-53-3" href="#__codelineno-53-3"></a><span class="nb">input</span><span class="o">.</span><span class="n">_set_float64</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mf">1.0</span><span class="p">)</span>
+<a id="__codelineno-53-4" name="__codelineno-53-4" href="#__codelineno-53-4"></a><span class="nb">input</span><span class="o">.</span><span class="n">_set_float64</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="o">-</span><span class="mf">1.0</span><span class="p">)</span>
+<a id="__codelineno-53-5" name="__codelineno-53-5" href="#__codelineno-53-5"></a><span class="nb">input</span><span class="o">.</span><span class="n">_set_float64</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mf">2.0</span><span class="p">)</span>
+<a id="__codelineno-53-6" name="__codelineno-53-6" href="#__codelineno-53-6"></a><span class="nb">input</span><span class="o">.</span><span class="n">_set_float64</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="o">-</span><span class="mf">2.0</span><span class="p">)</span>
+<a id="__codelineno-53-7" name="__codelineno-53-7" href="#__codelineno-53-7"></a><span class="c1"># Missing indices 4-11 - contains garbage values!</span>
+<a id="__codelineno-53-8" name="__codelineno-53-8" href="#__codelineno-53-8"></a>
+<a id="__codelineno-53-9" name="__codelineno-53-9" href="#__codelineno-53-9"></a><span class="k">var</span><span class="w"> </span><span class="nv">output</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">relu</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span><span class="w">  </span><span class="c1"># Unstable gradients from uninitialized memory</span>
+</code></pre></div>
+<p><strong>Error</strong> (runtime):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-54-1" name="__codelineno-54-1" href="#__codelineno-54-1"></a>Gradient check failed: numerical gradient differs significantly
+</code></pre></div>
+<p><strong>Root Cause</strong>: Uninitialized memory contains random values, causing unstable gradients at
+ReLU discontinuity (x=0).</p>
+<p><strong>Correct Pattern</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-55-1" name="__codelineno-55-1" href="#__codelineno-55-1"></a><span class="c1"># CORRECT - Initialize ALL elements</span>
+<a id="__codelineno-55-2" name="__codelineno-55-2" href="#__codelineno-55-2"></a><span class="k">var</span><span class="w"> </span><span class="nv">input</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zeros</span><span class="p">(</span><span class="nb">List</span><span class="p">[</span><span class="nb">Int</span><span class="p">](</span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">),</span><span class="w"> </span><span class="nb">DType</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+<a id="__codelineno-55-3" name="__codelineno-55-3" href="#__codelineno-55-3"></a><span class="nb">input</span><span class="o">.</span><span class="n">_set_float64</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mf">1.0</span><span class="p">)</span>
+<a id="__codelineno-55-4" name="__codelineno-55-4" href="#__codelineno-55-4"></a><span class="nb">input</span><span class="o">.</span><span class="n">_set_float64</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="o">-</span><span class="mf">1.0</span><span class="p">)</span>
+<a id="__codelineno-55-5" name="__codelineno-55-5" href="#__codelineno-55-5"></a><span class="nb">input</span><span class="o">.</span><span class="n">_set_float64</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mf">2.0</span><span class="p">)</span>
+<a id="__codelineno-55-6" name="__codelineno-55-6" href="#__codelineno-55-6"></a><span class="nb">input</span><span class="o">.</span><span class="n">_set_float64</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="o">-</span><span class="mf">2.0</span><span class="p">)</span>
+<a id="__codelineno-55-7" name="__codelineno-55-7" href="#__codelineno-55-7"></a><span class="nb">input</span><span class="o">.</span><span class="n">_set_float64</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="mf">1.5</span><span class="p">)</span>
+<a id="__codelineno-55-8" name="__codelineno-55-8" href="#__codelineno-55-8"></a><span class="nb">input</span><span class="o">.</span><span class="n">_set_float64</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="o">-</span><span class="mf">1.5</span><span class="p">)</span>
+<a id="__codelineno-55-9" name="__codelineno-55-9" href="#__codelineno-55-9"></a><span class="nb">input</span><span class="o">.</span><span class="n">_set_float64</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span><span class="w"> </span><span class="mf">0.5</span><span class="p">)</span>
+<a id="__codelineno-55-10" name="__codelineno-55-10" href="#__codelineno-55-10"></a><span class="nb">input</span><span class="o">.</span><span class="n">_set_float64</span><span class="p">(</span><span class="mi">7</span><span class="p">,</span><span class="w"> </span><span class="o">-</span><span class="mf">0.5</span><span class="p">)</span>
+<a id="__codelineno-55-11" name="__codelineno-55-11" href="#__codelineno-55-11"></a><span class="nb">input</span><span class="o">.</span><span class="n">_set_float64</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span><span class="w"> </span><span class="mf">3.0</span><span class="p">)</span>
+<a id="__codelineno-55-12" name="__codelineno-55-12" href="#__codelineno-55-12"></a><span class="nb">input</span><span class="o">.</span><span class="n">_set_float64</span><span class="p">(</span><span class="mi">9</span><span class="p">,</span><span class="w"> </span><span class="o">-</span><span class="mf">3.0</span><span class="p">)</span>
+<a id="__codelineno-55-13" name="__codelineno-55-13" href="#__codelineno-55-13"></a><span class="nb">input</span><span class="o">.</span><span class="n">_set_float64</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="w"> </span><span class="mf">0.1</span><span class="p">)</span>
+<a id="__codelineno-55-14" name="__codelineno-55-14" href="#__codelineno-55-14"></a><span class="nb">input</span><span class="o">.</span><span class="n">_set_float64</span><span class="p">(</span><span class="mi">11</span><span class="p">,</span><span class="w"> </span><span class="o">-</span><span class="mf">0.1</span><span class="p">)</span>
+</code></pre></div>
+<p><strong>Prevention</strong>:</p>
+<ul>
+<li>Initialize ALL tensor elements, not just a subset</li>
+<li>Use creation functions: <code>zeros()</code>, <code>ones()</code>, <code>full()</code>, <code>normal()</code></li>
+<li>Avoid manual initialization when possible</li>
+<li>Add <code>assert tensor.numel() == expected_size</code> checks</li>
+</ul>
+<p><strong>Files Affected</strong>: PR #2046</p>
+<ul>
+<li><code>tests/odyssey/core/test_gradient_checking.mojo</code> (lines 74-89)</li>
+</ul>
+<hr />
+<h3 id="54-incorrect-range-bounds-for-tanh">5.4 Incorrect Range Bounds for tanh</h3>
+<p><strong>Anti-pattern</strong>: Checking strict inequality for tanh range</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-56-1" name="__codelineno-56-1" href="#__codelineno-56-1"></a><span class="c1"># WRONG - tanh can output exactly -1.0 or 1.0 due to FP precision</span>
+<a id="__codelineno-56-2" name="__codelineno-56-2" href="#__codelineno-56-2"></a><span class="k">var</span><span class="w"> </span><span class="nv">val</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">output</span><span class="o">.</span><span class="n">_data</span><span class="o">.</span><span class="n">bitcast</span><span class="p">[</span><span class="nb">Float32</span><span class="p">]()[</span><span class="n">i</span><span class="p">]</span>
+<a id="__codelineno-56-3" name="__codelineno-56-3" href="#__codelineno-56-3"></a><span class="n">assert_true</span><span class="p">(</span><span class="nb">Float32</span><span class="p">(</span><span class="o">-</span><span class="mf">1.0</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">val</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;Value must be greater than -1&quot;</span><span class="p">)</span>
+<a id="__codelineno-56-4" name="__codelineno-56-4" href="#__codelineno-56-4"></a><span class="n">assert_true</span><span class="p">(</span><span class="n">val</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="nb">Float32</span><span class="p">(</span><span class="mf">1.0</span><span class="p">),</span><span class="w"> </span><span class="s2">&quot;Value must be less than 1&quot;</span><span class="p">)</span>
+</code></pre></div>
+<p><strong>Error</strong> (runtime):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-57-1" name="__codelineno-57-1" href="#__codelineno-57-1"></a>Assertion failed: Value must be greater than -1
+</code></pre></div>
+<p><strong>Root Cause</strong>: Mathematically, tanh range is (-1, 1) open interval. But with finite
+floating-point precision, extreme inputs can produce exactly -1.0 or 1.0.</p>
+<p><strong>Correct Pattern</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-58-1" name="__codelineno-58-1" href="#__codelineno-58-1"></a><span class="c1"># CORRECT - Use inclusive bounds for FP comparison</span>
+<a id="__codelineno-58-2" name="__codelineno-58-2" href="#__codelineno-58-2"></a><span class="k">var</span><span class="w"> </span><span class="nv">val</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">output</span><span class="o">.</span><span class="n">_data</span><span class="o">.</span><span class="n">bitcast</span><span class="p">[</span><span class="nb">Float32</span><span class="p">]()[</span><span class="n">i</span><span class="p">]</span>
+<a id="__codelineno-58-3" name="__codelineno-58-3" href="#__codelineno-58-3"></a><span class="n">assert_true</span><span class="p">(</span><span class="nb">Float32</span><span class="p">(</span><span class="o">-</span><span class="mf">1.0</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">val</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;Value must be &gt;= -1&quot;</span><span class="p">)</span>
+<a id="__codelineno-58-4" name="__codelineno-58-4" href="#__codelineno-58-4"></a><span class="n">assert_true</span><span class="p">(</span><span class="n">val</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="nb">Float32</span><span class="p">(</span><span class="mf">1.0</span><span class="p">),</span><span class="w"> </span><span class="s2">&quot;Value must be &lt;= 1&quot;</span><span class="p">)</span>
+</code></pre></div>
+<p><strong>Floating Point Ranges</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-59-1" name="__codelineno-59-1" href="#__codelineno-59-1"></a><span class="c1"># Theoretical vs Practical ranges</span>
+<a id="__codelineno-59-2" name="__codelineno-59-2" href="#__codelineno-59-2"></a><span class="c1"># tanh:     (-1, 1) open     → [-1, 1] inclusive in FP</span>
+<a id="__codelineno-59-3" name="__codelineno-59-3" href="#__codelineno-59-3"></a><span class="c1"># sigmoid:  (0, 1) open      → [0, 1] inclusive in FP</span>
+<a id="__codelineno-59-4" name="__codelineno-59-4" href="#__codelineno-59-4"></a><span class="c1"># ReLU:     [0, ∞) closed    → [0, ∞) (correct as-is)</span>
+</code></pre></div>
+<p><strong>Prevention</strong>:</p>
+<ul>
+<li>Use <code>&lt;=</code> and <code>&gt;=</code> for activation function ranges</li>
+<li>Account for FP precision in all numerical tests</li>
+<li>Document expected FP behavior in test comments</li>
+</ul>
+<p><strong>Files Affected</strong>: PR #2046</p>
+<ul>
+<li><code>tests/odyssey/core/test_layers.mojo</code> (lines 351-352)</li>
+</ul>
+<hr />
+<h2 id="category-6-parameter-ordering-issues">Category 6: Parameter Ordering Issues</h2>
+<h3 id="61-optional-parameters-before-required">6.1 Optional Parameters Before Required</h3>
+<p><strong>Anti-pattern</strong>: Optional parameters before required <code>var</code> parameters</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-60-1" name="__codelineno-60-1" href="#__codelineno-60-1"></a><span class="c1"># WRONG - p is optional, vocabulary is required var</span>
+<a id="__codelineno-60-2" name="__codelineno-60-2" href="#__codelineno-60-2"></a><span class="k">fn</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="n">out</span><span class="w"> </span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="p">:</span><span class="w"> </span><span class="nb">Float64</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.1</span><span class="p">,</span><span class="w"> </span><span class="n">n</span><span class="p">:</span><span class="w"> </span><span class="nb">Int</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="k">var</span><span class="w"> </span><span class="nv">vocabulary</span><span class="p">:</span><span class="w"> </span><span class="nb">List</span><span class="p">[</span><span class="nb">String</span><span class="p">]):</span>
+<a id="__codelineno-60-3" name="__codelineno-60-3" href="#__codelineno-60-3"></a><span class="w">    </span><span class="bp">self</span><span class="o">.</span><span class="n">p</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">p</span>
+<a id="__codelineno-60-4" name="__codelineno-60-4" href="#__codelineno-60-4"></a><span class="w">    </span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">n</span>
+<a id="__codelineno-60-5" name="__codelineno-60-5" href="#__codelineno-60-5"></a><span class="w">    </span><span class="bp">self</span><span class="o">.</span><span class="n">vocabulary</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vocabulary</span><span class="o">^</span>
+</code></pre></div>
+<p><strong>Error Message</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-61-1" name="__codelineno-61-1" href="#__codelineno-61-1"></a>error: parameters with default values must come after parameters without defaults
+<a id="__codelineno-61-2" name="__codelineno-61-2" href="#__codelineno-61-2"></a>  fn __init__(out self, p: Float64 = 0.1, n: Int = 1, var vocabulary: List[String]):
+<a id="__codelineno-61-3" name="__codelineno-61-3" href="#__codelineno-61-3"></a>                                                      ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+</code></pre></div>
+<p><strong>Root Cause</strong>: Mojo requires parameters in this order:</p>
+<ol>
+<li>Required parameters (no default)</li>
+<li>Optional parameters (with default)</li>
+</ol>
+<p><code>var</code> parameters (requiring ownership transfer) are always required, so they must come
+before optional parameters.</p>
+<p><strong>Correct Pattern</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-62-1" name="__codelineno-62-1" href="#__codelineno-62-1"></a><span class="c1"># CORRECT - Required var parameter first, then optionals</span>
+<a id="__codelineno-62-2" name="__codelineno-62-2" href="#__codelineno-62-2"></a><span class="k">fn</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="n">out</span><span class="w"> </span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="k">var</span><span class="w"> </span><span class="nv">vocabulary</span><span class="p">:</span><span class="w"> </span><span class="nb">List</span><span class="p">[</span><span class="nb">String</span><span class="p">],</span><span class="w"> </span><span class="n">p</span><span class="p">:</span><span class="w"> </span><span class="nb">Float64</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.1</span><span class="p">,</span><span class="w"> </span><span class="n">n</span><span class="p">:</span><span class="w"> </span><span class="nb">Int</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">):</span>
+<a id="__codelineno-62-3" name="__codelineno-62-3" href="#__codelineno-62-3"></a><span class="w">    </span><span class="bp">self</span><span class="o">.</span><span class="n">vocabulary</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vocabulary</span><span class="o">^</span>
+<a id="__codelineno-62-4" name="__codelineno-62-4" href="#__codelineno-62-4"></a><span class="w">    </span><span class="bp">self</span><span class="o">.</span><span class="n">p</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">p</span>
+<a id="__codelineno-62-5" name="__codelineno-62-5" href="#__codelineno-62-5"></a><span class="w">    </span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">n</span>
+</code></pre></div>
+<p><strong>Parameter Ordering Rules</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-63-1" name="__codelineno-63-1" href="#__codelineno-63-1"></a><span class="k">fn</span><span class="w"> </span><span class="nf">example</span><span class="p">(</span>
+<a id="__codelineno-63-2" name="__codelineno-63-2" href="#__codelineno-63-2"></a><span class="w">    </span><span class="c1"># 1. Required positional (no default)</span>
+<a id="__codelineno-63-3" name="__codelineno-63-3" href="#__codelineno-63-3"></a><span class="w">    </span><span class="n">required1</span><span class="p">:</span><span class="w"> </span><span class="nb">Int</span><span class="p">,</span>
+<a id="__codelineno-63-4" name="__codelineno-63-4" href="#__codelineno-63-4"></a><span class="w">    </span><span class="k">var</span><span class="w"> </span><span class="nv">required2</span><span class="p">:</span><span class="w"> </span><span class="nb">String</span><span class="p">,</span>
+<a id="__codelineno-63-5" name="__codelineno-63-5" href="#__codelineno-63-5"></a>
+<a id="__codelineno-63-6" name="__codelineno-63-6" href="#__codelineno-63-6"></a><span class="w">    </span><span class="c1"># 2. Optional positional (with default)</span>
+<a id="__codelineno-63-7" name="__codelineno-63-7" href="#__codelineno-63-7"></a><span class="w">    </span><span class="n">optional1</span><span class="p">:</span><span class="w"> </span><span class="nb">Float64</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.0</span><span class="p">,</span>
+<a id="__codelineno-63-8" name="__codelineno-63-8" href="#__codelineno-63-8"></a><span class="w">    </span><span class="n">optional2</span><span class="p">:</span><span class="w"> </span><span class="n">Bool</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">True</span><span class="p">,</span>
+<a id="__codelineno-63-9" name="__codelineno-63-9" href="#__codelineno-63-9"></a>
+<a id="__codelineno-63-10" name="__codelineno-63-10" href="#__codelineno-63-10"></a><span class="w">    </span><span class="c1"># 3. Variadic args (if supported)</span>
+<a id="__codelineno-63-11" name="__codelineno-63-11" href="#__codelineno-63-11"></a><span class="w">    </span><span class="c1"># *args,</span>
+<a id="__codelineno-63-12" name="__codelineno-63-12" href="#__codelineno-63-12"></a>
+<a id="__codelineno-63-13" name="__codelineno-63-13" href="#__codelineno-63-13"></a><span class="w">    </span><span class="c1"># 4. Keyword-only args (after *)</span>
+<a id="__codelineno-63-14" name="__codelineno-63-14" href="#__codelineno-63-14"></a><span class="w">    </span><span class="c1"># *,</span>
+<a id="__codelineno-63-15" name="__codelineno-63-15" href="#__codelineno-63-15"></a><span class="w">    </span><span class="c1"># kw_only: Int = 0,</span>
+<a id="__codelineno-63-16" name="__codelineno-63-16" href="#__codelineno-63-16"></a><span class="p">):</span>
+<a id="__codelineno-63-17" name="__codelineno-63-17" href="#__codelineno-63-17"></a><span class="w">    </span><span class="k">pass</span>
+</code></pre></div>
+<p><strong>Prevention</strong>:</p>
+<ul>
+<li>Put all <code>var</code> parameters first</li>
+<li>Group required before optional</li>
+<li>Compiler error is clear about this</li>
+</ul>
+<p><strong>Files Affected</strong>: PR #2044</p>
+<ul>
+<li><code>src/odyssey/data/text_transforms.mojo</code> (RandomInsertion, RandomSynonymReplacement)</li>
+</ul>
+<hr />
+<h2 id="category-7-comment-syntax-issues">Category 7: Comment Syntax Issues</h2>
+<h3 id="71-invalid-comment-prefix">7.1 Invalid Comment Prefix</h3>
+<p><strong>Anti-pattern</strong>: Using bare text as comments without <code>#</code></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-64-1" name="__codelineno-64-1" href="#__codelineno-64-1"></a><span class="c1"># WRONG - No # prefix, treated as code</span>
+<a id="__codelineno-64-2" name="__codelineno-64-2" href="#__codelineno-64-2"></a><span class="n">Verify</span><span class="w"> </span><span class="nb">all</span><span class="w"> </span><span class="n">required</span><span class="w"> </span><span class="n">methods</span><span class="w"> </span><span class="n">are</span><span class="w"> </span><span class="nb">callable</span>
+<a id="__codelineno-64-3" name="__codelineno-64-3" href="#__codelineno-64-3"></a><span class="n">_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">trainer</span><span class="o">.</span><span class="n">train</span><span class="p">(</span><span class="n">epochs</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</code></pre></div>
+<p><strong>Error Message</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-65-1" name="__codelineno-65-1" href="#__codelineno-65-1"></a>error: use of undeclared identifier &#39;Verify&#39;
+<a id="__codelineno-65-2" name="__codelineno-65-2" href="#__codelineno-65-2"></a>  Verify all required methods are callable
+<a id="__codelineno-65-3" name="__codelineno-65-3" href="#__codelineno-65-3"></a>  ^~~~~~
+</code></pre></div>
+<p><strong>Correct Pattern</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-66-1" name="__codelineno-66-1" href="#__codelineno-66-1"></a><span class="c1"># CORRECT - Prefix with #</span>
+<a id="__codelineno-66-2" name="__codelineno-66-2" href="#__codelineno-66-2"></a><span class="c1"># Verify all required methods are callable</span>
+<a id="__codelineno-66-3" name="__codelineno-66-3" href="#__codelineno-66-3"></a><span class="n">_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">trainer</span><span class="o">.</span><span class="n">train</span><span class="p">(</span><span class="n">epochs</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</code></pre></div>
+<p><strong>Prevention</strong>:</p>
+<ul>
+<li>Always prefix comments with <code>#</code></li>
+<li>Use docstrings for multi-line documentation</li>
+<li>Linter to detect suspicious identifiers</li>
+</ul>
+<p><strong>Files Affected</strong>: PR #2044</p>
+<ul>
+<li><code>tests/odyssey/training/test_trainer_interface.mojo</code> (lines 42, 73, 98, 121, 255, 320,
+  330)</li>
+</ul>
+<hr />
+<h2 id="quick-reference-cheat-sheet">Quick Reference Cheat Sheet</h2>
+<h3 id="constructor-signatures">Constructor Signatures</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-67-1" name="__codelineno-67-1" href="#__codelineno-67-1"></a><span class="err">✅</span><span class="w"> </span><span class="k">fn</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="n">out</span><span class="w"> </span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">value</span><span class="p">:</span><span class="w"> </span><span class="nb">Int</span><span class="p">)</span>
+<a id="__codelineno-67-2" name="__codelineno-67-2" href="#__codelineno-67-2"></a><span class="err">❌</span><span class="w"> </span><span class="k">fn</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="n">mut</span><span class="w"> </span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">value</span><span class="p">:</span><span class="w"> </span><span class="nb">Int</span><span class="p">)</span>
+<a id="__codelineno-67-3" name="__codelineno-67-3" href="#__codelineno-67-3"></a>
+<a id="__codelineno-67-4" name="__codelineno-67-4" href="#__codelineno-67-4"></a><span class="err">✅</span><span class="w"> </span><span class="k">fn</span><span class="w"> </span><span class="nf">__moveinit__</span><span class="p">(</span><span class="n">out</span><span class="w"> </span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">deinit</span><span class="w"> </span><span class="n">existing</span><span class="p">:</span><span class="w"> </span><span class="n">Self</span><span class="p">)</span>
+<a id="__codelineno-67-5" name="__codelineno-67-5" href="#__codelineno-67-5"></a><span class="err">❌</span><span class="w"> </span><span class="k">fn</span><span class="w"> </span><span class="nf">__moveinit__</span><span class="p">(</span><span class="n">mut</span><span class="w"> </span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="k">var</span><span class="w"> </span><span class="nv">existing</span><span class="p">:</span><span class="w"> </span><span class="n">Self</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="ownership-transfer">Ownership Transfer</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-68-1" name="__codelineno-68-1" href="#__codelineno-68-1"></a><span class="err">✅</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">result</span><span class="o">^</span><span class="w">              </span><span class="c1"># Transfer ownership</span>
+<a id="__codelineno-68-2" name="__codelineno-68-2" href="#__codelineno-68-2"></a><span class="err">✅</span><span class="w"> </span><span class="k">var</span><span class="w"> </span><span class="nv">copy</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">List</span><span class="p">[</span><span class="nb">Int</span><span class="p">](</span><span class="n">src</span><span class="p">)</span><span class="w">   </span><span class="c1"># Explicit copy</span>
+<a id="__codelineno-68-3" name="__codelineno-68-3" href="#__codelineno-68-3"></a><span class="err">❌</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">result</span><span class="w">               </span><span class="c1"># Implicit copy (fails for List)</span>
+<a id="__codelineno-68-4" name="__codelineno-68-4" href="#__codelineno-68-4"></a><span class="err">❌</span><span class="w"> </span><span class="k">var</span><span class="w"> </span><span class="nv">copy</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">src</span><span class="w">              </span><span class="c1"># Implicit copy (fails for List)</span>
+</code></pre></div>
+<h3 id="list-operations">List Operations</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-69-1" name="__codelineno-69-1" href="#__codelineno-69-1"></a><span class="err">✅</span><span class="w"> </span><span class="nb">list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="w">          </span><span class="c1"># Add new element</span>
+<a id="__codelineno-69-2" name="__codelineno-69-2" href="#__codelineno-69-2"></a><span class="err">✅</span><span class="w"> </span><span class="nb">list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">value</span><span class="w">             </span><span class="c1"># Modify existing</span>
+<a id="__codelineno-69-3" name="__codelineno-69-3" href="#__codelineno-69-3"></a><span class="err">❌</span><span class="w"> </span><span class="nb">list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">value</span><span class="w">             </span><span class="c1"># Add new (fails - use append)</span>
+</code></pre></div>
+<h3 id="trait-conformance">Trait Conformance</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-70-1" name="__codelineno-70-1" href="#__codelineno-70-1"></a><span class="err">✅</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="n n-Struct">Simple</span><span class="p">(</span><span class="nb">Copyable</span><span class="p">,</span><span class="w"> </span><span class="nb">Movable</span><span class="p">):</span>
+<a id="__codelineno-70-2" name="__codelineno-70-2" href="#__codelineno-70-2"></a><span class="w">    </span><span class="k">var</span><span class="w"> </span><span class="nv">x</span><span class="p">:</span><span class="w"> </span><span class="nb">Int</span>
+<a id="__codelineno-70-3" name="__codelineno-70-3" href="#__codelineno-70-3"></a>
+<a id="__codelineno-70-4" name="__codelineno-70-4" href="#__codelineno-70-4"></a><span class="err">❌</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="n n-Struct">Complex</span><span class="p">(</span><span class="n">ImplicitlyCopyable</span><span class="p">):</span>
+<a id="__codelineno-70-5" name="__codelineno-70-5" href="#__codelineno-70-5"></a><span class="w">    </span><span class="k">var</span><span class="w"> </span><span class="nv">data</span><span class="p">:</span><span class="w"> </span><span class="nb">List</span><span class="p">[</span><span class="nb">Int</span><span class="p">]</span><span class="w">  </span><span class="c1"># Not implicitly copyable!</span>
+</code></pre></div>
+<h3 id="tensor-initialization">Tensor Initialization</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-71-1" name="__codelineno-71-1" href="#__codelineno-71-1"></a><span class="err">✅</span><span class="w"> </span><span class="k">var</span><span class="w"> </span><span class="nv">shape</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">List</span><span class="p">[</span><span class="nb">Int</span><span class="p">]()</span>
+<a id="__codelineno-71-2" name="__codelineno-71-2" href="#__codelineno-71-2"></a><span class="w">   </span><span class="n">shape</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<a id="__codelineno-71-3" name="__codelineno-71-3" href="#__codelineno-71-3"></a><span class="w">   </span><span class="k">var</span><span class="w"> </span><span class="nv">tensor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">AnyTensor</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span><span class="w"> </span><span class="n">dtype</span><span class="p">)</span>
+<a id="__codelineno-71-4" name="__codelineno-71-4" href="#__codelineno-71-4"></a>
+<a id="__codelineno-71-5" name="__codelineno-71-5" href="#__codelineno-71-5"></a><span class="err">❌</span><span class="w"> </span><span class="k">var</span><span class="w"> </span><span class="nv">shape</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">List</span><span class="p">[</span><span class="nb">Int</span><span class="p">]()</span>
+<a id="__codelineno-71-6" name="__codelineno-71-6" href="#__codelineno-71-6"></a><span class="w">   </span><span class="k">var</span><span class="w"> </span><span class="nv">tensor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">AnyTensor</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span><span class="w"> </span><span class="n">dtype</span><span class="p">)</span><span class="w">  </span><span class="c1"># 0D scalar!</span>
+</code></pre></div>
+<h3 id="type-comparisons">Type Comparisons</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-72-1" name="__codelineno-72-1" href="#__codelineno-72-1"></a><span class="err">✅</span><span class="w"> </span><span class="n">assert_true</span><span class="p">(</span><span class="n">tensor</span><span class="o">.</span><span class="n">_dtype</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="nb">DType</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span><span class="w"> </span><span class="n">msg</span><span class="p">)</span>
+<a id="__codelineno-72-2" name="__codelineno-72-2" href="#__codelineno-72-2"></a><span class="err">❌</span><span class="w"> </span><span class="n">assert_equal</span><span class="p">(</span><span class="n">tensor</span><span class="o">.</span><span class="n">_dtype</span><span class="p">,</span><span class="w"> </span><span class="nb">DType</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span><span class="w">  </span><span class="c1"># DType not Comparable</span>
+</code></pre></div>
+<hr />
+<h2 id="integration-recommendations-for-claudemd">Integration Recommendations for CLAUDE.md</h2>
+<!-- markdownlint-disable MD029 -->
+<!-- Disable MD029: The numbered lists below are inside code blocks as examples -->
+
+<h3 id="section-1-add-to-mojo-syntax-standards">Section 1: Add to "Mojo Syntax Standards"</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-73-1" name="__codelineno-73-1" href="#__codelineno-73-1"></a><span class="gu">### Critical Patterns (NEVER GET WRONG)</span>
+<a id="__codelineno-73-2" name="__codelineno-73-2" href="#__codelineno-73-2"></a>
+<a id="__codelineno-73-3" name="__codelineno-73-3" href="#__codelineno-73-3"></a><span class="k">1.</span> <span class="gs">**Constructors ALWAYS use `out self`**</span>
+<a id="__codelineno-73-4" name="__codelineno-73-4" href="#__codelineno-73-4"></a>
+<a id="__codelineno-73-5" name="__codelineno-73-5" href="#__codelineno-73-5"></a><span class="sb">   ```mojo</span>
+<a id="__codelineno-73-6" name="__codelineno-73-6" href="#__codelineno-73-6"></a><span class="w">   </span><span class="k">fn</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="n">out</span><span class="w"> </span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">value</span><span class="p">:</span><span class="w"> </span><span class="nb">Int</span><span class="p">):</span><span class="w">  </span><span class="c1"># ✅ Correct</span>
+<a id="__codelineno-73-7" name="__codelineno-73-7" href="#__codelineno-73-7"></a><span class="w">   </span><span class="k">fn</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="n">mut</span><span class="w"> </span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">value</span><span class="p">:</span><span class="w"> </span><span class="nb">Int</span><span class="p">):</span><span class="w">  </span><span class="c1"># ❌ WRONG</span>
+<a id="__codelineno-73-8" name="__codelineno-73-8" href="#__codelineno-73-8"></a><span class="sb">   ```</span>
+<a id="__codelineno-73-9" name="__codelineno-73-9" href="#__codelineno-73-9"></a>
+<a id="__codelineno-73-10" name="__codelineno-73-10" href="#__codelineno-73-10"></a><span class="k">2.</span> <span class="gs">**List operations require explicit append**</span>
+<a id="__codelineno-73-11" name="__codelineno-73-11" href="#__codelineno-73-11"></a>
+<a id="__codelineno-73-12" name="__codelineno-73-12" href="#__codelineno-73-12"></a><span class="sb">   ```mojo</span>
+<a id="__codelineno-73-13" name="__codelineno-73-13" href="#__codelineno-73-13"></a><span class="w">   </span><span class="k">var</span><span class="w"> </span><span class="nv">list</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">List</span><span class="p">[</span><span class="nb">Int</span><span class="p">]()</span>
+<a id="__codelineno-73-14" name="__codelineno-73-14" href="#__codelineno-73-14"></a><span class="w">   </span><span class="nb">list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span><span class="w">   </span><span class="c1"># ✅ Correct</span>
+<a id="__codelineno-73-15" name="__codelineno-73-15" href="#__codelineno-73-15"></a><span class="w">   </span><span class="nb">list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">42</span><span class="w">      </span><span class="c1"># ❌ WRONG (empty list)</span>
+<a id="__codelineno-73-16" name="__codelineno-73-16" href="#__codelineno-73-16"></a><span class="sb">   ```</span>
+<a id="__codelineno-73-17" name="__codelineno-73-17" href="#__codelineno-73-17"></a>
+<a id="__codelineno-73-18" name="__codelineno-73-18" href="#__codelineno-73-18"></a><span class="k">3.</span> <span class="gs">**Non-copyable types require explicit transfer**</span>
+<a id="__codelineno-73-19" name="__codelineno-73-19" href="#__codelineno-73-19"></a>
+<a id="__codelineno-73-20" name="__codelineno-73-20" href="#__codelineno-73-20"></a><span class="sb">   ```mojo</span>
+<a id="__codelineno-73-21" name="__codelineno-73-21" href="#__codelineno-73-21"></a><span class="w">   </span><span class="k">return</span><span class="w"> </span><span class="n">data</span><span class="o">^</span><span class="w">                  </span><span class="c1"># ✅ Correct</span>
+<a id="__codelineno-73-22" name="__codelineno-73-22" href="#__codelineno-73-22"></a><span class="w">   </span><span class="k">return</span><span class="w"> </span><span class="n">data</span><span class="w">                   </span><span class="c1"># ❌ WRONG (List not copyable)</span>
+<a id="__codelineno-73-23" name="__codelineno-73-23" href="#__codelineno-73-23"></a><span class="w">   </span><span class="k">var</span><span class="w"> </span><span class="nv">copy</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">List</span><span class="p">[</span><span class="nb">Int</span><span class="p">](</span><span class="n">source</span><span class="p">)</span><span class="w">  </span><span class="c1"># ✅ Explicit copy</span>
+<a id="__codelineno-73-24" name="__codelineno-73-24" href="#__codelineno-73-24"></a><span class="sb">   ```</span>
+<a id="__codelineno-73-25" name="__codelineno-73-25" href="#__codelineno-73-25"></a>
+<a id="__codelineno-73-26" name="__codelineno-73-26" href="#__codelineno-73-26"></a><span class="k">4.</span> <span class="gs">**Tensor initialization requires shape dimensions**</span>
+<a id="__codelineno-73-27" name="__codelineno-73-27" href="#__codelineno-73-27"></a>
+<a id="__codelineno-73-28" name="__codelineno-73-28" href="#__codelineno-73-28"></a><span class="sb">   ```mojo</span>
+<a id="__codelineno-73-29" name="__codelineno-73-29" href="#__codelineno-73-29"></a><span class="w">   </span><span class="k">var</span><span class="w"> </span><span class="nv">shape</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">List</span><span class="p">[</span><span class="nb">Int</span><span class="p">]()</span>
+<a id="__codelineno-73-30" name="__codelineno-73-30" href="#__codelineno-73-30"></a><span class="w">   </span><span class="n">shape</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">N</span><span class="p">)</span><span class="w">              </span><span class="c1"># ✅ Correct</span>
+<a id="__codelineno-73-31" name="__codelineno-73-31" href="#__codelineno-73-31"></a><span class="w">   </span><span class="k">var</span><span class="w"> </span><span class="nv">tensor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">AnyTensor</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span><span class="w"> </span><span class="n">dtype</span><span class="p">)</span>
+<a id="__codelineno-73-32" name="__codelineno-73-32" href="#__codelineno-73-32"></a>
+<a id="__codelineno-73-33" name="__codelineno-73-33" href="#__codelineno-73-33"></a><span class="w">   </span><span class="k">var</span><span class="w"> </span><span class="nv">shape</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">List</span><span class="p">[</span><span class="nb">Int</span><span class="p">]()</span><span class="w">      </span><span class="c1"># ❌ WRONG (0D scalar)</span>
+<a id="__codelineno-73-34" name="__codelineno-73-34" href="#__codelineno-73-34"></a><span class="w">   </span><span class="k">var</span><span class="w"> </span><span class="nv">tensor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">AnyTensor</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span><span class="w"> </span><span class="n">dtype</span><span class="p">)</span>
+<a id="__codelineno-73-35" name="__codelineno-73-35" href="#__codelineno-73-35"></a><span class="sb">   ```</span>
+<a id="__codelineno-73-36" name="__codelineno-73-36" href="#__codelineno-73-36"></a>
+<a id="__codelineno-73-37" name="__codelineno-73-37" href="#__codelineno-73-37"></a><span class="gu">### Section 2: Add to &quot;Common Mistakes to Avoid&quot;</span>
+<a id="__codelineno-73-38" name="__codelineno-73-38" href="#__codelineno-73-38"></a>
+<a id="__codelineno-73-39" name="__codelineno-73-39" href="#__codelineno-73-39"></a>```markdown
+<a id="__codelineno-73-40" name="__codelineno-73-40" href="#__codelineno-73-40"></a><span class="gu">### Most Common Errors (From Production Data)</span>
+<a id="__codelineno-73-41" name="__codelineno-73-41" href="#__codelineno-73-41"></a>
+<a id="__codelineno-73-42" name="__codelineno-73-42" href="#__codelineno-73-42"></a><span class="k">1.</span> <span class="gs">**Ownership Violations**</span> (40% of failures)
+<a id="__codelineno-73-43" name="__codelineno-73-43" href="#__codelineno-73-43"></a><span class="w">   </span><span class="k">-</span><span class="w"> </span>Never pass temporary <span class="sb">`List[Int]()`</span> directly
+<a id="__codelineno-73-44" name="__codelineno-73-44" href="#__codelineno-73-44"></a><span class="w">   </span><span class="k">-</span><span class="w"> </span>Always create named variables for ownership transfer
+<a id="__codelineno-73-45" name="__codelineno-73-45" href="#__codelineno-73-45"></a><span class="w">   </span><span class="k">-</span><span class="w"> </span>Add <span class="sb">`^`</span> for all List/Dict/String returns
+<a id="__codelineno-73-46" name="__codelineno-73-46" href="#__codelineno-73-46"></a>
+<a id="__codelineno-73-47" name="__codelineno-73-47" href="#__codelineno-73-47"></a><span class="k">2.</span> <span class="gs">**Constructor Signature Errors**</span> (25% of failures)
+<a id="__codelineno-73-48" name="__codelineno-73-48" href="#__codelineno-73-48"></a><span class="w">   </span><span class="k">-</span><span class="w"> </span>ALL <span class="sb">`__init__`</span> use <span class="sb">`out self`</span>
+<a id="__codelineno-73-49" name="__codelineno-73-49" href="#__codelineno-73-49"></a><span class="w">   </span><span class="k">-</span><span class="w"> </span>ALL <span class="sb">`__moveinit__`</span> use <span class="sb">`out self, deinit existing`</span>
+<a id="__codelineno-73-50" name="__codelineno-73-50" href="#__codelineno-73-50"></a><span class="w">   </span><span class="k">-</span><span class="w"> </span>Mutating methods use <span class="sb">`mut self`</span>
+<a id="__codelineno-73-51" name="__codelineno-73-51" href="#__codelineno-73-51"></a>
+<a id="__codelineno-73-52" name="__codelineno-73-52" href="#__codelineno-73-52"></a><span class="k">3.</span> <span class="gs">**Uninitialized Data**</span> (20% of failures)
+<a id="__codelineno-73-53" name="__codelineno-73-53" href="#__codelineno-73-53"></a><span class="w">   </span><span class="k">-</span><span class="w"> </span>Always <span class="sb">`append()`</span> before accessing list indices
+<a id="__codelineno-73-54" name="__codelineno-73-54" href="#__codelineno-73-54"></a><span class="w">   </span><span class="k">-</span><span class="w"> </span>Initialize ALL tensor elements (check <span class="sb">`numel()`</span>)
+<a id="__codelineno-73-55" name="__codelineno-73-55" href="#__codelineno-73-55"></a><span class="w">   </span><span class="k">-</span><span class="w"> </span>Never assume <span class="sb">`zeros()`</span> fills all memory
+<a id="__codelineno-73-56" name="__codelineno-73-56" href="#__codelineno-73-56"></a>
+<a id="__codelineno-73-57" name="__codelineno-73-57" href="#__codelineno-73-57"></a><span class="k">4.</span> <span class="gs">**Missing Exports**</span> (10% of failures)
+<a id="__codelineno-73-58" name="__codelineno-73-58" href="#__codelineno-73-58"></a><span class="w">   </span><span class="k">-</span><span class="w"> </span>Update <span class="sb">`__init__.mojo`</span> when adding functions
+<a id="__codelineno-73-59" name="__codelineno-73-59" href="#__codelineno-73-59"></a><span class="w">   </span><span class="k">-</span><span class="w"> </span>Test imports at package level
+<a id="__codelineno-73-60" name="__codelineno-73-60" href="#__codelineno-73-60"></a>
+<a id="__codelineno-73-61" name="__codelineno-73-61" href="#__codelineno-73-61"></a><span class="k">5.</span> <span class="gs">**Type System Issues**</span> (5% of failures)
+<a id="__codelineno-73-62" name="__codelineno-73-62" href="#__codelineno-73-62"></a><span class="w">   </span><span class="k">-</span><span class="w"> </span>Use <span class="sb">`assert_true(a == b)`</span> for DType comparisons
+<a id="__codelineno-73-63" name="__codelineno-73-63" href="#__codelineno-73-63"></a><span class="w">   </span><span class="k">-</span><span class="w"> </span>Call methods with <span class="sb">`()`</span>: <span class="sb">`tensor.dtype()`</span>
+<a id="__codelineno-73-64" name="__codelineno-73-64" href="#__codelineno-73-64"></a><span class="w">   </span><span class="k">-</span><span class="w"> </span>Add <span class="sb">`escaping`</span> to closure functions
+</code></pre></div>
+<h3 id="section-3-add-pre-commit-hook-checks">Section 3: Add Pre-commit Hook Checks</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-74-1" name="__codelineno-74-1" href="#__codelineno-74-1"></a><span class="gu">### Automated Quality Checks</span>
+<a id="__codelineno-74-2" name="__codelineno-74-2" href="#__codelineno-74-2"></a>
+<a id="__codelineno-74-3" name="__codelineno-74-3" href="#__codelineno-74-3"></a>Add to <span class="sb">`.pre-commit-config.yaml`</span>:
+<a id="__codelineno-74-4" name="__codelineno-74-4" href="#__codelineno-74-4"></a>
+<a id="__codelineno-74-5" name="__codelineno-74-5" href="#__codelineno-74-5"></a>```yaml
+<a id="__codelineno-74-6" name="__codelineno-74-6" href="#__codelineno-74-6"></a><span class="k">-</span><span class="w"> </span>repo: local
+<a id="__codelineno-74-7" name="__codelineno-74-7" href="#__codelineno-74-7"></a>  hooks:
+<a id="__codelineno-74-8" name="__codelineno-74-8" href="#__codelineno-74-8"></a><span class="w">    </span><span class="k">-</span><span class="w"> </span>id: check-mojo-constructors
+<a id="__codelineno-74-9" name="__codelineno-74-9" href="#__codelineno-74-9"></a>      name: Check Mojo constructor signatures
+<a id="__codelineno-74-10" name="__codelineno-74-10" href="#__codelineno-74-10"></a>      entry: python scripts/check_mojo_constructors.py
+<a id="__codelineno-74-11" name="__codelineno-74-11" href="#__codelineno-74-11"></a>      language: python
+<a id="__codelineno-74-12" name="__codelineno-74-12" href="#__codelineno-74-12"></a>      files: \.mojo$
+<a id="__codelineno-74-13" name="__codelineno-74-13" href="#__codelineno-74-13"></a>
+<a id="__codelineno-74-14" name="__codelineno-74-14" href="#__codelineno-74-14"></a><span class="w">    </span><span class="k">-</span><span class="w"> </span>id: check-var-spacing
+<a id="__codelineno-74-15" name="__codelineno-74-15" href="#__codelineno-74-15"></a>      name: Check var keyword spacing
+<a id="__codelineno-74-16" name="__codelineno-74-16" href="#__codelineno-74-16"></a>      entry: grep -n &quot;var[a-z]&quot; *.mojo
+<a id="__codelineno-74-17" name="__codelineno-74-17" href="#__codelineno-74-17"></a>      language: system
+<a id="__codelineno-74-18" name="__codelineno-74-18" href="#__codelineno-74-18"></a>      files: \.mojo$
+<a id="__codelineno-74-19" name="__codelineno-74-19" href="#__codelineno-74-19"></a>
+<a id="__codelineno-74-20" name="__codelineno-74-20" href="#__codelineno-74-20"></a><span class="w">    </span><span class="k">-</span><span class="w"> </span>id: check-package-exports
+<a id="__codelineno-74-21" name="__codelineno-74-21" href="#__codelineno-74-21"></a>      name: Verify package exports
+<a id="__codelineno-74-22" name="__codelineno-74-22" href="#__codelineno-74-22"></a>      entry: python scripts/verify_package_exports.py
+<a id="__codelineno-74-23" name="__codelineno-74-23" href="#__codelineno-74-23"></a>      language: python
+<a id="__codelineno-74-24" name="__codelineno-74-24" href="#__codelineno-74-24"></a>      files: <span class="gs">__init__</span>\.mojo$
+</code></pre></div>
+<h3 id="section-4-add-to-testing-best-practices">Section 4: Add to "Testing Best Practices"</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-75-1" name="__codelineno-75-1" href="#__codelineno-75-1"></a><span class="gu">### Test Initialization Patterns</span>
+<a id="__codelineno-75-2" name="__codelineno-75-2" href="#__codelineno-75-2"></a>
+<a id="__codelineno-75-3" name="__codelineno-75-3" href="#__codelineno-75-3"></a><span class="gu">#### Always Initialize Tensor Shapes</span>
+<a id="__codelineno-75-4" name="__codelineno-75-4" href="#__codelineno-75-4"></a>
+<a id="__codelineno-75-5" name="__codelineno-75-5" href="#__codelineno-75-5"></a>```mojo
+<a id="__codelineno-75-6" name="__codelineno-75-6" href="#__codelineno-75-6"></a><span class="gh"># ✅ CORRECT</span>
+<a id="__codelineno-75-7" name="__codelineno-75-7" href="#__codelineno-75-7"></a>var shape = List[Int]()
+<a id="__codelineno-75-8" name="__codelineno-75-8" href="#__codelineno-75-8"></a>shape.append(batch_size)
+<a id="__codelineno-75-9" name="__codelineno-75-9" href="#__codelineno-75-9"></a>shape.append(features)
+<a id="__codelineno-75-10" name="__codelineno-75-10" href="#__codelineno-75-10"></a>var tensor = AnyTensor(shape, DType.float32)
+<a id="__codelineno-75-11" name="__codelineno-75-11" href="#__codelineno-75-11"></a>
+<a id="__codelineno-75-12" name="__codelineno-75-12" href="#__codelineno-75-12"></a><span class="gh"># ❌ WRONG - Empty shape is 0D scalar</span>
+<a id="__codelineno-75-13" name="__codelineno-75-13" href="#__codelineno-75-13"></a>var shape = List[Int]()
+<a id="__codelineno-75-14" name="__codelineno-75-14" href="#__codelineno-75-14"></a>var tensor = AnyTensor(shape, DType.float32)
+</code></pre></div>
+<h4 id="initialize-all-tensor-elements">Initialize ALL Tensor Elements</h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-76-1" name="__codelineno-76-1" href="#__codelineno-76-1"></a><span class="c1"># ✅ CORRECT - All 12 elements initialized</span>
+<a id="__codelineno-76-2" name="__codelineno-76-2" href="#__codelineno-76-2"></a><span class="k">var</span><span class="w"> </span><span class="nv">input</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zeros</span><span class="p">(</span><span class="nb">List</span><span class="p">[</span><span class="nb">Int</span><span class="p">](</span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">),</span><span class="w"> </span><span class="nb">DType</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+<a id="__codelineno-76-3" name="__codelineno-76-3" href="#__codelineno-76-3"></a><span class="k">for</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="nb">range</span><span class="p">(</span><span class="mi">12</span><span class="p">):</span>
+<a id="__codelineno-76-4" name="__codelineno-76-4" href="#__codelineno-76-4"></a><span class="w">    </span><span class="nb">input</span><span class="o">.</span><span class="n">_set_float64</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">expected_values</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+<a id="__codelineno-76-5" name="__codelineno-76-5" href="#__codelineno-76-5"></a>
+<a id="__codelineno-76-6" name="__codelineno-76-6" href="#__codelineno-76-6"></a><span class="c1"># ❌ WRONG - Only 4 elements, rest are garbage</span>
+<a id="__codelineno-76-7" name="__codelineno-76-7" href="#__codelineno-76-7"></a><span class="k">var</span><span class="w"> </span><span class="nv">input</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zeros</span><span class="p">(</span><span class="nb">List</span><span class="p">[</span><span class="nb">Int</span><span class="p">](</span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">),</span><span class="w"> </span><span class="nb">DType</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+<a id="__codelineno-76-8" name="__codelineno-76-8" href="#__codelineno-76-8"></a><span class="nb">input</span><span class="o">.</span><span class="n">_set_float64</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mf">1.0</span><span class="p">)</span>
+<a id="__codelineno-76-9" name="__codelineno-76-9" href="#__codelineno-76-9"></a><span class="nb">input</span><span class="o">.</span><span class="n">_set_float64</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mf">2.0</span><span class="p">)</span>
+<a id="__codelineno-76-10" name="__codelineno-76-10" href="#__codelineno-76-10"></a><span class="c1"># Missing indices 2-11</span>
+</code></pre></div>
+<h4 id="use-explicit-copies-in-tests">Use Explicit Copies in Tests</h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-77-1" name="__codelineno-77-1" href="#__codelineno-77-1"></a><span class="c1"># ✅ CORRECT - Explicit copy for comparison</span>
+<a id="__codelineno-77-2" name="__codelineno-77-2" href="#__codelineno-77-2"></a><span class="k">var</span><span class="w"> </span><span class="nv">original</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">List</span><span class="p">[</span><span class="nb">Float64</span><span class="p">](</span><span class="mf">3.0</span><span class="p">,</span><span class="w"> </span><span class="mf">4.0</span><span class="p">)</span>
+<a id="__codelineno-77-3" name="__codelineno-77-3" href="#__codelineno-77-3"></a><span class="k">var</span><span class="w"> </span><span class="nv">original_copy</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">List</span><span class="p">[</span><span class="nb">Float64</span><span class="p">](</span><span class="n">original</span><span class="p">)</span><span class="w">  </span><span class="c1"># Copy before transfer</span>
+<a id="__codelineno-77-4" name="__codelineno-77-4" href="#__codelineno-77-4"></a><span class="k">var</span><span class="w"> </span><span class="nv">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">function</span><span class="p">(</span><span class="n">original</span><span class="o">^</span><span class="p">)</span>
+<a id="__codelineno-77-5" name="__codelineno-77-5" href="#__codelineno-77-5"></a><span class="n">assert_equal</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">result</span><span class="p">),</span><span class="w"> </span><span class="nb">len</span><span class="p">(</span><span class="n">original_copy</span><span class="p">))</span>
+<a id="__codelineno-77-6" name="__codelineno-77-6" href="#__codelineno-77-6"></a>
+<a id="__codelineno-77-7" name="__codelineno-77-7" href="#__codelineno-77-7"></a><span class="c1"># ❌ WRONG - Original moved, cannot compare</span>
+<a id="__codelineno-77-8" name="__codelineno-77-8" href="#__codelineno-77-8"></a><span class="k">var</span><span class="w"> </span><span class="nv">original</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">List</span><span class="p">[</span><span class="nb">Float64</span><span class="p">](</span><span class="mf">3.0</span><span class="p">,</span><span class="w"> </span><span class="mf">4.0</span><span class="p">)</span>
+<a id="__codelineno-77-9" name="__codelineno-77-9" href="#__codelineno-77-9"></a><span class="k">var</span><span class="w"> </span><span class="nv">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">function</span><span class="p">(</span><span class="n">original</span><span class="o">^</span><span class="p">)</span>
+<a id="__codelineno-77-10" name="__codelineno-77-10" href="#__codelineno-77-10"></a><span class="n">assert_equal</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">result</span><span class="p">),</span><span class="w"> </span><span class="nb">len</span><span class="p">(</span><span class="n">original</span><span class="p">))</span><span class="w">  </span><span class="c1"># Error: original moved</span>
+</code></pre></div>
+<!-- markdownlint-enable MD029 -->
+
+<hr />
+<h2 id="conclusion">Conclusion</h2>
+<p>The 10 PRs revealed systematic patterns in Mojo errors:</p>
+<ol>
+<li><strong>Ownership Model</strong> - Mojo's explicit ownership requires understanding <code>out</code>, <code>mut</code>,
+   <code>var</code>, <code>ref</code>, and <code>^</code> transfer operator</li>
+<li><strong>Constructor Convention</strong> - <code>out self</code> for all constructors is non-negotiable</li>
+<li><strong>List Semantics</strong> - Cannot grow by assignment, must use <code>append()</code></li>
+<li><strong>Type Safety</strong> - No implicit copies for heap-allocated types</li>
+<li><strong>Memory Initialization</strong> - All tensor data must be explicitly initialized</li>
+</ol>
+<p><strong>Key Takeaway</strong>: Most errors stem from applying Python mental models to Mojo. Understanding
+Mojo's ownership semantics and explicit initialization requirements prevents 90% of failures.</p>
+<p><strong>Recommended Actions</strong>:</p>
+<ol>
+<li>Add ownership patterns to CLAUDE.md</li>
+<li>Create pre-commit hooks for common mistakes</li>
+<li>Update test templates with initialization patterns</li>
+<li>Document API design patterns for constructors</li>
+<li>Add linter rules for <code>var</code> spacing and List operations</li>
+</ol>
+<hr />
+<p><strong>Files Analyzed</strong>: 50+ test and implementation files across 10 PRs
+<strong>Patterns Identified</strong>: 7 major categories, 15 specific anti-patterns
+<strong>Prevention Strategies</strong>: 12 automated checks, 8 code review items</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "search.suggest", "search.highlight", "content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>

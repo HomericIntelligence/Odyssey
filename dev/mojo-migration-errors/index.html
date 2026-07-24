@@ -1,0 +1,2265 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Mojo-based AI research platform for reproducing classic research papers">
+      
+      
+      
+        <link rel="canonical" href="https://github.com/HomericIntelligence/Odyssey/dev/mojo-migration-errors/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Mojo v0.26.1+ Migration - Comprehensive Error Summary - ML Odyssey</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#mojo-v0261-migration-comprehensive-error-summary" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="ML Odyssey" class="md-header__button md-logo" aria-label="ML Odyssey" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            ML Odyssey
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Mojo v0.26.1+ Migration - Comprehensive Error Summary
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/HomericIntelligence/Odyssey" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    HomericIntelligence/Odyssey
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../glossary/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Glossary
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../release-process/" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../integration/supporting-directories/" class="md-tabs__link">
+          
+  
+  
+  Integration
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="ML Odyssey" class="md-nav__button md-logo" aria-label="ML Odyssey" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    ML Odyssey
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/HomericIntelligence/Odyssey" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    HomericIntelligence/Odyssey
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../glossary/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Glossary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/quickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quickstart
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/first_model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    First Model
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/repository-structure/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Repository Structure
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../release-process/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Release Process
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Integration
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Integration
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../integration/supporting-directories/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Supporting Directories
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../integration/papers-shared-integration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Papers & Shared Integration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../integration/quick-start-new-paper/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start New Paper
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#v0263-quality-audit-2026-04-09" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v0.26.3 Quality Audit (2026-04-09)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="v0.26.3 Quality Audit (2026-04-09)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#results-summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Results Summary
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#key-findings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key Findings
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#executive-summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Executive Summary
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#error-categories" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Error Categories
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Error Categories">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-keyword-parameter-convention-changes-69-errors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Keyword &amp; Parameter Convention Changes (69 errors)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. Keyword &amp; Parameter Convention Changes (69 errors)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#11-inout-mut-parameter-convention-8-errors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.1 inout → mut Parameter Convention (8 errors)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#12-__init__-parameter-convention-mut-self-out-self-75-errors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.2 __init__ Parameter Convention: mut self → out self (75 errors)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-stdlib-reorganization-75-errors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Stdlib Reorganization (75 errors)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Stdlib Reorganization (75 errors)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21-dtype-import-location-change-4-errors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1 DType Import Location Change (4 errors)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22-builtin-functions-no-import-needed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.2 Builtin Functions (No Import Needed)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#23-simdwidthof-import-location-1-error" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.3 simdwidthof Import Location (1 error)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#24-str-string-31-errors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.4 str() → String() (31 errors)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-type-system-changes-75-errors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Type System Changes (75 errors)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Type System Changes (75 errors)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31-value-decorator-removed-10-errors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1 @value Decorator Removed (10 errors)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32-trait-conformance-requirements-28-errors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2 Trait Conformance Requirements (28 errors)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#33-fieldwise_init-conflicts-32-errors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.3 @fieldwise_init Conflicts (32 errors)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-ownership-memory-safety-50-errors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Ownership &amp; Memory Safety (50 errors)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Ownership &amp; Memory Safety (50 errors)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#41-implicitlycopyable-removed-21-errors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.1 ImplicitlyCopyable Removed (21 errors)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#42-unsafepointer-api-changes-3-errors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.2 UnsafePointer API Changes (3 errors)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-api-method-changes-214-errors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. API Method Changes (214 errors)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. API Method Changes (214 errors)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#51-anytensor-method-function-migration-21-errors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.1 AnyTensor Method → Function Migration (21 errors)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#52-float64-constants-migration-8-errors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.2 Float64 Constants Migration (8 errors)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#53-missing-dtype-parameters-14-errors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.3 Missing dtype Parameters (14 errors)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#54-property-vs-method-shape-shape-628-errors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.4 Property vs Method: .shape() → .shape (628 errors)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#6-closure-type-inference-14-errors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Closure &amp; Type Inference (14 errors)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. Closure &amp; Type Inference (14 errors)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#61-closure-emission-errors-13-errors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.1 Closure Emission Errors (13 errors)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#62-simd-type-inference-1-error" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.2 SIMD Type Inference (1 error)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#7-structural-limitations-5-errors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Structural Limitations (5 errors)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7. Structural Limitations (5 errors)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#71-struct-inheritance-not-allowed-1-error" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.1 Struct Inheritance Not Allowed (1 error)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#72-dynamic-traits-not-supported-4-errors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.2 Dynamic Traits Not Supported (4 errors)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#8-compile-time-import-limitation-3731" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Compile-Time Import Limitation (#3731)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="8. Compile-Time Import Limitation (#3731)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#80-mojo-cannot-resolve-imports-at-compile-time-from-dynamic-paths" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.0 Mojo Cannot Resolve Imports at Compile Time from Dynamic Paths
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#9-test-specific-errors-7-errors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. Test-Specific Errors (7 errors)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="9. Test-Specific Errors (7 errors)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#81-function-renames-6-errors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.1 Function Renames (6 errors)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#82-dtype-comparison-2-errors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.2 DType Comparison (2 errors)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#83-len-type-resolution-7-errors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.3 len() Type Resolution (7 errors)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#batch-summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Batch Summary
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#agent-update-priorities" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Agent Update Priorities
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Agent Update Priorities">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#critical-always-apply" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Critical (Always Apply)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#high-priority-common-patterns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        High Priority (Common Patterns)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#medium-priority-context-dependent" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Medium Priority (Context-Dependent)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#files-changed-by-category" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Files Changed (By Category)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Files Changed (By Category)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#core-infrastructure-15-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Core Infrastructure (15 files)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#training-metrics-14-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Training &amp; Metrics (14 files)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#data-module-7-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Data Module (7 files)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#autograd-4-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Autograd (4 files)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#utils-4-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Utils (4 files)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tests-31-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tests (31 files)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#examples-41-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Examples (41 files)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#lessons-learned" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Lessons Learned
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#next-steps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Next Steps
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="mojo-v0261-migration-comprehensive-error-summary">Mojo v0.26.1+ Migration - Comprehensive Error Summary</h1>
+<p><strong>Date</strong>: 2025-01-23
+<strong>Context</strong>: Post-rebase compilation fixes for PR #1922
+<strong>Total Errors Fixed</strong>: 1,013 / 1,143 (88.6%)</p>
+<hr />
+<h2 id="v0263-quality-audit-2026-04-09">v0.26.3 Quality Audit (2026-04-09)</h2>
+<p><strong>Pinned version</strong>: <code>0.26.3.0.dev2026040705</code> (April 7 nightly)
+<strong>Scope</strong>: <code>src/odyssey/</code> and <code>tests/</code> directories, all <code>*.mojo</code> files
+<strong>Standards</strong>: Modular mojo-syntax skill v26.2</p>
+<h3 id="results-summary">Results Summary</h3>
+<p>All deprecated pattern counts are measured against <strong>actual code</strong> (not comment text or docstrings).</p>
+<table>
+<thead>
+<tr>
+<th>Pattern</th>
+<th>Grep Count</th>
+<th>Actual Code</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>fn</code> declarations (prefer <code>def</code>)</td>
+<td>150</td>
+<td><strong>0</strong></td>
+<td>Clean — all 150 matches are inside comments/docstrings/quoted examples</td>
+</tr>
+<tr>
+<td><code>inout</code> parameter</td>
+<td>0</td>
+<td>0</td>
+<td>Clean</td>
+</tr>
+<tr>
+<td><code>owned</code> parameter</td>
+<td>1</td>
+<td><strong>0</strong></td>
+<td>Match is in a docstring comment</td>
+</tr>
+<tr>
+<td><code>borrowed</code> parameter</td>
+<td>2</td>
+<td><strong>0</strong></td>
+<td>Both matches are in prose comments</td>
+</tr>
+<tr>
+<td><code>@value</code> decorator</td>
+<td>0</td>
+<td>0</td>
+<td>Clean</td>
+</tr>
+<tr>
+<td><code>__copyinit__</code> method</td>
+<td>7</td>
+<td><strong>0</strong></td>
+<td>All matches are docstring references explaining why explicit copy was needed previously</td>
+</tr>
+<tr>
+<td><code>__moveinit__</code> method</td>
+<td>3</td>
+<td><strong>0</strong></td>
+<td>All matches are docstring references</td>
+</tr>
+<tr>
+<td><code>Stringable</code> trait</td>
+<td>0</td>
+<td>0</td>
+<td>Clean</td>
+</tr>
+<tr>
+<td><code>@parameter if/for</code></td>
+<td>1</td>
+<td><strong>0</strong></td>
+<td>Match is inside a prose comment</td>
+</tr>
+<tr>
+<td><code>constrained(</code></td>
+<td>0</td>
+<td>0</td>
+<td>Clean</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Total deprecated patterns in actual code: 0</strong></p>
+<h3 id="key-findings">Key Findings</h3>
+<ul>
+<li>The codebase has <strong>fully migrated</strong> from <code>fn</code> to <code>def</code> for all function and method definitions.
+  The 150-match grep count is a false positive: the pattern <code>fn</code> appears in docstrings, comments,
+  and quoted code examples but not in live Mojo source.</li>
+<li><code>__copyinit__</code> and <code>__moveinit__</code> appear only in <code>src/odyssey/base/memory_pool.mojo</code> docstrings
+  explaining the historical rationale for explicit copy/move constructors. The actual struct
+  implementations use Mojo's synthesized copy/move semantics via <code>(Copyable, Movable)</code> traits.</li>
+<li>No action required. The codebase is compliant with v0.26.3 standards.</li>
+</ul>
+<hr />
+<h2 id="executive-summary">Executive Summary</h2>
+<p>After rebasing against main, discovered 1,143 compilation errors due to Mojo v0.26.1+ breaking
+changes. Systematically fixed 1,013 errors (88.6%) across 10 batches. This document catalogs
+all error patterns to prevent recurrence and guide agent updates.</p>
+<h2 id="error-categories">Error Categories</h2>
+<h3 id="1-keyword-parameter-convention-changes-69-errors">1. Keyword &amp; Parameter Convention Changes (69 errors)</h3>
+<h4 id="11-inout-mut-parameter-convention-8-errors">1.1 <code>inout</code> → <code>mut</code> Parameter Convention (8 errors)</h4>
+<p><strong>Pattern</strong>: Mojo v0.26.1+ renamed <code>inout</code> to <code>mut</code> for mutable parameters.</p>
+<p><strong>Error</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>error: use of unknown declaration &#39;inout&#39;
+</code></pre></div>
+<p><strong>Fix</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="o">//</span><span class="w"> </span><span class="n">WRONG</span><span class="w"> </span><span class="p">(</span><span class="n">deprecated</span><span class="p">):</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="k">fn</span><span class="w"> </span><span class="nf">modify</span><span class="p">(</span><span class="n">inout</span><span class="w"> </span><span class="bp">self</span><span class="p">):</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="k">fn</span><span class="w"> </span><span class="nf">process</span><span class="p">(</span><span class="n">inout</span><span class="w"> </span><span class="n">data</span><span class="p">:</span><span class="w"> </span><span class="n">AnyTensor</span><span class="p">):</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="o">//</span><span class="w"> </span><span class="n">CORRECT</span><span class="p">:</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="k">fn</span><span class="w"> </span><span class="nf">modify</span><span class="p">(</span><span class="n">mut</span><span class="w"> </span><span class="bp">self</span><span class="p">):</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="k">fn</span><span class="w"> </span><span class="nf">process</span><span class="p">(</span><span class="n">mut</span><span class="w"> </span><span class="n">data</span><span class="p">:</span><span class="w"> </span><span class="n">AnyTensor</span><span class="p">):</span>
+</code></pre></div>
+<p><strong>Files Affected</strong>: 8 files in <code>src/odyssey/core/arithmetic_simd.mojo</code></p>
+<p><strong>Agent Guidance</strong>: Always use <code>mut</code> for mutable parameters, never <code>inout</code>.</p>
+<hr />
+<h4 id="12-__init__-parameter-convention-mut-self-out-self-75-errors">1.2 <code>__init__</code> Parameter Convention: <code>mut self</code> → <code>out self</code> (75 errors)</h4>
+<p><strong>Pattern</strong>: Constructor methods must use <code>out</code> parameter convention.</p>
+<p><strong>Error</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>error: __init__ method must return Self type with &#39;out&#39; argument
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>    fn __init__(mut self):
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>       ^
+</code></pre></div>
+<p><strong>Fix</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="o">//</span><span class="w"> </span><span class="n">WRONG</span><span class="p">:</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="k">fn</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="n">mut</span><span class="w"> </span><span class="bp">self</span><span class="p">):</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="k">fn</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="n">mut</span><span class="w"> </span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">value</span><span class="p">:</span><span class="w"> </span><span class="nb">Int</span><span class="p">):</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="o">//</span><span class="w"> </span><span class="n">CORRECT</span><span class="p">:</span>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="k">fn</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="n">out</span><span class="w"> </span><span class="bp">self</span><span class="p">):</span>
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="k">fn</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="n">out</span><span class="w"> </span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">value</span><span class="p">:</span><span class="w"> </span><span class="nb">Int</span><span class="p">):</span>
+</code></pre></div>
+<p><strong>Files Affected</strong>: 34 files across src/odyssey/, examples/, tools/</p>
+<p><strong>Agent Guidance</strong>: ALL <code>__init__</code> methods MUST use <code>out self</code>, not <code>mut self</code>.</p>
+<hr />
+<h3 id="2-stdlib-reorganization-75-errors">2. Stdlib Reorganization (75 errors)</h3>
+<h4 id="21-dtype-import-location-change-4-errors">2.1 DType Import Location Change (4 errors)</h4>
+<p><strong>Pattern</strong>: DType moved from <code>sys</code> to <code>memory</code> module.</p>
+<p><strong>Error</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>error: package &#39;sys&#39; does not contain &#39;DType&#39;
+</code></pre></div>
+<p><strong>Fix</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="o">//</span><span class="w"> </span><span class="n">WRONG</span><span class="p">:</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">sys</span><span class="w"> </span><span class="kn">import</span><span class="w"> </span><span class="nb">DType</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="o">//</span><span class="w"> </span><span class="n">CORRECT</span><span class="p">:</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="kn">from</span><span class="w"> </span><span class="nn">memory</span><span class="w"> </span><span class="kn">import</span><span class="w"> </span><span class="nb">DType</span>
+</code></pre></div>
+<p><strong>Files Affected</strong>: 4 legacy test files</p>
+<hr />
+<h4 id="22-builtin-functions-no-import-needed">2.2 Builtin Functions (No Import Needed)</h4>
+<p><strong>Pattern</strong>: Common functions moved to builtins, no import required.</p>
+<p><strong>Removed Imports</strong>:</p>
+<ul>
+<li><code>from collections import Tuple</code> → Tuple is now builtin</li>
+<li><code>from math import abs, round</code> → abs, round are now builtins</li>
+<li><code>from math import max, min</code> → max, min are now builtins (3 files)</li>
+<li><code>from math import pow</code> → Use <code>**</code> operator instead</li>
+</ul>
+<p><strong>Files Affected</strong>: 20+ files</p>
+<p><strong>Agent Guidance</strong>: Don't import Tuple, abs, round, max, min - they're builtins.</p>
+<hr />
+<h4 id="23-simdwidthof-import-location-1-error">2.3 simdwidthof Import Location (1 error)</h4>
+<p><strong>Pattern</strong>: simdwidthof moved from <code>sys</code> to <code>sys.info</code>.</p>
+<p><strong>Error</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>error: package &#39;sys&#39; does not contain &#39;simdwidthof&#39;
+</code></pre></div>
+<p><strong>Fix</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="o">//</span><span class="w"> </span><span class="n">WRONG</span><span class="p">:</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">sys</span><span class="w"> </span><span class="kn">import</span><span class="w"> </span><span class="n">simdwidthof</span>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="o">//</span><span class="w"> </span><span class="n">CORRECT</span><span class="p">:</span>
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="kn">from</span><span class="w"> </span><span class="nn">sys.info</span><span class="w"> </span><span class="kn">import</span><span class="w"> </span><span class="n">simdwidthof</span>
+</code></pre></div>
+<p><strong>Files Affected</strong>: <code>src/odyssey/core/any_tensor.mojo</code></p>
+<hr />
+<h4 id="24-str-string-31-errors">2.4 str() → String() (31 errors)</h4>
+<p><strong>Pattern</strong>: <code>str()</code> function deprecated, use <code>String()</code> constructor.</p>
+<p><strong>Error</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>error: use of unknown declaration &#39;str&#39;
+</code></pre></div>
+<p><strong>Fix</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="o">//</span><span class="w"> </span><span class="n">WRONG</span><span class="p">:</span>
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="k">var</span><span class="w"> </span><span class="nv">s</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="k">var</span><span class="w"> </span><span class="nv">msg</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;Count: &quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nb">str</span><span class="p">(</span><span class="n">count</span><span class="p">)</span>
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="o">//</span><span class="w"> </span><span class="n">CORRECT</span><span class="p">:</span>
+<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a><span class="k">var</span><span class="w"> </span><span class="nv">s</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">String</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a><span class="k">var</span><span class="w"> </span><span class="nv">msg</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;Count: &quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nb">String</span><span class="p">(</span><span class="n">count</span><span class="p">)</span>
+</code></pre></div>
+<p><strong>Files Affected</strong>: 14 files + 11 in src/odyssey/data/</p>
+<p><strong>Agent Guidance</strong>: Always use <code>String(value)</code>, never <code>str(value)</code>.</p>
+<hr />
+<h3 id="3-type-system-changes-75-errors">3. Type System Changes (75 errors)</h3>
+<h4 id="31-value-decorator-removed-10-errors">3.1 @value Decorator Removed (10 errors)</h4>
+<p><strong>Pattern</strong>: <code>@value</code> decorator replaced with <code>@fieldwise_init</code> + explicit traits.</p>
+<p><strong>Error</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>error: use of unknown declaration &#39;@value&#39;
+</code></pre></div>
+<p><strong>Fix</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="o">//</span><span class="w"> </span><span class="n">WRONG</span><span class="p">:</span>
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="nd">@value</span>
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="k">struct</span><span class="w"> </span><span class="n n-Struct">Transform</span><span class="p">:</span>
+<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="w">    </span><span class="k">var</span><span class="w"> </span><span class="nv">name</span><span class="p">:</span><span class="w"> </span><span class="nb">String</span>
+<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>
+<a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a><span class="o">//</span><span class="w"> </span><span class="n">CORRECT</span><span class="p">:</span>
+<a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a><span class="nd">@fieldwise_init</span>
+<a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a><span class="k">struct</span><span class="w"> </span><span class="n n-Struct">Transform</span><span class="p">(</span><span class="nb">Copyable</span><span class="p">,</span><span class="w"> </span><span class="nb">Movable</span><span class="p">):</span>
+<a id="__codelineno-11-9" name="__codelineno-11-9" href="#__codelineno-11-9"></a><span class="w">    </span><span class="k">var</span><span class="w"> </span><span class="nv">name</span><span class="p">:</span><span class="w"> </span><span class="nb">String</span>
+</code></pre></div>
+<p><strong>Files Affected</strong>: 10 files in src/odyssey/core/types/, src/odyssey/training/</p>
+<p><strong>Agent Guidance</strong>: Use <code>@fieldwise_init</code> with explicit <code>(Copyable, Movable)</code> traits.</p>
+<hr />
+<h4 id="32-trait-conformance-requirements-28-errors">3.2 Trait Conformance Requirements (28 errors)</h4>
+<p><strong>Pattern</strong>: Structs used in List/parameters must explicitly declare Copyable &amp; Movable.</p>
+<p><strong>Error</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>error: cannot bind type &#39;TypeName&#39; to trait &#39;Copyable &amp; Movable&#39;
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>    var list_var: List[TypeName]
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>                       ^~~~~~~~~
+</code></pre></div>
+<p><strong>Fix</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="o">//</span><span class="w"> </span><span class="n">WRONG</span><span class="p">:</span>
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="k">struct</span><span class="w"> </span><span class="n n-Struct">MetricResult</span><span class="p">:</span>
+<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a><span class="w">    </span><span class="k">var</span><span class="w"> </span><span class="nv">value</span><span class="p">:</span><span class="w"> </span><span class="nb">Float64</span>
+<a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a>
+<a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a><span class="o">//</span><span class="w"> </span><span class="n">CORRECT</span><span class="p">:</span>
+<a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a><span class="k">struct</span><span class="w"> </span><span class="n n-Struct">MetricResult</span><span class="p">(</span><span class="nb">Copyable</span><span class="p">,</span><span class="w"> </span><span class="nb">Movable</span><span class="p">):</span>
+<a id="__codelineno-13-7" name="__codelineno-13-7" href="#__codelineno-13-7"></a><span class="w">    </span><span class="k">var</span><span class="w"> </span><span class="nv">value</span><span class="p">:</span><span class="w"> </span><span class="nb">Float64</span>
+</code></pre></div>
+<p><strong>Affected Patterns</strong>:</p>
+<ul>
+<li>Struct stored in <code>List[StructType]</code></li>
+<li>Struct passed as function parameter</li>
+<li>Struct returned from function</li>
+</ul>
+<p><strong>Files Affected</strong>: 10 files (28 structs total)</p>
+<ul>
+<li>src/odyssey/training/metrics/</li>
+<li>src/odyssey/autograd/</li>
+<li>src/odyssey/utils/</li>
+<li>src/odyssey/core/gradient_types.mojo</li>
+</ul>
+<p><strong>Agent Guidance</strong>: Any struct used in collections or parameters needs <code>(Copyable, Movable)</code>.</p>
+<hr />
+<h4 id="33-fieldwise_init-conflicts-32-errors">3.3 @fieldwise_init Conflicts (32 errors)</h4>
+<p><strong>Pattern</strong>: Cannot have both <code>@fieldwise_init</code> decorator and manual <code>__init__</code> method.</p>
+<p><strong>Error</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>error: &#39;StructName&#39; has an explicitly declared fieldwise initializer
+</code></pre></div>
+<p><strong>Fix</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="o">//</span><span class="w"> </span><span class="n">WRONG</span><span class="p">:</span>
+<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a><span class="nd">@fieldwise_init</span>
+<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a><span class="k">struct</span><span class="w"> </span><span class="n n-Struct">Dataset</span><span class="p">(</span><span class="nb">Copyable</span><span class="p">,</span><span class="w"> </span><span class="nb">Movable</span><span class="p">):</span>
+<a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a><span class="w">    </span><span class="k">var</span><span class="w"> </span><span class="nv">size</span><span class="p">:</span><span class="w"> </span><span class="nb">Int</span>
+<a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a>
+<a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a><span class="w">    </span><span class="k">fn</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="n">out</span><span class="w"> </span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">:</span><span class="w"> </span><span class="nb">Int</span><span class="p">):</span>
+<a id="__codelineno-15-7" name="__codelineno-15-7" href="#__codelineno-15-7"></a><span class="w">        </span><span class="bp">self</span><span class="o">.</span><span class="n">size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">size</span>
+<a id="__codelineno-15-8" name="__codelineno-15-8" href="#__codelineno-15-8"></a>
+<a id="__codelineno-15-9" name="__codelineno-15-9" href="#__codelineno-15-9"></a><span class="o">//</span><span class="w"> </span><span class="n">CORRECT</span><span class="w"> </span><span class="p">(</span><span class="n">remove</span><span class="w"> </span><span class="n">decorator</span><span class="p">):</span>
+<a id="__codelineno-15-10" name="__codelineno-15-10" href="#__codelineno-15-10"></a><span class="k">struct</span><span class="w"> </span><span class="n n-Struct">Dataset</span><span class="p">(</span><span class="nb">Copyable</span><span class="p">,</span><span class="w"> </span><span class="nb">Movable</span><span class="p">):</span>
+<a id="__codelineno-15-11" name="__codelineno-15-11" href="#__codelineno-15-11"></a><span class="w">    </span><span class="k">var</span><span class="w"> </span><span class="nv">size</span><span class="p">:</span><span class="w"> </span><span class="nb">Int</span>
+<a id="__codelineno-15-12" name="__codelineno-15-12" href="#__codelineno-15-12"></a>
+<a id="__codelineno-15-13" name="__codelineno-15-13" href="#__codelineno-15-13"></a><span class="w">    </span><span class="k">fn</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="n">out</span><span class="w"> </span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">:</span><span class="w"> </span><span class="nb">Int</span><span class="p">):</span>
+<a id="__codelineno-15-14" name="__codelineno-15-14" href="#__codelineno-15-14"></a><span class="w">        </span><span class="bp">self</span><span class="o">.</span><span class="n">size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">size</span>
+</code></pre></div>
+<p><strong>Files Affected</strong>: 7 files in src/odyssey/data/ (25 structs)</p>
+<p><strong>Agent Guidance</strong>: Use <code>@fieldwise_init</code> OR manual <code>__init__</code>, never both.</p>
+<hr />
+<h3 id="4-ownership-memory-safety-50-errors">4. Ownership &amp; Memory Safety (50 errors)</h3>
+<h4 id="41-implicitlycopyable-removed-21-errors">4.1 ImplicitlyCopyable Removed (21 errors)</h4>
+<p><strong>Pattern</strong>: AnyTensor, List[T] no longer implicitly copyable - need explicit transfer or copy.</p>
+<p><strong>Error</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>error: value of type &#39;AnyTensor&#39; cannot be implicitly copied,
+<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>       it does not conform to &#39;ImplicitlyCopyable&#39;
+</code></pre></div>
+<p><strong>Fixes</strong>:</p>
+<p><strong>Pattern 1: Ownership Transfer (most common)</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="o">//</span><span class="w"> </span><span class="n">WRONG</span><span class="p">:</span>
+<a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a><span class="k">var</span><span class="w"> </span><span class="nv">copy</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">some_tensor</span>
+<a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a><span class="bp">self</span><span class="o">.</span><span class="n">field</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tensor</span>
+<a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a><span class="k">return</span><span class="w"> </span><span class="n">result</span>
+<a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a>
+<a id="__codelineno-17-6" name="__codelineno-17-6" href="#__codelineno-17-6"></a><span class="o">//</span><span class="w"> </span><span class="n">CORRECT</span><span class="p">:</span>
+<a id="__codelineno-17-7" name="__codelineno-17-7" href="#__codelineno-17-7"></a><span class="k">var</span><span class="w"> </span><span class="nv">copy</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">some_tensor</span><span class="o">^</span>
+<a id="__codelineno-17-8" name="__codelineno-17-8" href="#__codelineno-17-8"></a><span class="bp">self</span><span class="o">.</span><span class="n">field</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tensor</span><span class="o">^</span>
+<a id="__codelineno-17-9" name="__codelineno-17-9" href="#__codelineno-17-9"></a><span class="k">return</span><span class="w"> </span><span class="n">result</span><span class="o">^</span>
+</code></pre></div>
+<p><strong>Pattern 2: Explicit Copy (when copy needed)</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="o">//</span><span class="w"> </span><span class="n">WRONG</span><span class="p">:</span>
+<a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a><span class="k">var</span><span class="w"> </span><span class="nv">copy</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">some_list</span>
+<a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a>
+<a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a><span class="o">//</span><span class="w"> </span><span class="n">CORRECT</span><span class="p">:</span>
+<a id="__codelineno-18-5" name="__codelineno-18-5" href="#__codelineno-18-5"></a><span class="k">var</span><span class="w"> </span><span class="nv">copy</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">List</span><span class="p">[</span><span class="nb">Int</span><span class="p">](</span><span class="n">some_list</span><span class="p">)</span>
+</code></pre></div>
+<p><strong>Files Affected</strong>: 8 files in src/odyssey/training/metrics/, src/odyssey/autograd/, src/odyssey/core/</p>
+<p><strong>Agent Guidance</strong>: Use <code>^</code> for transfer, explicit constructor for copying.</p>
+<hr />
+<h4 id="42-unsafepointer-api-changes-3-errors">4.2 UnsafePointer API Changes (3 errors)</h4>
+<p><strong>Pattern</strong>: <code>UnsafePointer.address_of()</code> removed, use <code>Pointer.address_of()</code>.</p>
+<p><strong>Error</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a>error: &#39;UnsafePointer[?, ?, address_space=?]&#39; value has no attribute &#39;address_of&#39;
+</code></pre></div>
+<p><strong>Fix</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="o">//</span><span class="w"> </span><span class="n">WRONG</span><span class="p">:</span>
+<a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a><span class="k">var</span><span class="w"> </span><span class="nv">ptr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">UnsafePointer</span><span class="o">.</span><span class="n">address_of</span><span class="p">(</span><span class="n">variable</span><span class="p">)</span>
+<a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a><span class="k">var</span><span class="w"> </span><span class="nv">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ptr</span><span class="o">.</span><span class="n">bitcast</span><span class="p">[</span><span class="n">Type</span><span class="p">]()[</span><span class="mi">0</span><span class="p">]</span>
+<a id="__codelineno-20-4" name="__codelineno-20-4" href="#__codelineno-20-4"></a>
+<a id="__codelineno-20-5" name="__codelineno-20-5" href="#__codelineno-20-5"></a><span class="o">//</span><span class="w"> </span><span class="n">CORRECT</span><span class="p">:</span>
+<a id="__codelineno-20-6" name="__codelineno-20-6" href="#__codelineno-20-6"></a><span class="kn">from</span><span class="w"> </span><span class="nn">memory</span><span class="w"> </span><span class="kn">import</span><span class="w"> </span><span class="n">Pointer</span>
+<a id="__codelineno-20-7" name="__codelineno-20-7" href="#__codelineno-20-7"></a><span class="k">var</span><span class="w"> </span><span class="nv">ptr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Pointer</span><span class="o">.</span><span class="n">address_of</span><span class="p">(</span><span class="n">variable</span><span class="p">)</span>
+<a id="__codelineno-20-8" name="__codelineno-20-8" href="#__codelineno-20-8"></a><span class="k">var</span><span class="w"> </span><span class="nv">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ptr</span><span class="o">.</span><span class="n">bitcast</span><span class="p">[</span><span class="n">Type</span><span class="p">]()[]</span>
+</code></pre></div>
+<p><strong>Files Affected</strong>: src/odyssey/core/bfloat16.mojo (3 locations)</p>
+<p><strong>Agent Guidance</strong>: Use <code>Pointer.address_of()</code> and <code>[]</code> array access syntax.</p>
+<hr />
+<h3 id="5-api-method-changes-214-errors">5. API Method Changes (214 errors)</h3>
+<h4 id="51-anytensor-method-function-migration-21-errors">5.1 AnyTensor Method → Function Migration (21 errors)</h4>
+<p><strong>Pattern</strong>: Instance methods moved to standalone functions.</p>
+<p><strong>Errors &amp; Fixes</strong>:</p>
+<p><strong>1. AnyTensor.from_scalar() removed (8 errors)</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a><span class="o">//</span><span class="w"> </span><span class="n">WRONG</span><span class="p">:</span>
+<a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a><span class="k">var</span><span class="w"> </span><span class="nv">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">AnyTensor</span><span class="o">.</span><span class="n">from_scalar</span><span class="p">(</span><span class="n">value</span><span class="p">,</span><span class="w"> </span><span class="n">dtype</span><span class="p">)</span>
+<a id="__codelineno-21-3" name="__codelineno-21-3" href="#__codelineno-21-3"></a>
+<a id="__codelineno-21-4" name="__codelineno-21-4" href="#__codelineno-21-4"></a><span class="o">//</span><span class="w"> </span><span class="n">CORRECT</span><span class="p">:</span>
+<a id="__codelineno-21-5" name="__codelineno-21-5" href="#__codelineno-21-5"></a><span class="kn">from</span><span class="w"> </span><span class="nn">odyssey.core.any_tensor</span><span class="w"> </span><span class="kn">import</span><span class="w"> </span><span class="n">full</span>
+<a id="__codelineno-21-6" name="__codelineno-21-6" href="#__codelineno-21-6"></a><span class="k">var</span><span class="w"> </span><span class="nv">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">full</span><span class="p">(</span><span class="n">tensor</span><span class="o">.</span><span class="n">_shape</span><span class="p">,</span><span class="w"> </span><span class="n">value</span><span class="p">,</span><span class="w"> </span><span class="n">tensor</span><span class="o">.</span><span class="n">_dtype</span><span class="p">)</span>
+</code></pre></div>
+<p><strong>2. AnyTensor.sum() removed (4 errors)</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a><span class="o">//</span><span class="w"> </span><span class="n">WRONG</span><span class="p">:</span>
+<a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a><span class="k">var</span><span class="w"> </span><span class="nv">total</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tensor</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+<a id="__codelineno-22-3" name="__codelineno-22-3" href="#__codelineno-22-3"></a>
+<a id="__codelineno-22-4" name="__codelineno-22-4" href="#__codelineno-22-4"></a><span class="o">//</span><span class="w"> </span><span class="n">CORRECT</span><span class="p">:</span>
+<a id="__codelineno-22-5" name="__codelineno-22-5" href="#__codelineno-22-5"></a><span class="kn">from</span><span class="w"> </span><span class="nn">odyssey.core.reduction</span><span class="w"> </span><span class="kn">import</span><span class="w"> </span><span class="nb">sum</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">tensor_sum</span>
+<a id="__codelineno-22-6" name="__codelineno-22-6" href="#__codelineno-22-6"></a><span class="k">var</span><span class="w"> </span><span class="nv">total</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tensor_sum</span><span class="p">(</span><span class="n">tensor</span><span class="p">)</span>
+</code></pre></div>
+<p><strong>3. AnyTensor.matmul() removed (8 errors)</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a><span class="o">//</span><span class="w"> </span><span class="n">WRONG</span><span class="p">:</span>
+<a id="__codelineno-23-2" name="__codelineno-23-2" href="#__codelineno-23-2"></a><span class="k">var</span><span class="w"> </span><span class="nv">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">a</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
+<a id="__codelineno-23-3" name="__codelineno-23-3" href="#__codelineno-23-3"></a>
+<a id="__codelineno-23-4" name="__codelineno-23-4" href="#__codelineno-23-4"></a><span class="o">//</span><span class="w"> </span><span class="n">CORRECT</span><span class="p">:</span>
+<a id="__codelineno-23-5" name="__codelineno-23-5" href="#__codelineno-23-5"></a><span class="kn">from</span><span class="w"> </span><span class="nn">odyssey.core.matrix</span><span class="w"> </span><span class="kn">import</span><span class="w"> </span><span class="n">matmul</span>
+<a id="__codelineno-23-6" name="__codelineno-23-6" href="#__codelineno-23-6"></a><span class="k">var</span><span class="w"> </span><span class="nv">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">matmul</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="p">)</span>
+</code></pre></div>
+<p><strong>4. AnyTensor() constructor requires arguments (1 error)</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a><span class="o">//</span><span class="w"> </span><span class="n">WRONG</span><span class="p">:</span>
+<a id="__codelineno-24-2" name="__codelineno-24-2" href="#__codelineno-24-2"></a><span class="bp">self</span><span class="o">.</span><span class="n">tensor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">AnyTensor</span><span class="p">()</span>
+<a id="__codelineno-24-3" name="__codelineno-24-3" href="#__codelineno-24-3"></a>
+<a id="__codelineno-24-4" name="__codelineno-24-4" href="#__codelineno-24-4"></a><span class="o">//</span><span class="w"> </span><span class="n">CORRECT</span><span class="p">:</span>
+<a id="__codelineno-24-5" name="__codelineno-24-5" href="#__codelineno-24-5"></a><span class="bp">self</span><span class="o">.</span><span class="n">tensor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">AnyTensor</span><span class="p">(</span><span class="nb">List</span><span class="p">[</span><span class="nb">Float32</span><span class="p">](),</span><span class="w"> </span><span class="nb">DType</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+</code></pre></div>
+<p><strong>Files Affected</strong>: src/odyssey/core/activation.mojo, src/odyssey/testing/gradient_checker.mojo, tests/,
+src/odyssey/training/optimizers/</p>
+<hr />
+<h4 id="52-float64-constants-migration-8-errors">5.2 Float64 Constants Migration (8 errors)</h4>
+<p><strong>Pattern</strong>: Float64 class methods removed, use arithmetic expressions.</p>
+<p><strong>Error</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a>error: &#39;Float64&#39; has no attribute &#39;nan&#39;
+</code></pre></div>
+<p><strong>Fix</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a><span class="o">//</span><span class="w"> </span><span class="n">WRONG</span><span class="p">:</span>
+<a id="__codelineno-26-2" name="__codelineno-26-2" href="#__codelineno-26-2"></a><span class="k">var</span><span class="w"> </span><span class="nv">nan_val</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">Float64</span><span class="o">.</span><span class="n">nan</span>
+<a id="__codelineno-26-3" name="__codelineno-26-3" href="#__codelineno-26-3"></a><span class="k">var</span><span class="w"> </span><span class="nv">inf_val</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">Float64</span><span class="o">.</span><span class="n">inf</span>
+<a id="__codelineno-26-4" name="__codelineno-26-4" href="#__codelineno-26-4"></a><span class="k">var</span><span class="w"> </span><span class="nv">neg_inf</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">Float64</span><span class="o">.</span><span class="n">neg_inf</span>
+<a id="__codelineno-26-5" name="__codelineno-26-5" href="#__codelineno-26-5"></a><span class="k">var</span><span class="w"> </span><span class="nv">infinity</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">Float64</span><span class="o">.</span><span class="n">infinity</span>
+<a id="__codelineno-26-6" name="__codelineno-26-6" href="#__codelineno-26-6"></a>
+<a id="__codelineno-26-7" name="__codelineno-26-7" href="#__codelineno-26-7"></a><span class="o">//</span><span class="w"> </span><span class="n">CORRECT</span><span class="p">:</span>
+<a id="__codelineno-26-8" name="__codelineno-26-8" href="#__codelineno-26-8"></a><span class="k">var</span><span class="w"> </span><span class="nv">nan_val</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">Float64</span><span class="p">(</span><span class="mf">0.0</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="nb">Float64</span><span class="p">(</span><span class="mf">0.0</span><span class="p">)</span><span class="w">  </span><span class="c1"># NaN</span>
+<a id="__codelineno-26-9" name="__codelineno-26-9" href="#__codelineno-26-9"></a><span class="k">var</span><span class="w"> </span><span class="nv">inf_val</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">Float64</span><span class="p">(</span><span class="mf">1.0</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="nb">Float64</span><span class="p">(</span><span class="mf">0.0</span><span class="p">)</span><span class="w">  </span><span class="c1"># +Inf</span>
+<a id="__codelineno-26-10" name="__codelineno-26-10" href="#__codelineno-26-10"></a><span class="k">var</span><span class="w"> </span><span class="nv">neg_inf</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="nb">Float64</span><span class="p">(</span><span class="mf">1.0</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="nb">Float64</span><span class="p">(</span><span class="mf">0.0</span><span class="p">)</span><span class="w">  </span><span class="c1"># -Inf</span>
+<a id="__codelineno-26-11" name="__codelineno-26-11" href="#__codelineno-26-11"></a><span class="k">var</span><span class="w"> </span><span class="nv">infinity</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">Float64</span><span class="p">(</span><span class="mf">1.0</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="nb">Float64</span><span class="p">(</span><span class="mf">0.0</span><span class="p">)</span><span class="w">  </span><span class="c1"># +Inf</span>
+</code></pre></div>
+<p><strong>Files Affected</strong>: tests/odyssey/training/test_numerical_safety.mojo (7), notes/review/ (1)</p>
+<hr />
+<h4 id="53-missing-dtype-parameters-14-errors">5.3 Missing dtype Parameters (14 errors)</h4>
+<p><strong>Pattern</strong>: Initialization functions now require explicit dtype parameter.</p>
+<p><strong>Error</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-27-1" name="__codelineno-27-1" href="#__codelineno-27-1"></a>error: missing parameter &#39;dtype&#39;
+</code></pre></div>
+<p><strong>Fix</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-28-1" name="__codelineno-28-1" href="#__codelineno-28-1"></a><span class="o">//</span><span class="w"> </span><span class="n">WRONG</span><span class="p">:</span>
+<a id="__codelineno-28-2" name="__codelineno-28-2" href="#__codelineno-28-2"></a><span class="k">var</span><span class="w"> </span><span class="nv">tensor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zeros</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span>
+<a id="__codelineno-28-3" name="__codelineno-28-3" href="#__codelineno-28-3"></a><span class="k">var</span><span class="w"> </span><span class="nv">tensor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ones</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span>
+<a id="__codelineno-28-4" name="__codelineno-28-4" href="#__codelineno-28-4"></a><span class="k">var</span><span class="w"> </span><span class="nv">tensor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">full</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span><span class="w"> </span><span class="n">value</span><span class="p">)</span>
+<a id="__codelineno-28-5" name="__codelineno-28-5" href="#__codelineno-28-5"></a>
+<a id="__codelineno-28-6" name="__codelineno-28-6" href="#__codelineno-28-6"></a><span class="o">//</span><span class="w"> </span><span class="n">CORRECT</span><span class="p">:</span>
+<a id="__codelineno-28-7" name="__codelineno-28-7" href="#__codelineno-28-7"></a><span class="k">var</span><span class="w"> </span><span class="nv">tensor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zeros</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span><span class="w"> </span><span class="nb">DType</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+<a id="__codelineno-28-8" name="__codelineno-28-8" href="#__codelineno-28-8"></a><span class="k">var</span><span class="w"> </span><span class="nv">tensor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ones</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span><span class="w"> </span><span class="nb">DType</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+<a id="__codelineno-28-9" name="__codelineno-28-9" href="#__codelineno-28-9"></a><span class="k">var</span><span class="w"> </span><span class="nv">tensor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">full</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span><span class="w"> </span><span class="n">value</span><span class="p">,</span><span class="w"> </span><span class="nb">DType</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+</code></pre></div>
+<p><strong>Files Affected</strong>: 10 files in examples/ and tests/</p>
+<p><strong>Agent Guidance</strong>: Always provide explicit dtype for initialization functions.</p>
+<hr />
+<h4 id="54-property-vs-method-shape-shape-628-errors">5.4 Property vs Method: .shape() → .shape (628 errors)</h4>
+<p><strong>Pattern</strong>: <code>shape</code> changed from method to property in many files, but remains a method in
+any_tensor.mojo.</p>
+<p><strong>Error</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-29-1" name="__codelineno-29-1" href="#__codelineno-29-1"></a>error: &#39;shape&#39; expects 0 parameters, but 1 was specified
+</code></pre></div>
+<p><strong>Complexity</strong>: Mixed usage - some files needed <code>.shape()</code>, others <code>.shape</code></p>
+<p><strong>Fix 1 (When shape is property)</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-30-1" name="__codelineno-30-1" href="#__codelineno-30-1"></a><span class="o">//</span><span class="w"> </span><span class="n">WRONG</span><span class="p">:</span>
+<a id="__codelineno-30-2" name="__codelineno-30-2" href="#__codelineno-30-2"></a><span class="k">var</span><span class="w"> </span><span class="nv">s</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tensor</span><span class="o">.</span><span class="n">shape</span><span class="p">()</span>
+<a id="__codelineno-30-3" name="__codelineno-30-3" href="#__codelineno-30-3"></a><span class="k">var</span><span class="w"> </span><span class="nv">dim0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tensor</span><span class="o">.</span><span class="n">shape</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+<a id="__codelineno-30-4" name="__codelineno-30-4" href="#__codelineno-30-4"></a>
+<a id="__codelineno-30-5" name="__codelineno-30-5" href="#__codelineno-30-5"></a><span class="o">//</span><span class="w"> </span><span class="n">CORRECT</span><span class="p">:</span>
+<a id="__codelineno-30-6" name="__codelineno-30-6" href="#__codelineno-30-6"></a><span class="k">var</span><span class="w"> </span><span class="nv">s</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tensor</span><span class="o">.</span><span class="n">shape</span>
+<a id="__codelineno-30-7" name="__codelineno-30-7" href="#__codelineno-30-7"></a><span class="k">var</span><span class="w"> </span><span class="nv">dim0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tensor</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</code></pre></div>
+<p><strong>Fix 2 (When shape is method - matrix.mojo)</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-31-1" name="__codelineno-31-1" href="#__codelineno-31-1"></a><span class="o">//</span><span class="w"> </span><span class="n">WRONG</span><span class="p">:</span>
+<a id="__codelineno-31-2" name="__codelineno-31-2" href="#__codelineno-31-2"></a><span class="k">var</span><span class="w"> </span><span class="nv">s</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tensor</span><span class="o">.</span><span class="n">shape</span>
+<a id="__codelineno-31-3" name="__codelineno-31-3" href="#__codelineno-31-3"></a><span class="k">var</span><span class="w"> </span><span class="nv">dim0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tensor</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<a id="__codelineno-31-4" name="__codelineno-31-4" href="#__codelineno-31-4"></a>
+<a id="__codelineno-31-5" name="__codelineno-31-5" href="#__codelineno-31-5"></a><span class="o">//</span><span class="w"> </span><span class="n">CORRECT</span><span class="p">:</span>
+<a id="__codelineno-31-6" name="__codelineno-31-6" href="#__codelineno-31-6"></a><span class="k">var</span><span class="w"> </span><span class="nv">s</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tensor</span><span class="o">.</span><span class="n">shape</span><span class="p">()</span>
+<a id="__codelineno-31-7" name="__codelineno-31-7" href="#__codelineno-31-7"></a><span class="k">var</span><span class="w"> </span><span class="nv">dim0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tensor</span><span class="o">.</span><span class="n">shape</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+</code></pre></div>
+<p><strong>Files Affected</strong>: 99 files (628 occurrences automated via script)</p>
+<p><strong>Agent Guidance</strong>: Check whether shape is property or method in the specific file's context.</p>
+<hr />
+<h3 id="6-closure-type-inference-14-errors">6. Closure &amp; Type Inference (14 errors)</h3>
+<h4 id="61-closure-emission-errors-13-errors">6.1 Closure Emission Errors (13 errors)</h4>
+<p><strong>Pattern</strong>: Cannot use method reference in closure context.</p>
+<p><strong>Error</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-32-1" name="__codelineno-32-1" href="#__codelineno-32-1"></a>error: cannot emit closure for method &#39;shape&#39;
+</code></pre></div>
+<p><strong>Root Cause</strong>: Trying to access <code>.shape</code> as property when it's defined as method.</p>
+<p><strong>Fix</strong>: Call method explicitly:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-33-1" name="__codelineno-33-1" href="#__codelineno-33-1"></a><span class="o">//</span><span class="w"> </span><span class="n">WRONG</span><span class="p">:</span>
+<a id="__codelineno-33-2" name="__codelineno-33-2" href="#__codelineno-33-2"></a><span class="k">var</span><span class="w"> </span><span class="nv">s</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tensor</span><span class="o">.</span><span class="n">shape</span><span class="w">  </span><span class="c1"># Tries to create closure</span>
+<a id="__codelineno-33-3" name="__codelineno-33-3" href="#__codelineno-33-3"></a>
+<a id="__codelineno-33-4" name="__codelineno-33-4" href="#__codelineno-33-4"></a><span class="o">//</span><span class="w"> </span><span class="n">CORRECT</span><span class="p">:</span>
+<a id="__codelineno-33-5" name="__codelineno-33-5" href="#__codelineno-33-5"></a><span class="k">var</span><span class="w"> </span><span class="nv">s</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tensor</span><span class="o">.</span><span class="n">shape</span><span class="p">()</span><span class="w">  </span><span class="c1"># Explicit call</span>
+</code></pre></div>
+<p><strong>Files Affected</strong>: src/odyssey/core/matrix.mojo (13 locations)</p>
+<hr />
+<h4 id="62-simd-type-inference-1-error">6.2 SIMD Type Inference (1 error)</h4>
+<p><strong>Pattern</strong>: Mixed generic and explicit types in SIMD operations.</p>
+<p><strong>Error</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-34-1" name="__codelineno-34-1" href="#__codelineno-34-1"></a>error: invalid call to &#39;__add__&#39;: failed to infer parameter &#39;dtype&#39;,
+<a id="__codelineno-34-2" name="__codelineno-34-2" href="#__codelineno-34-2"></a>       it inferred to two different values: &#39;T&#39; and &#39;DType.float32&#39;
+</code></pre></div>
+<p><strong>Fix</strong>: Use consistent types or restructure:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-35-1" name="__codelineno-35-1" href="#__codelineno-35-1"></a><span class="o">//</span><span class="w"> </span><span class="n">WRONG</span><span class="p">:</span>
+<a id="__codelineno-35-2" name="__codelineno-35-2" href="#__codelineno-35-2"></a><span class="k">return</span><span class="w"> </span><span class="nb">Scalar</span><span class="p">[</span><span class="n">T</span><span class="p">](</span><span class="mf">1.0</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="p">(</span><span class="nb">Scalar</span><span class="p">[</span><span class="n">T</span><span class="p">](</span><span class="mf">1.0</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="nb">Float32</span><span class="p">(</span><span class="n">x</span><span class="p">)))</span>
+<a id="__codelineno-35-3" name="__codelineno-35-3" href="#__codelineno-35-3"></a><span class="c1"># Mixes Scalar[T] with Float32</span>
+<a id="__codelineno-35-4" name="__codelineno-35-4" href="#__codelineno-35-4"></a>
+<a id="__codelineno-35-5" name="__codelineno-35-5" href="#__codelineno-35-5"></a><span class="o">//</span><span class="w"> </span><span class="n">CORRECT</span><span class="p">:</span>
+<a id="__codelineno-35-6" name="__codelineno-35-6" href="#__codelineno-35-6"></a><span class="nd">@parameter</span>
+<a id="__codelineno-35-7" name="__codelineno-35-7" href="#__codelineno-35-7"></a><span class="k">if</span><span class="w"> </span><span class="n">T</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="nb">DType</span><span class="o">.</span><span class="n">float16</span><span class="p">:</span>
+<a id="__codelineno-35-8" name="__codelineno-35-8" href="#__codelineno-35-8"></a><span class="w">    </span><span class="k">var</span><span class="w"> </span><span class="nv">x_f32</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">Float32</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+<a id="__codelineno-35-9" name="__codelineno-35-9" href="#__codelineno-35-9"></a><span class="w">    </span><span class="k">var</span><span class="w"> </span><span class="nv">result_f32</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">Float32</span><span class="p">(</span><span class="mf">1.0</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="p">(</span><span class="nb">Float32</span><span class="p">(</span><span class="mf">1.0</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">x_f32</span><span class="p">))</span>
+<a id="__codelineno-35-10" name="__codelineno-35-10" href="#__codelineno-35-10"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nb">Scalar</span><span class="p">[</span><span class="n">T</span><span class="p">](</span><span class="n">result_f32</span><span class="p">)</span>
+<a id="__codelineno-35-11" name="__codelineno-35-11" href="#__codelineno-35-11"></a><span class="k">else</span><span class="p">:</span>
+<a id="__codelineno-35-12" name="__codelineno-35-12" href="#__codelineno-35-12"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nb">Scalar</span><span class="p">[</span><span class="n">T</span><span class="p">](</span><span class="mf">1.0</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="p">(</span><span class="nb">Scalar</span><span class="p">[</span><span class="n">T</span><span class="p">](</span><span class="mf">1.0</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">x</span><span class="p">))</span>
+</code></pre></div>
+<p><strong>Files Affected</strong>: src/odyssey/core/activation.mojo</p>
+<p><strong>Agent Guidance</strong>: Keep SIMD types consistent within operations.</p>
+<hr />
+<h3 id="7-structural-limitations-5-errors">7. Structural Limitations (5 errors)</h3>
+<h4 id="71-struct-inheritance-not-allowed-1-error">7.1 Struct Inheritance Not Allowed (1 error)</h4>
+<p><strong>Pattern</strong>: Mojo does not support struct inheritance.</p>
+<p><strong>Error</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-36-1" name="__codelineno-36-1" href="#__codelineno-36-1"></a>error: inheriting from structs is not allowed
+</code></pre></div>
+<p><strong>Fix</strong>: Use composition instead:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-37-1" name="__codelineno-37-1" href="#__codelineno-37-1"></a><span class="o">//</span><span class="w"> </span><span class="n">WRONG</span><span class="p">:</span>
+<a id="__codelineno-37-2" name="__codelineno-37-2" href="#__codelineno-37-2"></a><span class="k">struct</span><span class="w"> </span><span class="n n-Struct">BatchLoader</span><span class="p">(</span><span class="n">BaseLoader</span><span class="p">,</span><span class="w"> </span><span class="nb">Copyable</span><span class="p">,</span><span class="w"> </span><span class="nb">Movable</span><span class="p">):</span>
+<a id="__codelineno-37-3" name="__codelineno-37-3" href="#__codelineno-37-3"></a><span class="w">    </span><span class="k">pass</span>
+<a id="__codelineno-37-4" name="__codelineno-37-4" href="#__codelineno-37-4"></a>
+<a id="__codelineno-37-5" name="__codelineno-37-5" href="#__codelineno-37-5"></a><span class="o">//</span><span class="w"> </span><span class="n">CORRECT</span><span class="p">:</span>
+<a id="__codelineno-37-6" name="__codelineno-37-6" href="#__codelineno-37-6"></a><span class="k">struct</span><span class="w"> </span><span class="n n-Struct">BatchLoader</span><span class="p">(</span><span class="nb">Copyable</span><span class="p">,</span><span class="w"> </span><span class="nb">Movable</span><span class="p">):</span>
+<a id="__codelineno-37-7" name="__codelineno-37-7" href="#__codelineno-37-7"></a><span class="w">    </span><span class="k">var</span><span class="w"> </span><span class="nv">dataset</span><span class="p">:</span><span class="w"> </span><span class="n">Dataset</span>
+<a id="__codelineno-37-8" name="__codelineno-37-8" href="#__codelineno-37-8"></a><span class="w">    </span><span class="k">var</span><span class="w"> </span><span class="nv">batch_size</span><span class="p">:</span><span class="w"> </span><span class="nb">Int</span>
+<a id="__codelineno-37-9" name="__codelineno-37-9" href="#__codelineno-37-9"></a><span class="w">    </span><span class="k">var</span><span class="w"> </span><span class="nv">drop_last</span><span class="p">:</span><span class="w"> </span><span class="n">Bool</span>
+<a id="__codelineno-37-10" name="__codelineno-37-10" href="#__codelineno-37-10"></a><span class="w">    </span><span class="k">var</span><span class="w"> </span><span class="nv">_len</span><span class="p">:</span><span class="w"> </span><span class="nb">Int</span>
+<a id="__codelineno-37-11" name="__codelineno-37-11" href="#__codelineno-37-11"></a><span class="w">    </span><span class="c1"># Copy all fields from BaseLoader</span>
+</code></pre></div>
+<p><strong>Files Affected</strong>: src/odyssey/data/loaders.mojo</p>
+<p><strong>Agent Guidance</strong>: Use composition, not inheritance for structs.</p>
+<hr />
+<h4 id="72-dynamic-traits-not-supported-4-errors">7.2 Dynamic Traits Not Supported (4 errors)</h4>
+<p><strong>Pattern</strong>: Cannot store trait types in fields - must use compile-time generics.</p>
+<p><strong>Error</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-38-1" name="__codelineno-38-1" href="#__codelineno-38-1"></a>error: dynamic traits not supported yet, please use a compile time generic instead
+</code></pre></div>
+<p><strong>Fix</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-39-1" name="__codelineno-39-1" href="#__codelineno-39-1"></a><span class="o">//</span><span class="w"> </span><span class="n">WRONG</span><span class="p">:</span>
+<a id="__codelineno-39-2" name="__codelineno-39-2" href="#__codelineno-39-2"></a><span class="k">struct</span><span class="w"> </span><span class="n n-Struct">Container</span><span class="p">:</span>
+<a id="__codelineno-39-3" name="__codelineno-39-3" href="#__codelineno-39-3"></a><span class="w">    </span><span class="k">var</span><span class="w"> </span><span class="nv">transform</span><span class="p">:</span><span class="w"> </span><span class="n">Transform</span><span class="w">  </span><span class="c1"># Runtime trait field</span>
+<a id="__codelineno-39-4" name="__codelineno-39-4" href="#__codelineno-39-4"></a>
+<a id="__codelineno-39-5" name="__codelineno-39-5" href="#__codelineno-39-5"></a><span class="o">//</span><span class="w"> </span><span class="n">CORRECT</span><span class="p">:</span>
+<a id="__codelineno-39-6" name="__codelineno-39-6" href="#__codelineno-39-6"></a><span class="k">struct</span><span class="w"> </span><span class="n n-Struct">Container</span><span class="p">[</span><span class="n">T</span><span class="p">:</span><span class="w"> </span><span class="n">Transform</span><span class="p">]:</span><span class="w">  </span><span class="c1"># Compile-time generic</span>
+<a id="__codelineno-39-7" name="__codelineno-39-7" href="#__codelineno-39-7"></a><span class="w">    </span><span class="k">var</span><span class="w"> </span><span class="nv">transform</span><span class="p">:</span><span class="w"> </span><span class="n">T</span>
+</code></pre></div>
+<p><strong>Files Affected</strong>: src/odyssey/data/generic_transforms.mojo (4 structs)</p>
+<p><strong>Agent Guidance</strong>: Use parametric generics <code>[T: TraitName]</code> instead of trait-typed fields.</p>
+<hr />
+<h3 id="8-compile-time-import-limitation-3731">8. Compile-Time Import Limitation (#3731)</h3>
+<h4 id="80-mojo-cannot-resolve-imports-at-compile-time-from-dynamic-paths">8.0 Mojo Cannot Resolve Imports at Compile Time from Dynamic Paths</h4>
+<p><strong>Pattern</strong>: Mojo v0.26.1 does not support importing symbols whose paths are
+determined at runtime or through multi-hop re-exports across <code>__init__.mojo</code> files.</p>
+<p><strong>Symptom</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-40-1" name="__codelineno-40-1" href="#__codelineno-40-1"></a>error: cannot find &#39;LinearLayer&#39; in module &#39;shared&#39;
+</code></pre></div>
+<p>Even when <code>src/odyssey/__init__.mojo</code> imports from <code>shared.core</code> which imports from
+<code>shared.core.layers</code>, a consumer doing <code>from shared import LinearLayer</code> may fail
+because Mojo's compiler resolves imports at compile time and does not follow
+re-export chains through multiple <code>__init__.mojo</code> levels.</p>
+<p><strong>Root cause</strong>: Mojo's import resolution is single-hop at compile time. A module
+can import a symbol for internal use, but that symbol is not automatically re-exported
+to the parent package's namespace in a way that downstream modules can discover.</p>
+<p><strong>Fix</strong>: Import directly from the defining module:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-41-1" name="__codelineno-41-1" href="#__codelineno-41-1"></a><span class="c1"># WRONG (may fail due to re-export chain):</span>
+<a id="__codelineno-41-2" name="__codelineno-41-2" href="#__codelineno-41-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">shared</span><span class="w"> </span><span class="kn">import</span><span class="w"> </span><span class="n">LinearLayer</span>
+<a id="__codelineno-41-3" name="__codelineno-41-3" href="#__codelineno-41-3"></a>
+<a id="__codelineno-41-4" name="__codelineno-41-4" href="#__codelineno-41-4"></a><span class="c1"># CORRECT (import from the defining module):</span>
+<a id="__codelineno-41-5" name="__codelineno-41-5" href="#__codelineno-41-5"></a><span class="kn">from</span><span class="w"> </span><span class="nn">odyssey.core.layers</span><span class="w"> </span><span class="kn">import</span><span class="w"> </span><span class="n">LinearLayer</span>
+</code></pre></div>
+<p><strong>Workaround in <code>__init__.mojo</code></strong>: Keep commented import stubs with a note explaining
+when they will be enabled (once the compiler limitation is resolved):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-42-1" name="__codelineno-42-1" href="#__codelineno-42-1"></a><span class="c1"># from .core.layers import Linear  # Blocked: re-export chain (#3754, #3731)</span>
+</code></pre></div>
+<p><strong>Agent Guidance</strong>: Always import from the most specific module path. Do not assume
+that importing a symbol into <code>__init__.mojo</code> makes it available at the package level.</p>
+<hr />
+<h3 id="9-test-specific-errors-7-errors">9. Test-Specific Errors (7 errors)</h3>
+<h4 id="81-function-renames-6-errors">8.1 Function Renames (6 errors)</h4>
+<p><strong>Pattern</strong>: Loss functions renamed for consistency.</p>
+<p><strong>Fixes</strong>:</p>
+<ul>
+<li><code>mse_loss</code> → <code>mean_squared_error</code></li>
+<li><code>bce_loss</code> → <code>binary_cross_entropy</code></li>
+</ul>
+<p><strong>Files Affected</strong>: tests/test_core_operations.mojo</p>
+<hr />
+<h4 id="82-dtype-comparison-2-errors">8.2 DType Comparison (2 errors)</h4>
+<p><strong>Pattern</strong>: DType doesn't implement Comparable, can't use assert_equal.</p>
+<p><strong>Error</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-43-1" name="__codelineno-43-1" href="#__codelineno-43-1"></a>error: no matching function in call to &#39;assert_equal&#39;
+</code></pre></div>
+<p><strong>Fix</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-44-1" name="__codelineno-44-1" href="#__codelineno-44-1"></a><span class="o">//</span><span class="w"> </span><span class="n">WRONG</span><span class="p">:</span>
+<a id="__codelineno-44-2" name="__codelineno-44-2" href="#__codelineno-44-2"></a><span class="n">assert_equal</span><span class="p">(</span><span class="n">tensor</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span><span class="w"> </span><span class="nb">DType</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;message&quot;</span><span class="p">)</span>
+<a id="__codelineno-44-3" name="__codelineno-44-3" href="#__codelineno-44-3"></a>
+<a id="__codelineno-44-4" name="__codelineno-44-4" href="#__codelineno-44-4"></a><span class="o">//</span><span class="w"> </span><span class="n">CORRECT</span><span class="p">:</span>
+<a id="__codelineno-44-5" name="__codelineno-44-5" href="#__codelineno-44-5"></a><span class="k">if</span><span class="w"> </span><span class="n">tensor</span><span class="o">.</span><span class="n">dtype</span><span class="p">()</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="nb">DType</span><span class="o">.</span><span class="n">float32</span><span class="p">:</span>
+<a id="__codelineno-44-6" name="__codelineno-44-6" href="#__codelineno-44-6"></a><span class="w">    </span><span class="k">raise</span><span class="w"> </span><span class="nb">Error</span><span class="p">(</span><span class="s2">&quot;message&quot;</span><span class="p">)</span>
+</code></pre></div>
+<p><strong>Files Affected</strong>: tests/test_core_operations.mojo</p>
+<p><strong>Agent Guidance</strong>: Manual comparison for DType using <code>dtype()</code> method.</p>
+<hr />
+<h4 id="83-len-type-resolution-7-errors">8.3 len() Type Resolution (7 errors)</h4>
+<p><strong>Pattern</strong>: len() needs explicit type when called on method results.</p>
+<p><strong>Error</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-45-1" name="__codelineno-45-1" href="#__codelineno-45-1"></a>error: no matching function in call to &#39;len&#39;
+</code></pre></div>
+<p><strong>Fix</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-46-1" name="__codelineno-46-1" href="#__codelineno-46-1"></a><span class="o">//</span><span class="w"> </span><span class="n">WRONG</span><span class="p">:</span>
+<a id="__codelineno-46-2" name="__codelineno-46-2" href="#__codelineno-46-2"></a><span class="k">if</span><span class="w"> </span><span class="nb">len</span><span class="p">(</span><span class="n">tensor</span><span class="o">.</span><span class="n">shape</span><span class="p">())</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">2</span><span class="p">:</span>
+<a id="__codelineno-46-3" name="__codelineno-46-3" href="#__codelineno-46-3"></a>
+<a id="__codelineno-46-4" name="__codelineno-46-4" href="#__codelineno-46-4"></a><span class="o">//</span><span class="w"> </span><span class="n">CORRECT</span><span class="p">:</span>
+<a id="__codelineno-46-5" name="__codelineno-46-5" href="#__codelineno-46-5"></a><span class="k">var</span><span class="w"> </span><span class="nv">shape_vec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tensor</span><span class="o">.</span><span class="n">shape</span><span class="p">()</span>
+<a id="__codelineno-46-6" name="__codelineno-46-6" href="#__codelineno-46-6"></a><span class="k">if</span><span class="w"> </span><span class="nb">len</span><span class="p">(</span><span class="n">shape_vec</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">2</span><span class="p">:</span>
+</code></pre></div>
+<p><strong>Files Affected</strong>: src/odyssey/training/metrics/accuracy.mojo, confusion_matrix.mojo</p>
+<p><strong>Agent Guidance</strong>: Assign method result to variable before calling len().</p>
+<hr />
+<h2 id="batch-summary">Batch Summary</h2>
+<table>
+<thead>
+<tr>
+<th>Batch</th>
+<th>Errors Fixed</th>
+<th>Categories</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1-6</td>
+<td>950</td>
+<td>Syntax, imports, API, memory, types</td>
+</tr>
+<tr>
+<td>7</td>
+<td>18</td>
+<td>UnsafePointer, List ownership, str()</td>
+</tr>
+<tr>
+<td>8-9</td>
+<td>35</td>
+<td>Closure, inheritance, traits, init</td>
+</tr>
+<tr>
+<td>10</td>
+<td>10</td>
+<td>SIMD inference, test imports</td>
+</tr>
+<tr>
+<td><strong>Total</strong></td>
+<td><strong>1,013</strong></td>
+<td><strong>88.6% of 1,143</strong></td>
+</tr>
+</tbody>
+</table>
+<h2 id="agent-update-priorities">Agent Update Priorities</h2>
+<h3 id="critical-always-apply">Critical (Always Apply)</h3>
+<ol>
+<li>✅ <strong>Use <code>out self</code> in <code>__init__</code></strong>, never <code>mut self</code></li>
+<li>✅ <strong>Use <code>String()</code> not <code>str()</code></strong></li>
+<li>✅ <strong>Use <code>mut</code> not <code>inout</code></strong> for parameters</li>
+<li>✅ <strong>Add explicit traits</strong>: <code>(Copyable, Movable)</code> to all structs</li>
+<li>✅ <strong>No struct inheritance</strong> - use composition</li>
+<li>✅ <strong>Use parametric generics</strong> <code>[T: Trait]</code>, not trait fields</li>
+<li>✅ <strong>Ownership transfer</strong>: Use <code>^</code> for AnyTensor, List assignments</li>
+<li>✅ <strong>Import from correct modules</strong>:</li>
+<li>DType: <code>from memory import DType</code></li>
+<li>simdwidthof: <code>from sys.info import simdwidthof</code></li>
+<li>Pointer: <code>from memory import Pointer</code></li>
+</ol>
+<h3 id="high-priority-common-patterns">High Priority (Common Patterns)</h3>
+<ol>
+<li>✅ <strong>AnyTensor API changes</strong>:</li>
+<li>Use <code>full()</code> not <code>AnyTensor.from_scalar()</code></li>
+<li>Use <code>tensor_sum()</code> not <code>.sum()</code></li>
+<li>Use <code>matmul()</code> not <code>.matmul()</code></li>
+<li>✅ <strong>Explicit dtype parameters</strong> for zeros(), ones(), full()</li>
+<li>✅ <strong>Don't import builtins</strong>: Tuple, abs, round, max, min</li>
+<li>✅ <strong>Use <code>@fieldwise_init</code></strong> with traits, not <code>@value</code></li>
+<li>✅ <strong>No mixed auto/manual init</strong>: Remove <code>@fieldwise_init</code> if manual <code>__init__</code> exists</li>
+</ol>
+<h3 id="medium-priority-context-dependent">Medium Priority (Context-Dependent)</h3>
+<ol>
+<li>⚠️ <strong>shape property vs method</strong>: Check file context</li>
+<li>⚠️ <strong>SIMD type consistency</strong>: Don't mix generic and explicit types</li>
+<li>⚠️ <strong>len() type resolution</strong>: Assign to variable first</li>
+<li>⚠️ <strong>Pointer API</strong>: Use <code>Pointer.address_of()</code> and <code>[]</code> syntax</li>
+</ol>
+<h2 id="files-changed-by-category">Files Changed (By Category)</h2>
+<h3 id="core-infrastructure-15-files">Core Infrastructure (15 files)</h3>
+<ul>
+<li>src/odyssey/core/any_tensor.mojo, activation.mojo, arithmetic_simd.mojo</li>
+<li>src/odyssey/core/matrix.mojo, broadcasting.mojo, bfloat16.mojo</li>
+<li>src/odyssey/core/types/ (7 files)</li>
+<li>src/odyssey/core/pooling.mojo, conv.mojo, dropout.mojo, etc.</li>
+</ul>
+<h3 id="training-metrics-14-files">Training &amp; Metrics (14 files)</h3>
+<ul>
+<li>src/odyssey/training/metrics/ (4 files)</li>
+<li>src/odyssey/training/optimizers/ (3 files)</li>
+<li>src/odyssey/training/trainer, callbacks, mixed_precision</li>
+</ul>
+<h3 id="data-module-7-files">Data Module (7 files)</h3>
+<ul>
+<li>src/odyssey/data/datasets.mojo, loaders.mojo, samplers.mojo</li>
+<li>src/odyssey/data/transforms.mojo, text_transforms.mojo, generic_transforms.mojo</li>
+<li>src/odyssey/data/batch_utils.mojo</li>
+</ul>
+<h3 id="autograd-4-files">Autograd (4 files)</h3>
+<ul>
+<li>src/odyssey/autograd/variable.mojo, tape.mojo, optimizers.mojo, functional.mojo</li>
+</ul>
+<h3 id="utils-4-files">Utils (4 files)</h3>
+<ul>
+<li>src/odyssey/utils/random.mojo, profiling.mojo, logging.mojo, io.mojo, visualization.mojo</li>
+</ul>
+<h3 id="tests-31-files">Tests (31 files)</h3>
+<ul>
+<li>All test files updated for API changes</li>
+</ul>
+<h3 id="examples-41-files">Examples (41 files)</h3>
+<ul>
+<li>All example files updated</li>
+</ul>
+<h2 id="lessons-learned">Lessons Learned</h2>
+<ol>
+<li><strong>Breaking changes are pervasive</strong>: v0.26.1+ affected every major subsystem</li>
+<li><strong>Ownership is explicit</strong>: No more implicit copies - forces better design</li>
+<li><strong>Type safety increased</strong>: More explicit trait requirements, generics</li>
+<li><strong>Stdlib consolidation</strong>: Builtins reduce import boilerplate</li>
+<li><strong>Pattern consistency</strong>: Similar fixes across many files suggests systematic changes</li>
+</ol>
+<h2 id="next-steps">Next Steps</h2>
+<ol>
+<li>✅ Fix remaining ~130 errors (11.4%)</li>
+<li>✅ Update agent configurations with error patterns</li>
+<li>✅ Add pre-commit checks for common errors</li>
+<li>✅ Document migration guide for future Mojo upgrades</li>
+</ol>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "search.suggest", "search.highlight", "content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>

@@ -1,0 +1,1635 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Mojo-based AI research platform for reproducing classic research papers">
+      
+      
+      
+        <link rel="canonical" href="https://github.com/HomericIntelligence/Odyssey/adr/ADR-011-batch-norm-gradient-loss/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>ADR-011: Batch Normalization Gradient Loss Function Selection - ML Odyssey</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#adr-011-batch-normalization-gradient-loss-function-selection" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="ML Odyssey" class="md-header__button md-logo" aria-label="ML Odyssey" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            ML Odyssey
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              ADR-011: Batch Normalization Gradient Loss Function Selection
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/HomericIntelligence/Odyssey" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    HomericIntelligence/Odyssey
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../glossary/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Glossary
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../dev/release-process/" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../integration/supporting-directories/" class="md-tabs__link">
+          
+  
+  
+  Integration
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="ML Odyssey" class="md-nav__button md-logo" aria-label="ML Odyssey" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    ML Odyssey
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/HomericIntelligence/Odyssey" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    HomericIntelligence/Odyssey
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../glossary/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Glossary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/quickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quickstart
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/first_model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    First Model
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/repository-structure/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Repository Structure
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../dev/release-process/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Release Process
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Integration
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Integration
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../integration/supporting-directories/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Supporting Directories
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../integration/papers-shared-integration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Papers & Shared Integration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../integration/quick-start-new-paper/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start New Paper
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#executive-summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Executive Summary
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#context" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Context
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Context">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#problem-statement" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Problem Statement
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#constraints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Constraints
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#requirements" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Requirements
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#decision" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Decision
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Decision">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#solution-overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Solution Overview
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#technical-details" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Technical Details
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Technical Details">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#mathematical-derivation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mathematical Derivation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#why-sumoutput2-avoids-zero-gradients" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Why sum(output^2) Avoids Zero Gradients
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#implementation-pattern" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Implementation Pattern
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#parametric-validation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parametric Validation
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#rationale" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Rationale
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Rationale">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#key-factors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key Factors
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#trade-offs-accepted" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Trade-offs Accepted
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#consequences" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Consequences
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Consequences">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#positive" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Positive
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#negative" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Negative
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#neutral" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Neutral
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#alternatives-considered" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Alternatives Considered
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Alternatives Considered">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#alternative-1-non-uniform-grad_output-pattern" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Alternative 1: Non-uniform grad_output Pattern
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#alternative-2-non-zero-beta-parameter" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Alternative 2: Non-zero beta Parameter
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#alternative-3-weighted-dot-product-loss" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Alternative 3: Weighted Dot Product Loss
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#implementation-plan" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Implementation Plan
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Implementation Plan">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#phase-1-documentation-complete" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 1: Documentation (Complete)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-2-migration-future" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 2: Migration (Future)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#success-criteria" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Success Criteria
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#references" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        References
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="References">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#related-adrs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Related ADRs
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#related-issues" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Related Issues
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#external-documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        External Documentation
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#revision-history" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Revision History
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#document-metadata" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Document Metadata
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="adr-011-batch-normalization-gradient-loss-function-selection">ADR-011: Batch Normalization Gradient Loss Function Selection</h1>
+<p><strong>Status</strong>: Accepted</p>
+<p><strong>Date</strong>: 2026-03-14</p>
+<p><strong>Issue Reference</strong>: <a href="https://github.com/HomericIntelligence/Odyssey/issues/3666">Issue #3666</a></p>
+<p><strong>Decision Owner</strong>: ML Odyssey Team</p>
+<h2 id="executive-summary">Executive Summary</h2>
+<p>For gradient checking of normalization layers (BatchNorm, LayerNorm), use <code>sum(output^2)</code> as the scalar
+loss function instead of <code>sum(output)</code>. This produces non-zero upstream gradients (<code>dL/dY = 2 * output</code>)
+that meaningfully test backward pass implementations, avoiding pathological zero-gradient cases that
+can mask bugs.</p>
+<h2 id="context">Context</h2>
+<h3 id="problem-statement">Problem Statement</h3>
+<p>Batch normalization and layer normalization have a mathematical property that causes the commonly-used
+<code>sum(output)</code> loss to produce exactly zero gradients when testing gradient checking:</p>
+<ol>
+<li><strong>Zero-mean property</strong>: Normalized values per channel always sum to zero by definition of mean-subtraction</li>
+<li><strong>Degenerate loss</strong>: When <code>beta=0</code>, <code>sum(output) = gamma * sum(x_norm) + beta = 0</code> identically</li>
+<li><strong>Test failure</strong>: Gradient checking with this loss produces ~0 analytical gradients and ~0 numerical
+   gradients (noise against zero baseline), appearing to pass trivially without validating actual
+   backward pass correctness</li>
+</ol>
+<h3 id="constraints">Constraints</h3>
+<ul>
+<li>Must work with all normalization layer variants (BatchNorm2d, LayerNorm, GroupNorm, etc.)</li>
+<li>Must provide non-zero gradients for meaningful validation</li>
+<li>Must be deterministic and reproducible</li>
+<li>Must not introduce excessive computational overhead in tests</li>
+<li>Numerical gradient computation must be stable (epsilon=1e-5 for finite differences)</li>
+</ul>
+<h3 id="requirements">Requirements</h3>
+<ol>
+<li><strong>Non-zero gradients</strong>: Loss function must produce non-zero upstream gradients</li>
+<li><strong>Mathematical correctness</strong>: Should map to standard ML practices where applicable</li>
+<li><strong>Symmetry</strong>: Should apply to all normalization layers uniformly</li>
+<li><strong>Documentation</strong>: Must include derivation and rationale for future maintenance</li>
+</ol>
+<h2 id="decision">Decision</h2>
+<h3 id="solution-overview">Solution Overview</h3>
+<p><strong>Use <code>sum(output^2)</code> as the canonical scalar loss for normalization layer gradient checks.</strong></p>
+<p>This choice:</p>
+<ol>
+<li>Produces non-zero upstream gradients: <code>dL/dY = 2 * output</code></li>
+<li>Is mathematically well-defined for any <code>output</code> value (including zero-normalized outputs)</li>
+<li>Follows standard ML practice (sum of squared errors / MSE loss)</li>
+<li>Works uniformly across all normalization layer types</li>
+<li>Avoids the zero-mean cancellation problem entirely</li>
+</ol>
+<h3 id="technical-details">Technical Details</h3>
+<h4 id="mathematical-derivation">Mathematical Derivation</h4>
+<p>For a normalization layer with output <code>Y</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>Forward: L = sum(Y^2)
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>Backward (upstream gradient):
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>dL/dY[i] = 2 * Y[i]
+</code></pre></div>
+<p>This is non-zero for any non-zero output value, and provides meaningful gradients even when
+the normalized values sum to zero.</p>
+<h4 id="why-sumoutput2-avoids-zero-gradients">Why <code>sum(output^2)</code> Avoids Zero Gradients</h4>
+<p>The Kratzert three-term batch norm backward formula:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>grad_input[i] = (grad_output[i] - k/N - x_norm[i] * dotp/N) * gamma/std
+</code></pre></div>
+<p>With <code>grad_output = 2 * output</code>:</p>
+<ul>
+<li><code>k = sum(grad_output) = 2 * sum(output) = 2 * (gamma * sum(x_norm) + N * beta)</code></li>
+<li>For <code>beta=0</code>: <code>k = 2 * gamma * 0 = 0</code> (still zero!)</li>
+<li>BUT: <code>dotp = sum(grad_output * x_norm) = 2 * sum(output * x_norm)</code></li>
+<li>This is <strong>NOT zero</strong> because <code>output * x_norm</code> doesn't have the same cancellation as <code>x_norm</code> alone</li>
+</ul>
+<p>The key insight: While <code>sum(x_norm) = 0</code> and <code>sum(output) = N*beta</code>, the product
+<code>sum(output * x_norm)</code> is generally non-zero, providing non-trivial gradients.</p>
+<h4 id="implementation-pattern">Implementation Pattern</h4>
+<p>In gradient checking test code:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">fn</span><span class="w"> </span><span class="nf">test_batch_norm_gradient</span><span class="p">()</span><span class="w"> </span><span class="n">raises</span><span class="p">:</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">    </span><span class="s2">&quot;&quot;&quot;Test BatchNorm2d backward with sum(output^2) loss.&quot;&quot;&quot;</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">    </span><span class="k">var</span><span class="w"> </span><span class="nv">layer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">BatchNorm2dLayer</span><span class="p">(</span><span class="n">num_channels</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">    </span><span class="k">var</span><span class="w"> </span><span class="nv">input</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">create_test_input</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">    </span><span class="c1"># Forward</span>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="w">    </span><span class="k">var</span><span class="w"> </span><span class="nv">output</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">layer</span><span class="o">.</span><span class="n">forward</span><span class="p">(</span><span class="nb">input</span><span class="p">,</span><span class="w"> </span><span class="n">training</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="w">    </span><span class="c1"># Loss: sum(output^2)</span>
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="w">    </span><span class="k">fn</span><span class="w"> </span><span class="nf">forward_for_grad</span><span class="p">(</span><span class="n">inp</span><span class="p">:</span><span class="w"> </span><span class="n">AnyTensor</span><span class="p">)</span><span class="w"> </span><span class="n">raises</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">AnyTensor</span><span class="p">:</span>
+<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="w">        </span><span class="k">var</span><span class="w"> </span><span class="nv">out</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">layer</span><span class="o">.</span><span class="n">forward</span><span class="p">(</span><span class="n">inp</span><span class="p">,</span><span class="w"> </span><span class="n">training</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a><span class="w">        </span><span class="k">var</span><span class="w"> </span><span class="nv">squared</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">multiply</span><span class="p">(</span><span class="n">out</span><span class="p">,</span><span class="w"> </span><span class="n">out</span><span class="p">)</span>
+<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a><span class="w">        </span><span class="k">var</span><span class="w"> </span><span class="nv">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">squared</span>
+<a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a><span class="w">        </span><span class="k">while</span><span class="w"> </span><span class="n">result</span><span class="o">.</span><span class="n">dim</span><span class="p">()</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">:</span>
+<a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a><span class="w">            </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">reduce_sum</span><span class="p">(</span><span class="n">result</span><span class="p">,</span><span class="w"> </span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">keepdims</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">result</span>
+<a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a>
+<a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a><span class="w">    </span><span class="c1"># Upstream gradient: dL/dY = 2 * output</span>
+<a id="__codelineno-2-19" name="__codelineno-2-19" href="#__codelineno-2-19"></a><span class="w">    </span><span class="k">var</span><span class="w"> </span><span class="nv">two</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">full_like</span><span class="p">(</span><span class="n">output</span><span class="p">,</span><span class="w"> </span><span class="mf">2.0</span><span class="p">)</span>
+<a id="__codelineno-2-20" name="__codelineno-2-20" href="#__codelineno-2-20"></a><span class="w">    </span><span class="k">var</span><span class="w"> </span><span class="nv">grad_output</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">multiply</span><span class="p">(</span><span class="n">two</span><span class="p">,</span><span class="w"> </span><span class="n">output</span><span class="p">)</span>
+<a id="__codelineno-2-21" name="__codelineno-2-21" href="#__codelineno-2-21"></a>
+<a id="__codelineno-2-22" name="__codelineno-2-22" href="#__codelineno-2-22"></a><span class="w">    </span><span class="c1"># Compute gradients and validate</span>
+<a id="__codelineno-2-23" name="__codelineno-2-23" href="#__codelineno-2-23"></a><span class="w">    </span><span class="k">var</span><span class="w"> </span><span class="nv">analytical</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">compute_analytical_gradient</span><span class="p">(</span><span class="nb">input</span><span class="p">,</span><span class="w"> </span><span class="n">grad_output</span><span class="p">)</span>
+<a id="__codelineno-2-24" name="__codelineno-2-24" href="#__codelineno-2-24"></a><span class="w">    </span><span class="k">var</span><span class="w"> </span><span class="nv">numerical</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">compute_numerical_gradient</span><span class="p">(</span><span class="n">forward_for_grad</span><span class="p">,</span><span class="w"> </span><span class="nb">input</span><span class="p">)</span>
+<a id="__codelineno-2-25" name="__codelineno-2-25" href="#__codelineno-2-25"></a>
+<a id="__codelineno-2-26" name="__codelineno-2-26" href="#__codelineno-2-26"></a><span class="w">    </span><span class="n">assert_gradients_close</span><span class="p">(</span><span class="n">analytical</span><span class="p">,</span><span class="w"> </span><span class="n">numerical</span><span class="p">,</span><span class="w"> </span><span class="n">rtol</span><span class="o">=</span><span class="mf">1e-2</span><span class="p">,</span><span class="w"> </span><span class="n">atol</span><span class="o">=</span><span class="mf">1e-5</span><span class="p">)</span>
+</code></pre></div>
+<h4 id="parametric-validation">Parametric Validation</h4>
+<p>Test with varying parameters to ensure robustness:</p>
+<ol>
+<li><strong>Different gamma/beta values</strong>:</li>
+<li><code>gamma = [1.5, 2.0]</code> (non-trivial scaling)</li>
+<li>
+<p><code>beta = [0.0, 0.5]</code> (both zero and non-zero shift)</p>
+</li>
+<li>
+<p><strong>Various input distributions</strong>:</p>
+</li>
+<li>Deterministic patterns (avoids randomness issues)</li>
+<li>
+<p>Values spread across dynamic range (0.1, 0.5, 1.0, 1.5, etc.)</p>
+</li>
+<li>
+<p><strong>Multiple normalizations</strong>:</p>
+</li>
+<li>Different batch sizes, channel counts, spatial dimensions</li>
+<li>Test both training (batch stats) and inference (running stats) modes</li>
+</ol>
+<h2 id="rationale">Rationale</h2>
+<h3 id="key-factors">Key Factors</h3>
+<ol>
+<li>
+<p><strong>Mathematical correctness</strong>: <code>sum(output^2)</code> is a legitimate loss function with well-defined
+   gradients, unlike the pathological <code>sum(output)</code> with <code>beta=0</code></p>
+</li>
+<li>
+<p><strong>Standard ML practice</strong>: Sum-of-squared errors is widely used in ML (MSE loss), making this
+   choice familiar to contributors</p>
+</li>
+<li>
+<p><strong>Universal applicability</strong>: Works for all normalization layers (BatchNorm, LayerNorm, GroupNorm)
+   without special cases or parameter constraints</p>
+</li>
+<li>
+<p><strong>Avoids subtle bugs</strong>: Tests using this loss will catch real gradient computation errors that
+   trivial <code>sum(output)</code> tests cannot detect</p>
+</li>
+<li>
+<p><strong>Maintainability</strong>: Clear mathematical reasoning prevents future contributors from re-introducing
+   the trivial test pattern</p>
+</li>
+</ol>
+<h3 id="trade-offs-accepted">Trade-offs Accepted</h3>
+<ol>
+<li>
+<p><strong>Slightly higher numerical cost</strong>: Computing and squaring doubles computational overhead in
+   test gradients, but cost is negligible in PR validation (~milliseconds)</p>
+</li>
+<li>
+<p><strong>Different from some PyTorch patterns</strong>: PyTorch tests sometimes use other loss functions,
+   but the <code>sum(output^2)</code> pattern is equally valid and more robust for this use case</p>
+</li>
+</ol>
+<h2 id="consequences">Consequences</h2>
+<h3 id="positive">Positive</h3>
+<ul>
+<li><strong>Robust testing</strong>: Gradient checks actually validate backward pass correctness</li>
+<li><strong>Bug detection</strong>: Will catch real gradient computation errors that <code>sum(output)</code> tests miss</li>
+<li><strong>Future-proof</strong>: Prevents future developers from re-introducing trivial tests</li>
+<li><strong>Clear documentation</strong>: Mathematical derivation ensures understanding and maintenance</li>
+<li><strong>Consistent patterns</strong>: Single canonical pattern for all normalization layers</li>
+</ul>
+<h3 id="negative">Negative</h3>
+<ul>
+<li><strong>Migration effort</strong>: Existing tests using <code>sum(output)</code> must be updated (manageable scope)</li>
+<li><strong>Slightly higher test cost</strong>: Additional multiplication/reduction operations (negligible impact)</li>
+</ul>
+<h3 id="neutral">Neutral</h3>
+<ul>
+<li><strong>Learning curve</strong>: Developers must understand why <code>sum(output^2)</code> is preferred (addressed by
+  this ADR and inline documentation)</li>
+</ul>
+<h2 id="alternatives-considered">Alternatives Considered</h2>
+<h3 id="alternative-1-non-uniform-grad_output-pattern">Alternative 1: Non-uniform <code>grad_output</code> Pattern</h3>
+<p><strong>Description</strong>: Use alternating or random pattern for <code>grad_output</code> instead of <code>ones_like</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">var</span><span class="w"> </span><span class="nv">grad_output</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zeros_like</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="k">for</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="nb">range</span><span class="p">(</span><span class="n">output</span><span class="o">.</span><span class="n">numel</span><span class="p">()):</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">    </span><span class="k">var</span><span class="w"> </span><span class="nv">val</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">Float32</span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="mi">4</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="nb">Float32</span><span class="p">(</span><span class="mf">0.25</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nb">Float32</span><span class="p">(</span><span class="mf">0.3</span><span class="p">)</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">    </span><span class="n">grad_output</span><span class="o">.</span><span class="n">_data</span><span class="o">.</span><span class="n">bitcast</span><span class="p">[</span><span class="nb">Float32</span><span class="p">]()[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">val</span>
+</code></pre></div>
+<p><strong>Pros</strong>:</p>
+<ul>
+<li>Avoids the <code>sum(grad_output)</code> cancellation by using non-uniform patterns</li>
+<li>Can work if patterns are carefully chosen</li>
+</ul>
+<p><strong>Cons</strong>:</p>
+<ul>
+<li>Complex and unintuitive (why this specific pattern?)</li>
+<li>Requires careful analysis to ensure no accidental cancellations</li>
+<li>Less standard in ML practice</li>
+<li>Harder to maintain and understand</li>
+</ul>
+<p><strong>Why Rejected</strong>: Less intuitive than <code>sum(output^2)</code>; requires pattern-specific analysis rather
+than general mathematical principle.</p>
+<h3 id="alternative-2-non-zero-beta-parameter">Alternative 2: Non-zero <code>beta</code> Parameter</h3>
+<p><strong>Description</strong>: Set <code>beta != 0</code> so <code>sum(output) != 0</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">var</span><span class="w"> </span><span class="nv">beta</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">create_constant_tensor</span><span class="p">([</span><span class="n">C</span><span class="p">],</span><span class="w"> </span><span class="nb">DType</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span><span class="w"> </span><span class="mf">0.1</span><span class="p">)</span>
+</code></pre></div>
+<p><strong>Pros</strong>:</p>
+<ul>
+<li>Simple to implement</li>
+<li>Uses familiar loss function</li>
+</ul>
+<p><strong>Cons</strong>:</p>
+<ul>
+<li>Tests become parameter-dependent (must remember to set beta)</li>
+<li>Masks the real issue (zero-mean cancellation in normalized values)</li>
+<li>Doesn't generalize to all normalization variants</li>
+<li>Feels like working around the problem rather than solving it</li>
+</ul>
+<p><strong>Why Rejected</strong>: Parameter-dependent workaround rather than principled solution; doesn't address
+the fundamental zero-mean property.</p>
+<h3 id="alternative-3-weighted-dot-product-loss">Alternative 3: Weighted Dot Product Loss</h3>
+<p><strong>Description</strong>: Use <code>sum(output * grad_output)</code> where <code>grad_output</code> is chosen strategically.</p>
+<p><strong>Pros</strong>:</p>
+<ul>
+<li>More general formulation</li>
+<li>Can be tailored per test</li>
+</ul>
+<p><strong>Cons</strong>:</p>
+<ul>
+<li>Adds unnecessary indirection</li>
+<li>Less standard than MSE loss</li>
+<li>Requires pre-computing <code>grad_output</code> patterns</li>
+</ul>
+<p><strong>Why Rejected</strong>: <code>sum(output^2)</code> is simpler and more standard.</p>
+<h2 id="implementation-plan">Implementation Plan</h2>
+<h3 id="phase-1-documentation-complete">Phase 1: Documentation (Complete)</h3>
+<ul>
+<li>[x] Create ADR-011 explaining the decision and mathematics</li>
+<li>[x] Add inline code comments to testing patterns</li>
+<li>[x] Update <code>docs/dev/testing-strategy.md</code> with canonical <code>sum(output^2)</code> pattern</li>
+</ul>
+<h3 id="phase-2-migration-future">Phase 2: Migration (Future)</h3>
+<ul>
+<li>[ ] Update <code>tests/shared/core/test_normalization.mojo</code> to use <code>sum(output^2)</code> pattern</li>
+<li>[ ] Update <code>tests/models/test_*_layers.mojo</code> (normalization tests)</li>
+<li>[ ] Verify gradient checks pass with new pattern</li>
+<li>[ ] Add validation tests to ensure pattern correctness</li>
+</ul>
+<h3 id="success-criteria">Success Criteria</h3>
+<ul>
+<li>[x] ADR documented and approved</li>
+<li>[ ] Testing pattern implemented in core normalization tests</li>
+<li>[ ] All normalization layer gradient checks use new pattern</li>
+<li>[ ] CI validates pattern correctness (gradient checks pass)</li>
+<li>[ ] No regressions in other tests</li>
+</ul>
+<h2 id="references">References</h2>
+<h3 id="related-adrs">Related ADRs</h3>
+<ul>
+<li><a href="../ADR-004-testing-strategy/">ADR-004: Testing Strategy</a> - Overall testing architecture</li>
+<li><a href="../ADR-002-gradient-struct-return-types/">ADR-002: Gradient Struct Return Types</a> - Gradient API</li>
+</ul>
+<h3 id="related-issues">Related Issues</h3>
+<ul>
+<li><a href="https://github.com/HomericIntelligence/Odyssey/issues/3171">Issue #3171</a> - Add meaningful
+  batch_norm2d_backward gradient test</li>
+<li><a href="https://github.com/HomericIntelligence/Odyssey/issues/2724">Issue #2724</a> - Original batch
+  norm gradient investigation</li>
+<li><a href="https://github.com/HomericIntelligence/Odyssey/issues/3282">Issue #3282</a> - LayerNorm gradient
+  issues</li>
+</ul>
+<h3 id="external-documentation">External Documentation</h3>
+<ul>
+<li><a href="https://arxiv.org/abs/1502.03167">Batch Normalization Paper</a> - Original batch norm definition</li>
+<li><a href="https://kratzert.github.io/2016/02/12/understanding-the-gradient-flow-through-the-batch-normalization-layer.html">Kratzert Batch Norm Derivation</a></li>
+<li>Three-term backward formula used in this ADR</li>
+</ul>
+<h2 id="revision-history">Revision History</h2>
+<table>
+<thead>
+<tr>
+<th>Version</th>
+<th>Date</th>
+<th>Author</th>
+<th>Changes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1.0</td>
+<td>2026-03-14</td>
+<td>ML Odyssey Team</td>
+<td>Initial ADR</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="document-metadata">Document Metadata</h2>
+<ul>
+<li><strong>Location</strong>: <code>/docs/adr/ADR-011-batch-norm-gradient-loss.md</code></li>
+<li><strong>Status</strong>: Accepted</li>
+<li><strong>Review Frequency</strong>: As-needed</li>
+<li><strong>Next Review</strong>: When normalization tests are migrated to new pattern</li>
+<li><strong>Supersedes</strong>: None</li>
+<li><strong>Superseded By</strong>: None</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "search.suggest", "search.highlight", "content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>

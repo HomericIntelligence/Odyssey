@@ -1,0 +1,2159 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Mojo-based AI research platform for reproducing classic research papers">
+      
+      
+      
+        <link rel="canonical" href="https://github.com/HomericIntelligence/Odyssey/dev/skills-design/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Skills Design - Taxonomy and Implementation - ML Odyssey</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#skills-design-taxonomy-and-implementation" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="ML Odyssey" class="md-header__button md-logo" aria-label="ML Odyssey" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            ML Odyssey
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Skills Design - Taxonomy and Implementation
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/HomericIntelligence/Odyssey" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    HomericIntelligence/Odyssey
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../glossary/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Glossary
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../release-process/" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../integration/supporting-directories/" class="md-tabs__link">
+          
+  
+  
+  Integration
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="ML Odyssey" class="md-nav__button md-logo" aria-label="ML Odyssey" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    ML Odyssey
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/HomericIntelligence/Odyssey" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    HomericIntelligence/Odyssey
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../glossary/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Glossary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/quickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quickstart
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/first_model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    First Model
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/repository-structure/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Repository Structure
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../release-process/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Release Process
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Integration
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Integration
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../integration/supporting-directories/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Supporting Directories
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../integration/papers-shared-integration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Papers & Shared Integration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../integration/quick-start-new-paper/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start New Paper
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#skills-vs-sub-agents-decision-matrix" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Skills vs Sub-Agents Decision Matrix
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#key-principles" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key Principles
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#three-tier-taxonomy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Three-Tier Taxonomy
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Three-Tier Taxonomy">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#tier-1-foundational-skills" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tier 1: Foundational Skills
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Tier 1: Foundational Skills">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#code-analysis-skills" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Code Analysis Skills
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#analyze_code_structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        analyze_code_structure
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#detect_code_smells" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        detect_code_smells
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#calculate_complexity" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        calculate_complexity
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#extract_dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        extract_dependencies
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#code-generation-skills" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Code Generation Skills
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#generate_boilerplate" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        generate_boilerplate
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#generate_tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        generate_tests
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#refactor_code" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        refactor_code
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#testing-skills" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Testing Skills
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#run_tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        run_tests
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#calculate_coverage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        calculate_coverage
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#generate_test_data" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        generate_test_data
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tier-2-domain-skills" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tier 2: Domain Skills
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Tier 2: Domain Skills">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#paper-analysis-skills" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Paper Analysis Skills
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#extract_algorithm" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        extract_algorithm
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#identify_architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        identify_architecture
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#extract_hyperparameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        extract_hyperparameters
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#analyze_equations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        analyze_equations
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ml-operations-skills" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ML Operations Skills
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#prepare_dataset" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        prepare_dataset
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#train_model" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        train_model
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#evaluate_model" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        evaluate_model
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#documentation-skills" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Documentation Skills
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#generate_docstrings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        generate_docstrings
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#generate_api_docs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        generate_api_docs
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#generate_changelog" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        generate_changelog
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tier-3-specialized-skills" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tier 3: Specialized Skills
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Tier 3: Specialized Skills">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#security-skills" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Security Skills
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#scan_vulnerabilities" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        scan_vulnerabilities
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#check_dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        check_dependencies
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#validate_inputs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        validate_inputs
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#performance-skills" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Performance Skills
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#profile_code" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        profile_code
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#benchmark_functions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        benchmark_functions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#suggest_optimizations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        suggest_optimizations
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#skill-configuration-format" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Skill Configuration Format
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#skill-discovery-and-activation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Skill Discovery and Activation
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Skill Discovery and Activation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#how-skills-are-discovered" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How Skills Are Discovered
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#activation-triggers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Activation Triggers
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-activation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example Activation
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#skills-by-agent-type" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Skills by Agent Type
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Skills by Agent Type">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#architecture-design-agent-uses" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Architecture Design Agent Uses
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#implementation-engineers-use" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Implementation Engineers Use
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#test-engineers-use" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Test Engineers Use
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#documentation-writers-use" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Documentation Writers Use
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#security-specialists-use" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Security Specialists Use
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#performance-engineers-use" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Performance Engineers Use
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#implementation-priority" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Implementation Priority
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Implementation Priority">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#phase-1-essential-tier-1-skills-issues-68-73" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 1: Essential Tier 1 Skills (Issues 68-73)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-2-core-tier-2-skills" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 2: Core Tier 2 Skills
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-3-specialized-skills" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 3: Specialized Skills
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#testing-skills_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Testing Skills
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#skills-vs-sub-agents-examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Skills vs Sub-Agents Examples
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Skills vs Sub-Agents Examples">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#use-skill-generate_boilerplate" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Use Skill: generate_boilerplate
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#use-sub-agent-architecture-design-agent" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Use Sub-Agent: Architecture Design Agent
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#use-skill-run_tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Use Skill: run_tests
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#use-sub-agent-test-design-specialist" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Use Sub-Agent: Test Design Specialist
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#best-practices" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Best Practices
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#references" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        References
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="skills-design-taxonomy-and-implementation">Skills Design - Taxonomy and Implementation</h1>
+<h2 id="overview">Overview</h2>
+<p>Skills are reusable, algorithmic capabilities that agents can invoke. Unlike sub-agents (which have separate conversation
+contexts), skills are computational operations that run within an agent's current context and are automatically invoked
+by Claude when appropriate.</p>
+<h2 id="skills-vs-sub-agents-decision-matrix">Skills vs Sub-Agents Decision Matrix</h2>
+<table>
+<thead>
+<tr>
+<th>Criterion</th>
+<th>Use Skill</th>
+<th>Use Sub-Agent</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Decision Making</td>
+<td>No - algorithmic/template-based</td>
+<td>Yes - requires judgment</td>
+</tr>
+<tr>
+<td>Context</td>
+<td>Runs in current context</td>
+<td>Separate conversation thread</td>
+</tr>
+<tr>
+<td>Invocation</td>
+<td>Model-invoked automatically</td>
+<td>Explicit delegation</td>
+</tr>
+<tr>
+<td>Complexity</td>
+<td>Simple, focused operation</td>
+<td>Complex, multi-step process</td>
+</tr>
+<tr>
+<td>State</td>
+<td>Stateless operation</td>
+<td>Persistent state across calls</td>
+</tr>
+<tr>
+<td>Examples</td>
+<td>generate_boilerplate, run_tests</td>
+<td>Architecture Design Agent, Code Review Agent</td>
+</tr>
+</tbody>
+</table>
+<h2 id="key-principles">Key Principles</h2>
+<ol>
+<li><strong>Skills are Computational</strong>: Pattern matching, template application, tool orchestration</li>
+<li><strong>Sub-Agents are Judgmental</strong>: Require understanding, trade-offs, decision-making</li>
+<li><strong>Skills are Reusable</strong>: Used by multiple agent types</li>
+<li><strong>Sub-Agents are Specialized</strong>: Focused role with specific responsibilities</li>
+</ol>
+<hr />
+<h2 id="three-tier-taxonomy">Three-Tier Taxonomy</h2>
+<h3 id="tier-1-foundational-skills">Tier 1: Foundational Skills</h3>
+<p><strong>Used By</strong>: All agents across all levels</p>
+<p>Skills that provide basic capabilities needed universally.</p>
+<h4 id="code-analysis-skills">Code Analysis Skills</h4>
+<h4 id="analyze_code_structure">analyze_code_structure</h4>
+<ul>
+<li>Parse Python/Mojo code into AST</li>
+<li>Extract classes, functions, imports</li>
+<li>Map code organization</li>
+<li><strong>Used by</strong>: All implementation and review agents</li>
+<li><strong>File</strong>: <code>.claude/skills/tier-1/analyze-code-structure/SKILL.md</code></li>
+</ul>
+<h4 id="detect_code_smells">detect_code_smells</h4>
+<ul>
+<li>Identify anti-patterns and code smells</li>
+<li>Check for common mistakes</li>
+<li>Flag potential issues</li>
+<li><strong>Used by</strong>: Implementation and review agents</li>
+<li><strong>File</strong>: <code>.claude/skills/tier-1/detect-code-smells/SKILL.md</code></li>
+</ul>
+<h4 id="calculate_complexity">calculate_complexity</h4>
+<ul>
+<li>Compute cyclomatic complexity</li>
+<li>Calculate code metrics</li>
+<li>Identify complex functions</li>
+<li><strong>Used by</strong>: Performance and review agents</li>
+<li><strong>File</strong>: <code>.claude/skills/tier-1/calculate-complexity/SKILL.md</code></li>
+</ul>
+<h4 id="extract_dependencies">extract_dependencies</h4>
+<ul>
+<li>Map import dependencies</li>
+<li>Build dependency graphs</li>
+<li>Identify circular dependencies</li>
+<li><strong>Used by</strong>: Architecture and integration agents</li>
+<li><strong>File</strong>: <code>.claude/skills/tier-1/extract-dependencies/SKILL.md</code></li>
+</ul>
+<h4 id="code-generation-skills">Code Generation Skills</h4>
+<h4 id="generate_boilerplate">generate_boilerplate</h4>
+<ul>
+<li>Create standard file headers</li>
+<li>Generate class/function templates</li>
+<li>Apply code scaffolding</li>
+<li><strong>Used by</strong>: All implementation engineers</li>
+<li><strong>File</strong>: <code>.claude/skills/tier-1/generate-boilerplate/SKILL.md</code></li>
+</ul>
+<h4 id="generate_tests">generate_tests</h4>
+<ul>
+<li>Auto-generate test scaffolding</li>
+<li>Create test case templates</li>
+<li>Generate fixture templates</li>
+<li><strong>Used by</strong>: Test engineers at all levels</li>
+<li><strong>File</strong>: <code>.claude/skills/tier-1/generate-tests/SKILL.md</code></li>
+</ul>
+<h4 id="refactor_code">refactor_code</h4>
+<ul>
+<li>Apply automated refactorings</li>
+<li>Extract functions/methods</li>
+<li>Rename variables consistently</li>
+<li><strong>Used by</strong>: Implementation and cleanup agents</li>
+<li><strong>File</strong>: <code>.claude/skills/tier-1/refactor-code/SKILL.md</code></li>
+</ul>
+<h4 id="testing-skills">Testing Skills</h4>
+<h4 id="run_tests">run_tests</h4>
+<ul>
+<li>Execute test suites</li>
+<li>Parse test output</li>
+<li>Report results</li>
+<li><strong>Used by</strong>: All test engineers</li>
+<li><strong>File</strong>: <code>.claude/skills/tier-1/run-tests/SKILL.md</code></li>
+</ul>
+<h4 id="calculate_coverage">calculate_coverage</h4>
+<ul>
+<li>Compute test coverage</li>
+<li>Identify uncovered code</li>
+<li>Generate coverage reports</li>
+<li><strong>Used by</strong>: Test specialists</li>
+<li><strong>File</strong>: <code>.claude/skills/tier-1/calculate-coverage/SKILL.md</code></li>
+</ul>
+<h4 id="generate_test_data">generate_test_data</h4>
+<ul>
+<li>Create test fixtures</li>
+<li>Generate mock data</li>
+<li>Build test databases</li>
+<li><strong>Used by</strong>: Test engineers</li>
+<li><strong>File</strong>: <code>.claude/skills/tier-1/generate-test-data/SKILL.md</code></li>
+</ul>
+<hr />
+<h3 id="tier-2-domain-skills">Tier 2: Domain Skills</h3>
+<p><strong>Used By</strong>: Specific agent types (ML, documentation, etc.)</p>
+<p>Skills specific to particular domains or specialized tasks.</p>
+<h4 id="paper-analysis-skills">Paper Analysis Skills</h4>
+<h4 id="extract_algorithm">extract_algorithm</h4>
+<ul>
+<li>Parse research papers for algorithms</li>
+<li>Extract pseudocode and steps</li>
+<li>Identify algorithm components</li>
+<li><strong>Used by</strong>: Paper Implementation Orchestrator, Architecture Design Agent</li>
+<li><strong>File</strong>: <code>.claude/skills/tier-2/extract-algorithm/SKILL.md</code></li>
+</ul>
+<h4 id="identify_architecture">identify_architecture</h4>
+<ul>
+<li>Extract neural network architectures from papers</li>
+<li>Parse layer definitions</li>
+<li>Identify model components</li>
+<li><strong>Used by</strong>: Paper Implementation agents</li>
+<li><strong>File</strong>: <code>.claude/skills/tier-2/identify-architecture/SKILL.md</code></li>
+</ul>
+<h4 id="extract_hyperparameters">extract_hyperparameters</h4>
+<ul>
+<li>Extract training hyperparameters from papers</li>
+<li>Identify learning rates, batch sizes, etc.</li>
+<li>Build hyperparameter configs</li>
+<li><strong>Used by</strong>: Paper Implementation agents</li>
+<li><strong>File</strong>: <code>.claude/skills/tier-2/extract-hyperparameters/SKILL.md</code></li>
+</ul>
+<h4 id="analyze_equations">analyze_equations</h4>
+<ul>
+<li>Parse mathematical equations</li>
+<li>Convert LaTeX to code</li>
+<li>Extract formulas</li>
+<li><strong>Used by</strong>: Implementation specialists</li>
+<li><strong>File</strong>: <code>.claude/skills/tier-2/analyze-equations/SKILL.md</code></li>
+</ul>
+<h4 id="ml-operations-skills">ML Operations Skills</h4>
+<h4 id="prepare_dataset">prepare_dataset</h4>
+<ul>
+<li>Data loading and preprocessing</li>
+<li>Data augmentation pipelines</li>
+<li>Dataset splitting</li>
+<li><strong>Used by</strong>: Paper Implementation engineers</li>
+<li><strong>File</strong>: <code>.claude/skills/tier-2/prepare-dataset/SKILL.md</code></li>
+</ul>
+<h4 id="train_model">train_model</h4>
+<ul>
+<li>Training loop templates</li>
+<li>Checkpoint management</li>
+<li>Training orchestration</li>
+<li><strong>Used by</strong>: Implementation engineers</li>
+<li><strong>File</strong>: <code>.claude/skills/tier-2/train-model/SKILL.md</code></li>
+</ul>
+<h4 id="evaluate_model">evaluate_model</h4>
+<ul>
+<li>Evaluation metrics calculation</li>
+<li>Results visualization</li>
+<li>Performance reporting</li>
+<li><strong>Used by</strong>: Implementation and performance engineers</li>
+<li><strong>File</strong>: <code>.claude/skills/tier-2/evaluate-model/SKILL.md</code></li>
+</ul>
+<h4 id="documentation-skills">Documentation Skills</h4>
+<h4 id="generate_docstrings">generate_docstrings</h4>
+<ul>
+<li>Create function/class docstrings</li>
+<li>Follow docstring conventions</li>
+<li>Extract information from code</li>
+<li><strong>Used by</strong>: Documentation writers</li>
+<li><strong>File</strong>: <code>.claude/skills/tier-2/generate-docstrings/SKILL.md</code></li>
+</ul>
+<h4 id="generate_api_docs">generate_api_docs</h4>
+<ul>
+<li>Create API reference documentation</li>
+<li>Build documentation from code</li>
+<li>Generate usage examples</li>
+<li><strong>Used by</strong>: Documentation specialists</li>
+<li><strong>File</strong>: <code>.claude/skills/tier-2/generate-api-docs/SKILL.md</code></li>
+</ul>
+<h4 id="generate_changelog">generate_changelog</h4>
+<ul>
+<li>Create changelog entries</li>
+<li>Categorize changes</li>
+<li>Format release notes</li>
+<li><strong>Used by</strong>: Documentation engineers</li>
+<li><strong>File</strong>: <code>.claude/skills/tier-2/generate-changelog/SKILL.md</code></li>
+</ul>
+<hr />
+<h3 id="tier-3-specialized-skills">Tier 3: Specialized Skills</h3>
+<p><strong>Used By</strong>: Few agents for narrow use cases</p>
+<p>Highly specialized skills for specific scenarios.</p>
+<h4 id="security-skills">Security Skills</h4>
+<h4 id="scan_vulnerabilities">scan_vulnerabilities</h4>
+<ul>
+<li>Run security scanners</li>
+<li>Parse scanner output</li>
+<li>Categorize vulnerabilities</li>
+<li><strong>Used by</strong>: Security specialists</li>
+<li><strong>File</strong>: <code>.claude/skills/tier-3/scan-vulnerabilities/SKILL.md</code></li>
+</ul>
+<h4 id="check_dependencies">check_dependencies</h4>
+<ul>
+<li>Check for vulnerable dependencies</li>
+<li>Scan package versions</li>
+<li>Suggest updates</li>
+<li><strong>Used by</strong>: Security engineers</li>
+<li><strong>File</strong>: <code>.claude/skills/tier-3/check-dependencies/SKILL.md</code></li>
+</ul>
+<h4 id="validate_inputs">validate_inputs</h4>
+<ul>
+<li>Check input sanitization</li>
+<li>Identify injection risks</li>
+<li>Verify validation logic</li>
+<li><strong>Used by</strong>: Security implementation specialists</li>
+<li><strong>File</strong>: <code>.claude/skills/tier-3/validate-inputs/SKILL.md</code></li>
+</ul>
+<h4 id="performance-skills">Performance Skills</h4>
+<h4 id="profile_code">profile_code</h4>
+<ul>
+<li>Run performance profilers</li>
+<li>Parse profiling output</li>
+<li>Identify hotspots</li>
+<li><strong>Used by</strong>: Performance engineers</li>
+<li><strong>File</strong>: <code>.claude/skills/tier-3/profile-code/SKILL.md</code></li>
+</ul>
+<h4 id="benchmark_functions">benchmark_functions</h4>
+<ul>
+<li>Execute benchmarks</li>
+<li>Compare performance</li>
+<li>Generate benchmark reports</li>
+<li><strong>Used by</strong>: Performance engineers</li>
+<li><strong>File</strong>: <code>.claude/skills/tier-3/benchmark-functions/SKILL.md</code></li>
+</ul>
+<h4 id="suggest_optimizations">suggest_optimizations</h4>
+<ul>
+<li>Analyze code for optimization opportunities</li>
+<li>Suggest algorithmic improvements</li>
+<li>Recommend data structure changes</li>
+<li><strong>Used by</strong>: Performance specialists</li>
+<li><strong>File</strong>: <code>.claude/skills/tier-3/suggest-optimizations/SKILL.md</code></li>
+</ul>
+<hr />
+<h2 id="skill-configuration-format">Skill Configuration Format</h2>
+<p>Skills follow Claude Code SKILL.md format:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>---
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>name: skill-name
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>description: Brief description of what this skill does and when to use it
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="gu">allowed-tools: Read,Write,Grep,Bash</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="gu">---</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="gh"># Skill Name</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="gu">## Purpose</span>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>[What this skill does]
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="gu">## When to Use</span>
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>
+<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>[Scenarios where this skill should be invoked]
+<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>
+<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a><span class="gu">## How It Works</span>
+<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>
+<a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>[Step-by-step process]
+<a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>
+<a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a><span class="gu">## Inputs</span>
+<a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>
+<a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a><span class="k">-</span><span class="w"> </span>Input 1: [description]
+<a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a><span class="k">-</span><span class="w"> </span>Input 2: [description]
+<a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a>
+<a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a><span class="gu">## Outputs</span>
+<a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a>
+<a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a><span class="k">-</span><span class="w"> </span>Output 1: [description]
+<a id="__codelineno-0-29" name="__codelineno-0-29" href="#__codelineno-0-29"></a><span class="k">-</span><span class="w"> </span>Output 2: [description]
+<a id="__codelineno-0-30" name="__codelineno-0-30" href="#__codelineno-0-30"></a>
+<a id="__codelineno-0-31" name="__codelineno-0-31" href="#__codelineno-0-31"></a><span class="gu">## Examples</span>
+<a id="__codelineno-0-32" name="__codelineno-0-32" href="#__codelineno-0-32"></a>
+<a id="__codelineno-0-33" name="__codelineno-0-33" href="#__codelineno-0-33"></a><span class="gu">### Example 1: [Scenario]</span>
+<a id="__codelineno-0-34" name="__codelineno-0-34" href="#__codelineno-0-34"></a>
+<a id="__codelineno-0-35" name="__codelineno-0-35" href="#__codelineno-0-35"></a><span class="gs">**Input**</span>:
+<a id="__codelineno-0-36" name="__codelineno-0-36" href="#__codelineno-0-36"></a>
+<a id="__codelineno-0-37" name="__codelineno-0-37" href="#__codelineno-0-37"></a>```text
+<a id="__codelineno-0-38" name="__codelineno-0-38" href="#__codelineno-0-38"></a>
+<a id="__codelineno-0-39" name="__codelineno-0-39" href="#__codelineno-0-39"></a>[example input]
+<a id="__codelineno-0-40" name="__codelineno-0-40" href="#__codelineno-0-40"></a>
+<a id="__codelineno-0-41" name="__codelineno-0-41" href="#__codelineno-0-41"></a>```text
+<a id="__codelineno-0-42" name="__codelineno-0-42" href="#__codelineno-0-42"></a><span class="gs">**Output**</span>:
+<a id="__codelineno-0-43" name="__codelineno-0-43" href="#__codelineno-0-43"></a>
+<a id="__codelineno-0-44" name="__codelineno-0-44" href="#__codelineno-0-44"></a>```text
+<a id="__codelineno-0-45" name="__codelineno-0-45" href="#__codelineno-0-45"></a>
+<a id="__codelineno-0-46" name="__codelineno-0-46" href="#__codelineno-0-46"></a>[example output]
+<a id="__codelineno-0-47" name="__codelineno-0-47" href="#__codelineno-0-47"></a>
+<a id="__codelineno-0-48" name="__codelineno-0-48" href="#__codelineno-0-48"></a>```text
+<a id="__codelineno-0-49" name="__codelineno-0-49" href="#__codelineno-0-49"></a><span class="gu">### Example 2: [Another Scenario]</span>
+<a id="__codelineno-0-50" name="__codelineno-0-50" href="#__codelineno-0-50"></a>
+<a id="__codelineno-0-51" name="__codelineno-0-51" href="#__codelineno-0-51"></a>[...]
+<a id="__codelineno-0-52" name="__codelineno-0-52" href="#__codelineno-0-52"></a>
+<a id="__codelineno-0-53" name="__codelineno-0-53" href="#__codelineno-0-53"></a><span class="gu">## Error Handling</span>
+<a id="__codelineno-0-54" name="__codelineno-0-54" href="#__codelineno-0-54"></a>
+<a id="__codelineno-0-55" name="__codelineno-0-55" href="#__codelineno-0-55"></a><span class="k">-</span><span class="w"> </span>Error 1: [how to handle]
+<a id="__codelineno-0-56" name="__codelineno-0-56" href="#__codelineno-0-56"></a><span class="k">-</span><span class="w"> </span>Error 2: [how to handle]
+<a id="__codelineno-0-57" name="__codelineno-0-57" href="#__codelineno-0-57"></a>
+<a id="__codelineno-0-58" name="__codelineno-0-58" href="#__codelineno-0-58"></a><span class="gu">## Dependencies</span>
+<a id="__codelineno-0-59" name="__codelineno-0-59" href="#__codelineno-0-59"></a>
+<a id="__codelineno-0-60" name="__codelineno-0-60" href="#__codelineno-0-60"></a><span class="k">-</span><span class="w"> </span>Tool 1
+<a id="__codelineno-0-61" name="__codelineno-0-61" href="#__codelineno-0-61"></a><span class="k">-</span><span class="w"> </span>Tool 2
+<a id="__codelineno-0-62" name="__codelineno-0-62" href="#__codelineno-0-62"></a>
+<a id="__codelineno-0-63" name="__codelineno-0-63" href="#__codelineno-0-63"></a><span class="gu">## Notes</span>
+<a id="__codelineno-0-64" name="__codelineno-0-64" href="#__codelineno-0-64"></a>
+<a id="__codelineno-0-65" name="__codelineno-0-65" href="#__codelineno-0-65"></a><span class="k">-</span><span class="w"> </span>Note 1
+<a id="__codelineno-0-66" name="__codelineno-0-66" href="#__codelineno-0-66"></a><span class="k">-</span><span class="w"> </span>Note 2
+</code></pre></div>
+<hr />
+<h2 id="skill-discovery-and-activation">Skill Discovery and Activation</h2>
+<h3 id="how-skills-are-discovered">How Skills Are Discovered</h3>
+<ol>
+<li>Claude scans <code>.claude/skills/</code> directory</li>
+<li>Reads SKILL.md frontmatter (name, description)</li>
+<li>Matches description against current task</li>
+<li>Automatically invokes when appropriate</li>
+</ol>
+<h3 id="activation-triggers">Activation Triggers</h3>
+<p>Skills activate when:</p>
+<ul>
+<li>Task description matches skill description</li>
+<li>Agent requests capability that skill provides</li>
+<li>Context matches skill's usage scenarios</li>
+</ul>
+<h3 id="example-activation">Example Activation</h3>
+<p><code>text
+User: "Generate test boilerplate for this function"
+→ Claude identifies: generate_tests skill matches
+→ Skill activates automatically
+→ Test scaffolding generated</code>text</p>
+<hr />
+<h2 id="skills-by-agent-type">Skills by Agent Type</h2>
+<h3 id="architecture-design-agent-uses">Architecture Design Agent Uses</h3>
+<ul>
+<li>Tier 1: analyze_code_structure, extract_dependencies</li>
+<li>Tier 2: extract_algorithm, identify_architecture</li>
+<li>Tier 3: None typically</li>
+</ul>
+<h3 id="implementation-engineers-use">Implementation Engineers Use</h3>
+<ul>
+<li>Tier 1: generate_boilerplate, refactor_code, run_tests</li>
+<li>Tier 2: prepare_dataset, train_model (for ML code)</li>
+<li>Tier 3: None typically</li>
+</ul>
+<h3 id="test-engineers-use">Test Engineers Use</h3>
+<ul>
+<li>Tier 1: generate_tests, run_tests, calculate_coverage</li>
+<li>Tier 2: generate_test_data</li>
+<li>Tier 3: None typically</li>
+</ul>
+<h3 id="documentation-writers-use">Documentation Writers Use</h3>
+<ul>
+<li>Tier 1: None typically</li>
+<li>Tier 2: generate_docstrings, generate_api_docs, generate_changelog</li>
+<li>Tier 3: None typically</li>
+</ul>
+<h3 id="security-specialists-use">Security Specialists Use</h3>
+<ul>
+<li>Tier 1: detect_code_smells</li>
+<li>Tier 2: None typically</li>
+<li>Tier 3: scan_vulnerabilities, check_dependencies, validate_inputs</li>
+</ul>
+<h3 id="performance-engineers-use">Performance Engineers Use</h3>
+<ul>
+<li>Tier 1: calculate_complexity</li>
+<li>Tier 2: evaluate_model</li>
+<li>Tier 3: profile_code, benchmark_functions, suggest_optimizations</li>
+</ul>
+<hr />
+<h2 id="implementation-priority">Implementation Priority</h2>
+<h3 id="phase-1-essential-tier-1-skills-issues-68-73">Phase 1: Essential Tier 1 Skills (Issues 68-73)</h3>
+<ol>
+<li>generate_boilerplate</li>
+<li>run_tests</li>
+<li>analyze_code_structure</li>
+</ol>
+<h3 id="phase-2-core-tier-2-skills">Phase 2: Core Tier 2 Skills</h3>
+<ol>
+<li>extract_algorithm</li>
+<li>generate_docstrings</li>
+<li>prepare_dataset</li>
+</ol>
+<h3 id="phase-3-specialized-skills">Phase 3: Specialized Skills</h3>
+<ol>
+<li>As needed based on usage</li>
+<li>Add when specific use cases emerge</li>
+</ol>
+<hr />
+<h2 id="testing-skills_1">Testing Skills</h2>
+<p>Each skill should have:</p>
+<ol>
+<li><strong>Validation tests</strong>: Verify skill loads correctly</li>
+<li><strong>Functionality tests</strong>: Test skill operations</li>
+<li><strong>Integration tests</strong>: Test skill usage by agents</li>
+<li><strong>Example tests</strong>: Verify examples in SKILL.md work</li>
+</ol>
+<hr />
+<h2 id="skills-vs-sub-agents-examples">Skills vs Sub-Agents Examples</h2>
+<h3 id="use-skill-generate_boilerplate">Use Skill: generate_boilerplate</h3>
+<p><strong>Why</strong>: Algorithmic, template-based, no decisions required
+<strong>Process</strong>: Apply template → Fill in names → Return code</p>
+<h3 id="use-sub-agent-architecture-design-agent">Use Sub-Agent: Architecture Design Agent</h3>
+<p><strong>Why</strong>: Requires judgment, trade-offs, understanding context
+<strong>Process</strong>: Analyze requirements → Consider alternatives → Make decisions → Document rationale</p>
+<h3 id="use-skill-run_tests">Use Skill: run_tests</h3>
+<p><strong>Why</strong>: Execute commands, parse output, report results
+<strong>Process</strong>: Run pytest → Parse output → Format results</p>
+<h3 id="use-sub-agent-test-design-specialist">Use Sub-Agent: Test Design Specialist</h3>
+<p><strong>Why</strong>: Decide what to test, how to test, coverage goals
+<strong>Process</strong>: Analyze code → Identify test cases → Design fixtures → Plan coverage</p>
+<hr />
+<h2 id="best-practices">Best Practices</h2>
+<ol>
+<li><strong>Keep Skills Focused</strong>: One clear capability per skill</li>
+<li><strong>Clear Descriptions</strong>: Make it obvious when to use the skill</li>
+<li><strong>Complete Examples</strong>: Show realistic usage scenarios</li>
+<li><strong>Error Handling</strong>: Document how to handle failures</li>
+<li><strong>Tool Restrictions</strong>: Only request necessary tools</li>
+<li><strong>Tier Appropriately</strong>: Place in correct tier based on usage breadth</li>
+</ol>
+<hr />
+<h2 id="references">References</h2>
+<ul>
+<li>Claude Code Skills Documentation: <a href="https://code.claude.com/docs/en/skills">https://code.claude.com/docs/en/skills</a></li>
+<li><a href="https://github.com/HomericIntelligence/Odyssey/blob/main/agents/hierarchy.md">Agent Hierarchy</a></li>
+<li><a href="../orchestration-patterns/">Orchestration Patterns</a></li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "search.suggest", "search.highlight", "content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>

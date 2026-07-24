@@ -1,0 +1,1584 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Mojo-based AI research platform for reproducing classic research papers">
+      
+      
+      
+        <link rel="canonical" href="https://github.com/HomericIntelligence/Odyssey/integration/integration-guide/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Integration Guide - Week 1-6 Implementation - ML Odyssey</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#integration-guide-week-1-6-implementation" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="ML Odyssey" class="md-header__button md-logo" aria-label="ML Odyssey" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            ML Odyssey
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Integration Guide - Week 1-6 Implementation
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/HomericIntelligence/Odyssey" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    HomericIntelligence/Odyssey
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../glossary/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Glossary
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../dev/release-process/" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../supporting-directories/" class="md-tabs__link">
+          
+  
+  
+  Integration
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="ML Odyssey" class="md-nav__button md-logo" aria-label="ML Odyssey" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    ML Odyssey
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/HomericIntelligence/Odyssey" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    HomericIntelligence/Odyssey
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../glossary/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Glossary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/quickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quickstart
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/first_model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    First Model
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/repository-structure/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Repository Structure
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../dev/release-process/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Release Process
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Integration
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Integration
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../supporting-directories/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Supporting Directories
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../papers-shared-integration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Papers & Shared Integration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../quick-start-new-paper/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start New Paper
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#week-1-testing-phase-complete" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ✅ Week 1: Testing Phase (COMPLETE)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="✅ Week 1: Testing Phase (COMPLETE)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#files-created" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Files Created
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#running-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Running Tests
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="integration-guide-week-1-6-implementation">Integration Guide - Week 1-6 Implementation</h1>
+<p><strong>Status:</strong> Week 1 Testing Phase Complete ✅
+<strong>Next:</strong> Week 2-4 Integration &amp; Week 5-6 Full Rollout</p>
+<p>This guide provides step-by-step instructions for integrating the new SIMD optimizations, TypedTensor, FixedTensor
+gradient checking, and trait system into the ML Odyssey codebase.</p>
+<hr />
+<h2 id="week-1-testing-phase-complete">✅ Week 1: Testing Phase (COMPLETE)</h2>
+<p>All testing infrastructure has been implemented and is ready to use.</p>
+<h3 id="files-created">Files Created</h3>
+<ol>
+<li><strong><code>benchmarks/bench_simd.mojo</code></strong> - SIMD performance benchmarks</li>
+<li><strong><code>tests/odyssey/core/test_gradient_checking.mojo</code></strong> - Gradient validation tests</li>
+<li><strong><code>examples/typed_tensor_demo.mojo</code></strong> - TypedTensor demonstration</li>
+<li><strong><code>.github/workflows/test-gradients.yml</code></strong> - CI integration</li>
+</ol>
+<h3 id="running-tests">Running Tests</h3>
+<p>```bash</p>
+<h1 id="1-benchmark-simd-operations">1. Benchmark SIMD operations</h1>
+<p>mojo run benchmarks/bench_simd.mojo</p>
+<h1 id="expected-output">Expected output:</h1>
+<h1 id="-correctness-verification-1e-6-difference-from-scalar">- Correctness verification (&lt; 1e-6 difference from scalar)</h1>
+<h1 id="-performance-comparison-table">- Performance comparison table</h1>
+<h1 id="-float32-3-5x-speedup">- float32: 3-5x speedup</h1>
+<h1 id="-float64-2-3x-speedup">- float64: 2-3x speedup</h1>
+<h1 id="2-run-gradient-checking-on-all-backward-passes">2. Run gradient checking on all backward passes</h1>
+<p>mojo test tests/odyssey/core/test_gradient_checking.mojo</p>
+<h1 id="expected-output_1">Expected output:</h1>
+<h1 id="-all-activation-functions-relu-sigmoid-tanh">- All activation functions (ReLU, Sigmoid, Tanh) ✓</h1>
+<h1 id="-all-arithmetic-operations-add-multiply">- All arithmetic operations (Add, Multiply) ✓</h1>
+<h1 id="-composite-operations">- Composite operations ✓</h1>
+<h1 id="-edge-cases">- Edge cases ✓</h1>
+<h1 id="3-verify-typedtensor-type-safety-and-performance">3. Verify TypedTensor type safety and performance</h1>
+<p>mojo run examples/typed_tensor_demo.mojo</p>
+<h1 id="expected-output_2">Expected output:</h1>
+<h1 id="-basic-usage-examples">- Basic usage examples</h1>
+<h1 id="-type-safety-demonstration">- Type safety demonstration</h1>
+<h1 id="-performance-comparison-10-30-improvement">- Performance comparison (10-30% improvement)</h1>
+<h1 id="-use-case-recommendations">- Use case recommendations</h1>
+<p>```text</p>
+<h3 id="ci-integration">CI Integration</h3>
+<p>The gradient checking tests now run automatically on:</p>
+<ul>
+<li>All PRs modifying backward passes</li>
+<li>Pushes to main branch</li>
+<li>Changes to activation or arithmetic files</li>
+</ul>
+<p>Check status: <code>.github/workflows/test-gradients.yml</code></p>
+<hr />
+<h2 id="week-2-4-integration-phase">📋 Week 2-4: Integration Phase</h2>
+<h3 id="phase-21-replace-hot-path-operations-with-simd">Phase 2.1: Replace Hot-Path Operations with SIMD</h3>
+<p><strong>Target Files:</strong></p>
+<ul>
+<li><code>src/odyssey/training/loops/training_loop.mojo</code></li>
+<li><code>src/odyssey/training/optimizers/*.mojo</code></li>
+<li>Forward passes in model implementations</li>
+</ul>
+<p><strong>Example Integration:</strong></p>
+<h4 id="before-scalar">Before (Scalar)</h4>
+<p>```mojo
+from odyssey.core.arithmetic import add, multiply</p>
+<p>fn update_weights(params: AnyTensor, gradients: AnyTensor, lr: Float64) -&gt; AnyTensor:
+    var lr_tensor = full_like(params, lr)
+    var update = multiply(lr_tensor, gradients)
+    return subtract(params, update)
+```text</p>
+<h4 id="after-simd">After (SIMD)</h4>
+<p>```mojo
+from odyssey.core.arithmetic_simd import add_simd, multiply_simd, subtract_simd</p>
+<p>fn update_weights(params: AnyTensor, gradients: AnyTensor, lr: Float64) -&gt; AnyTensor:
+    # SIMD automatically used for same-shape tensors, falls back for broadcasting
+    var lr_tensor = full_like(params, lr)
+    var update = multiply_simd(lr_tensor, gradients)  # 4x faster!
+    return subtract_simd(params, update)
+```text</p>
+<p><strong>Migration Checklist:</strong></p>
+<ul>
+<li>[ ] Identify hot paths using profiler</li>
+<li>[ ] Replace <code>add</code> with <code>add_simd</code> in training loops</li>
+<li>[ ] Replace <code>multiply</code> with <code>multiply_simd</code> in optimizers</li>
+<li>[ ] Replace <code>subtract</code> with <code>subtract_simd</code> in update steps</li>
+<li>[ ] Verify correctness (run existing tests)</li>
+<li>[ ] Benchmark performance improvements</li>
+<li>[ ] Document speedups in commit messages</li>
+</ul>
+<p><strong>Profiling Command:</strong></p>
+<p><code>bash
+mojo run -D ENABLE_PROFILING examples/resnet18_cifar10/train.mojo</code>text</p>
+<h3 id="phase-22-convert-model-weights-to-typedtensor">Phase 2.2: Convert Model Weights to TypedTensor</h3>
+<p><strong>Target Files:</strong></p>
+<ul>
+<li><code>examples/resnet18_cifar10/model.mojo</code></li>
+<li><code>examples/lenet_emnist/model.mojo</code></li>
+<li>Other model implementations</li>
+</ul>
+<p><strong>Example Conversion:</strong></p>
+<h4 id="before-anytensor">Before (AnyTensor)</h4>
+<p>```mojo
+struct ResNet18:
+    var conv1_kernel: AnyTensor
+    var conv1_bias: AnyTensor
+    var fc_weights: AnyTensor
+    var fc_bias: AnyTensor</p>
+<div class="highlight"><pre><span></span><code>fn __init__(inout self):
+    self.conv1_kernel = he_uniform([64, 3, 3, 3], DType.float32)
+    self.conv1_bias = zeros([64], DType.float32)
+    self.fc_weights = he_uniform([10, 512], DType.float32)
+    self.fc_bias = zeros([10], DType.float32)
+</code></pre></div>
+<p>```text</p>
+<h4 id="after-typedtensor">After (TypedTensor)</h4>
+<p>```mojo
+from odyssey.core.typed_tensor import TypedTensor, zeros as typed_zeros</p>
+<p>struct ResNet18:
+    # Compile-time float32 specialization
+    var conv1_kernel: TypedTensor[DType.float32]
+    var conv1_bias: TypedTensor[DType.float32]
+    var fc_weights: TypedTensor[DType.float32]
+    var fc_bias: TypedTensor[DType.float32]</p>
+<div class="highlight"><pre><span></span><code>fn __init__(inout self):
+    # 10-30% faster initialization
+    self.conv1_kernel = he_uniform_typed[DType.float32]([64, 3, 3, 3])
+    self.conv1_bias = typed_zeros[DType.float32]([64])
+    self.fc_weights = he_uniform_typed[DType.float32]([10, 512])
+    self.fc_bias = typed_zeros[DType.float32]([10])
+</code></pre></div>
+<p>```text</p>
+<p><strong>Migration Steps:</strong></p>
+<ol>
+<li><strong>Add TypedTensor imports:</strong></li>
+</ol>
+<p><code>mojo
+   from odyssey.core.typed_tensor import TypedTensor, zeros, ones</code>text</p>
+<ol>
+<li><strong>Update field declarations:</strong></li>
+</ol>
+<p><code>mojo
+   var weights: TypedTensor[DType.float32]  # Instead of AnyTensor</code>text</p>
+<ol>
+<li><strong>Update initialization:</strong></li>
+</ol>
+<p><code>mojo
+   self.weights = zeros[DType.float32](shape)  # Instead of zeros(shape, DType.float32)</code>text</p>
+<ol>
+<li><strong>Update operations:</strong></li>
+</ol>
+<p><code>mojo
+   from odyssey.core.typed_tensor import add, multiply
+   var output = add(weights, bias)  # Compile-time specialized</code>text</p>
+<ol>
+<li><strong>Benchmark before/after:</strong></li>
+</ol>
+<p>```bash
+   # Before conversion
+   mojo run examples/resnet18_cifar10/train.mojo --benchmark</p>
+<p># After conversion
+   mojo run examples/resnet18_cifar10/train.mojo --benchmark</p>
+<p># Compare epoch times
+   ```text</p>
+<p><strong>Expected Benefits:</strong></p>
+<ul>
+<li>10-30% faster weight updates</li>
+<li>Compile-time dtype verification</li>
+<li>Smaller binary size (no type erasure)</li>
+</ul>
+<h3 id="phase-23-use-fixedtensor-for-convolution-kernels">Phase 2.3: Use FixedTensor for Convolution Kernels</h3>
+<p><strong>Target:</strong> Conv2d layers with common kernel sizes (3x3, 5x5)</p>
+<p><strong>Example:</strong></p>
+<h4 id="before-dynamic">Before (Dynamic)</h4>
+<p><code>mojo
+fn conv2d_3x3(input: AnyTensor, kernel: AnyTensor) -&gt; AnyTensor:
+    # Runtime kernel size checks
+    if kernel.shape()[2] != 3 or kernel.shape()[3] != 3:
+        raise Error("Expected 3x3 kernel")
+    # ... implementation</code>text</p>
+<h4 id="after-fixed">After (Fixed)</h4>
+<p>```mojo
+from odyssey.core.fixed_tensor import FixedTensor, Kernel3x3_f32</p>
+<p>fn conv2d_3x3_fixed(
+    input: AnyTensor,
+    kernel: Kernel3x3_f32  # Compile-time 3x3 guarantee
+) -&gt; AnyTensor:
+    # No runtime checks needed!
+    # Compiler can unroll all loops
+    # 30-50% faster for small kernels
+    # ... implementation
+```text</p>
+<p><strong>Use Cases:</strong></p>
+<ol>
+<li><strong>Edge Detection Kernels:</strong></li>
+</ol>
+<p><code>mojo
+   comptime SobelX = FixedTensor[3, 3, DType.float32]
+   var sobel_x = SobelX()
+   sobel_x[0, 0] = -1.0; sobel_x[0, 2] = 1.0
+   sobel_x[1, 0] = -2.0; sobel_x[1, 2] = 2.0
+   sobel_x[2, 0] = -1.0; sobel_x[2, 2] = 1.0</code>text</p>
+<ol>
+<li><strong>BatchNorm Parameters:</strong></li>
+</ol>
+<p><code>mojo
+   comptime BatchNormParams = FixedTensor[1, 256, DType.float32]
+   var gamma = BatchNormParams(1.0)  # All ones
+   var beta = BatchNormParams(0.0)   # All zeros</code>text</p>
+<ol>
+<li><strong>Small Weight Matrices:</strong></li>
+</ol>
+<p><code>mojo
+   comptime EmbeddingWeights = FixedTensor[512, 128, DType.float32]
+   var embeddings = EmbeddingWeights()</code>text</p>
+<h3 id="phase-24-add-gradient-checking-to-ci">Phase 2.4: Add Gradient Checking to CI</h3>
+<p><strong>Already Implemented!</strong> ✅</p>
+<p>The CI workflow (<code>.github/workflows/test-gradients.yml</code>) automatically:</p>
+<ul>
+<li>Runs gradient checking on all PRs</li>
+<li>Verifies backward passes are correct</li>
+<li>Reports coverage statistics</li>
+<li>Benchmarks SIMD performance</li>
+</ul>
+<p><strong>Trigger Conditions:</strong></p>
+<ul>
+<li>Changes to <code>*_backward.mojo</code> files</li>
+<li>Changes to activation or arithmetic files</li>
+<li>Changes to training infrastructure</li>
+</ul>
+<p><strong>Monitoring:</strong></p>
+<ul>
+<li>Check Actions tab in GitHub</li>
+<li>Review gradient test results</li>
+<li>Monitor coverage reports</li>
+</ul>
+<hr />
+<h2 id="week-5-6-full-rollout-phase">🚀 Week 5-6: Full Rollout Phase</h2>
+<h3 id="phase-31-refactor-layers-using-traits">Phase 3.1: Refactor Layers Using Traits</h3>
+<p><strong>Example: Linear Layer with Traits</strong></p>
+<p>```mojo
+from odyssey.core.traits import Differentiable, Parameterized, Serializable</p>
+<p>struct LinearLayer(Differentiable, Parameterized, Serializable):
+    """Linear layer implementing all core traits."""</p>
+<div class="highlight"><pre><span></span><code>var weights: TypedTensor[DType.float32]
+var bias: TypedTensor[DType.float32]
+var last_input: AnyTensor  # Cached for backward
+
+fn __init__(inout self, in_features: Int, out_features: Int):
+    &quot;&quot;&quot;Initialize with He initialization.&quot;&quot;&quot;
+    self.weights = he_uniform_typed[DType.float32]([out_features, in_features])
+    self.bias = zeros[DType.float32]([out_features])
+    self.last_input = AnyTensor([0], DType.float32)  # Placeholder
+
+# Differentiable trait
+fn forward(inout self, input: AnyTensor) raises -&gt; AnyTensor:
+    &quot;&quot;&quot;Forward pass: y = xW^T + b.&quot;&quot;&quot;
+    self.last_input = input.copy()  # Cache for backward
+    var output = matmul(input, self.weights.transpose())
+    return add_simd(output, self.bias)
+
+fn backward(self, grad_output: AnyTensor) raises -&gt; AnyTensor:
+    &quot;&quot;&quot;Backward pass using cached input.&quot;&quot;&quot;
+    # grad_input = grad_output @ W
+    var grad_input = matmul(grad_output, self.weights)
+    return grad_input
+
+# Parameterized trait
+fn parameters(self) raises -&gt; List[AnyTensor]:
+    &quot;&quot;&quot;Return learnable parameters.&quot;&quot;&quot;
+    # Convert TypedTensor to AnyTensor for compatibility
+    return [self.weights.to_extensor(), self.bias.to_extensor()]
+
+fn gradients(self) raises -&gt; List[AnyTensor]:
+    &quot;&quot;&quot;Return parameter gradients.&quot;&quot;&quot;
+    # Compute gradients from cached values
+    var grad_weights = matmul(self.last_input.transpose(), grad_output)
+    var grad_bias = sum(grad_output, axis=0)
+    return [grad_weights, grad_bias]
+
+fn zero_grad(inout self) raises:
+    &quot;&quot;&quot;Reset gradients.&quot;&quot;&quot;
+    # Handled by optimizer in functional style
+
+# Serializable trait
+fn save(self, path: String) raises:
+    &quot;&quot;&quot;Save weights to file.&quot;&quot;&quot;
+    write_tensor(path + &quot;/weights.bin&quot;, self.weights)
+    write_tensor(path + &quot;/bias.bin&quot;, self.bias)
+
+fn load(inout self, path: String) raises:
+    &quot;&quot;&quot;Load weights from file.&quot;&quot;&quot;
+    self.weights = read_tensor_typed[DType.float32](path + &quot;/weights.bin&quot;)
+    self.bias = read_tensor_typed[DType.float32](path + &quot;/bias.bin&quot;)
+</code></pre></div>
+<p>```text</p>
+<p><strong>Benefits:</strong></p>
+<ul>
+<li>Clear interface contracts</li>
+<li>Zero runtime overhead (static dispatch)</li>
+<li>Composable (can chain layers)</li>
+<li>Testable (mock implementations)</li>
+</ul>
+<h3 id="phase-32-measure-performance-improvements">Phase 3.2: Measure Performance Improvements</h3>
+<p><strong>Benchmark Script:</strong></p>
+<p>```mojo
+"""Compare performance before/after optimizations.</p>
+<p>Measures:
+- SIMD speedup for arithmetic operations
+- TypedTensor speedup for parameter updates
+- FixedTensor speedup for small convolutions
+- Overall training epoch time
+"""</p>
+<p>fn benchmark_training_epoch():
+    """Benchmark full training epoch."""
+    print("Benchmarking training epoch...")</p>
+<div class="highlight"><pre><span></span><code># Before optimizations
+var model_old = ResNet18_Old()  # Using AnyTensor
+var time_old = measure_epoch(model_old)
+
+# After optimizations
+var model_new = ResNet18_New()  # Using TypedTensor + SIMD
+var time_new = measure_epoch(model_new)
+
+var speedup = time_old / time_new
+
+print(f&quot;Old implementation: {time_old:.2f}s/epoch&quot;)
+print(f&quot;New implementation: {time_new:.2f}s/epoch&quot;)
+print(f&quot;Speedup: {speedup:.2f}x ({(speedup - 1) * 100:.1f}% faster)&quot;)
+
+# Expected: 30-50% speedup (1.3-1.5x)
+</code></pre></div>
+<p>```text</p>
+<p><strong>Performance Tracking:</strong></p>
+<p>Create <code>PERFORMANCE_LOG.md</code>:</p>
+<p>```markdown</p>
+<h1 id="performance-improvements-log">Performance Improvements Log</h1>
+<h2 id="baseline-before-optimizations">Baseline (Before Optimizations)</h2>
+<ul>
+<li>ResNet-18 training: 60s/epoch</li>
+<li>LeNet training: 10s/epoch</li>
+</ul>
+<h2 id="after-simd-integration-week-2">After SIMD Integration (Week 2)</h2>
+<ul>
+<li>ResNet-18 training: 45s/epoch (25% improvement)</li>
+<li>LeNet training: 8s/epoch (20% improvement)</li>
+</ul>
+<h2 id="after-typedtensor-conversion-week-3">After TypedTensor Conversion (Week 3)</h2>
+<ul>
+<li>ResNet-18 training: 42s/epoch (30% improvement)</li>
+<li>LeNet training: 7.5s/epoch (25% improvement)</li>
+</ul>
+<h2 id="after-fixedtensor-for-kernels-week-4">After FixedTensor for Kernels (Week 4)</h2>
+<ul>
+<li>ResNet-18 training: 38s/epoch (37% improvement)</li>
+<li>LeNet training: 7s/epoch (30% improvement)</li>
+</ul>
+<h2 id="final-week-6">Final (Week 6)</h2>
+<ul>
+<li>ResNet-18 training: 35s/epoch (42% improvement) ✓</li>
+<li>LeNet training: 6.5s/epoch (35% improvement) ✓</li>
+</ul>
+<p><strong>Target: 30-50% overall improvement ✅ ACHIEVED</strong>
+```text</p>
+<h3 id="phase-33-document-lessons-learned">Phase 3.3: Document Lessons Learned</h3>
+<p><strong>Create <code>LESSONS_LEARNED.md</code>:</strong></p>
+<p>```markdown</p>
+<h1 id="lessons-learned-simd-parametric-types-integration">Lessons Learned - SIMD &amp; Parametric Types Integration</h1>
+<h2 id="what-worked-well">What Worked Well ✅</h2>
+<ol>
+<li><strong>SIMD Integration:</strong></li>
+<li>Automatic fallback to scalar worked seamlessly</li>
+<li>Performance gains matched expectations (4x for float32)</li>
+<li>
+<p>No changes needed to existing tests</p>
+</li>
+<li>
+<p><strong>TypedTensor:</strong></p>
+</li>
+<li>Compile-time type safety caught 3 dtype bugs before runtime</li>
+<li>Performance improvement consistent across models</li>
+<li>
+<p>Migration was straightforward</p>
+</li>
+<li>
+<p><strong>Gradient Checking:</strong></p>
+</li>
+<li>Found 2 subtle bugs in backward passes</li>
+<li>CI integration caught regression early</li>
+<li>
+<p>Increased confidence in correctness</p>
+</li>
+<li>
+<p><strong>FixedTensor:</strong></p>
+</li>
+<li>Massive speedup for 3x3 kernels (40% faster)</li>
+<li>Stack allocation reduced memory pressure</li>
+<li>Compile-time bounds checking helpful</li>
+</ol>
+<h2 id="challenges-solutions">Challenges &amp; Solutions ⚠️</h2>
+<ol>
+<li>
+<p><strong>Challenge:</strong> SIMD not beneficial for small tensors
+   <strong>Solution:</strong> Added size threshold (&lt; 256 elements → scalar)</p>
+</li>
+<li>
+<p><strong>Challenge:</strong> TypedTensor conversion broke some APIs
+   <strong>Solution:</strong> Added .to_extensor() conversion helper</p>
+</li>
+<li>
+<p><strong>Challenge:</strong> FixedTensor limited to small sizes (stack overflow)
+   <strong>Solution:</strong> Documented size limits, use for kernels only</p>
+</li>
+<li>
+<p><strong>Challenge:</strong> Gradient checking slow for large tensors
+   <strong>Solution:</strong> Use small test tensors (3x4), full tests in CI only</p>
+</li>
+</ol>
+<h2 id="best-practices">Best Practices 📋</h2>
+<ol>
+<li><strong>Always benchmark before/after</strong></li>
+<li>Use consistent test conditions</li>
+<li>Measure multiple runs (variance)</li>
+<li>
+<p>Document in commit messages</p>
+</li>
+<li>
+<p><strong>Test correctness first</strong></p>
+</li>
+<li>Run gradient checking</li>
+<li>Compare SIMD vs scalar (&lt; 1e-6 diff)</li>
+<li>
+<p>Verify type safety at compile time</p>
+</li>
+<li>
+<p><strong>Incremental migration</strong></p>
+</li>
+<li>One module at a time</li>
+<li>Keep old code temporarily for comparison</li>
+<li>
+<p>A/B test in production</p>
+</li>
+<li>
+<p><strong>Document trade-offs</strong></p>
+</li>
+<li>TypedTensor: performance vs flexibility</li>
+<li>FixedTensor: speed vs size limits</li>
+<li>SIMD: speedup vs code complexity</li>
+</ol>
+<h2 id="recommendations-for-future-work">Recommendations for Future Work 🔮</h2>
+<ol>
+<li><strong>GPU Acceleration</strong> (next priority)</li>
+<li>Similar pattern to SIMD (automatic fallback)</li>
+<li>10-100x potential for large tensors</li>
+<li>
+<p>Start with matmul, conv2d</p>
+</li>
+<li>
+<p><strong>Complete Array API</strong></p>
+</li>
+<li>Implement remaining operations (reshape, slice)</li>
+<li>Better NumPy compatibility</li>
+<li>
+<p>Easier Python interop</p>
+</li>
+<li>
+<p><strong>Expand Parametric Types</strong></p>
+</li>
+<li>More FixedTensor sizes (5x5, 7x7)</li>
+<li>FixedTensor3D for video data</li>
+<li>
+<p>StaticBatchSize for inference</p>
+</li>
+<li>
+<p><strong>Advanced SIMD</strong></p>
+</li>
+<li>Fused operations (add+multiply → FMA)</li>
+<li>Reduction operations (sum, mean with SIMD)</li>
+<li>Matrix operations (SIMD matmul)</li>
+</ol>
+<h2 id="metrics">Metrics 📊</h2>
+<p><strong>Development Time:</strong>
+- Week 1 (Testing): 3 days
+- Week 2-4 (Integration): 10 days
+- Week 5-6 (Rollout): 7 days
+- <strong>Total: 20 days</strong> (4 engineering weeks)</p>
+<p><strong>Code Changes:</strong>
+- New files: 7 (1,860 lines)
+- Modified files: 12 (~500 lines changed)
+- Tests added: 10 (comprehensive coverage)</p>
+<p><strong>Performance:</strong>
+- Training speedup: 30-50% ✅
+- Memory reduction: 10-15% (FixedTensor stack allocation)
+- Binary size: 5% smaller (TypedTensor, no type erasure)</p>
+<p><strong>Quality:</strong>
+- Bugs found by gradient checking: 2
+- Dtype mismatches caught at compile time: 3
+- CI test coverage: 95%+</p>
+<h2 id="conclusion">Conclusion</h2>
+<p>The integration was successful! All goals achieved:
+✅ 30-50% performance improvement
+✅ Better type safety (compile-time checking)
+✅ Comprehensive testing (gradient validation)
+✅ CI integration (automated quality checks)</p>
+<p>The parametric types and SIMD optimizations are production-ready
+and provide significant value with minimal risk.
+```text</p>
+<hr />
+<h2 id="success-metrics">📊 Success Metrics</h2>
+<h3 id="performance-targets">Performance Targets</h3>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Before</th>
+<th>Target</th>
+<th>Achieved</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ResNet-18 epoch</td>
+<td>60s</td>
+<td>40-45s</td>
+<td>TBD</td>
+<td>🔄</td>
+</tr>
+<tr>
+<td>SIMD add (float32)</td>
+<td>10ms</td>
+<td>2-3ms</td>
+<td>TBD</td>
+<td>🔄</td>
+</tr>
+<tr>
+<td>TypedTensor ops</td>
+<td>100ms</td>
+<td>70-80ms</td>
+<td>TBD</td>
+<td>🔄</td>
+</tr>
+<tr>
+<td>FixedTensor 3x3</td>
+<td>50ms</td>
+<td>25-35ms</td>
+<td>TBD</td>
+<td>🔄</td>
+</tr>
+</tbody>
+</table>
+<h3 id="quality-targets">Quality Targets</h3>
+<ul>
+<li>[x] Gradient checking for all backward passes</li>
+<li>[x] SIMD correctness verified (&lt; 1e-6 diff)</li>
+<li>[x] TypedTensor type safety at compile time</li>
+<li>[x] CI integration automated</li>
+<li>[ ] 95%+ test coverage</li>
+<li>[ ] Zero regressions in existing tests</li>
+</ul>
+<h3 id="code-quality">Code Quality</h3>
+<ul>
+<li>[x] All new code documented</li>
+<li>[x] Examples provided</li>
+<li>[x] Benchmarks included</li>
+<li>[ ] Performance tracking in place</li>
+<li>[ ] Lessons learned documented</li>
+</ul>
+<hr />
+<h2 id="next-actions">🎯 Next Actions</h2>
+<h3 id="immediate-this-week">Immediate (This Week)</h3>
+<ol>
+<li><strong>Run all tests:</strong></li>
+</ol>
+<p><code>bash
+   # Verify everything works
+   mojo run benchmarks/bench_simd.mojo
+   mojo test tests/odyssey/core/test_gradient_checking.mojo
+   mojo run examples/typed_tensor_demo.mojo</code>text</p>
+<ol>
+<li><strong>Review CI status:</strong></li>
+<li>Check <code>.github/workflows/test-gradients.yml</code> runs</li>
+<li>Verify gradient tests pass</li>
+<li>Review coverage reports</li>
+</ol>
+<h3 id="short-term-week-2">Short-term (Week 2)</h3>
+<ol>
+<li><strong>Start SIMD integration:</strong></li>
+<li>Profile hot paths</li>
+<li>Replace arithmetic in training loop</li>
+<li>
+<p>Benchmark improvements</p>
+</li>
+<li>
+<p><strong>Begin TypedTensor conversion:</strong></p>
+</li>
+<li>Start with simple model (LeNet)</li>
+<li>Measure before/after</li>
+<li>Document process</li>
+</ol>
+<h3 id="medium-term-week-3-4">Medium-term (Week 3-4)</h3>
+<ol>
+<li><strong>Expand integration:</strong></li>
+<li>Add FixedTensor to kernels</li>
+<li>Refactor layers with traits</li>
+<li>
+<p>Comprehensive benchmarking</p>
+</li>
+<li>
+<p><strong>Documentation:</strong></p>
+</li>
+<li>Performance tracking log</li>
+<li>Lessons learned document</li>
+<li>Migration guide updates</li>
+</ol>
+<hr />
+<h2 id="references">📚 References</h2>
+<ul>
+<li><strong>MOJO_CODEBASE_REVIEW.md</strong> - Original review and recommendations</li>
+<li><strong>MOJO_FIXES_IMPLEMENTED.md</strong> - Implementation details</li>
+<li><strong>Mojo Manual</strong> - <a href="https://docs.modular.com/mojo/manual/">https://docs.modular.com/mojo/manual/</a></li>
+<li><strong>Array API Standard</strong> - <a href="https://data-apis.org/array-api/latest/">https://data-apis.org/array-api/latest/</a></li>
+<li><strong>CS231n Gradient Checking</strong> - <a href="http://cs231n.github.io/neural-networks-3/#gradcheck">http://cs231n.github.io/neural-networks-3/#gradcheck</a></li>
+</ul>
+<hr />
+<p><strong>Last Updated:</strong> 2025-11-22
+<strong>Status:</strong> Week 1 Complete, Ready for Week 2-4 Integration</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "search.suggest", "search.highlight", "content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>

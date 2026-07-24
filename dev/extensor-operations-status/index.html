@@ -1,0 +1,1565 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Mojo-based AI research platform for reproducing classic research papers">
+      
+      
+      
+        <link rel="canonical" href="https://github.com/HomericIntelligence/Odyssey/dev/extensor-operations-status/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>ExTensor Operations Implementation Status - ML Odyssey</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#extensor-operations-implementation-status" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="ML Odyssey" class="md-header__button md-logo" aria-label="ML Odyssey" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            ML Odyssey
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              ExTensor Operations Implementation Status
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/HomericIntelligence/Odyssey" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    HomericIntelligence/Odyssey
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../glossary/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Glossary
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../release-process/" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../integration/supporting-directories/" class="md-tabs__link">
+          
+  
+  
+  Integration
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="ML Odyssey" class="md-nav__button md-logo" aria-label="ML Odyssey" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    ML Odyssey
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/HomericIntelligence/Odyssey" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    HomericIntelligence/Odyssey
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../glossary/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Glossary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/quickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quickstart
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/first_model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    First Model
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/repository-structure/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Repository Structure
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../release-process/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Release Process
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Integration
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Integration
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../integration/supporting-directories/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Supporting Directories
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../integration/papers-shared-integration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Papers & Shared Integration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../integration/quick-start-new-paper/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start New Paper
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#category-1-matrix-operations-2717" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Category 1: Matrix Operations (#2717)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#category-2-shape-manipulation-2718" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Category 2: Shape Manipulation (#2718)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#category-3-element-wise-math-operations-2719" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Category 3: Element-wise Math Operations (#2719)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#category-4-statistical-operations-2720" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Category 4: Statistical Operations (#2720)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#category-5-indexing-and-slicing-operations-2721" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Category 5: Indexing and Slicing Operations (#2721)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Category 5: Indexing and Slicing Operations (#2721)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#slicing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Slicing
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#element-access" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Element Access
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#documentation-in-code" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Documentation in Code
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Documentation in Code">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#anytensor-class-documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AnyTensor Class Documentation
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#exports-summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Exports Summary
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#acceptance-criteria-status" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Acceptance Criteria Status
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#notes-on-todo-comments-and-file-path-changes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Notes on TODO Comments and File Path Changes
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#reference" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reference
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="extensor-operations-implementation-status">ExTensor Operations Implementation Status</h1>
+<h2 id="overview">Overview</h2>
+<p>Issue #3013 consolidated 5 feature requests (#2717-#2721) to document the implementation status
+of ExTensor operations across 5 operational categories. This document provides a comprehensive
+mapping of operations to their implementations.</p>
+<p><strong>Status</strong>: ✅ <strong>ALL OPERATIONS IMPLEMENTED</strong></p>
+<p>All 5 categories have complete, production-ready implementations in the codebase.</p>
+<hr />
+<h2 id="category-1-matrix-operations-2717">Category 1: Matrix Operations (#2717)</h2>
+<p><strong>Status</strong>: ✅ COMPLETE</p>
+<p><strong>Location</strong>: <code>src/odyssey/core/matrix.mojo</code></p>
+<p><strong>Implemented Operations</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Operation</th>
+<th>Function</th>
+<th>Type Signature</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Matrix multiplication</td>
+<td><code>matmul(a, b)</code></td>
+<td><code>AnyTensor × AnyTensor → AnyTensor</code></td>
+</tr>
+<tr>
+<td>Matrix multiplication (batched)</td>
+<td><code>matmul(a, b, transpose_a, transpose_b)</code></td>
+<td>With transpose flags</td>
+</tr>
+<tr>
+<td>Transpose</td>
+<td><code>transpose(a, axes)</code></td>
+<td><code>AnyTensor × List[Int] → AnyTensor</code></td>
+</tr>
+<tr>
+<td>Dot product</td>
+<td><code>dot(a, b)</code></td>
+<td><code>AnyTensor × AnyTensor → AnyTensor</code></td>
+</tr>
+<tr>
+<td>Outer product</td>
+<td><code>outer(a, b)</code></td>
+<td><code>AnyTensor × AnyTensor → AnyTensor</code></td>
+</tr>
+<tr>
+<td>Inner product</td>
+<td><code>inner(a, b)</code></td>
+<td><code>AnyTensor × AnyTensor → AnyTensor</code></td>
+</tr>
+<tr>
+<td>Tensor contraction</td>
+<td><code>tensordot(a, b, axes)</code></td>
+<td>Advanced contraction with axis specification</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Tests</strong>: <code>tests/odyssey/core/test_matrix.mojo</code></p>
+<p><strong>Exports</strong>: Yes, via <code>src/odyssey/core/__init__.mojo</code></p>
+<hr />
+<h2 id="category-2-shape-manipulation-2718">Category 2: Shape Manipulation (#2718)</h2>
+<p><strong>Status</strong>: ✅ COMPLETE</p>
+<p><strong>Location</strong>: <code>src/odyssey/core/shape.mojo</code></p>
+<p><strong>Implemented Operations</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Operation</th>
+<th>Function</th>
+<th>Type Signature</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Reshape</td>
+<td><code>reshape(a, shape)</code></td>
+<td><code>AnyTensor × List[Int] → AnyTensor</code></td>
+</tr>
+<tr>
+<td>Squeeze</td>
+<td><code>squeeze(a, axis)</code></td>
+<td><code>AnyTensor × Int → AnyTensor</code></td>
+</tr>
+<tr>
+<td>Unsqueeze</td>
+<td><code>unsqueeze(a, axis)</code></td>
+<td><code>AnyTensor × Int → AnyTensor</code></td>
+</tr>
+<tr>
+<td>Expand dims</td>
+<td><code>expand_dims(a, axis)</code></td>
+<td><code>AnyTensor × Int → AnyTensor</code></td>
+</tr>
+<tr>
+<td>Flatten</td>
+<td><code>flatten(a)</code></td>
+<td><code>AnyTensor → AnyTensor</code></td>
+</tr>
+<tr>
+<td>Ravel</td>
+<td><code>ravel(a)</code></td>
+<td><code>AnyTensor → AnyTensor</code></td>
+</tr>
+<tr>
+<td>Concatenate</td>
+<td><code>concatenate(tensors, axis)</code></td>
+<td><code>List[AnyTensor] × Int → AnyTensor</code></td>
+</tr>
+<tr>
+<td>Stack</td>
+<td><code>stack(tensors, axis)</code></td>
+<td><code>List[AnyTensor] × Int → AnyTensor</code></td>
+</tr>
+<tr>
+<td><strong>Split</strong></td>
+<td><code>split(tensor, num_splits, axis)</code></td>
+<td><code>AnyTensor × Int × Int → List[AnyTensor]</code></td>
+</tr>
+<tr>
+<td><strong>Split with indices</strong></td>
+<td><code>split_with_indices(tensor, indices, axis)</code></td>
+<td><code>AnyTensor × List[Int] × Int → List[AnyTensor]</code></td>
+</tr>
+<tr>
+<td><strong>Tile</strong></td>
+<td><code>tile(tensor, reps)</code></td>
+<td><code>AnyTensor × List[Int] → AnyTensor</code></td>
+</tr>
+<tr>
+<td><strong>Repeat</strong></td>
+<td><code>repeat(tensor, repeats, axis)</code></td>
+<td><code>AnyTensor × Int × Int → AnyTensor</code></td>
+</tr>
+<tr>
+<td><strong>Broadcast to</strong></td>
+<td><code>broadcast_to(tensor, shape)</code></td>
+<td><code>AnyTensor × List[Int] → AnyTensor</code></td>
+</tr>
+<tr>
+<td><strong>Permute</strong></td>
+<td><code>permute(tensor, dims)</code></td>
+<td><code>AnyTensor × List[Int] → AnyTensor</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Tests</strong>: <code>tests/odyssey/core/test_shape.mojo</code></p>
+<ul>
+<li>✅ <code>test_split_equal</code> - Split into equal parts</li>
+<li>✅ <code>test_split_unequal</code> - Split with remainder</li>
+<li>✅ <code>test_tile_1d</code> - Tiling 1D tensors</li>
+<li>✅ <code>test_tile_multidim</code> - Tiling multidimensional tensors</li>
+<li>✅ <code>test_repeat_elements</code> - Element repetition</li>
+<li>✅ <code>test_repeat_axis</code> - Axis-wise repetition</li>
+<li>✅ <code>test_broadcast_to_compatible</code> - Broadcasting to compatible shape</li>
+<li>✅ <code>test_permute_axes</code> - Permuting dimensions</li>
+</ul>
+<p><strong>Exports</strong>: Yes, all functions exported via <code>src/odyssey/core/__init__.mojo</code></p>
+<ul>
+<li><code>reshape</code>, <code>squeeze</code>, <code>unsqueeze</code>, <code>expand_dims</code>, <code>flatten</code>, <code>ravel</code></li>
+<li><code>concatenate</code>, <code>stack</code>, <code>split</code>, <code>split_with_indices</code></li>
+<li><code>tile</code>, <code>repeat</code>, <code>broadcast_to</code>, <code>permute</code></li>
+</ul>
+<hr />
+<h2 id="category-3-element-wise-math-operations-2719">Category 3: Element-wise Math Operations (#2719)</h2>
+<p><strong>Status</strong>: ✅ COMPLETE</p>
+<p><strong>Location</strong>: <code>src/odyssey/core/elementwise.mojo</code></p>
+<p><strong>Implemented Operations</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Operation</th>
+<th>Function</th>
+<th>Type Signature</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Exponential</td>
+<td><code>exp(a)</code></td>
+<td><code>AnyTensor → AnyTensor</code></td>
+</tr>
+<tr>
+<td>Natural logarithm</td>
+<td><code>log(a)</code></td>
+<td><code>AnyTensor → AnyTensor</code></td>
+</tr>
+<tr>
+<td>Square root</td>
+<td><code>sqrt(a)</code></td>
+<td><code>AnyTensor → AnyTensor</code></td>
+</tr>
+<tr>
+<td>Sine</td>
+<td><code>sin(a)</code></td>
+<td><code>AnyTensor → AnyTensor</code></td>
+</tr>
+<tr>
+<td>Cosine</td>
+<td><code>cos(a)</code></td>
+<td><code>AnyTensor → AnyTensor</code></td>
+</tr>
+<tr>
+<td>Hyperbolic tangent</td>
+<td><code>tanh(a)</code></td>
+<td><code>AnyTensor → AnyTensor</code></td>
+</tr>
+<tr>
+<td>Ceiling</td>
+<td><code>ceil(a)</code></td>
+<td><code>AnyTensor → AnyTensor</code></td>
+</tr>
+<tr>
+<td>Floor</td>
+<td><code>floor(a)</code></td>
+<td><code>AnyTensor → AnyTensor</code></td>
+</tr>
+<tr>
+<td>Round</td>
+<td><code>round(a)</code></td>
+<td><code>AnyTensor → AnyTensor</code></td>
+</tr>
+<tr>
+<td>Absolute value</td>
+<td><code>abs(a)</code></td>
+<td><code>AnyTensor → AnyTensor</code></td>
+</tr>
+<tr>
+<td>Sign</td>
+<td><code>sign(a)</code></td>
+<td><code>AnyTensor → AnyTensor</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Tests</strong>: <code>tests/odyssey/core/test_elementwise.mojo</code></p>
+<p><strong>Exports</strong>: Yes, via <code>src/odyssey/core/__init__.mojo</code></p>
+<p><strong>Performance</strong>: All operations include SIMD optimizations for vectorized computation.</p>
+<hr />
+<h2 id="category-4-statistical-operations-2720">Category 4: Statistical Operations (#2720)</h2>
+<p><strong>Status</strong>: ✅ COMPLETE</p>
+<p><strong>Location</strong>: <code>src/odyssey/core/reduction.mojo</code></p>
+<p><strong>Implemented Operations</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Operation</th>
+<th>Forward</th>
+<th>Backward</th>
+<th>Type Signature</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Variance</td>
+<td><code>variance(a, axis, ddof)</code></td>
+<td><code>variance_backward()</code></td>
+<td><code>AnyTensor × Int × Int → AnyTensor</code></td>
+</tr>
+<tr>
+<td>Standard deviation</td>
+<td><code>std_reduce(a, axis, ddof)</code></td>
+<td><code>std_backward()</code></td>
+<td><code>AnyTensor × Int × Int → AnyTensor</code></td>
+</tr>
+<tr>
+<td>Median</td>
+<td><code>median(a, axis)</code></td>
+<td><code>median_backward()</code></td>
+<td><code>AnyTensor × Int → AnyTensor</code></td>
+</tr>
+<tr>
+<td>Percentile</td>
+<td><code>percentile(a, q, axis)</code></td>
+<td><code>percentile_backward()</code></td>
+<td><code>AnyTensor × Float32 × Int → AnyTensor</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Tests</strong>: <code>tests/odyssey/core/test_reduction.mojo</code></p>
+<p><strong>Gradient Support</strong>: All operations include both forward and backward passes for backpropagation.</p>
+<p><strong>Exports</strong>: Yes, via <code>src/odyssey/core/__init__.mojo</code></p>
+<hr />
+<h2 id="category-5-indexing-and-slicing-operations-2721">Category 5: Indexing and Slicing Operations (#2721)</h2>
+<p><strong>Status</strong>: ✅ COMPLETE</p>
+<p><strong>Location</strong>: <code>src/odyssey/tensor/any_tensor.mojo</code> + <code>src/odyssey/training/trainer_interface.mojo</code></p>
+<p><strong>Implemented Operations</strong>:</p>
+<h3 id="slicing">Slicing</h3>
+<table>
+<thead>
+<tr>
+<th>Operation</th>
+<th>Function</th>
+<th>Type Signature</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Slice extraction</td>
+<td><code>tensor.slice(start, end, axis)</code></td>
+<td><code>AnyTensor × Int × Int × Int → AnyTensor</code></td>
+<td>Zero-copy view for batch processing</td>
+</tr>
+<tr>
+<td>Slice extraction</td>
+<td><code>tensor.slice(start, end)</code></td>
+<td><code>AnyTensor × Int × Int → AnyTensor</code></td>
+<td>Default axis=0 for batch iteration</td>
+</tr>
+</tbody>
+</table>
+<h3 id="element-access">Element Access</h3>
+<table>
+<thead>
+<tr>
+<th>Operation</th>
+<th>Function</th>
+<th>Type Signature</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Index access</td>
+<td><code>tensor[i]</code></td>
+<td><code>AnyTensor × Int → AnyTensor</code></td>
+<td>Copy-based, creates new tensor</td>
+</tr>
+<tr>
+<td>Multi-dimensional access</td>
+<td><code>tensor[i, j, ...]</code></td>
+<td>Via <code>__getitem__(*indices)</code></td>
+<td>Supports arbitrary dimensions</td>
+</tr>
+</tbody>
+</table>
+<p><strong>DataLoader Integration</strong>: <code>src/odyssey/training/trainer_interface.mojo:381</code></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">next</span><span class="p">(</span><span class="n">mut</span><span class="w"> </span><span class="bp">self</span><span class="p">)</span><span class="w"> </span><span class="n">raises</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">DataBatch</span><span class="p">:</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">    </span><span class="s2">&quot;&quot;&quot;Get next batch.&quot;&quot;&quot;</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="ow">not</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">has_next</span><span class="p">():</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">        </span><span class="k">raise</span><span class="w"> </span><span class="nb">Error</span><span class="p">(</span><span class="s2">&quot;No more batches available&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">    </span><span class="k">var</span><span class="w"> </span><span class="nv">start_idx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">current_batch</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">    </span><span class="k">var</span><span class="w"> </span><span class="nv">end_idx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">min</span><span class="p">(</span><span class="n">start_idx</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span><span class="p">,</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">num_samples</span><span class="p">)</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="w">    </span><span class="c1"># Extract batch slice — supports N-D tensors (2D, 3D, 4D, etc.)</span>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="w">    </span><span class="k">var</span><span class="w"> </span><span class="nv">batch_data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">slice</span><span class="p">(</span><span class="n">start_idx</span><span class="p">,</span><span class="w"> </span><span class="n">end_idx</span><span class="p">)</span>
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="w">    </span><span class="k">var</span><span class="w"> </span><span class="nv">batch_labels</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">labels</span><span class="o">.</span><span class="n">slice</span><span class="p">(</span><span class="n">start_idx</span><span class="p">,</span><span class="w"> </span><span class="n">end_idx</span><span class="p">)</span>
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="w">    </span><span class="bp">self</span><span class="o">.</span><span class="n">current_batch</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="mi">1</span>
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">DataBatch</span><span class="p">(</span><span class="n">batch_data</span><span class="p">,</span><span class="w"> </span><span class="n">batch_labels</span><span class="p">)</span>
+</code></pre></div>
+<p><strong>Tests</strong>: <code>tests/odyssey/core/test_slicing.mojo</code></p>
+<p><strong>Design Notes</strong>:</p>
+<ul>
+<li><code>slice()</code> returns a zero-copy view (shares memory) for efficient batch iteration</li>
+<li><code>__getitem__()</code> returns a copy for safety when downstream code may mutate</li>
+<li>This design choice is intentional: views for batch processing, copies for element access</li>
+</ul>
+<hr />
+<h2 id="documentation-in-code">Documentation in Code</h2>
+<h3 id="anytensor-class-documentation">AnyTensor Class Documentation</h3>
+<p>The <code>AnyTensor</code> class (<code>src/odyssey/tensor/any_tensor.mojo:1-40</code>) includes a comprehensive
+list of all Array API categories with implementation status:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="n">Array</span><span class="w"> </span><span class="n">API</span><span class="w"> </span><span class="n">Categories</span><span class="p">:</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="o">-</span><span class="w"> </span><span class="n">Creation</span><span class="p">:</span><span class="w"> </span><span class="n">zeros</span><span class="p">,</span><span class="w"> </span><span class="n">ones</span><span class="p">,</span><span class="w"> </span><span class="n">full</span><span class="p">,</span><span class="w"> </span><span class="n">empty</span><span class="p">,</span><span class="w"> </span><span class="n">arange</span><span class="p">,</span><span class="w"> </span><span class="n">eye</span><span class="p">,</span><span class="w"> </span><span class="n">linspace</span><span class="w"> </span><span class="err">✓</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="o">-</span><span class="w"> </span><span class="n">Arithmetic</span><span class="p">:</span><span class="w"> </span><span class="n">add</span><span class="p">,</span><span class="w"> </span><span class="n">subtract</span><span class="p">,</span><span class="w"> </span><span class="n">multiply</span><span class="p">,</span><span class="w"> </span><span class="n">divide</span><span class="p">,</span><span class="w"> </span><span class="n">floor_divide</span><span class="p">,</span><span class="w"> </span><span class="n">modulo</span><span class="p">,</span><span class="w"> </span><span class="n">power</span><span class="w"> </span><span class="err">✓</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="o">-</span><span class="w"> </span><span class="n">Comparison</span><span class="p">:</span><span class="w"> </span><span class="n">equal</span><span class="p">,</span><span class="w"> </span><span class="n">not_equal</span><span class="p">,</span><span class="w"> </span><span class="n">less</span><span class="p">,</span><span class="w"> </span><span class="n">less_equal</span><span class="p">,</span><span class="w"> </span><span class="n">greater</span><span class="p">,</span><span class="w"> </span><span class="n">greater_equal</span><span class="w"> </span><span class="err">✓</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="o">-</span><span class="w"> </span><span class="n">Reduction</span><span class="p">:</span><span class="w"> </span><span class="nb">sum</span><span class="p">,</span><span class="w"> </span><span class="n">mean</span><span class="p">,</span><span class="w"> </span><span class="nb">max</span><span class="p">,</span><span class="w"> </span><span class="nb">min</span><span class="w"> </span><span class="p">(</span><span class="nb">all</span><span class="o">-</span><span class="n">elements</span><span class="w"> </span><span class="n">only</span><span class="p">)</span><span class="w"> </span><span class="err">✓</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="o">-</span><span class="w"> </span><span class="n">Matrix</span><span class="p">:</span><span class="w"> </span><span class="n">matmul</span><span class="p">,</span><span class="w"> </span><span class="n">transpose</span><span class="p">,</span><span class="w"> </span><span class="n">dot</span><span class="p">,</span><span class="w"> </span><span class="n">outer</span><span class="w"> </span><span class="err">✓</span><span class="w"> </span><span class="p">(</span><span class="n">src</span><span class="o">/</span><span class="n">odyssey</span><span class="o">/</span><span class="n">core</span><span class="o">/</span><span class="n">matrix</span><span class="o">.</span><span class="n">mojo</span><span class="p">)</span>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="o">-</span><span class="w"> </span><span class="n">Shape</span><span class="w"> </span><span class="n">manipulation</span><span class="p">:</span><span class="w"> </span><span class="n">reshape</span><span class="p">,</span><span class="w"> </span><span class="n">squeeze</span><span class="p">,</span><span class="w"> </span><span class="n">unsqueeze</span><span class="p">,</span><span class="w"> </span><span class="n">concatenate</span><span class="w"> </span><span class="err">✓</span><span class="w"> </span><span class="p">(</span><span class="n">src</span><span class="o">/</span><span class="n">odyssey</span><span class="o">/</span><span class="n">core</span><span class="o">/</span><span class="n">shape</span><span class="o">.</span><span class="n">mojo</span><span class="p">)</span>
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="o">-</span><span class="w"> </span><span class="n">Broadcasting</span><span class="p">:</span><span class="w"> </span><span class="n">Full</span><span class="w"> </span><span class="n">n</span><span class="o">-</span><span class="n">dim</span><span class="w"> </span><span class="n">support</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">different</span><span class="o">-</span><span class="n">shape</span><span class="w"> </span><span class="n">operations</span><span class="w"> </span><span class="err">✓</span>
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="o">-</span><span class="w"> </span><span class="n">Element</span><span class="o">-</span><span class="n">wise</span><span class="w"> </span><span class="n">math</span><span class="p">:</span><span class="w"> </span><span class="n">exp</span><span class="p">,</span><span class="w"> </span><span class="n">log</span><span class="p">,</span><span class="w"> </span><span class="n">sqrt</span><span class="p">,</span><span class="w"> </span><span class="n">sin</span><span class="p">,</span><span class="w"> </span><span class="n">cos</span><span class="p">,</span><span class="w"> </span><span class="n">tanh</span><span class="w"> </span><span class="err">✓</span><span class="w"> </span><span class="p">(</span><span class="n">src</span><span class="o">/</span><span class="n">odyssey</span><span class="o">/</span><span class="n">core</span><span class="o">/</span><span class="n">elementwise</span><span class="o">.</span><span class="n">mojo</span><span class="p">)</span>
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="o">-</span><span class="w"> </span><span class="n">Statistical</span><span class="p">:</span><span class="w"> </span><span class="n">var</span><span class="p">,</span><span class="w"> </span><span class="n">std</span><span class="p">,</span><span class="w"> </span><span class="n">median</span><span class="p">,</span><span class="w"> </span><span class="n">percentile</span><span class="w"> </span><span class="err">✓</span><span class="w"> </span><span class="p">(</span><span class="n">src</span><span class="o">/</span><span class="n">odyssey</span><span class="o">/</span><span class="n">core</span><span class="o">/</span><span class="n">reduction</span><span class="o">.</span><span class="n">mojo</span><span class="p">)</span>
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="o">-</span><span class="w"> </span><span class="n">Indexing</span><span class="p">:</span><span class="w"> </span><span class="n">slicing</span><span class="p">,</span><span class="w"> </span><span class="n">advanced</span><span class="w"> </span><span class="n">indexing</span><span class="w"> </span><span class="err">✓</span><span class="w"> </span><span class="p">(</span><span class="fm">__getitem__</span><span class="w"> </span><span class="n">methods</span><span class="p">)</span>
+<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a><span class="o">-</span><span class="w"> </span><span class="n">Hashing</span><span class="p">:</span><span class="w"> </span><span class="fm">__hash__</span><span class="w"> </span><span class="n">via</span><span class="w"> </span><span class="n">Hashable</span><span class="w"> </span><span class="k">trait</span><span class="w"> </span><span class="err">✓</span>
+</code></pre></div>
+<hr />
+<h2 id="exports-summary">Exports Summary</h2>
+<p><strong>File</strong>: <code>src/odyssey/core/__init__.mojo</code></p>
+<p>All operations from the 5 categories are exported via:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">odyssey.core.shape</span><span class="w"> </span><span class="kn">import</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">    </span><span class="n">reshape</span><span class="p">,</span><span class="w"> </span><span class="n">squeeze</span><span class="p">,</span><span class="w"> </span><span class="n">unsqueeze</span><span class="p">,</span><span class="w"> </span><span class="n">expand_dims</span><span class="p">,</span><span class="w"> </span><span class="n">flatten</span><span class="p">,</span><span class="w"> </span><span class="n">ravel</span><span class="p">,</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">    </span><span class="n">concatenate</span><span class="p">,</span><span class="w"> </span><span class="n">stack</span><span class="p">,</span><span class="w"> </span><span class="n">split</span><span class="p">,</span><span class="w"> </span><span class="n">split_with_indices</span><span class="p">,</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">    </span><span class="n">tile</span><span class="p">,</span><span class="w"> </span><span class="n">repeat</span><span class="p">,</span><span class="w"> </span><span class="n">permute</span><span class="p">,</span><span class="w"> </span><span class="n">broadcast_to</span><span class="p">,</span><span class="w"> </span><span class="o">...</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="p">)</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="kn">from</span><span class="w"> </span><span class="nn">odyssey.core.matrix</span><span class="w"> </span><span class="kn">import</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="w">    </span><span class="n">matmul</span><span class="p">,</span><span class="w"> </span><span class="n">transpose</span><span class="p">,</span><span class="w"> </span><span class="n">dot</span><span class="p">,</span><span class="w"> </span><span class="n">outer</span><span class="p">,</span><span class="w"> </span><span class="n">inner</span><span class="p">,</span><span class="w"> </span><span class="n">tensordot</span><span class="p">,</span><span class="w"> </span><span class="o">...</span>
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="p">)</span>
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="kn">from</span><span class="w"> </span><span class="nn">odyssey.core.elementwise</span><span class="w"> </span><span class="kn">import</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="w">    </span><span class="n">exp</span><span class="p">,</span><span class="w"> </span><span class="n">log</span><span class="p">,</span><span class="w"> </span><span class="n">sqrt</span><span class="p">,</span><span class="w"> </span><span class="n">sin</span><span class="p">,</span><span class="w"> </span><span class="n">cos</span><span class="p">,</span><span class="w"> </span><span class="n">tanh</span><span class="p">,</span><span class="w"> </span><span class="n">ceil</span><span class="p">,</span><span class="w"> </span><span class="n">floor</span><span class="p">,</span><span class="w"> </span><span class="nb">round</span><span class="p">,</span><span class="w"> </span><span class="nb">abs</span><span class="p">,</span><span class="w"> </span><span class="n">sign</span><span class="p">,</span><span class="w"> </span><span class="o">...</span>
+<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="p">)</span>
+<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a><span class="kn">from</span><span class="w"> </span><span class="nn">odyssey.core.reduction</span><span class="w"> </span><span class="kn">import</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a><span class="w">    </span><span class="n">variance</span><span class="p">,</span><span class="w"> </span><span class="n">std_reduce</span><span class="p">,</span><span class="w"> </span><span class="n">median</span><span class="p">,</span><span class="w"> </span><span class="n">percentile</span><span class="p">,</span><span class="w"> </span><span class="o">...</span>
+<a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a><span class="p">)</span>
+</code></pre></div>
+<p>Users can import operations directly:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">odyssey.core</span><span class="w"> </span><span class="kn">import</span><span class="w"> </span><span class="n">split</span><span class="p">,</span><span class="w"> </span><span class="n">tile</span><span class="p">,</span><span class="w"> </span><span class="n">repeat</span><span class="p">,</span><span class="w"> </span><span class="n">broadcast_to</span><span class="p">,</span><span class="w"> </span><span class="n">permute</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">odyssey.core</span><span class="w"> </span><span class="kn">import</span><span class="w"> </span><span class="n">exp</span><span class="p">,</span><span class="w"> </span><span class="n">log</span><span class="p">,</span><span class="w"> </span><span class="n">sqrt</span><span class="p">,</span><span class="w"> </span><span class="n">sin</span><span class="p">,</span><span class="w"> </span><span class="n">cos</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">odyssey.core</span><span class="w"> </span><span class="kn">import</span><span class="w"> </span><span class="n">matmul</span><span class="p">,</span><span class="w"> </span><span class="n">transpose</span><span class="p">,</span><span class="w"> </span><span class="n">dot</span><span class="p">,</span><span class="w"> </span><span class="n">outer</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="kn">from</span><span class="w"> </span><span class="nn">odyssey.core</span><span class="w"> </span><span class="kn">import</span><span class="w"> </span><span class="n">variance</span><span class="p">,</span><span class="w"> </span><span class="n">std_reduce</span><span class="p">,</span><span class="w"> </span><span class="n">median</span><span class="p">,</span><span class="w"> </span><span class="n">percentile</span>
+</code></pre></div>
+<hr />
+<h2 id="acceptance-criteria-status">Acceptance Criteria Status</h2>
+<table>
+<thead>
+<tr>
+<th>Criterion</th>
+<th>Status</th>
+<th>Evidence</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Implement or document status of matrix operations</strong></td>
+<td>✅ COMPLETE</td>
+<td><code>src/odyssey/core/matrix.mojo</code>: 7 operations documented with test files</td>
+</tr>
+<tr>
+<td><strong>Implement or document status of shape manipulation</strong></td>
+<td>✅ COMPLETE</td>
+<td><code>src/odyssey/core/shape.mojo</code>: 14 operations documented with test files</td>
+</tr>
+<tr>
+<td><strong>Implement or document status of element-wise math</strong></td>
+<td>✅ COMPLETE</td>
+<td><code>src/odyssey/core/elementwise.mojo</code>: 11 operations documented with test files</td>
+</tr>
+<tr>
+<td><strong>Implement or document status of statistical operations</strong></td>
+<td>✅ COMPLETE</td>
+<td><code>src/odyssey/core/reduction.mojo</code>: 4 operations documented with backward passes</td>
+</tr>
+<tr>
+<td><strong>Implement slicing for batch processing</strong></td>
+<td>✅ COMPLETE</td>
+<td><code>trainer_interface.mojo:381</code>: DataLoader.next() verified using native <code>slice()</code></td>
+</tr>
+<tr>
+<td><strong>Update TODO comments with resolution</strong></td>
+<td>⚠️ PARTIAL</td>
+<td>Original issue referenced non-existent path <code>shared/core/extensor.mojo:23-28</code>. Resolution: Comprehensive implementation status documented in this file. Actual TODO comments in codebase are unrelated to operations (#3013).</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="notes-on-todo-comments-and-file-path-changes">Notes on TODO Comments and File Path Changes</h2>
+<p><strong>Original Issue References</strong>: The issue #3013 body references <code>shared/core/extensor.mojo:23-28</code>
+as containing a TODO list. This file path is a phantom — the codebase was refactored from
+<code>shared/</code> to <code>src/odyssey/</code> prior to this issue's scope.</p>
+<p><strong>Investigation Result</strong>:</p>
+<ul>
+<li>No file <code>shared/core/extensor.mojo</code> exists in current codebase</li>
+<li>The operations mentioned in the issue are implemented across multiple modules:</li>
+<li>Matrix ops: <code>src/odyssey/core/matrix.mojo</code></li>
+<li>Shape manipulation: <code>src/odyssey/core/shape.mojo</code></li>
+<li>Element-wise math: <code>src/odyssey/core/elementwise.mojo</code></li>
+<li>Statistical ops: <code>src/odyssey/core/reduction.mojo</code></li>
+<li>Slicing: <code>src/odyssey/tensor/any_tensor.mojo</code></li>
+</ul>
+<p><strong>Resolution Strategy</strong>: Rather than updating phantom TODO comments, this document provides the
+definitive mapping of issue #2717-#2721 requirements to their current implementations. The
+comprehensive tables in each category section serve as the "TODO resolution" — all 5 categories
+are fully implemented and this status document replaces any need for TODO markers.</p>
+<hr />
+<h2 id="reference">Reference</h2>
+<ul>
+<li><strong>Python Array API Standard</strong>: <a href="https://data-apis.org/array-api/latest/">https://data-apis.org/array-api/latest/</a></li>
+<li><strong>NumPy Broadcasting</strong>: <a href="https://numpy.org/doc/stable/user/basics.broadcasting.html">https://numpy.org/doc/stable/user/basics.broadcasting.html</a></li>
+<li><strong>Mojo Documentation</strong>: <a href="https://mojolang.org/docs/">https://mojolang.org/docs/</a></li>
+</ul>
+<hr />
+<p><strong>Last Updated</strong>: 2026-05-29
+<strong>Related Issues</strong>: #2717, #2718, #2719, #2720, #2721 (consolidated into #3013)</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "search.suggest", "search.highlight", "content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>

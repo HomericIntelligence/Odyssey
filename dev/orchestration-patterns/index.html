@@ -1,0 +1,2255 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Mojo-based AI research platform for reproducing classic research papers">
+      
+      
+      
+        <link rel="canonical" href="https://github.com/HomericIntelligence/Odyssey/dev/orchestration-patterns/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Orchestration Patterns and Delegation Rules - ML Odyssey</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#orchestration-patterns-and-delegation-rules" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="ML Odyssey" class="md-header__button md-logo" aria-label="ML Odyssey" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            ML Odyssey
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Orchestration Patterns and Delegation Rules
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/HomericIntelligence/Odyssey" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    HomericIntelligence/Odyssey
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../glossary/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Glossary
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../release-process/" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../integration/supporting-directories/" class="md-tabs__link">
+          
+  
+  
+  Integration
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="ML Odyssey" class="md-nav__button md-logo" aria-label="ML Odyssey" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    ML Odyssey
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/HomericIntelligence/Odyssey" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    HomericIntelligence/Odyssey
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../glossary/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Glossary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/quickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quickstart
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/first_model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    First Model
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/repository-structure/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Repository Structure
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../release-process/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Release Process
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Integration
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Integration
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../integration/supporting-directories/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Supporting Directories
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../integration/papers-shared-integration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Papers & Shared Integration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../integration/quick-start-new-paper/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start New Paper
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#core-principles" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Core Principles
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#delegation-patterns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Delegation Patterns
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Delegation Patterns">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pattern-1-decomposition-delegation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pattern 1: Decomposition Delegation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pattern-2-specialization-delegation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pattern 2: Specialization Delegation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pattern-3-parallel-delegation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pattern 3: Parallel Delegation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pattern-4-sequential-delegation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pattern 4: Sequential Delegation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#coordination-patterns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Coordination Patterns
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Coordination Patterns">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#horizontal-coordination-same-level" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Horizontal Coordination (Same Level)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Horizontal Coordination (Same Level)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pattern-peer-review" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pattern: Peer Review
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#process" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Process
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pattern-interface-negotiation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pattern: Interface Negotiation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#interface-negotiation-process" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Interface Negotiation Process
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pattern-resource-coordination" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pattern: Resource Coordination
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#resource-coordination-process" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Resource Coordination Process
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#vertical-coordination-across-levels" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Vertical Coordination (Across Levels)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Vertical Coordination (Across Levels)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pattern-status-reporting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pattern: Status Reporting
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#report-format" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Report Format
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#status-report" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Status Report
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Status Report">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#completed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Completed
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#in-progress" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        In Progress
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#blockers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Blockers
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#next-steps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Next Steps
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Next Steps">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pattern-specification-cascade" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pattern: Specification Cascade
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#specification-format" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Specification Format
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#component-specification-userauth" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Component Specification: UserAuth
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#escalation-patterns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Escalation Patterns
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Escalation Patterns">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pattern-blocker-escalation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pattern: Blocker Escalation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pattern-conflict-escalation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pattern: Conflict Escalation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pattern-quality-escalation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pattern: Quality Escalation
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#workflow-integration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Workflow Integration
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Workflow Integration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#5-phase-workflow-orchestration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5-Phase Workflow Orchestration
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5-Phase Workflow Orchestration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#phase-1-plan-sequential" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 1: Plan (Sequential)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-2-4-testimplementationpackaging-parallel" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 2-4: Test/Implementation/Packaging (Parallel)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-5-cleanup-sequential" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 5: Cleanup (Sequential)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#git-worktree-coordination" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Git Worktree Coordination
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Git Worktree Coordination">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#worktree-assignment" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Worktree Assignment
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cross-worktree-coordination" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cross-Worktree Coordination
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Cross-Worktree Coordination">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#scenario-implementation-needs-test-fixtures-from-test-worktree" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Scenario: Implementation needs test fixtures from Test worktree
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#option-1-cherry-pick-commits" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Option 1: Cherry-pick commits
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#option-2-temporary-merge" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Option 2: Temporary merge
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="orchestration-patterns-and-delegation-rules">Orchestration Patterns and Delegation Rules</h1>
+<h2 id="overview">Overview</h2>
+<p>This document defines how agents coordinate, delegate tasks, and escalate issues within the 6-level hierarchy.
+Effective orchestration is critical for the multi-level agent system to function smoothly.</p>
+<h2 id="core-principles">Core Principles</h2>
+<ol>
+<li><strong>Clear Scope Boundaries</strong>: Each level has well-defined scope</li>
+<li><strong>Explicit Delegation</strong>: Higher levels delegate specific tasks</li>
+<li><strong>Horizontal Coordination</strong>: Same-level agents coordinate directly</li>
+<li><strong>Vertical Escalation</strong>: Issues bubble up when unresolvable</li>
+<li><strong>Status Transparency</strong>: All agents report progress clearly</li>
+</ol>
+<hr />
+<h2 id="delegation-patterns">Delegation Patterns</h2>
+<h3 id="pattern-1-decomposition-delegation">Pattern 1: Decomposition Delegation</h3>
+<p><strong>When</strong>: Large task needs to be broken into smaller pieces
+<strong>How</strong>: Higher level analyzes task → Creates subtasks → Delegates to lower levels</p>
+<p><code>text
+Chief Architect Agent
+  ↓ Decompose repository into sections
+Section Orchestrators (6 sections)
+  ↓ Decompose sections into modules
+Module Design Agents
+  ↓ Decompose modules into components
+Component Specialists
+  ↓ Decompose components into functions
+Implementation Engineers</code>text</p>
+<h3 id="example">Example</h3>
+<p>```text
+Task: "Implement LeNet-5 paper"</p>
+<p>Chief Architect:</p>
+<ul>
+<li>Analyzes paper requirements</li>
+<li>Delegates to Paper Implementation Orchestrator</li>
+</ul>
+<p>Paper Implementation Orchestrator:</p>
+<ul>
+<li>Breaks into: data prep, model impl, training, eval</li>
+<li>Delegates each to Module Design Agents</li>
+</ul>
+<p>Architecture Design Agent:</p>
+<ul>
+<li>Designs model architecture</li>
+<li>Delegates component implementation to Senior Implementation Specialist</li>
+</ul>
+<p>Senior Implementation Specialist:</p>
+<ul>
+<li>Breaks into classes: Conv2D, Pool, Dense layers</li>
+<li>Delegates each class to Implementation Engineers
+```text</li>
+</ul>
+<h3 id="pattern-2-specialization-delegation">Pattern 2: Specialization Delegation</h3>
+<p><strong>When</strong>: Task requires specific expertise
+<strong>How</strong>: Orchestrator identifies expertise needed → Delegates to specialist agent</p>
+<p><code>text
+Section Orchestrator
+  ├─&gt; Architecture Design Agent (for architecture tasks)
+  ├─&gt; Security Design Agent (for security tasks)
+  └─&gt; Integration Design Agent (for integration tasks)</code>text</p>
+<h3 id="example_1">Example</h3>
+<p>```text
+Task: "Implement secure API authentication"</p>
+<p>Section Orchestrator:</p>
+<ul>
+<li>Identifies security expertise needed</li>
+<li>Delegates to Security Design Agent</li>
+</ul>
+<p>Security Design Agent:</p>
+<ul>
+<li>Designs authentication approach</li>
+<li>Delegates to Security Implementation Specialist</li>
+</ul>
+<p>Security Implementation Specialist:</p>
+<ul>
+<li>Implements auth logic</li>
+<li>Delegates code generation to Implementation Engineer
+```text</li>
+</ul>
+<h3 id="pattern-3-parallel-delegation">Pattern 3: Parallel Delegation</h3>
+<p><strong>When</strong>: Independent tasks can run simultaneously
+<strong>How</strong>: Orchestrator delegates multiple tasks in parallel to different agents</p>
+<p><code>text
+Section Orchestrator
+  ├─&gt; Module Design Agent A (parallel)
+  ├─&gt; Module Design Agent B (parallel)
+  └─&gt; Module Design Agent C (parallel)</code>text</p>
+<p><strong>Example</strong> (5-Phase Workflow):</p>
+<p>```text
+After Plan phase completes:</p>
+<p>Component Specialist delegates in parallel to:
+  ├─&gt; Test Engineer (create tests)
+  ├─&gt; Implementation Engineer (write code)
+  └─&gt; Documentation Writer (write docs)</p>
+<p>All three work simultaneously in separate worktrees
+```text</p>
+<h3 id="pattern-4-sequential-delegation">Pattern 4: Sequential Delegation</h3>
+<p><strong>When</strong>: Tasks have dependencies
+<strong>How</strong>: Orchestrator delegates tasks in sequence, waiting for completion</p>
+<p><code>text
+Section Orchestrator
+  Step 1 ↓ Delegate to Agent A
+        ↓ Wait for completion
+  Step 2 ↓ Delegate to Agent B
+        ↓ Wait for completion
+  Step 3 ↓ Delegate to Agent C</code>text</p>
+<h3 id="example_2">Example</h3>
+<p>```text
+Plan Phase must complete before Test/Impl/Package:</p>
+<ol>
+<li>Section Orchestrator → Architecture Design Agent (Plan)</li>
+</ol>
+<p>↓ Wait for plan.md completion
+2. Section Orchestrator → Component Specialists (Test/Impl/Package)</p>
+<p>↓ Specialists work in parallel
+3. Section Orchestrator → All agents (Cleanup)</p>
+<p>```text</p>
+<hr />
+<h2 id="coordination-patterns">Coordination Patterns</h2>
+<h3 id="horizontal-coordination-same-level">Horizontal Coordination (Same Level)</h3>
+<h4 id="pattern-peer-review">Pattern: Peer Review</h4>
+<p><strong>Scenario</strong>: Agents review each other's work</p>
+<p><code>text
+Implementation Engineer A &lt;──review──&gt; Implementation Engineer B</code>text</p>
+<h4 id="process">Process</h4>
+<ol>
+<li>Engineer A completes implementation</li>
+<li>Engineer A requests review from Engineer B</li>
+<li>Engineer B reviews code, provides feedback</li>
+<li>Engineer A addresses feedback</li>
+<li>Both sign off on completion</li>
+</ol>
+<h4 id="pattern-interface-negotiation">Pattern: Interface Negotiation</h4>
+<p><strong>Scenario</strong>: Agents need to agree on shared interfaces</p>
+<p><code>text
+Module Design Agent A &lt;──negotiate──&gt; Module Design Agent B</code>text</p>
+<h4 id="interface-negotiation-process">Interface Negotiation Process</h4>
+<ol>
+<li>Agent A designs module A interface</li>
+<li>Agent B designs module B interface</li>
+<li>Both identify integration points</li>
+<li>Negotiate API contracts</li>
+<li>Document agreed interfaces</li>
+<li>Proceed with implementation</li>
+</ol>
+<h4 id="pattern-resource-coordination">Pattern: Resource Coordination</h4>
+<p><strong>Scenario</strong>: Multiple agents need same resource</p>
+<p><code>text
+Engineer A ─┐
+           ├──&gt; Shared Resource (file, database, etc.)
+Engineer B ─┘</code>text</p>
+<h4 id="resource-coordination-process">Resource Coordination Process</h4>
+<ol>
+<li>Engineers identify shared resource</li>
+<li>Coordinate timing to avoid conflicts</li>
+<li>Use git worktrees for file isolation</li>
+<li>Communicate through status updates</li>
+<li>Merge changes carefully</li>
+</ol>
+<h3 id="vertical-coordination-across-levels">Vertical Coordination (Across Levels)</h3>
+<h4 id="pattern-status-reporting">Pattern: Status Reporting</h4>
+<p><strong>Scenario</strong>: Lower level reports progress to higher level</p>
+<p><code>text
+Implementation Engineer
+  ↓ Status Report
+Component Specialist
+  ↓ Aggregated Status
+Module Design Agent
+  ↓ Summary Report
+Section Orchestrator</code>text</p>
+<h4 id="report-format">Report Format</h4>
+<p>```markdown</p>
+<h2 id="status-report">Status Report</h2>
+<p><strong>Agent</strong>: Implementation Engineer - Database Module
+<strong>Date</strong>: 2025-11-07
+<strong>Phase</strong>: Implementation
+<strong>Progress</strong>: 75% complete</p>
+<h3 id="completed">Completed</h3>
+<ul>
+<li>User authentication functions</li>
+<li>Database connection pooling</li>
+<li>Error handling</li>
+</ul>
+<h3 id="in-progress">In Progress</h3>
+<ul>
+<li>Query optimization</li>
+<li>Connection retry logic</li>
+</ul>
+<h3 id="blockers">Blockers</h3>
+<ul>
+<li>None</li>
+</ul>
+<h3 id="next-steps">Next Steps</h3>
+<ul>
+<li>Complete retry logic</li>
+<li>Write unit tests</li>
+<li>Request code review</li>
+</ul>
+<p>```text</p>
+<h4 id="pattern-specification-cascade">Pattern: Specification Cascade</h4>
+<p><strong>Scenario</strong>: Higher level provides specifications to lower level</p>
+<p><code>text
+Module Design Agent
+  ↓ Component Specification
+Component Specialist
+  ↓ Function Specification
+Implementation Engineer
+  ↓ Code Implementation</code>text</p>
+<h4 id="specification-format">Specification Format</h4>
+<p>```markdown</p>
+<h2 id="component-specification-userauth">Component Specification: UserAuth</h2>
+<p>Purpose: Handle user authentication and session management</p>
+<p>Inputs:</p>
+<ul>
+<li>username: string</li>
+<li>password: string</li>
+</ul>
+<p>Outputs:</p>
+<ul>
+<li>auth_token: string</li>
+<li>user_id: int</li>
+</ul>
+<p>Functions Required:</p>
+<ol>
+<li>authenticate_user(username, password) -&gt; auth_token</li>
+<li>validate_token(auth_token) -&gt; bool</li>
+<li>refresh_token(auth_token) -&gt; new_auth_token</li>
+</ol>
+<p>Error Handling:</p>
+<ul>
+<li>InvalidCredentials exception</li>
+<li>TokenExpired exception</li>
+<li>DatabaseConnectionError exception</li>
+</ul>
+<p>Performance Requirements:</p>
+<ul>
+<li>Authentication: &lt; 100ms</li>
+<li>Token validation: &lt; 10ms</li>
+</ul>
+<p>Security Requirements:</p>
+<ul>
+<li>Password hashing: bcrypt with cost 12</li>
+<li>Token: JWT with HS256</li>
+<li>Session timeout: 30 minutes</li>
+</ul>
+<p>```text</p>
+<hr />
+<h2 id="escalation-patterns">Escalation Patterns</h2>
+<h3 id="pattern-blocker-escalation">Pattern: Blocker Escalation</h3>
+<p><strong>When</strong>: Agent cannot proceed due to external blocker
+<strong>How</strong>: Escalate to next level up</p>
+<p><code>text
+Implementation Engineer (blocked)
+  ↓ Escalate blocker
+Component Specialist
+  ├─&gt; Can resolve? → Resolve and respond
+  └─&gt; Cannot resolve? → Escalate to Module Design Agent</code>text</p>
+<h3 id="example_3">Example</h3>
+<p>```text
+Blocker: "Database schema not defined"</p>
+<p>Implementation Engineer:</p>
+<ul>
+<li>Cannot implement without schema</li>
+<li>Escalates to Component Specialist</li>
+</ul>
+<p>Component Specialist:</p>
+<ul>
+<li>Recognizes this is architectural issue</li>
+<li>Escalates to Architecture Design Agent</li>
+</ul>
+<p>Architecture Design Agent:</p>
+<ul>
+<li>Designs database schema</li>
+<li>Provides specification</li>
+<li>Issue resolved, work continues
+```text</li>
+</ul>
+<h3 id="pattern-conflict-escalation">Pattern: Conflict Escalation</h3>
+<p><strong>When</strong>: Agents disagree on approach
+<strong>How</strong>: Escalate to common superior</p>
+<p><code>text
+Agent A (disagrees) ──┐
+                      ├──&gt; Common Superior (decides)
+Agent B (disagrees) ──┘</code>text</p>
+<h3 id="example_4">Example</h3>
+<p>```text
+Conflict: Choice of data structure (list vs dict)</p>
+<p>Implementation Engineer A: "Use list for performance"
+Implementation Engineer B: "Use dict for lookups"</p>
+<p>Both escalate to:
+  Component Specialist
+    - Reviews requirements
+    - Analyzes trade-offs
+    - Decides: "Use dict, lookups more important"
+    - Provides rationale
+    - Both engineers implement decision
+```text</p>
+<h3 id="pattern-quality-escalation">Pattern: Quality Escalation</h3>
+<p><strong>When</strong>: Quality issues detected that violate standards
+<strong>How</strong>: Escalate for review and correction</p>
+<p><code>text
+Test Engineer (detects failures)
+  ↓ Report quality issue
+Component Specialist
+  ↓ Assigns correction
+Implementation Engineer
+  ↓ Fixes issues
+Test Engineer (verifies fix)</code>text</p>
+<hr />
+<h2 id="workflow-integration">Workflow Integration</h2>
+<h3 id="5-phase-workflow-orchestration">5-Phase Workflow Orchestration</h3>
+<h4 id="phase-1-plan-sequential">Phase 1: Plan (Sequential)</h4>
+<p><code>text
+Chief Architect
+  ↓ Strategic planning
+Section Orchestrators
+  ↓ Tactical planning
+Module Design Agents
+  ↓ Component design
+Component Specialists
+  ↓ Detailed specifications</code>text</p>
+<p><strong>Completion Criteria</strong>: All plan.md files (local, task-relative) created and reviewed</p>
+<h4 id="phase-2-4-testimplementationpackaging-parallel">Phase 2-4: Test/Implementation/Packaging (Parallel)</h4>
+<p><code>text
+Component Specialist
+  ├─&gt; Test Specialist → Test Engineers (parallel)
+  ├─&gt; Implementation Specialist → Implementation Engineers (parallel)
+  └─&gt; Documentation Specialist → Documentation Writers (parallel)</code>text</p>
+<p><strong>Coordination</strong>: TDD approach - tests and implementation coordinate</p>
+<h4 id="phase-5-cleanup-sequential">Phase 5: Cleanup (Sequential)</h4>
+<p><code>text
+All agents review their own work
+  ↓ Identify issues
+Component Specialists
+  ↓ Aggregate issues
+Section Orchestrators
+  ↓ Prioritize cleanup
+All agents
+  ↓ Execute cleanup tasks</code>text</p>
+<hr />
+<h2 id="git-worktree-coordination">Git Worktree Coordination</h2>
+<h3 id="worktree-assignment">Worktree Assignment</h3>
+<p>Each issue = one worktree</p>
+<p><code>text
+issue-62-plan-agents/          → Architecture Design Agent
+issue-63-test-agents/          → Test Design Specialist
+issue-64-impl-agents/          → Implementation Specialists
+issue-65-pkg-agents/           → Documentation Specialist
+issue-66-cleanup-agents/       → All agents</code>text</p>
+<h3 id="cross-worktree-coordination">Cross-Worktree Coordination</h3>
+<h4 id="scenario-implementation-needs-test-fixtures-from-test-worktree">Scenario: Implementation needs test fixtures from Test worktree</h4>
+<h4 id="option-1-cherry-pick-commits">Option 1: Cherry-pick commits</h4>
+<p><code>bash
+cd worktrees/issue-64-impl-agents
+git cherry-pick abc123  # Pick test fixture commit</code>text</p>
+<h4 id="option-2-temporary-merge">Option 2: Temporary merge</h4>
+<p>```bash
+cd worktrees/issue-64-impl-agents
+git merge --no-commit issue-63-test-agents</p>
+<h1 id="use-merged-state">Use merged state</h1>
+<p>git reset --hard  # Clean up if needed
+```text</p>
+<h4 id="option-3-coordinate-through-specifications">Option 3: Coordinate through specifications</h4>
+<p><code>text
+Test Engineer: Commits test fixtures to issue-63 branch
+Implementation Engineer: Reads specifications (local plan.md or tracked docs) for fixture specs
+Implementation Engineer: Creates fixtures independently in issue-64
+After both complete: Package Engineer merges both</code>text</p>
+<p><strong>Note</strong>: plan.md files are task-relative. For team-wide coordination, use
+tracked documentation in notes/issues/.</p>
+<hr />
+<h2 id="communication-protocols">Communication Protocols</h2>
+<h3 id="status-updates">Status Updates</h3>
+<p><strong>Frequency</strong>: After completing each major task
+<strong>Format</strong>: Structured status report (see above)
+<strong>Destination</strong>: Direct superior in hierarchy</p>
+<h3 id="handoffs">Handoffs</h3>
+<p><strong>When</strong>: Completing work and passing to next agent</p>
+<h4 id="format">Format</h4>
+<p>```markdown</p>
+<h2 id="task-handoff">Task Handoff</h2>
+<p>From: [Agent Name]
+To: [Next Agent Name]
+Date: [Date]</p>
+<p>Work Completed:</p>
+<ul>
+<li>[List of completed items]</li>
+</ul>
+<p>Artifacts Produced:</p>
+<ul>
+<li>[File paths and descriptions]</li>
+</ul>
+<p>Next Steps:</p>
+<ul>
+<li>[What the next agent should do]</li>
+</ul>
+<p>Notes:</p>
+<ul>
+<li>[Any important context or caveats]</li>
+</ul>
+<p>Questions for Next Agent:</p>
+<ul>
+<li>[Any clarifications needed]</li>
+</ul>
+<p>```text</p>
+<h3 id="blockers_1">Blockers</h3>
+<p><strong>When</strong>: Immediately when discovered</p>
+<h4 id="format_1">Format</h4>
+<p>```markdown</p>
+<h2 id="blocker-report">Blocker Report</h2>
+<p>Agent: [Your Name]
+Task: [What you're working on]
+Blocker: [What's blocking you]
+Impact: [How this affects timeline]
+Attempted Solutions: [What you've tried]
+Escalation To: [Who should resolve this]
+Priority: [High/Medium/Low]
+```text</p>
+<hr />
+<h2 id="decision-making-rules">Decision-Making Rules</h2>
+<h3 id="decision-authority-by-level">Decision Authority by Level</h3>
+<table>
+<thead>
+<tr>
+<th>Level</th>
+<th>Can Decide</th>
+<th>Must Escalate</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>System-wide architecture, technology stack</td>
+<td>Strategic business decisions</td>
+</tr>
+<tr>
+<td>1</td>
+<td>Section architecture, module organization</td>
+<td>Cross-section conflicts</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Module design, component interfaces</td>
+<td>Section-wide impacts</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Component implementation approach</td>
+<td>Module-wide changes</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Function implementation details</td>
+<td>Component-wide refactoring</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Code formatting, variable naming</td>
+<td>Function-level decisions</td>
+</tr>
+</tbody>
+</table>
+<h3 id="escalation-triggers">Escalation Triggers</h3>
+<p>Escalate when:</p>
+<ol>
+<li><strong>Scope Exceeds Authority</strong>: Decision impacts levels above</li>
+<li><strong>Resource Conflicts</strong>: Multiple agents need same resource</li>
+<li><strong>Quality Concerns</strong>: Standards violated or quality at risk</li>
+<li><strong>Technical Disagreements</strong>: Agents cannot reach consensus</li>
+<li><strong>Requirements Unclear</strong>: Specifications incomplete or contradictory</li>
+</ol>
+<hr />
+<h2 id="anti-patterns-avoid-these">Anti-Patterns (Avoid These)</h2>
+<h3 id="skipping-levels">❌ Skipping Levels</h3>
+<p><strong>Wrong</strong>: Junior Engineer escalates directly to Chief Architect
+<strong>Right</strong>: Junior Engineer → Implementation Engineer → Component Specialist → ... → Chief Architect</p>
+<h3 id="micro-management">❌ Micro-Management</h3>
+<p><strong>Wrong</strong>: Section Orchestrator specifies function implementations
+<strong>Right</strong>: Section Orchestrator specifies requirements, delegates implementation details</p>
+<h3 id="working-in-silos">❌ Working in Silos</h3>
+<p><strong>Wrong</strong>: Agents work without communicating, merge conflicts arise
+<strong>Right</strong>: Agents coordinate on interfaces, share status, negotiate conflicts</p>
+<h3 id="hoarding-information">❌ Hoarding Information</h3>
+<p><strong>Wrong</strong>: Agent completes work without documenting decisions
+<strong>Right</strong>: Agent documents rationale, shares learnings, updates specs</p>
+<h3 id="premature-optimization">❌ Premature Optimization</h3>
+<p><strong>Wrong</strong>: Junior Engineer refactors entire codebase
+<strong>Right</strong>: Junior Engineer implements spec, suggests optimizations to superior</p>
+<hr />
+<h2 id="monitoring-and-metrics">Monitoring and Metrics</h2>
+<h3 id="health-metrics">Health Metrics</h3>
+<ul>
+<li><strong>Delegation Depth</strong>: Average levels traversed per task</li>
+<li><strong>Escalation Rate</strong>: Number of escalations per 100 tasks</li>
+<li><strong>Cycle Time</strong>: Time from delegation to completion</li>
+<li><strong>Rework Rate</strong>: Tasks returned for corrections</li>
+<li><strong>Coordination Overhead</strong>: Time spent on coordination vs execution</li>
+</ul>
+<h3 id="success-indicators">Success Indicators</h3>
+<ul>
+<li>Clear task handoffs</li>
+<li>Minimal escalations for trivial issues</li>
+<li>High first-time quality</li>
+<li>Effective parallel execution</li>
+<li>Smooth cross-worktree coordination</li>
+</ul>
+<hr />
+<h2 id="examples">Examples</h2>
+<h3 id="example-1-complete-task-flow">Example 1: Complete Task Flow</h3>
+<p><strong>Task</strong>: "Implement user authentication"</p>
+<p>```text
+1. Chief Architect
+   - Recognizes security importance
+   - Delegates to Foundation Orchestrator</p>
+<ol>
+<li>Foundation Orchestrator</li>
+<li>
+<p>Assigns to Security Design Agent</p>
+</li>
+<li>
+<p>Security Design Agent (Level 2)</p>
+</li>
+<li>Designs authentication approach</li>
+<li>Creates component specification</li>
+<li>
+<p>Delegates to Security Implementation Specialist</p>
+</li>
+<li>
+<p>Security Implementation Specialist (Level 3)</p>
+</li>
+<li>Breaks into functions</li>
+<li>Creates detailed implementation plan</li>
+<li>
+<p>Delegates in parallel:
+     ├─&gt; Test Engineer (write tests)
+     ├─&gt; Implementation Engineer (write code)
+     └─&gt; Documentation Writer (write docs)</p>
+</li>
+<li>
+<p>Implementation Engineer (Level 4)</p>
+</li>
+<li>Implements authentication functions</li>
+<li>Coordinates with Test Engineer on TDD</li>
+<li>
+<p>Delegates boilerplate to Junior Engineer</p>
+</li>
+<li>
+<p>Junior Engineer (Level 5)</p>
+</li>
+<li>Generates function templates</li>
+<li>Applies code formatters</li>
+<li>
+<p>Returns to Implementation Engineer</p>
+</li>
+<li>
+<p>Implementation Engineer</p>
+</li>
+<li>Completes implementation</li>
+<li>
+<p>Reports to Security Implementation Specialist</p>
+</li>
+<li>
+<p>Security Implementation Specialist</p>
+</li>
+<li>Reviews all work (test, impl, docs)</li>
+<li>Integrates in packaging worktree</li>
+<li>
+<p>Reports to Security Design Agent</p>
+</li>
+<li>
+<p>Security Design Agent</p>
+</li>
+<li>Validates against design</li>
+<li>
+<p>Reports to Foundation Orchestrator</p>
+</li>
+<li>
+<p>Foundation Orchestrator</p>
+<ul>
+<li>Confirms completion</li>
+<li>Updates Chief Architect
+```text</li>
+</ul>
+</li>
+</ol>
+<h3 id="example-2-conflict-resolution">Example 2: Conflict Resolution</h3>
+<p><strong>Conflict</strong>: Test Engineer and Implementation Engineer disagree on function signature</p>
+<p>```text
+1. Test Engineer: "Function should return tuple (success, user_id)"
+2. Implementation Engineer: "Function should return user_id or raise exception"</p>
+<ol>
+<li>
+<p>Both escalate to Component Specialist</p>
+</li>
+<li>
+<p>Component Specialist:</p>
+</li>
+<li>Reviews Python best practices</li>
+<li>Analyzes use cases</li>
+<li>Decides: "Raise exception on failure, return user_id on success"</li>
+<li>Rationale: "Pythonic, clearer error handling"</li>
+<li>
+<p>Updates specification</p>
+</li>
+<li>
+<p>Both engineers implement decision</p>
+</li>
+<li>Test Engineer updates tests</li>
+<li>Implementation Engineer updates code</li>
+<li>Conflict resolved</li>
+</ol>
+<p>```text</p>
+<hr />
+<h2 id="error-handling-recovery">Error Handling &amp; Recovery</h2>
+<p>This section defines how orchestrators and all agents handle errors, blockers, and failures. All orchestrators
+should reference this section rather than duplicating content.</p>
+<h3 id="error-categories">Error Categories</h3>
+<p><strong>Transient Errors</strong> (retry-able):</p>
+<ul>
+<li>GitHub API rate limits</li>
+<li>Network timeouts</li>
+<li>File locks</li>
+<li>Temporary resource unavailability</li>
+</ul>
+<p><strong>Permanent Errors</strong> (escalate):</p>
+<ul>
+<li>Missing dependencies</li>
+<li>Invalid specifications</li>
+<li>Conflicting requirements</li>
+<li>Design flaws</li>
+</ul>
+<p><strong>Agent Errors</strong> (recover or escalate):</p>
+<ul>
+<li>Delegated agent fails to complete task</li>
+<li>Delegated agent reports blocker</li>
+<li>Specification ambiguity</li>
+<li>Resource conflicts between agents</li>
+</ul>
+<h3 id="error-handling-protocol">Error Handling Protocol</h3>
+<h4 id="step-1-detect">Step 1: Detect</h4>
+<ul>
+<li>Monitor task completion status</li>
+<li>Check for error messages in agent outputs</li>
+<li>Validate deliverables exist and are correct</li>
+<li>Track timeouts and delays</li>
+</ul>
+<h4 id="step-2-classify">Step 2: Classify</h4>
+<ul>
+<li><strong>Transient</strong>: Can retry automatically</li>
+<li><strong>Recoverable</strong>: Need adjustment, not escalation</li>
+<li><strong>Blocker</strong>: Must escalate to superior</li>
+</ul>
+<h4 id="step-3-respond">Step 3: Respond</h4>
+<h3 id="for-transient-errors">For Transient Errors</h3>
+<ol>
+<li>Wait with exponential backoff</li>
+<li>Retry up to 3 times</li>
+<li>If still failing, reclassify as blocker</li>
+</ol>
+<h3 id="for-recoverable-errors">For Recoverable Errors</h3>
+<ol>
+<li>Clarify specification</li>
+<li>Provide additional context</li>
+<li>Re-delegate with improved instructions</li>
+<li>Document lesson learned in <code>/notes/issues/&lt;issue-number&gt;/README.md</code></li>
+</ol>
+<h3 id="for-blockers">For Blockers</h3>
+<ol>
+<li>Document what's blocked and impact</li>
+<li>Document what you've tried</li>
+<li>Escalate to immediate superior with clear report</li>
+<li>Continue with non-blocked tasks if possible</li>
+</ol>
+<h3 id="escalation-report-format">Escalation Report Format</h3>
+<p>```markdown</p>
+<h2 id="escalation-report">Escalation Report</h2>
+<p><strong>From</strong>: [Your Agent Name/Level]
+<strong>To</strong>: [Superior Agent Name/Level]
+<strong>Date</strong>: [YYYY-MM-DD]
+<strong>Issue</strong>: [Brief summary]</p>
+<h3 id="whats-blocked">What's Blocked</h3>
+<ul>
+<li>[Specific task or deliverable]</li>
+</ul>
+<h3 id="root-cause">Root Cause</h3>
+<ul>
+<li>[What caused the blocker]</li>
+</ul>
+<h3 id="what-ive-tried">What I've Tried</h3>
+<ol>
+<li>[Attempt 1] - [Result]</li>
+<li>[Attempt 2] - [Result]</li>
+<li>[Attempt 3] - [Result]</li>
+</ol>
+<h3 id="impact">Impact</h3>
+<ul>
+<li>Dependencies: [What other tasks are blocked]</li>
+<li>Scope: [Can we proceed with other work?]</li>
+</ul>
+<h3 id="recommended-action">Recommended Action</h3>
+<ul>
+<li>[Your suggestion for resolution]
+```text</li>
+</ul>
+<h3 id="recovery-strategies">Recovery Strategies</h3>
+<h4 id="strategy-1-specification-refinement">Strategy 1: Specification Refinement</h4>
+<ul>
+<li>Agent reports ambiguity in task specification</li>
+<li>Orchestrator clarifies and provides more detail</li>
+<li>Agent proceeds with refined spec</li>
+</ul>
+<h4 id="strategy-2-resource-reallocation">Strategy 2: Resource Reallocation</h4>
+<ul>
+<li>Agent reports resource conflict (file, API, etc.)</li>
+<li>Orchestrator coordinates timing with other agents</li>
+<li>Work proceeds in sequence instead of parallel</li>
+</ul>
+<h4 id="strategy-3-scope-reduction">Strategy 3: Scope Reduction</h4>
+<ul>
+<li>Task proves too complex for current approach</li>
+<li>Orchestrator breaks into smaller subtasks</li>
+<li>Delegates simpler pieces to agents</li>
+</ul>
+<h4 id="strategy-4-agent-substitution">Strategy 4: Agent Substitution</h4>
+<ul>
+<li>Delegated agent lacks capability</li>
+<li>Orchestrator identifies appropriate specialist</li>
+<li>Re-delegates to agent with right expertise</li>
+</ul>
+<h4 id="strategy-5-escalation-for-authority">Strategy 5: Escalation for Authority</h4>
+<ul>
+<li>Decision requires higher-level authority</li>
+<li>Document options and trade-offs</li>
+<li>Escalate with recommendation</li>
+<li>Superior makes decision, orchestrator implements</li>
+</ul>
+<h3 id="continuous-improvement">Continuous Improvement</h3>
+<p>After resolving errors:</p>
+<ol>
+<li><strong>Document</strong> the error and resolution in <code>/notes/issues/&lt;issue-number&gt;/README.md</code></li>
+<li><strong>Update</strong> specifications to prevent recurrence</li>
+<li><strong>Share</strong> lessons with peer agents (if applicable)</li>
+<li><strong>Improve</strong> delegation instructions for future tasks</li>
+</ol>
+<h3 id="github-issue-requirement">GitHub Issue Requirement</h3>
+<p><strong>All work requires a GitHub issue</strong>. If an error occurs and no issue exists:</p>
+<ol>
+<li><strong>STOP</strong> work immediately</li>
+<li><strong>Create issue</strong> using <code>gh issue create</code> or escalate to have issue created</li>
+<li><strong>Document</strong> error in <code>/notes/issues/&lt;issue-number&gt;/README.md</code></li>
+<li><strong>Resume</strong> work after issue is created</li>
+</ol>
+<p>No outputs should be created outside <code>/notes/issues/&lt;issue-number&gt;/</code> directory.</p>
+<hr />
+<h2 id="references">References</h2>
+<ul>
+<li><a href="https://github.com/HomericIntelligence/Odyssey/blob/main/agents/hierarchy.md">Agent Hierarchy</a></li>
+<li><a href="../skills-design/">Skills Design</a></li>
+<li><a href="../phases/">5-Phase Workflow</a></li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "search.suggest", "search.highlight", "content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>
