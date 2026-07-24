@@ -327,32 +327,135 @@ def test_lars_weight_decay() raises:
     assert_less(val_with_wd_0, val_without_wd_0)
 
 
-def test_lars_step_simple() raises:
-    """Test LARS simplified step function with default hyperparameters.
-
-    Simplified API uses sensible defaults:
-    - momentum = 0.9
-    - weight_decay = 0.0001
-    - trust_coefficient = 0.001
-    - epsilon = 1e-8
+def _lars_abs_diff(a: Float64, b: Float64) -> Float64:
+    """Mirror of the helper shape used in sibling tests (test_eigen, test_muon, test_rnn).
     """
+    var d = a - b
+    if d < 0:
+        d = -d
+    return d
+
+
+def test_lars_step_simple() raises:
+    """`lars_step_simple` delegates to `lars_step` with documented defaults.
+
+    Replacement rationale:
+        The previous test only asserted that `lars_step_simple` returned a
+        non-zero result, which silently accepts a broken delegation (e.g. if
+        `lars_step_simple` forgot to call `lars_step` and returned a default
+        value, the smoke check would still pass). This upgrade replaces the
+        smoke check with element-wise parity on `new_params` AND `new_velocity`
+        across two paths: zero-grad (exercises the trust-ratio / weight-decay
+        init path) and non-zero-grad (exercises the actual LARS update).
+        Defaults match lars.mojo: momentum=0.9, weight_decay=0.0001,
+        trust_coefficient=0.001, epsilon=1e-8.
+    """
+    # --- Pass 1: zero gradients ---
     var shape: List[Int] = [1]
+    var params_zi = ones(shape, DType.float32)
+    params_zi.set(0, Float32(1.0))
+    var grads_zi = zeros(shape, DType.float32)
+    var vel_f = zeros(shape, DType.float32)
+    var vel_s = zeros(shape, DType.float32)
+
+    var full_p1 = lars_step(
+        params_zi,
+        grads_zi,
+        vel_f,
+        learning_rate=1.0,
+        momentum=0.9,
+        weight_decay=0.0001,
+        trust_coefficient=0.001,
+        epsilon=1e-8,
+    )
+    var simple_p1 = lars_step_simple(
+        params_zi, grads_zi, vel_s, learning_rate=1.0
+    )
+
+    for i in range(params_zi.numel()):
+        var diff_p = _lars_abs_diff(
+            Float64(full_p1[0]._data.bitcast[Float32]()[i]),
+            Float64(simple_p1[0]._data.bitcast[Float32]()[i]),
+        )
+        if diff_p > 1e-12:
+            raise Error(
+                "lars_step_simple params diverged at "
+                + String(i)
+                + " (zero-grad); diff="
+                + String(diff_p)
+            )
+        var diff_v = _lars_abs_diff(
+            Float64(full_p1[1]._data.bitcast[Float32]()[i]),
+            Float64(simple_p1[1]._data.bitcast[Float32]()[i]),
+        )
+        if diff_v > 1e-12:
+            raise Error(
+                "lars_step_simple velocity diverged at "
+                + String(i)
+                + " (zero-grad); diff="
+                + String(diff_v)
+            )
+
+    # Positive no-op: zero-grad + weight_decay must shrink params from 1.0
+    # (params *= (1 - lr*wd) = (1 - 1.0*0.0001) = 0.9999). A broken delegation
+    # that returned params unchanged would still score 1.0 here.
+    var params_after_zi = Float64(full_p1[0]._data.bitcast[Float32]()[0])
+    if params_after_zi >= 1.0:
+        raise Error(
+            "lars weight decay must shrink params from 1.0; got "
+            + String(params_after_zi)
+        )
+
+    # --- Pass 2: non-zero gradient ---
     var params = ones(shape, DType.float32)
     params.set(0, Float32(1.0))
-
     var grads = zeros(shape, DType.float32)
     grads.set(0, Float32(0.1))
+    var vel_full = zeros(shape, DType.float32)
+    var vel_simple = zeros(shape, DType.float32)
 
-    var velocity = zeros(shape, DType.float32)
+    var full_p2 = lars_step(
+        params,
+        grads,
+        vel_full,
+        learning_rate=1.0,
+        momentum=0.9,
+        weight_decay=0.0001,
+        trust_coefficient=0.001,
+        epsilon=1e-8,
+    )
+    var simple_p2 = lars_step_simple(
+        params, grads, vel_simple, learning_rate=1.0
+    )
 
-    # Should accept minimal parameters
-    var result = lars_step_simple(params, grads, velocity, learning_rate=1.0)
+    for i in range(params.numel()):
+        var diff_p = _lars_abs_diff(
+            Float64(full_p2[0]._data.bitcast[Float32]()[i]),
+            Float64(simple_p2[0]._data.bitcast[Float32]()[i]),
+        )
+        if diff_p > 1e-12:
+            raise Error(
+                "lars_step_simple params diverged at "
+                + String(i)
+                + " (non-zero-grad); diff="
+                + String(diff_p)
+            )
+        var diff_v = _lars_abs_diff(
+            Float64(full_p2[1]._data.bitcast[Float32]()[i]),
+            Float64(simple_p2[1]._data.bitcast[Float32]()[i]),
+        )
+        if diff_v > 1e-12:
+            raise Error(
+                "lars_step_simple velocity diverged at "
+                + String(i)
+                + " (non-zero-grad); diff="
+                + String(diff_v)
+            )
 
-    var new_params = result[0]
-
-    # Parameter should change
-    var new_val = Float64(new_params._data.bitcast[Float32]()[0])
-    assert_not_equal(new_val, 1.0)
+    print(
+        "  ok lars_step_simple delegates to lars_step defaults"
+        " (params/velocity across 2 paths)"
+    )
 
 
 def test_lars_adaptive_scaling_small_gradients() raises:

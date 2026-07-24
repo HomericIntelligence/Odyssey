@@ -166,18 +166,126 @@ def test_zero_grad_no_nan() raises:
     print("test_zero_grad_no_nan PASSED")
 
 
+def _normuon_abs_diff(a: Float64, b: Float64) -> Float64:
+    """Mirror of the helper shape used in sibling tests."""
+    var d = a - b
+    if d < 0:
+        d = -d
+    return d
+
+
 def test_normuon_step_simple() raises:
-    """Test the convenience normuon_step_simple function."""
-    print("Running test_normuon_step_simple...")
+    """`normuon_step_simple` delegates to `normuon_step` with documented defaults.
 
-    var params = randn([8, 16], DType.float32)
-    var grad = randn([8, 16], DType.float32)
-    var m = zeros_like(params)
-    var lr = 0.01
+    Replacement rationale:
+        The previous test only asserted the call returned without raising,
+        which silently accepts a broken delegation contract (e.g. if
+        `normuon_step_simple` returned a zero-initialized tensor instead of
+        delegating, the smoke check would still pass). This upgrade replaces
+        the smoke check with element-wise parity on `new_params` AND
+        `new_momentum` across two paths: zero-grad (exercises the row/col
+        norm init at lr scale) and non-zero-grad (exercises the actual
+        NorMuon update). Defaults match normuon.mojo: norm_axis=0, eps=1e-8,
+        momentum=0.95.
+    """
+    print("Running test_normuon_step_simple (delegation parity)...")
 
-    var (_, _) = normuon_step_simple(params, grad, m, lr)
+    # --- Pass 1: zero gradients ---
+    var shape: List[Int] = [8, 16]
+    var params_zi = zeros(shape, DType.float32)
+    var grad_zi = zeros(shape, DType.float32)
+    var mr_f = zeros(shape, DType.float32)
+    var mr_s = zeros(shape, DType.float32)
 
-    print("  ✓ normuon_step_simple completed")
+    var full_p1 = normuon_step(
+        params_zi,
+        grad_zi,
+        mr_f,
+        learning_rate=0.01,
+        norm_axis=0,
+        eps=1e-8,
+        momentum=0.95,
+    )
+    var simple_p1 = normuon_step_simple(params_zi, grad_zi, mr_s, 0.01)
+
+    var n_total = params_zi.numel()
+    for i in range(n_total):
+        var diff_p = _normuon_abs_diff(
+            full_p1[0]._get_float64(i), simple_p1[0]._get_float64(i)
+        )
+        if diff_p > 1e-3:
+            raise Error(
+                "normuon_step_simple params diverged at "
+                + String(i)
+                + " (zero-grad); diff="
+                + String(diff_p)
+            )
+        var diff_m = _normuon_abs_diff(
+            full_p1[1]._get_float64(i), simple_p1[1]._get_float64(i)
+        )
+        if diff_m > 1e-3:
+            raise Error(
+                "normuon_step_simple momentum diverged at "
+                + String(i)
+                + " (zero-grad); diff="
+                + String(diff_m)
+            )
+
+    # --- Pass 2: non-zero gradient ---
+    var params = randn(shape, DType.float32)
+    var grad = randn(shape, DType.float32)
+    var m_full = zeros_like(params)
+    var m_simple = zeros_like(params)
+
+    var full_p2 = normuon_step(
+        params,
+        grad,
+        m_full,
+        learning_rate=0.01,
+        norm_axis=0,
+        eps=1e-8,
+        momentum=0.95,
+    )
+    var simple_p2 = normuon_step_simple(params, grad, m_simple, 0.01)
+
+    for i in range(n_total):
+        var diff_p = _normuon_abs_diff(
+            full_p2[0]._get_float64(i), simple_p2[0]._get_float64(i)
+        )
+        if diff_p > 1e-3:
+            raise Error(
+                "normuon_step_simple params diverged at "
+                + String(i)
+                + " (non-zero-grad); diff="
+                + String(diff_p)
+            )
+        var diff_m = _normuon_abs_diff(
+            full_p2[1]._get_float64(i), simple_p2[1]._get_float64(i)
+        )
+        if diff_m > 1e-3:
+            raise Error(
+                "normuon_step_simple momentum diverged at "
+                + String(i)
+                + " (non-zero-grad); diff="
+                + String(diff_m)
+            )
+
+    # Positive no-op: non-zero grad must change params (delta > eps).
+    var p_before = params._get_float64(0)
+    var p_after = full_p2[0]._get_float64(0)
+    if _normuon_abs_diff(p_before, p_after) < 1e-6:
+        raise Error(
+            "normuon_step_simple must change params under non-zero grad;"
+            " before="
+            + String(p_before)
+            + " after="
+            + String(p_after)
+        )
+
+    print(
+        "  ok normuon_step_simple delegates to normuon_step defaults"
+        " (params/momentum across 2 paths)"
+    )
     print("test_normuon_step_simple PASSED")
 
 
