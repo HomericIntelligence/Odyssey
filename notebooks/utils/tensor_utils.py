@@ -7,7 +7,6 @@ Mojo-Python interop.
 import numpy as np
 from pathlib import Path
 from typing import Tuple, Optional
-import struct
 
 
 def numpy_to_mojo_binary(
@@ -25,7 +24,7 @@ def numpy_to_mojo_binary(
 
     # Save as raw binary data (Mojo can read with fromfile)
     with open(path, "wb") as f:
-        array.astype(np.float32).tobytes()
+        f.write(array.astype(np.float32).tobytes())
 
 
 def mojo_binary_to_numpy(

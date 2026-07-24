@@ -141,3 +141,23 @@ class TestJobDependencies:
             "test-mojo-comprehensive job does not depend on 'validate-test-coverage'. "
             "Without this dependency, test coverage gaps will not block the test run."
         )
+
+
+class TestPythonTestCoverage:
+    """Verify the required Python Tests context runs the complete suite."""
+
+    def test_python_job_runs_all_discovered_tests(self, comprehensive_tests_workflow_content: str) -> None:
+        job_match = re.search(
+            r"^  test-python:.*?(?=^  [a-zA-Z0-9_-]+:|\Z)",
+            comprehensive_tests_workflow_content,
+            re.DOTALL | re.MULTILINE,
+        )
+        assert job_match is not None, "Could not find the 'test-python' job."
+
+        job_block = job_match.group(0)
+        assert re.search(r"\bpytest\s+tests/", job_block), (
+            "The required 'Python Tests' context must run the complete tests/ tree."
+        )
+        assert "TEST_PATHS" not in job_block, (
+            "The required 'Python Tests' context must not use an allow-list that silently omits test directories."
+        )

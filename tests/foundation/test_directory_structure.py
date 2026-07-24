@@ -363,19 +363,19 @@ class TestSharedDirectoryStructure:
 class TestDirectoryHierarchy:
     """Test cases for directory hierarchy relationships."""
 
-    def test_papers_and_shared_are_siblings(self, papers_dir: Path, shared_dir: Path) -> None:
+    def test_papers_and_shared_are_under_repo_root(self, papers_dir: Path, shared_dir: Path) -> None:
         """
-        Test that papers/ and src/odyssey/ are sibling directories.
+        Test that papers/ and src/odyssey/ are under the repository root.
 
         Verifies:
-        - Both directories have same parent
-        - Parent is the repository root
+        - papers/ is directly under the repository root
+        - src/odyssey/ is under the repository root's src/ directory
 
         Args:
             papers_dir: Papers directory path
             shared_dir: Shared directory path
         """
-        assert papers_dir.parent == shared_dir.parent, "papers/ and src/odyssey/ must be in same parent directory"
+        assert papers_dir.parent == shared_dir.parent.parent
 
     def test_template_is_child_of_papers(self, papers_dir: Path, template_dir: Path) -> None:
         """
