@@ -173,6 +173,7 @@ from odyssey.training.optimizers.shampoo import (
     newton_schulz_inv_fourth_root,
     is_shampoo_eligible,
     init_shampoo_state,
+    unpack_shampoo_state,
 )
 
 # SOAP optimizer (Shampoo + Adam in the preconditioner eigenbasis)
