@@ -6,14 +6,10 @@ name: Comprehensive Tests
 # Target duration: < 15 minutes (parallelized across test groups)
 
 on:
-  # Run on all pull requests except workflow-only PRs. Skips the heavy Mojo
-  # matrix + JIT-prone workloads (modular/modular#6413) + Semgrep SAST so
-  # CI orchestrator fixes like dependabot-uv-lock-regen can land without
-  # flake-blocking on libKGEN JIT issues — see #5692 for the broader
-  # self-hosted-runner-provisioning track.
+  # Run on all pull requests. Several jobs in this workflow are pinned required
+  # status checks, so workflow-level path filters would leave those contexts
+  # unreported and block workflow-only PRs.
   pull_request:
-    paths-ignore:
-      - '.github/workflows/**'
 
   # merge_group intentionally removed: merge-queue checks are served by the
   # single fast `merge-queue-smoke` job in merge-queue-smoke.yml (see that file).
@@ -711,38 +707,16 @@ jobs:
         run: |
           mkdir -p test-results
 
-          # Collect all Python test paths
-          TEST_PATHS=""
-
-          # Unit tests
-          if [ -d "tests/unit" ] && [ -n "$(find tests/unit -name 'test_*.py' 2>/dev/null)" ]; then
-            TEST_PATHS="$TEST_PATHS tests/unit/"
-          fi
-          # Claude hook tests
-          if [ -d "tests/claude" ] && [ -n "$(find tests/claude -name 'test_*.py' 2>/dev/null)" ]; then
-            TEST_PATHS="$TEST_PATHS tests/claude/"
-          fi
-
-          # Integration tests (agents, foundation)
-          [ -f "tests/agents/test_integration.py" ] && TEST_PATHS="$TEST_PATHS tests/agents/test_integration.py"
-          [ -f "tests/foundation/test_structure_integration.py" ] && TEST_PATHS="$TEST_PATHS tests/foundation/test_structure_integration.py"
-
           start_time=$(date +%s)
-          if [ -n "$TEST_PATHS" ]; then
-            echo "Running Python tests from: $TEST_PATHS"
-            if pytest $TEST_PATHS --verbose --timeout=300 --maxfail=5; then
-              end_time=$(date +%s)
-              duration=$((end_time - start_time))
-              echo '{"group": "Python Tests", "tests": 1, "passed": 1, "failed": 0, "duration": '"$duration"'}' > test-results/Python-Tests.json
-            else
-              end_time=$(date +%s)
-              duration=$((end_time - start_time))
-              echo '{"group": "Python Tests", "tests": 1, "passed": 0, "failed": 1, "duration": '"$duration"'}' > test-results/Python-Tests.json
-              exit 1
-            fi
+          if pytest tests/ --verbose --timeout=300 --maxfail=5; then
+            end_time=$(date +%s)
+            duration=$((end_time - start_time))
+            echo '{"group": "Python Tests", "tests": 1, "passed": 1, "failed": 0, "duration": '"$duration"'}' > test-results/Python-Tests.json
           else
-            echo "⚠️  No Python tests found yet"
-            echo '{"group": "Python Tests", "tests": 0, "passed": 0, "failed": 0, "duration": 0}' > test-results/Python-Tests.json
+            end_time=$(date +%s)
+            duration=$((end_time - start_time))
+            echo '{"group": "Python Tests", "tests": 1, "passed": 0, "failed": 1, "duration": '"$duration"'}' > test-results/Python-Tests.json
+            exit 1
           fi
 
       - name: Upload test results

@@ -38,13 +38,13 @@ class TestFormatSummaryTable:
         result = format_summary_table(45, 100, "failed")
         assert "failed" in result
 
-    def test_passed_has_checkmark(self) -> None:
+    def test_passed_has_marker(self) -> None:
         result = format_summary_table(45, 100, "passed")
-        assert "✅" in result
+        assert "[PASS]" in result
 
-    def test_failed_has_cross(self) -> None:
+    def test_failed_has_marker(self) -> None:
         result = format_summary_table(45, 100, "failed")
-        assert "❌" in result
+        assert "[FAIL]" in result
 
     def test_is_markdown_table(self) -> None:
         result = format_summary_table(45, 100, "passed")

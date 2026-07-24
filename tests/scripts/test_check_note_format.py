@@ -184,8 +184,8 @@ class TestScanSourceDirs:
 
     def test_scans_existing_source_dirs(self, temp_dir):
         """Scans all present source dirs and aggregates violations."""
-        shared_dir = temp_dir / "shared"
-        shared_dir.mkdir()
+        shared_dir = temp_dir / "src" / "odyssey"
+        shared_dir.mkdir(parents=True)
         make_mojo_file(shared_dir, "foo.mojo", "# NOTE: violation in shared\n")
 
         tests_dir = temp_dir / "tests"
