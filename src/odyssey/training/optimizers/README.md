@@ -292,14 +292,18 @@ conv/bias trajectories to this fallback rather than to the Shampoo preconditione
 
 ```mojo
 from odyssey.training.optimizers import (
-    initialize_shampoo_state,
+    init_shampoo_state,
     shampoo_step,
     is_shampoo_eligible,
 )
 
-// params shape: [m, n]
-// Returns three buffers: L [m, m], R [n, n], momentum [m, n]
-var (L, R, momentum) = initialize_shampoo_state(params)
+// Allocate per-parameter state. For rank-2 matrix params,
+// state[0] = [L, R, momentum] (identity+L/R, zero momentum);
+// for rank-1 / rank-4 params, state[i] = [] (route via AdamW).
+var states = init_shampoo_state([W])       # outer per-param list
+var L = states[0][0]
+var R = states[0][1]
+var momentum = states[0][2]
 ```
 
 ### Training Loop
@@ -352,8 +356,10 @@ params_t   = params_{t-1} − lr · momentum_t
 
 Shampoo's calling convention differs from most optimizers:
 
-- `initialize_shampoo_state(params)` returns **3 buffers**: `(L, R, momentum)` — the
-  caller continues to hold `params` separately.
+- `init_shampoo_state(params_list, *, force_f64)` returns `List[List[AnyTensor]]` with
+  outer length == `len(params_list)` and inner length 3 for matrix-eligible params
+  (`[L, R, momentum]`) or 0 for non-matrix params (rank-1 bias / rank-4 conv kernel).
+  Identity-initialized `L` / `R` matrices; zeros-initialized `momentum`.
 - `shampoo_step(params, gradients, L, R, momentum, learning_rate, ...)` accepts
   **5 state arguments** and returns a **4-tuple**: `(params_new, L_new, R_new, momentum_new)`.
 - `L_new` and `R_new` are the **unclamped** EMA accumulators; internal clamping only
@@ -376,6 +382,11 @@ Shampoo's calling convention differs from most optimizers:
 keeps accumulators bounded during long training runs.
 
 State: 3 buffers per eligible parameter — `L [m, m]`, `R [n, n]`, `momentum [m, n]`.
+Allocated via the uniform lifecycle helper
+`init_shampoo_state(params_list, *, force_f64)`;
+non-matrix params get the empty inner list `[]` so callers
+`zip(params_list, states)` route rank-1 / rank-4 params through
+AdamW without special-casing.
 
 ## References
 

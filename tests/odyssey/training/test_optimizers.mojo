@@ -31,7 +31,6 @@ from odyssey.training.optimizers.rmsprop import rmsprop_step
 from odyssey.training.optimizers.shampoo import (
     shampoo_step,
     shampoo_step_simple,
-    initialize_shampoo_state,
 )
 
 
@@ -857,11 +856,11 @@ def test_shampoo_initialization() raises:
     var shape: List[Int] = [2, 3]
     var params = ones(shape, DType.float32)
 
-    # initialize_shampoo_state returns (L, R, momentum)
-    var state = initialize_shampoo_state(params)
-    var L = state[0]
-    var R = state[1]
-    var m = state[2]
+    # init_shampoo_state returns (L, R, momentum) (per-parameter 3-tuple)
+    var state = init_shampoo_state([params])
+        var L = state[0][0]
+        var R = state[0][1]
+        var m = state[0][2]
 
     # L should be [m, m], R should be [n, n], momentum should match params
     var L_shape: List[Int] = [2, 2]
@@ -877,10 +876,13 @@ def test_shampoo_basic_update() raises:
     var params = ones(shape, DType.float32)
     var grads = ones(shape, DType.float32)
 
-    var state = initialize_shampoo_state(params)
-    var L = state[0]
-    var R = state[1]
-    var m = state[2]
+    var state = init_shampoo_state([params])
+
+        var L = state[0][0]
+
+        var R = state[0][1]
+
+        var m = state[0][2]
 
     var result = shampoo_step(params, grads, L, R, m, learning_rate=0.01)
     var new_params = result[0]
@@ -913,10 +915,13 @@ def test_shampoo_descent_on_quadratic() raises:
     params.set(2, Float32(1.0))
     params.set(3, Float32(-3.0))
 
-    var state = initialize_shampoo_state(params)
-    var L = state[0]
-    var R = state[1]
-    var m = state[2]
+    var state = init_shampoo_state([params])
+
+        var L = state[0][0]
+
+        var R = state[0][1]
+
+        var m = state[0][2]
 
     # Quadratic: loss = sum(params^2), grad = 2 * params
     var initial_norm = Float64(0.0)
@@ -950,10 +955,13 @@ def test_shampoo_preconditioner_accumulates() raises:
     var params = ones(shape, DType.float32)
     var grads = ones(shape, DType.float32)
 
-    var state = initialize_shampoo_state(params)
-    var L = state[0]
-    var R = state[1]
-    var m = state[2]
+    var state = init_shampoo_state([params])
+
+        var L = state[0][0]
+
+        var R = state[0][1]
+
+        var m = state[0][2]
 
     var L_before = Float64(L._data.bitcast[Float32]()[0])
 
@@ -972,10 +980,13 @@ def test_shampoo_epsilon_stability_zero_gradient() raises:
     var params = ones(shape, DType.float32)
     var grads = zeros(shape, DType.float32)
 
-    var state = initialize_shampoo_state(params)
-    var L = state[0]
-    var R = state[1]
-    var m = state[2]
+    var state = init_shampoo_state([params])
+
+        var L = state[0][0]
+
+        var R = state[0][1]
+
+        var m = state[0][2]
 
     # Should not raise even with zero gradients
     var result = shampoo_step(params, grads, L, R, m, learning_rate=0.01)
@@ -991,10 +1002,13 @@ def test_shampoo_memory_footprint() raises:
     var params = ones(shape, DType.float32)
     var grads = ones(shape, DType.float32)
 
-    var state = initialize_shampoo_state(params)
-    var L = state[0]
-    var R = state[1]
-    var m = state[2]
+    var state = init_shampoo_state([params])
+
+        var L = state[0][0]
+
+        var R = state[0][1]
+
+        var m = state[0][2]
 
     var result = shampoo_step(params, grads, L, R, m, learning_rate=0.01)
 
@@ -1010,10 +1024,13 @@ def test_shampoo_weight_decay() raises:
     var params = ones(shape, DType.float32)
     var grads = zeros(shape, DType.float32)
 
-    var state = initialize_shampoo_state(params)
-    var L = state[0]
-    var R = state[1]
-    var m = state[2]
+    var state = init_shampoo_state([params])
+
+        var L = state[0][0]
+
+        var R = state[0][1]
+
+        var m = state[0][2]
 
     var initial_sum = Float64(0.0)
     for i in range(4):
@@ -1042,10 +1059,13 @@ def test_shampoo_pure_functional() raises:
     params.set(0, Float32(1.5))
     var grads = ones(shape, DType.float32)
 
-    var state = initialize_shampoo_state(params)
-    var L = state[0]
-    var R = state[1]
-    var m = state[2]
+    var state = init_shampoo_state([params])
+
+        var L = state[0][0]
+
+        var R = state[0][1]
+
+        var m = state[0][2]
 
     var param_val_before = Float64(params._data.bitcast[Float32]()[0])
     var _ = shampoo_step(params, grads, L, R, m, learning_rate=0.01)
@@ -1064,10 +1084,13 @@ def test_shampoo_simple_wrapper() raises:
     var params = ones(shape, DType.float32)
     var grads = ones(shape, DType.float32)
 
-    var state = initialize_shampoo_state(params)
-    var L = state[0]
-    var R = state[1]
-    var m = state[2]
+    var state = init_shampoo_state([params])
+
+        var L = state[0][0]
+
+        var R = state[0][1]
+
+        var m = state[0][2]
 
     var result = shampoo_step_simple(params, grads, L, R, m, learning_rate=0.01)
 

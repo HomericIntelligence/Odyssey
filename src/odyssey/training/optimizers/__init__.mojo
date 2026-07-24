@@ -174,7 +174,6 @@ from odyssey.training.optimizers.shampoo import (
     shampoo_step_simple,
     newton_schulz_inv_fourth_root,
     is_shampoo_eligible,
-    initialize_shampoo_state,
     init_shampoo_state,
 )
 
@@ -221,8 +220,6 @@ from odyssey.training.optimizers.prodigy import (
 
 # Optimizer utilities (common helper functions)
 from odyssey.training.optimizers.optimizer_utils import (
-    initialize_optimizer_state,
-    initialize_optimizer_state_from_params,
     compute_weight_decay_term,
     apply_weight_decay,
     scale_tensor,

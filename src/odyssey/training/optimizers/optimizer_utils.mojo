@@ -4,7 +4,6 @@ This module provides common utility functions used across optimizer implementati
 including parameter state initialization, norm computation, and scaling operations.
 
 Utilities provided:
-- initialize_optimizer_state: Create and initialize optimizer state tensors
 - compute_weight_decay_term: Compute L2 regularization term
 - apply_weight_decay: Apply L2 regularization to parameters
 - scale_tensor: Multiply tensor by scalar value
@@ -14,114 +13,19 @@ Design Philosophy:
     These utilities are designed to be reusable across different optimizer
     implementations (SGD, Adam, AdamW, RMSprop, LARS, etc.) and support
     both pure functional and in-place mutation styles
+
+Note:
+    The per-parameter `init_<name>_state` helpers in each optimizer module
+    (e.g. `init_shampoo_state`, `init_adam_state`, `init_muon_state`) are the
+    canonical state allocator for each optimizer. Generic shape allocators
+    used by older call sites have been removed; route new code through the
+    per-optimizer `init_*_state` helpers and `zip(params_list, states)`.
 """
 
 from std.math import sqrt
 from odyssey.tensor.any_tensor import AnyTensor
 from odyssey.tensor.tensor_creation import zeros_like, full_like
 from odyssey.core.arithmetic_simd import multiply_simd
-
-
-def initialize_optimizer_state(
-    param_shapes: List[List[Int]], num_states: Int, dtype: DType = DType.float32
-) raises -> List[List[AnyTensor]]:
-    """Initialize multiple state buffers for optimizer (e.g., momentum, moments).
-
-        Creates num_states lists of zero-initialized tensors for each parameter shape.
-        This is useful for initializing all required state tensors for an optimizer.
-
-    Args:
-            param_shapes: List of parameter shapes to create state buffers for.
-            num_states: Number of state buffers to create per parameter.
-            dtype: Data type for state tensors (default: float32).
-
-    Returns:
-            List of state buffer lists. Each element is a list of AnyTensor states
-            for a single parameter.
-
-    Raises:
-            Error: If operation fails.
-
-        Example:
-            ```mojo
-            # For Adam, which needs first moment (m) and second moment (v)
-            var shapes = List[List[Int]]()
-            shapes.append([784, 128])  # Weight shape
-            shapes.append([128])       # Bias shape.
-
-            var states = initialize_optimizer_state(shapes, num_states=2)
-            # states[0] = [m_weight, v_weight]
-            # states[1] = [m_bias, v_bias]
-            ```
-
-    Note:
-            For SGD with momentum, use num_states=1 (one velocity buffer per param).
-            For Adam variants, use num_states=2 (m and v buffers per param).
-    """
-    from odyssey.tensor.tensor_creation import zeros
-
-    var all_states = List[List[AnyTensor]]()
-
-    for i in range(len(param_shapes)):
-        var param_state: List[AnyTensor] = []
-
-        for _ in range(num_states):
-            # Copy the shape since List[Int] is not ImplicitlyCopyable
-            var shape = List[Int]()
-            for j in range(len(param_shapes[i])):
-                shape.append(param_shapes[i][j])
-
-            param_state.append(zeros(shape, dtype))
-
-        all_states.append(param_state^)
-
-    return all_states^
-
-
-def initialize_optimizer_state_from_params(
-    params: List[AnyTensor], num_states: Int
-) raises -> List[List[AnyTensor]]:
-    """Initialize multiple state buffers for optimizer from existing parameters.
-
-        Convenience function that extracts shapes from parameter tensors and creates
-        matching state buffers with the same dtype as each parameter.
-
-    Args:
-            params: List of parameter tensors to base state initialization on.
-            num_states: Number of state buffers to create per parameter.
-
-    Returns:
-            List of state buffer lists with matching shapes and dtypes.
-
-    Raises:
-            Error: If operation fails.
-
-        Example:
-            ```mojo
-            # Collect all model parameters
-            var params : List[AnyTensor] = []
-            params.append(layer1_weight)
-            params.append(layer1_bias)
-            params.append(layer2_weight)
-
-            # Initialize 2 states per parameter (for Adam: m and v)
-            var states = initialize_optimizer_state_from_params(params, num_states=2)
-            ```
-    """
-    from odyssey.tensor.tensor_creation import zeros
-
-    var all_states = List[List[AnyTensor]]()
-
-    for i in range(len(params)):
-        var param = params[i]
-        var param_state: List[AnyTensor] = []
-
-        for _ in range(num_states):
-            param_state.append(zeros(param.shape(), param.dtype()))
-
-        all_states.append(param_state^)
-
-    return all_states^
 
 
 def compute_weight_decay_term(

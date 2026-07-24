@@ -25,52 +25,11 @@ from odyssey.training.optimizers import (
     compute_global_norm,
     compute_tensor_norm,
     compute_weight_decay_term,
-    initialize_optimizer_state,
-    initialize_optimizer_state_from_params,
     normalize_tensor_to_unit_norm,
     scale_tensor,
     scale_tensor_inplace,
     validate_optimizer_state,
 )
-
-
-def test_initialize_optimizer_state() raises:
-    """Test basic optimizer state initialization."""
-    # Create shapes for 2 parameters
-    var shapes = List[List[Int]]()
-    shapes.append([3, 4])
-    shapes.append([4])
-
-    # Initialize 2 states per parameter (e.g., Adam: m and v)
-    var states = initialize_optimizer_state(shapes, num_states=2)
-
-    # Check structure
-    assert_true(len(states) == 2, "Should have 2 state lists")
-    assert_true(len(states[0]) == 2, "First param should have 2 states")
-    assert_true(len(states[1]) == 2, "Second param should have 2 states")
-
-    # Check shapes
-    assert_true(states[0][0].shape()[0] == 3)
-    assert_true(states[0][0].shape()[1] == 4)
-    assert_true(states[1][0].shape()[0] == 4)
-
-
-def test_initialize_optimizer_state_from_params() raises:
-    """Test optimizer state initialization from parameters."""
-    var params: List[AnyTensor] = []
-    params.append(ones([2, 3], DType.float32))
-    params.append(ones([3], DType.float32))
-
-    var states = initialize_optimizer_state_from_params(params, num_states=2)
-
-    # Check structure
-    assert_true(len(states) == 2)
-    assert_true(len(states[0]) == 2)
-    assert_true(len(states[1]) == 2)
-
-    # Check shapes match
-    assert_true(states[0][0].shape() == params[0].shape())
-    assert_true(states[1][0].shape() == params[1].shape())
 
 
 def test_scale_tensor() raises:
@@ -141,18 +100,6 @@ def test_clip_tensor_norm() raises:
     # Check tensor was clipped to max_norm
     var new_norm = compute_tensor_norm(tensor)
     assert_almost_equal(new_norm, 1.5, tolerance=1e-6)
-
-
-def test_main() raises:
-    """Run all tests."""
-    test_initialize_optimizer_state()
-    test_initialize_optimizer_state_from_params()
-    test_scale_tensor()
-    test_scale_tensor_inplace()
-    test_compute_tensor_norm()
-    test_compute_tensor_norm_zero()
-    test_compute_global_norm()
-    test_clip_tensor_norm()
 
 
 def test_clip_tensor_norm_no_clip() raises:
@@ -265,12 +212,6 @@ def test_validate_optimizer_state_valid() raises:
 def main() raises:
     """Run all test_optimizer_utils tests."""
     print("Running test_optimizer_utils tests...")
-
-    test_initialize_optimizer_state()
-    print("✓ test_initialize_optimizer_state")
-
-    test_initialize_optimizer_state_from_params()
-    print("✓ test_initialize_optimizer_state_from_params")
 
     test_scale_tensor()
     print("✓ test_scale_tensor")
