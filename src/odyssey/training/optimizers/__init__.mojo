@@ -28,15 +28,13 @@ Includes:
 All optimizers follow pure functional design - caller manages state
 
 Note:
-    All symbols in this module are re-exported cleanly through the parent
-    `odyssey.training` package. You may import directly from either location:
+    Optimizer symbols are accessed only via the canonical submodule path
+    `odyssey.training.optimizers`. The parent `odyssey.training` package
+    deliberately keeps optimizer symbols out of its import surface:
 
     ```mojo
     from odyssey.training.optimizers import sgd_step
-    from odyssey.training import sgd_step  # also works
     ```
-
-    No Mojo re-export limitation applies here (unlike `odyssey.training.callbacks`).
 """
 
 # Export optimizer implementations
