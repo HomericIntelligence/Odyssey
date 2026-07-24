@@ -233,7 +233,7 @@ jupyter-server==2.20.0
     #   notebook-shim
 jupyter-server-terminals==0.5.4
     # via jupyter-server
-jupyterlab==4.7.0a0
+jupyterlab==4.7.0a1
 jupyterlab-pygments==0.3.0
     # via nbconvert
 jupyterlab-server==2.28.0
@@ -610,6 +610,7 @@ typing-extensions==4.16.0
     #   cyclonedx-python-lib
     #   ipython
     #   jupyter-client
+    #   jupyterlab
     #   mypy
     #   pydantic
     #   pydantic-core
