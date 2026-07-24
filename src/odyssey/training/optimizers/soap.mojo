@@ -264,7 +264,7 @@ def _pow(base: Float64, exp: Int) raises -> Float64:
 def init_soap_state(
     params_list: List[AnyTensor],
     *,
-    force_f64: Bool = True,
+    force_f64: Bool = False,
 ) raises -> List[List[AnyTensor]]:
     """Allocate per-parameter soap state buffers (matrix-only).
 

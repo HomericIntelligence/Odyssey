@@ -314,7 +314,7 @@ def _flip_columns(m: AnyTensor) raises -> AnyTensor:
 def init_splus_state(
     params_list: List[AnyTensor],
     *,
-    force_f64: Bool = True,
+    force_f64: Bool = False,
 ) raises -> List[List[AnyTensor]]:
     """Allocate per-parameter splus state buffers (matrix-only).
 

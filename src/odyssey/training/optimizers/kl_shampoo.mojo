@@ -330,7 +330,7 @@ def _sym_inv_sqrt(s: AnyTensor, ridge: Float64) raises -> AnyTensor:
 def init_kl_shampoo_state(
     params_list: List[AnyTensor],
     *,
-    force_f64: Bool = True,
+    force_f64: Bool = False,
 ) raises -> List[List[AnyTensor]]:
     """Allocate per-parameter KL-Shampoo state buffers (matrix-only).
 
