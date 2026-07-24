@@ -518,23 +518,127 @@ def test_muon_step_with_weight_decay() raises:
     assert_less(final_norm, initial_norm, "Weight decay shrinks parameters")
 
 
+def _muon_abs_diff(a: Float64, b: Float64) -> Float64:
+    """Mirror of the helper shape used in sibling tests."""
+    var d = a - b
+    if d < 0:
+        d = -d
+    return d
+
+
 def test_muon_step_simple() raises:
-    """Test muon_step_simple with default hyperparameters.
+    """`muon_step_simple` delegates to `muon_step` with documented defaults.
 
-    Should work the same as muon_step with paper defaults.
+    Replacement rationale:
+        The previous test only asserted return-shape, which silently accepts
+        a broken delegation contract (e.g. if `muon_step_simple` returned a
+        default-constructed or zero tensor, the shape assertion would still
+        pass). This upgrade replaces the smoke check with element-wise parity
+        on `new_params` AND `new_momentum` across two paths: zero-grad
+        (exercises the orthogonalized-momentum init) and non-zero-grad
+        (exercises the actual Muon update). Defaults match muon.mojo:
+        momentum_beta=0.95, weight_decay=0.0, nesterov=True, ns_steps=5.
     """
+    # --- Pass 1: zero gradients ---
     var shape: List[Int] = [4, 4]
-    var params = ones(shape, DType.float32)
-    var gradients = zeros(shape, DType.float32)
-    var momentum = zeros_like(params)
+    var params_zi = ones(shape, DType.float32)
+    var grads_zi = zeros(shape, DType.float32)
+    var mom_f1 = zeros_like(params_zi)
+    var mom_s1 = zeros_like(params_zi)
 
-    var (new_params, new_momentum) = muon_step_simple(
-        params, gradients, momentum, learning_rate=0.01
+    var full_p1 = muon_step(
+        params_zi,
+        grads_zi,
+        mom_f1,
+        learning_rate=0.01,
+        momentum_beta=0.95,
+        weight_decay=0.0,
+        nesterov=True,
+        ns_steps=5,
+    )
+    var simple_p1 = muon_step_simple(
+        params_zi, grads_zi, mom_s1, learning_rate=0.01
     )
 
-    # Should return valid tensors of correct shape
-    assert_shape(new_params, shape, "muon_step_simple returns correct shape")
-    assert_shape(new_momentum, shape, "muon_step_simple momentum shape correct")
+    var n_total = params_zi.numel()
+    for i in range(n_total):
+        var diff_p = _muon_abs_diff(
+            full_p1[0]._get_float64(i), simple_p1[0]._get_float64(i)
+        )
+        if diff_p > 1e-12:
+            raise Error(
+                "muon_step_simple params diverged at "
+                + String(i)
+                + " (zero-grad); diff="
+                + String(diff_p)
+            )
+        var diff_m = _muon_abs_diff(
+            full_p1[1]._get_float64(i), simple_p1[1]._get_float64(i)
+        )
+        if diff_m > 1e-12:
+            raise Error(
+                "muon_step_simple momentum diverged at "
+                + String(i)
+                + " (zero-grad); diff="
+                + String(diff_m)
+            )
+
+    # --- Pass 2: non-zero gradient ---
+    var params = ones(shape, DType.float32)
+    var grads = zeros(shape, DType.float32)
+    var mom_full = zeros_like(params)
+    var mom_simple = zeros_like(params)
+    for i in range(params.numel()):
+        grads._set_float64(i, 0.1)  # constant non-zero grad
+
+    var full_p2 = muon_step(
+        params,
+        grads,
+        mom_full,
+        learning_rate=0.01,
+        momentum_beta=0.95,
+        weight_decay=0.0,
+        nesterov=True,
+        ns_steps=5,
+    )
+    var simple_p2 = muon_step_simple(
+        params, grads, mom_simple, learning_rate=0.01
+    )
+
+    for i in range(n_total):
+        var diff_p = _muon_abs_diff(
+            full_p2[0]._get_float64(i), simple_p2[0]._get_float64(i)
+        )
+        if diff_p > 1e-12:
+            raise Error(
+                "muon_step_simple params diverged at "
+                + String(i)
+                + " (non-zero-grad); diff="
+                + String(diff_p)
+            )
+        var diff_m = _muon_abs_diff(
+            full_p2[1]._get_float64(i), simple_p2[1]._get_float64(i)
+        )
+        if diff_m > 1e-12:
+            raise Error(
+                "muon_step_simple momentum diverged at "
+                + String(i)
+                + " (non-zero-grad); diff="
+                + String(diff_m)
+            )
+
+    # Positive no-op: non-zero grad must have moved params away from 1.0.
+    var moved = full_p2[0]._get_float64(0)
+    if moved == 1.0:
+        raise Error(
+            "muon_step_simple must move params under non-zero grad; got "
+            + String(moved)
+        )
+
+    print(
+        "  ok muon_step_simple delegates to muon_step defaults"
+        " (params/momentum across 2 paths)"
+    )
 
 
 def test_muon_step_pure_functional() raises:
