@@ -218,7 +218,7 @@ podman-test-image target="runtime":
 # Run tests in container image
 podman-run-tests target="runtime":
     @podman run --rm {{REGISTRY}}/{{REPO_NAME}}:{{target}} \
-        uv run mojo test -I . tests/
+        uv run mojo test {{MOJO_TARGET_CPU}} -I . tests/
 
 # Interactive shell in container image
 podman-run-shell target="runtime":
@@ -692,7 +692,7 @@ train model="lenet_emnist" precision="fp32" epochs="10" batch_size="32" lr="0.00
     MODEL="{{model}}"
     if [ "$MODEL" = "lenet" ] || [ "$MODEL" = "lenet5" ]; then MODEL="lenet_emnist"; fi
     echo "Training $MODEL with precision={{precision}}, epochs={{epochs}}"
-    just _run "uv run mojo run -I . examples/$MODEL/run_train.mojo \
+    just _run "uv run mojo run {{MOJO_TARGET_CPU}} -I . examples/$MODEL/run_train.mojo \
         --epochs {{epochs}} --batch-size {{batch_size}} \
         --lr {{lr}} --precision {{precision}}"
 
@@ -702,7 +702,7 @@ infer model="lenet_emnist" checkpoint="lenet5_weights":
     MODEL="{{model}}"
     if [ "$MODEL" = "lenet" ] || [ "$MODEL" = "lenet5" ]; then MODEL="lenet_emnist"; fi
     echo "Running inference for $MODEL with checkpoint={{checkpoint}}"
-    just _run "uv run mojo run -I . examples/$MODEL/run_infer.mojo \
+    just _run "uv run mojo run {{MOJO_TARGET_CPU}} -I . examples/$MODEL/run_infer.mojo \
         --checkpoint {{checkpoint}} --test-set"
 
 # Run inference on single image. Accepts lenet/lenet5 as aliases for lenet_emnist.
@@ -711,7 +711,7 @@ infer-image checkpoint image_path model="lenet_emnist":
     MODEL="{{model}}"
     if [ "$MODEL" = "lenet" ] || [ "$MODEL" = "lenet5" ]; then MODEL="lenet_emnist"; fi
     echo "Running inference on {{image_path}}"
-    just _run "uv run mojo run -I . examples/$MODEL/run_infer.mojo \
+    just _run "uv run mojo run {{MOJO_TARGET_CPU}} -I . examples/$MODEL/run_infer.mojo \
         --checkpoint {{checkpoint}} --image {{image_path}}"
 
 # Download EMNIST dataset (balanced split) and flatten to datasets/emnist/
