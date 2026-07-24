@@ -119,16 +119,25 @@ jobs:
       - name: Commit regenerated uv.lock
         # Step 5 — push the regenerated lockfile back to the PR branch so
         # downstream CI works. Author is github-actions[bot] to match
-        # project convention; the GITHUB_TOKEN has `contents: write` which
-        # is enough for branch-push-within-PR-context.
+        # project convention. The PR metadata is bound to intermediate
+        # `env:` vars instead of inlined into the `run:` block — GHA's
+        # `--expression` style `${{ … }}` could let an attacker who can
+        # craft a PR branch-name or title inject code into the runner, so
+        # we suppress Semgrep's `yaml.github-actions.security.run-shell-injection`
+        # finding by reading the metadata from `$PR_NUMBER` / `$PR_HEAD_REF`
+        # (always double-quoted in the shell). The GITHUB_TOKEN has
+        # `contents: write` which is enough for branch-push-within-PR-context.
         if: steps.detect-regen.outputs.changed == 'true'
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_HEAD_REF: ${{ github.event.pull_request.head.ref }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add uv.lock
-          git commit -m "fix(uv): regenerate uv.lock for Dependabot PR #${{ github.event.pull_request.number }}"
+          git commit -m "fix(uv): regenerate uv.lock for Dependabot PR #${PR_NUMBER}"
           # Use --force-with-lease because concurrency: cancel-in-progress: true
           # may have left a previously-cancelled run mid-push; --force-with-lease
           # confirms the remote HEAD matches our local expectation before pushing.
-          # Explicit `origin <head.ref>` to make the push target crystal-clear.
-          git push --force-with-lease origin "${{ github.event.pull_request.head.ref }}"
+          # Explicit `origin $PR_HEAD_REF` to make the push target crystal-clear.
+          git push --force-with-lease origin "$PR_HEAD_REF"

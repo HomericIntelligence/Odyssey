@@ -41,6 +41,17 @@ EXPECTED_REQUIRED_CONTEXTS = [
     "merge-queue-smoke",
 ]
 
+# Workflows whose `pull_request:` trigger is allowed to add a specific
+# `paths-ignore` filter for `.github/workflows/**`. This exemption lets the
+# heavy Mojo matrix + Semgrep SAST job exit early on workflow-only PRs
+# (preventing spurious JIT/timeout flakes from blocking CI orchestrator
+# fixes that propose new workflow files — dependabot-uv-lock-regen) without altering the
+# broader PR-push coverage contract. Adding any other filter shape (extra
+# paths, a different key, wildcards, etc.) still fails the assertion below.
+PULL_REQUEST_PATH_FILTER_EXEMPTIONS: dict[str, dict[str, list[str]]] = {
+    "comprehensive-tests.yml": {"paths-ignore": [".github/workflows/**"]},
+}
+
 # PR-side contexts that must keep being emitted exactly once per PR head.
 EXPECTED_PR_CONTEXTS = [
     "Audit Shared Links",
@@ -158,7 +169,13 @@ def test_existing_pull_request_and_push_triggers_are_preserved() -> None:
             "push",
             "workflow_dispatch",
         }
-        assert triggers["pull_request"] is None
+        # `pull_request` MUST be either `None` (the contract default) OR the
+        # exact `paths-ignore: ['.github/workflows/**']` exemption declared
+        # in `PULL_REQUEST_PATH_FILTER_EXEMPTIONS` for this workflow. Any
+        # other shape (e.g. `paths:`, `paths-ignore` with extra patterns)
+        # narrows PR coverage and fails the contract by definition.
+        expected_pr_filter = PULL_REQUEST_PATH_FILTER_EXEMPTIONS.get(workflow_name)
+        assert triggers["pull_request"] == expected_pr_filter
         assert triggers["push"] == {"branches": ["main"]}
 
     smoke_triggers = _on_block(_load_yaml(WORKFLOW_DIR / "workflow-smoke-test.yml"))
