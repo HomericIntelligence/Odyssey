@@ -12,8 +12,34 @@ properties:
     required: ["name", "learning_rate"]
     properties:
       name:
+        # Must stay in sync with src/odyssey/training/dispatch.mojo's
+        # canonical 24-entry registry (#5682).
         type: string
-        enum: ["sgd", "adam", "adamw", "rmsprop", "adagrad"]
+        enum:
+          - sgd
+          - adam
+          - adamw
+          - rmsprop
+          - adagrad
+          - lars
+          - muon
+          - normuon
+          - mgup_muon
+          - muon_hyperball
+          - lion
+          - adopt
+          - lionmuon
+          - sophia
+          - adan
+          - sf_normuon
+          - ftrl
+          - shampoo
+          - soap
+          - kl_shampoo
+          - splus
+          - schedule_free
+          - schedule_free_plus
+          - prodigy
       learning_rate:
         type: number
         minimum: 0
