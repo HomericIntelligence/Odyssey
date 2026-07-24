@@ -56,8 +56,8 @@ dependencies = [
     #   gitpython  CVE-2026-42215 / -42284 / -44244 / GHSA-mv93-w799-cj2w
     #   mistune    CVE-2026-33079 / -44897
     "authlib>=1.6.11",
-    "gitpython>=3.1.50",
-    "mistune>=3.2.1",
+    "gitpython>=3.1.55",
+    "mistune>=3.3.4",
 ]
 
 [dependency-groups]
@@ -84,8 +84,8 @@ dev = [
     "pip-audit>=2.7.0,<3",
 
     # Pre-commit
-    "pre-commit>=3.5.0",
-    "pre-commit-hooks>=4.5.0,<4.6",  # pinned to match .pre-commit-config.yaml rev (Issue #4030)
+    "pre-commit>=4.6.1",
+    "pre-commit-hooks>=4.6.0,<4.7",  # pinned to match .pre-commit-config.yaml rev (Issue #4030)
     "nbstripout>=0.7.1",             # tracked to keep in sync with .pre-commit-config.yaml (Issue #4030)
 
     # Documentation
