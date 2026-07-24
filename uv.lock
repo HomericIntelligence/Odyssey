@@ -1352,7 +1352,7 @@ wheels = [
 
 [[package]]
 name = "jupyterlab"
-version = "4.7.0a0"
+version = "4.7.0a1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "async-lru" },
@@ -1368,10 +1368,11 @@ dependencies = [
     { name = "packaging" },
     { name = "tornado" },
     { name = "traitlets" },
+    { name = "typing-extensions", marker = "python_full_version < '3.12'" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/d6/06/349030d907ed13a34317765cc903462c72498a701255ec70e914bb53a138/jupyterlab-4.7.0a0.tar.gz", hash = "sha256:356f18cb370fa1fd113a50339eab265648c3eef7fa0cb6e56711910c02bc0dd6", size = 28187591, upload-time = "2026-06-29T12:08:13.177Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/d5/c4/162383f6ca29df45f443f1e821e3455868ef915b529f3f85277e7eb017bb/jupyterlab-4.7.0a1.tar.gz", hash = "sha256:04f5835786330aaee011ae0fe933805588a26c6cd841ff7a0f223850a8b5aec7", size = 28330077, upload-time = "2026-07-21T13:14:02.738Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/ad/fb/7b204b235ef09f1134b8d9911ebcffee529cb2abf8c6b13f6fef517bf83b/jupyterlab-4.7.0a0-py3-none-any.whl", hash = "sha256:1553f5bd0d2db84c036c50c68dbcf536e0e74b83044f82c18c9e9b8fffc9742f", size = 17174912, upload-time = "2026-06-29T12:08:09.142Z" },
+    { url = "https://files.pythonhosted.org/packages/d3/f8/d3e3345be04f2abdabc41389560dae44bd44f727e5f60e10a347456ee2a8/jupyterlab-4.7.0a1-py3-none-any.whl", hash = "sha256:19613a4944a60fb27fcfec94f66cb51e2166f413a2906295b16a9b528116c5f7", size = 17319609, upload-time = "2026-07-21T13:13:58.543Z" },
 ]
 
 [[package]]
@@ -2431,7 +2432,7 @@ dev = [
 ]
 notebook = [
     { name = "ipywidgets", specifier = ">=8.1.0,<9" },
-    { name = "jupyterlab", specifier = ">=4.3.0,<5" },
+    { name = "jupyterlab", specifier = ">=4.7.0a1,<5" },
     { name = "matplotlib", specifier = ">=3.9.0,<4" },
     { name = "seaborn", specifier = ">=0.13.0,<1" },
 ]
@@ -2565,7 +2566,7 @@ name = "pexpect"
 version = "4.9.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "ptyprocess" },
+    { name = "ptyprocess", marker = "sys_platform != 'emscripten' and sys_platform != 'win32'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/42/92/cc564bf6381ff43ce1f4d06852fc19a2f11d180f23dc32d9588bee2f149d/pexpect-4.9.0.tar.gz", hash = "sha256:ee7d41123f3c9911050ea2c2dac107568dc43b2d3b0c7557a33212c398ead30f", size = 166450, upload-time = "2023-11-25T09:07:26.339Z" }
 wheels = [
