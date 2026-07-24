@@ -275,3 +275,44 @@ def init_adan_state(
             per.append(zeros(p.shape(), d))
         all_states.append(per^)
     return all_states^
+
+
+def adan_default_hyperparams() -> Dict[String, Float64]:
+    """Return the Adan optimizer's recommended default hyperparameters.
+
+    These are the defaults that the official sail-sg/Adan reference
+    implementation uses (https://github.com/sail-sg/Adan) and that the paper
+    documents (Xie et al., 2022 — arXiv:2208.06677). The dict keys match
+    `adan_step`'s `beta1` / `beta2` / `beta3` / `epsilon` keyword-argument
+    names verbatim, so a caller can copy the values into an `adan_step` call
+    by name without renaming:
+
+    ```mojo
+    var defaults = adan_default_hyperparams()
+    adan_step(
+        params, gradients, m, dd, v, pg, step, learning_rate,
+        beta1=defaults["beta1"],
+        beta2=defaults["beta2"],
+        beta3=defaults["beta3"],
+        epsilon=defaults["epsilon"],
+    )
+    ```
+
+    Returns:
+        Dict mapping hyperparameter name (`"beta1"`, `"beta2"`, `"beta3"`,
+        `"epsilon"`) to its default Float64 value.
+
+    Note:
+        The Adam family default exposes only `beta1`/`beta2`/`epsilon` and
+        silently drops `beta3` — a config-driven Adan that falls back to
+        those defaults would diverge from the paper (Adan needs three betas,
+        not two). This helper exposes the Adan-specific four-key set so a
+        dispatcher can route the `name == "adan"` branch to the right
+        defaults without copying literal values.
+    """
+    var defaults = Dict[String, Float64]()
+    defaults["beta1"] = 0.98
+    defaults["beta2"] = 0.92
+    defaults["beta3"] = 0.99
+    defaults["epsilon"] = 1e-8
+    return defaults^

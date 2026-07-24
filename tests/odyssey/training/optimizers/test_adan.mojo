@@ -13,7 +13,11 @@ Tests cover:
 
 from odyssey.tensor.any_tensor import AnyTensor
 from odyssey.tensor.tensor_creation import zeros, full
-from odyssey.training.optimizers.adan import adan_step, adan_step_simple
+from odyssey.training.optimizers.adan import (
+    adan_step,
+    adan_step_simple,
+    adan_default_hyperparams,
+)
 
 
 def _abs_diff(a: Float64, b: Float64) -> Float64:
@@ -271,6 +275,40 @@ def test_descent_direction() raises:
     print("test_descent_direction PASSED")
 
 
+def test_default_hyperparams() raises:
+    """`adan_default_hyperparams` exposes all 4 paper defaults (incl. beta3).
+
+    Guards against the prior Adam-family-default silent-drop bug, where a
+    dispatcher that fell back to family="adam" would emit only beta1/beta2/epsilon
+    and lose Adan's beta3 = 0.99. The helper now returns all four keys so
+    a config-driven Adan can read the right defaults.
+    """
+    print("Running test_default_hyperparams...")
+    var defaults = adan_default_hyperparams()
+    if _abs_diff(defaults["beta1"], 0.98) > 1e-12:
+        raise Error("beta1 default != 0.98")
+    if _abs_diff(defaults["beta2"], 0.92) > 1e-12:
+        raise Error("beta2 default != 0.92")
+    if _abs_diff(defaults["beta3"], 0.99) > 1e-12:
+        raise Error(
+            "beta3 default != 0.99 (this was the prior silent-drop bug)"
+        )
+    if _abs_diff(defaults["epsilon"], 1e-8) > 1e-12:
+        raise Error("epsilon default != 1e-8")
+    # weight_decay is intentionally NOT in the dict: it is conventionally
+    # zero unless the user opts in, so an external dispatcher owns that
+    # configuration. Asserting absence guards against future refactors
+    # silently widening the helper's scope back to "all hyperparameters".
+    if "weight_decay" in defaults:
+        raise Error("weight_decay should be intentionally absent from defaults")
+    print(
+        "  ok all 4 paper defaults present"
+        " (beta1=0.98, beta2=0.92, beta3=0.99, epsilon=1e-8)"
+        " + weight_decay correctly absent"
+    )
+    print("test_default_hyperparams PASSED")
+
+
 def main() raises:
     """Run all Adan tests."""
     print("=" * 60)
@@ -280,6 +318,7 @@ def main() raises:
     test_reject_dtype_mismatch()
     test_parity_with_reference()
     test_step_simple_matches_defaults()
+    test_default_hyperparams()
     test_weight_decay()
     test_prev_grad_passthrough()
     test_descent_direction()
