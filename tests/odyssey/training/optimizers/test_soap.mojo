@@ -52,8 +52,8 @@ def test_init_state_shapes() raises:
     """`init_soap_state` returns 6 zeroed tensors with the right shapes."""
     print("Running test_init_state_shapes...")
     var W = zeros([3, 4], DType.float64)
-    var w_st = init_soap_state(W)
-    var st = w_st[0]
+    var w_st = init_soap_state([W])
+    var st = w_st[0].copy()
     # exp_avg, exp_avg_sq: 3x4 = 12; gg_left: 3x3 = 9; gg_right: 4x4 = 16;
     # q_left: 9; q_right: 16.
     if st[0].numel() != 12 or st[1].numel() != 12:
@@ -109,8 +109,8 @@ def test_parity_two_step() raises:
 
     var W = zeros([3, 4], DType.float64)
     _seed_ramp(W, 12, 0.1, -0.5)
-    var w_st = init_soap_state(W)
-    var st = w_st[0]
+    var w_st = init_soap_state([W])
+    var st = w_st[0].copy()
     var exp_avg = st[0]
     var exp_avg_sq = st[1]
     var gg_left = st[2]
@@ -179,8 +179,8 @@ def test_eigenbasis_refresh() raises:
 
     var W = zeros([3, 4], DType.float64)
     _seed_ramp(W, 12, 0.1, -0.5)
-    var w_st = init_soap_state(W)
-    var st = w_st[0]
+    var w_st = init_soap_state([W])
+    var st = w_st[0].copy()
     var exp_avg = st[0]
     var exp_avg_sq = st[1]
     var gg_left = st[2]

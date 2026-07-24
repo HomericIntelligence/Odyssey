@@ -74,6 +74,16 @@ def _require_close(
         )
 
 
+def _abs_diff(a: Float64, b: Float64) -> Float64:
+    # mirrors the helper shape used in sibling tests
+    # (test_eigen.mojo, test_muon.mojo, test_rnn.mojo, ...).
+    # Returns |a - b|.
+    var d = a - b
+    if d < 0:
+        d = -d
+    return d
+
+
 def test_is_shampoo_eligible() raises:
     """Test that is_shampoo_eligible correctly identifies valid parameters."""
     print("Running test_is_shampoo_eligible...")
