@@ -3,7 +3,7 @@
 SF-NorMuon combines Schedule-Free anytime iterate averaging (three coupled
 sequences y/z/x — Defazio et al. 2024) with NorMuon's spectral geometry
 (row-wise-normalized Newton-Schulz orthogonalization of the momentum — the
-polar factor of the update direction; Jordan/Bernstein 2024). The averaged
+polar factor of the update direction; Li et al. 2025, arXiv:2510.05491). The averaged
 iterate `x` is a good checkpoint at ANY step (no training-horizon schedule),
 while the update DIRECTION is the polar / orthogonalized momentum instead of the
 raw gradient. This is the schedule-free wrapper around the NorMuon base
@@ -66,8 +66,10 @@ Reference:
     Schedule-Free: Defazio, A., Yang, X. A., Mehta, H., Mishchenko, K., Khaled,
     A., & Cutkosky, A. (2024). The Road Less Scheduled. NeurIPS 2024.
     arXiv:2405.15682. https://github.com/facebookresearch/schedule_free
-    NorMuon: Jordan/Bernstein 2024 follow-up to "Muon: An optimizer for hidden
-    layers in neural networks" — https://kellerjordan.github.io/posts/muon/
+    NorMuon: "NorMuon: Making Muon more efficient and scalable" (Li et al.,
+    2025, arXiv:2510.05491). Built on the canonical Muon optimizer from
+    Jordan et al. 2024 — https://kellerjordan.github.io/posts/muon/ — with
+    per-axis normalization for stability at higher learning rates.
     The SF-NorMuon composition (schedule-free query point + row-normalized polar
     update with weight decay on the fast iterate) follows the update rule pinned
     in tracking issue mvillmow/Random#79 [OPT-15]; no single primary paper
