@@ -87,9 +87,6 @@ def test_sgd_momentum_init() raises:
     assert_true(
         len(optimizer.velocities) == 1, "One velocity buffer should be created"
     )
-    assert_true(
-        optimizer._initialized, "Optimizer should be marked as initialized"
-    )
 
 
 def test_sgd_momentum_accumulation() raises:

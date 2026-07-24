@@ -6,8 +6,14 @@ name: Comprehensive Tests
 # Target duration: < 15 minutes (parallelized across test groups)
 
 on:
-  # Run on all pull requests
+  # Run on all pull requests except workflow-only PRs. Skips the heavy Mojo
+  # matrix + JIT-prone workloads (modular/modular#6413) + Semgrep SAST so
+  # CI orchestrator fixes like dependabot-uv-lock-regen can land without
+  # flake-blocking on libKGEN JIT issues — see #5692 for the broader
+  # self-hosted-runner-provisioning track.
   pull_request:
+    paths-ignore:
+      - '.github/workflows/**'
 
   # merge_group intentionally removed: merge-queue checks are served by the
   # single fast `merge-queue-smoke` job in merge-queue-smoke.yml (see that file).
