@@ -4,7 +4,8 @@
 # Legacy pixi env dirs (kept ignored in case a stale checkout still has them)
 .pixi/
 
-# Python cache directories
+# Python cache directories (see #5667: also covers
+#   tests/odyssey/core/layers/parity_refs/* generators).
 __pycache__
 *.pyc
 
@@ -60,4 +61,3 @@ checkpoints/
 /test_cumulative.mojo
 lenet5_weights_autograd/
 .claude-prompt-*.md
-__pycache__/
