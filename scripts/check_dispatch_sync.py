@@ -2,7 +2,7 @@
 """
 Three-way consistency check for the optimizer dispatch registry.
 
-Issue: #5682 (closes the TODO documented in PR #5682).
+Issue: #5682 (the 3-way dispatch consistency requirement, closed by PR #5706).
 
 Validates that two sources of truth agree on the 24 functional optimizers
 shipped under `odyssey.training.optimizers`:
@@ -23,7 +23,7 @@ trust that any name from the YAML enum will route to a registered optimizer,
 and each registered optimizer has a matching `init_<name>_state` in source.
 
 Usage:
-    python scripts/check_dispatch_sync.py [--root PATH] [--strict] [--quiet]
+    python scripts/check_dispatch_sync.py [--root PATH] [--quiet]
 
 Exit codes:
     0 — all three sources agree (24 optimizers × 3 layers)
@@ -140,120 +140,39 @@ def parse_dispatch_registry(dispatch_path: Path) -> set[str]:
 
 
 # ============================================================================
-# Layer 3 — per-source `init_<name>_state` buffer-count extractor
+# Layer 3 — per-source `init_<name>_state` existence check
 # ============================================================================
 
 # Matches the function header for `init_<name>_state(...)`. Captures the
-# optimizer name. We then extract the function body via brace-balanced scan
-# (Mojo uses indentation rather than braces, but the function ends at the
-# next `def ` at the same indent level — see `_extract_function_body`).
+# optimizer name. We use this for a pure existence check (`has_init_state`).
+# Buffer counts are NOT verified here — the dispatch itself does not declare
+# them (post #5708 the dispatch API delegates state allocation to
+# `init_optimizer_state()` at runtime), so a buffer-count comparison would
+# be comparing across a layer that no longer exists.
 _INIT_DEF_RE = re.compile(
     r"^def\s+init_(?P<name>[a-z_]+)_state\s*\(",
     re.MULTILINE,
 )
 
-# Pattern A (loop-based): `for _ in range(N): per.append(...)` inside the
-# function body. Captures the integer N.
-_LOOP_BUFFER_COUNT_RE = re.compile(
-    # Use [ \t]* (NOT \s*) before \n so the greedy \s doesn't eat the newline.
-    r"for\s+_\s+in\s+range\s*\(\s*(?P<n>\d+)\s*\)[ \t]*:[ \t]*\n[ \t]*per\.append",
-    re.MULTILINE,
-)
 
-# Pattern B (append-based): every `per.append(...)` inside the function
-# body. Count these. Used as a fallback when pattern A doesn't match.
-_APPEND_COUNT_RE = re.compile(r"^\s*per\.append\s*\(", re.MULTILINE)
-
-
-def _extract_function_body(source: str, def_match: re.Match) -> str:
-    """Extract the indented body of the `def init_<name>_state(...)` block.
-
-    Mojo uses leading-whitespace indentation, not braces, so the body
-    extends from the line after the `def` header until the next
-    line at the SAME indent as `def` (or end-of-file).
-
-    Multi-line signatures (`def init_<n>_state(\\n    args\\n) raises ->
-    ...:\\n    body`) need special handling: the `):` line is at the same
-    indent as `def` (column 0), so a naive `line_indent <= def_line_indent`
-    break fires at the signature's closing paren BEFORE the body ever
-    starts. We scan forward to find that closing line, then collect the
-    body from the next line onward.
-
-    Args:
-        source: Full file text.
-        def_match: Regex match for the `def init_<name>_state(` header.
-
-    Returns:
-        The body text (everything between the signature's `):` line and
-        the next top-level `def `, or end-of-file).
-    """
-    # Step 1 — find the signature's closing `):` line. The signature is
-    # everything from the match end until a line containing `):` (possibly
-    # with `raises ->` / `-> ReturnType:` decorations). After that line,
-    # the actual function body begins.
-    pos = def_match.end()
-    while pos < len(source):
-        nl = source.find("\n", pos)
-        if nl == -1:
-            nl = len(source)
-        line = source[pos:nl]
-        # Detect the signature's closing line. Could be `):`, `) raises -> ... :`,
-        # `) -> ReturnType:`, etc. The line must (a) START with `)` after
-        # lstrip AND (b) END with `:` (the colon that introduces the body).
-        # This guards against false matches on comment lines that happen to
-        # start with `)`, e.g. `# ) foo bar baz`.
-        stripped = line.lstrip()
-        if stripped.startswith(")") and stripped.endswith(":"):
-            pos = nl + 1
-            break
-        pos = nl + 1
-
-    # Step 2 — body extends until the next top-level `def ` (column 0) or EOF.
-    end_match = re.search(r"^def ", source[pos:], re.MULTILINE)
-    body_end = pos + end_match.start() if end_match else len(source)
-    return source[pos:body_end]
-
-
-def extract_init_state_buffer_count(optimizer_source: Path, name: str) -> int | None:
-    """Return the per-parameter inner buffer count of `init_<name>_state`.
-
-    Two extraction strategies, in order of preference:
-
-    1. **Loop-based**: scan the function body for `for _ in range(N): per.append(...)`
-       and return N. Covers the canonical `init_<name>_state` template used
-       by sgd, adam, adamw, adopt, adan, sophia, rmsprop, adagrad, lars,
-       muon, normuon, mgup_muon, muon_hyperball, lion, lionmuon, sf_normuon,
-       ftrl, schedule_free, schedule_free_plus, prodigy.
-
-    2. **Append-based**: count `per.append(...)` calls in the function body.
-       Covers optimizers that allocate buffers via explicit `per.append(eye(...))`
-       etc. inside an `if <eligibility>:` branch — notably shampoo, kl_shampoo,
-       soap, splus. Counts the *matrix-eligible* path, which is what the
-       dispatch's `num_state_buffers` documents.
+def has_init_state(optimizer_source: Path, name: str) -> bool:
+    """Return True if `init_<name>_state(...)` is defined in the source file.
 
     Args:
         optimizer_source: Path to `src/odyssey/training/optimizers/<name>.mojo`.
         name: Optimizer name (e.g., "shampoo").
 
     Returns:
-        The extracted buffer count, or None if the function or pattern is
-        not found.
+        True if a `def init_<name>_state(` header is present in the file,
+        False otherwise (missing function or wrong name).
+
+    Note:
+        Caller is expected to handle I/O errors (FileNotFoundError, OSError,
+        UnicodeDecodeError) by treating them as "not found".
     """
     text = optimizer_source.read_text()
     m = _INIT_DEF_RE.search(text)
-    if m is None or m.group("name") != name:
-        return None
-
-    body = _extract_function_body(text, m)
-    loop_match = _LOOP_BUFFER_COUNT_RE.search(body)
-    if loop_match is not None:
-        return int(loop_match.group("n"))
-
-    # Fallback: count `per.append(...)` calls. For eligibility-gated
-    # optimizers (shampoo family), these all live inside the same `if`
-    # branch, so a global count in the function body equals the
-    # matrix-eligible buffer count.
-    return len(_APPEND_COUNT_RE.findall(body))
+    return m is not None and m.group("name") == name
 
 
 # ============================================================================
@@ -264,15 +183,12 @@ def extract_init_state_buffer_count(optimizer_source: Path, name: str) -> int | 
 def check_dispatch_sync(
     root: Path,
     *,
-    strict: bool = False,
     quiet: bool = False,
 ) -> int:
     """Run the consistency check.
 
     Args:
         root: Repository root.
-        strict: Reserved for future use (e.g., fail-on-warning). Currently
-            a no-op — any source-level mismatch is already a hard error.
         quiet: Suppress per-optimizer informational output; print only
             the summary + errors.
 
@@ -311,9 +227,13 @@ def check_dispatch_sync(
             source_exists[name] = False
             continue
         try:
-            count = extract_init_state_buffer_count(source_path, name)
-            source_exists[name] = count is not None
-        except Exception:
+            source_exists[name] = has_init_state(source_path, name)
+        except (OSError, UnicodeDecodeError):
+            # I/O errors (file deleted between .exists() and read_text,
+            # permission denied, or a binary source file) → treat as
+            # "not found". Other exceptions would indicate a genuine bug
+            # in `has_init_state` or the regex — let those propagate so
+            # CI fails fast rather than silently masking regressions.
             source_exists[name] = False
 
     # Layer-by-layer comparison.
@@ -382,11 +302,6 @@ def main() -> int:
         help="Repository root (default: cwd).",
     )
     parser.add_argument(
-        "--strict",
-        action="store_true",
-        help="Reserved for future use (no effect today).",
-    )
-    parser.add_argument(
         "--quiet",
         action="store_true",
         help="Suppress per-optimizer informational output.",
@@ -394,7 +309,6 @@ def main() -> int:
     args = parser.parse_args()
     return check_dispatch_sync(
         args.root,
-        strict=args.strict,
         quiet=args.quiet,
     )
 
