@@ -31,32 +31,19 @@ Key Concepts:
     This adaptive preconditioning reduces the condition number of the parameter
     update, leading to faster convergence in practice.
 
-Calling Convention:
-    Shampoo follows the uniform `init_<name>_state` lifecycle used across all 24
-    optimizers in this package. `init_shampoo_state(params_list, *, force_f64)`
-    returns `List[List[AnyTensor]]` indexed as `[param_index][state_index]`; for
-    any rank-2 matrix-eligible param it emits three buffers `[L, R, momentum]`,
-    and for rank-1 (bias, embedding) or rank-4 (conv kernel) params it emits
-    `[]` so callers `zip(params_list, states)` cleanly route non-matrix params
-    through AdamW.
+Calling Convention (Important):
+    Shampoo uses an asymmetric calling convention that differs from typical optimizers:
+    - unpack_shampoo_state() returns THREE buffers: (L, R, momentum)
+    - shampoo_step() accepts FIVE state arguments: (params, gradients, L, R, momentum)
+    - shampoo_step() returns FOUR state outputs: (params_new, L_new, R_new, momentum_new)
+    - The CALLER continues to hold and manage the params tensor itself
 
-    `shampoo_step` accepts five state arguments (params, gradients, L, R, momentum)
-    and returns four (params_new, L_new, R_new, momentum_new). The caller
-    continues to hold and manage `params` itself. This design, with the helper
-    split between `init_shampoo_state` (lifecycle) and `shampoo_step` (one
-    update), keeps the helper/step surface small.
+    This design avoids a 5-tuple in/out signature which would be awkward in Mojo.
 
     Example usage:
-        var states = init_shampoo_state([W])          # outer per-param list
-        var L = states[0][0]
-        var R = states[0][1]
-        var m = states[0][2]
-        for step in range(N):
-            var (params_new, L_new, R_new, m_new) = shampoo_step(
-                params, gradients, L, R, m, learning_rate=0.01
-            )
-            params = params_new
-            L, R, m = L_new, R_new, m_new
+        var (L, R, m) = unpack_shampoo_state(params)
+        # ... training loop:
+        var (params, L, R, m) = shampoo_step(params, gradients, L, R, m, learning_rate=0.01)
 
 Preconditioner Stability:
     The Gram matrix accumulators L and R can grow without bound if ||gradients|| is large.
@@ -135,6 +122,54 @@ def is_shampoo_eligible(params: AnyTensor) -> Bool:
     var cols = shape[1]
 
     return rows >= 2 and cols >= 2
+
+
+def initialize_shampoo_state(
+    params: AnyTensor,
+) raises -> Tuple[AnyTensor, AnyTensor, AnyTensor]:
+    """Initialize Shampoo optimizer state buffers.
+
+    .. deprecated::
+        Use ``unpack_shampoo_state`` instead — it has the same return type but
+        enforces the eligibility check (``is_shampoo_eligible``) before any
+        allocation, and delegates to the canonical ``init_shampoo_state``
+        allocator. This legacy helper is retained for backwards compatibility
+        and will be removed in a future PR.
+
+    Creates three state buffers that must be passed to shampoo_step():
+    - L: Identity matrix [m, m] accumulating G @ G^T
+    - R: Identity matrix [n, n] accumulating G^T @ G
+    - momentum: Zero tensor [m, n] for momentum accumulation
+
+    Args:
+        params: Parameter tensor [m, n] to initialize state for.
+
+    Returns:
+        Tuple of (L, R, momentum) state tensors.
+
+    Raises:
+        Error: If params is not rank-2.
+
+    Note:
+        The caller continues to hold the params tensor. Initialize_shampoo_state
+        returns only the three state buffers (L, R, momentum).
+    """
+    if params.ndim() != 2:
+        raise Error(
+            "initialize_shampoo_state requires rank-2 tensor, got ndim: "
+            + String(params.ndim())
+        )
+
+    var shape = params.shape()
+    var m = shape[0]
+    var n = shape[1]
+    var dtype = params.dtype()
+
+    var L = eye(m, m, 0, dtype)
+    var R = eye(n, n, 0, dtype)
+    var momentum = zeros_like(params)
+
+    return (L, R, momentum)
 
 
 def _trace_sum_diag(M: AnyTensor) raises -> Float64:
@@ -677,3 +712,47 @@ def init_shampoo_state(
             per.append(zeros_like(p))
         all_states.append(per^)
     return all_states^
+
+
+def unpack_shampoo_state(
+    params: AnyTensor,
+    *,
+    force_f64: Bool = False,
+) raises -> Tuple[AnyTensor, AnyTensor, AnyTensor]:
+    """Allocate and unpack Shampoo state buffers for a single matrix-shaped parameter.
+
+    Sugar over `init_shampoo_state([params])` that returns the canonical 3-tuple
+    `(L, R, momentum)` directly, so call sites collapse from:
+
+        var _sh_states = init_shampoo_state([params])
+        var L = _sh_states[0][0]
+        var R = _sh_states[0][1]
+        var momentum = _sh_states[0][2]
+
+    to:
+
+        var (L, R, momentum) = unpack_shampoo_state(params)
+
+    The eligibility check (`is_shampoo_eligible(params)`) is enforced before any
+    allocation; non-matrix params raise rather than return a degenerate triple
+    of wrong-shape buffers. This matches the contract of the legacy
+    `initialize_shampoo_state` helper that this function supersedes for new code.
+
+    Args:
+        params: Single matrix-shaped parameter (must be rank-2, both dims >= 2).
+        force_f64: Up-cast state buffers to float64 (Shampoo math benefits).
+
+    Returns:
+        Tuple `(L, R, momentum)` of column-major identity-initialized `L [m,m]`,
+        identity-initialized `R [n,n]`, and zero-initialized `momentum [m,n]`.
+
+    Raises:
+        Error: If `params` is not rank-2 or has any dimension < 2.
+    """
+    if not is_shampoo_eligible(params):
+        raise Error(
+            "unpack_shampoo_state requires a rank-2 (matrix) parameter with"
+            " both dimensions >= 2"
+        )
+    var states = init_shampoo_state([params], force_f64=force_f64)
+    return (states[0][0], states[0][1], states[0][2])

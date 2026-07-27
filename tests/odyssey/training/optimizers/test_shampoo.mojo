@@ -23,6 +23,7 @@ from odyssey.tensor.tensor_creation import (
 )
 from odyssey.training.optimizers.shampoo import (
     is_shampoo_eligible,
+    unpack_shampoo_state,
     _trace_sum_diag,
     _clamp_precond_norm,
     newton_schulz_inv_fourth_root,
@@ -114,15 +115,12 @@ def test_is_shampoo_eligible() raises:
     print("test_is_shampoo_eligible PASSED")
 
 
-def test_init_shampoo_state_shapes() raises:
-    """Test that init_shampoo_state creates correctly-shaped buffers."""
-    print("Running test_init_shampoo_state_shapes...")
+def test_unpack_shampoo_state_shapes() raises:
+    """Test that unpack_shampoo_state creates correctly-shaped buffers."""
+    print("Running test_unpack_shampoo_state_shapes...")
 
     var params = zeros([4, 7], DType.float32)
-    var _sh_states = init_shampoo_state([params])
-    var L = _sh_states[0][0]
-    var R = _sh_states[0][1]
-    var momentum = _sh_states[0][2]
+    var (L, R, momentum) = unpack_shampoo_state(params)
 
     # Check shapes
     var L_shape = L.shape()
@@ -146,7 +144,7 @@ def test_init_shampoo_state_shapes() raises:
     var R_33 = R._get_float64(7 * 3 + 3)
     assert math_abs(R_33 - 1.0) < 1e-5, "R[3,3] should be 1.0"
 
-    print("test_init_shampoo_state_shapes PASSED")
+    print("test_unpack_shampoo_state_shapes PASSED")
 
 
 def test_reject_non_2d_params() raises:
@@ -156,10 +154,7 @@ def test_reject_non_2d_params() raises:
     # Test 1D rejection
     var params_1d = zeros([10], DType.float32)
     var grad_1d = zeros([10], DType.float32)
-    var _sh_states = init_shampoo_state([zeros([4, 4], DType.float32])
-    var L = _sh_states[0][0]
-    var R = _sh_states[0][1]
-    var m = _sh_states[0][2])
+    var (L, R, m) = unpack_shampoo_state(zeros([4, 4], DType.float32))
 
     try:
         var _ = shampoo_step(params_1d, grad_1d, L, R, m, learning_rate=0.01)
@@ -186,10 +181,7 @@ def test_reject_dtype_mismatch() raises:
 
     var params = zeros([4, 4], DType.float32)
     var grad = zeros([4, 4], DType.float16)  # Mismatch!
-    var _sh_states = init_shampoo_state([params])
-    var L = _sh_states[0][0]
-    var R = _sh_states[0][1]
-    var m = _sh_states[0][2]
+    var (L, R, m) = unpack_shampoo_state(params)
 
     try:
         var _ = shampoo_step(params, grad, L, R, m, learning_rate=0.01)
@@ -206,10 +198,7 @@ def test_reject_wrong_L_R_shapes() raises:
 
     var params = zeros([4, 5], DType.float32)
     var grad = zeros([4, 5], DType.float32)
-    var _sh_states = init_shampoo_state([params])
-    var L_ok = _sh_states[0][0]
-    var R_ok = _sh_states[0][1]
-    var m = _sh_states[0][2]
+    var (L_ok, R_ok, m) = unpack_shampoo_state(params)
 
     # Test wrong L shape
     var L_wrong = zeros([5, 5], DType.float32)  # Should be [4,4]
@@ -418,10 +407,7 @@ def test_non_square_params_shape() raises:
 
     var params = randn([2, 3], DType.float32, seed=42)
     var grad = randn([2, 3], DType.float32, seed=43)
-    var _sh_states = init_shampoo_state([params])
-    var L = _sh_states[0][0]
-    var R = _sh_states[0][1]
-    var m = _sh_states[0][2]
+    var (L, R, m) = unpack_shampoo_state(params)
 
     # This should not raise
     var (p_new, L_new, R_new, m_new) = shampoo_step(
@@ -447,10 +433,7 @@ def test_descent_on_quadratic() raises:
     print("Running test_descent_on_quadratic...")
 
     var W = randn([4, 4], DType.float32, seed=42)
-    var _sh_states = init_shampoo_state([W])
-    var L = _sh_states[0][0]
-    var R = _sh_states[0][1]
-    var momentum = _sh_states[0][2]
+    var (L, R, momentum) = unpack_shampoo_state(W)
 
     # Gradient of sum(W*W) is 2*W
     var loss_0 = compute_tensor_norm(W) * compute_tensor_norm(W)
@@ -509,10 +492,7 @@ def test_descent_on_non_square() raises:
     print("Running test_descent_on_non_square...")
 
     var W = randn([2, 3], DType.float32, seed=42)
-    var _sh_states = init_shampoo_state([W])
-    var L = _sh_states[0][0]
-    var R = _sh_states[0][1]
-    var momentum = _sh_states[0][2]
+    var (L, R, momentum) = unpack_shampoo_state(W)
 
     # Gradient: 2*W
     var loss_0 = compute_tensor_norm(W) * compute_tensor_norm(W)
@@ -575,14 +555,8 @@ def test_shampoo_step_simple() raises:
     # zero-grad result, NOT a default-constructed garbage array).
     var params = zeros([8, 16], DType.float32)
     var grad = zeros([8, 16], DType.float32)
-    var _sh_states = init_shampoo_state([params])
-    var Lf = _sh_states[0][0]
-    var Rf = _sh_states[0][1]
-    var mf = _sh_states[0][2]
-    var _sh_states = init_shampoo_state([params])
-    var Ls = _sh_states[0][0]
-    var Rs = _sh_states[0][1]
-    var ms = _sh_states[0][2]
+    var (Lf, Rf, mf) = unpack_shampoo_state(params)
+    var (Ls, Rs, ms) = unpack_shampoo_state(params)
     var full_p1 = shampoo_step(params, grad, Lf, Rf, mf, learning_rate=0.01)
     var simple_p1 = shampoo_step_simple(
         params, grad, Ls, Rs, ms, learning_rate=0.01
@@ -647,14 +621,8 @@ def test_shampoo_step_simple() raises:
     # the test fails on the very first coord.
     var params2 = full([8, 16], 0.5, DType.float32)
     var grad2 = full([8, 16], 0.1, DType.float32)
-    var _sh_states = init_shampoo_state([params2])
-    var Lf2 = _sh_states[0][0]
-    var Rf2 = _sh_states[0][1]
-    var mf2 = _sh_states[0][2]
-    var _sh_states = init_shampoo_state([params2])
-    var Ls2 = _sh_states[0][0]
-    var Rs2 = _sh_states[0][1]
-    var ms2 = _sh_states[0][2]
+    var (Lf2, Rf2, mf2) = unpack_shampoo_state(params2)
+    var (Ls2, Rs2, ms2) = unpack_shampoo_state(params2)
     var full_p2 = shampoo_step(
         params2, grad2, Lf2, Rf2, mf2, learning_rate=0.01
     )
@@ -705,7 +673,7 @@ def test_shampoo_step_simple() raises:
 def main() raises:
     """Run all tests."""
     test_is_shampoo_eligible()
-    test_init_shampoo_state_shapes()
+    test_unpack_shampoo_state_shapes()
     test_reject_non_2d_params()
     test_reject_dtype_mismatch()
     test_reject_wrong_L_R_shapes()
