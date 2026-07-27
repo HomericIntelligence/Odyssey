@@ -553,3 +553,10 @@ from odyssey.training.dataset_loaders import (
     load_cifar10_dataset,
     print_dataset_summary,
 )
+
+# Optimizer-name dispatch yard (paper-accurate defaults + state allocation)
+from odyssey.training.dispatch import (
+    all_supported_optimizers,
+    get_default_hyperparams,
+    init_optimizer_state,
+)
