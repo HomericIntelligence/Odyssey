@@ -416,7 +416,9 @@ def test_dispatch_binary_2d_tensor() raises:
 
 def main() raises:
     """Run all test_dtype_dispatch tests."""
-    print("Running test_dtype_dispatch tests...")
+    print(
+        "Running test_dtype_dispatch tests (cache-bust: 20260727-32a8f6d6)..."
+    )
 
     test_dispatch_unary_float32_identity()
     print("✓ test_dispatch_unary_float32_identity")
