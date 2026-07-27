@@ -1,0 +1,59 @@
+name: Dispatch Sync Check
+
+# Three-way consistency check across the optimizer dispatch registry.
+# Enforces agreement between:
+#   1. configs/schemas/training.schema.yaml (CLI/config source of truth)
+#   2. src/odyssey/training/dispatch.mojo (all_supported_optimizers names)
+#   3. Each src/odyssey/training/optimizers/<name>.mojo (init_<name>_state exists)
+# See scripts/check_dispatch_sync.py and issue #5682 for details.
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  dispatch-sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    name: Three-way dispatch consistency
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install "pyyaml>=6.0.0,<7"
+
+      - name: Run dispatch sync check
+        run: |
+          python scripts/check_dispatch_sync.py --root .
+
+      - name: Surface drift summary on failure
+        if: failure()
+        run: |
+          echo "## Dispatch Sync Drift" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "The optimizer dispatch registry disagrees with the source-level" >> "$GITHUB_STEP_SUMMARY"
+          echo "buffer count for one or more optimizers. Run locally:" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo '```bash' >> "$GITHUB_STEP_SUMMARY"
+          echo "python scripts/check_dispatch_sync.py --root ." >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "Fix the name list in src/odyssey/training/dispatch.mojo OR" >> "$GITHUB_STEP_SUMMARY"
+          echo "the YAML enum in configs/schemas/training.schema.yaml" >> "$GITHUB_STEP_SUMMARY"
+          echo "so both agree. See issue #5682 for context." >> "$GITHUB_STEP_SUMMARY"
