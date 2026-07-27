@@ -7,6 +7,8 @@ Public API:
 
 - ``get_default_hyperparams(name) raises -> Dict[String, Float64]``
 - ``all_supported_optimizers() -> List[String]`` (24 entries, sorted)
+- ``init_optimizer_state(name, params, *, force_f64=False) raises -> List[List[AnyTensor]]``
+  — uniform state allocation across all 24 optimizers
 
 This module closes the loop documented in PR #5707's "What this PR does NOT
 fix" caveat: the previous implicit family fallback silently stripped Adan's
@@ -22,6 +24,35 @@ Note:
 """
 
 from odyssey.training.optimizers.adan import adan_default_hyperparams
+
+# Uniform state-allocation dispatch: each ``init_<name>_state`` has the same
+# canonical signature ``(List[AnyTensor], *, Bool) -> List[List[AnyTensor]]``.
+from odyssey.training.optimizers.sgd import init_sgd_state
+from odyssey.training.optimizers.adam import init_adam_state
+from odyssey.training.optimizers.adamw import init_adamw_state
+from odyssey.training.optimizers.rmsprop import init_rmsprop_state
+from odyssey.training.optimizers.adagrad import init_adagrad_state
+from odyssey.training.optimizers.lars import init_lars_state
+from odyssey.training.optimizers.muon import init_muon_state
+from odyssey.training.optimizers.normuon import init_normuon_state
+from odyssey.training.optimizers.mgup_muon import init_mgup_muon_state
+from odyssey.training.optimizers.muon_hyperball import init_muon_hyperball_state
+from odyssey.training.optimizers.lion import init_lion_state
+from odyssey.training.optimizers.adopt import init_adopt_state
+from odyssey.training.optimizers.lionmuon import init_lionmuon_state
+from odyssey.training.optimizers.sophia import init_sophia_state
+from odyssey.training.optimizers.adan import init_adan_state
+from odyssey.training.optimizers.sf_normuon import init_sf_normuon_state
+from odyssey.training.optimizers.ftrl import init_ftrl_state
+from odyssey.training.optimizers.shampoo import init_shampoo_state
+from odyssey.training.optimizers.soap import init_soap_state
+from odyssey.training.optimizers.kl_shampoo import init_kl_shampoo_state
+from odyssey.training.optimizers.splus import init_splus_state
+from odyssey.training.optimizers.schedule_free import init_schedule_free_state
+from odyssey.training.optimizers.schedule_free_plus import (
+    init_schedule_free_plus_state,
+)
+from odyssey.training.optimizers.prodigy import init_prodigy_state
 
 
 def all_supported_optimizers() -> List[String]:
@@ -191,3 +222,92 @@ def get_default_hyperparams(name: String) raises -> Dict[String, Float64]:
             )
         )
     return defaults^
+
+
+def init_optimizer_state(
+    name: String,
+    params: List[AnyTensor],
+    *,
+    force_f64: Bool = False,
+) raises -> List[List[AnyTensor]]:
+    """Allocate state buffers for the named optimizer.
+
+    Uniform dispatcher over all 24 optimizers: every ``init_<name>_state``
+    follows the same signature ``(List[AnyTensor], *, Bool=False) ->
+    List[List[AnyTensor]]``, where the outer list is per-parameter and the
+    inner list holds the per-parameter state buffers (1 for SGD, 2 for Adam,
+    3 for Shampoo's L/R/momentum, …).
+
+    Backed by a 24-branch ``if/elif`` chain — Mojo 1.0 has no ``match``
+    statement, and each branch is fully type-checked against the imports at
+    the top of this module, so a typo in ``init_<name>_state`` here is a
+    compile error rather than a silent dispatch failure.
+
+    Args:
+        name: Optimizer identifier (e.g., "adamw", "shampoo", "splus").
+        params: Model parameters — one AnyTensor per trainable tensor.
+        force_f64: Up-cast all state buffers to float64 regardless of param
+            dtype.
+
+    Returns:
+        A ``List[List[AnyTensor]]`` in the same order as ``params``.
+
+    Raises:
+        Error: If ``name`` is not in ``all_supported_optimizers()``.
+    """
+    if name == "sgd":
+        return init_sgd_state(params, force_f64=force_f64)
+    elif name == "adam":
+        return init_adam_state(params, force_f64=force_f64)
+    elif name == "adamw":
+        return init_adamw_state(params, force_f64=force_f64)
+    elif name == "rmsprop":
+        return init_rmsprop_state(params, force_f64=force_f64)
+    elif name == "adagrad":
+        return init_adagrad_state(params, force_f64=force_f64)
+    elif name == "lars":
+        return init_lars_state(params, force_f64=force_f64)
+    elif name == "muon":
+        return init_muon_state(params, force_f64=force_f64)
+    elif name == "normuon":
+        return init_normuon_state(params, force_f64=force_f64)
+    elif name == "mgup_muon":
+        return init_mgup_muon_state(params, force_f64=force_f64)
+    elif name == "muon_hyperball":
+        return init_muon_hyperball_state(params, force_f64=force_f64)
+    elif name == "lion":
+        return init_lion_state(params, force_f64=force_f64)
+    elif name == "adopt":
+        return init_adopt_state(params, force_f64=force_f64)
+    elif name == "lionmuon":
+        return init_lionmuon_state(params, force_f64=force_f64)
+    elif name == "sophia":
+        return init_sophia_state(params, force_f64=force_f64)
+    elif name == "adan":
+        return init_adan_state(params, force_f64=force_f64)
+    elif name == "sf_normuon":
+        return init_sf_normuon_state(params, force_f64=force_f64)
+    elif name == "ftrl":
+        return init_ftrl_state(params, force_f64=force_f64)
+    elif name == "shampoo":
+        return init_shampoo_state(params, force_f64=force_f64)
+    elif name == "soap":
+        return init_soap_state(params, force_f64=force_f64)
+    elif name == "kl_shampoo":
+        return init_kl_shampoo_state(params, force_f64=force_f64)
+    elif name == "splus":
+        return init_splus_state(params, force_f64=force_f64)
+    elif name == "schedule_free":
+        return init_schedule_free_state(params, force_f64=force_f64)
+    elif name == "schedule_free_plus":
+        return init_schedule_free_plus_state(params, force_f64=force_f64)
+    elif name == "prodigy":
+        return init_prodigy_state(params, force_f64=force_f64)
+    else:
+        raise Error(
+            String("init_optimizer_state: unknown optimizer name: ")
+            + name
+            + String(
+                " (call all_supported_optimizers() for the canonical roster)"
+            )
+        )
