@@ -144,10 +144,17 @@ def test_loop_all_24_known() raises:
 
 
 def _make_dummy_params() -> List[AnyTensor]:
-    """Build a small 2-parameter list for state allocation tests."""
+    """Build a small 2-parameter list for state allocation tests.
+
+    Both params are rank-2 with both dims >= 4 — large enough to satisfy
+    preconditioner init shapes (Muon, Shampoo, SOAP, KL-Shampoo, etc.
+    need ndim == 2 with both dims >= 2, and some require >= 4). Smaller
+    dims risk being skipped by eligibility checks, producing empty state
+    lists that would false-positive the loop test.
+    """
     var params: List[AnyTensor] = []
     params.append(zeros(4, 4))
-    params.append(zeros(2, 8))
+    params.append(zeros(4, 8))
     return params^
 
 
