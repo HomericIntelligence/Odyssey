@@ -12,11 +12,18 @@ Contract under test:
 The ``adan`` test is the regression-locking test for the family-fallback bug:
 any future refactor that re-implements silent family-fallback defaults will
 fail CI at this point.
+
+Also covers ``init_optimizer_state(name, params)``: the uniform state-allocation
+dispatcher. Verifies it raises for unknown names and allocates non-empty state
+for every optimizer in the 24-name roster.
 """
 
+from odyssey.tensor.any_tensor import AnyTensor
+from odyssey.tensor.tensor_creation import zeros
 from odyssey.training import (
     all_supported_optimizers,
     get_default_hyperparams,
+    init_optimizer_state,
 )
 
 
@@ -136,6 +143,92 @@ def test_loop_all_24_known() raises:
     print("  ok all 24 names return non-empty defaults")
 
 
+def _make_dummy_params() -> List[AnyTensor]:
+    """Build a small 2-parameter list for state allocation tests."""
+    var params: List[AnyTensor] = []
+    params.append(zeros(4, 4))
+    params.append(zeros(2, 8))
+    return params^
+
+
+def test_init_state_unknown_name_raises() raises:
+    """init_optimizer_state must raise for an unknown optimizer name.
+
+    Mirrors the strict-routing contract of get_default_hyperparams: no
+    silent fallback. An unknown name is a caller bug, not a recoverable
+    condition.
+    """
+    var params = _make_dummy_params()
+    var raised = False
+    try:
+        _ = init_optimizer_state(
+            String("definitely_not_a_real_optimizer"), params^
+        )
+    except _:
+        raised = True
+    if not raised:
+        raise Error(
+            String("init_optimizer_state should have raised for an ")
+            + String("unknown name, but no exception was raised")
+        )
+    print("  ok unknown name raises Error")
+
+
+def test_init_state_sgd_allocates() raises:
+    """Spot-check: SGD state allocation returns one buffer per parameter.
+
+    SGD is the simplest optimizer (single momentum buffer per param), so it
+    is the cheapest end-to-end smoke test that the dispatch chain resolves
+    an import and calls through correctly.
+    """
+    var params = _make_dummy_params()
+    var states = init_optimizer_state(String("sgd"), params^)
+    if len(states) != 2:
+        raise Error(
+            String("sgd: expected 2 per-param state lists, got ")
+            + String(len(states))
+        )
+    # Each per-param state list must be non-empty (SGD = 1 buffer)
+    for i in range(len(states)):
+        if len(states[i]) == 0:
+            raise Error(
+                String("sgd: state list for param ")
+                + String(i)
+                + String(" is empty")
+            )
+    print("  ok sgd allocates non-empty state for 2 params")
+
+
+def test_init_state_loop_all_24() raises:
+    """Every optimizer in the roster must allocate non-empty state.
+
+    Locks the registry-vs-init contract: a future PR that adds a name to
+    ``all_supported_optimizers()`` without a matching elif branch in
+    ``init_optimizer_state()`` fails this test.
+    """
+    var names = all_supported_optimizers()
+    for i in range(len(names)):
+        var params = _make_dummy_params()
+        var states = init_optimizer_state(names[i], params^)
+        if len(states) == 0:
+            raise Error(
+                String("init_optimizer_state(")
+                + names[i]
+                + String(") returned empty list -- registry-vs-init drift")
+            )
+        # Every per-param state list must be non-empty
+        for j in range(len(states)):
+            if len(states[j]) == 0:
+                raise Error(
+                    String("init_optimizer_state(")
+                    + names[i]
+                    + String("): param ")
+                    + String(j)
+                    + String(" got empty state list")
+                )
+    print("  ok all 24 names allocate non-empty per-param state")
+
+
 def main() raises:
     test_supported_count_is_24()
     test_supported_names_are_alphabetical()
@@ -144,4 +237,7 @@ def main() raises:
     test_adam_paper_defaults()
     test_unknown_name_raises()
     test_muon_returns_non_empty_defaults()
+    test_init_state_unknown_name_raises()
+    test_init_state_sgd_allocates()
+    test_init_state_loop_all_24()
     print("All dispatch tests PASSED")
