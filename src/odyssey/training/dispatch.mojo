@@ -101,7 +101,7 @@ def get_default_hyperparams(name: String) raises -> Dict[String, Float64]:
     elif name == "adopt":
         defaults["beta1"] = 0.9
         defaults["beta2"] = 0.9999
-        defaults["eps"] = 1e-8
+        defaults["epsilon"] = 1e-8
         defaults["weight_decay"] = 0.0
     elif name == "ftrl":
         defaults["alpha"] = 0.1
@@ -137,7 +137,7 @@ def get_default_hyperparams(name: String) raises -> Dict[String, Float64]:
         defaults["growth_rate"] = 1e30
     elif name == "rmsprop":
         defaults["alpha"] = 0.99
-        defaults["eps"] = 1e-8
+        defaults["epsilon"] = 1e-8
         defaults["momentum"] = 0.0
     elif name == "schedule_free":
         defaults["beta"] = 0.9
