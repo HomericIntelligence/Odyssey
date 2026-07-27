@@ -143,14 +143,14 @@ def get_default_hyperparams(name: String) raises -> Dict[String, Float64]:
         defaults["beta"] = 0.9
         defaults["weight_power"] = 0.0
     elif name == "schedule_free_plus":
-        # TODO: verify against `schedule_free_plus_step` concrete kwargs
-        # (Defazio 2026 reference values; may not match implementation).
+        # Verified against schedule_free_plus_step defaults (Defazio 2026).
+        # horizon is Int in the step function, excluded per the Float64-only
+        # dict contract; callers pass it positionally.
         defaults["mu"] = 0.9
         defaults["beta_sf"] = 0.9
         defaults["beta_max"] = 0.98
         defaults["rho"] = 0.9
         defaults["epsilon"] = 1e-8
-        defaults["horizon"] = 1000.0
     elif name == "sf_normuon":
         defaults["beta"] = 0.9
         defaults["mu"] = 0.95
