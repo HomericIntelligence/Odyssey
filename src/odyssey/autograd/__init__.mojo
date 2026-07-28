@@ -87,6 +87,7 @@ Status:
     ✅ AdamW optimizer (decoupled weight decay)
     ✅ RMSprop optimizer
     ✅ Gradient clipping utilities (value, norm, global norm)
+    ✅ Diagonal-Hessian estimators (Hutchinson + Gauss-Newton) for Sophia-G
 
 References:
     - Tape implementation: tape.mojo
@@ -183,6 +184,20 @@ from odyssey.autograd.functional import (
     divide_scalar,
     apply_gradient,
     apply_gradients,
+)
+
+# ============================================================================
+# Sophia-G diagonal-Hessian estimators (Hutchinson + Gauss-Newton)
+# ============================================================================
+# Trait surface co-landed with #5717 \u2014 PR #5718 Phase 1 never merged to main.
+# Powers the Sophia-G optimizer preconditioner. See issue #5717.
+
+from odyssey.autograd.sophia_g import (
+    DiagonalHessianEstimator,
+    HutchinsonDiagonalHessian,
+    GaussNewtonDiagonalHessian,
+    make_estimator,
+    accept_as_estimator,
 )
 
 # ============================================================================
