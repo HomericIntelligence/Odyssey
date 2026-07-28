@@ -44,13 +44,13 @@ defusedxml==0.7.1
     # via
     #   nbconvert
     #   odyssey
-fastjsonschema==2.21.2
+fastjsonschema==2.22.1
     # via nbformat
 gitdb==4.0.12
     # via gitpython
-gitpython==3.1.55
+gitpython==3.1.57
     # via odyssey
-homericintelligence-hephaestus==0.9.9
+homericintelligence-hephaestus==0.10.0
     # via odyssey
 idna==3.18
     # via requests
@@ -166,7 +166,7 @@ tomli==2.4.1
     # via pip-licenses
 tornado==6.5.7
     # via jupyter-client
-tqdm==4.69.0
+tqdm==4.70.0
     # via odyssey
 traitlets==5.15.1
     # via
