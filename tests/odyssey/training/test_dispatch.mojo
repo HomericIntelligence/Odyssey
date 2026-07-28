@@ -153,13 +153,13 @@ def _make_dummy_params() -> List[AnyTensor]:
     lists that would false-positive the loop test.
     """
     var params: List[AnyTensor] = []
-    params.append(zeros(4, 4))
-    params.append(zeros(4, 8))
+    params.append(zeros([4, 4], DType.float32))
+    params.append(zeros([4, 8], DType.float32))
     return params^
 
 
 def test_init_state_unknown_name_raises() raises:
-    """init_optimizer_state must raise for an unknown optimizer name.
+    """The init_optimizer_state must raise for an unknown optimizer name.
 
     Mirrors the strict-routing contract of get_default_hyperparams: no
     silent fallback. An unknown name is a caller bug, not a recoverable
