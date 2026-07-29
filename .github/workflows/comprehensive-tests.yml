@@ -553,12 +553,29 @@ jobs:
         if: matrix.group == 'integration-bench'
         run: just test-group "tests/odyssey/integration" "test_*.mojo"
 
+      - name: Record test producer outcome
+        if: always()
+        env:
+          producer: comprehensive-${{ matrix.group }}
+          job_id: test-mojo-comprehensive
+          status: ${{ job.status }}
+        run: |
+          mkdir -p test-results
+          cat > test-results/outcome-manifest.json <<EOF
+          {
+            "producer": "$producer",
+            "job_id": "$job_id",
+            "status": "$status"
+          }
+          EOF
+
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7
         with:
           name: test-results-comprehensive-${{ matrix.group }}
           path: test-results/
+          if-no-files-found: error
           retention-days: 7
 
   # ============================================================================
@@ -591,12 +608,29 @@ jobs:
       - name: Run Configs tests
         run: just test-group tests/configs "test_*.mojo"
 
+      - name: Record test producer outcome
+        if: always()
+        env:
+          producer: configs
+          job_id: test-configs
+          status: ${{ job.status }}
+        run: |
+          mkdir -p test-results
+          cat > test-results/outcome-manifest.json <<EOF
+          {
+            "producer": "$producer",
+            "job_id": "$job_id",
+            "status": "$status"
+          }
+          EOF
+
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7
         with:
           name: test-results-Configs
           path: test-results/
+          if-no-files-found: error
           retention-days: 7
 
   # ============================================================================
@@ -628,12 +662,29 @@ jobs:
       - name: Run Benchmarks tests
         run: just test-group tests/odyssey/benchmarks "bench_*.mojo"
 
+      - name: Record test producer outcome
+        if: always()
+        env:
+          producer: benchmarks
+          job_id: test-benchmarks
+          status: ${{ job.status }}
+        run: |
+          mkdir -p test-results
+          cat > test-results/outcome-manifest.json <<EOF
+          {
+            "producer": "$producer",
+            "job_id": "$job_id",
+            "status": "$status"
+          }
+          EOF
+
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7
         with:
           name: test-results-Benchmarks
           path: test-results/
+          if-no-files-found: error
           retention-days: 7
 
   # ============================================================================
@@ -661,12 +712,29 @@ jobs:
       - name: Run Core Layers tests
         run: just test-group tests/odyssey/core/layers "test_*.mojo"
 
+      - name: Record test producer outcome
+        if: always()
+        env:
+          producer: core-layers
+          job_id: test-core-layers
+          status: ${{ job.status }}
+        run: |
+          mkdir -p test-results
+          cat > test-results/outcome-manifest.json <<EOF
+          {
+            "producer": "$producer",
+            "job_id": "$job_id",
+            "status": "$status"
+          }
+          EOF
+
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7
         with:
           name: test-results-Core-Layers
           path: test-results/
+          if-no-files-found: error
           retention-days: 7
 
   # ============================================================================
@@ -719,12 +787,29 @@ jobs:
             exit 1
           fi
 
+      - name: Record test producer outcome
+        if: always()
+        env:
+          producer: python-tests
+          job_id: test-python
+          status: ${{ job.status }}
+        run: |
+          mkdir -p test-results
+          cat > test-results/outcome-manifest.json <<EOF
+          {
+            "producer": "$producer",
+            "job_id": "$job_id",
+            "status": "$status"
+          }
+          EOF
+
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7
         with:
           name: test-results-Python-Tests
           path: test-results/
+          if-no-files-found: error
           retention-days: 7
 
   # ============================================================================
@@ -939,12 +1024,29 @@ jobs:
 
           exit $exit_code
 
+      - name: Record test producer outcome
+        if: always()
+        env:
+          producer: gradient-checking
+          job_id: gradient-tests
+          status: ${{ job.status }}
+        run: |
+          mkdir -p test-results
+          cat > test-results/outcome-manifest.json <<EOF
+          {
+            "producer": "$producer",
+            "job_id": "$job_id",
+            "status": "$status"
+          }
+          EOF
+
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7
         with:
           name: test-results-Gradient-Checking-Tests
           path: test-results/
+          if-no-files-found: error
           retention-days: 7
 
       - name: Check test results
@@ -1102,12 +1204,29 @@ jobs:
             echo "This workflow will run once tests/odyssey/data/ tests are created"
           fi
 
+      - name: Record test producer outcome
+        if: always()
+        env:
+          producer: data-utilities
+          job_id: test-data-utilities
+          status: ${{ job.status }}
+        run: |
+          mkdir -p test-results
+          cat > test-results/outcome-manifest.json <<EOF
+          {
+            "producer": "$producer",
+            "job_id": "$job_id",
+            "status": "$status"
+          }
+          EOF
+
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7
         with:
           name: test-results-Data-Utilities
           path: test-results/
+          if-no-files-found: error
           retention-days: 7
 
   # ============================================================================
@@ -1158,7 +1277,26 @@ jobs:
   # Combined Test Report with Metrics
   # ============================================================================
   test-report:
-    needs: [mojo-compilation, validate-test-coverage, audit-shared-links, test-mojo-comprehensive, test-configs, test-benchmarks, test-core-layers, test-python, code-quality, build-validation, gradient-tests, test-data-utilities, test-metrics]
+    needs:
+      - mojo-syntax-check
+      - mojo-compilation
+      - example-backward-tests
+      - training-smoke
+      - validate-test-coverage
+      - audit-shared-links
+      - validate-dep-sync
+      - test-mojo-comprehensive
+      - test-configs
+      - test-benchmarks
+      - test-core-layers
+      - test-python
+      - code-quality
+      - simd-analysis
+      - build-validation
+      - gradient-tests
+      - gradient-coverage
+      - test-data-utilities
+      - test-metrics
     runs-on: ubuntu-latest
     if: always()
     name: "Test Report"
@@ -1175,127 +1313,25 @@ jobs:
           merge-multiple: false
           run-id: ${{ github.run_id }}  # Only artifacts from this specific run
 
-      - name: Generate combined report
+      - name: Generate and enforce combined report
+        if: always()
+        env:
+          NEEDS_JSON: ${{ toJSON(needs) }}
+          EVENT_NAME: ${{ github.event_name }}
+          RUN_EXTENDED: ${{ github.event_name == 'workflow_dispatch' && inputs.run_extended || false }}
         run: |
-          echo "# 🧪 Comprehensive Test Results" > test-report.md
-          echo "" >> test-report.md
-          echo "**Workflow Run**: [\`${{ github.run_number }}\`](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})" >> test-report.md
-          echo "**Commit**: \`${{ github.sha }}\`" >> test-report.md
-          echo "**Date**: $(date -Iseconds)" >> test-report.md
-          echo "" >> test-report.md
-
-          total_groups=0
-          passed_groups=0
-          failed_groups=0
-          total_tests=0
-          total_passed=0
-          total_failed=0
-          total_duration=0
-
-          echo "## Test Groups" >> test-report.md
-          echo "" >> test-report.md
-          echo "| Group | Tests | Passed | Failed | Duration |" >> test-report.md
-          echo "|-------|-------|--------|--------|----------|" >> test-report.md
-
-          # Process each result file
-          for result_dir in all-results/test-results-*; do
-            if [ -d "$result_dir" ]; then
-              for json_file in "$result_dir"/*.json; do
-                if [ -f "$json_file" ]; then
-                  total_groups=$((total_groups + 1))
-
-                  group=$(jq -r '.group' "$json_file" 2>/dev/null || echo "Unknown")
-                  tests=$(jq -r '.tests' "$json_file" 2>/dev/null || echo "0")
-                  passed=$(jq -r '.passed' "$json_file" 2>/dev/null || echo "0")
-                  failed=$(jq -r '.failed' "$json_file" 2>/dev/null || echo "0")
-                  duration=$(jq -r '.duration' "$json_file" 2>/dev/null || echo "0")
-
-                  total_tests=$((total_tests + tests))
-                  total_passed=$((total_passed + passed))
-                  total_failed=$((total_failed + failed))
-                  total_duration=$((total_duration + duration))
-
-                  if [ "$failed" -gt 0 ]; then
-                    failed_groups=$((failed_groups + 1))
-                    status="❌"
-                  else
-                    passed_groups=$((passed_groups + 1))
-                    status="✅"
-                  fi
-
-                  echo "| $status $group | $tests | $passed | $failed | ${duration}s |" >> test-report.md
-                fi
-              done
-            fi
-          done
-
-          echo "" >> test-report.md
-          echo "## Summary" >> test-report.md
-          echo "" >> test-report.md
-          echo "| Metric | Value |" >> test-report.md
-          echo "|--------|-------|" >> test-report.md
-          echo "| Total Test Groups | $total_groups |" >> test-report.md
-          echo "| Passed Groups | $passed_groups |" >> test-report.md
-          echo "| Failed Groups | $failed_groups |" >> test-report.md
-          echo "| Total Tests | $total_tests |" >> test-report.md
-          echo "| Passed Tests | $total_passed |" >> test-report.md
-          echo "| Failed Tests | $total_failed |" >> test-report.md
-          echo "| Total Duration | ${total_duration}s |" >> test-report.md
-
-          if [ $total_tests -gt 0 ]; then
-            pass_rate=$(echo "scale=1; $total_passed * 100 / $total_tests" | bc 2>/dev/null || echo "0")
-            echo "| Pass Rate | ${pass_rate}% |" >> test-report.md
-          fi
-
-          echo "" >> test-report.md
-
-          if [ $total_failed -eq 0 ]; then
-            echo "✅ **All tests passed!**" >> test-report.md
-          else
-            echo "❌ **Some tests failed. See details above.**" >> test-report.md
-          fi
-
-          # Include code quality if available
-          if [ -f "all-results/code-quality-reports/complexity.md" ]; then
-            echo "" >> test-report.md
-            echo "---" >> test-report.md
-            echo "" >> test-report.md
-            echo "## 📈 Code Quality" >> test-report.md
-            cat "all-results/code-quality-reports/complexity.md" >> test-report.md
-          fi
-
-          # Display report
-          cat test-report.md
+          mkdir -p all-results
+          python scripts/ci/comprehensive_report.py \
+            --artifacts-dir all-results \
+            --output test-report.md \
+            --event-name "$EVENT_NAME" \
+            --run-extended "$RUN_EXTENDED"
 
       - name: Upload combined report
+        if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7
         with:
           name: comprehensive-test-report
           path: test-report.md
+          if-no-files-found: error
           retention-days: 30
-
-      - name: Fail if any tests failed
-        run: |
-          # Check if any test groups failed
-          failed=0
-          for result_dir in all-results/test-results-*; do
-            if [ -d "$result_dir" ]; then
-              for json_file in "$result_dir"/*.json; do
-                if [ -f "$json_file" ]; then
-                  failed_count=$(jq -r '.failed' "$json_file" 2>/dev/null || echo "0")
-                  if [ "$failed_count" -gt 0 ]; then
-                    failed=1
-                    break
-                  fi
-                fi
-              done
-            fi
-          done
-
-          if [ $failed -eq 1 ]; then
-            echo "❌ FAIL: Some tests failed. See test report for details."
-            exit 1
-          else
-            echo "✅ All tests passed!"
-            exit 0
-          fi

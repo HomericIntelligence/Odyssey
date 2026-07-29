@@ -184,6 +184,8 @@ def test_existing_pull_request_and_push_triggers_are_preserved() -> None:
         "docker-compose.yml",
         "justfile",
         "scripts/ci/ensure-podman-runtime.sh",
+        "tests/smoke/test_comprehensive_pr_comments_workflow_properties.py",
+        "tests/smoke/test_comprehensive_report_workflow_properties.py",
         "tests/smoke/test_comprehensive_tests_workflow_properties.py",
         "tests/smoke/test_container_runtime_workflow_properties.py",
         "tests/smoke/test_merge_queue_workflow_properties.py",

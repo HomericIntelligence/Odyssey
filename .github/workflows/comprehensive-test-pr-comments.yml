@@ -15,6 +15,9 @@ jobs:
     if: >-
       github.event.workflow_run.event == 'pull_request' &&
       github.event.workflow_run.pull_requests[0]
+    concurrency:
+      group: comprehensive-test-pr-comment-${{ github.event.workflow_run.pull_requests[0].number }}
+      cancel-in-progress: true
     runs-on: ubuntu-latest
     name: "Post Comprehensive Test PR Comments"
     permissions:
@@ -23,7 +26,34 @@ jobs:
       pull-requests: write
 
     steps:
+      - name: Discover report artifacts
+        id: discover_artifacts
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3  # v9.0.0
+        with:
+          script: |
+            const artifacts = await github.paginate(
+              github.rest.actions.listWorkflowRunArtifacts,
+              {
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                run_id: context.payload.workflow_run.id,
+                per_page: 100,
+              },
+            );
+            const available = new Set(
+              artifacts
+                .filter(artifact => !artifact.expired)
+                .map(artifact => artifact.name),
+            );
+            core.setOutput('has_metrics', String(available.has('test-metrics')));
+            core.setOutput(
+              'has_report',
+              String(available.has('comprehensive-test-report')),
+            );
+
       - name: Download test metrics report
+        id: download-metrics
+        if: steps.discover_artifacts.outputs.has_metrics == 'true'
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8
         with:
           name: test-metrics
@@ -32,6 +62,8 @@ jobs:
           run-id: ${{ github.event.workflow_run.id }}
 
       - name: Download comprehensive test report
+        id: download-report
+        if: always() && steps.discover_artifacts.outputs.has_report == 'true'
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8
         with:
           name: comprehensive-test-report
@@ -40,23 +72,52 @@ jobs:
           run-id: ${{ github.event.workflow_run.id }}
 
       - name: Post or update PR comments
+        if: always()
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3  # v9.0.0
         env:
           PR_NUMBER: ${{ github.event.workflow_run.pull_requests[0].number }}
+          REPORT_AVAILABLE: ${{ steps.discover_artifacts.outputs.has_report }}
+          METRICS_AVAILABLE: ${{ steps.discover_artifacts.outputs.has_metrics }}
+          REPORT_DOWNLOAD_OUTCOME: ${{ steps.download-report.outcome }}
+          METRICS_DOWNLOAD_OUTCOME: ${{ steps.download-metrics.outcome }}
+          WORKFLOW_RUN_URL: ${{ github.event.workflow_run.html_url }}
+          WORKFLOW_CONCLUSION: ${{ github.event.workflow_run.conclusion }}
         with:
           script: |
             const fs = require('fs');
             const issue_number = Number(process.env.PR_NUMBER);
-            const reports = [
-              {
-                marker: 'Test Metrics Report',
-                path: 'reports/metrics/metrics-pr-comment.md',
-              },
-              {
-                marker: '🧪 Comprehensive Test Results',
-                path: 'reports/comprehensive/test-report.md',
-              },
-            ];
+            const metricsPath = 'reports/metrics/metrics-pr-comment.md';
+            const reportPath = 'reports/comprehensive/test-report.md';
+            const sourceHeadSha =
+              context.payload.workflow_run.pull_requests[0]?.head?.sha;
+            const { data: pullRequest } = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: issue_number,
+            });
+            if (!sourceHeadSha || pullRequest.head.sha !== sourceHeadSha) {
+              core.info(
+                `Stale workflow run for ${sourceHeadSha || 'unknown head'}; ` +
+                `current PR head is ${pullRequest.head.sha}. No comment updated.`,
+              );
+              return;
+            }
+
+            const readDownloadedFile = (available, outcome, path) => {
+              if (available !== 'true' || outcome !== 'success') {
+                return null;
+              }
+              try {
+                const stat = fs.statSync(path);
+                if (!stat.isFile() || stat.size === 0) {
+                  return null;
+                }
+                return fs.readFileSync(path, 'utf8');
+              } catch (error) {
+                core.info(`Unable to read ${path}: ${error.message}`);
+                return null;
+              }
+            };
 
             const comments = await github.paginate(
               github.rest.issues.listComments,
@@ -68,10 +129,9 @@ jobs:
               },
             );
 
-            for (const report of reports) {
-              const body = fs.readFileSync(report.path, 'utf8');
+            const upsertComment = async (marker, body) => {
               const existing = comments.find(comment =>
-                comment.user.type === 'Bot' && comment.body.includes(report.marker)
+                comment.user.type === 'Bot' && comment.body.includes(marker)
               );
 
               if (existing) {
@@ -89,4 +149,53 @@ jobs:
                   body,
                 });
               }
+            };
+
+            const metricsBody = readDownloadedFile(
+              process.env.METRICS_AVAILABLE,
+              process.env.METRICS_DOWNLOAD_OUTCOME,
+              metricsPath,
+            );
+            if (metricsBody !== null) {
+              await upsertComment(
+                'Test Metrics Report',
+                metricsBody,
+              );
             }
+
+            const downloadedReport = readDownloadedFile(
+              process.env.REPORT_AVAILABLE,
+              process.env.REPORT_DOWNLOAD_OUTCOME,
+              reportPath,
+            );
+            const conclusion = process.env.WORKFLOW_CONCLUSION || 'unknown';
+            const expectedVerdict =
+              conclusion === 'success' ? '✅ PASS —' : '❌ FAIL —';
+            const oppositeVerdict =
+              conclusion === 'success' ? '❌ FAIL —' : '✅ PASS —';
+            const reportMatchesConclusion =
+              downloadedReport !== null &&
+              downloadedReport.includes(expectedVerdict) &&
+              !downloadedReport.includes(oppositeVerdict);
+
+            let reportBody = downloadedReport;
+            if (!reportMatchesConclusion) {
+              const runUrl = process.env.WORKFLOW_RUN_URL;
+              const reason = downloadedReport === null
+                ? 'The workflow did not publish a readable comprehensive report.'
+                : 'The downloaded report verdict does not match the workflow conclusion.';
+              reportBody = [
+                '# 🧪 Comprehensive Test Results',
+                '',
+                '❌ **Comprehensive test report unavailable.**',
+                '',
+                reason,
+                'so this result must be treated as a failure.',
+                '',
+                `- Workflow conclusion: \`${conclusion}\``,
+                `- [Workflow run](${runUrl})`,
+                '',
+              ].join('\n');
+            }
+
+            await upsertComment('🧪 Comprehensive Test Results', reportBody);
