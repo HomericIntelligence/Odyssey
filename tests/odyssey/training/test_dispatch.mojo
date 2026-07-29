@@ -143,7 +143,7 @@ def test_loop_all_24_known() raises:
     print("  ok all 24 names return non-empty defaults")
 
 
-def _make_dummy_params() -> List[AnyTensor]:
+def _make_dummy_params() raises -> List[AnyTensor]:
     """Build a small 2-parameter list for state allocation tests.
 
     Both params are rank-2 with both dims >= 4 — large enough to satisfy
@@ -153,6 +153,9 @@ def _make_dummy_params() -> List[AnyTensor]:
     lists that would false-positive the loop test.
     """
     var params: List[AnyTensor] = []
+    # zeros([a, b], ...) is documented as raising on bad shapes; mark
+    # _make_dummy_params raises too so the append chain is type-correct.
+    # (Mojo 1.0: callers of zeros() must propagate errors.)
     params.append(zeros([4, 4], DType.float32))
     params.append(zeros([4, 8], DType.float32))
     return params^

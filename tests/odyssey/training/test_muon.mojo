@@ -536,8 +536,8 @@ def test_muon_step_simple() raises:
         pass). This upgrade replaces the smoke check with element-wise parity
         on `new_params` AND `new_momentum` across two paths: zero-grad
         (exercises the orthogonalized-momentum init) and non-zero-grad
-        (exercises the actual Muon update). Defaults match muon.mojo:
-        momentum_beta=0.95, weight_decay=0.0, nesterov=True, ns_steps=5.
+        (exercises the actual Muon update).        Defaults match muon.mojo:
+        momentum_beta=0.95, weight_decay=0.01, nesterov=True, ns_steps=5.
     """
     # --- Pass 1: zero gradients ---
     var shape: List[Int] = [4, 4]
@@ -546,13 +546,15 @@ def test_muon_step_simple() raises:
     var mom_f1 = zeros_like(params_zi)
     var mom_s1 = zeros_like(params_zi)
 
+    # weight_decay=0.01 here MUST match `muon_step_simple`'s internal default;
+    # otherwise the zero-grad pass shows a spurious lr*wd*p = 1e-4 * p drift.
     var full_p1 = muon_step(
         params_zi,
         grads_zi,
         mom_f1,
         learning_rate=0.01,
         momentum_beta=0.95,
-        weight_decay=0.0,
+        weight_decay=0.01,
         nesterov=True,
         ns_steps=5,
     )
@@ -597,7 +599,7 @@ def test_muon_step_simple() raises:
         mom_full,
         learning_rate=0.01,
         momentum_beta=0.95,
-        weight_decay=0.0,
+        weight_decay=0.01,
         nesterov=True,
         ns_steps=5,
     )
