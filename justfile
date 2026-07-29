@@ -1,6 +1,9 @@
 # ML Odyssey Build System
 # Unified build/test/lint interface for Podman containers
 
+# Load the repository .env once, before evaluating exported container values.
+set dotenv-load
+
 # Default recipe - show help
 default: help
 
@@ -16,14 +19,19 @@ BUILD_ROOT := env_var_or_default("BUILD_ROOT", repo_root / "build")
 
 
 # ==============================================================================
-# Automatically detect host UID/GID if not set
+# Shared container identity and bounded build concurrency
 # ==============================================================================
-USER_ID := `sh -c 'echo ${USER_ID:-$(id -u)}'`
-GROUP_ID := `sh -c 'echo ${GROUP_ID:-$(id -g)}'`
+export USER_ID := env_var_or_default("USER_ID", `id -u`)
+export GROUP_ID := env_var_or_default("GROUP_ID", `id -g`)
+export USER_NAME := "dev"
+export BUILD_PARALLELISM := env_var_or_default("BUILD_PARALLELISM", "4")
+export ODYSSEY_MEM_LIMIT := env_var_or_default("ODYSSEY_MEM_LIMIT", "14g")
+export ODYSSEY_CPU_LIMIT := env_var_or_default("ODYSSEY_CPU_LIMIT", "6.0")
 
 show-user:
 	@echo "USER_ID = {{USER_ID}}"
 	@echo "GROUP_ID = {{GROUP_ID}}"
+	@echo "USER_NAME = {{USER_NAME}}"
 
 # ==============================================================================
 # Mojo Compiler Flags
@@ -76,7 +84,6 @@ _run cmd:
 			ORIGINAL_CMD='{{cmd}}'
 			REWRITTEN_CMD="${ORIGINAL_CMD//$BUILD_ROOT/\/ext-build}"
 			podman compose run --rm \
-				-e USER_ID={{USER_ID}} -e GROUP_ID={{GROUP_ID}} \
 				-v "$BUILD_ROOT":/ext-build:Z \
 				{{podman_service}} bash -c "$REWRITTEN_CMD"
 		else
@@ -87,7 +94,6 @@ _run cmd:
 			# does not propagate through `podman compose exec` invocations.
 			HOME_FIXUP='if [ ! -w "$HOME" ]; then export HOME="/tmp/mojo-home-$(id -u)"; mkdir -p "$HOME/.modular" "$HOME/.cache/uv"; fi; ulimit -c unlimited 2>/dev/null || echo "warn: ulimit -c rejected" >&2;'
 			podman compose exec \
-				-e USER_ID={{USER_ID}} -e GROUP_ID={{GROUP_ID}} \
 				-T {{podman_service}} bash -c "$HOME_FIXUP {{cmd}}"
 		fi
 	else
@@ -105,6 +111,10 @@ _ensure_build_dir mode:
 # Podman Management
 # ==============================================================================
 
+# Validate Podman availability, engine reachability, and runtime resources
+podman-preflight:
+    @scripts/podman-preflight.sh
+
 # Start Podman development environment
 #
 # If a container already exists but is bind-mounted to a different clone
@@ -113,15 +123,11 @@ _ensure_build_dir mode:
 # lets the same dev work seamlessly across multiple clones without
 # manually running `podman compose down` from the old clone first.
 #
-# docker-compose substitutes ${USER_ID}/${GROUP_ID} in docker-compose.yml from
-# its OWN environment, not from just's template vars. Without explicit
-# `USER_ID=... GROUP_ID=...` exports on the same line, the variables expand to
-# empty strings and the container would get `user: ":"` (invalid), causing
-# the compose call to fail or create a stuck container in an invalid state.
-podman-up:
+# The shared exported values at the top of this file are inherited by every
+# Compose command, so build args, runtime user mapping, and caches agree.
+podman-up: podman-preflight
     #!/usr/bin/env bash
     set -euo pipefail
-    export USER_ID="{{USER_ID}}" GROUP_ID="{{GROUP_ID}}" USER_NAME="${USER_NAME:-dev}"
     EXPECTED="{{repo_root}}"
     EXISTING=$(podman inspect odyssey-{{podman_service}}-1 \
         --format '{{{{range .Mounts}}{{{{if eq .Destination "/workspace"}}{{{{.Source}}{{{{end}}{{{{end}}' 2>/dev/null || echo "")
@@ -135,22 +141,15 @@ podman-up:
 
 # Stop Podman development environment
 podman-down:
-    @USER_ID={{USER_ID}} GROUP_ID={{GROUP_ID}} USER_NAME=${USER_NAME:-dev} \
-        podman compose down
+    @podman compose down
 
 # Build Podman images
-podman-build:
-    @podman compose build \
-        --build-arg USER_ID={{USER_ID}} \
-        --build-arg GROUP_ID={{GROUP_ID}} \
-        --build-arg USER_NAME=dev
+podman-build: podman-preflight
+    @podman compose build
 
 # Rebuild Podman images (no cache)
-podman-rebuild:
-    @podman compose build --no-cache \
-        --build-arg USER_ID={{USER_ID}} \
-        --build-arg GROUP_ID={{GROUP_ID}} \
-        --build-arg USER_NAME=dev
+podman-rebuild: podman-preflight
+    @podman compose build --no-cache
 
 # View Podman container logs
 podman-logs:
@@ -173,7 +172,7 @@ REGISTRY := "ghcr.io"
 REPO_NAME := "homericintelligence/odyssey"
 
 # Build CI-optimized container image
-podman-build-ci target="runtime":
+podman-build-ci target="runtime": podman-preflight
     @podman build --format docker -f Dockerfile.ci --target {{target}} \
         -t {{REGISTRY}}/{{REPO_NAME}}:{{target}} \
         -t {{REGISTRY}}/{{REPO_NAME}}:{{target}}-$(git rev-parse --short HEAD) \
@@ -202,18 +201,29 @@ podman-release target="runtime":
     @just podman-push {{target}}
 
 # Test container image locally
-podman-test-image target="runtime":
+podman-test-image target="runtime": podman-preflight
     @echo "Testing {{target}} image..."
-    @podman run --rm {{REGISTRY}}/{{REPO_NAME}}:{{target}} uv run mojo --version
+    @podman run --rm {{REGISTRY}}/{{REPO_NAME}}:{{target}} mojo --version
     @echo "✅ Image {{target}} is working"
 
 # Run tests in container image
-podman-run-tests target="runtime":
-    @podman run --rm {{REGISTRY}}/{{REPO_NAME}}:{{target}} \
-        uv run mojo test {{MOJO_TARGET_CPU}} -I . tests/
+podman-run-tests target="runtime": podman-preflight
+    #!/usr/bin/env bash
+    set -euo pipefail
+    podman run --rm {{REGISTRY}}/{{REPO_NAME}}:{{target}} bash -ceu '
+        mapfile -t test_files < <(find tests -type f -name "test_*.mojo" -print | sort)
+        if [ "${#test_files[@]}" -eq 0 ]; then
+            echo "ERROR: No Mojo test files found in tests/" >&2
+            exit 1
+        fi
+        for test_file in "${test_files[@]}"; do
+            echo "Testing: $test_file"
+            mojo --Werror -I src -I . "$test_file"
+        done
+    '
 
 # Interactive shell in container image
-podman-run-shell target="runtime":
+podman-run-shell target="runtime": podman-preflight
     @podman run -it --rm {{REGISTRY}}/{{REPO_NAME}}:{{target}} bash
 
 # ==============================================================================
@@ -221,7 +231,7 @@ podman-run-shell target="runtime":
 # ==============================================================================
 
 # Build container image exactly as CI does
-ci-podman-build:
+ci-podman-build: podman-preflight
     @podman build --format docker \
         --file Dockerfile.ci \
         --target runtime \
@@ -230,7 +240,7 @@ ci-podman-build:
         .
 
 # Validate container build without pushing
-ci-podman-validate:
+ci-podman-validate: podman-preflight
     @echo "Validating Dockerfile.ci..."
     @podman build -f Dockerfile.ci --target runtime . >/dev/null
     @echo "✅ Dockerfile.ci is valid"
@@ -367,9 +377,10 @@ _build-inner mode="debug":
     # timeout once the autograd example ports landed (#5454); bounded parallelism
     # keeps every mode's build under budget without OOMing the runner.
     #
-    # BUILD_PARALLELISM: number of concurrent `mojo build` jobs. Defaults to 4
-    # (fits a standard 4-core/16 GB CI runner); override via env for tighter or
-    # looser hosts. TSAN forces serial (JOBS=-j1 already; keep 1 worker too).
+    # BUILD_PARALLELISM: number of concurrent `mojo build` jobs. Defaults to 4,
+    # leaving headroom on the preflighted 6-CPU/16-GiB local runtime. Override
+    # via env for tighter or looser hosts. TSAN forces serial (JOBS=-j1 already;
+    # keep 1 worker too).
     # ------------------------------------------------------------
     if [ "$MODE" = "tsan" ]; then
         BUILD_PARALLELISM=1
@@ -816,14 +827,14 @@ bootstrap:
 
 # Open development shell. Auto-starts the container if it isn't running, so
 # new developers don't need to remember to `just podman-up` first (#5329).
-shell:
+shell: podman-preflight
     #!/usr/bin/env bash
     set -euo pipefail
     if ! podman compose ps --services --filter "status=running" 2>/dev/null | grep -q "^{{podman_service}}$"; then
         echo "Container '{{podman_service}}' is not running — starting it now (just podman-up)..."
         just podman-up
     fi
-    podman compose exec -it -e USER_ID={{USER_ID}} -e GROUP_ID={{GROUP_ID}} {{podman_service}} bash
+    podman compose exec -it {{podman_service}} bash
 
 # Serve documentation
 docs-serve:
@@ -1308,7 +1319,7 @@ help:
     @echo "Package:   package [mode], package-debug, package-release"
     @echo "Test:      test, test-python, test-group, test-group-asan, test-mojo"
     @echo "Jupyter:   jupyter, jupyter-notebook, jupyter-validate, jupyter-clear"
-    @echo "Podman:    podman-up, podman-down, podman-build, podman-logs, podman-status"
+    @echo "Podman:    podman-preflight, podman-up, podman-down, podman-build, podman-logs, podman-status"
     @echo "Dev:       bootstrap, shell, docs, docs-serve, pre-commit, validate"
     @echo "Utility:   help, status, clean, clean-all"
     @echo ""

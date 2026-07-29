@@ -12,38 +12,37 @@ services:
       args:
         USER_ID: ${USER_ID}
         GROUP_ID: ${GROUP_ID}
-        USER_NAME: ${USER_NAME:-dev}
+        USER_NAME: dev
     image: odyssey:dev
     volumes:
       - .:/workspace:Z
-      - uv-cache:/home/${USER_NAME:-dev}/.cache/uv
-      - pre-commit-cache:/home/${USER_NAME:-dev}/.cache/pre-commit
-      - ${HOME}/.gitconfig:/home/${USER_NAME:-dev}/.gitconfig:ro
+      - uv-cache:/home/dev/.cache/uv
+      - pre-commit-cache:/home/dev/.cache/pre-commit
+      - ${HOME}/.gitconfig:/home/dev/.gitconfig:ro
     entrypoint: ["/usr/local/bin/entrypoint.sh"]
     environment:
-      - HOME=/home/${USER_NAME:-dev}
+      - HOME=/home/dev
       - USER_ID=${USER_ID}
       - GROUP_ID=${GROUP_ID}
+      - BUILD_PARALLELISM=${BUILD_PARALLELISM:-4}
       - ENVIRONMENT=development
       - TERM=xterm-256color
-      - UV_CACHE_DIR=/home/${USER_NAME:-dev}/.cache/uv
-      - UV_PROJECT_ENVIRONMENT=/home/${USER_NAME:-dev}/.venv
+      - UV_CACHE_DIR=/home/dev/.cache/uv
+      - UV_PROJECT_ENVIRONMENT=/home/dev/.venv
     working_dir: /workspace
     stdin_open: true
     tty: true
     command: /bin/bash
     # Resource limits guard the host from runaway training jobs OOMing the box
-    # (#5313/#5317). Tunable via env vars; defaults sized for a 16-GB / 8-core
-    # developer workstation. Override per-host with:
-    #   ODYSSEY_MEM_LIMIT=8g ODYSSEY_CPU_LIMIT=4 just podman-up
-    # cgroups v1 hosts will silently ignore these — that's fine; on cgroups v2
-    # they enforce.
-    #
+    # (#5313/#5317). Just loads .env and exports the same values to preflight
+    # and every Compose service. See .env.example for the two supported
+    # profiles.
     # Sanitizer note: `just build tsan` and `just build asan` cause the Mojo
     # compiler to allocate ~3-6 GB per invocation (modular/modular#6433).
     # Build sweeps under TSAN may hit OOM if other processes are competing for
-    # memory; on memory-constrained hosts run with explicit swap or a higher
-    # limit, e.g. ODYSSEY_MEM_LIMIT=24g just podman-up.
+    # memory. Constrained hosts must keep builds serial; otherwise use the
+    # default profile on a runtime with the documented nominal and usable
+    # capacity.
     mem_limit: ${ODYSSEY_MEM_LIMIT:-14g}
     cpus: ${ODYSSEY_CPU_LIMIT:-6.0}
 
@@ -58,28 +57,24 @@ services:
       args:
         USER_ID: ${USER_ID}
         GROUP_ID: ${GROUP_ID}
-        USER_NAME: ${USER_NAME:-dev}
+        USER_NAME: dev
     image: odyssey:ci
     volumes:
       - .:/workspace
-      - uv-cache:/home/${USER_NAME:-dev}/.cache/uv
+      - uv-cache:/home/dev/.cache/uv
     entrypoint: ["/usr/local/bin/entrypoint.sh"]
     environment:
-      - HOME=/home/${USER_NAME:-dev}
+      - HOME=/home/dev
       - USER_ID=${USER_ID}
       - GROUP_ID=${GROUP_ID}
+      - BUILD_PARALLELISM=${BUILD_PARALLELISM:-4}
       - ENVIRONMENT=ci
       - CI=true
-      - UV_CACHE_DIR=/home/${USER_NAME:-dev}/.cache/uv
-      - UV_PROJECT_ENVIRONMENT=/home/${USER_NAME:-dev}/.venv
+      - UV_CACHE_DIR=/home/dev/.cache/uv
+      - UV_PROJECT_ENVIRONMENT=/home/dev/.venv
     working_dir: /workspace
-    # Resource limits guard the host from runaway CI jobs OOMing the box
-    # (#5313/#5317). Tunable via env vars; same defaults as the dev service.
-    # Override per-host with:
-    #   ODYSSEY_MEM_LIMIT=8g ODYSSEY_CPU_LIMIT=4 just podman-up
-    # cgroups v1 hosts will silently ignore these — that's fine; on cgroups v2
-    # they enforce.
-    mem_limit: ${ODYSSEY_MEM_LIMIT:-24g}
+    # Resource limits use the same preflighted contract as odyssey-dev.
+    mem_limit: ${ODYSSEY_MEM_LIMIT:-14g}
     cpus: ${ODYSSEY_CPU_LIMIT:-6.0}
     # See odyssey-dev for rationale: ulimit -c must be set on the
     # service so cores survive across `podman compose exec` invocations.
@@ -96,23 +91,19 @@ services:
       args:
         USER_ID: ${USER_ID}
         GROUP_ID: ${GROUP_ID}
-        USER_NAME: ${USER_NAME:-dev}
+        USER_NAME: dev
     image: odyssey:prod
     volumes:
       - .:/workspace:ro
     environment:
-      - HOME=/home/${USER_NAME:-dev}
+      - HOME=/home/dev
       - USER_ID=${USER_ID}
       - GROUP_ID=${GROUP_ID}
+      - BUILD_PARALLELISM=${BUILD_PARALLELISM:-4}
       - ENVIRONMENT=production
     working_dir: /workspace
-    # Resource limits guard the host from runaway training jobs OOMing the box
-    # (#5313/#5317). Tunable via env vars; same defaults as the dev service.
-    # Override per-host with:
-    #   ODYSSEY_MEM_LIMIT=8g ODYSSEY_CPU_LIMIT=4 just podman-up
-    # cgroups v1 hosts will silently ignore these — that's fine; on cgroups v2
-    # they enforce.
-    mem_limit: ${ODYSSEY_MEM_LIMIT:-24g}
+    # Resource limits use the same preflighted contract as odyssey-dev.
+    mem_limit: ${ODYSSEY_MEM_LIMIT:-14g}
     cpus: ${ODYSSEY_CPU_LIMIT:-6.0}
 
 volumes:
