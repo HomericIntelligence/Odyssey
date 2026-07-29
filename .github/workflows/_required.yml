@@ -14,6 +14,7 @@ on:
   # (70-90 min per merge). PR-side jobs in this workflow are unchanged.
   push:
     branches: [main]
+  workflow_dispatch:
 
 # One run per branch at a time; cancel any in-progress run when a new commit arrives.
 concurrency:
@@ -443,19 +444,16 @@ jobs:
       - name: Install uv
         uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9  # v9.0.0
         with:
+          version: "0.12.0"
           enable-cache: true
           cache-dependency-glob: "uv.lock"
 
-      - name: Validate uv.lock is up-to-date
-        # `uv lock --check` resolves in-memory and fails if uv.lock is stale
-        # relative to pyproject.toml — the uv equivalent of the former
-        # `pixi install --locked` freshness gate. Does not download the (large)
-        # Mojo compiler, so no full `uv sync` is needed here.
+      - name: Validate generated dependency files
+        # Validate the lock against pyproject.toml, then verify both pip-only
+        # requirements exports against that frozen lockfile.
         run: |
-          if ! uv lock --check; then
-            echo "::error::uv.lock is stale — run 'uv lock' locally and commit uv.lock"
-            exit 1
-          fi
+          uv lock --check
+          python scripts/sync_requirements.py --check --repo-root .
 
   markdownlint:
     name: markdownlint

@@ -147,9 +147,10 @@ def test_pr_context_workflows_do_not_run_for_merge_group() -> None:
 def test_existing_pull_request_and_push_triggers_are_preserved() -> None:
     """Queue changes must not narrow the existing PR or main-push coverage."""
     required_triggers = _on_block(_load_yaml(WORKFLOW_DIR / "_required.yml"))
-    assert set(required_triggers) == {"pull_request", "push"}
+    assert set(required_triggers) == {"pull_request", "push", "workflow_dispatch"}
     assert required_triggers["pull_request"] is None
     assert required_triggers["push"] == {"branches": ["main"]}
+    assert required_triggers["workflow_dispatch"] is None
 
     for workflow_name in PR_CONTEXT_WORKFLOWS[1:3]:
         triggers = _on_block(_load_yaml(WORKFLOW_DIR / workflow_name))
@@ -172,10 +173,13 @@ def test_existing_pull_request_and_push_triggers_are_preserved() -> None:
     assert set(smoke_triggers["push"]["paths"]) == {
         ".github/workflows/_required.yml",
         ".github/actions/setup-container/action.yml",
+        ".github/actions/setup-uv/action.yml",
         ".github/workflows/comprehensive-test-pr-comments.yml",
         ".github/workflows/comprehensive-tests.yml",
         ".github/workflows/container-publish.yml",
         ".github/workflows/gradient-soak.yml",
+        ".github/workflows/dependabot-uv-lock.yml",
+        ".github/workflows/dependabot-uv-lock-writer.yml",
         ".github/workflows/pre-commit.yml",
         ".github/workflows/release.yml",
         ".github/workflows/security.yml",
@@ -184,15 +188,19 @@ def test_existing_pull_request_and_push_triggers_are_preserved() -> None:
         "configs/github/merge-queue-policy.json",
         "docker-compose.yml",
         "justfile",
+        "scripts/ci/commit_generated_dependencies.py",
         "scripts/ci/dependency_audit_contract.py",
         "scripts/ci/ensure-podman-runtime.sh",
         "scripts/ci/parse_pip_audit.py",
+        "scripts/sync_requirements.py",
+        "tests/scripts/test_commit_generated_dependencies.py",
         "tests/scripts/test_dependency_audit_contract.py",
         "tests/scripts/test_parse_pip_audit.py",
         "tests/smoke/test_comprehensive_pr_comments_workflow_properties.py",
         "tests/smoke/test_comprehensive_report_workflow_properties.py",
         "tests/smoke/test_comprehensive_tests_workflow_properties.py",
         "tests/smoke/test_container_runtime_workflow_properties.py",
+        "tests/smoke/test_dependabot_uv_lock_workflow_properties.py",
         "tests/smoke/test_gradient_soak_workflow_properties.py",
         "tests/smoke/test_merge_queue_workflow_properties.py",
         "tests/smoke/test_pre_commit_workflow_properties.py",
@@ -260,9 +268,11 @@ def test_merge_group_cannot_receive_write_scope() -> None:
     assert isinstance(comment_jobs, dict)
     assert set(comment_jobs) == {"post-pr-comments"}
     comment_job = comment_jobs["post-pr-comments"]
-    assert comment_job.get("if") == (
-        "github.event.workflow_run.event == 'pull_request' && github.event.workflow_run.pull_requests[0]"
-    )
+    comment_condition = str(comment_job.get("if"))
+    assert "github.event.workflow_run.event == 'pull_request'" in comment_condition
+    assert "github.event.workflow_run.event == 'workflow_dispatch'" in comment_condition
+    assert "startsWith(github.event.workflow_run.head_branch, 'dependabot/')" in comment_condition
+    assert "workflow_run.head_sha" in str(comment_job.get("concurrency", {}).get("group"))
     assert comment_job.get("permissions") == {
         "actions": "read",
         "contents": "read",

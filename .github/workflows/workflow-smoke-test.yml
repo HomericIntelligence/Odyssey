@@ -17,14 +17,19 @@ on:
       - main
     paths:
       - '.github/workflows/_required.yml'
+      - '.github/actions/setup-uv/action.yml'
       - '.github/workflows/comprehensive-test-pr-comments.yml'
       - '.github/workflows/workflow-smoke-test.yml'
       - '.github/workflows/security.yml'
       - '.github/workflows/pre-commit.yml'
       - '.github/workflows/comprehensive-tests.yml'
       - '.github/workflows/gradient-soak.yml'
+      - '.github/workflows/dependabot-uv-lock.yml'
+      - '.github/workflows/dependabot-uv-lock-writer.yml'
       - '.github/workflows/validate-configs.yml'
       - 'configs/github/merge-queue-policy.json'
+      - 'scripts/sync_requirements.py'
+      - 'tests/smoke/test_dependabot_uv_lock_workflow_properties.py'
       - 'tests/smoke/test_merge_queue_workflow_properties.py'
       - 'tests/smoke/test_security_workflow_properties.py'
       - 'tests/workflows/test_security_dependency_audit.py'
@@ -46,8 +51,10 @@ on:
       - '.github/workflows/release.yml'
       - 'docker-compose.yml'
       - 'justfile'
+      - 'scripts/ci/commit_generated_dependencies.py'
       - 'scripts/ci/ensure-podman-runtime.sh'
       - 'tests/smoke/test_container_runtime_workflow_properties.py'
+      - 'tests/scripts/test_commit_generated_dependencies.py'
   workflow_dispatch:
 
 permissions:
@@ -226,6 +233,8 @@ jobs:
             tests/smoke/test_comprehensive_report_workflow_properties.py \
             tests/smoke/test_comprehensive_pr_comments_workflow_properties.py \
             tests/smoke/test_gradient_soak_workflow_properties.py \
+            tests/smoke/test_dependabot_uv_lock_workflow_properties.py \
+            tests/scripts/test_commit_generated_dependencies.py \
             tests/smoke/test_validate_configs_workflow_properties.py \
             tests/smoke/test_container_runtime_workflow_properties.py \
             -v

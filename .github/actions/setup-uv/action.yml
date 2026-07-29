@@ -5,6 +5,10 @@ description: >-
   former setup-pixi action per Odysseus ADR-018.
 
 inputs:
+  uv-version:
+    description: uv version used for lock validation, exports, and sync.
+    required: false
+    default: "0.12.0"
   python-version:
     description: Python version uv should use for the project env.
     required: false
@@ -21,8 +25,9 @@ runs:
   using: composite
   steps:
     - name: Install uv
-      uses: astral-sh/setup-uv@37802adc94f370d6bfd71619e3f0bf239e1f3b78  # v7
+      uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9  # v9.0.0
       with:
+        version: ${{ inputs.uv-version }}
         # Enable the built-in uv cache keyed on uv.lock so repeat runs skip
         # re-downloading the (large) Mojo compiler wheels.
         enable-cache: true

@@ -1,0 +1,59 @@
+# .github/workflows/dependabot-uv-lock-writer.yml
+# Trusted default-branch consumer for the read-only Dependabot generator.
+#
+# SECURITY BOUNDARY: workflow_run gives this workflow a write-scoped token, so
+# it must never check out or execute pull-request code. The artifact is treated
+# only as untrusted data and is validated by the script checked out from the
+# repository default branch.
+name: Publish regenerated Dependabot dependency files
+
+on:
+  workflow_run:
+    workflows: ["Regenerate dependency files on Dependabot PRs"]
+    types: [completed]
+
+concurrency:
+  group: dependabot-dependency-writer-${{ github.event.workflow_run.head_sha }}
+  cancel-in-progress: false
+
+permissions:
+  actions: write
+  contents: write
+  pull-requests: read
+
+jobs:
+  publish-generated-dependencies:
+    if: >-
+      github.event.workflow_run.event == 'pull_request' &&
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.actor.login == 'dependabot[bot]' &&
+      github.event.workflow_run.head_repository.full_name == github.repository &&
+      github.event.workflow_run.path == '.github/workflows/dependabot-uv-lock.yml'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout trusted default-branch publisher
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          repository: ${{ github.repository }}
+          ref: ${{ github.sha }}
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Install trusted pinned uv
+        uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9  # v9.0.0
+        with:
+          version: "0.12.0"
+          enable-cache: false
+
+      - name: Authenticate source, publish signed child, and dispatch read-only checks
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          TARGET_REPOSITORY: ${{ github.repository }}
+          TRUSTED_DEFAULT_SHA: ${{ github.sha }}
+        run: >-
+          python scripts/ci/commit_generated_dependencies.py publish
+          --event-path "$GITHUB_EVENT_PATH"
+
+# Comprehensive Test's trusted comment consumer now supports the explicitly
+# dispatched Dependabot run. No PR-code checkout is added to either consumer.

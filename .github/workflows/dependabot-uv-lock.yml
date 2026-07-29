@@ -1,144 +1,102 @@
 # .github/workflows/dependabot-uv-lock.yml
-# Regenerate uv.lock on Dependabot PRs.
+# Generate uv.lock and pip-only exports for same-repository Dependabot PRs.
 #
-# WHY: Dependabot opens PRs that update `pyproject.toml` + `requirements*.txt`
-# when new dependency versions land, but does NOT regenerate `uv.lock`. Every
-# downstream CI step that runs `uv sync --locked` then fails with:
-#
-#   The lockfile at uv.lock needs to be updated, but --locked was provided.
-#
-# Observed on Odyssey PRs #5679 + #5680 (both dependabot bumps failing 16+
-# CI checks with the same root-cause error).
-#
-# This workflow triggers on Dependabot's pull_request events and, after
-# Dependabot pushes its version bumps, runs `uv lock --upgrade` and commits
-# the regenerated `uv.lock` back to the PR branch so the bot's own PR can
-# satisfy the `--locked` contract downstream.
-name: Regenerate uv.lock on Dependabot PRs
+# SECURITY BOUNDARY: pull-request code executes only in this read-only
+# producer. It can publish untrusted bytes as an artifact, but it cannot update
+# a branch or dispatch another workflow. The default-branch-only
+# dependabot-uv-lock-writer.yml workflow validates those bytes before writing.
+name: Regenerate dependency files on Dependabot PRs
 
-# Trigger: Dependabot PRs (actor == 'dependabot[bot]') OR any PR that the bot
-# labels with `dependencies` (which is already added by .github/dependabot.yml
-# for the 3 ecosystems — pip, github-actions, docker). Limiting the filter
-# avoids inverting control into non-dependabot PRs (which already commit their
-# own lockfile changes when they bump uv-managed deps).
 on:
   pull_request:
     types: [opened, synchronize, reopened]
     branches: [main]
 
-# Concurrency: one runner per PR; new pushes to the same PR cancel the
-# previous run so the latest Dependabot update is reflected quickly. Avoids
-# stale `uv.lock` being committed from an older refresh.
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
   cancel-in-progress: true
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   regenerate-uv-lock:
-    # Wrapped in `|` block style so the long OR-expression doesn't exceed
-    # the yamllint line-length cap (`.yamllint.yaml`: 120). GHA evaluates
-    # the joined string as the condition expression.
-    if: |
-      github.event.pull_request.user.login == 'dependabot[bot]' ||
-      contains(github.event.pull_request.labels.*.name, 'dependencies')
+    if: >-
+      github.actor == 'dependabot[bot]' &&
+      github.event.pull_request.user.login == 'dependabot[bot]' &&
+      github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - name: Checkout PR branch
+      - name: Checkout exact PR head without credentials
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          fetch-depth: 0
-          ref: ${{ github.event.pull_request.head.ref }}
+          fetch-depth: 1
+          persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha }}
 
       - name: Install uv
         uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9  # v9.0.0
         with:
+          version: "0.12.0"
           enable-cache: true
           cache-dependency-glob: uv.lock
 
-      - name: Probe uv.lock freshness
-        # Step 1 — discover whether the lockfile is stale. We probe the lock
-        # file via `uv sync --locked`, then capture the result via
-        # $GITHUB_OUTPUT rather than `continue-on-error: true` (which the
-        # project-wide pre-commit `forbid-continue-on-error` hook rejects).
-        # The script always exits 0; the `fresh=false` flag governs the next
-        # two steps via `if:` conditional. Uses block-redirect (`{ ... } >>`)
-        # to silence the soft-deprecation warning on newer GHA runners
-        # (>=2.305.0) for the single-line `echo ... >> $GITHUB_OUTPUT` pattern.
-        id: sync-check
-        run: |
-          if uv sync --locked; then
-            {
-              echo "fresh=true"
-              echo "message=uv.lock is in sync with pyproject.toml"
-            } >> "$GITHUB_OUTPUT"
-          else
-            {
-              echo "fresh=false"
-              echo "message=uv.lock is stale; will regenerate on next step"
-            } >> "$GITHUB_OUTPUT"
-          fi
+      - name: Regenerate uv.lock deterministically
+        # Plain `uv lock` preserves unrelated locked versions. `--upgrade` is
+        # intentionally absent so one Dependabot bump cannot refresh the world.
+        run: uv lock
 
-      - name: Regenerate uv.lock (if stale)
-        # Step 2 — regenerate only when stale, gated on sync-check's `fresh`
-        # output (false = stale). Uses `uv lock --upgrade` to bump all
-        # resolved versions to the latest matching the new constraints.
-        if: steps.sync-check.outputs.fresh == 'false'
-        run: uv lock --upgrade
-
-      - name: Verify lockfile consistent after regen
-        # Step 3 — re-verify post-regen (must succeed; if not, the regen
-        # didn't fix the staleness — likely a transitive floor mismatch or
-        # CVE-constrained dep that the Dependabot bump unexpectedly invalidates).
-        if: steps.sync-check.outputs.fresh == 'false'
+      - name: Synchronize locked environment
         run: uv sync --locked
 
-      - name: Detect whether uv.lock actually changed
-        # Step 4 — only commit/push if we materially changed the lockfile.
-        # Skipping on Dependabot PRs that only bumped github-actions
-        # ecosystem deps keeps the workflow idempotent and noiseless.
-        # Uses block-redirect (`{ ... } >>`) for the same deprecation
-        # warning reason as Step 1.
+      - name: Regenerate requirements exports
+        run: python scripts/sync_requirements.py --repo-root .
+
+      - name: Verify generated dependency files
+        env:
+          DEPENDENCY_SNAPSHOT: ${{ runner.temp }}/dependabot-dependency-snapshot.json
+        run: |
+          uv lock --check
+          python scripts/sync_requirements.py --check --repo-root .
+          python scripts/ci/commit_generated_dependencies.py snapshot \
+            --repo-root . \
+            --snapshot-path "$DEPENDENCY_SNAPSHOT"
+
+      - name: Detect generated dependency changes
         id: detect-regen
         run: |
-          if git diff --quiet uv.lock; then
-            {
-              echo "changed=false"
-              echo "message=uv.lock unchanged; no commit needed"
-            } >> "$GITHUB_OUTPUT"
+          if git diff --quiet -- uv.lock requirements.txt requirements-dev.txt; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
           else
-            {
-              echo "changed=true"
-              echo "message=uv.lock changed; will commit"
-            } >> "$GITHUB_OUTPUT"
+            echo "changed=true" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Commit regenerated uv.lock
-        # Step 5 — push the regenerated lockfile back to the PR branch so
-        # downstream CI works. Author is github-actions[bot] to match
-        # project convention. The PR metadata is bound to intermediate
-        # `env:` vars instead of inlined into the `run:` block — GHA's
-        # `--expression` style `${{ … }}` could let an attacker who can
-        # craft a PR branch-name or title inject code into the runner, so
-        # we suppress Semgrep's `yaml.github-actions.security.run-shell-injection`
-        # finding by reading the metadata from `$PR_NUMBER` / `$PR_HEAD_REF`
-        # (always double-quoted in the shell). The GITHUB_TOKEN has
-        # `contents: write` which is enough for branch-push-within-PR-context.
-        if: steps.detect-regen.outputs.changed == 'true'
+      - name: Package exact untrusted result artifact
+        if: always()
         env:
+          ARTIFACT_ROOT: ${{ runner.temp }}/dependabot-generated-dependencies
+          DEPENDENCY_SNAPSHOT: ${{ runner.temp }}/dependabot-dependency-snapshot.json
+          DEPS_CHANGED: ${{ steps.detect-regen.outputs.changed || 'false' }}
+          HEAD_REF: ${{ github.event.pull_request.head.ref }}
+          HEAD_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
-          PR_HEAD_REF: ${{ github.event.pull_request.head.ref }}
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add uv.lock
-          git commit -m "fix(uv): regenerate uv.lock for Dependabot PR #${PR_NUMBER}"
-          # Use --force-with-lease because concurrency: cancel-in-progress: true
-          # may have left a previously-cancelled run mid-push; --force-with-lease
-          # confirms the remote HEAD matches our local expectation before pushing.
-          # Explicit `origin $PR_HEAD_REF` to make the push target crystal-clear.
-          git push --force-with-lease origin "$PR_HEAD_REF"
+          PRODUCER_STATUS: ${{ job.status }}
+          TARGET_REPOSITORY: ${{ github.repository }}
+          WORKFLOW_RUN_ATTEMPT: ${{ github.run_attempt }}
+          WORKFLOW_RUN_ID: ${{ github.run_id }}
+        run: >-
+          python scripts/ci/commit_generated_dependencies.py package
+          --repo-root .
+          --artifact-root "$ARTIFACT_ROOT"
+          --snapshot-path "$DEPENDENCY_SNAPSHOT"
+
+      - name: Upload exact dependency result artifact
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7
+        with:
+          name: dependabot-generated-dependencies
+          path: ${{ runner.temp }}/dependabot-generated-dependencies
+          if-no-files-found: error
+          retention-days: 1
