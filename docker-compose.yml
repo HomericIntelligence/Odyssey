@@ -2,6 +2,9 @@ services:
   # Main development environment
   odyssey-dev:
     user: "${USER_ID}:${GROUP_ID}"
+    # Rootless Podman otherwise maps the caller to container root, making the
+    # host-owned /workspace bind mount unwritable to this non-root UID.
+    userns_mode: "keep-id"
     build:
       context: .
       dockerfile: Dockerfile
@@ -47,6 +50,7 @@ services:
   # CI/Testing environment
   odyssey-ci:
     user: "${USER_ID}:${GROUP_ID}"
+    userns_mode: "keep-id"
     build:
       context: .
       dockerfile: Dockerfile

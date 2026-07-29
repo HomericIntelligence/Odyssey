@@ -20,6 +20,7 @@ on:
       - 'docker-compose.yml'
       - 'pyproject.toml'
       - 'uv.lock'
+      - 'scripts/ci/ensure-podman-runtime.sh'
       - '.github/workflows/container-publish.yml'
   pull_request:
     branches: [main]
@@ -28,6 +29,7 @@ on:
       - 'docker-compose.yml'
       - 'pyproject.toml'
       - 'uv.lock'
+      - 'scripts/ci/ensure-podman-runtime.sh'
       - '.github/workflows/container-publish.yml'
 
   # On-demand manual rebuild.
@@ -75,6 +77,9 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+
+      - name: Select compatible Podman runtime
+        run: bash scripts/ci/ensure-podman-runtime.sh
 
       - name: Cache Podman storage
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v5
@@ -160,6 +165,17 @@ jobs:
             $TAG_ARGS \
             .
 
+      - name: Smoke built image
+        env:
+          TAGS: ${{ steps.tags.outputs.tags }}
+        run: |
+          image="${TAGS%% *}"
+          podman run --rm "$image" bash -c '
+            set -euo pipefail
+            test "$(id -un)" != "root"
+            mojo --version
+          '
+
       - name: Push images
         if: github.event_name != 'pull_request' || github.event.inputs.push == 'true'
         run: |
@@ -202,6 +218,9 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
 
+      - name: Select compatible Podman runtime
+        run: bash scripts/ci/ensure-podman-runtime.sh
+
       - name: Log in to Container Registry
         run: echo "${{ secrets.GITHUB_TOKEN }}" | podman login "$REGISTRY" --username "${{ github.actor }}" --password-stdin
 
@@ -211,7 +230,7 @@ jobs:
         run: |
           echo "Testing runtime image..."
           podman run --rm "$REGISTRY/$IMAGE_NAME:$IMAGE_TAG" \
-            uv run mojo --version
+            mojo --version
           echo "Runtime image working"
 
       - name: Test production image
@@ -220,7 +239,7 @@ jobs:
         run: |
           echo "Testing production image..."
           podman run --rm "$REGISTRY/$IMAGE_NAME:${IMAGE_TAG}-prod" \
-            uv run mojo --version
+            mojo --version
           echo "Production image working"
 
       - name: Smoke test — non-root user (#5147)
@@ -228,7 +247,7 @@ jobs:
           IMAGE_TAG: ${{ github.ref_name }}
         run: |
           # Verify the image runs as the non-root `dev` user and that
-          # pixi / mojo / pre-commit all work under that user. The Dockerfile
+          # Mojo and pre-commit both work under that user. The Dockerfile
           # sets `USER ${USER_NAME}` (default dev) in every stage; this asserts
           # the published image actually behaves that way end-to-end.
           echo "Verifying non-root user on runtime + ci images..."
@@ -239,8 +258,8 @@ jobs:
               set -euo pipefail
               whoami
               test "$(id -un)" != "root"
-              uv run mojo --version
-              uv run pre-commit --version'
+              mojo --version
+              pre-commit --version'
           done
           echo "Non-root user smoke test passed"
 
@@ -261,7 +280,7 @@ jobs:
             fi
             for f in "${files[@]}"; do
               echo "Running $f"
-              uv run mojo --Werror -I src -I . "$f"
+              mojo --Werror -I src -I . "$f"
             done'
 
   # ============================================================================
