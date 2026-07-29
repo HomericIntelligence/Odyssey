@@ -2,7 +2,7 @@ name: Workflow Smoke Tests
 
 # Fast-fail gate that validates workflow properties without heavy setup.
 # Guards against regression of gaps fixed in #3143 and #3318:
-#   - security.yml: pull_request trigger, Semgrep setup, Gitleaks flags
+#   - security.yml: pull_request trigger, scanners, deterministic dependency audit
 #   - pre-commit.yml: pull_request trigger present
 #   - comprehensive-tests.yml: matrix coverage maintained
 #   - validate-configs.yml: agent config validation on PRs
@@ -27,6 +27,11 @@ on:
       - 'configs/github/merge-queue-policy.json'
       - 'tests/smoke/test_merge_queue_workflow_properties.py'
       - 'tests/smoke/test_security_workflow_properties.py'
+      - 'tests/workflows/test_security_dependency_audit.py'
+      - 'tests/scripts/test_parse_pip_audit.py'
+      - 'tests/scripts/test_dependency_audit_contract.py'
+      - 'scripts/ci/parse_pip_audit.py'
+      - 'scripts/ci/dependency_audit_contract.py'
       - '.github/workflows/pre-commit.yml'
       - 'tests/smoke/test_pre_commit_workflow_properties.py'
       - '.github/workflows/comprehensive-tests.yml'
@@ -117,7 +122,13 @@ jobs:
         uses: ./.github/actions/setup-uv
 
       - name: Run security workflow smoke tests
-        run: uv run python -m pytest tests/smoke/test_security_workflow_properties.py -v
+        run: |
+          uv run python -m pytest \
+            tests/smoke/test_security_workflow_properties.py \
+            tests/workflows/test_security_dependency_audit.py \
+            tests/scripts/test_parse_pip_audit.py \
+            tests/scripts/test_dependency_audit_contract.py \
+            -v
 
   smoke-test-other-workflows:
     name: Other Workflow Property Checks

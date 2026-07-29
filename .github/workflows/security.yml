@@ -23,9 +23,6 @@ on:
 
 permissions:
   contents: read
-  pull-requests: write
-  security-events: write
-  issues: write
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -68,6 +65,9 @@ jobs:
   sast-scan:
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    permissions:
+      contents: read
+      security-events: write
 
     steps:
       - name: Checkout code
@@ -133,7 +133,6 @@ jobs:
         with:
           fail-on-severity: high
           deny-licenses: GPL-3.0, AGPL-3.0
-          comment-summary-in-pr: always
 
   # ============================================================================
   # Security Report
@@ -144,9 +143,6 @@ jobs:
     if: always()
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
-
       - name: Generate security report
         run: |
           echo "# 🔐 Security Scan Results" > security-report.md
@@ -186,18 +182,17 @@ jobs:
           cat security-report.md
 
       - name: Upload security report
+        if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7
         with:
           name: security-report
           path: security-report.md
           retention-days: 90
+          if-no-files-found: error
 
-      - name: Comment on PR
-        if: github.event_name == 'pull_request'
-        uses: ./.github/actions/pr-comment
-        with:
-          report-file: security-report.md
-          comment-marker: "\U0001F510 Security Scan Results"
+      # PR comments are intentionally omitted here. A pull_request workflow
+      # executes PR-controlled code, so it must retain the top-level read-only
+      # token rather than loading a local comment action with write authority.
 
       - name: Fail if secrets detected
         run: |
@@ -220,114 +215,63 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
 
-      - name: Set up Python
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
-        with:
-          python-version: '3.11'
-          cache: 'pip'
+      - name: Set up uv
+        uses: ./.github/actions/setup-uv
 
-      - name: Install audit tools
-        run: |
-          python -m pip install --upgrade pip
-          pip install safety pip-audit
-
-      - name: Audit with Safety
-        id: safety
-        run: |
-          echo "## Safety Scan Results" > safety-report.md
-          echo "" >> safety-report.md
-
-          FILES_SCANNED=0
-          VULN_COUNT=0
-
-          for file in requirements.txt requirements-dev.txt; do
-            if [ -f "$file" ]; then
-              echo "### $file" >> safety-report.md
-              echo "" >> safety-report.md
-              FILES_SCANNED=$((FILES_SCANNED + 1))
-
-              if safety check --file "$file" --json > "safety-${file//\//-}.json" 2>/dev/null; then
-                echo "✅ No vulnerabilities found" >> safety-report.md
-              else
-                FOUND=$(jq '.vulnerabilities | length' "safety-${file//\//-}.json" 2>/dev/null || echo "0")
-                VULN_COUNT=$((VULN_COUNT + FOUND))
-                echo "⚠️ Found $FOUND vulnerabilities" >> safety-report.md
-                # Append advisory list when jq can parse the report; emit a
-                # placeholder line otherwise so reviewers see the malformed file.
-                if ! jq -r '.vulnerabilities[] | "- **\(.package_name)** \(.vulnerable_versions): \(.advisory)"' \
-                        "safety-${file//\//-}.json" >> safety-report.md 2>/dev/null; then
-                  echo "- (could not parse safety report for $file)" >> safety-report.md
-                fi
-              fi
-              echo "" >> safety-report.md
-            fi
-          done
-
-          echo "files_scanned=$FILES_SCANNED" >> "$GITHUB_OUTPUT"
-          echo "vulnerabilities=$VULN_COUNT" >> "$GITHUB_OUTPUT"
-        # No `continue-on-error`: the script consumes all sub-step exit codes
-        # itself (every `safety check` and `jq` is wrapped in `if`/`if !`), so
-        # the step's exit code already reflects only real script failures.
-
-      - name: Audit with pip-audit
+      - name: Audit requirements-dev.txt with pip-audit
         id: pip_audit
-        # NOTE: pip-audit ran with `continue-on-error: true` historically — that
-        # silently masked installation failures. The `if !` blocks below now
-        # log the failure as a warning but still allow downstream summary jobs
-        # to run because the step itself exits 0 when only requirements are
-        # missing (requirements*.txt is not always present in this repo).
         run: |
-          echo "## pip-audit Scan Results" > pip-audit-report.md
-          echo "" >> pip-audit-report.md
+          set -euo pipefail
 
-          # Install whichever requirements*.txt are present. These files are
-          # auto-generated stubs (essentially empty) in this repo, but we still
-          # honour them if a branch carries real deps. pip install is fail-fast:
-          # a real install error means the audit cannot trust its result, so we
-          # let the step exit non-zero and require a fix rather than emitting an
-          # advisory warning (see HomericIntelligence/Odysseus#282 Bucket F).
-          req_args=()
-          for r in requirements.txt requirements-dev.txt; do
-            [ -f "$r" ] && req_args+=("-r" "$r")
-          done
-          if [ "${#req_args[@]}" -gt 0 ]; then
-            pip install "${req_args[@]}"
-          fi
+          set +e
+          uv run --frozen pip-audit --strict --no-deps --disable-pip --requirement requirements-dev.txt \
+            --format json --output pip-audit.json
+          audit_rc=$?
+          set -e
 
-          if pip-audit --format json --output pip-audit.json 2>/dev/null; then
-            echo "✅ No vulnerabilities found" >> pip-audit-report.md
-            echo "count=0" >> "$GITHUB_OUTPUT"
-          else
-            COUNT=$(jq '. | length' pip-audit.json 2>/dev/null || echo "0")
-            echo "⚠️ Found $COUNT vulnerabilities" >> pip-audit-report.md
-            echo "count=$COUNT" >> "$GITHUB_OUTPUT"
-            if ! jq -r '.[] | "- **\(.name)** \(.version): \(.vulns[0].id // \"Unknown\")"' \
-                    pip-audit.json >> pip-audit-report.md 2>/dev/null; then
-              echo "- (could not parse pip-audit output)" >> pip-audit-report.md
-            fi
+          uv run --frozen python scripts/ci/parse_pip_audit.py \
+            --input pip-audit.json \
+            --requirements requirements-dev.txt \
+            --audit-exit-code "$audit_rc" \
+            --report pip-audit-report.md \
+            --github-output "$GITHUB_OUTPUT"
+
+      - name: Write Python audit manifest
+        if: always()
+        env:
+          AUDIT_STATUS: ${{ job.status }}
+          AUDIT_VERDICT: ${{ steps.pip_audit.outputs.verdict || 'operational' }}
+          AUDIT_FINDINGS: ${{ steps.pip_audit.outputs.count || 'unknown' }}
+          AUDIT_DIAGNOSTIC: ${{ steps.pip_audit.outputs.diagnostic || 'pip-audit did not produce a verdict' }}
+        run: |
+          if [ ! -s pip-audit-report.md ]; then
+            {
+              echo "## pip-audit Scan Results"
+              echo ""
+              echo "❌ Audit failed: $AUDIT_DIAGNOSTIC"
+              echo ""
+              echo "No vulnerability verdict is available for this audit."
+            } > pip-audit-report.md
           fi
+          python scripts/ci/dependency_audit_contract.py manifest \
+            --producer python-audit \
+            --status "$AUDIT_STATUS" \
+            --verdict "$AUDIT_VERDICT" \
+            --findings "$AUDIT_FINDINGS" \
+            --report pip-audit-report.md \
+            --output python-audit-manifest.json
 
       - name: Upload Python audit results
+        if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7
         with:
           name: python-audit-results
           path: |
-            safety-*.json
             pip-audit.json
-            safety-report.md
             pip-audit-report.md
+            python-audit-manifest.json
           retention-days: 30
-
-      - name: Set Python audit outputs
-        id: python_summary
-        run: |
-          SAFETY_VULNS="${{ steps.safety.outputs.vulnerabilities }}"
-          PIP_VULNS="${{ steps.pip_audit.outputs.count }}"
-          TOTAL=$((${SAFETY_VULNS:-0} + ${PIP_VULNS:-0}))
-          echo "total_vulnerabilities=$TOTAL" >> "$GITHUB_OUTPUT"
-
-    outputs:
-      vulnerabilities: ${{ steps.python_summary.outputs.total_vulnerabilities }}
+          if-no-files-found: error
 
   # ============================================================================
   # Pixi/Conda Dependency Audit (scheduled / workflow_dispatch only)
@@ -346,76 +290,100 @@ jobs:
 
       - name: Audit uv dependencies
         run: |
+          set -euo pipefail
           echo "## uv Dependency Audit" > pixi-audit-report.md
           echo "" >> pixi-audit-report.md
           echo "### Installed Packages" >> pixi-audit-report.md
           echo "" >> pixi-audit-report.md
           echo "\`\`\`" >> pixi-audit-report.md
-          uv tree >> pixi-audit-report.md 2>&1 || echo "Failed to list packages"
+          uv tree >> pixi-audit-report.md 2>&1
           echo "\`\`\`" >> pixi-audit-report.md
           echo "" >> pixi-audit-report.md
 
           echo "### Version Check" >> pixi-audit-report.md
           echo "" >> pixi-audit-report.md
-          echo "Mojo version: $(uv run mojo --version 2>/dev/null | head -1)" >> pixi-audit-report.md
+          uv run --frozen mojo --version >> pixi-audit-report.md
 
       - name: Audit PyPI packages from the uv lockfile
-        # pip-audit covers the PyPI-sourced packages resolved into uv.lock.
-        # No public CVE feed exists for the Mojo compiler binaries themselves;
-        # those are tracked via manual review — see SECURITY-AUDIT.md.
+        id: pip_audit
         run: |
-          pip install pip-audit 2>/dev/null
+          set -euo pipefail
 
           echo "" >> pixi-audit-report.md
-          echo "### PyPI Package CVE Scan (pip-audit)" >> pixi-audit-report.md
+          echo "### Complete lock-derived CVE Scan (pip-audit)" >> pixi-audit-report.md
           echo "" >> pixi-audit-report.md
 
-          # Export the fully-resolved, pinned dependency set from uv.lock. Skip
-          # the mojo compiler chain (from the Modular index) — pip-audit cannot
-          # resolve those against PyPI's advisory DB and they have no PyPI CVE feed.
-          if ! uv export --frozen --no-hashes --no-emit-project --all-groups \
-              > uv-requirements.txt 2>/dev/null; then
-            : > uv-requirements.txt
+          # The unfiltered export is authoritative. Do not silently exclude the
+          # compiler toolchain or any package without an advisory record.
+          uv export --frozen --no-hashes --no-emit-project --all-groups > uv-requirements.txt
+          test -s uv-requirements.txt
+
+          PKG_COUNT=$(awk '/^[A-Za-z0-9_.-]+==/ { count++ } END { print count + 0 }' uv-requirements.txt)
+          if [ "$PKG_COUNT" -eq 0 ]; then
+            echo "uv.lock export did not contain any dependencies" >&2
+            exit 1
           fi
-          # grep -v exits 1 when it filters out every line; guard with `set +e`
-          # so an all-filtered result is not treated as a pipeline failure.
-          set +e
-          grep -viE '^(mojo|mojo-compiler|mojo-compiler-mojo-libs|mojo-lldb-libs|mblack)==' \
-            uv-requirements.txt > pypi-from-uv.txt
-          PKG_COUNT=$(grep -cE '==' pypi-from-uv.txt)
-          set -e
-          [ -z "$PKG_COUNT" ] && PKG_COUNT=0
           echo "Packages extracted from uv.lock: $PKG_COUNT" >> pixi-audit-report.md
           echo "" >> pixi-audit-report.md
 
-          if [ "$PKG_COUNT" -gt 0 ]; then
-            if pip-audit --requirement pypi-from-uv.txt \
-                --format json --output pixi-pypi-audit.json 2>/dev/null; then
-              echo "No CVEs found in PyPI packages from uv.lock" >> pixi-audit-report.md
-            else
-              COUNT=$(python3 -c "import json,sys; d=json.load(open('pixi-pypi-audit.json')); print(len(d))" 2>/dev/null || echo "?")
-              echo "WARNING: $COUNT vulnerable PyPI package(s) found — review pixi-pypi-audit.json" >> pixi-audit-report.md
-            fi
-          else
-            echo "No PyPI packages found in uv.lock — skipping pip-audit." >> pixi-audit-report.md
-          fi
+          set +e
+          uv run --frozen pip-audit --strict --no-deps --disable-pip --requirement uv-requirements.txt \
+            --format json --output pixi-pypi-audit.json
+          audit_rc=$?
+          set -e
+
+          set +e
+          uv run --frozen python scripts/ci/parse_pip_audit.py \
+            --input pixi-pypi-audit.json \
+            --requirements uv-requirements.txt \
+            --audit-exit-code "$audit_rc" \
+            --report pixi-pip-audit-report.md \
+            --github-output "$GITHUB_OUTPUT"
+          parser_rc=$?
+          set -e
+          cat pixi-pip-audit-report.md >> pixi-audit-report.md
 
           echo "" >> pixi-audit-report.md
-          echo "### Conda-Native Package Gap" >> pixi-audit-report.md
-          echo "" >> pixi-audit-report.md
-          echo "No automated CVE feed covers conda-forge packages (including the Mojo" >> pixi-audit-report.md
-          echo "runtime). These are reviewed manually per .github/SECURITY-AUDIT.md." >> pixi-audit-report.md
+          exit "$parser_rc"
+
+      - name: Write Pixi audit manifest
+        if: always()
+        env:
+          AUDIT_STATUS: ${{ job.status }}
+          AUDIT_VERDICT: ${{ steps.pip_audit.outputs.verdict || 'operational' }}
+          AUDIT_FINDINGS: ${{ steps.pip_audit.outputs.count || 'unknown' }}
+          AUDIT_DIAGNOSTIC: ${{ steps.pip_audit.outputs.diagnostic || 'lock-derived audit did not produce a verdict' }}
+        run: |
+          if [ ! -s pixi-audit-report.md ]; then
+            {
+              echo "## uv Dependency Audit"
+              echo ""
+              echo "❌ Audit failed: $AUDIT_DIAGNOSTIC"
+              echo ""
+              echo "No vulnerability verdict is available for this audit."
+            } > pixi-audit-report.md
+          fi
+          python scripts/ci/dependency_audit_contract.py manifest \
+            --producer pixi-audit \
+            --status "$AUDIT_STATUS" \
+            --verdict "$AUDIT_VERDICT" \
+            --findings "$AUDIT_FINDINGS" \
+            --report pixi-audit-report.md \
+            --output pixi-audit-manifest.json
 
       - name: Upload Pixi audit results
+        if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7
         with:
           name: pixi-audit-results
           path: |
             pixi-audit-report.md
             uv-requirements.txt
-            pypi-from-uv.txt
             pixi-pypi-audit.json
+            pixi-pip-audit-report.md
+            pixi-audit-manifest.json
           retention-days: 30
+          if-no-files-found: error
 
   # ============================================================================
   # License Compliance Audit (scheduled / workflow_dispatch only)
@@ -429,58 +397,99 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
 
-      - name: Set up Python
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
-        with:
-          python-version: '3.11'
-          cache: 'pip'
-
-      - name: Install license checker
-        run: pip install pip-licenses
+      - name: Set up uv
+        uses: ./.github/actions/setup-uv
 
       - name: Check licenses
+        id: license
         run: |
-          # Install whichever requirements*.txt are present. pip install runs
-          # fail-fast: a real install failure means the license report would be
-          # incomplete, so we require a real fix rather than an advisory warning
-          # (see HomericIntelligence/Odysseus#282 Bucket F).
-          req_args=()
-          for r in requirements.txt requirements-dev.txt; do
-            [ -f "$r" ] && req_args+=("-r" "$r")
-          done
-          if [ "${#req_args[@]}" -gt 0 ]; then
-            pip install "${req_args[@]}"
-          fi
-
+          set -euo pipefail
           echo "## License Audit Report" > license-report.md
           echo "" >> license-report.md
           echo "### All Package Licenses" >> license-report.md
           echo "" >> license-report.md
-          if ! pip-licenses --format=markdown >> license-report.md 2>/dev/null; then
-            echo "Failed to generate license report" >> license-report.md
+
+          set +e
+          uv run --frozen pip-licenses --format=markdown > license-table.md 2>license-error.txt
+          license_rc=$?
+          set -e
+          if [ "$license_rc" -ne 0 ]; then
+            echo "❌ License inventory failed (exit code $license_rc)" >> license-report.md
+            cat license-error.txt >> license-report.md
+            echo "count=unknown" >> "$GITHUB_OUTPUT"
+            echo "verdict=operational" >> "$GITHUB_OUTPUT"
+            echo "diagnostic=license inventory failed with exit code $license_rc" >> "$GITHUB_OUTPUT"
+            exit "$license_rc"
           fi
+          cat license-table.md >> license-report.md
 
           echo "" >> license-report.md
           echo "### License Compliance" >> license-report.md
           echo "" >> license-report.md
 
-          # `pip-licenses --fail-on` exits non-zero when a problematic license
-          # is detected — that's the signal we want, not an error condition.
           set +e
-          PROBLEMATIC=$(pip-licenses --fail-on="GPL-3.0;AGPL-3.0" 2>&1)
+          uv run --frozen pip-licenses --format=markdown \
+            --fail-on="GPL-3.0;AGPL-3.0" > license-compliance.md 2>license-error.txt
+          license_rc=$?
           set -e
-          if echo "$PROBLEMATIC" | grep -q "fail"; then
-            echo "⚠️ Potentially problematic licenses detected" >> license-report.md
-          else
+
+          cat license-compliance.md >> license-report.md
+          if [ "$license_rc" -eq 0 ]; then
             echo "✅ No problematic licenses (GPL-3.0, AGPL-3.0) found" >> license-report.md
+            echo "count=0" >> "$GITHUB_OUTPUT"
+            echo "verdict=success" >> "$GITHUB_OUTPUT"
+            echo "diagnostic=No denied licenses found" >> "$GITHUB_OUTPUT"
+            exit 0
           fi
+          cat license-error.txt >> license-report.md
+          echo "❌ Denied license finding or license checker failure (exit code $license_rc)" >> license-report.md
+          echo "count=unknown" >> "$GITHUB_OUTPUT"
+          if [ "$license_rc" -eq 1 ]; then
+            echo "verdict=findings" >> "$GITHUB_OUTPUT"
+          else
+            echo "verdict=operational" >> "$GITHUB_OUTPUT"
+          fi
+          echo "diagnostic=license compliance failed with exit code $license_rc" >> "$GITHUB_OUTPUT"
+          exit "$license_rc"
+
+      - name: Write License audit manifest
+        if: always()
+        env:
+          AUDIT_STATUS: ${{ job.status }}
+          AUDIT_VERDICT: ${{ steps.license.outputs.verdict || 'operational' }}
+          AUDIT_FINDINGS: ${{ steps.license.outputs.count || 'unknown' }}
+          AUDIT_DIAGNOSTIC: ${{ steps.license.outputs.diagnostic || 'license audit did not produce a verdict' }}
+        run: |
+          if [ ! -s license-report.md ]; then
+            {
+              echo "## License Audit Report"
+              echo ""
+              echo "❌ Audit failed: $AUDIT_DIAGNOSTIC"
+              echo ""
+              echo "No license verdict is available for this audit."
+            } > license-report.md
+          fi
+          python scripts/ci/dependency_audit_contract.py manifest \
+            --producer license-audit \
+            --status "$AUDIT_STATUS" \
+            --verdict "$AUDIT_VERDICT" \
+            --findings "$AUDIT_FINDINGS" \
+            --report license-report.md \
+            --output license-audit-manifest.json
 
       - name: Upload license audit
+        if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7
         with:
           name: license-audit-results
-          path: license-report.md
+          path: |
+            license-report.md
+            license-table.md
+            license-compliance.md
+            license-error.txt
+            license-audit-manifest.json
           retention-days: 30
+          if-no-files-found: error
 
   # ============================================================================
   # Dependency Audit Report (scheduled / workflow_dispatch only)
@@ -488,83 +497,89 @@ jobs:
   audit-report:
     needs: [python-audit, pixi-audit, license-audit]
     runs-on: ubuntu-latest
-    if: always() && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch')
+    if: >-
+      always() &&
+      (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') &&
+      github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
+    permissions:
+      contents: read
+      issues: write
 
     steps:
-      - name: Checkout code
+      - name: Checkout trusted report validator
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          ref: ${{ github.event.repository.default_branch }}
 
-      - name: Download all artifacts
+      - name: Download Python audit artifact
+        if: always()
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8
         with:
-          path: audit-results/
+          name: python-audit-results
+          path: audit-results/python-audit-results
 
-      - name: Generate combined report
+      - name: Download Pixi audit artifact
+        if: always()
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8
+        with:
+          name: pixi-audit-results
+          path: audit-results/pixi-audit-results
+
+      - name: Download license audit artifact
+        if: always()
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8
+        with:
+          name: license-audit-results
+          path: audit-results/license-audit-results
+
+      - name: Generate and validate combined report
+        id: aggregate
+        if: always()
+        env:
+          NEEDS_JSON: ${{ toJSON(needs) }}
         run: |
-          echo "# 🔍 Dependency Audit Report" > combined-report.md
-          echo "" >> combined-report.md
-          echo "**Generated**: $(date -u +%Y-%m-%d)" >> combined-report.md
-          echo "**Workflow Run**: [${{ github.run_number }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})" >> combined-report.md
-          echo "" >> combined-report.md
-
-          echo "## Summary" >> combined-report.md
-          echo "" >> combined-report.md
-          echo "| Audit Type | Status |" >> combined-report.md
-          echo "|------------|--------|" >> combined-report.md
-          echo "| Python Dependencies | ${{ needs.python-audit.result }} |" >> combined-report.md
-          echo "| Pixi/Conda Dependencies | ${{ needs.pixi-audit.result }} |" >> combined-report.md
-          echo "| License Compliance | ${{ needs.license-audit.result }} |" >> combined-report.md
-          echo "" >> combined-report.md
-
-          VULNS="${{ needs.python-audit.outputs.vulnerabilities }}"
-          if [ "${VULNS:-0}" -gt 0 ]; then
-            echo "⚠️ **$VULNS Python vulnerabilities found** - Review required" >> combined-report.md
-          else
-            echo "✅ No Python vulnerabilities detected" >> combined-report.md
-          fi
-          echo "" >> combined-report.md
-
-          echo "---" >> combined-report.md
-          echo "" >> combined-report.md
-
-          for report in audit-results/**/*.md; do
-            if [ -f "$report" ]; then
-              echo "" >> combined-report.md
-              cat "$report" >> combined-report.md
-              echo "" >> combined-report.md
-            fi
-          done
+          python scripts/ci/dependency_audit_contract.py aggregate \
+            --artifacts audit-results \
+            --needs-json "$NEEDS_JSON" \
+            --report combined-report.md
 
       - name: Upload combined report
+        if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7
         with:
           name: dependency-audit-report
           path: combined-report.md
           retention-days: 90
+          if-no-files-found: error
 
-      - name: Create issue for vulnerabilities
-        if: needs.python-audit.outputs.vulnerabilities > 0
+      - name: Create issue for failed dependency audit
+        if: always() && steps.aggregate.outcome == 'failure'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          VULNS="${{ needs.python-audit.outputs.vulnerabilities }}"
           WORKFLOW_URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
 
-          EXISTING=$(gh issue list --search "Security vulnerabilities found in:dependencies" --state open --json number --jq '.[0].number // ""')
+          EXISTING=$(gh issue list --search "Dependency security audit failed in:title" --state open --json number --jq '.[0].number // ""')
 
           if [ -n "$EXISTING" ]; then
-            gh issue comment "$EXISTING" --body "Audit update ($(date -u +%Y-%m-%d)): Found $VULNS vulnerabilities. See workflow run at $WORKFLOW_URL for details."
+            gh issue comment "$EXISTING" --body "Audit update ($(date -u +%Y-%m-%d)): the dependency audit failed closed. See $WORKFLOW_URL and its combined report artifact."
           else
             gh issue create \
-              --title "Security vulnerabilities found in dependencies" \
-              --body "## Summary\n\nFound $VULNS vulnerabilities. Review the audit at $WORKFLOW_URL" \
+              --title "Dependency security audit failed" \
+              --body "## Summary\n\nA dependency audit reported findings, failed operationally, or produced incomplete evidence. Review $WORKFLOW_URL and its combined report artifact." \
               --label "security" \
               --label "dependencies" \
               --label "automated"
           fi
 
       - name: Write summary
+        if: always()
         run: |
           echo "## Dependency Audit Complete" >> "$GITHUB_STEP_SUMMARY"
           echo "" >> "$GITHUB_STEP_SUMMARY"
-          cat combined-report.md >> "$GITHUB_STEP_SUMMARY"
+          if [ -s combined-report.md ]; then
+            cat combined-report.md >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "❌ Combined report was not generated." >> "$GITHUB_STEP_SUMMARY"
+            exit 1
+          fi
