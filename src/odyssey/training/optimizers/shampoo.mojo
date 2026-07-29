@@ -124,54 +124,6 @@ def is_shampoo_eligible(params: AnyTensor) -> Bool:
     return rows >= 2 and cols >= 2
 
 
-def initialize_shampoo_state(
-    params: AnyTensor,
-) raises -> Tuple[AnyTensor, AnyTensor, AnyTensor]:
-    """Initialize Shampoo optimizer state buffers.
-
-    .. deprecated::
-        Use ``unpack_shampoo_state`` instead — it has the same return type but
-        enforces the eligibility check (``is_shampoo_eligible``) before any
-        allocation, and delegates to the canonical ``init_shampoo_state``
-        allocator. This legacy helper is retained for backwards compatibility
-        and will be removed in a future PR.
-
-    Creates three state buffers that must be passed to shampoo_step():
-    - L: Identity matrix [m, m] accumulating G @ G^T
-    - R: Identity matrix [n, n] accumulating G^T @ G
-    - momentum: Zero tensor [m, n] for momentum accumulation
-
-    Args:
-        params: Parameter tensor [m, n] to initialize state for.
-
-    Returns:
-        Tuple of (L, R, momentum) state tensors.
-
-    Raises:
-        Error: If params is not rank-2.
-
-    Note:
-        The caller continues to hold the params tensor. Initialize_shampoo_state
-        returns only the three state buffers (L, R, momentum).
-    """
-    if params.ndim() != 2:
-        raise Error(
-            "initialize_shampoo_state requires rank-2 tensor, got ndim: "
-            + String(params.ndim())
-        )
-
-    var shape = params.shape()
-    var m = shape[0]
-    var n = shape[1]
-    var dtype = params.dtype()
-
-    var L = eye(m, m, 0, dtype)
-    var R = eye(n, n, 0, dtype)
-    var momentum = zeros_like(params)
-
-    return (L, R, momentum)
-
-
 def _trace_sum_diag(M: AnyTensor) raises -> Float64:
     """Compute the trace of a square matrix by summing diagonal entries.
 
@@ -735,8 +687,10 @@ def unpack_shampoo_state(
 
     The eligibility check (`is_shampoo_eligible(params)`) is enforced before any
     allocation; non-matrix params raise rather than return a degenerate triple
-    of wrong-shape buffers. This matches the contract of the legacy
-    `initialize_shampoo_state` helper that this function supersedes for new code.
+    of wrong-shape buffers.    This is the canonical sugar form for single-parameter Shampoo state
+    initialization. For multi-parameter dispatches (e.g. optimizer framework
+    integration) use ``init_shampoo_state`` which returns a `List[List[AnyTensor]]``
+    of state buffers keyed in the same order as the input parameter list.
 
     Args:
         params: Single matrix-shaped parameter (must be rank-2, both dims >= 2).
