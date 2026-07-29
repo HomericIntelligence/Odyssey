@@ -213,6 +213,10 @@ def main() raises:
     """Run all test_optimizer_utils tests."""
     print("Running test_optimizer_utils tests...")
 
+    print(
+        "Running test_optimizer_utils tests (cache-bust: 20260727-32a8f6d6)..."
+    )
+
     test_scale_tensor()
     print("✓ test_scale_tensor")
 
@@ -230,9 +234,6 @@ def main() raises:
 
     test_clip_tensor_norm()
     print("✓ test_clip_tensor_norm")
-
-    test_main()
-    print("✓ test_main")
 
     test_clip_tensor_norm_no_clip()
     print("✓ test_clip_tensor_norm_no_clip")

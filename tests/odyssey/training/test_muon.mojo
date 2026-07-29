@@ -672,7 +672,7 @@ def test_muon_step_pure_functional() raises:
 def main() raises:
     """Run all Muon optimizer tests."""
     print("=" * 60)
-    print("Muon Optimizer Test Suite")
+    print("Muon Optimizer Test Suite (cache-bust: 20260727-32a8f6d6)")
     print("=" * 60)
 
     test_is_muon_eligible_rank_1()
