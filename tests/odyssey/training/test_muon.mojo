@@ -537,7 +537,7 @@ def test_muon_step_simple() raises:
         on `new_params` AND `new_momentum` across two paths: zero-grad
         (exercises the orthogonalized-momentum init) and non-zero-grad
         (exercises the actual Muon update). Defaults match muon.mojo:
-        momentum_beta=0.95, weight_decay=0.0, nesterov=True, ns_steps=5.
+        momentum_beta=0.95, weight_decay=0.01, nesterov=True, ns_steps=5.
     """
     # --- Pass 1: zero gradients ---
     var shape: List[Int] = [4, 4]
@@ -552,7 +552,7 @@ def test_muon_step_simple() raises:
         mom_f1,
         learning_rate=0.01,
         momentum_beta=0.95,
-        weight_decay=0.0,
+        weight_decay=0.01,
         nesterov=True,
         ns_steps=5,
     )
@@ -597,7 +597,7 @@ def test_muon_step_simple() raises:
         mom_full,
         learning_rate=0.01,
         momentum_beta=0.95,
-        weight_decay=0.0,
+        weight_decay=0.01,
         nesterov=True,
         ns_steps=5,
     )

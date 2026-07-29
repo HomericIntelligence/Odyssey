@@ -143,7 +143,7 @@ def test_loop_all_24_known() raises:
     print("  ok all 24 names return non-empty defaults")
 
 
-def _make_dummy_params() -> List[AnyTensor]:
+def _make_dummy_params() raises -> List[AnyTensor]:
     """Build a small 2-parameter list for state allocation tests.
 
     Both params are rank-2 with both dims >= 4 — large enough to satisfy
