@@ -260,7 +260,21 @@ def test_merge_group_cannot_receive_write_scope() -> None:
         "workflow_run": {
             "workflows": ["Comprehensive Tests"],
             "types": ["completed"],
-        }
+        },
+        "workflow_dispatch": {
+            "inputs": {
+                "source_head_sha": {
+                    "description": "Exact Dependabot head whose Comprehensive run must be reported",
+                    "required": True,
+                    "type": "string",
+                },
+                "source_head_branch": {
+                    "description": "Exact same-repository Dependabot branch",
+                    "required": True,
+                    "type": "string",
+                },
+            }
+        },
     }
     assert comment_workflow.get("permissions") == {"contents": "read"}
 
@@ -269,9 +283,9 @@ def test_merge_group_cannot_receive_write_scope() -> None:
     assert set(comment_jobs) == {"post-pr-comments"}
     comment_job = comment_jobs["post-pr-comments"]
     comment_condition = str(comment_job.get("if"))
+    assert "github.event_name == 'workflow_dispatch'" in comment_condition
     assert "github.event.workflow_run.event == 'pull_request'" in comment_condition
-    assert "github.event.workflow_run.event == 'workflow_dispatch'" in comment_condition
-    assert "startsWith(github.event.workflow_run.head_branch, 'dependabot/')" in comment_condition
+    assert "github.event.workflow_run.event == 'workflow_dispatch'" not in comment_condition
     assert "workflow_run.head_sha" in str(comment_job.get("concurrency", {}).get("group"))
     assert comment_job.get("permissions") == {
         "actions": "read",

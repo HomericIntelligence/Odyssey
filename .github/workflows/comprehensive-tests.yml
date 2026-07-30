@@ -1078,6 +1078,7 @@ jobs:
   gradient-coverage:
     needs: [gradient-tests]
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     if: always()  # Run even when gradient-tests fails/skips — required status check must complete
     name: "Gradient Coverage Report"
 
@@ -1307,6 +1308,7 @@ jobs:
       - test-data-utilities
       - test-metrics
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     if: always()
     name: "Test Report"
 

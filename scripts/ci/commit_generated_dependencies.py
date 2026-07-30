@@ -53,6 +53,7 @@ REQUIRED_WORKFLOWS = (
     "pre-commit.yml",
     "workflow-smoke-test.yml",
 )
+COMMENT_WORKFLOW = "comprehensive-test-pr-comments.yml"
 REQUIRED_WORKFLOW_PATHS = tuple(f".github/workflows/{workflow}" for workflow in REQUIRED_WORKFLOWS)
 PROJECT_METADATA_PATH = "pyproject.toml"
 PYTHON_VERSION_PATH = ".python-version"
@@ -1690,11 +1691,23 @@ def _dispatch_workflow(
     *,
     token: str,
     opener: UrlOpener,
+    inputs: Mapping[str, str] | None = None,
 ) -> None:
+    payload: dict[str, object] = {"ref": branch}
+    if inputs is not None:
+        if not isinstance(inputs, Mapping):
+            raise PublishError("workflow dispatch inputs must be a string mapping")
+        normalized_inputs: dict[str, str] = {}
+        for key, value in inputs.items():
+            if not isinstance(key, str) or not key or not isinstance(value, str) or not value:
+                raise PublishError("workflow dispatch inputs must be non-empty strings")
+            normalized_inputs[key] = value
+        payload["inputs"] = normalized_inputs
+
     encoded_workflow = urllib.parse.quote(workflow, safe="")
     request = urllib.request.Request(
         f"{_api_root(repository)}/actions/workflows/{encoded_workflow}/dispatches",
-        data=json.dumps({"ref": branch}, separators=(",", ":")).encode(),
+        data=json.dumps(payload, separators=(",", ":")).encode(),
         headers={
             "Accept": "application/vnd.github+json",
             "Authorization": f"Bearer {token}",
@@ -1714,6 +1727,35 @@ def _dispatch_workflow(
         raise PublishError(f"workflow dispatch for {workflow} failed: {error}") from error
     if status_code != 204:
         raise PublishError(f"workflow dispatch for {workflow} failed with HTTP {status_code}")
+
+
+def dispatch_comment_workflow(
+    *,
+    repository: str,
+    default_branch: str,
+    head_ref: str,
+    commit_oid: str,
+    token: str,
+    opener: UrlOpener = urllib.request.urlopen,
+) -> None:
+    """Dispatch the trusted commenter beside the required Dependabot checks."""
+    _validate_repository(repository)
+    _validate_branch(default_branch)
+    _validate_branch(head_ref)
+    _validate_oid(commit_oid, "published GraphQL commit OID")
+    if not head_ref.startswith("dependabot/"):
+        raise PublishError("comment workflow requires a Dependabot branch")
+    _dispatch_workflow(
+        repository,
+        COMMENT_WORKFLOW,
+        default_branch,
+        token=token,
+        opener=opener,
+        inputs={
+            "source_head_sha": commit_oid,
+            "source_head_branch": head_ref,
+        },
+    )
 
 
 def authenticate_required_workflows(
@@ -1958,6 +2000,14 @@ def publish_dependencies(
         token=token,
         opener=opener,
         sleeper=sleeper,
+    )
+    dispatch_comment_workflow(
+        repository=context.repository,
+        default_branch=context.default_branch,
+        head_ref=context.head_ref,
+        commit_oid=verified.oid,
+        token=token,
+        opener=opener,
     )
     return PublishResult("published", verified.oid, dispatched)
 

@@ -1244,6 +1244,7 @@ def test_retry_after_partial_commit_verifies_existing_child_and_resumes_dispatch
 
     monkeypatch.setattr(PUBLISHER, "verify_exact_child", verify_existing)
     monkeypatch.setattr(PUBLISHER, "dispatch_required_workflows", resume_dispatches)
+    monkeypatch.setattr(PUBLISHER, "dispatch_comment_workflow", lambda **_kwargs: None)
 
     result = PUBLISHER.publish_dependencies(
         context=_context(),
@@ -1301,6 +1302,7 @@ def test_retry_reconciles_split_parent_child_visibility_before_dispatch(
     monkeypatch.setattr(PUBLISHER, "verify_exact_child", verify_existing)
     monkeypatch.setattr(PUBLISHER, "wait_for_published_head", wait_for_child)
     monkeypatch.setattr(PUBLISHER, "dispatch_required_workflows", resume_dispatches)
+    monkeypatch.setattr(PUBLISHER, "dispatch_comment_workflow", lambda **_kwargs: None)
 
     result = PUBLISHER.publish_dependencies(
         context=_context(),
@@ -1453,6 +1455,167 @@ def test_dispatch_allowlist_skips_existing_oid_runs_and_polls_new_ones(
     assert authenticated == [(CHILD_SHA, HEAD_SHA)]
     assert dispatched == list(PUBLISHER.REQUIRED_WORKFLOWS[2:])
     assert count == 2
+
+
+def test_commenter_dispatch_binds_default_branch_and_exact_dependabot_head(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    dispatch_commenter = getattr(PUBLISHER, "dispatch_comment_workflow", None)
+    assert callable(dispatch_commenter), "trusted writer must dispatch the commenter as a sibling workflow"
+    calls: list[dict[str, Any]] = []
+
+    def dispatch(
+        repository: str,
+        workflow: str,
+        branch: str,
+        **kwargs: Any,
+    ) -> None:
+        calls.append(
+            {
+                "repository": repository,
+                "workflow": workflow,
+                "branch": branch,
+                "inputs": kwargs.get("inputs"),
+            }
+        )
+
+    monkeypatch.setattr(PUBLISHER, "_dispatch_workflow", dispatch)
+
+    dispatch_commenter(
+        repository=REPOSITORY,
+        default_branch="main",
+        head_ref=BRANCH,
+        commit_oid=CHILD_SHA,
+        token="token",
+    )
+
+    assert calls == [
+        {
+            "repository": REPOSITORY,
+            "workflow": "comprehensive-test-pr-comments.yml",
+            "branch": "main",
+            "inputs": {
+                "source_head_sha": CHILD_SHA,
+                "source_head_branch": BRANCH,
+            },
+        }
+    ]
+
+
+def test_workflow_dispatch_serializes_exact_string_inputs() -> None:
+    recorded: dict[str, Any] = {}
+
+    class FakeResponse:
+        status = 204
+
+        def __enter__(self) -> FakeResponse:
+            return self
+
+        def __exit__(self, *_args: object) -> None:
+            return None
+
+        def read(self) -> bytes:
+            return b""
+
+    def opener(request: Any, *, timeout: int) -> FakeResponse:
+        recorded["url"] = request.full_url
+        recorded["payload"] = json.loads(request.data)
+        recorded["timeout"] = timeout
+        return FakeResponse()
+
+    PUBLISHER._dispatch_workflow(
+        REPOSITORY,
+        "comprehensive-test-pr-comments.yml",
+        "main",
+        token="token",
+        opener=opener,
+        inputs={
+            "source_head_sha": CHILD_SHA,
+            "source_head_branch": BRANCH,
+        },
+    )
+
+    assert recorded == {
+        "url": (
+            "https://api.github.com/repos/HomericIntelligence/Odyssey/actions/"
+            "workflows/comprehensive-test-pr-comments.yml/dispatches"
+        ),
+        "payload": {
+            "ref": "main",
+            "inputs": {
+                "source_head_sha": CHILD_SHA,
+                "source_head_branch": BRANCH,
+            },
+        },
+        "timeout": 30,
+    }
+
+
+@pytest.mark.parametrize(
+    "inputs",
+    [
+        {"source_head_sha": ""},
+        {"source_head_sha": CHILD_SHA, 1: BRANCH},
+        {"source_head_sha": CHILD_SHA, "source_head_branch": 1},
+    ],
+)
+def test_workflow_dispatch_rejects_non_string_or_empty_inputs(inputs: Any) -> None:
+    with pytest.raises(PUBLISHER.PublishError, match="inputs"):
+        PUBLISHER._dispatch_workflow(
+            REPOSITORY,
+            "comprehensive-test-pr-comments.yml",
+            "main",
+            token="token",
+            opener=lambda *_args, **_kwargs: pytest.fail("invalid input must not dispatch"),
+            inputs=inputs,
+        )
+
+
+def test_publisher_dispatches_commenter_after_exact_required_runs(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    _artifact_root, bundle = _package(tmp_path)
+    commenter_calls: list[dict[str, Any]] = []
+
+    monkeypatch.setattr(PUBLISHER, "get_pull_request_head", lambda *_args, **_kwargs: CHILD_SHA)
+    monkeypatch.setattr(PUBLISHER, "get_branch_head", lambda *_args, **_kwargs: CHILD_SHA)
+    monkeypatch.setattr(PUBLISHER, "validate_published_dependency_candidate", lambda *_args, **_kwargs: None)
+    monkeypatch.setattr(PUBLISHER, "compare_artifact_to_source", lambda *_args, **_kwargs: ("uv.lock",))
+    monkeypatch.setattr(
+        PUBLISHER,
+        "verify_exact_child",
+        lambda **_kwargs: PUBLISHER.CommitResult(
+            CHILD_SHA,
+            f"https://github.com/{REPOSITORY}/commit/{CHILD_SHA}",
+        ),
+    )
+    monkeypatch.setattr(PUBLISHER, "dispatch_required_workflows", lambda **_kwargs: 4)
+    monkeypatch.setattr(
+        PUBLISHER,
+        "dispatch_comment_workflow",
+        lambda **kwargs: commenter_calls.append(kwargs),
+        raising=False,
+    )
+
+    result = PUBLISHER.publish_dependencies(
+        context=_context(),
+        bundle=bundle,
+        trusted_default_oid=HEAD_SHA,
+        token="token",
+    )
+
+    assert result == PUBLISHER.PublishResult("published", CHILD_SHA, 4)
+    assert commenter_calls == [
+        {
+            "repository": REPOSITORY,
+            "default_branch": "main",
+            "head_ref": BRANCH,
+            "commit_oid": CHILD_SHA,
+            "token": "token",
+            "opener": PUBLISHER.urllib.request.urlopen,
+        }
+    ]
 
 
 def test_required_workflow_definitions_are_authenticated_at_child_oid(

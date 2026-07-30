@@ -55,5 +55,8 @@ jobs:
           python scripts/ci/commit_generated_dependencies.py publish
           --event-path "$GITHUB_EVENT_PATH"
 
-# Comprehensive Test's trusted comment consumer now supports the explicitly
-# dispatched Dependabot run. No PR-code checkout is added to either consumer.
+# The trusted publisher also dispatches the default-branch comment monitor as
+# a sibling workflow. The monitor waits for the exact Comprehensive run because
+# that dispatched run does not create the downstream workflow_run consumer in
+# this GitHub Actions event chain.
+# No PR-code checkout is added to either privileged workflow.
