@@ -79,7 +79,7 @@ dev = [
     "ruff>=0.14.7,<0.16",
     "bandit>=1.7.5",
     "mypy>=1.19.1,<2",
-    "types-PyYAML>=6.0",
+    "types-PyYAML>=6.0.12.20260724",
     "safety>=3.0.0,<4",
     "pip-audit>=2.7.0,<3",
 
