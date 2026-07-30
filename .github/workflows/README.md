@@ -148,12 +148,13 @@ ls .github/workflows/*.yml | wc -l
 
 - **Individual Test Execution**: Files executed one-by-one for clarity on which tests pass/fail
 
-- **Test Group Summary**: Each group generates result file with test counts and failures
+- **Producer Outcomes**: Each result-producing job emits an always-run outcome manifest
 
 - **Combined Report** (`test-report` job):
-  - Aggregates all 17 group results
-  - Calculates total statistics
-  - Comments on PRs with detailed breakdown
+  - Validates all 19 upstream job results and all 12 expected producer manifests
+  - Treats missing, malformed, duplicate, skipped, cancelled, or failed results as failures
+  - Reports job and producer outcomes without presenting partial artifacts as total test counts
+  - Comments on PRs with a fail-closed diagnostic breakdown
 
 **Cache Strategy**:
 
@@ -163,13 +164,13 @@ ls .github/workflows/*.yml | wc -l
 
 **Artifacts**:
 
-- `test-results-*` (7 days, one per group)
+- `test-results-*` (7 days, one per result producer)
 - `comprehensive-test-report` (30 days)
 
 **Failure Handling**:
 
 - `fail-fast: false` - all groups run even if one fails
-- Overall workflow fails if any tests fail
+- `Test Report` runs after all upstream jobs and fails unless the complete contract is green
 
 ---
 
