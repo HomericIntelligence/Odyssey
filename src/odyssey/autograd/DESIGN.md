@@ -188,6 +188,50 @@ wired to select it. Consequently, PR #5719 does not make Sophia runnable end
 to end and must not close #5683. Implementation follow-up #5717 remains under
 that parent and is cross-referenced from `TODO.md`.
 
+#### Forward-mode JVP substrate ✅ (DONE — #5718)
+
+Forward-mode differentiation is implemented independently from the reverse-mode
+tape in `jvp.mojo`. A `DualTensor` owns a dynamic `AnyTensor` primal and tangent,
+validates that their shapes and supported dtypes match, and propagates them
+through explicit primitive rules. The supported dtypes are float16, float32,
+and float64. BF16 is rejected at construction until every downstream primitive
+dispatcher used by the JVP rules supports it.
+
+- add and subtract
+- elementwise product
+- matrix multiplication (`A_dot @ B + A @ B_dot`)
+- ReLU (zero tangent at the kink, matching Odyssey's existing convention)
+- linear composition (`input @ weight + bias`)
+
+Callers implement `JVPFunction` on a concrete, copyable struct. This supports
+deterministic model state without escaping closures or bare function-value
+annotations:
+
+```mojo
+@fieldwise_init
+struct Model(JVPFunction):
+    var weight: DualTensor
+    var bias: DualTensor
+
+    def __call__(self, input: DualTensor) raises -> DualTensor:
+        return dual_linear(input, self.weight, self.bias)
+
+var result = jvp(model, input, seed)
+var tangent = jvp_only(model, input, seed)
+```
+
+`jvp` returns both the primal result and `J(model)(input) @ seed`. `jvp_only`
+provides the same numerical tangent while retaining a smaller return payload,
+but it still computes the primal intermediates required by forward mode. This
+is not a claim about peak memory or allocation count.
+
+This substrate completes issue #5718 as independent forward-mode
+infrastructure. The first-order Sophia-G path in #5717 uses an ordinary
+reverse-mode backward pass and does not depend on it. The substrate does
+**not** implement a Sophia estimator, an optimizer, general higher-order
+differentiation, or automatic rules for operations beyond the primitives
+listed above.
+
 ### Phase 4: Full Autograd (ASPIRATIONAL)
 
 - Automatic operation recording via operator overloading

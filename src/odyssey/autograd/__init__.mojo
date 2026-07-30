@@ -17,6 +17,7 @@ Core Components:
 - StepLR, ExponentialLR: Learning rate schedulers for adaptive decay
 - Variable operations: Tape-integrated ops (add, multiply, matmul, etc.)
 - Functional helpers: Practical gradient computation for common patterns
+- Forward-mode JVP: DualTensor rules for vector-valued directional derivatives
 
 Tape-Based Autograd API (Recommended for full automatic differentiation):
     from odyssey.autograd import Variable, GradientTape
@@ -66,6 +67,12 @@ Available Loss+Grad Helpers:
 - bce_loss_and_grad: Binary cross-entropy (binary classification)
 - ce_loss_and_grad: Cross-entropy with softmax (multi-class classification)
 
+Forward-Mode JVP API:
+- DualTensor, JVPFunction
+- dual_add, dual_subtract, dual_multiply, dual_matmul, dual_relu, dual_linear
+- jvp: Return primal result and Jacobian-vector product
+- jvp_only: Return the same numerical tangent with a smaller retained payload
+
 Gradient Clipping Utilities:
 - clip_grad_value_: Clip each gradient element to [-max_value, max_value]
 - clip_grad_norm_: Clip gradient L2 norm per parameter
@@ -87,6 +94,7 @@ Status:
     ✅ AdamW optimizer (decoupled weight decay)
     ✅ RMSprop optimizer
     ✅ Gradient clipping utilities (value, norm, global norm)
+    ✅ Forward-mode JVP substrate
 
 References:
     - Tape implementation: tape.mojo
@@ -189,6 +197,20 @@ from odyssey.autograd.functional import (
     divide_scalar,
     apply_gradient,
     apply_gradients,
+)
+
+from odyssey.autograd.jvp import (
+    DualTensor,
+    JVPFunction,
+    dual_constant,
+    dual_add,
+    dual_subtract,
+    dual_multiply,
+    dual_matmul,
+    dual_relu,
+    dual_linear,
+    jvp,
+    jvp_only,
 )
 
 # ============================================================================

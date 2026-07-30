@@ -141,6 +141,19 @@ The autograd module follows **YAGNI** (You Aren't Gonna Need It) and **KISS** (K
     no Sophia optimizer/dispatch path selects it.
   - This Phase-1 seam does not close parent #5683; implementation follow-up
     #5717 remains under that parent.
+- [x] **Forward-mode JVP substrate** - `jvp.mojo` (#5718)
+  - Dynamic `DualTensor` with matching shape/dtype validation; supported dtypes
+    are float16, float32, and float64 (BF16 remains rejected until all invoked
+    primitive dispatchers support it)
+  - Rules for add, subtract, elementwise product, matmul, ReLU, and linear
+    composition
+  - `jvp` returns primal and tangent; `jvp_only` provides numerical tangent
+    parity and a smaller retained return payload while still computing required
+    primal intermediates (no peak-memory or allocation-count claim)
+  - Publicly exported from `odyssey.autograd`
+  - This is independent forward-mode infrastructure; the first-order Sophia-G
+    path in #5717 uses an ordinary reverse-mode backward pass and does not
+    depend on it.
 - [ ] **Sophia-G Gauss-Newton-Bartlett estimator and wiring (#5717, under #5683)**
   - Build the sampled-label negative-log-likelihood objective from model
     outputs on the same tape as the parameters.
