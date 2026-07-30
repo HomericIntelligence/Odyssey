@@ -49,6 +49,7 @@ on:
       - '.github/actions/setup-container/action.yml'
       - '.github/workflows/container-publish.yml'
       - '.github/workflows/release.yml'
+      - 'Dockerfile'
       - 'docker-compose.yml'
       - 'justfile'
       - 'scripts/ci/commit_generated_dependencies.py'

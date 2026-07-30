@@ -185,6 +185,7 @@ def test_existing_pull_request_and_push_triggers_are_preserved() -> None:
         ".github/workflows/security.yml",
         ".github/workflows/validate-configs.yml",
         ".github/workflows/workflow-smoke-test.yml",
+        "Dockerfile",
         "configs/github/merge-queue-policy.json",
         "docker-compose.yml",
         "justfile",

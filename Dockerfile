@@ -82,15 +82,24 @@ FROM base AS development
 
 # Re-declare ARG so it's available in this stage (ARGs don't persist across FROM)
 ARG USER_NAME=dev
+ARG INSTALL_CLAUDE_CODE=false
 
 # Switch to dev user
 USER ${USER_NAME}
 WORKDIR /workspace
 
-# Install Claude Code CLI as the dev user (development-only — production
-# stage stays clean per #5328 because it FROM base, not FROM development).
-# Installs into ~/.local/bin which is in PATH.
-RUN curl -fsSL https://claude.ai/install.sh | bash -s -- stable
+# Claude Code is optional agent tooling, not a build or test dependency.
+# Keep its external installer off the default local and CI container path.
+# Developers can opt in with INSTALL_CLAUDE_CODE=true; the CLI installs into
+# ~/.local/bin, which is already on PATH.
+RUN if [ "$INSTALL_CLAUDE_CODE" = "true" ]; then \
+        installer="$(mktemp)" && \
+        curl -fsSL --output "$installer" https://claude.ai/install.sh && \
+        bash "$installer" stable && \
+        rm -f "$installer"; \
+    else \
+        echo "Skipping optional Claude Code CLI installation"; \
+    fi
 
 # uv cache + Modular home. Keeping the venv inside the image (not /workspace)
 # means the runtime bind-mount does not shadow it.
