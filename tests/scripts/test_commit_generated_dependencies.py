@@ -853,10 +853,19 @@ def test_trusted_validator_rejects_candidate_project_urls_or_unrelated_changes()
     validator = getattr(PUBLISHER, "validate_canonical_dependencies", None)
     assert callable(validator), "trusted publisher must independently validate generated dependency bytes"
     trusted = (PROJECT_ROOT / "pyproject.toml").read_bytes()
+    requirement_lines = [
+        line for line in trusted.splitlines(keepends=True) if line.lstrip().startswith(b'"types-PyYAML')
+    ]
+    assert len(requirement_lines) == 1, "test fixture must contain exactly one types-PyYAML requirement"
+    requirement_line = requirement_lines[0]
+    indentation = requirement_line[: len(requirement_line) - len(requirement_line.lstrip())]
+    line_ending = b"\n" if requirement_line.endswith(b"\n") else b""
     candidate = trusted.replace(
-        b'"types-PyYAML>=6.0"',
-        b'"types-PyYAML @ https://attacker.invalid/types.whl"',
+        requirement_line,
+        indentation + b'"types-PyYAML @ https://attacker.invalid/types.whl",' + line_ending,
+        1,
     )
+    assert candidate != trusted, "adversarial dependency mutation must change the candidate"
 
     with pytest.raises(PUBLISHER.PublishError, match="dependency|URL"):
         validator(
