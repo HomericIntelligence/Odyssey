@@ -85,7 +85,7 @@ class TestExternalHooks:
         config = tmp_path / ".pre-commit-config.yaml"
         config.write_text("version: 1\n")
 
-        with pytest.raises(ValueError, match="No 'repos'"):
+        with pytest.raises(ValueError, match="repos"):
             checker.load_precommit_config(config)
 
 
@@ -157,7 +157,7 @@ class TestHookMapping:
         ],
     )
     def test_tracked_repository(self, repository: str) -> None:
-        assert repository in checker.DEFAULT_HOOK_TO_PIXI_MAP
+        assert repository in checker.DEFAULT_HOOK_TO_PYPROJECT_MAP
 
     def test_markdownlint_is_not_tracked(self) -> None:
-        assert "https://github.com/DavidAnson/markdownlint-cli2" not in checker.DEFAULT_HOOK_TO_PIXI_MAP
+        assert "https://github.com/DavidAnson/markdownlint-cli2" not in checker.DEFAULT_HOOK_TO_PYPROJECT_MAP
