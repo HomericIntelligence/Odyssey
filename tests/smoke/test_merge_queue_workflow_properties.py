@@ -184,7 +184,11 @@ def test_existing_pull_request_and_push_triggers_are_preserved() -> None:
         "configs/github/merge-queue-policy.json",
         "docker-compose.yml",
         "justfile",
+        "scripts/ci/dependency_audit_contract.py",
         "scripts/ci/ensure-podman-runtime.sh",
+        "scripts/ci/parse_pip_audit.py",
+        "tests/scripts/test_dependency_audit_contract.py",
+        "tests/scripts/test_parse_pip_audit.py",
         "tests/smoke/test_comprehensive_pr_comments_workflow_properties.py",
         "tests/smoke/test_comprehensive_report_workflow_properties.py",
         "tests/smoke/test_comprehensive_tests_workflow_properties.py",
@@ -194,6 +198,7 @@ def test_existing_pull_request_and_push_triggers_are_preserved() -> None:
         "tests/smoke/test_pre_commit_workflow_properties.py",
         "tests/smoke/test_security_workflow_properties.py",
         "tests/smoke/test_validate_configs_workflow_properties.py",
+        "tests/workflows/test_security_dependency_audit.py",
     }
 
 
