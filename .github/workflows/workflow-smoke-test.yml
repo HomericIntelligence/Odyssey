@@ -32,6 +32,13 @@ on:
       - 'tests/smoke/test_comprehensive_tests_workflow_properties.py'
       - '.github/workflows/validate-configs.yml'
       - 'tests/smoke/test_validate_configs_workflow_properties.py'
+      - '.github/actions/setup-container/action.yml'
+      - '.github/workflows/container-publish.yml'
+      - '.github/workflows/release.yml'
+      - 'docker-compose.yml'
+      - 'justfile'
+      - 'scripts/ci/ensure-podman-runtime.sh'
+      - 'tests/smoke/test_container_runtime_workflow_properties.py'
   workflow_dispatch:
 
 permissions:
@@ -202,4 +209,5 @@ jobs:
             tests/smoke/test_pre_commit_workflow_properties.py \
             tests/smoke/test_comprehensive_tests_workflow_properties.py \
             tests/smoke/test_validate_configs_workflow_properties.py \
+            tests/smoke/test_container_runtime_workflow_properties.py \
             -v

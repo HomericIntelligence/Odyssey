@@ -132,14 +132,6 @@ podman-up:
         podman compose down
     fi
     podman compose up -d {{podman_service}}
-    # Rootless Podman UID-maps the bind-mounted workspace so the container
-    # user cannot write to host-owned files. Make the workspace world-writable
-    # so `just build`, test fixtures, and pre-commit can create output files.
-    # (Safe: ephemeral dev machine; matches what the CI setup-container action does.)
-    # Log unexpected failures (e.g. socket inodes) to stderr; do not abort.
-    if ! chmod -R a+rwX .; then
-        echo "warn: 'chmod -R a+rwX .' encountered files it could not modify" >&2
-    fi
 
 # Stop Podman development environment
 podman-down:

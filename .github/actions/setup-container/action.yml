@@ -16,6 +16,10 @@ runs:
         echo "GROUP_ID=$(id -g)" >> "$GITHUB_ENV"
         echo "user_id=$(id -u)" >> "$GITHUB_OUTPUT"
 
+    - name: Select compatible Podman runtime
+      shell: bash
+      run: bash scripts/ci/ensure-podman-runtime.sh
+
     - name: Cache container image tar
       uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306  # v5
       with:
@@ -28,34 +32,41 @@ runs:
     - name: Start Podman socket
       shell: bash
       run: |
-        # Best-effort: socket may already be active. Warn on unexpected failure
-        # rather than fail the workflow (the DOCKER_HOST assignment below will
-        # surface a real problem when the socket is genuinely unavailable).
-        # PR #5675: enable user lingering so `systemctl --user` works on
-        # self-hosted runners. Without linger, podman.service is killed when
-        # the runner session closes, the socket never starts, and
-        # `podman compose` falls back to invoking /usr/bin/docker-compose
-        # (which doesn't exist in a rootless podman-only env).
-        # Guard the linger call on BOTH loginctl and systemctl being available:
-        # - `&& command -v systemctl` short-circuits the linger block when the
-        #   runner has no systemctl at all (some containerized runner hosts),
-        #   since systemctl --user is meaningless without it.
-        # If the next step (systemctl --user start podman.socket) still fails,
-        # the explicit warn message below names the failure.
-        if command -v loginctl >/dev/null 2>&1 \
-           && command -v systemctl >/dev/null 2>&1 \
-           && ! loginctl show-user "$(id -u -n)" 2>/dev/null | grep -q '^Linger=yes'; then
-          # `sudo` may be absent on hardened runner hosts (passwordless sudo
-          # stripped for security). Surface this distinctly from a `loginctl`
-          # -level failure so operators can grep for the right keyword.
-          sudo loginctl enable-linger "$(id -u -n)" 2>/dev/null \
-            || echo "warn: sudo loginctl enable-linger failed (sudo may be absent); continuing without linger" >&2
+        socket_path="/run/user/$(id -u)/podman/podman.sock"
+        socket_uri="unix://$socket_path"
+        service_log="${RUNNER_TEMP:-/tmp}/odyssey-podman-service.log"
+
+        if ! curl --silent --fail --unix-socket "$socket_path" http://localhost/_ping >/dev/null 2>&1; then
+          if command -v systemctl >/dev/null 2>&1 \
+             && systemctl --user start podman.socket; then
+            echo "Started podman.socket with systemd"
+          else
+            mkdir -p "$(dirname "$socket_path")"
+            podman system service --time=0 "$socket_uri" >"$service_log" 2>&1 &
+            echo "Started standalone Podman service (pid $!)"
+          fi
         fi
-        if ! systemctl --user start podman.socket; then
-          echo "warn: 'systemctl --user start podman.socket' failed (may already be running)" >&2
+
+        socket_ready=false
+        for check in $(seq 1 30); do
+          if curl --silent --fail --unix-socket "$socket_path" http://localhost/_ping >/dev/null; then
+            socket_ready=true
+            break
+          fi
+          echo "Waiting for Podman socket readiness ($check/30)"
+          sleep 1
+        done
+
+        if [[ "$socket_ready" != true ]]; then
+          echo "ERROR: Podman socket did not become ready at $socket_path" >&2
+          if [[ -f "$service_log" ]]; then
+            cat "$service_log" >&2
+          fi
+          exit 1
         fi
-        export DOCKER_HOST=unix:///run/user/$(id -u)/podman/podman.sock
-        echo "DOCKER_HOST=unix:///run/user/$(id -u)/podman/podman.sock" >> "$GITHUB_ENV"
+
+        export DOCKER_HOST="$socket_uri"
+        echo "DOCKER_HOST=$socket_uri" >> "$GITHUB_ENV"
 
     - name: Load cached image or build
       shell: bash
@@ -77,21 +88,9 @@ runs:
     # already present with no per-run seeding. The `uv-cache` volume only holds
     # the download cache and may start empty without any correctness impact.
 
-    - name: Fix workspace permissions
+    - name: Smoke test built image
       shell: bash
-      run: |
-        # Rootless Podman UID-maps bind-mounted host files, so the container
-        # user may not be able to write to the workspace.  Make the checkout
-        # world-writable (dirs get +x for traversal) so mojo build, test
-        # fixtures, etc. can create output files.  Safe: CI runners are
-        # ephemeral single-use VMs.
-        #
-        # Must run BEFORE `podman compose up -d` because the container
-        # entrypoint may write into the workspace at startup — racing this
-        # chmod caused intermittent "Permission denied" failures.
-        if ! chmod -R a+rwX .; then
-          echo "warn: 'chmod -R a+rwX .' encountered files it could not modify" >&2
-        fi
+      run: podman run --rm --entrypoint /bin/true odyssey:dev
 
     - name: Start container
       shell: bash
@@ -105,7 +104,12 @@ runs:
             | xargs -r podman inspect -f '{{.State.Running}}' 2>/dev/null \
             | grep -q true; then
             echo "Container is running"
-            podman compose exec -T odyssey-dev uv run mojo --version
+            podman compose exec -T odyssey-dev bash -c '
+              set -euo pipefail
+              probe=$(mktemp -d /workspace/.odyssey-write-probe.XXXXXX)
+              rmdir "$probe"
+              mojo --version
+            '
             exit 0
           fi
           echo "Waiting for container... ($i/30)"

@@ -200,7 +200,7 @@ jobs:
       - name: Create build manifest
         run: |
           echo "Creating build manifest..."
-          MOJO_VERSION=$(podman compose exec -T odyssey-dev uv run mojo --version 2>&1 || echo "Not available")
+          MOJO_VERSION=$(podman compose exec -T odyssey-dev mojo --version 2>&1)
 
           cat > dist/BUILD_MANIFEST.txt <<EOF
           ML Odyssey Release Build
@@ -383,6 +383,9 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
 
+      - name: Select compatible Podman runtime
+        run: bash scripts/ci/ensure-podman-runtime.sh
+
       - name: Log in to Container Registry
         run: echo "${{ secrets.GITHUB_TOKEN }}" | podman login ghcr.io --username "${{ github.actor }}" --password-stdin
 
@@ -395,6 +398,16 @@ jobs:
             -t "ghcr.io/$IMAGE_NAME:$VERSION" \
             -t "ghcr.io/$IMAGE_NAME:latest" \
             .
+
+      - name: Smoke release image
+        env:
+          VERSION: ${{ needs.validate-version.outputs.version }}
+        run: |
+          podman run --rm "ghcr.io/$IMAGE_NAME:$VERSION" bash -c '
+            set -euo pipefail
+            test "$(id -un)" != "root"
+            mojo --version
+          '
 
       - name: Push release images
         env:
