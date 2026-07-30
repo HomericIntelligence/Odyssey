@@ -178,11 +178,16 @@ ls .github/workflows/*.yml | wc -l
 
 **File**: `comprehensive-test-pr-comments.yml`
 
-**Triggers**: Completed `Comprehensive Tests` runs whose source event is `pull_request`
+**Triggers**: Completed `Comprehensive Tests` runs whose source event is `pull_request`, or a
+trusted default-branch dispatch bound to an exact same-repository Dependabot head
 
 **Purpose**: Post or update the test-metrics and comprehensive-test reports on the pull request.
 The workflow runs from the trusted default branch, downloads reports as data, and never checks out
-or executes pull-request code with its narrowly scoped `pull-requests: write` token.
+or executes pull-request code with its narrowly scoped `pull-requests: write` token. For Dependabot,
+the trusted dependency writer dispatches this workflow as a sibling monitor. The monitor polls the
+single exact Comprehensive dispatch because its completion does not create the downstream
+`workflow_run` consumer in this GitHub Actions event chain, then validates the current PR/head before
+consuming its artifacts.
 
 **Artifacts**: Consumes `test-metrics` and `comprehensive-test-report`; creates none
 

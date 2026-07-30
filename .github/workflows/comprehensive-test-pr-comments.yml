@@ -6,6 +6,16 @@ on:
   workflow_run:
     workflows: ["Comprehensive Tests"]
     types: [completed]
+  workflow_dispatch:
+    inputs:
+      source_head_sha:
+        description: Exact Dependabot head whose Comprehensive run must be reported
+        required: true
+        type: string
+      source_head_branch:
+        description: Exact same-repository Dependabot branch
+        required: true
+        type: string
 
 permissions:
   contents: read
@@ -13,15 +23,13 @@ permissions:
 jobs:
   post-pr-comments:
     if: >-
-      github.event.workflow_run.event == 'pull_request' ||
-      (
-        github.event.workflow_run.event == 'workflow_dispatch' &&
-        startsWith(github.event.workflow_run.head_branch, 'dependabot/')
-      )
+      github.event_name == 'workflow_dispatch' ||
+      github.event.workflow_run.event == 'pull_request'
     concurrency:
-      group: comprehensive-test-pr-comment-${{ github.event.workflow_run.head_sha }}
+      group: comprehensive-test-pr-comment-${{ inputs.source_head_sha || github.event.workflow_run.head_sha }}
       cancel-in-progress: true
     runs-on: ubuntu-latest
+    timeout-minutes: 130
     name: "Post Comprehensive Test PR Comments"
     permissions:
       actions: read
@@ -29,13 +37,83 @@ jobs:
       pull-requests: write
 
     steps:
-      - name: Resolve exactly one current pull request for the run head
-        id: resolve-pr
+      - name: Resolve trusted source run and exactly one current pull request
+        id: resolve-context
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3  # v9.0.0
+        env:
+          SOURCE_HEAD_SHA: ${{ inputs.source_head_sha }}
+          SOURCE_HEAD_BRANCH: ${{ inputs.source_head_branch }}
         with:
           script: |
-            const run = context.payload.workflow_run;
-            const sourceHeadSha = run.head_sha;
+            const expectedRepository =
+              `${context.repo.owner}/${context.repo.repo}`;
+            const comprehensiveWorkflowUrl =
+              `https://github.com/${expectedRepository}/actions/workflows/` +
+              `comprehensive-tests.yml`;
+            const isTrustedDispatch =
+              context.eventName === 'workflow_dispatch';
+            let run = context.payload.workflow_run;
+            let sourceHeadSha;
+            let sourceHeadBranch;
+
+            const setSourceFailure = (message) => {
+              core.setOutput('source_ready', 'false');
+              core.setOutput('source_error', message);
+              core.setOutput(
+                'source_run_url',
+                run?.html_url || comprehensiveWorkflowUrl,
+              );
+              core.setOutput(
+                'source_run_conclusion',
+                run?.conclusion || run?.status || 'unknown',
+              );
+              if (run?.id) {
+                core.setOutput('source_run_id', String(run.id));
+              }
+            };
+
+            const setSourceReady = () => {
+              core.setOutput('source_ready', 'true');
+              core.setOutput('source_error', '');
+              core.setOutput('source_run_id', String(run.id));
+              core.setOutput('source_run_url', run.html_url);
+              core.setOutput('source_run_conclusion', run.conclusion);
+            };
+
+            if (isTrustedDispatch) {
+              const requestedHeadSha = process.env.SOURCE_HEAD_SHA;
+              const requestedHeadBranch = process.env.SOURCE_HEAD_BRANCH;
+              if (
+                typeof requestedHeadSha !== 'string' ||
+                typeof requestedHeadBranch !== 'string' ||
+                !/^[0-9a-f]{40}$/.test(requestedHeadSha) ||
+                !requestedHeadBranch.startsWith('dependabot/')
+              ) {
+                core.setFailed(
+                  'Comment workflow dispatch inputs are not an exact Dependabot head.',
+                );
+                return;
+              }
+              sourceHeadSha = requestedHeadSha;
+              sourceHeadBranch = requestedHeadBranch;
+            } else {
+              if (
+                !run ||
+                run.name !== 'Comprehensive Tests' ||
+                run.path !== '.github/workflows/comprehensive-tests.yml' ||
+                run.event !== 'pull_request' ||
+                run.status !== 'completed' ||
+                typeof run.conclusion !== 'string'
+              ) {
+                core.setFailed(
+                  'Source run is not a completed pull-request Comprehensive workflow.',
+                );
+                return;
+              }
+              sourceHeadSha = run.head_sha;
+              sourceHeadBranch = run.head_branch;
+            }
+
             const associated = await github.paginate(
               github.rest.repos.listPullRequestsAssociatedWithCommit,
               {
@@ -72,28 +150,129 @@ jobs:
               return;
             }
 
-            if (run.event === 'workflow_dispatch') {
-              const expectedRepository =
-                `${context.repo.owner}/${context.repo.repo}`;
+            if (isTrustedDispatch) {
               if (
-                !run.head_branch.startsWith('dependabot/') ||
                 pullRequest.user.login !== 'dependabot[bot]' ||
-                pullRequest.head.ref !== run.head_branch ||
+                pullRequest.head.ref !== sourceHeadBranch ||
                 pullRequest.head.repo.full_name !== expectedRepository
               ) {
                 core.setFailed(
-                  'Dispatched Comprehensive run is not bound to a current ' +
-                  'same-repository Dependabot PR.',
+                  'Comment dispatch is not bound to a current same-repository ' +
+                  'Dependabot PR.',
                 );
                 return;
               }
             }
             core.setOutput('pr_number', String(pullRequest.number));
+            core.setOutput('source_head_sha', sourceHeadSha);
+
+            if (!isTrustedDispatch) {
+              setSourceReady();
+              return;
+            }
+
+            let runs;
+            try {
+              runs = await github.paginate(
+                github.rest.actions.listWorkflowRuns,
+                {
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  workflow_id: 'comprehensive-tests.yml',
+                  branch: sourceHeadBranch,
+                  event: 'workflow_dispatch',
+                  per_page: 100,
+                },
+              );
+            } catch (error) {
+              setSourceFailure(
+                `Unable to locate the exact Comprehensive run: ${error.message}`,
+              );
+              return;
+            }
+
+            const matches = runs.filter(
+              candidateRun =>
+                candidateRun.head_sha === sourceHeadSha &&
+                candidateRun.head_branch === sourceHeadBranch &&
+                candidateRun.head_repository?.full_name === expectedRepository,
+            );
+            if (matches.length !== 1) {
+              setSourceFailure(
+                `Expected exactly one dispatched Comprehensive run for ` +
+                `${sourceHeadSha}; found ${matches.length}.`,
+              );
+              return;
+            }
+
+            run = matches[0];
+            if (
+              run.name !== 'Comprehensive Tests' ||
+              run.path !== '.github/workflows/comprehensive-tests.yml' ||
+              run.event !== 'workflow_dispatch'
+            ) {
+              setSourceFailure(
+                'Located run is not the trusted Comprehensive workflow dispatch.',
+              );
+              return;
+            }
+
+            const sourceRunId = run.id;
+            try {
+              for (
+                let attempt = 0;
+                attempt < 120 && run.status !== 'completed';
+                attempt += 1
+              ) {
+                await new Promise(resolve => setTimeout(resolve, 60000));
+                const response = await github.rest.actions.getWorkflowRun({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  run_id: sourceRunId,
+                });
+                run = response.data;
+                if (
+                  run.id !== sourceRunId ||
+                  run.head_sha !== sourceHeadSha ||
+                  run.head_branch !== sourceHeadBranch ||
+                  run.head_repository?.full_name !== expectedRepository ||
+                  run.path !== '.github/workflows/comprehensive-tests.yml' ||
+                  run.event !== 'workflow_dispatch'
+                ) {
+                  setSourceFailure(
+                    'Comprehensive run identity changed while it was monitored.',
+                  );
+                  return;
+                }
+              }
+            } catch (error) {
+              setSourceFailure(
+                `Unable to monitor the exact Comprehensive run: ${error.message}`,
+              );
+              return;
+            }
+            if (run.status !== 'completed') {
+              setSourceFailure(
+                'Comprehensive run did not complete within 120 minutes.',
+              );
+              return;
+            }
+            if (typeof run.conclusion !== 'string') {
+              setSourceFailure(
+                'Completed Comprehensive run has no authoritative conclusion.',
+              );
+              return;
+            }
+            setSourceReady();
 
       - name: Discover report artifacts
         id: discover_artifacts
-        if: steps.resolve-pr.outcome == 'success'
+        if: >-
+          steps.resolve-context.outcome == 'success' &&
+          steps.resolve-context.outputs.source_ready == 'true'
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3  # v9.0.0
+        env:
+          SOURCE_RUN_ID: ${{ steps.resolve-context.outputs.source_run_id }}
         with:
           script: |
             const artifacts = await github.paginate(
@@ -101,7 +280,7 @@ jobs:
               {
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                run_id: context.payload.workflow_run.id,
+                run_id: Number(process.env.SOURCE_RUN_ID),
                 per_page: 100,
               },
             );
@@ -119,46 +298,50 @@ jobs:
       - name: Download test metrics report
         id: download-metrics
         if: >-
-          steps.resolve-pr.outcome == 'success' &&
+          steps.resolve-context.outcome == 'success' &&
+          steps.resolve-context.outputs.source_ready == 'true' &&
           steps.discover_artifacts.outputs.has_metrics == 'true'
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8
         with:
           name: test-metrics
           path: reports/metrics
           github-token: ${{ github.token }}
-          run-id: ${{ github.event.workflow_run.id }}
+          run-id: ${{ steps.resolve-context.outputs.source_run_id }}
 
       - name: Download comprehensive test report
         id: download-report
         if: >-
           always() &&
-          steps.resolve-pr.outcome == 'success' &&
+          steps.resolve-context.outcome == 'success' &&
+          steps.resolve-context.outputs.source_ready == 'true' &&
           steps.discover_artifacts.outputs.has_report == 'true'
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8
         with:
           name: comprehensive-test-report
           path: reports/comprehensive
           github-token: ${{ github.token }}
-          run-id: ${{ github.event.workflow_run.id }}
+          run-id: ${{ steps.resolve-context.outputs.source_run_id }}
 
       - name: Post or update PR comments
-        if: always() && steps.resolve-pr.outcome == 'success'
+        if: always() && steps.resolve-context.outcome == 'success'
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3  # v9.0.0
         env:
-          PR_NUMBER: ${{ steps.resolve-pr.outputs.pr_number }}
+          PR_NUMBER: ${{ steps.resolve-context.outputs.pr_number }}
           REPORT_AVAILABLE: ${{ steps.discover_artifacts.outputs.has_report }}
           METRICS_AVAILABLE: ${{ steps.discover_artifacts.outputs.has_metrics }}
           REPORT_DOWNLOAD_OUTCOME: ${{ steps.download-report.outcome }}
           METRICS_DOWNLOAD_OUTCOME: ${{ steps.download-metrics.outcome }}
-          WORKFLOW_RUN_URL: ${{ github.event.workflow_run.html_url }}
-          WORKFLOW_CONCLUSION: ${{ github.event.workflow_run.conclusion }}
+          WORKFLOW_RUN_URL: ${{ steps.resolve-context.outputs.source_run_url }}
+          WORKFLOW_CONCLUSION: ${{ steps.resolve-context.outputs.source_run_conclusion }}
+          SOURCE_HEAD_SHA: ${{ steps.resolve-context.outputs.source_head_sha }}
+          SOURCE_RESOLUTION_ERROR: ${{ steps.resolve-context.outputs.source_error }}
         with:
           script: |
             const fs = require('fs');
             const issue_number = Number(process.env.PR_NUMBER);
             const metricsPath = 'reports/metrics/metrics-pr-comment.md';
             const reportPath = 'reports/comprehensive/test-report.md';
-            const sourceHeadSha = context.payload.workflow_run.head_sha;
+            const sourceHeadSha = process.env.SOURCE_HEAD_SHA;
             const { data: pullRequest } = await github.rest.pulls.get({
               owner: context.repo.owner,
               repo: context.repo.repo,
@@ -250,9 +433,11 @@ jobs:
             let reportBody = downloadedReport;
             if (!reportMatchesConclusion) {
               const runUrl = process.env.WORKFLOW_RUN_URL;
-              const reason = downloadedReport === null
-                ? 'The workflow did not publish a readable comprehensive report.'
-                : 'The downloaded report verdict does not match the workflow conclusion.';
+              const reason = process.env.SOURCE_RESOLUTION_ERROR || (
+                downloadedReport === null
+                  ? 'The workflow did not publish a readable comprehensive report.'
+                  : 'The downloaded report verdict does not match the workflow conclusion.'
+              );
               reportBody = [
                 '# 🧪 Comprehensive Test Results',
                 '',
@@ -268,3 +453,14 @@ jobs:
             }
 
             await upsertComment('🧪 Comprehensive Test Results', reportBody);
+
+      - name: Enforce trusted source resolution
+        if: >-
+          always() &&
+          steps.resolve-context.outcome == 'success' &&
+          steps.resolve-context.outputs.source_ready != 'true'
+        env:
+          SOURCE_RESOLUTION_ERROR: ${{ steps.resolve-context.outputs.source_error }}
+        run: |
+          echo "ERROR: ${SOURCE_RESOLUTION_ERROR:-trusted source run was not resolved}"
+          exit 1

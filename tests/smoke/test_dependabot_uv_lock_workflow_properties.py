@@ -230,6 +230,19 @@ def test_dispatch_allowlist_is_literal_exact_and_every_target_is_read_only() -> 
             assert "write" not in job.get("permissions", {}).values()
 
 
+def test_writer_dispatches_the_comment_monitor_beside_required_checks() -> None:
+    source = PUBLISHER_SCRIPT.read_text(encoding="utf-8")
+
+    assert 'COMMENT_WORKFLOW = "comprehensive-test-pr-comments.yml"' in source
+    assert "def dispatch_comment_workflow(" in source
+    assert '"source_head_sha": commit_oid' in source
+    assert '"source_head_branch": head_ref' in source
+    assert source.index("dispatched = dispatch_required_workflows(") < source.index(
+        "dispatch_comment_workflow(\n        repository=context.repository,"
+    )
+    assert "comprehensive-test-pr-comments.yml" not in ALLOWLIST
+
+
 def test_dependency_generation_uses_one_pinned_uv_version() -> None:
     setup_action = _load(SETUP_UV_ACTION)
     assert setup_action["inputs"]["uv-version"]["default"] == UV_VERSION
