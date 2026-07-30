@@ -44,7 +44,7 @@ defusedxml==0.7.1
     # via
     #   nbconvert
     #   odyssey
-fastjsonschema==2.22.1
+fastjsonschema==2.21.2
     # via nbformat
 gitdb==4.0.12
     # via gitpython
@@ -56,6 +56,7 @@ idna==3.18
     # via requests
 jinja2==3.1.6
     # via
+    #   homericintelligence-hephaestus
     #   nbconvert
     #   odyssey
 joserfc==1.7.4
