@@ -22,6 +22,7 @@ on:
       - '.github/workflows/security.yml'
       - '.github/workflows/pre-commit.yml'
       - '.github/workflows/comprehensive-tests.yml'
+      - '.github/workflows/gradient-soak.yml'
       - '.github/workflows/validate-configs.yml'
       - 'configs/github/merge-queue-policy.json'
       - 'tests/smoke/test_merge_queue_workflow_properties.py'
@@ -32,6 +33,7 @@ on:
       - 'tests/smoke/test_comprehensive_tests_workflow_properties.py'
       - 'tests/smoke/test_comprehensive_report_workflow_properties.py'
       - 'tests/smoke/test_comprehensive_pr_comments_workflow_properties.py'
+      - 'tests/smoke/test_gradient_soak_workflow_properties.py'
       - '.github/workflows/validate-configs.yml'
       - 'tests/smoke/test_validate_configs_workflow_properties.py'
       - '.github/actions/setup-container/action.yml'
@@ -212,6 +214,7 @@ jobs:
             tests/smoke/test_comprehensive_tests_workflow_properties.py \
             tests/smoke/test_comprehensive_report_workflow_properties.py \
             tests/smoke/test_comprehensive_pr_comments_workflow_properties.py \
+            tests/smoke/test_gradient_soak_workflow_properties.py \
             tests/smoke/test_validate_configs_workflow_properties.py \
             tests/smoke/test_container_runtime_workflow_properties.py \
             -v
