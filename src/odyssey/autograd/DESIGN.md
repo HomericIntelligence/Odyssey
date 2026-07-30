@@ -141,7 +141,52 @@ tape.record_mean(z_id, loss_id)
 
 # Automatic backward
 tape.backward(loss)
-```text
+```
+
+#### Experimental Sophia curvature-estimator surface (PR #5719)
+
+PR #5719 adds `DiagonalHessianEstimator` as a narrow experimental seam for
+the remaining Sophia work in #5683. The contract accepts
+`List[Variable]`, a scalar objective `Variable`, a dedicated `GradientTape`
+that recorded the objective, its batch size, and one requested result dtype
+per parameter. This preserves parameter/objective connectivity, the scale
+needed for the GNB `batch_size * gradient^2` estimate, and the destination
+precision; detached `AnyTensor` parameters plus a detached loss value would
+contain none of those derivative relationships.
+
+The returned list is length- and shape-aligned with the parameters. Each
+output dtype comes from the corresponding entry in `result_dtypes`. Callers
+normally request float32 or the exact dtype of the Sophia Hessian-moment
+buffer, including float64 state created with `force_f64`; neither parameter
+storage nor scalar-objective precision implicitly chooses the result dtype.
+
+The estimator tape is deliberately separate from the ordinary training tape.
+At entry, the parameters and sampled objective must all be registered on the
+dedicated tape, require gradients, and its registry must contain no
+pre-existing gradients. A concrete estimator leaves only gradients from its
+own backward pass in that registry. The caller consumes the estimate and then
+clears or discards the dedicated tape, so training gradients are never
+accumulated over or destroyed. The current `Variable` stores a numeric ID but
+no owning-tape identity, so runtime validation can reject missing IDs but
+cannot distinguish colliding IDs from two tapes; same-tape construction
+remains an explicit caller precondition.
+
+The estimator families have different derivative requirements:
+
+- **Sophia-G (Gauss-Newton-Bartlett)** builds a sampled-label
+  negative-log-likelihood on the tape, takes an ordinary backward pass, and
+  uses the batch-scaled square of each parameter gradient. It does not require
+  an HVP or JVP.
+- **Sophia-H (Hutchinson)** multiplies by a Hessian and therefore does require
+  an HVP (which may be implemented with higher-order reverse mode or JVP
+  machinery).
+
+Phase 1 includes only the trait and an inner-module
+`PlaceholderDiagonalHessianEstimator`. The placeholder fails only when a
+caller explicitly constructs and invokes it; no optimizer or dispatcher is
+wired to select it. Consequently, PR #5719 does not make Sophia runnable end
+to end and must not close #5683. Implementation follow-up #5717 remains under
+that parent and is cross-referenced from `TODO.md`.
 
 ### Phase 4: Full Autograd (ASPIRATIONAL)
 

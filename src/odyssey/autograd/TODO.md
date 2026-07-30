@@ -125,6 +125,33 @@ The autograd module follows **YAGNI** (You Aren't Gonna Need It) and **KISS** (K
 
 ### Phase 3: Advanced Features
 
+- [x] **Experimental Sophia estimator trait surface (PR #5719)**
+  - Accepts derivative-connected parameter `Variable` objects, a scalar
+    objective `Variable`, a dedicated mutable `GradientTape`, the batch size
+    needed to scale the GNB gradient square, and one requested result dtype
+    per parameter.
+  - Requires scalar objective, positive batch size, `requires_grad`, observable
+    same-registry IDs, matching result-dtype count, and no pre-existing
+    gradients on the dedicated tape.
+  - Returns one finite, shape-matched tensor per parameter in its requested
+    dtype; callers normally choose float32 or the Hessian-moment state dtype.
+  - Leaves estimator-backward gradients only on the dedicated tape, which the
+    caller clears or discards without touching ordinary training gradients.
+  - Includes an inner-module placeholder whose explicit invocation raises;
+    no Sophia optimizer/dispatch path selects it.
+  - This Phase-1 seam does not close parent #5683; implementation follow-up
+    #5717 remains under that parent.
+- [ ] **Sophia-G Gauss-Newton-Bartlett estimator and wiring (#5717, under #5683)**
+  - Build the sampled-label negative-log-likelihood objective from model
+    outputs on the same tape as the parameters.
+  - Use one ordinary backward pass and return the batch-scaled squared
+    parameter gradients; Sophia-G does not require an HVP or JVP.
+  - Wire the real estimator into the higher-level Sophia training path and
+    add numerical plus end-to-end convergence tests.
+- [ ] **Sophia-H Hutchinson estimator**
+  - Add the HVP/higher-order-autograd substrate required for
+    `u * (H * u)`.
+  - Keep this dependency separate from the first-order Sophia-G path.
 - [ ] **Higher-order gradients** - Compute gradients of gradients
   - Hessian computation
   - Laplacian computation

@@ -171,6 +171,12 @@ from odyssey.autograd.schedulers import (
     ExponentialLR,
 )
 
+# Experimental public trait.  The Phase-1 placeholder stays intentionally
+# available only from ``odyssey.autograd.sophia_g``.
+from odyssey.autograd.sophia_g import (
+    DiagonalHessianEstimator,
+)
+
 from odyssey.autograd.functional import (
     LossAndGrad,
     mse_loss_and_grad,
