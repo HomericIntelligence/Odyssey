@@ -140,11 +140,11 @@ ghp-import==2.1.0
     # via mkdocs
 gitdb==4.0.12
     # via gitpython
-gitpython==3.1.55
+gitpython==3.1.57
     # via odyssey
 h11==0.16.0
     # via httpcore
-homericintelligence-hephaestus==0.9.9
+homericintelligence-hephaestus==0.10.0
     # via odyssey
 httpcore==1.0.9
     # via httpx
@@ -180,6 +180,7 @@ jedi==0.20.0
 jinja2==3.1.6
     # via
     #   flask
+    #   homericintelligence-hephaestus
     #   jupyter-server
     #   jupyterlab
     #   jupyterlab-server
@@ -532,7 +533,7 @@ ruamel-yaml==0.19.1
     #   pre-commit-hooks
     #   safety
     #   safety-schemas
-ruff==0.15.22
+ruff==0.16.0
 safety==3.8.1
 safety-schemas==0.0.16
     # via safety
@@ -579,7 +580,7 @@ tornado==6.5.7
     #   jupyter-server
     #   jupyterlab
     #   terminado
-tqdm==4.69.0
+tqdm==4.70.0
     # via
     #   nltk
     #   odyssey
