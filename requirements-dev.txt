@@ -602,7 +602,7 @@ truststore==0.10.4
     # via safety
 typer==0.25.1
     # via safety
-types-pyyaml==6.0.12.20260518
+types-pyyaml==6.0.12.20260724
 typing-extensions==4.16.0
     # via
     #   anyio
