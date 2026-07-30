@@ -36,7 +36,7 @@ dependencies = [
     "jinja2>=3.1.0,<4",
     "pyyaml>=6.0.0,<7",
     "click>=8.0.0,<9",
-    "tqdm>=4.67.0,<5",
+    "tqdm>=4.70.0,<5",
     "defusedxml>=0.0.1",
     # Utilities
     "prettytable>=3.17.0,<4",
@@ -47,7 +47,7 @@ dependencies = [
     "pydantic>=2.12.5,<3",
 
     # PyPI-only deps (were [pypi-dependencies] in pixi.toml)
-    "homericintelligence-hephaestus>=0.9.0,<1",
+    "homericintelligence-hephaestus>=0.10.0,<1",
     "pip-licenses>=4.0.0,<5",
 
     # Transitive-dependency CVE floors (#5386). Not imported by project code;
@@ -56,7 +56,7 @@ dependencies = [
     #   gitpython  CVE-2026-42215 / -42284 / -44244 / GHSA-mv93-w799-cj2w
     #   mistune    CVE-2026-33079 / -44897
     "authlib>=1.6.11",
-    "gitpython>=3.1.55",
+    "gitpython>=3.1.57",
     "mistune>=3.3.4",
 ]
 
@@ -64,7 +64,7 @@ dependencies = [
 # Dev-only tools (were [feature.dev.dependencies] in pixi.toml).
 dev = [
     "flask>=3.0.0,<4",
-    "pip>=26.1",  # CVE-2026-1703 / -6357 (#5386)
+    "pip>=26.2",  # CVE-2026-1703 / -6357 (#5386)
     # Python build frontend — used by `just wheel` to produce the odyssey wheel.
     "build>=1.2,<2",
 
@@ -76,7 +76,7 @@ dev = [
     "pytest-benchmark>=5.0.0,<6",
 
     # Code quality
-    "ruff>=0.14.7,<0.16",
+    "ruff>=0.16.0,<0.17",
     "bandit>=1.7.5",
     "mypy>=1.19.1,<2",
     "types-PyYAML>=6.0.12.20260724",
