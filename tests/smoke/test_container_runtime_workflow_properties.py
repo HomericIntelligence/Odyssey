@@ -16,6 +16,7 @@ SETUP_ACTION = REPO_ROOT / ".github" / "actions" / "setup-container" / "action.y
 CONTAINER_PUBLISH = REPO_ROOT / ".github" / "workflows" / "container-publish.yml"
 RELEASE = REPO_ROOT / ".github" / "workflows" / "release.yml"
 WORKFLOW_SMOKE = REPO_ROOT / ".github" / "workflows" / "workflow-smoke-test.yml"
+DOCKERFILE = REPO_ROOT / "Dockerfile"
 COMPOSE_FILE = REPO_ROOT / "docker-compose.yml"
 JUSTFILE = REPO_ROOT / "justfile"
 
@@ -145,6 +146,27 @@ class TestSetupContainerAction:
             "mojo --version",
         )
 
+    def test_ci_disables_the_optional_claude_code_download(self) -> None:
+        """Required container setup cannot depend on optional agent tooling."""
+        action = _read(SETUP_ACTION)
+        dockerfile = _read(DOCKERFILE)
+        compose = _compose_service_block(_read(COMPOSE_FILE), "odyssey-dev")
+
+        assert "ARG INSTALL_CLAUDE_CODE=false" in dockerfile
+        assert dockerfile.count("https://claude.ai/install.sh") == 1
+        assert re.search(
+            r'if \[ "\$INSTALL_CLAUDE_CODE" = "true" \]; then.*?'
+            r"https://claude\.ai/install\.sh.*?fi",
+            dockerfile,
+            re.DOTALL,
+        )
+        assert "INSTALL_CLAUDE_CODE: ${INSTALL_CLAUDE_CODE:-false}" in compose
+        _assert_order(
+            action,
+            'echo "INSTALL_CLAUDE_CODE=false" >> "$GITHUB_ENV"',
+            "podman compose build",
+        )
+
 
 class TestRootlessWorkspaceMapping:
     """Writable bind mounts must preserve the invoking user's UID and GID."""
@@ -250,6 +272,7 @@ class TestWorkflowSmokeWiring:
             ".github/actions/setup-container/action.yml",
             ".github/workflows/container-publish.yml",
             ".github/workflows/release.yml",
+            "Dockerfile",
             "docker-compose.yml",
             "justfile",
             "scripts/ci/ensure-podman-runtime.sh",

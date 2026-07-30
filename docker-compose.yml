@@ -13,6 +13,7 @@ services:
         USER_ID: ${USER_ID}
         GROUP_ID: ${GROUP_ID}
         USER_NAME: dev
+        INSTALL_CLAUDE_CODE: ${INSTALL_CLAUDE_CODE:-false}
     image: odyssey:dev
     volumes:
       - .:/workspace:Z
