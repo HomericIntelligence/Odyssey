@@ -48,6 +48,46 @@ def _real_generated_contents() -> dict[str, bytes]:
     return {path: (PROJECT_ROOT / path).read_bytes() for path in PUBLISHER.GENERATED_PATHS}
 
 
+def _replace_dependency_declaration(
+    content: bytes,
+    name: str,
+    replacement: str,
+) -> bytes:
+    marker = f'"{name}'.encode()
+    assert content.count(marker) == 1
+    start = content.index(marker)
+    end = content.index(b'"', start + 1) + 1
+    replacement_bytes = f'"{replacement}"'.encode()
+    assert content[start:end] != replacement_bytes
+    return content[:start] + replacement_bytes + content[end:]
+
+
+def _replace_locked_version(
+    content: bytes,
+    name: str,
+    replacement: str,
+) -> bytes:
+    marker = f'name = "{name}"\nversion = "'.encode()
+    assert content.count(marker) == 1
+    start = content.index(marker) + len(marker)
+    end = content.index(b'"', start)
+    replacement_bytes = replacement.encode()
+    assert content[start:end] != replacement_bytes
+    return content[:start] + replacement_bytes + content[end:]
+
+
+def _replace_dependency_name(
+    content: bytes,
+    name: str,
+    replacement: str,
+) -> bytes:
+    marker = f'"{name}'.encode()
+    assert content.count(marker) == 1
+    updated = content.replace(marker, f'"{replacement}'.encode(), 1)
+    assert updated != content
+    return updated
+
+
 def _canonical_bundle(*, files: dict[str, bytes] | None = None) -> Any:
     return PUBLISHER.ArtifactBundle(
         repository=REPOSITORY,
@@ -728,21 +768,22 @@ def test_trusted_validator_rejects_contaminated_lock_with_unrelated_upgrades() -
     validator = getattr(PUBLISHER, "validate_canonical_dependencies", None)
     assert callable(validator), "trusted publisher must independently validate generated dependency bytes"
     trusted_pyproject = (PROJECT_ROOT / "pyproject.toml").read_bytes()
-    candidate_pyproject = trusted_pyproject.replace(
-        b'"types-PyYAML>=6.0"',
-        b'"types-PyYAML>=6.0.12.20260724"',
+    candidate_pyproject = _replace_dependency_declaration(
+        trusted_pyproject,
+        "types-PyYAML",
+        "types-PyYAML>=999.0.0",
     )
     trusted_lock = (PROJECT_ROOT / "uv.lock").read_bytes()
-    canonical_lock = trusted_lock.replace(
-        b'name = "types-pyyaml"\nversion = "6.0.12.20260518"',
-        b'name = "types-pyyaml"\nversion = "6.0.12.20260724"',
-        1,
+    canonical_lock = _replace_locked_version(
+        trusted_lock,
+        "types-pyyaml",
+        "999.0.0",
     )
     files = _real_generated_contents()
-    files["uv.lock"] = canonical_lock.replace(
-        b'name = "gitpython"\nversion = "3.1.55"',
-        b'name = "gitpython"\nversion = "99.0.0"',
-        1,
+    files["uv.lock"] = _replace_locked_version(
+        canonical_lock,
+        "gitpython",
+        "999.0.0",
     )
     commands: list[list[str]] = []
 
@@ -768,15 +809,16 @@ def test_trusted_validator_accepts_clean_recreated_dependency_head() -> None:
     validator = getattr(PUBLISHER, "validate_canonical_dependencies", None)
     assert callable(validator), "trusted publisher must independently validate generated dependency bytes"
     trusted_pyproject = (PROJECT_ROOT / "pyproject.toml").read_bytes()
-    candidate_pyproject = trusted_pyproject.replace(
-        b'"types-PyYAML>=6.0"',
-        b'"types-PyYAML>=6.0.12.20260724"',
+    candidate_pyproject = _replace_dependency_declaration(
+        trusted_pyproject,
+        "types-PyYAML",
+        "types-PyYAML>=999.0.0",
     )
     trusted_lock = (PROJECT_ROOT / "uv.lock").read_bytes()
-    canonical_lock = trusted_lock.replace(
-        b'name = "types-pyyaml"\nversion = "6.0.12.20260518"',
-        b'name = "types-pyyaml"\nversion = "6.0.12.20260724"',
-        1,
+    canonical_lock = _replace_locked_version(
+        trusted_lock,
+        "types-pyyaml",
+        "999.0.0",
     )
     files = _real_generated_contents()
     files["uv.lock"] = canonical_lock
@@ -808,9 +850,10 @@ def test_trusted_validator_rejects_identity_only_rewrite_without_upgrade_authori
     validator = getattr(PUBLISHER, "validate_canonical_dependencies", None)
     assert callable(validator), "trusted publisher must independently validate generated dependency bytes"
     trusted_pyproject = (PROJECT_ROOT / "pyproject.toml").read_bytes()
-    candidate_pyproject = trusted_pyproject.replace(
-        b'"gitpython>=3.1.55"',
-        f'"{rewritten_name}>=3.1.55"'.encode(),
+    candidate_pyproject = _replace_dependency_name(
+        trusted_pyproject,
+        "gitpython",
+        rewritten_name,
     )
 
     with pytest.raises(PUBLISHER.PublishError, match="identit"):
