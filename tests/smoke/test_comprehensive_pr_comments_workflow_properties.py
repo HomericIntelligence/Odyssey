@@ -42,7 +42,7 @@ def test_missing_report_replaces_stale_green_comment_with_failure_fallback() -> 
     assert "has_report" in discovery_script
 
     post_step = next(step for step in steps if step.get("name") == "Post or update PR comments")
-    assert post_step.get("if") == "always()"
+    assert post_step.get("if") == "always() && steps.resolve-pr.outcome == 'success'"
 
     environment = post_step.get("env", {})
     assert environment["REPORT_AVAILABLE"] == ("${{ steps.discover_artifacts.outputs.has_report }}")
@@ -63,15 +63,16 @@ def test_missing_report_replaces_stale_green_comment_with_failure_fallback() -> 
 def test_commenter_rejects_stale_runs_and_verdict_mismatches() -> None:
     job = _load_job()
     concurrency = job.get("concurrency", {})
-    assert "pull_requests[0].number" in str(concurrency.get("group", ""))
+    assert "workflow_run.head_sha" in str(concurrency.get("group", ""))
+    assert "pull_requests[0].number" not in str(concurrency.get("group", ""))
     assert concurrency.get("cancel-in-progress") is True
 
     post_step = next(step for step in job["steps"] if step.get("name") == "Post or update PR comments")
     script = post_step["with"]["script"]
 
     assert "github.rest.pulls.get" in script
-    assert "workflow_run.pull_requests[0]" in script
-    assert "head?.sha" in script
+    assert "workflow_run.head_sha" in script
+    assert "workflow_run.pull_requests[0]" not in script
     assert "pullRequest.head.sha" in script
     assert "Stale workflow run" in script
 
@@ -81,3 +82,37 @@ def test_commenter_rejects_stale_runs_and_verdict_mismatches() -> None:
     assert "does not match the workflow conclusion" in script
     assert "try {" in script
     assert "catch" in script
+
+
+def test_dispatch_commenter_resolves_one_exact_current_dependabot_pr() -> None:
+    job = _load_job()
+    condition = str(job["if"])
+    assert "github.event.workflow_run.event == 'pull_request'" in condition
+    assert "github.event.workflow_run.event == 'workflow_dispatch'" in condition
+    assert "startsWith(github.event.workflow_run.head_branch, 'dependabot/')" in condition
+
+    resolve = next(step for step in job["steps"] if step.get("id") == "resolve-pr")
+    script = resolve["with"]["script"]
+    assert "listPullRequestsAssociatedWithCommit" in script
+    assert "commit_sha: sourceHeadSha" in script
+    assert "pullRequest.state === 'open'" in script
+    assert "pullRequest.head.sha === sourceHeadSha" in script
+    assert "candidates.length !== 1" in script
+    assert "github.rest.pulls.get" in script
+    assert "pullRequest.head.sha !== sourceHeadSha" in script
+    assert "run.event === 'workflow_dispatch'" in script
+    assert "pullRequest.user.login !== 'dependabot[bot]'" in script
+    assert "pullRequest.head.ref !== run.head_branch" in script
+    assert "pullRequest.head.repo.full_name !== expectedRepository" in script
+    assert "core.setFailed" in script
+    assert "core.setOutput('pr_number'" in script
+
+    for step in job["steps"][1:]:
+        assert "steps.resolve-pr.outcome == 'success'" in str(step.get("if", ""))
+
+
+def test_trusted_commenter_never_checks_out_or_executes_pr_code() -> None:
+    job = _load_job()
+    uses = [str(step.get("uses", "")) for step in job["steps"]]
+    assert all(not action.startswith("actions/checkout@") for action in uses)
+    assert all(not action.startswith("./") for action in uses)
