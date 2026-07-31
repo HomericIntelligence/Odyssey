@@ -444,11 +444,12 @@ const github = {
         + " console.error(error); process.exit(1); });\n"
     )
     completed = subprocess.run(
-        ["node", "-e", harness],
+        ["node"],
         cwd=REPO_ROOT,
         check=True,
         capture_output=True,
         text=True,
+        input=harness,
     )
     return json.loads(completed.stdout)
 
@@ -515,11 +516,12 @@ const github = {
         + " console.error(error); process.exit(1); });\n"
     )
     completed = subprocess.run(
-        ["node", "-e", harness],
+        ["node"],
         cwd=REPO_ROOT,
         check=True,
         capture_output=True,
         text=True,
+        input=harness,
     )
     return json.loads(completed.stdout)
 
@@ -587,11 +589,12 @@ const github = {
         + " console.error(error); process.exit(1); });\n"
     )
     completed = subprocess.run(
-        ["node", "-e", harness],
+        ["node"],
         cwd=REPO_ROOT,
         check=True,
         capture_output=True,
         text=True,
+        input=harness,
     )
     return json.loads(completed.stdout)
 
