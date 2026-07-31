@@ -8,6 +8,7 @@ define the stdlib-only report evaluator contract before its implementation.
 
 import importlib.util
 import json
+import subprocess
 import sys
 from functools import lru_cache
 from pathlib import Path
@@ -408,3 +409,30 @@ def test_cli_aggregation_crash_writes_red_report_before_failing(
     contents = output.read_text(encoding="utf-8")
     assert "❌ FAIL —" in contents
     assert "simulated aggregation crash" in contents
+
+
+def test_isolated_report_cli_ignores_adjacent_stdlib_shadow(
+    tmp_path: Path,
+) -> None:
+    script_dir = tmp_path / "scripts" / "ci"
+    script_dir.mkdir(parents=True)
+    copied_report = script_dir / REPORT_SCRIPT.name
+    copied_report.write_bytes(REPORT_SCRIPT.read_bytes())
+    shadow_marker = tmp_path / "shadow-json-imported"
+    (script_dir / "json.py").write_text(
+        "from pathlib import Path\n"
+        f"Path({str(shadow_marker)!r}).write_text('executed', encoding='utf-8')\n"
+        "raise RuntimeError('shadow json imported')\n",
+        encoding="utf-8",
+    )
+
+    completed = subprocess.run(
+        [sys.executable, "-I", str(copied_report), "--help"],
+        cwd=tmp_path,
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+
+    assert completed.returncode == 0, completed.stderr
+    assert not shadow_marker.exists()

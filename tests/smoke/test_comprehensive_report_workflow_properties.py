@@ -139,6 +139,7 @@ def test_report_job_passes_needs_json_to_the_stdlib_validator() -> None:
         step for step in _steps_for(report_job) if "scripts/ci/comprehensive_report.py" in str(step.get("run", ""))
     )
     validator_command = validator_step["run"]
+    assert "python -I scripts/ci/comprehensive_report.py" in validator_command
     assert "--artifacts-dir all-results" in validator_command
     assert "--output test-report.md" in validator_command
     assert '--event-name "$EVENT_NAME"' in validator_command

@@ -190,11 +190,14 @@ def test_existing_pull_request_and_push_triggers_are_preserved() -> None:
         "docker-compose.yml",
         "justfile",
         "scripts/ci/commit_generated_dependencies.py",
+        "scripts/ci/comprehensive_pr_comment.py",
         "scripts/ci/dependency_audit_contract.py",
         "scripts/ci/ensure-podman-runtime.sh",
         "scripts/ci/parse_pip_audit.py",
         "scripts/sync_requirements.py",
         "tests/scripts/test_commit_generated_dependencies.py",
+        "tests/scripts/test_comprehensive_pr_comment.py",
+        "tests/scripts/test_comprehensive_pr_comment_publisher.py",
         "tests/scripts/test_dependency_audit_contract.py",
         "tests/scripts/test_parse_pip_audit.py",
         "tests/smoke/test_comprehensive_pr_comments_workflow_properties.py",
@@ -262,32 +265,33 @@ def test_merge_group_cannot_receive_write_scope() -> None:
             "workflows": ["Comprehensive Tests"],
             "types": ["completed"],
         },
-        "workflow_dispatch": {
-            "inputs": {
-                "source_head_sha": {
-                    "description": "Exact Dependabot head whose Comprehensive run must be reported",
-                    "required": True,
-                    "type": "string",
-                },
-                "source_head_branch": {
-                    "description": "Exact same-repository Dependabot branch",
-                    "required": True,
-                    "type": "string",
-                },
-            }
-        },
+        "repository_dispatch": {"types": ["dependabot-comprehensive-test-comment"]},
     }
     assert comment_workflow.get("permissions") == {"contents": "read"}
 
     comment_jobs = comment_workflow.get("jobs")
     assert isinstance(comment_jobs, dict)
-    assert set(comment_jobs) == {"post-pr-comments"}
+    assert set(comment_jobs) == {"resolve-pr-context", "post-pr-comments"}
+    resolver_job = comment_jobs["resolve-pr-context"]
+    resolver_condition = str(resolver_job.get("if"))
+    assert "github.event_name == 'repository_dispatch'" in resolver_condition
+    assert "github.event.workflow_run.event == 'pull_request'" in resolver_condition
+    assert resolver_job.get("permissions") == {
+        "actions": "read",
+        "contents": "read",
+        "pull-requests": "read",
+    }
     comment_job = comment_jobs["post-pr-comments"]
     comment_condition = str(comment_job.get("if"))
-    assert "github.event_name == 'workflow_dispatch'" in comment_condition
-    assert "github.event.workflow_run.event == 'pull_request'" in comment_condition
-    assert "github.event.workflow_run.event == 'workflow_dispatch'" not in comment_condition
-    assert "workflow_run.head_sha" in str(comment_job.get("concurrency", {}).get("group"))
+    assert "needs.resolve-pr-context.result == 'success'" in comment_condition
+    assert "needs.resolve-pr-context.outputs.pr_number != ''" in comment_condition
+    assert "needs.resolve-pr-context.outputs.writer_ready == 'true'" in comment_condition
+    assert comment_job.get("needs") == "resolve-pr-context"
+    assert comment_job.get("concurrency", {}).get("group") == (
+        "comprehensive-test-pr-comment-pr-${{ needs.resolve-pr-context.outputs.pr_number }}"
+    )
+    assert comment_job.get("concurrency", {}).get("queue") == "max"
+    assert comment_job.get("concurrency", {}).get("cancel-in-progress") is False
     assert comment_job.get("permissions") == {
         "actions": "read",
         "contents": "read",
@@ -295,7 +299,22 @@ def test_merge_group_cannot_receive_write_scope() -> None:
     }
 
     uses = [str(step.get("uses", "")) for step in comment_job.get("steps", [])]
-    assert all(not action.startswith("actions/checkout@") for action in uses)
+    checkouts = [
+        step for step in comment_job.get("steps", []) if str(step.get("uses", "")).startswith("actions/checkout@")
+    ]
+    assert len(checkouts) == 1
+    assert checkouts[0].get("with") == {
+        "repository": "${{ github.repository }}",
+        "ref": "${{ github.sha }}",
+        "fetch-depth": 1,
+        "persist-credentials": False,
+        "sparse-checkout": (
+            ".github/workflows/comprehensive-tests.yml\n"
+            "scripts/ci/comprehensive_pr_comment.py\n"
+            "scripts/ci/comprehensive_report.py\n"
+        ),
+        "sparse-checkout-cone-mode": False,
+    }
     assert all(not action.startswith("./") for action in uses)
 
 
