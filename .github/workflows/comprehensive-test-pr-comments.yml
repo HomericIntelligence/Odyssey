@@ -222,16 +222,46 @@ jobs:
               sourceHeadRepository = run.head_repository.full_name;
             }
 
-            const associated = await github.paginate(
-              github.rest.repos.listPullRequestsAssociatedWithCommit,
-              {
+            if (
+              typeof sourceHeadRepository !== 'string' ||
+              !/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(
+                sourceHeadRepository,
+              )
+            ) {
+              core.setFailed(
+                'Resolved PR has no valid source repository identity.',
+              );
+              return;
+            }
+
+            const [sourceHeadOwner] = sourceHeadRepository.split('/');
+            let listedPullRequests;
+            try {
+              const response = await github.rest.pulls.list({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                commit_sha: sourceHeadSha,
+                state: 'open',
+                head: `${sourceHeadOwner}:${sourceHeadBranch}`,
                 per_page: 100,
-              },
-            );
-            const candidates = associated.filter(
+                page: 1,
+              });
+              listedPullRequests = response.data;
+            } catch (error) {
+              core.setFailed(
+                'Unable to discover the open PR for the exact source head.',
+              );
+              return;
+            }
+            if (
+              !Array.isArray(listedPullRequests) ||
+              listedPullRequests.length >= 100
+            ) {
+              core.setFailed(
+                'Open PR discovery returned an invalid or unbounded result.',
+              );
+              return;
+            }
+            const candidates = listedPullRequests.filter(
               pullRequest =>
                 pullRequest.state === 'open' &&
                 pullRequest.head.sha === sourceHeadSha &&
@@ -266,18 +296,6 @@ jobs:
               pullRequest.head.repo?.full_name !== sourceHeadRepository
             ) {
               core.setFailed('Resolved PR is no longer open at the exact workflow head.');
-              return;
-            }
-
-            if (
-              typeof sourceHeadRepository !== 'string' ||
-              !/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(
-                sourceHeadRepository,
-              )
-            ) {
-              core.setFailed(
-                'Resolved PR has no valid source repository identity.',
-              );
               return;
             }
 
@@ -855,6 +873,9 @@ jobs:
             const METRICS_RETIRED_MARKER =
               '<!-- odyssey:test-metrics-retired:v1 -->';
             const MAX_COMMENT_BYTES = 60_000;
+            const MAX_DISCOVERED_COMMENT_BYTES = 65_536;
+            const COMMENT_PAGE_SIZE = 100;
+            const MAX_COMMENT_PAGES = 10;
             const BOT_USER_ID = 41898282;
             const ACTIONS_APP_ID = 15368;
             const SOURCE_RUN_EVENTS = new Set([
@@ -1016,7 +1037,10 @@ jobs:
                 return 'unknown';
               }
               const seenRunIds = new Set();
+              const seenRunOrders = new Set();
               for (const candidate of exactRuns) {
+                const order =
+                  `${candidate.run_number}:${candidate.run_attempt}`;
                 if (
                   !Number.isSafeInteger(candidate.id) ||
                   candidate.id < 1 ||
@@ -1024,11 +1048,13 @@ jobs:
                   !Number.isSafeInteger(candidate.run_number) ||
                   candidate.run_number < 1 ||
                   !Number.isSafeInteger(candidate.run_attempt) ||
-                  candidate.run_attempt < 1
+                  candidate.run_attempt < 1 ||
+                  seenRunOrders.has(order)
                 ) {
                   return 'unknown';
                 }
                 seenRunIds.add(candidate.id);
+                seenRunOrders.add(order);
               }
               const latest = exactRuns.reduce((current, candidate) => {
                 if (candidate.run_number !== current.run_number) {
@@ -1278,15 +1304,64 @@ jobs:
               }
             }
 
-            const comments = await github.paginate(
-              github.rest.issues.listComments,
-              {
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number,
-                per_page: 100,
-              },
-            );
+            let comments = [];
+            let commentDiscoveryFailed = false;
+            try {
+              const seenCommentIds = new Set();
+              for (
+                let commentPage = 1;
+                commentPage <= MAX_COMMENT_PAGES + 1;
+                commentPage += 1
+              ) {
+                const response =
+                  await github.rest.issues.listComments({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    issue_number,
+                    per_page: COMMENT_PAGE_SIZE,
+                    page: commentPage,
+                  });
+                const pageComments = response.data;
+                if (
+                  !Array.isArray(pageComments) ||
+                  pageComments.length > COMMENT_PAGE_SIZE
+                ) {
+                  throw new Error('Invalid comment page.');
+                }
+                for (const comment of pageComments) {
+                  if (
+                    !comment ||
+                    typeof comment !== 'object' ||
+                    !Number.isSafeInteger(comment.id) ||
+                    comment.id < 1 ||
+                    seenCommentIds.has(comment.id) ||
+                    typeof comment.body !== 'string' ||
+                    Buffer.byteLength(comment.body, 'utf8') >
+                      MAX_DISCOVERED_COMMENT_BYTES
+                  ) {
+                    throw new Error('Invalid comment metadata.');
+                  }
+                  seenCommentIds.add(comment.id);
+                  comments.push(comment);
+                }
+                if (commentPage > MAX_COMMENT_PAGES) {
+                  if (pageComments.length > 0) {
+                    throw new Error('Comment discovery limit exceeded.');
+                  }
+                  break;
+                }
+                if (pageComments.length < COMMENT_PAGE_SIZE) {
+                  break;
+                }
+              }
+            } catch (error) {
+              commentDiscoveryFailed = true;
+              reportBody = fallbackBody;
+              usedFallback = true;
+              core.info(
+                'Comment discovery failed or exceeded the bounded limit.',
+              );
+            }
 
             let mutationTimePullRequest;
             try {
@@ -1363,6 +1438,49 @@ jobs:
             ) {
               core.setFailed(
                 'Source run changed during comment discovery.',
+              );
+              return;
+            }
+
+            if (commentDiscoveryFailed) {
+              const discoveredReports = comments.filter(
+                comment =>
+                  isExpectedActionsComment(comment) &&
+                  (hasExactMarker(comment) || legacyReport(comment)),
+              );
+              let fallbackMutationFailed = false;
+              try {
+                await github.rest.issues.createComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number,
+                  body: fallbackBody,
+                });
+              } catch (error) {
+                fallbackMutationFailed = true;
+                core.info(
+                  'Unable to create the red comment-discovery fallback.',
+                );
+              }
+              for (const existing of discoveredReports) {
+                try {
+                  await github.rest.issues.updateComment({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    comment_id: existing.id,
+                    body: fallbackBody,
+                  });
+                } catch (error) {
+                  fallbackMutationFailed = true;
+                  core.info(
+                    `Unable to retire discovered report ${existing.id}.`,
+                  );
+                }
+              }
+              core.setFailed(
+                fallbackMutationFailed
+                  ? 'Comment discovery failed; red fallback mutation was incomplete.'
+                  : 'Comment discovery failed; posted a red fallback.',
               );
               return;
             }

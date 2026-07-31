@@ -178,6 +178,10 @@ def _fixture() -> dict[str, Any]:
             _comment(11, f"{MARKER}\nattacker marker", expected_bot=False),
             _comment(12, "prefix\n## Test Metrics Report\nraw artifact"),
         ],
+        "comment_error": False,
+        "comment_page_responses": {},
+        "create_error": False,
+        "update_fail_ids": [],
         "trusted_body": trusted_body,
         "trusted_file_available": True,
     }
@@ -297,7 +301,7 @@ def _resolver_fixture() -> dict[str, Any]:
             "name": "Comprehensive Tests",
             "path": ".github/workflows/comprehensive-tests.yml",
         },
-        "associated": [pull_request],
+        "head_pulls": [pull_request],
         "pulls": [deepcopy(pull_request), deepcopy(pull_request)],
         "runs": [_resolver_run()],
         "fresh_runs": [],
@@ -337,7 +341,14 @@ def _execute(fixture: dict[str, Any]) -> dict[str, Any]:
     preamble = """
 const fixture = FIXTURE;
 Object.assign(process.env, fixture.env);
-const state = { created: [], updated: [], failed: [], info: [] };
+const state = {
+  created: [],
+  updated: [],
+  failed: [],
+  info: [],
+  commentQueries: [],
+  updateAttempts: [],
+};
 const pullResponses = [...fixture.pulls];
 const runResponses = [...fixture.runs];
 const latestRunResponses = [...fixture.latest_runs];
@@ -359,11 +370,29 @@ const core = {
   info: message => state.info.push(message),
   setFailed: message => state.failed.push(message),
 };
-const listComments = async () => ({ data: fixture.comments });
+const listComments = async args => {
+  state.commentQueries.push(args);
+  if (fixture.comment_error) {
+    throw new Error('comment API unavailable');
+  }
+  if (
+    Object.prototype.hasOwnProperty.call(
+      fixture.comment_page_responses,
+      String(args.page),
+    )
+  ) {
+    return {
+      data: fixture.comment_page_responses[String(args.page)],
+    };
+  }
+  const start = (args.page - 1) * args.per_page;
+  return {
+    data: fixture.comments.slice(start, start + args.per_page),
+  };
+};
 const listWorkflowRuns = async () => ({ data: { workflow_runs: [] } });
 const github = {
   paginate: async method => {
-    if (method === listComments) return fixture.comments;
     if (method === listWorkflowRuns) {
       if (latestRunResponses.length === 0) {
         throw new Error('no latest-run response');
@@ -390,8 +419,19 @@ const github = {
     },
     issues: {
       listComments,
-      createComment: async args => state.created.push(args),
-      updateComment: async args => state.updated.push(args),
+      createComment: async args => {
+        if (fixture.create_error) {
+          throw new Error('comment creation unavailable');
+        }
+        state.created.push(args);
+      },
+      updateComment: async args => {
+        state.updateAttempts.push(args);
+        if (fixture.update_fail_ids.includes(args.comment_id)) {
+          throw new Error('comment update unavailable');
+        }
+        state.updated.push(args);
+      },
     },
   },
 };
@@ -491,10 +531,17 @@ def _execute_resolver(fixture: dict[str, Any]) -> dict[str, Any]:
     preamble = """
 const fixture = FIXTURE;
 Object.assign(process.env, fixture.env);
-const state = { failed: [], info: [], outputs: {} };
+const state = { failed: [], info: [], outputs: {}, pullQueries: [] };
 const pullResponses = [...fixture.pulls];
 const freshRunResponses = [...fixture.fresh_runs];
-const listAssociated = async () => ({ data: fixture.associated });
+const listPulls = async args => {
+  state.pullQueries.push(args);
+  return { data: fixture.head_pulls };
+};
+const setTimeout = callback => {
+  callback();
+  return 0;
+};
 const listRuns = async () => ({ data: { workflow_runs: fixture.runs } });
 const context = fixture.context;
 const core = {
@@ -504,7 +551,7 @@ const core = {
 };
 const github = {
   paginate: async method => {
-    if (method === listAssociated) return fixture.associated;
+    if (method === listPulls) return fixture.head_pulls;
     if (method === listRuns) return fixture.runs;
     throw new Error('unexpected pagination method');
   },
@@ -519,10 +566,8 @@ const github = {
         return { data: freshRunResponses.shift() };
       },
     },
-    repos: {
-      listPullRequestsAssociatedWithCommit: listAssociated,
-    },
     pulls: {
+      list: listPulls,
       get: async () => {
         if (pullResponses.length === 0) throw new Error('no pull response');
         return { data: pullResponses.shift() };
@@ -601,6 +646,122 @@ def test_resolver_authorizes_each_supported_workflow_run_event(
     assert state["outputs"]["source_ready"] == "true"
     assert state["outputs"]["source_run_event"] == event
     assert state["outputs"]["source_run_id"] == str(RUN_ID)
+    assert state["outputs"]["writer_ready"] == "true"
+
+
+def test_resolver_discovers_a_fork_pr_by_its_exact_head_owner_and_branch() -> None:
+    fixture = _workflow_run_resolver_fixture("pull_request")
+    fork_repository = "contributor/Odyssey"
+    fork_branch = "feature/fork-head"
+    source_run = fixture["context"]["payload"]["workflow_run"]
+    source_run["head_repository"] = {"full_name": fork_repository}
+    source_run["head_branch"] = fork_branch
+    pull_request = _resolver_pull(branch=fork_branch)
+    pull_request["user"] = {"login": "contributor"}
+    pull_request["head"]["repo"] = {"full_name": fork_repository}
+    fixture["head_pulls"] = [pull_request]
+    fixture["pulls"] = [
+        deepcopy(pull_request),
+        deepcopy(pull_request),
+    ]
+
+    state = _execute_resolver(fixture)
+
+    assert state["failed"] == []
+    assert state["outputs"]["pr_number"] == "42"
+    assert state["outputs"]["source_head_branch"] == fork_branch
+    assert state["outputs"]["source_head_repository"] == fork_repository
+    assert state["outputs"]["source_ready"] == "true"
+    assert state["outputs"]["writer_ready"] == "true"
+    assert state["pullQueries"] == [
+        {
+            "owner": "HomericIntelligence",
+            "repo": "Odyssey",
+            "state": "open",
+            "head": "contributor:feature/fork-head",
+            "per_page": 100,
+            "page": 1,
+        }
+    ]
+
+
+def test_resolver_monitors_an_in_progress_dispatch_to_completion() -> None:
+    fixture = _resolver_fixture()
+    in_progress = _resolver_run()
+    in_progress["status"] = "in_progress"
+    in_progress["conclusion"] = None
+    fixture["runs"] = [in_progress]
+    fixture["fresh_runs"] = [_resolver_run()]
+
+    state = _execute_resolver(fixture)
+
+    assert state["failed"] == []
+    assert state["outputs"]["source_ready"] == "true"
+    assert state["outputs"]["source_run_conclusion"] == "success"
+    assert state["outputs"]["writer_ready"] == "true"
+
+
+def test_resolver_schedules_a_red_writer_when_dispatch_monitoring_fails() -> None:
+    fixture = _resolver_fixture()
+    in_progress = _resolver_run()
+    in_progress["status"] = "in_progress"
+    in_progress["conclusion"] = None
+    fixture["runs"] = [in_progress]
+
+    state = _execute_resolver(fixture)
+
+    assert state["failed"] == []
+    assert state["outputs"]["source_ready"] == "false"
+    assert "Unable to monitor" in state["outputs"]["source_error"]
+    assert state["outputs"]["writer_ready"] == "true"
+
+
+def test_resolver_schedules_a_red_writer_when_monitored_identity_drifts() -> None:
+    fixture = _resolver_fixture()
+    in_progress = _resolver_run()
+    in_progress["status"] = "in_progress"
+    in_progress["conclusion"] = None
+    fixture["runs"] = [in_progress]
+    drifted = _resolver_run()
+    drifted["head_branch"] = "dependabot/pip/different"
+    fixture["fresh_runs"] = [drifted]
+
+    state = _execute_resolver(fixture)
+
+    assert state["failed"] == []
+    assert state["outputs"]["source_ready"] == "false"
+    assert "identity changed" in state["outputs"]["source_error"]
+    assert state["outputs"]["writer_ready"] == "true"
+
+
+def test_resolver_schedules_a_red_writer_when_dispatch_monitoring_times_out() -> None:
+    fixture = _resolver_fixture()
+    in_progress = _resolver_run()
+    in_progress["status"] = "in_progress"
+    in_progress["conclusion"] = None
+    fixture["runs"] = [in_progress]
+    fixture["fresh_runs"] = [deepcopy(in_progress) for _ in range(120)]
+
+    state = _execute_resolver(fixture)
+
+    assert state["failed"] == []
+    assert state["outputs"]["source_ready"] == "false"
+    assert "did not complete within 120 minutes" in state["outputs"]["source_error"]
+    assert state["outputs"]["writer_ready"] == "true"
+
+
+def test_resolver_rejects_duplicate_dispatch_run_ordering() -> None:
+    fixture = _resolver_fixture()
+    fixture["runs"] = [
+        _resolver_run(),
+        _resolver_run(run_id=RUN_ID + 1),
+    ]
+
+    state = _execute_resolver(fixture)
+
+    assert state["failed"] == []
+    assert state["outputs"]["source_ready"] == "false"
+    assert "invalid ordering metadata" in state["outputs"]["source_error"]
     assert state["outputs"]["writer_ready"] == "true"
 
 
@@ -734,6 +895,225 @@ def test_missing_renderer_output_replaces_stale_green_with_red_fallback() -> Non
     assert "PASS" not in updated[10]
     assert RUN_URL in updated[10]
     assert state["failed"] == ["Trusted comment rendering failed; posted a red fallback."]
+
+
+def test_comment_discovery_failure_posts_a_new_red_fallback() -> None:
+    fixture = _fixture()
+    fixture["comment_error"] = True
+
+    state = _execute(fixture)
+
+    assert state["updated"] == []
+    assert len(state["created"]) == 1
+    assert state["created"][0]["body"].startswith(f"{MARKER}\n")
+    assert "FAIL" in state["created"][0]["body"]
+    assert "PASS" not in state["created"][0]["body"]
+    assert state["failed"] == ["Comment discovery failed; posted a red fallback."]
+    assert len(state["commentQueries"]) == 1
+
+
+def test_comment_discovery_overflow_replaces_discovered_green_with_red() -> None:
+    fixture = _fixture()
+    fixture["comments"] = [
+        _comment(10, f"{MARKER}\nold green"),
+        *[
+            _comment(
+                comment_id,
+                "untrusted noise",
+                expected_bot=False,
+            )
+            for comment_id in range(11, 1_011)
+        ],
+    ]
+
+    state = _execute(fixture)
+
+    assert len(state["created"]) == 1
+    assert "FAIL" in state["created"][0]["body"]
+    assert len(state["updated"]) == 1
+    assert state["updated"][0]["comment_id"] == 10
+    assert state["updated"][0]["body"].startswith(f"{MARKER}\n")
+    assert "FAIL" in state["updated"][0]["body"]
+    assert "PASS" not in state["updated"][0]["body"]
+    assert state["failed"] == ["Comment discovery failed; posted a red fallback."]
+    assert [query["page"] for query in state["commentQueries"]] == list(range(1, 12))
+
+
+def test_comment_discovery_overflow_replaces_owned_report_on_sentinel_page() -> None:
+    fixture = _fixture()
+    fixture["comments"] = [
+        *[
+            _comment(
+                comment_id,
+                "untrusted noise",
+                expected_bot=False,
+            )
+            for comment_id in range(10, 1_010)
+        ],
+        _comment(1_010, f"{MARKER}\nold green"),
+    ]
+
+    state = _execute(fixture)
+
+    assert len(state["created"]) == 1
+    assert "FAIL" in state["created"][0]["body"]
+    assert len(state["updated"]) == 1
+    assert state["updated"][0]["comment_id"] == 1_010
+    assert "FAIL" in state["updated"][0]["body"]
+    assert "PASS" not in state["updated"][0]["body"]
+    assert state["failed"] == ["Comment discovery failed; posted a red fallback."]
+
+
+def test_comment_discovery_overflow_posts_red_with_an_unseen_owned_report() -> None:
+    fixture = _fixture()
+    fixture["comments"] = [
+        _comment(10, f"{MARKER}\nknown old green"),
+        *[
+            _comment(
+                comment_id,
+                "untrusted noise",
+                expected_bot=False,
+            )
+            for comment_id in range(11, 1_110)
+        ],
+        _comment(1_110, f"{MARKER}\nunseen old green"),
+    ]
+
+    state = _execute(fixture)
+
+    assert len(state["created"]) == 1
+    assert "FAIL" in state["created"][0]["body"]
+    assert [item["comment_id"] for item in state["updated"]] == [10]
+    assert "FAIL" in state["updated"][0]["body"]
+    assert state["failed"] == ["Comment discovery failed; posted a red fallback."]
+
+
+def test_comment_discovery_failure_best_effort_retires_all_known_reports() -> None:
+    fixture = _fixture()
+    fixture["comments"] = [
+        _comment(10, f"{MARKER}\nfirst old green"),
+        _comment(11, f"{MARKER}\nsecond old green"),
+        *[
+            _comment(
+                comment_id,
+                "untrusted noise",
+                expected_bot=False,
+            )
+            for comment_id in range(12, 1_011)
+        ],
+    ]
+    fixture["update_fail_ids"] = [10]
+
+    state = _execute(fixture)
+
+    assert len(state["created"]) == 1
+    assert "FAIL" in state["created"][0]["body"]
+    assert [item["comment_id"] for item in state["updateAttempts"]] == [10, 11]
+    assert [item["comment_id"] for item in state["updated"]] == [11]
+    assert "FAIL" in state["updated"][0]["body"]
+    assert state["failed"] == ["Comment discovery failed; red fallback mutation was incomplete."]
+
+
+def test_comment_discovery_failure_retires_known_report_when_create_fails() -> None:
+    fixture = _fixture()
+    fixture["comments"] = [
+        _comment(10, f"{MARKER}\nold green"),
+        *[
+            _comment(
+                comment_id,
+                "untrusted noise",
+                expected_bot=False,
+            )
+            for comment_id in range(11, 1_011)
+        ],
+    ]
+    fixture["create_error"] = True
+
+    state = _execute(fixture)
+
+    assert state["created"] == []
+    assert [item["comment_id"] for item in state["updated"]] == [10]
+    assert "FAIL" in state["updated"][0]["body"]
+    assert state["failed"] == ["Comment discovery failed; red fallback mutation was incomplete."]
+
+
+@pytest.mark.parametrize(
+    "page_response",
+    [
+        {"not": "an array"},
+        [
+            _comment(
+                comment_id,
+                "untrusted noise",
+                expected_bot=False,
+            )
+            for comment_id in range(10, 111)
+        ],
+    ],
+    ids=["non-array", "overfull-page"],
+)
+def test_invalid_comment_page_posts_a_new_red_fallback(
+    page_response: object,
+) -> None:
+    fixture = _fixture()
+    fixture["comment_page_responses"] = {"1": page_response}
+
+    state = _execute(fixture)
+
+    assert state["updated"] == []
+    assert len(state["created"]) == 1
+    assert "FAIL" in state["created"][0]["body"]
+    assert "PASS" not in state["created"][0]["body"]
+    assert state["failed"] == ["Comment discovery failed; posted a red fallback."]
+
+
+@pytest.mark.parametrize(
+    "comments",
+    [
+        [
+            _comment(10, "untrusted noise", expected_bot=False),
+            _comment(10, "duplicate identifier", expected_bot=False),
+        ],
+        [
+            {
+                **_comment(10, f"{MARKER}\nold green"),
+                "id": 0,
+            },
+        ],
+        [
+            {
+                **_comment(10, f"{MARKER}\nold green"),
+                "body": None,
+            },
+        ],
+        [
+            _comment(
+                10,
+                "x" * 65_537,
+                expected_bot=False,
+            ),
+        ],
+    ],
+    ids=[
+        "duplicate-id",
+        "invalid-id",
+        "non-string-body",
+        "oversized-body",
+    ],
+)
+def test_invalid_comment_metadata_posts_a_new_red_fallback(
+    comments: list[dict[str, Any]],
+) -> None:
+    fixture = _fixture()
+    fixture["comments"] = comments
+
+    state = _execute(fixture)
+
+    assert state["updated"] == []
+    assert len(state["created"]) == 1
+    assert "FAIL" in state["created"][0]["body"]
+    assert "PASS" not in state["created"][0]["body"]
+    assert state["failed"] == ["Comment discovery failed; posted a red fallback."]
 
 
 @pytest.mark.parametrize(
@@ -947,6 +1327,7 @@ def test_cross_event_newer_run_never_gets_overwritten(
         [[_run(run_number=0)]],
         [[_run(attempt=0)]],
         [[_run(), _run()]],
+        [[_run(), _run(run_id=RUN_ID + 1)]],
     ],
     ids=[
         "api-failure",
@@ -954,7 +1335,8 @@ def test_cross_event_newer_run_never_gets_overwritten(
         "invalid-id",
         "invalid-run-number",
         "invalid-attempt",
-        "duplicate",
+        "duplicate-id",
+        "duplicate-order",
     ],
 )
 def test_unknown_initial_source_run_order_fails_without_mutating_comment(
@@ -977,8 +1359,15 @@ def test_unknown_initial_source_run_order_fails_without_mutating_comment(
         [[_run()], []],
         [[_run()], [_run(run_number=0)]],
         [[_run()], [_run(), _run()]],
+        [[_run()], [_run(), _run(run_id=RUN_ID + 1)]],
     ],
-    ids=["api-failure", "empty", "malformed", "duplicate"],
+    ids=[
+        "api-failure",
+        "empty",
+        "malformed",
+        "duplicate-id",
+        "duplicate-order",
+    ],
 )
 def test_unknown_final_source_run_order_fails_without_mutating_comment(
     latest_runs: list[list[dict[str, Any]]],
@@ -1000,8 +1389,19 @@ def test_unknown_final_source_run_order_fails_without_mutating_comment(
         [[_run()], [_run()], []],
         [[_run()], [_run()], [_run(run_number=0)]],
         [[_run()], [_run()], [_run(), _run()]],
+        [
+            [_run()],
+            [_run()],
+            [_run(), _run(run_id=RUN_ID + 1)],
+        ],
     ],
-    ids=["api-failure", "empty", "malformed", "duplicate"],
+    ids=[
+        "api-failure",
+        "empty",
+        "malformed",
+        "duplicate-id",
+        "duplicate-order",
+    ],
 )
 def test_unknown_mutation_time_source_order_fails_without_mutating_comment(
     latest_runs: list[list[dict[str, Any]]],

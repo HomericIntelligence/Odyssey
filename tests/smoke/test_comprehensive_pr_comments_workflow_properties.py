@@ -148,8 +148,10 @@ def test_write_scoped_commenter_never_consumes_pr_artifacts() -> None:
     assert ".includes(MARKER)" not in script
     assert ".startsWith(`${MARKER}\\n`)" in script
     assert "readFileSync" in script
-    assert "65_536" not in script
     assert "MAX_COMMENT_BYTES" in script
+    assert "const MAX_DISCOVERED_COMMENT_BYTES = 65_536;" in script
+    assert "MAX_COMMENT_PAGES" in script
+    assert "COMMENT_PAGE_SIZE" in script
     assert "Trusted Comprehensive report unavailable" in script
     assert "core.setFailed" in script
     assert "Source run identity no longer matches" in script
@@ -173,6 +175,10 @@ def test_write_scoped_commenter_never_consumes_pr_artifacts() -> None:
     assert script.index("mutationTimeRun") > script.index("github.rest.issues.listComments")
     assert script.index("github.rest.issues.createComment") > script.index("mutationTimeRun")
     assert script.index("github.rest.issues.updateComment") > script.index("mutationTimeRun")
+    assert "await github.paginate(\n              github.rest.issues.listComments" not in script
+    assert "commentPage <= MAX_COMMENT_PAGES + 1" in script
+    assert "seenCommentIds.has(comment.id)" in script
+    assert "Comment discovery failed; posted a red fallback." in script
     assert "comment.body?.includes('🧪 Comprehensive Test Results')" in script
     assert "comment.body?.includes('Test Metrics Report')" in script
     assert "hasRetiredMetricsMarker" in script
@@ -253,8 +259,10 @@ def test_writer_dispatches_commenter_as_a_sibling_bound_to_the_exact_comprehensi
     assert script.count("github.rest.pulls.get") >= 2
     assert "core.setOutput('writer_ready', 'true')" in script
 
-    assert "listPullRequestsAssociatedWithCommit" in script
-    assert "commit_sha: sourceHeadSha" in script
+    assert "github.rest.pulls.list" in script
+    assert "state: 'open'" in script
+    assert "head: `${sourceHeadOwner}:${sourceHeadBranch}`" in script
+    assert "listPullRequestsAssociatedWithCommit" not in script
     assert "pullRequest.state === 'open'" in script
     assert "pullRequest.head.sha === sourceHeadSha" in script
     assert "pullRequest.head.ref === sourceHeadBranch" in script
