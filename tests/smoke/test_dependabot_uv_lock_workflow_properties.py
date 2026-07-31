@@ -233,8 +233,10 @@ def test_dispatch_allowlist_is_literal_exact_and_every_target_is_read_only() -> 
 def test_writer_dispatches_the_comment_monitor_beside_required_checks() -> None:
     source = PUBLISHER_SCRIPT.read_text(encoding="utf-8")
 
-    assert 'COMMENT_WORKFLOW = "comprehensive-test-pr-comments.yml"' in source
+    assert 'COMMENT_DISPATCH_EVENT = "dependabot-comprehensive-test-comment"' in source
     assert "def dispatch_comment_workflow(" in source
+    assert '"event_type": COMMENT_DISPATCH_EVENT' in source
+    assert '"client_payload": {' in source
     assert '"source_head_sha": commit_oid' in source
     assert '"source_head_branch": head_ref' in source
     assert source.index("dispatched = dispatch_required_workflows(") < source.index(

@@ -4,7 +4,8 @@
 The ``package`` command runs in a read-only pull-request workflow and emits
 untrusted data. The ``publish`` command runs only from the default branch,
 validates the artifact and live pull request, creates a GitHub-signed exact
-child commit, and dispatches a literal allowlist of read-only checks.
+child commit, dispatches a literal allowlist of read-only checks, and emits a
+typed default-branch event for the trusted PR commenter.
 
 Python is used because this automation needs authenticated HTTPS, JSON,
 base64, hashing, and explicit error handling (ADR-001). It uses only the
@@ -53,7 +54,7 @@ REQUIRED_WORKFLOWS = (
     "pre-commit.yml",
     "workflow-smoke-test.yml",
 )
-COMMENT_WORKFLOW = "comprehensive-test-pr-comments.yml"
+COMMENT_DISPATCH_EVENT = "dependabot-comprehensive-test-comment"
 REQUIRED_WORKFLOW_PATHS = tuple(f".github/workflows/{workflow}" for workflow in REQUIRED_WORKFLOWS)
 PROJECT_METADATA_PATH = "pyproject.toml"
 PYTHON_VERSION_PATH = ".python-version"
@@ -1691,19 +1692,8 @@ def _dispatch_workflow(
     *,
     token: str,
     opener: UrlOpener,
-    inputs: Mapping[str, str] | None = None,
 ) -> None:
-    payload: dict[str, object] = {"ref": branch}
-    if inputs is not None:
-        if not isinstance(inputs, Mapping):
-            raise PublishError("workflow dispatch inputs must be a string mapping")
-        normalized_inputs: dict[str, str] = {}
-        for key, value in inputs.items():
-            if not isinstance(key, str) or not key or not isinstance(value, str) or not value:
-                raise PublishError("workflow dispatch inputs must be non-empty strings")
-            normalized_inputs[key] = value
-        payload["inputs"] = normalized_inputs
-
+    payload = {"ref": branch}
     encoded_workflow = urllib.parse.quote(workflow, safe="")
     request = urllib.request.Request(
         f"{_api_root(repository)}/actions/workflows/{encoded_workflow}/dispatches",
@@ -1732,30 +1722,46 @@ def _dispatch_workflow(
 def dispatch_comment_workflow(
     *,
     repository: str,
-    default_branch: str,
     head_ref: str,
     commit_oid: str,
     token: str,
     opener: UrlOpener = urllib.request.urlopen,
 ) -> None:
-    """Dispatch the trusted commenter beside the required Dependabot checks."""
+    """Dispatch the default-branch commenter beside the required checks."""
     _validate_repository(repository)
-    _validate_branch(default_branch)
     _validate_branch(head_ref)
     _validate_oid(commit_oid, "published GraphQL commit OID")
     if not head_ref.startswith("dependabot/"):
         raise PublishError("comment workflow requires a Dependabot branch")
-    _dispatch_workflow(
-        repository,
-        COMMENT_WORKFLOW,
-        default_branch,
-        token=token,
-        opener=opener,
-        inputs={
+    payload = {
+        "event_type": COMMENT_DISPATCH_EVENT,
+        "client_payload": {
             "source_head_sha": commit_oid,
             "source_head_branch": head_ref,
         },
+    }
+    request = urllib.request.Request(
+        f"{_api_root(repository)}/dispatches",
+        data=json.dumps(payload, separators=(",", ":")).encode(),
+        headers={
+            "Accept": "application/vnd.github+json",
+            "Authorization": f"Bearer {token}",
+            "Content-Type": "application/json",
+            "User-Agent": "Odyssey-dependency-publisher",
+            "X-GitHub-Api-Version": "2022-11-28",
+        },
+        method="POST",
     )
+    try:
+        with opener(request, timeout=30) as response:
+            status_code = int(response.status)
+            response.read()
+    except urllib.error.HTTPError as error:
+        raise PublishError(f"comment repository dispatch failed with HTTP {error.code}") from error
+    except (urllib.error.URLError, TimeoutError, OSError) as error:
+        raise PublishError(f"comment repository dispatch failed: {error}") from error
+    if status_code != 204:
+        raise PublishError(f"comment repository dispatch failed with HTTP {status_code}")
 
 
 def authenticate_required_workflows(
@@ -2003,7 +2009,6 @@ def publish_dependencies(
     )
     dispatch_comment_workflow(
         repository=context.repository,
-        default_branch=context.default_branch,
         head_ref=context.head_ref,
         commit_oid=verified.oid,
         token=token,

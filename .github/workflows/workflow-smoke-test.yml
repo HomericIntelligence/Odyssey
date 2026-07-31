@@ -53,9 +53,12 @@ on:
       - 'docker-compose.yml'
       - 'justfile'
       - 'scripts/ci/commit_generated_dependencies.py'
+      - 'scripts/ci/comprehensive_pr_comment.py'
       - 'scripts/ci/ensure-podman-runtime.sh'
       - 'tests/smoke/test_container_runtime_workflow_properties.py'
       - 'tests/scripts/test_commit_generated_dependencies.py'
+      - 'tests/scripts/test_comprehensive_pr_comment.py'
+      - 'tests/scripts/test_comprehensive_pr_comment_publisher.py'
   workflow_dispatch:
 
 permissions:
@@ -233,6 +236,8 @@ jobs:
             tests/smoke/test_comprehensive_tests_workflow_properties.py \
             tests/smoke/test_comprehensive_report_workflow_properties.py \
             tests/smoke/test_comprehensive_pr_comments_workflow_properties.py \
+            tests/scripts/test_comprehensive_pr_comment.py \
+            tests/scripts/test_comprehensive_pr_comment_publisher.py \
             tests/smoke/test_gradient_soak_workflow_properties.py \
             tests/smoke/test_dependabot_uv_lock_workflow_properties.py \
             tests/scripts/test_commit_generated_dependencies.py \

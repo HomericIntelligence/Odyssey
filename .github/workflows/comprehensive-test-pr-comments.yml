@@ -1,48 +1,53 @@
 name: Comprehensive Test PR Comments
 
-# This trusted default-branch workflow consumes reports as data. It never
-# checks out or executes pull-request code with its write-scoped token.
+# This write-scoped workflow never consumes pull-request artifacts. It renders
+# GitHub API job results with validated code from its immutable trusted commit.
 on:
   workflow_run:
     workflows: ["Comprehensive Tests"]
     types: [completed]
-  workflow_dispatch:
-    inputs:
-      source_head_sha:
-        description: Exact Dependabot head whose Comprehensive run must be reported
-        required: true
-        type: string
-      source_head_branch:
-        description: Exact same-repository Dependabot branch
-        required: true
-        type: string
+  repository_dispatch:
+    types: [dependabot-comprehensive-test-comment]
 
 permissions:
   contents: read
 
 jobs:
-  post-pr-comments:
+  resolve-pr-context:
     if: >-
-      github.event_name == 'workflow_dispatch' ||
-      github.event.workflow_run.event == 'pull_request'
-    concurrency:
-      group: comprehensive-test-pr-comment-${{ inputs.source_head_sha || github.event.workflow_run.head_sha }}
-      cancel-in-progress: true
+      github.event_name == 'repository_dispatch' ||
+      github.event.workflow_run.event == 'pull_request' ||
+      github.event.workflow_run.event == 'workflow_dispatch'
     runs-on: ubuntu-latest
     timeout-minutes: 130
-    name: "Post Comprehensive Test PR Comments"
+    name: "Resolve Comprehensive PR Context"
     permissions:
       actions: read
       contents: read
-      pull-requests: write
+      pull-requests: read
+    outputs:
+      pr_number: ${{ steps.resolve-context.outputs.pr_number }}
+      source_error: ${{ steps.resolve-context.outputs.source_error }}
+      source_head_branch: ${{ steps.resolve-context.outputs.source_head_branch }}
+      source_head_repository: ${{ steps.resolve-context.outputs.source_head_repository }}
+      source_head_sha: ${{ steps.resolve-context.outputs.source_head_sha }}
+      source_ready: ${{ steps.resolve-context.outputs.source_ready }}
+      source_run_attempt: ${{ steps.resolve-context.outputs.source_run_attempt }}
+      source_run_conclusion: ${{ steps.resolve-context.outputs.source_run_conclusion }}
+      source_run_event: ${{ steps.resolve-context.outputs.source_run_event }}
+      source_run_id: ${{ steps.resolve-context.outputs.source_run_id }}
+      source_run_number: ${{ steps.resolve-context.outputs.source_run_number }}
+      source_run_url: ${{ steps.resolve-context.outputs.source_run_url }}
+      source_workflow_id: ${{ steps.resolve-context.outputs.source_workflow_id }}
+      writer_ready: ${{ steps.resolve-context.outputs.writer_ready }}
 
     steps:
       - name: Resolve trusted source run and exactly one current pull request
         id: resolve-context
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3  # v9.0.0
         env:
-          SOURCE_HEAD_SHA: ${{ inputs.source_head_sha }}
-          SOURCE_HEAD_BRANCH: ${{ inputs.source_head_branch }}
+          SOURCE_HEAD_SHA: ${{ github.event.client_payload.source_head_sha }}
+          SOURCE_HEAD_BRANCH: ${{ github.event.client_payload.source_head_branch }}
         with:
           script: |
             const expectedRepository =
@@ -50,11 +55,60 @@ jobs:
             const comprehensiveWorkflowUrl =
               `https://github.com/${expectedRepository}/actions/workflows/` +
               `comprehensive-tests.yml`;
+            const commentDispatchEvent =
+              'dependabot-comprehensive-test-comment';
             const isTrustedDispatch =
-              context.eventName === 'workflow_dispatch';
+              context.eventName === 'repository_dispatch';
+            const sourceWorkflowRunEvents = new Set([
+              'pull_request',
+              'workflow_dispatch',
+            ]);
+            if (
+              isTrustedDispatch &&
+              context.payload.action !== commentDispatchEvent
+            ) {
+              core.setFailed(
+                'Repository dispatch has an unexpected activity type.',
+              );
+              return;
+            }
+            const defaultRef =
+              `refs/heads/${context.payload.repository.default_branch}`;
+            if (context.ref !== defaultRef) {
+              core.setFailed(
+                'The write-scoped commenter must run from the default branch.',
+              );
+              return;
+            }
+
+            let expectedWorkflow;
+            try {
+              const response = await github.rest.actions.getWorkflow({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                workflow_id: 'comprehensive-tests.yml',
+              });
+              expectedWorkflow = response.data;
+            } catch (error) {
+              core.setFailed(
+                'Unable to resolve the trusted Comprehensive workflow identity.',
+              );
+              return;
+            }
+            if (
+              expectedWorkflow.name !== 'Comprehensive Tests' ||
+              expectedWorkflow.path !== '.github/workflows/comprehensive-tests.yml'
+            ) {
+              core.setFailed(
+                'The trusted Comprehensive workflow identity is invalid.',
+              );
+              return;
+            }
+
             let run = context.payload.workflow_run;
             let sourceHeadSha;
             let sourceHeadBranch;
+            let sourceHeadRepository;
 
             const setSourceFailure = (message) => {
               core.setOutput('source_ready', 'false');
@@ -70,6 +124,27 @@ jobs:
               if (run?.id) {
                 core.setOutput('source_run_id', String(run.id));
               }
+              if (run?.run_attempt) {
+                core.setOutput(
+                  'source_run_attempt',
+                  String(run.run_attempt),
+                );
+              }
+              if (run?.event) {
+                core.setOutput('source_run_event', String(run.event));
+              }
+              if (run?.run_number) {
+                core.setOutput(
+                  'source_run_number',
+                  String(run.run_number),
+                );
+              }
+              if (run?.workflow_id) {
+                core.setOutput(
+                  'source_workflow_id',
+                  String(run.workflow_id),
+                );
+              }
             };
 
             const setSourceReady = () => {
@@ -78,6 +153,19 @@ jobs:
               core.setOutput('source_run_id', String(run.id));
               core.setOutput('source_run_url', run.html_url);
               core.setOutput('source_run_conclusion', run.conclusion);
+              core.setOutput(
+                'source_run_attempt',
+                String(run.run_attempt),
+              );
+              core.setOutput('source_run_event', run.event);
+              core.setOutput(
+                'source_run_number',
+                String(run.run_number),
+              );
+              core.setOutput(
+                'source_workflow_id',
+                String(run.workflow_id),
+              );
             };
 
             if (isTrustedDispatch) {
@@ -90,28 +178,48 @@ jobs:
                 !requestedHeadBranch.startsWith('dependabot/')
               ) {
                 core.setFailed(
-                  'Comment workflow dispatch inputs are not an exact Dependabot head.',
+                  'Comment repository dispatch payload is not an exact Dependabot head.',
                 );
                 return;
               }
               sourceHeadSha = requestedHeadSha;
               sourceHeadBranch = requestedHeadBranch;
+              sourceHeadRepository = expectedRepository;
             } else {
               if (
                 !run ||
                 run.name !== 'Comprehensive Tests' ||
                 run.path !== '.github/workflows/comprehensive-tests.yml' ||
-                run.event !== 'pull_request' ||
+                run.workflow_id !== expectedWorkflow.id ||
+                run.repository?.full_name !== expectedRepository ||
+                run.repository?.id !== context.payload.repository.id ||
+                !sourceWorkflowRunEvents.has(run.event) ||
+                (
+                  run.event === 'workflow_dispatch' &&
+                  run.head_repository?.full_name !== expectedRepository
+                ) ||
                 run.status !== 'completed' ||
-                typeof run.conclusion !== 'string'
+                typeof run.conclusion !== 'string' ||
+                !/^[0-9a-f]{40}$/.test(run.head_sha || '') ||
+                typeof run.head_branch !== 'string' ||
+                run.head_branch.length < 1 ||
+                run.head_branch.length > 255 ||
+                !/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(
+                  run.head_repository?.full_name || '',
+                ) ||
+                !Number.isSafeInteger(run.run_attempt) ||
+                run.run_attempt < 1 ||
+                !Number.isSafeInteger(run.run_number) ||
+                run.run_number < 1
               ) {
                 core.setFailed(
-                  'Source run is not a completed pull-request Comprehensive workflow.',
+                  'Source run is not a completed PR or dispatch Comprehensive workflow.',
                 );
                 return;
               }
               sourceHeadSha = run.head_sha;
               sourceHeadBranch = run.head_branch;
+              sourceHeadRepository = run.head_repository.full_name;
             }
 
             const associated = await github.paginate(
@@ -126,9 +234,18 @@ jobs:
             const candidates = associated.filter(
               pullRequest =>
                 pullRequest.state === 'open' &&
-                pullRequest.head.sha === sourceHeadSha,
+                pullRequest.head.sha === sourceHeadSha &&
+                pullRequest.head.ref === sourceHeadBranch &&
+                pullRequest.head.repo?.full_name === sourceHeadRepository,
             );
-            if (candidates.length !== 1) {
+            if (candidates.length === 0) {
+              core.info(
+                'No current open PR remains at the source head. ' +
+                  'No comment is required.',
+              );
+              return;
+            }
+            if (candidates.length > 1) {
               core.setFailed(
                 `Expected exactly one open PR at ${sourceHeadSha}; ` +
                 `found ${candidates.length}.`,
@@ -144,9 +261,23 @@ jobs:
             });
             if (
               pullRequest.state !== 'open' ||
-              pullRequest.head.sha !== sourceHeadSha
+              pullRequest.head.sha !== sourceHeadSha ||
+              pullRequest.head.ref !== sourceHeadBranch ||
+              pullRequest.head.repo?.full_name !== sourceHeadRepository
             ) {
               core.setFailed('Resolved PR is no longer open at the exact workflow head.');
+              return;
+            }
+
+            if (
+              typeof sourceHeadRepository !== 'string' ||
+              !/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(
+                sourceHeadRepository,
+              )
+            ) {
+              core.setFailed(
+                'Resolved PR has no valid source repository identity.',
+              );
               return;
             }
 
@@ -154,7 +285,7 @@ jobs:
               if (
                 pullRequest.user.login !== 'dependabot[bot]' ||
                 pullRequest.head.ref !== sourceHeadBranch ||
-                pullRequest.head.repo.full_name !== expectedRepository
+                sourceHeadRepository !== expectedRepository
               ) {
                 core.setFailed(
                   'Comment dispatch is not bound to a current same-repository ' +
@@ -165,8 +296,58 @@ jobs:
             }
             core.setOutput('pr_number', String(pullRequest.number));
             core.setOutput('source_head_sha', sourceHeadSha);
+            core.setOutput('source_head_branch', sourceHeadBranch);
+            core.setOutput(
+              'source_head_repository',
+              sourceHeadRepository,
+            );
+
+            const authorizeWriterForCurrentPullRequest = async () => {
+              let currentPullRequest;
+              try {
+                const response = await github.rest.pulls.get({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  pull_number: pullRequest.number,
+                });
+                currentPullRequest = response.data;
+              } catch (error) {
+                core.setFailed(
+                  'Unable to revalidate the PR before scheduling its writer.',
+                );
+                return false;
+              }
+              if (
+                currentPullRequest.number !== pullRequest.number ||
+                currentPullRequest.state !== 'open' ||
+                currentPullRequest.head.sha !== sourceHeadSha ||
+                currentPullRequest.head.ref !== sourceHeadBranch ||
+                currentPullRequest.head.repo?.full_name !==
+                  sourceHeadRepository ||
+                (
+                  isTrustedDispatch &&
+                  currentPullRequest.user.login !== 'dependabot[bot]'
+                )
+              ) {
+                core.info(
+                  'Resolved PR changed before writer scheduling. ' +
+                    'No writer is required.',
+                );
+                return false;
+              }
+              core.setOutput('writer_ready', 'true');
+              return true;
+            };
+
+            const setCurrentSourceFailure = async message => {
+              setSourceFailure(message);
+              await authorizeWriterForCurrentPullRequest();
+            };
 
             if (!isTrustedDispatch) {
+              if (!(await authorizeWriterForCurrentPullRequest())) {
+                return;
+              }
               setSourceReady();
               return;
             }
@@ -185,37 +366,71 @@ jobs:
                 },
               );
             } catch (error) {
-              setSourceFailure(
+              await setCurrentSourceFailure(
                 `Unable to locate the exact Comprehensive run: ${error.message}`,
               );
               return;
             }
 
+            if (!Array.isArray(runs) || runs.length > 1_000) {
+              await setCurrentSourceFailure(
+                'Comprehensive run lookup returned an invalid result set.',
+              );
+              return;
+            }
             const matches = runs.filter(
               candidateRun =>
+                candidateRun.name === 'Comprehensive Tests' &&
+                candidateRun.path ===
+                  '.github/workflows/comprehensive-tests.yml' &&
                 candidateRun.head_sha === sourceHeadSha &&
                 candidateRun.head_branch === sourceHeadBranch &&
-                candidateRun.head_repository?.full_name === expectedRepository,
+                candidateRun.head_repository?.full_name === expectedRepository &&
+                candidateRun.workflow_id === expectedWorkflow.id &&
+                candidateRun.repository?.full_name === expectedRepository &&
+                candidateRun.repository?.id === context.payload.repository.id &&
+                candidateRun.event === 'workflow_dispatch',
             );
-            if (matches.length !== 1) {
-              setSourceFailure(
-                `Expected exactly one dispatched Comprehensive run for ` +
-                `${sourceHeadSha}; found ${matches.length}.`,
+            if (matches.length < 1) {
+              await setCurrentSourceFailure(
+                `No dispatched Comprehensive run exists for ${sourceHeadSha}.`,
               );
               return;
             }
 
-            run = matches[0];
-            if (
-              run.name !== 'Comprehensive Tests' ||
-              run.path !== '.github/workflows/comprehensive-tests.yml' ||
-              run.event !== 'workflow_dispatch'
-            ) {
-              setSourceFailure(
-                'Located run is not the trusted Comprehensive workflow dispatch.',
-              );
-              return;
+            const seenRunIds = new Set();
+            const seenRunOrders = new Set();
+            for (const candidateRun of matches) {
+              const order =
+                `${candidateRun.run_number}:${candidateRun.run_attempt}`;
+              if (
+                !Number.isSafeInteger(candidateRun.id) ||
+                candidateRun.id < 1 ||
+                seenRunIds.has(candidateRun.id) ||
+                !Number.isSafeInteger(candidateRun.run_number) ||
+                candidateRun.run_number < 1 ||
+                !Number.isSafeInteger(candidateRun.run_attempt) ||
+                candidateRun.run_attempt < 1 ||
+                seenRunOrders.has(order)
+              ) {
+                await setCurrentSourceFailure(
+                  'Dispatched Comprehensive runs have invalid ordering metadata.',
+                );
+                return;
+              }
+              seenRunIds.add(candidateRun.id);
+              seenRunOrders.add(order);
             }
+            run = matches.reduce((current, candidate) => {
+              if (candidate.run_number !== current.run_number) {
+                return candidate.run_number > current.run_number
+                  ? candidate
+                  : current;
+              }
+              return candidate.run_attempt > current.run_attempt
+                ? candidate
+                : current;
+            });
 
             const sourceRunId = run.id;
             try {
@@ -237,139 +452,831 @@ jobs:
                   run.head_branch !== sourceHeadBranch ||
                   run.head_repository?.full_name !== expectedRepository ||
                   run.path !== '.github/workflows/comprehensive-tests.yml' ||
+                  run.workflow_id !== expectedWorkflow.id ||
+                  run.repository?.full_name !== expectedRepository ||
+                  run.repository?.id !== context.payload.repository.id ||
                   run.event !== 'workflow_dispatch'
                 ) {
-                  setSourceFailure(
+                  await setCurrentSourceFailure(
                     'Comprehensive run identity changed while it was monitored.',
                   );
                   return;
                 }
               }
             } catch (error) {
-              setSourceFailure(
+              await setCurrentSourceFailure(
                 `Unable to monitor the exact Comprehensive run: ${error.message}`,
               );
               return;
             }
             if (run.status !== 'completed') {
-              setSourceFailure(
+              await setCurrentSourceFailure(
                 'Comprehensive run did not complete within 120 minutes.',
               );
               return;
             }
             if (typeof run.conclusion !== 'string') {
-              setSourceFailure(
+              await setCurrentSourceFailure(
                 'Completed Comprehensive run has no authoritative conclusion.',
               );
               return;
             }
+            if (
+              !Number.isSafeInteger(run.run_attempt) ||
+              run.run_attempt < 1 ||
+              !Number.isSafeInteger(run.run_number) ||
+              run.run_number < 1
+            ) {
+              await setCurrentSourceFailure(
+                'Completed Comprehensive run has invalid ordering metadata.',
+              );
+              return;
+            }
+            if (!(await authorizeWriterForCurrentPullRequest())) {
+              return;
+            }
             setSourceReady();
 
-      - name: Discover report artifacts
-        id: discover_artifacts
+  post-pr-comments:
+    needs: resolve-pr-context
+    if: >-
+      always() &&
+      needs.resolve-pr-context.result == 'success' &&
+      needs.resolve-pr-context.outputs.pr_number != '' &&
+      needs.resolve-pr-context.outputs.writer_ready == 'true'
+    concurrency:
+      group: comprehensive-test-pr-comment-pr-${{ needs.resolve-pr-context.outputs.pr_number }}
+      queue: max
+      cancel-in-progress: false
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    name: "Post Comprehensive Test PR Comments"
+    permissions:
+      actions: read
+      contents: read
+      pull-requests: write
+
+    steps:
+      - name: Checkout immutable trusted comment renderer
         if: >-
-          steps.resolve-context.outcome == 'success' &&
-          steps.resolve-context.outputs.source_ready == 'true'
+          needs.resolve-pr-context.result == 'success' &&
+          needs.resolve-pr-context.outputs.source_ready == 'true'
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          repository: ${{ github.repository }}
+          ref: ${{ github.sha }}
+          fetch-depth: 1
+          persist-credentials: false
+          sparse-checkout: |
+            .github/workflows/comprehensive-tests.yml
+            scripts/ci/comprehensive_pr_comment.py
+            scripts/ci/comprehensive_report.py
+          sparse-checkout-cone-mode: false
+
+      - name: Collect authoritative source jobs
+        id: collect-jobs
+        if: >-
+          needs.resolve-pr-context.result == 'success' &&
+          needs.resolve-pr-context.outputs.source_ready == 'true'
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3  # v9.0.0
         env:
-          SOURCE_RUN_ID: ${{ steps.resolve-context.outputs.source_run_id }}
-        with:
-          script: |
-            const artifacts = await github.paginate(
-              github.rest.actions.listWorkflowRunArtifacts,
-              {
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                run_id: Number(process.env.SOURCE_RUN_ID),
-                per_page: 100,
-              },
-            );
-            const available = new Set(
-              artifacts
-                .filter(artifact => !artifact.expired)
-                .map(artifact => artifact.name),
-            );
-            core.setOutput('has_metrics', String(available.has('test-metrics')));
-            core.setOutput(
-              'has_report',
-              String(available.has('comprehensive-test-report')),
-            );
-
-      - name: Download test metrics report
-        id: download-metrics
-        if: >-
-          steps.resolve-context.outcome == 'success' &&
-          steps.resolve-context.outputs.source_ready == 'true' &&
-          steps.discover_artifacts.outputs.has_metrics == 'true'
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8
-        with:
-          name: test-metrics
-          path: reports/metrics
-          github-token: ${{ github.token }}
-          run-id: ${{ steps.resolve-context.outputs.source_run_id }}
-
-      - name: Download comprehensive test report
-        id: download-report
-        if: >-
-          always() &&
-          steps.resolve-context.outcome == 'success' &&
-          steps.resolve-context.outputs.source_ready == 'true' &&
-          steps.discover_artifacts.outputs.has_report == 'true'
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8
-        with:
-          name: comprehensive-test-report
-          path: reports/comprehensive
-          github-token: ${{ github.token }}
-          run-id: ${{ steps.resolve-context.outputs.source_run_id }}
-
-      - name: Post or update PR comments
-        if: always() && steps.resolve-context.outcome == 'success'
-        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3  # v9.0.0
-        env:
-          PR_NUMBER: ${{ steps.resolve-context.outputs.pr_number }}
-          REPORT_AVAILABLE: ${{ steps.discover_artifacts.outputs.has_report }}
-          METRICS_AVAILABLE: ${{ steps.discover_artifacts.outputs.has_metrics }}
-          REPORT_DOWNLOAD_OUTCOME: ${{ steps.download-report.outcome }}
-          METRICS_DOWNLOAD_OUTCOME: ${{ steps.download-metrics.outcome }}
-          WORKFLOW_RUN_URL: ${{ steps.resolve-context.outputs.source_run_url }}
-          WORKFLOW_CONCLUSION: ${{ steps.resolve-context.outputs.source_run_conclusion }}
-          SOURCE_HEAD_SHA: ${{ steps.resolve-context.outputs.source_head_sha }}
-          SOURCE_RESOLUTION_ERROR: ${{ steps.resolve-context.outputs.source_error }}
+          COMMENT_CONTEXT_PATH: ${{ runner.temp }}/comprehensive-pr-comment-context.json
+          SOURCE_HEAD_BRANCH: ${{ needs.resolve-pr-context.outputs.source_head_branch }}
+          SOURCE_HEAD_REPOSITORY: ${{ needs.resolve-pr-context.outputs.source_head_repository }}
+          SOURCE_HEAD_SHA: ${{ needs.resolve-pr-context.outputs.source_head_sha }}
+          SOURCE_RUN_ATTEMPT: ${{ needs.resolve-pr-context.outputs.source_run_attempt }}
+          SOURCE_RUN_CONCLUSION: ${{ needs.resolve-pr-context.outputs.source_run_conclusion }}
+          SOURCE_RUN_EVENT: ${{ needs.resolve-pr-context.outputs.source_run_event }}
+          SOURCE_RUN_ID: ${{ needs.resolve-pr-context.outputs.source_run_id }}
+          SOURCE_RUN_NUMBER: ${{ needs.resolve-pr-context.outputs.source_run_number }}
+          SOURCE_WORKFLOW_ID: ${{ needs.resolve-pr-context.outputs.source_workflow_id }}
         with:
           script: |
             const fs = require('fs');
-            const issue_number = Number(process.env.PR_NUMBER);
-            const metricsPath = 'reports/metrics/metrics-pr-comment.md';
-            const reportPath = 'reports/comprehensive/test-report.md';
+            const path = require('path');
+            const MAX_INPUT_BYTES = 262_144;
+            const MAX_JOBS = 128;
+            const MAX_JOB_NAME_BYTES = 256;
+            const MAX_POLICY_FILE_BYTES = 262_144;
+            const TRUSTED_POLICY_PATHS = [
+              '.github/workflows/comprehensive-tests.yml',
+              'scripts/ci/comprehensive_report.py',
+            ];
+            const repository = `${context.repo.owner}/${context.repo.repo}`;
+            const sourceRunId = Number(process.env.SOURCE_RUN_ID);
+            const sourceRunAttempt = Number(process.env.SOURCE_RUN_ATTEMPT);
+            const sourceRunEvent = process.env.SOURCE_RUN_EVENT;
+            const sourceRunNumber = Number(process.env.SOURCE_RUN_NUMBER);
+            const sourceWorkflowId = Number(process.env.SOURCE_WORKFLOW_ID);
+            const sourceHeadRepository =
+              process.env.SOURCE_HEAD_REPOSITORY;
+            const sourceHeadBranch = process.env.SOURCE_HEAD_BRANCH;
             const sourceHeadSha = process.env.SOURCE_HEAD_SHA;
+            const sourceConclusion = process.env.SOURCE_RUN_CONCLUSION;
+            const contextPath = process.env.COMMENT_CONTEXT_PATH;
+
+            if (
+              !Number.isSafeInteger(sourceRunId) ||
+              sourceRunId < 1 ||
+              !Number.isSafeInteger(sourceRunAttempt) ||
+              sourceRunAttempt < 1 ||
+              !['pull_request', 'workflow_dispatch'].includes(
+                sourceRunEvent,
+              ) ||
+              !Number.isSafeInteger(sourceRunNumber) ||
+              sourceRunNumber < 1 ||
+              !Number.isSafeInteger(sourceWorkflowId) ||
+              sourceWorkflowId < 1 ||
+              !/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(
+                sourceHeadRepository || '',
+              ) ||
+              typeof sourceHeadBranch !== 'string' ||
+              sourceHeadBranch.length < 1 ||
+              sourceHeadBranch.length > 255 ||
+              !/^[0-9a-f]{40}$/.test(sourceHeadSha || '') ||
+              typeof sourceConclusion !== 'string' ||
+              path.dirname(contextPath) !== process.env.RUNNER_TEMP
+            ) {
+              core.setFailed('Trusted source job context is invalid.');
+              return;
+            }
+
+            const [sourceOwner, sourceRepo] =
+              sourceHeadRepository.split('/');
+            try {
+              for (const trustedPath of TRUSTED_POLICY_PATHS) {
+                const trustedStat = fs.lstatSync(trustedPath);
+                if (
+                  !trustedStat.isFile() ||
+                  trustedStat.isSymbolicLink() ||
+                  trustedStat.size < 1 ||
+                  trustedStat.size > MAX_POLICY_FILE_BYTES
+                ) {
+                  core.setFailed(
+                    'Trusted Comprehensive policy file is invalid.',
+                  );
+                  return;
+                }
+                const trustedContent = fs.readFileSync(trustedPath);
+                const response = await github.rest.repos.getContent({
+                  owner: sourceOwner,
+                  repo: sourceRepo,
+                  path: trustedPath,
+                  ref: sourceHeadSha,
+                });
+                const sourceFile = response.data;
+                if (
+                  Array.isArray(sourceFile) ||
+                  sourceFile.type !== 'file' ||
+                  sourceFile.path !== trustedPath ||
+                  sourceFile.encoding !== 'base64' ||
+                  !Number.isSafeInteger(sourceFile.size) ||
+                  sourceFile.size < 1 ||
+                  sourceFile.size > MAX_POLICY_FILE_BYTES ||
+                  typeof sourceFile.content !== 'string'
+                ) {
+                  core.setFailed(
+                    'Source Comprehensive policy file is invalid.',
+                  );
+                  return;
+                }
+                const sourceContent = Buffer.from(
+                  sourceFile.content.replace(/\n/g, ''),
+                  'base64',
+                );
+                if (
+                  sourceContent.length !== sourceFile.size ||
+                  !trustedContent.equals(sourceContent)
+                ) {
+                  core.setFailed(
+                    'Source Comprehensive policy differs from trusted main.',
+                  );
+                  return;
+                }
+              }
+            } catch (error) {
+              core.setFailed(
+                'Unable to authenticate source Comprehensive policy files.',
+              );
+              return;
+            }
+
+            const runMatchesSnapshot = run =>
+              run.id === sourceRunId &&
+              run.run_attempt === sourceRunAttempt &&
+              run.run_number === sourceRunNumber &&
+              run.workflow_id === sourceWorkflowId &&
+              run.head_sha === sourceHeadSha &&
+              run.head_branch === sourceHeadBranch &&
+              run.head_repository?.full_name === sourceHeadRepository &&
+              run.event === sourceRunEvent &&
+              run.status === 'completed' &&
+              run.conclusion === sourceConclusion &&
+              run.path === '.github/workflows/comprehensive-tests.yml' &&
+              run.repository?.full_name === repository;
+
+            const getFreshRun = async () => {
+              const response = await github.rest.actions.getWorkflowRun({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                run_id: sourceRunId,
+              });
+              return response.data;
+            };
+
+            let before;
+            try {
+              before = await getFreshRun();
+            } catch (error) {
+              core.setFailed('Unable to revalidate the exact source run.');
+              return;
+            }
+            if (!runMatchesSnapshot(before)) {
+              core.setFailed('Source run changed before job collection.');
+              return;
+            }
+
+            let jobs = [];
+            let totalCount = null;
+            try {
+              for (let page = 1; page <= 2; page += 1) {
+                const response =
+                  await github.rest.actions.listJobsForWorkflowRun({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    run_id: sourceRunId,
+                    filter: 'latest',
+                    per_page: 100,
+                    page,
+                  });
+                if (page === 1) {
+                  totalCount = response.data.total_count;
+                  if (
+                    !Number.isSafeInteger(totalCount) ||
+                    totalCount < 1 ||
+                    totalCount > MAX_JOBS
+                  ) {
+                    core.setFailed(
+                      'Source run has an invalid authoritative job count.',
+                    );
+                    return;
+                  }
+                }
+                jobs.push(...response.data.jobs);
+                if (jobs.length >= totalCount) {
+                  break;
+                }
+              }
+            } catch (error) {
+              core.setFailed('Unable to collect source-run jobs.');
+              return;
+            }
+            if (jobs.length !== totalCount || jobs.length > MAX_JOBS) {
+              core.setFailed('Source-run job pagination was incomplete.');
+              return;
+            }
+
+            const seenJobIds = new Set();
+            for (const job of jobs) {
+              if (
+                !Number.isSafeInteger(job.id) ||
+                job.id < 1 ||
+                seenJobIds.has(job.id) ||
+                job.run_id !== sourceRunId ||
+                job.head_sha !== sourceHeadSha ||
+                !Number.isSafeInteger(job.run_attempt) ||
+                job.run_attempt < 1 ||
+                job.run_attempt > sourceRunAttempt ||
+                typeof job.name !== 'string' ||
+                Buffer.byteLength(job.name, 'utf8') < 1 ||
+                Buffer.byteLength(job.name, 'utf8') > MAX_JOB_NAME_BYTES
+              ) {
+                core.setFailed('Source-run jobs violated the bounded contract.');
+                return;
+              }
+              seenJobIds.add(job.id);
+            }
+            const reportJobs = jobs.filter(
+              job => job.name === 'Test Report',
+            );
+            if (
+              reportJobs.length !== 1 ||
+              reportJobs[0].run_attempt !== sourceRunAttempt
+            ) {
+              core.setFailed(
+                'The authoritative Test Report is not from the current run attempt.',
+              );
+              return;
+            }
+
+            let after;
+            try {
+              after = await getFreshRun();
+            } catch (error) {
+              core.setFailed('Unable to revalidate the source run after collection.');
+              return;
+            }
+            if (!runMatchesSnapshot(after)) {
+              core.setFailed('Source run changed during job collection.');
+              return;
+            }
+
+            const runUrl =
+              `https://github.com/${repository}/actions/runs/${sourceRunId}`;
+            const payload = {
+              schema_version: 1,
+              repository,
+              run: {
+                id: sourceRunId,
+                status: after.status,
+                conclusion: after.conclusion,
+                head_sha: after.head_sha,
+                url: runUrl,
+              },
+              jobs: jobs.map(job => ({
+                id: job.id,
+                name: job.name,
+                status: job.status,
+                conclusion: job.conclusion,
+                url: `${runUrl}/job/${job.id}`,
+              })),
+            };
+            const encoded = JSON.stringify(payload);
+            if (Buffer.byteLength(encoded, 'utf8') > MAX_INPUT_BYTES) {
+              core.setFailed('Source-run job context exceeds the size limit.');
+              return;
+            }
+            fs.writeFileSync(contextPath, encoded, {
+              encoding: 'utf8',
+              flag: 'wx',
+              mode: 0o600,
+            });
+
+      - name: Render trusted PR comment
+        id: render-comment
+        if: >-
+          needs.resolve-pr-context.result == 'success' &&
+          needs.resolve-pr-context.outputs.source_ready == 'true' &&
+          steps.collect-jobs.outcome == 'success'
+        env:
+          COMMENT_CONTEXT_PATH: ${{ runner.temp }}/comprehensive-pr-comment-context.json
+          COMMENT_OUTPUT_PATH: ${{ runner.temp }}/comprehensive-pr-comment.md
+          EXPECTED_REPOSITORY: ${{ github.repository }}
+        run: |
+          python3 scripts/ci/comprehensive_pr_comment.py \
+            --input "$COMMENT_CONTEXT_PATH" \
+            --output "$COMMENT_OUTPUT_PATH" \
+            --expected-repository "$EXPECTED_REPOSITORY"
+
+      - name: Post or update trusted PR comment
+        if: always() && !cancelled()
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3  # v9.0.0
+        env:
+          COLLECT_JOBS_OUTCOME: ${{ steps.collect-jobs.outcome }}
+          COMMENT_OUTPUT_PATH: ${{ runner.temp }}/comprehensive-pr-comment.md
+          PR_NUMBER: ${{ needs.resolve-pr-context.outputs.pr_number }}
+          RENDER_COMMENT_OUTCOME: ${{ steps.render-comment.outcome }}
+          SOURCE_HEAD_BRANCH: ${{ needs.resolve-pr-context.outputs.source_head_branch }}
+          SOURCE_HEAD_REPOSITORY: ${{ needs.resolve-pr-context.outputs.source_head_repository }}
+          SOURCE_HEAD_SHA: ${{ needs.resolve-pr-context.outputs.source_head_sha }}
+          SOURCE_READY: ${{ needs.resolve-pr-context.outputs.source_ready }}
+          SOURCE_RUN_ATTEMPT: ${{ needs.resolve-pr-context.outputs.source_run_attempt }}
+          SOURCE_RUN_EVENT: ${{ needs.resolve-pr-context.outputs.source_run_event }}
+          SOURCE_RUN_ID: ${{ needs.resolve-pr-context.outputs.source_run_id }}
+          SOURCE_RUN_NUMBER: ${{ needs.resolve-pr-context.outputs.source_run_number }}
+          SOURCE_WORKFLOW_ID: ${{ needs.resolve-pr-context.outputs.source_workflow_id }}
+          WORKFLOW_CONCLUSION: ${{ needs.resolve-pr-context.outputs.source_run_conclusion }}
+          WORKFLOW_RUN_URL: ${{ needs.resolve-pr-context.outputs.source_run_url }}
+        with:
+          script: |
+            const fs = require('fs');
+            const MARKER =
+              '<!-- odyssey:comprehensive-test-report:v1 -->';
+            const METRICS_RETIRED_MARKER =
+              '<!-- odyssey:test-metrics-retired:v1 -->';
+            const MAX_COMMENT_BYTES = 60_000;
+            const BOT_USER_ID = 41898282;
+            const ACTIONS_APP_ID = 15368;
+            const SOURCE_RUN_EVENTS = new Set([
+              'pull_request',
+              'workflow_dispatch',
+            ]);
+            const issue_number = Number(process.env.PR_NUMBER);
+            const sourceRunId = Number(process.env.SOURCE_RUN_ID);
+            const sourceRunAttempt = Number(process.env.SOURCE_RUN_ATTEMPT);
+            const sourceRunEvent = process.env.SOURCE_RUN_EVENT;
+            const sourceRunNumber = Number(process.env.SOURCE_RUN_NUMBER);
+            const sourceWorkflowId = Number(process.env.SOURCE_WORKFLOW_ID);
+            const sourceHeadBranch = process.env.SOURCE_HEAD_BRANCH;
+            const sourceHeadRepository =
+              process.env.SOURCE_HEAD_REPOSITORY;
+            const sourceHeadSha = process.env.SOURCE_HEAD_SHA;
+            const repository = `${context.repo.owner}/${context.repo.repo}`;
+            const sourceReady = process.env.SOURCE_READY === 'true';
+            const comprehensiveWorkflowUrl =
+              `https://github.com/${repository}/actions/workflows/` +
+              'comprehensive-tests.yml';
+            const hasResolvedRunId =
+              Number.isSafeInteger(sourceRunId) && sourceRunId > 0;
+            const runUrl =
+              `https://github.com/${repository}/actions/runs/${sourceRunId}`;
+            const reportUrl =
+              hasResolvedRunId ? runUrl : comprehensiveWorkflowUrl;
+            const reportLinkLabel =
+              hasResolvedRunId ? 'Workflow run' : 'Comprehensive workflow';
+
+            if (
+              !Number.isSafeInteger(issue_number) ||
+              issue_number < 1 ||
+              typeof sourceHeadBranch !== 'string' ||
+              sourceHeadBranch.length < 1 ||
+              sourceHeadBranch.length > 255 ||
+              !/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(
+                sourceHeadRepository || '',
+              ) ||
+              !/^[0-9a-f]{40}$/.test(sourceHeadSha || '')
+            ) {
+              core.setFailed('Resolved comment context is invalid.');
+              return;
+            }
+
             const { data: pullRequest } = await github.rest.pulls.get({
               owner: context.repo.owner,
               repo: context.repo.repo,
               pull_number: issue_number,
             });
-            if (!sourceHeadSha || pullRequest.head.sha !== sourceHeadSha) {
+            if (pullRequest.state !== 'open') {
+              core.info('Resolved pull request is closed. No comment updated.');
+              return;
+            }
+            if (
+              pullRequest.head.sha !== sourceHeadSha ||
+              pullRequest.head.ref !== sourceHeadBranch ||
+              pullRequest.head.repo?.full_name !== sourceHeadRepository
+            ) {
               core.info(
-                `Stale workflow run for ${sourceHeadSha || 'unknown head'}; ` +
-                `current PR head is ${pullRequest.head.sha}. No comment updated.`,
+                'Stale workflow run for the current PR source tuple. ' +
+                  'No comment updated.',
               );
               return;
             }
 
-            const readDownloadedFile = (available, outcome, path) => {
-              if (available !== 'true' || outcome !== 'success') {
-                return null;
-              }
+            let freshRun = null;
+            const hasResolvedSourceIdentity =
+              Number.isSafeInteger(sourceRunId) &&
+              hasResolvedRunId &&
+              Number.isSafeInteger(sourceRunAttempt) &&
+              sourceRunAttempt > 0 &&
+              SOURCE_RUN_EVENTS.has(sourceRunEvent) &&
+              Number.isSafeInteger(sourceRunNumber) &&
+              sourceRunNumber > 0 &&
+              Number.isSafeInteger(sourceWorkflowId) &&
+              sourceWorkflowId > 0;
+            let sourceIdentityValid =
+              sourceReady && hasResolvedSourceIdentity;
+            if (!hasResolvedSourceIdentity) {
+              core.setFailed(
+                sourceReady
+                  ? 'Resolved source-run ordering context is invalid.'
+                  : 'No authoritative source-run ordering identity is available.',
+              );
+              return;
+            }
+            const sourceRunHasExactOrderingIdentity = run =>
+              Boolean(run) &&
+              run.name === 'Comprehensive Tests' &&
+              run.id === sourceRunId &&
+              run.run_attempt === sourceRunAttempt &&
+              run.run_number === sourceRunNumber &&
+              run.workflow_id === sourceWorkflowId &&
+              run.head_sha === sourceHeadSha &&
+              run.head_branch === sourceHeadBranch &&
+              run.head_repository?.full_name === sourceHeadRepository &&
+              run.event === sourceRunEvent &&
+              run.path === '.github/workflows/comprehensive-tests.yml' &&
+              run.repository?.full_name === repository;
+            const sourceRunMatches = run =>
+              sourceRunHasExactOrderingIdentity(run) &&
+              run.status === 'completed' &&
+              run.conclusion === process.env.WORKFLOW_CONCLUSION &&
+              run.html_url === process.env.WORKFLOW_RUN_URL;
+            const sourceRunIsNewerAttempt = run =>
+              Boolean(run) &&
+              run.name === 'Comprehensive Tests' &&
+              run.id === sourceRunId &&
+              Number.isSafeInteger(run.run_attempt) &&
+              run.run_attempt > sourceRunAttempt &&
+              run.run_number === sourceRunNumber &&
+              run.workflow_id === sourceWorkflowId &&
+              run.head_sha === sourceHeadSha &&
+              run.head_branch === sourceHeadBranch &&
+              run.head_repository?.full_name === sourceHeadRepository &&
+              run.event === sourceRunEvent &&
+              run.path === '.github/workflows/comprehensive-tests.yml' &&
+              run.repository?.full_name === repository;
+            const getSourceRunOrder = async () => {
+              const MAX_SOURCE_RUNS = 1_000;
+              let runs;
               try {
-                const stat = fs.statSync(path);
-                if (!stat.isFile() || stat.size === 0) {
-                  return null;
-                }
-                return fs.readFileSync(path, 'utf8');
+                runs = await github.paginate(
+                  github.rest.actions.listWorkflowRuns,
+                  {
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    workflow_id: sourceWorkflowId,
+                    branch: sourceHeadBranch,
+                    head_sha: sourceHeadSha,
+                    per_page: 100,
+                  },
+                );
               } catch (error) {
-                core.info(`Unable to read ${path}: ${error.message}`);
-                return null;
+                return 'unknown';
               }
+              if (
+                !Array.isArray(runs) ||
+                runs.length < 1 ||
+                runs.length > MAX_SOURCE_RUNS
+              ) {
+                return 'unknown';
+              }
+              const exactRuns = runs.filter(
+                candidate =>
+                  candidate.name === 'Comprehensive Tests' &&
+                  candidate.workflow_id === sourceWorkflowId &&
+                  candidate.path ===
+                    '.github/workflows/comprehensive-tests.yml' &&
+                  candidate.repository?.full_name === repository &&
+                  candidate.head_sha === sourceHeadSha &&
+                  candidate.head_branch === sourceHeadBranch &&
+                  candidate.head_repository?.full_name ===
+                    sourceHeadRepository &&
+                  SOURCE_RUN_EVENTS.has(candidate.event),
+              );
+              if (exactRuns.length < 1) {
+                return 'unknown';
+              }
+              const seenRunIds = new Set();
+              for (const candidate of exactRuns) {
+                if (
+                  !Number.isSafeInteger(candidate.id) ||
+                  candidate.id < 1 ||
+                  seenRunIds.has(candidate.id) ||
+                  !Number.isSafeInteger(candidate.run_number) ||
+                  candidate.run_number < 1 ||
+                  !Number.isSafeInteger(candidate.run_attempt) ||
+                  candidate.run_attempt < 1
+                ) {
+                  return 'unknown';
+                }
+                seenRunIds.add(candidate.id);
+              }
+              const latest = exactRuns.reduce((current, candidate) => {
+                if (candidate.run_number !== current.run_number) {
+                  return candidate.run_number > current.run_number
+                    ? candidate
+                    : current;
+                }
+                return candidate.run_attempt > current.run_attempt
+                  ? candidate
+                  : current;
+              });
+              if (
+                latest.run_number > sourceRunNumber ||
+                (
+                  latest.run_number === sourceRunNumber &&
+                  latest.run_attempt > sourceRunAttempt
+                )
+              ) {
+                return 'obsolete';
+              }
+              if (
+                latest.run_number !== sourceRunNumber ||
+                latest.run_attempt !== sourceRunAttempt ||
+                latest.id !== sourceRunId
+              ) {
+                return 'unknown';
+              }
+              return 'current';
             };
+            if (hasResolvedSourceIdentity) {
+              const initialSourceRunOrder = await getSourceRunOrder();
+              if (initialSourceRunOrder === 'obsolete') {
+                core.info(
+                  'A newer source run exists for this exact PR head. ' +
+                    'No comment updated.',
+                );
+                return;
+              }
+              if (initialSourceRunOrder !== 'current') {
+                core.setFailed(
+                  'Unable to prove the source run is the newest exact PR-head run.',
+                );
+                return;
+              }
+            }
+            if (sourceIdentityValid) {
+              try {
+                const response = await github.rest.actions.getWorkflowRun({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  run_id: sourceRunId,
+                });
+                freshRun = response.data;
+              } catch (error) {
+                core.info(
+                  'Unable to revalidate the source run before posting.',
+                );
+                sourceIdentityValid = false;
+              }
+            }
+            if (sourceIdentityValid) {
+              if (!sourceRunMatches(freshRun)) {
+                if (sourceRunIsNewerAttempt(freshRun)) {
+                  core.info(
+                    'A newer source run attempt exists for this exact PR head. ' +
+                      'No comment updated.',
+                  );
+                  return;
+                }
+                core.info(
+                  'Source run identity no longer matches; using a red fallback.',
+                );
+                sourceIdentityValid = false;
+              }
+            }
+
+            const isExpectedActionsComment = comment =>
+              comment.user?.login === 'github-actions[bot]' &&
+              comment.user?.id === BOT_USER_ID &&
+              comment.user?.type === 'Bot' &&
+              comment.performed_via_github_app?.id === ACTIONS_APP_ID &&
+              comment.performed_via_github_app?.slug === 'github-actions';
+            const hasExactMarker = comment =>
+              comment.body === MARKER ||
+              comment.body?.startsWith(`${MARKER}\n`);
+            const legacyReport = comment =>
+              comment.body?.includes('🧪 Comprehensive Test Results');
+            const hasRetiredMetricsMarker = comment =>
+              comment.body === METRICS_RETIRED_MARKER ||
+              comment.body?.startsWith(`${METRICS_RETIRED_MARKER}\n`);
+            const legacyMetrics = comment =>
+              comment.body?.includes('Test Metrics Report') ||
+              hasRetiredMetricsMarker(comment);
+
+            const fallbackConclusion = new Set([
+              'action_required',
+              'cancelled',
+              'failure',
+              'neutral',
+              'skipped',
+              'stale',
+              'startup_failure',
+              'success',
+              'timed_out',
+            ]).has(process.env.WORKFLOW_CONCLUSION)
+              ? process.env.WORKFLOW_CONCLUSION
+              : 'unknown';
+            const fallbackBody = [
+              MARKER,
+              '## Comprehensive Test Results',
+              '',
+              '❌ **FAIL — Trusted Comprehensive report unavailable.**',
+              '',
+              'The trusted API-derived result could not be validated. ' +
+                'Treat this run as failed.',
+              '',
+              `- Workflow conclusion: \`${fallbackConclusion}\``,
+              `- [${reportLinkLabel}](${reportUrl})`,
+              '',
+            ].join('\n');
+
+            let reportBody = null;
+            let usedFallback = false;
+            if (
+              process.env.COLLECT_JOBS_OUTCOME === 'success' &&
+              process.env.RENDER_COMMENT_OUTCOME === 'success' &&
+              sourceIdentityValid
+            ) {
+              try {
+                const outputPath = process.env.COMMENT_OUTPUT_PATH;
+                const stat = fs.lstatSync(outputPath);
+                if (
+                  stat.isFile() &&
+                  !stat.isSymbolicLink() &&
+                  stat.size > 0 &&
+                  stat.size <= MAX_COMMENT_BYTES
+                ) {
+                  const candidate = fs.readFileSync(outputPath, 'utf8');
+                  const expectedVerdict =
+                    freshRun.conclusion === 'success'
+                      ? '✅ **PASS —'
+                      : '❌ **FAIL —';
+                  const oppositeVerdict =
+                    freshRun.conclusion === 'success'
+                      ? '❌ **FAIL —'
+                      : '✅ **PASS —';
+                  if (
+                    Buffer.byteLength(candidate, 'utf8') === stat.size &&
+                    candidate.startsWith(`${MARKER}\n`) &&
+                    candidate.indexOf(MARKER, MARKER.length) === -1 &&
+                    candidate.includes(expectedVerdict) &&
+                    !candidate.includes(oppositeVerdict)
+                  ) {
+                    reportBody = candidate;
+                  }
+                }
+              } catch (error) {
+                core.info('Trusted renderer output was unavailable.');
+              }
+            }
+            if (reportBody === null) {
+              reportBody = fallbackBody;
+              usedFallback = true;
+            }
+
+            let postTimePullRequest;
+            try {
+              const response = await github.rest.pulls.get({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: issue_number,
+              });
+              postTimePullRequest = response.data;
+            } catch (error) {
+              core.setFailed(
+                'Unable to revalidate the PR head before comment mutation.',
+              );
+              return;
+            }
+            if (
+              postTimePullRequest.state !== 'open' ||
+              postTimePullRequest.head.sha !== sourceHeadSha ||
+              postTimePullRequest.head.ref !== sourceHeadBranch ||
+              postTimePullRequest.head.repo?.full_name !==
+                sourceHeadRepository
+            ) {
+              core.info(
+                'PR state or head changed before comment mutation. ' +
+                  'No comment updated.',
+              );
+              return;
+            }
+
+            if (hasResolvedSourceIdentity) {
+              const postTimeSourceRunOrder = await getSourceRunOrder();
+              if (postTimeSourceRunOrder === 'obsolete') {
+                core.info(
+                  'A newer source run exists for this exact PR head. ' +
+                    'No comment updated.',
+                );
+                return;
+              }
+              if (postTimeSourceRunOrder !== 'current') {
+                core.setFailed(
+                  'Unable to prove source-run ordering before comment mutation.',
+                );
+                return;
+              }
+            }
+
+            if (sourceIdentityValid) {
+              let postTimeRun = null;
+              try {
+                const response =
+                  await github.rest.actions.getWorkflowRun({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    run_id: sourceRunId,
+                  });
+                postTimeRun = response.data;
+              } catch (error) {
+                core.info(
+                  'Unable to revalidate the run before comment mutation.',
+                );
+                sourceIdentityValid = false;
+              }
+              if (
+                sourceIdentityValid &&
+                !sourceRunMatches(postTimeRun)
+              ) {
+                if (sourceRunIsNewerAttempt(postTimeRun)) {
+                  core.info(
+                    'A newer source run attempt exists for this exact PR head. ' +
+                      'No comment updated.',
+                  );
+                  return;
+                }
+                core.info(
+                  'Source run changed before comment mutation; ' +
+                    'using a red fallback.',
+                );
+                sourceIdentityValid = false;
+              }
+              if (!sourceIdentityValid) {
+                reportBody = fallbackBody;
+                usedFallback = true;
+              }
+            }
 
             const comments = await github.paginate(
               github.rest.issues.listComments,
@@ -381,86 +1288,148 @@ jobs:
               },
             );
 
-            const upsertComment = async (marker, body) => {
-              const existing = comments.find(comment =>
-                comment.user.type === 'Bot' && comment.body.includes(marker)
+            let mutationTimePullRequest;
+            try {
+              const response = await github.rest.pulls.get({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: issue_number,
+              });
+              mutationTimePullRequest = response.data;
+            } catch (error) {
+              core.setFailed(
+                'Unable to revalidate the PR after comment discovery.',
               );
+              return;
+            }
+            if (
+              mutationTimePullRequest.state !== 'open' ||
+              mutationTimePullRequest.head.sha !== sourceHeadSha ||
+              mutationTimePullRequest.head.ref !== sourceHeadBranch ||
+              mutationTimePullRequest.head.repo?.full_name !==
+                sourceHeadRepository
+            ) {
+              core.info(
+                'PR state or head changed during comment discovery. ' +
+                  'No comment updated.',
+              );
+              return;
+            }
 
-              if (existing) {
+            const mutationTimeSourceRunOrder =
+              await getSourceRunOrder();
+            if (mutationTimeSourceRunOrder === 'obsolete') {
+              core.info(
+                'A newer source run exists for this exact PR head. ' +
+                  'No comment updated.',
+              );
+              return;
+            }
+            if (mutationTimeSourceRunOrder !== 'current') {
+              core.setFailed(
+                'Unable to prove source-run ordering after comment discovery.',
+              );
+              return;
+            }
+
+            let mutationTimeRun;
+            try {
+              const response =
+                await github.rest.actions.getWorkflowRun({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  run_id: sourceRunId,
+                });
+              mutationTimeRun = response.data;
+            } catch (error) {
+              core.setFailed(
+                'Unable to revalidate the run after comment discovery.',
+              );
+              return;
+            }
+            if (sourceRunIsNewerAttempt(mutationTimeRun)) {
+              core.info(
+                'A newer source run attempt exists for this exact PR head. ' +
+                  'No comment updated.',
+              );
+              return;
+            }
+            if (
+              !sourceRunHasExactOrderingIdentity(mutationTimeRun) ||
+              (
+                sourceIdentityValid &&
+                !sourceRunMatches(mutationTimeRun)
+              )
+            ) {
+              core.setFailed(
+                'Source run changed during comment discovery.',
+              );
+              return;
+            }
+
+            const reportComments = comments.filter(
+              comment =>
+                isExpectedActionsComment(comment) &&
+                (hasExactMarker(comment) || legacyReport(comment)),
+            );
+            const reportCommentIds = new Set(
+              reportComments.map(comment => comment.id),
+            );
+            if (reportComments.length === 0) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number,
+                body: reportBody,
+              });
+            } else {
+              for (const existing of reportComments) {
                 await github.rest.issues.updateComment({
                   owner: context.repo.owner,
                   repo: context.repo.repo,
                   comment_id: existing.id,
-                  body,
-                });
-              } else {
-                await github.rest.issues.createComment({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  issue_number,
-                  body,
+                  body: reportBody,
                 });
               }
-            };
-
-            const metricsBody = readDownloadedFile(
-              process.env.METRICS_AVAILABLE,
-              process.env.METRICS_DOWNLOAD_OUTCOME,
-              metricsPath,
-            );
-            if (metricsBody !== null) {
-              await upsertComment(
-                'Test Metrics Report',
-                metricsBody,
-              );
             }
 
-            const downloadedReport = readDownloadedFile(
-              process.env.REPORT_AVAILABLE,
-              process.env.REPORT_DOWNLOAD_OUTCOME,
-              reportPath,
+            const metricsNotice = [
+              METRICS_RETIRED_MARKER,
+              '## Test Metrics Report',
+              '',
+              'Metrics artifacts are diagnostic only and are no longer ' +
+                'relayed by the write-scoped commenter.',
+              '',
+              `See the [workflow run](${reportUrl}) for downloadable diagnostics.`,
+              '',
+            ].join('\n');
+            const legacyMetricsComments = comments.filter(
+              comment =>
+                isExpectedActionsComment(comment) &&
+                legacyMetrics(comment) &&
+                !reportCommentIds.has(comment.id),
             );
-            const conclusion = process.env.WORKFLOW_CONCLUSION || 'unknown';
-            const expectedVerdict =
-              conclusion === 'success' ? '✅ PASS —' : '❌ FAIL —';
-            const oppositeVerdict =
-              conclusion === 'success' ? '❌ FAIL —' : '✅ PASS —';
-            const reportMatchesConclusion =
-              downloadedReport !== null &&
-              downloadedReport.includes(expectedVerdict) &&
-              !downloadedReport.includes(oppositeVerdict);
-
-            let reportBody = downloadedReport;
-            if (!reportMatchesConclusion) {
-              const runUrl = process.env.WORKFLOW_RUN_URL;
-              const reason = process.env.SOURCE_RESOLUTION_ERROR || (
-                downloadedReport === null
-                  ? 'The workflow did not publish a readable comprehensive report.'
-                  : 'The downloaded report verdict does not match the workflow conclusion.'
-              );
-              reportBody = [
-                '# 🧪 Comprehensive Test Results',
-                '',
-                '❌ **Comprehensive test report unavailable.**',
-                '',
-                reason,
-                'so this result must be treated as a failure.',
-                '',
-                `- Workflow conclusion: \`${conclusion}\``,
-                `- [Workflow run](${runUrl})`,
-                '',
-              ].join('\n');
+            for (const existing of legacyMetricsComments) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existing.id,
+                body: metricsNotice,
+              });
             }
 
-            await upsertComment('🧪 Comprehensive Test Results', reportBody);
+            if (usedFallback) {
+              core.setFailed(
+                'Trusted comment rendering failed; posted a red fallback.',
+              );
+            }
 
       - name: Enforce trusted source resolution
         if: >-
           always() &&
-          steps.resolve-context.outcome == 'success' &&
-          steps.resolve-context.outputs.source_ready != 'true'
+          needs.resolve-pr-context.outputs.source_ready != 'true'
         env:
-          SOURCE_RESOLUTION_ERROR: ${{ steps.resolve-context.outputs.source_error }}
+          SOURCE_RESOLUTION_ERROR: ${{ needs.resolve-pr-context.outputs.source_error }}
         run: |
           echo "ERROR: ${SOURCE_RESOLUTION_ERROR:-trusted source run was not resolved}"
           exit 1

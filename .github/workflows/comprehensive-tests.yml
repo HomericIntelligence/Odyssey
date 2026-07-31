@@ -1332,7 +1332,7 @@ jobs:
           RUN_EXTENDED: ${{ github.event_name == 'workflow_dispatch' && inputs.run_extended || false }}
         run: |
           mkdir -p all-results
-          python scripts/ci/comprehensive_report.py \
+          python -I scripts/ci/comprehensive_report.py \
             --artifacts-dir all-results \
             --output test-report.md \
             --event-name "$EVENT_NAME" \

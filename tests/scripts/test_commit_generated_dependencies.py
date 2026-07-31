@@ -1500,52 +1500,9 @@ def test_dispatch_allowlist_skips_existing_oid_runs_and_polls_new_ones(
     assert count == 2
 
 
-def test_commenter_dispatch_binds_default_branch_and_exact_dependabot_head(
-    monkeypatch: pytest.MonkeyPatch,
-) -> None:
+def test_commenter_dispatch_uses_typed_repository_event_and_exact_dependabot_head() -> None:
     dispatch_commenter = getattr(PUBLISHER, "dispatch_comment_workflow", None)
     assert callable(dispatch_commenter), "trusted writer must dispatch the commenter as a sibling workflow"
-    calls: list[dict[str, Any]] = []
-
-    def dispatch(
-        repository: str,
-        workflow: str,
-        branch: str,
-        **kwargs: Any,
-    ) -> None:
-        calls.append(
-            {
-                "repository": repository,
-                "workflow": workflow,
-                "branch": branch,
-                "inputs": kwargs.get("inputs"),
-            }
-        )
-
-    monkeypatch.setattr(PUBLISHER, "_dispatch_workflow", dispatch)
-
-    dispatch_commenter(
-        repository=REPOSITORY,
-        default_branch="main",
-        head_ref=BRANCH,
-        commit_oid=CHILD_SHA,
-        token="token",
-    )
-
-    assert calls == [
-        {
-            "repository": REPOSITORY,
-            "workflow": "comprehensive-test-pr-comments.yml",
-            "branch": "main",
-            "inputs": {
-                "source_head_sha": CHILD_SHA,
-                "source_head_branch": BRANCH,
-            },
-        }
-    ]
-
-
-def test_workflow_dispatch_serializes_exact_string_inputs() -> None:
     recorded: dict[str, Any] = {}
 
     class FakeResponse:
@@ -1566,26 +1523,19 @@ def test_workflow_dispatch_serializes_exact_string_inputs() -> None:
         recorded["timeout"] = timeout
         return FakeResponse()
 
-    PUBLISHER._dispatch_workflow(
-        REPOSITORY,
-        "comprehensive-test-pr-comments.yml",
-        "main",
+    dispatch_commenter(
+        repository=REPOSITORY,
+        head_ref=BRANCH,
+        commit_oid=CHILD_SHA,
         token="token",
         opener=opener,
-        inputs={
-            "source_head_sha": CHILD_SHA,
-            "source_head_branch": BRANCH,
-        },
     )
 
     assert recorded == {
-        "url": (
-            "https://api.github.com/repos/HomericIntelligence/Odyssey/actions/"
-            "workflows/comprehensive-test-pr-comments.yml/dispatches"
-        ),
+        "url": "https://api.github.com/repos/HomericIntelligence/Odyssey/dispatches",
         "payload": {
-            "ref": "main",
-            "inputs": {
+            "event_type": "dependabot-comprehensive-test-comment",
+            "client_payload": {
                 "source_head_sha": CHILD_SHA,
                 "source_head_branch": BRANCH,
             },
@@ -1595,22 +1545,23 @@ def test_workflow_dispatch_serializes_exact_string_inputs() -> None:
 
 
 @pytest.mark.parametrize(
-    "inputs",
+    ("head_ref", "commit_oid"),
     [
-        {"source_head_sha": ""},
-        {"source_head_sha": CHILD_SHA, 1: BRANCH},
-        {"source_head_sha": CHILD_SHA, "source_head_branch": 1},
+        ("feature/not-dependabot", CHILD_SHA),
+        (BRANCH, ""),
     ],
 )
-def test_workflow_dispatch_rejects_non_string_or_empty_inputs(inputs: Any) -> None:
-    with pytest.raises(PUBLISHER.PublishError, match="inputs"):
-        PUBLISHER._dispatch_workflow(
-            REPOSITORY,
-            "comprehensive-test-pr-comments.yml",
-            "main",
+def test_comment_repository_dispatch_rejects_invalid_payload(
+    head_ref: str,
+    commit_oid: str,
+) -> None:
+    with pytest.raises(PUBLISHER.PublishError):
+        PUBLISHER.dispatch_comment_workflow(
+            repository=REPOSITORY,
+            head_ref=head_ref,
+            commit_oid=commit_oid,
             token="token",
             opener=lambda *_args, **_kwargs: pytest.fail("invalid input must not dispatch"),
-            inputs=inputs,
         )
 
 
@@ -1652,7 +1603,6 @@ def test_publisher_dispatches_commenter_after_exact_required_runs(
     assert commenter_calls == [
         {
             "repository": REPOSITORY,
-            "default_branch": "main",
             "head_ref": BRANCH,
             "commit_oid": CHILD_SHA,
             "token": "token",
