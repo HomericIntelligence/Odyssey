@@ -101,9 +101,7 @@ nbformat==5.10.4
     #   nbclient
     #   nbconvert
     #   odyssey
-numpy==2.4.6 ; python_full_version < '3.12'
-    # via odyssey
-numpy==2.5.1 ; python_full_version >= '3.12'
+numpy==2.5.1
     # via odyssey
 packaging==26.2
     # via
@@ -183,7 +181,6 @@ typing-extensions==4.16.0
     #   pydantic
     #   pydantic-core
     #   pygithub
-    #   referencing
     #   typing-inspection
 typing-inspection==0.4.2
     # via pydantic

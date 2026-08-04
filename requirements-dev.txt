@@ -322,22 +322,13 @@ nodeenv==1.10.0
     # via pre-commit
 notebook-shim==0.2.4
     # via jupyterlab
-numpy==2.4.6 ; python_full_version < '3.12'
+numpy==2.5.1
     # via
     #   contourpy
     #   matplotlib
     #   odyssey
     #   pandas
     #   seaborn
-numpy==2.5.1 ; python_full_version >= '3.12'
-    # via
-    #   contourpy
-    #   matplotlib
-    #   odyssey
-    #   pandas
-    #   seaborn
-overrides==7.7.0 ; python_full_version < '3.12'
-    # via jupyter-server
 packageurl-python==0.17.6
     # via cyclonedx-python-lib
 packaging==26.2
@@ -566,7 +557,6 @@ tinycss2==1.5.1
     # via bleach
 tomli==2.4.1
     # via
-    #   coverage
     #   pip-audit
     #   pip-licenses
 tomli-w==1.2.0
@@ -606,17 +596,12 @@ typer==0.25.1
 types-pyyaml==6.0.12.20260724
 typing-extensions==4.16.0
     # via
-    #   anyio
     #   beautifulsoup4
-    #   cyclonedx-python-lib
-    #   ipython
     #   jupyter-client
-    #   jupyterlab
     #   mypy
     #   pydantic
     #   pydantic-core
     #   pygithub
-    #   referencing
     #   safety
     #   safety-schemas
     #   typing-inspection
