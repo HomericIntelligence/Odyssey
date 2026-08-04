@@ -76,7 +76,7 @@ dev = [
     "pytest-benchmark>=5.0.0,<6",
 
     # Code quality
-    "ruff>=0.16.0,<0.17",
+    "ruff>=0.16.1,<0.17",
     "bandit>=1.7.5",
     "mypy>=1.19.1,<2",
     "types-PyYAML>=6.0.12.20260724",

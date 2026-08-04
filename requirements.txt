@@ -44,7 +44,7 @@ defusedxml==0.7.1
     # via
     #   nbconvert
     #   odyssey
-fastjsonschema==2.21.2
+fastjsonschema==2.22.1
     # via nbformat
 gitdb==4.0.12
     # via gitpython
@@ -169,7 +169,7 @@ tornado==6.5.7
     # via jupyter-client
 tqdm==4.70.0
     # via odyssey
-traitlets==5.15.1
+traitlets==5.16.0
     # via
     #   jupyter-client
     #   jupyter-core
