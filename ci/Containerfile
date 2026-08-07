@@ -19,7 +19,7 @@ FROM python:3.13-slim@sha256:6771159cd4fa5d9bba1258caf0b82e6b73458c694d178ad97c5
 
 RUN apt-get update && apt-get install -y --no-install-recommends curl ca-certificates \
     && rm -rf /var/lib/apt/lists/* \
-    && curl -fsSL https://github.com/astral-sh/uv/releases/download/0.12.1/uv-x86_64-unknown-linux-gnu.tar.gz -o /tmp/uv.tar.gz \
+    && curl -fsSL --retry 5 --retry-all-errors https://github.com/astral-sh/uv/releases/download/0.12.1/uv-x86_64-unknown-linux-gnu.tar.gz -o /tmp/uv.tar.gz \
     && printf '%s%s  %s\n' "90b2f223fb69d19db49e117da601f64978" "593417988530aa733d456141b4bcbb" /tmp/uv.tar.gz | sha256sum --check \
     && tar xzf /tmp/uv.tar.gz -C /usr/local/bin --strip-components=1 \
     && rm /tmp/uv.tar.gz
@@ -93,7 +93,7 @@ COPY --from=uv /usr/local/bin/uv /usr/local/bin/uvx /usr/local/bin/
 COPY --from=builder /opt/odyssey-venv /opt/odyssey-venv
 
 # gitleaks (secrets scan) — same pin as the workflow (GITLEAKS_VERSION 8.30.1)
-RUN curl -sSfL https://github.com/gitleaks/gitleaks/releases/download/v8.30.1/gitleaks_8.30.1_linux_x64.tar.gz \
+RUN curl -sSfL --retry 5 --retry-all-errors https://github.com/gitleaks/gitleaks/releases/download/v8.30.1/gitleaks_8.30.1_linux_x64.tar.gz \
     | tar -xz -C /usr/local/bin gitleaks \
     && gitleaks version
 
