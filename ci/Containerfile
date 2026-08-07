@@ -1,0 +1,114 @@
+# Containerfile for odyssey-ci — CI image for Odyssey.
+#
+# Provides:
+# - Python 3.13 environment (matches requires-python)
+# - uv with the locked project environment pre-installed
+# - pre-commit hook environments baked in (largest speedup)
+# - Non-root user 'ci' for rootless Podman compatibility
+#
+# Toolchain: uv (Odysseus ADR-017). Pattern mirrors Scylla/Athena ci/Containerfile.
+#
+# Build (OCI-compliant — works with both podman and docker):
+#   podman build --ignorefile ci/.dockerignore -f ci/Containerfile -t odyssey-ci:local .
+#   docker build -f ci/Containerfile -t odyssey-ci:local .
+
+# ============================================================================
+# Stage 0: uv binary — pinned GitHub release, checksum-verified
+# ============================================================================
+FROM python:3.13-slim@sha256:6771159cd4fa5d9bba1258caf0b82e6b73458c694d178ad97c5e925c2d0e1a91 AS uv
+
+RUN apt-get update && apt-get install -y --no-install-recommends curl ca-certificates \
+    && rm -rf /var/lib/apt/lists/* \
+    && curl -fsSL https://github.com/astral-sh/uv/releases/download/0.12.1/uv-x86_64-unknown-linux-gnu.tar.gz -o /tmp/uv.tar.gz \
+    && printf '%s%s  %s\n' "90b2f223fb69d19db49e117da601f64978" "593417988530aa733d456141b4bcbb" /tmp/uv.tar.gz | sha256sum --check \
+    && tar xzf /tmp/uv.tar.gz -C /usr/local/bin --strip-components=1 \
+    && rm /tmp/uv.tar.gz
+
+# ============================================================================
+# Stage 1: Builder — install uv and the locked project environment
+# ============================================================================
+FROM python:3.13-slim@sha256:6771159cd4fa5d9bba1258caf0b82e6b73458c694d178ad97c5e925c2d0e1a91 AS builder
+
+ENV DEBIAN_FRONTEND=noninteractive \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    UV_PROJECT_ENVIRONMENT=/opt/odyssey-venv \
+    UV_COMPILE_BYTECODE=1 \
+    UV_LINK_MODE=copy \
+    PATH="/opt/odyssey-venv/bin:$PATH"
+
+RUN apt-get update && apt-get upgrade -y && apt-get install -y --no-install-recommends \
+    git \
+    curl \
+    ca-certificates \
+    gcc \
+    g++ \
+    build-essential \
+    make \
+    jq \
+    yamllint \
+    shellcheck \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY --from=uv /usr/local/bin/uv /usr/local/bin/uvx /usr/local/bin/
+
+WORKDIR /opt/odyssey-build
+COPY uv.lock pyproject.toml .pre-commit-config.yaml README.md ./
+RUN uv sync --all-groups --all-extras --locked --no-install-project
+
+RUN git init . && \
+    uv run pre-commit install-hooks && \
+    rm -rf .git
+
+# ============================================================================
+# Stage 2: Runtime — minimal image without build tools
+# ============================================================================
+FROM python:3.13-slim@sha256:6771159cd4fa5d9bba1258caf0b82e6b73458c694d178ad97c5e925c2d0e1a91
+
+LABEL org.opencontainers.image.title="odyssey-ci"
+LABEL org.opencontainers.image.description="CI container for Odyssey — linting, testing, security scans"
+LABEL org.opencontainers.image.vendor="Odyssey"
+LABEL org.opencontainers.image.source="https://github.com/HomericIntelligence/Odyssey"
+
+ENV DEBIAN_FRONTEND=noninteractive \
+    PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    UV_PROJECT_ENVIRONMENT=/opt/odyssey-venv \
+    UV_LINK_MODE=copy \
+    UV_TOOL_DIR=/opt/uv-tools \
+    UV_TOOL_BIN_DIR=/usr/local/bin \
+    PATH="/opt/odyssey-venv/bin:$PATH"
+
+RUN apt-get update && apt-get upgrade -y && apt-get install -y --no-install-recommends \
+    git \
+    curl \
+    ca-certificates \
+    make \
+    jq \
+    yamllint \
+    shellcheck \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY --from=uv /usr/local/bin/uv /usr/local/bin/uvx /usr/local/bin/
+COPY --from=builder /opt/odyssey-venv /opt/odyssey-venv
+
+# gitleaks (secrets scan) — same pin as the workflow (GITLEAKS_VERSION 8.30.1)
+RUN curl -sSfL https://github.com/gitleaks/gitleaks/releases/download/v8.30.1/gitleaks_8.30.1_linux_x64.tar.gz \
+    | tar -xz -C /usr/local/bin gitleaks \
+    && gitleaks version
+
+# Copy pre-commit hook cache from builder (baked-in hook envs)
+COPY --from=builder /root/.cache/pre-commit /root/.cache/pre-commit
+
+# Create non-root user for rootless Podman compatibility
+RUN groupadd -r ci && useradd -r -g ci -u 1000 -m -s /bin/bash ci \
+    && mkdir -p /home/ci/.cache \
+    && chown -R ci:ci /home/ci
+
+RUN cp -r /root/.cache/pre-commit /home/ci/.cache/ 2>/dev/null || true && \
+    chown -R ci:ci /home/ci/.cache && \
+    chown -R ci:ci /opt/odyssey-venv
+
+WORKDIR /workspace
+
+USER ci
