@@ -246,7 +246,7 @@ jobs:
 
       - name: Upload Gitleaks SARIF
         if: always() && hashFiles('gitleaks.sarif') != ''
-        uses: github/codeql-action/upload-sarif@b1e036aad851c47cdff5be6a3ec1b0a29c4b0db1  # v3
+        uses: github/codeql-action/upload-sarif@4e828ff8d448a8a6e532957b1811f387a63867e8  # v3
         with:
           sarif_file: gitleaks.sarif
 
