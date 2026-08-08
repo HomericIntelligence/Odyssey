@@ -234,7 +234,7 @@ jobs:
         run: |
           if [ -f .gitleaks.toml ]; then
             podman run --rm --userns=keep-id:uid=1000,gid=1000 \
-              -v "$PWD:/workspace:Z" -w /workspace odyssey:local \
+              -v "$PWD:/workspace:Z" -w /workspace odyssey-ci:local \
               gitleaks detect --source /workspace --config .gitleaks.toml \
                 --report-format sarif --report-path gitleaks.sarif --redact
           else
@@ -318,8 +318,17 @@ jobs:
         run: podman build --ignorefile ci/.dockerignore -f ci/Containerfile -t odyssey-ci:local .
       # All checks run inside the CI container — the same image developers
       # use via `just ci-deps-version-sync`.
-      - name: deps-version-sync (in container)
-        run: bash scripts/run_ci_local.sh deps-version-sync
+      - name: Setup uv
+        uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9  # v9.0.0
+        with:
+          version: "0.12.0"
+          enable-cache: true
+
+      - name: deps-version-sync (uv lock + exports + container)
+        run: |
+          uv lock --check
+          python scripts/sync_requirements.py --check --repo-root .
+          bash scripts/run_ci_local.sh deps-version-sync
 
   markdownlint:
     name: markdownlint

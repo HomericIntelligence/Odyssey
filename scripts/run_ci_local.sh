@@ -121,12 +121,12 @@ run_uv() {
 
 run_lint() {
     # Lint (ruff + mypy + yamllint)
-    run_in_container "uv run ruff check src tests && uv run mypy src && yamllint ."
+    run_in_container "uv run ruff check src tests && uv run mypy tests && yamllint ."
 }
 
 run_markdownlint() {
     # Markdown lint
-    run_in_container "uv run markdownlint ."
+    run_in_container "markdownlint-cli2 ."
 }
 
 run_uv-lock-check() {
@@ -136,7 +136,7 @@ run_uv-lock-check() {
 
 run_typecheck() {
     # Type check
-    run_in_container "uv run mypy src"
+    run_in_container "uv run mypy tests"
 }
 
 run_unit-tests() {
@@ -146,7 +146,7 @@ run_unit-tests() {
 
 run_integration-tests() {
     # Integration tests
-    run_in_container "uv run pytest tests/integration -q"
+    run_in_container "uv run mojo test tests/integration"
 }
 
 run_schema-validation() {
@@ -162,6 +162,11 @@ run_security-secrets-scan() {
 run_deps-version-sync() {
     # Dependency version sync check
     run_in_container "uv sync --locked"
+}
+
+run_security-dependency-scan() {
+    # Dependency vulnerability scan (pip-audit)
+    run_in_container "uv run pip-audit"
 }
 
 run_forbid-suppressions() {
@@ -195,6 +200,7 @@ case "${SUBSET}" in
     integration-tests) run_integration-tests ;;
     schema-validation) run_schema-validation ;;
     security-secrets-scan) run_security-secrets-scan ;;
+    security-dependency-scan) run_security-dependency-scan ;;
     deps-version-sync) run_deps-version-sync ;;
     forbid-suppressions) run_forbid-suppressions ;;
     justfile-check) run_justfile-check ;;
