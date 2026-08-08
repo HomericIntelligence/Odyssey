@@ -88,6 +88,7 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y --no-install-reco
     jq \
     yamllint \
     shellcheck \
+    just \
     && rm -rf /var/lib/apt/lists/*
 
 # markdownlint-cli2 (markdownlint gate) — npm tool, not on PyPI
