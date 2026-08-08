@@ -1,0 +1,3783 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Mojo-based AI research platform for reproducing classic research papers">
+      
+      
+      
+        <link rel="canonical" href="https://github.com/HomericIntelligence/Odyssey/dev/extensor-refactor-plan/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Extensor refactor plan - ML Odyssey</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#anytensor-tensordtype-anytensor-migration-plan" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="ML Odyssey" class="md-header__button md-logo" aria-label="ML Odyssey" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            ML Odyssey
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Extensor refactor plan
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/HomericIntelligence/Odyssey" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    HomericIntelligence/Odyssey
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../glossary/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Glossary
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../release-process/" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../integration/supporting-directories/" class="md-tabs__link">
+          
+  
+  
+  Integration
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="ML Odyssey" class="md-nav__button md-logo" aria-label="ML Odyssey" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    ML Odyssey
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/HomericIntelligence/Odyssey" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    HomericIntelligence/Odyssey
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../glossary/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Glossary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/quickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quickstart
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/first_model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    First Model
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/repository-structure/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Repository Structure
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../release-process/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Release Process
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Integration
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Integration
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../integration/supporting-directories/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Supporting Directories
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../integration/papers-shared-integration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Papers & Shared Integration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../integration/quick-start-new-paper/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start New Paper
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#review-findings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Review Findings
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Review Findings">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#blockers-4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        BLOCKERS (4)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#high-8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        HIGH (8)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#medium-6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        MEDIUM (6)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#low-4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        LOW (4)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#verified-claims" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        VERIFIED CLAIMS
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bugs-found-fixed-in-pr-5001" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        BUGS FOUND (fixed in PR #5001)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#table-of-contents" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Table of Contents
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-problem-statement" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Problem Statement
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-how-simd-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. How SIMD Works
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-why-anytensor-cant-do-this-today" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Why AnyTensor Can't Do This Today
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Why AnyTensor Can&#39;t Do This Today">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31-runtime-dtype-prevents-parametric-return-types" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1 Runtime DType Prevents Parametric Return Types
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32-massive-runtime-branching" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2 Massive Runtime Branching
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#33-the-__setitem__-dead-code-problem" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.3 The __setitem__ Dead Code Problem
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-the-parametric-solution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. The Parametric Solution
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. The Parametric Solution">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#41-new-struct-definition" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.1 New Struct Definition
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#42-simplified-getitem-assignment" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.2 Simplified getitem / Assignment
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#43-simplified-internal-methods" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.3 Simplified Internal Methods
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#44-factory-functions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.4 Factory Functions
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-critical-design-decisions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Critical Design Decisions
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. Critical Design Decisions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#51-runtime-to-compile-time-promotion" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.1 Runtime-to-Compile-Time Promotion
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#52-heterogeneous-collections" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.2 Heterogeneous Collections
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#53-cross-dtype-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.3 Cross-DType Operations
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#54-memory-pool-compatibility" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.4 Memory Pool Compatibility
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#55-modulesequential-stays-on-anytensor" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.5 Module/Sequential Stays on AnyTensor
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-impact-assessment" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Impact Assessment
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. Impact Assessment">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#61-quantitative-summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.1 Quantitative Summary
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#62-top-10-most-impacted-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.2 Top 10 Most Impacted Files
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#63-files-already-using-parametric-patterns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.3 Files Already Using Parametric Patterns
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-migration-strategy-17-sub-phases" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Migration Strategy (17 Sub-Phases)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7. Migration Strategy (17 Sub-Phases)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#revised-scope-estimates" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Revised Scope Estimates
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-phase-details" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Phase Details
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="8. Phase Details">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#phase-1-tensordtype-anytensor-tensorlike-trait" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 1: Tensor[dtype] + AnyTensor + TensorLike Trait
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Phase 1: Tensor[dtype] + AnyTensor + TensorLike Trait">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#phase-0-package-split-new-prerequisite" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 0 — Package Split (NEW — prerequisite)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-1a-create-tensordtype-tensorlike-trait-additive-only" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 1a — Create Tensor[dtype] + TensorLike Trait (additive only)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-1b-rename-struct-fix-collision" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 1b — Rename Struct + Fix Collision
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-12-commit-plan" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 1.2 — Commit Plan
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-13-test-tdd" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 1.3 — Test (TDD)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-14-review-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 1.4 — Review Tests
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-15-commit-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 1.5 — Commit Tests
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-16-implement" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 1.6 — Implement
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-17-review-implementation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 1.7 — Review Implementation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-18-commit-implementation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 1.8 — Commit Implementation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-19-final-review" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 1.9 — Final Review
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-110-fix-validate" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 1.10 — Fix &amp; Validate
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-111-commit-fixes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 1.11 — Commit Fixes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-112-cleanup" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 1.12 — Cleanup
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-2-factory-functions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 2: Factory Functions
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Phase 2: Factory Functions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#phase-21-plan" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 2.1 — Plan
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-22-commit-plan" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 2.2 — Commit Plan
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-23-test-tdd" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 2.3 — Test (TDD)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-24-review-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 2.4 — Review Tests
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-25-commit-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 2.5 — Commit Tests
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-26-implement" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 2.6 — Implement
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-27-review-implementation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 2.7 — Review Implementation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-28-commit-implementation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 2.8 — Commit Implementation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-29-final-review" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 2.9 — Final Review
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-210-fix-validate" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 2.10 — Fix &amp; Validate
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-211-commit-fixes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 2.11 — Commit Fixes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-212-cleanup" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 2.12 — Cleanup
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-3-core-operations-accept-tensordtype-4-sub-prs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 3: Core Operations Accept Tensor[dtype] (4 sub-PRs)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Phase 3: Core Operations Accept Tensor[dtype] (4 sub-PRs)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#phase-3a-single-tensor-shape-ops" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 3a — Single-tensor shape ops
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-3b-arithmetic-simd-ops" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 3b — Arithmetic + SIMD ops
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-3c-elementwise-activation-comparison-ops" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 3c — Elementwise + activation + comparison ops
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-3d-matrix-reduction-conv-ops" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 3d — Matrix + reduction + conv ops
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-4a-parameterize-non-module-layers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 4a: Parameterize Non-Module Layers
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-5a-update-trait-signatures-anytensor" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 5a: Update Trait Signatures → AnyTensor
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-4b-parameterize-module-layers-sequential" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 4b: Parameterize Module Layers + Sequential
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-5b-collection-operations-listanytensor" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 5b: Collection Operations → List[AnyTensor]
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-5c-optimizer-variable-gradient-types-anytensor" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 5c: Optimizer + Variable + Gradient Types → AnyTensor
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-6-training-autograd-data-pipelines" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 6: Training, Autograd, Data Pipelines
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Phase 6: Training, Autograd, Data Pipelines">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#phase-61-plan" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 6.1 — Plan
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-62-commit-plan" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 6.2 — Commit Plan
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-63-test-tdd" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 6.3 — Test (TDD)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-64-review-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 6.4 — Review Tests
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-65-commit-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 6.5 — Commit Tests
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-66-implement" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 6.6 — Implement
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-67-review-implementation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 6.7 — Review Implementation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-68-commit-implementation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 6.8 — Commit Implementation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-69-final-review" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 6.9 — Final Review
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-610-fix-validate" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 6.10 — Fix &amp; Validate
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-611-commit-fixes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 6.11 — Commit Fixes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-612-cleanup" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 6.12 — Cleanup
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-7-tests-final-cleanup-5-sub-prs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 7: Tests + Final Cleanup (5 sub-PRs)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Phase 7: Tests + Final Cleanup (5 sub-PRs)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#phase-7a-tests-srcodysseycore-180-files-2500-lines" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 7a — Tests: src/odyssey/core/ (~180 files, ~2,500 lines)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-7b-tests-models-45-files-700-lines" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 7b — Tests: models/ (~45 files, ~700 lines)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-7c-tests-training-autograd-data-120-files-1800-lines" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 7c — Tests: training/ + autograd/ + data/ (~120 files, ~1,800 lines)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-7d-tests-integration-remaining-40-files-600-lines" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 7d — Tests: integration/ + remaining (~40 files, ~600 lines)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-7e-final-cleanup-500-lines" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 7e — Final Cleanup (~500 lines)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-risk-analysis" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. Risk Analysis
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="9. Risk Analysis">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#91-high-risk" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9.1 High Risk
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#92-medium-risk" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9.2 Medium Risk
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#93-low-risk" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9.3 Low Risk
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10-verification-plan" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10. Verification Plan
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="10. Verification Plan">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#per-phase-verification" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Per-Phase Verification
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#key-test-cases" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key Test Cases
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#precision-verification" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Precision Verification
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11-corner-cases-blockers-deep-analysis" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11. Corner Cases &amp; Blockers (Deep Analysis)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="11. Corner Cases &amp; Blockers (Deep Analysis)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#111-blocker-no-trait-objects-existential-types-in-mojo-0261" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11.1 BLOCKER: No Trait Objects / Existential Types in Mojo 0.26.1
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#112-blocker-runtime-dtype-determination" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11.2 BLOCKER: Runtime DType Determination
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#113-blocker-anytensor-as-struct-fields-cascading-parameterization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11.3 BLOCKER: AnyTensor as Struct Fields (Cascading Parameterization)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#114-blocker-trait-signatures-reference-anytensor" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11.4 BLOCKER: Trait Signatures Reference AnyTensor
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#115-missing-dtype-guards-bugs-found-fix-regardless" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11.5 Missing DType Guards (Bugs Found — Fix Regardless)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#116-cross-dtype-policy-hard-reject-everywhere" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11.6 Cross-DType Policy: Hard Reject Everywhere
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#117-mojo-0261-parametric-capabilities-verified-by-compilation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11.7 Mojo 0.26.1 Parametric Capabilities (Verified by Compilation)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#118-revised-architecture-dual-type-design-tensor-anytensor" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11.8 Revised Architecture: Dual-Type Design (Tensor + AnyTensor)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#119-mojo-0261-features-that-help-the-migration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11.9 Mojo 0.26.1 Features That Help the Migration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#1110-mojo-0261-documentation-references" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11.10 Mojo 0.26.1 Documentation References
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#12-references" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12. References
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="12. References">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#codebase-sources" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Codebase Sources
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#external-sources" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        External Sources
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#previous-work" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Previous Work
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#prompt-for-implementation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Prompt for Implementation
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<!-- markdownlint-disable -->
+
+<h1 id="anytensor-tensordtype-anytensor-migration-plan">AnyTensor → Tensor[dtype] + AnyTensor Migration Plan</h1>
+<p><strong>Epic</strong>: <a href="https://github.com/HomericIntelligence/Odyssey/issues/4998">#4998</a>
+<strong>Goal</strong>: Split AnyTensor into two types following Mojo conventions:
+- <strong><code>Tensor[dtype: DType]</code></strong> — compile-time typed, SIMD-like. <code>tensor[i] = value</code> just works.
+- <strong><code>AnyTensor</code></strong> — runtime-typed, type-erased. For collections, I/O, trait interfaces. Uses <code>.set(i, val)</code> for element access.</p>
+<p>Both share a <code>TensorLike</code> trait interface. Zero-copy conversion between them via <code>AnyTensor.as_tensor[dtype]()</code> and <code>Tensor.as_any()</code>.</p>
+<p><strong>Review</strong>: Completeness review integrated below (4 blockers, 8 high, 6 medium, 4 low).</p>
+<h3 id="review-findings">Review Findings</h3>
+<h4 id="blockers-4">BLOCKERS (4)</h4>
+<p><strong>B1: Auto-parameterization does NOT work for return types.</strong> Verified by compilation:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># FAILS — &quot;failed to infer parameter &#39;dtype&#39;&quot;:</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="k">fn</span><span class="w"> </span><span class="nf">relu</span><span class="p">(</span><span class="n">t</span><span class="p">:</span><span class="w"> </span><span class="nb">Tensor</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nb">Tensor</span><span class="p">:</span><span class="w"> </span><span class="o">...</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="c1"># WORKS — call sites still infer dt from arguments:</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="k">fn</span><span class="w"> </span><span class="nf">relu</span><span class="p">[</span><span class="n">dt</span><span class="p">:</span><span class="w"> </span><span class="nb">DType</span><span class="p">](</span><span class="n">t</span><span class="p">:</span><span class="w"> </span><span class="nb">Tensor</span><span class="p">[</span><span class="n">dt</span><span class="p">])</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nb">Tensor</span><span class="p">[</span><span class="n">dt</span><span class="p">]:</span><span class="w"> </span><span class="o">...</span>
+</code></pre></div>
+All 480 functions returning AnyTensor need explicit <code>[dt: DType]</code> parameters. Line count estimates revised upward 30-50%.</p>
+<p><strong>B2: <code>lazy_expression.mojo</code> / <code>lazy_eval.mojo</code> missing from all phases.</strong> These hold <code>var _tensors: List[AnyTensor]</code> (line 111) and interact with core ops and collections. Added to Phase 5.</p>
+<p><strong>B3: <code>comptime Tensor = AnyTensor</code> naming collision.</strong> <code>src/odyssey/__init__.mojo:82</code> defines <code>comptime Tensor = AnyTensor</code>. Creating a new <code>struct Tensor[dtype: DType]</code> while this alias exists causes a naming collision. Additionally, 8 test files define local <code>comptime Tensor = AnyTensor</code> aliases. <strong>Fix</strong>: Phase 1b must remove this alias BEFORE the new struct is importable. Replace with proper re-export from <code>src/odyssey/tensor/</code>. Update test files with local aliases too.</p>
+<p><strong>B4: <code>as_tensor[dtype]()</code>/<code>as_any()</code> refcount protocol unspecified.</strong> The zero-copy conversion code in section 11.8 (lines 896-916) uses <code>...</code> to elide the critical refcount detail. AnyTensor's refcount protocol (<code>any_tensor.mojo:435-489</code>) increments in <code>__copyinit__</code>, decrements in <code>__del__</code>, frees at 0. If <code>as_tensor()</code> creates a <code>Tensor[dtype]</code> WITHOUT incrementing the shared refcount, then when the source AnyTensor is destroyed (Mojo's ASAP destruction), the refcount drops to 0 and frees memory — leaving the Tensor[dtype] with a dangling pointer.</p>
+<p><strong>Fix</strong>: Both <code>as_tensor()</code> and <code>as_any()</code> MUST:
+1. Share the SAME <code>_refcount</code> pointer (not allocate new)
+2. Increment refcount during construction
+3. Both <code>Tensor[dtype].__del__</code> and <code>AnyTensor.__del__</code> decrement the shared refcount</p>
+<p>Required internal constructor for <code>Tensor[dtype]</code>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1"># Internal constructor for zero-copy conversion (NOT public)</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="k">fn</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="n">out</span><span class="w"> </span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">data</span><span class="p">:</span><span class="w"> </span><span class="n">UnsafePointer</span><span class="p">[</span><span class="nb">Scalar</span><span class="p">[</span><span class="n">dtype</span><span class="p">]],</span><span class="w"> </span><span class="n">shape</span><span class="p">:</span><span class="w"> </span><span class="nb">List</span><span class="p">[</span><span class="nb">Int</span><span class="p">],</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">            </span><span class="n">strides</span><span class="p">:</span><span class="w"> </span><span class="nb">List</span><span class="p">[</span><span class="nb">Int</span><span class="p">],</span><span class="w"> </span><span class="n">refcount</span><span class="p">:</span><span class="w"> </span><span class="n">UnsafePointer</span><span class="p">[</span><span class="nb">Int</span><span class="p">],</span><span class="w"> </span><span class="n">numel</span><span class="p">:</span><span class="w"> </span><span class="nb">Int</span><span class="p">,</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">            </span><span class="n">is_view</span><span class="p">:</span><span class="w"> </span><span class="n">Bool</span><span class="p">,</span><span class="w"> </span><span class="n">allocated_size</span><span class="p">:</span><span class="w"> </span><span class="nb">Int</span><span class="p">,</span><span class="w"> </span><span class="n">original_numel_quantized</span><span class="p">:</span><span class="w"> </span><span class="nb">Int</span><span class="p">):</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">    </span><span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">data</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">    </span><span class="bp">self</span><span class="o">.</span><span class="n">_shape</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">shape</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="w">    </span><span class="bp">self</span><span class="o">.</span><span class="n">_strides</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">strides</span>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="w">    </span><span class="bp">self</span><span class="o">.</span><span class="n">_refcount</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">refcount</span>
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="w">    </span><span class="bp">self</span><span class="o">.</span><span class="n">_refcount</span><span class="p">[]</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="mi">1</span><span class="w">  </span><span class="c1"># CRITICAL: shared ownership</span>
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="w">    </span><span class="bp">self</span><span class="o">.</span><span class="n">_numel</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">numel</span>
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="w">    </span><span class="bp">self</span><span class="o">.</span><span class="n">_is_view</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">is_view</span>
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="w">    </span><span class="bp">self</span><span class="o">.</span><span class="n">_allocated_size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">allocated_size</span>
+<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a><span class="w">    </span><span class="bp">self</span><span class="o">.</span><span class="n">_original_numel_quantized</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">original_numel_quantized</span>
+</code></pre></div></p>
+<p>Required test: create AnyTensor, convert to Tensor[dtype], let AnyTensor go out of scope, verify Tensor[dtype] data is still valid. With shared refcount, ASAP destruction of AnyTensor only decrements (2→1), keeping memory alive.</p>
+<h4 id="high-8">HIGH (8)</h4>
+<p><strong>H1: Slice pointer arithmetic double-offset.</strong> Current: <code>result._data = self._data + offset_bytes</code> where <code>offset_bytes = start * strides * dtype_size</code>. For typed <code>UnsafePointer[Scalar[dtype]]</code>, pointer arithmetic auto-scales by element size — the <code>* dtype_size</code> must be REMOVED. Silent wrong data at runtime if missed. (<code>any_tensor.mojo:721-733</code>)</p>
+<p><strong>H2: I/O boundary underspecified.</strong> <code>save_tensor()</code> takes <code>UnsafePointer[UInt8]</code>. Solution: <code>Tensor[dtype].save()</code> → <code>as_any().save()</code>. Loading always returns <code>AnyTensor</code> → <code>as_tensor[dtype]()</code>. (<code>tensor_io.mojo:34-65, 181-201</code>)</p>
+<p><strong>H3: Phase 3→5 circular dependency.</strong> <code>concatenate()</code>, <code>stack()</code>, <code>split()</code> in <code>shape.mojo</code> take <code>List[AnyTensor]</code> — core ops but use collections. Moved to Phase 5. (<code>shape.mojo:432, 585, 654, 721</code>)</p>
+<p><strong>H4: <code>__str__</code>/<code>__repr__</code> use <code>_get_float64</code> internally.</strong> Need typed access for <code>Tensor[dtype]</code>. Also hardcodes <code>"AnyTensor(["</code> string. Added to Phase 1. (<code>any_tensor.mojo:3247-3317</code>)</p>
+<p><strong>H5: Scope underestimated 30-50%.</strong> 480 functions need explicit <code>[dt: DType]</code> on signatures (not just type name change).</p>
+<p><strong>H6: Eager instantiation binary bloat.</strong> Mojo uses eager instantiation (confirmed by blog post investigation). 317 functions x 11 dtypes = 3,487 worst-case. Mitigation: restrict to 3 float types (float16/32/64) initially.</p>
+<p><strong>H7: Module/Sequential trait boundary forces AnyTensor round-trips.</strong> <code>src/odyssey/core/module.mojo:86</code> defines <code>fn forward(mut self, input: AnyTensor) raises -&gt; AnyTensor</code>. Mojo 0.26.1 doesn't support parametric trait methods. This means: (a) layers like <code>Linear[dtype]</code> must still accept AnyTensor in their <code>forward()</code> signature; (b) <code>Sequential2[T0, T1]</code> chains layers through AnyTensor, losing type safety between layers; (c) every inter-layer boundary does AnyTensor→Tensor[dtype]→compute→as_any() round-trip. <strong>Impact</strong>: Type safety benefits of Tensor[dtype] apply only INSIDE individual layer implementations, not across the composition boundary. <strong>Key detail</strong>: Only <code>Linear</code> and <code>ReLULayer</code> implement Module. <code>BatchNorm2dLayer</code>, <code>Conv2dLayer</code>, <code>DropoutLayer</code> do NOT — they can be freely parameterized without trait constraints.</p>
+<p><strong>H8: Total scope underestimated ~2x.</strong> Phase 1 estimate of ~200 lines changed is wrong — renaming the struct in the 4,703-line any_tensor.mojo + updating <code>src/odyssey/__init__.mojo</code> + adding <code>as_tensor()</code> is ~1,500 lines. Phase 7 estimate of ~3,000 lines across 386 test files (8 lines/file avg) is wrong — 3,975 creation calls + 412 import lines + set() calls = ~5,600-8,000 lines. Revised total: ~15,700 lines (up from 9,700).</p>
+<h4 id="medium-6">MEDIUM (6)</h4>
+<ul>
+<li><strong>M1</strong>: In-place operators (<code>__iadd__</code> etc.) use <code>_get_float64</code>/<code>_set_float64</code> round-trip — pre-existing precision bug (<code>any_tensor.mojo:3013-3079</code>)</li>
+<li><strong>M2</strong>: <code>__hash__</code> uses <code>_get_float64</code> — precision loss for int types (<code>any_tensor.mojo:3319-3369</code>)</li>
+<li><strong>M3</strong>: <code>Hashable</code> conformance not specified in <code>TensorLike</code> trait design</li>
+<li><strong>M4</strong>: SIMD helpers (<code>_relu_simd_float32</code>/<code>_float64</code>) should merge to single parametric version</li>
+<li><strong>M5</strong>: Circular import in <code>tensor_io.mojo</code> (lines 3-14) must be preserved during rename</li>
+<li><strong>M6</strong>: Phase 4→5 trait dependency. <code>Linear</code> and <code>ReLULayer</code> implement the <code>Module</code> trait (<code>module.mojo:69</code>). They can't be parameterized until Module's <code>forward</code> signature changes from <code>AnyTensor</code> to <code>AnyTensor</code>. Phase ordering must be: traits first (Phase 5a), then Module-implementing layers (Phase 4b).</li>
+</ul>
+<h4 id="low-4">LOW (4)</h4>
+<ul>
+<li><code>__str__</code> hardcodes <code>"AnyTensor(["</code> — string-assertion tests break</li>
+<li>Reflected operators (<code>__radd__</code> etc.) not listed but delegate to non-reflected (auto-migrate)</li>
+<li><code>__neg__</code> has 12 dtype branches — not explicitly listed in "remove bitcasts" steps</li>
+<li><code>_extensor_binary_arith</code> (<code>any_tensor.mojo:3728-3796</code>) transformation not explicitly mapped. This is the central dispatch pattern used by <code>__add__</code>, <code>__sub__</code>, <code>__mul__</code>, <code>__truediv__</code>, <code>__floordiv__</code>, <code>__mod__</code>, <code>__pow__</code>. New typed version: <code>fn _tensor_binary_arith[dtype: DType, op: fn(Scalar[dtype], Scalar[dtype]) -&gt; Scalar[dtype]](a: Tensor[dtype], b: Tensor[dtype]) -&gt; Tensor[dtype]</code> — zero dispatch cascade, broadcasting logic unchanged. AnyTensor version preserved until Phase 7e.</li>
+</ul>
+<h4 id="verified-claims">VERIFIED CLAIMS</h4>
+<table>
+<thead>
+<tr>
+<th>Claim</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>comptime AnyTensor = AnyTensor</code> works as alias</td>
+<td>VERIFIED</td>
+</tr>
+<tr>
+<td>Operator overloads work with <code>Self</code> on parametric struct</td>
+<td>VERIFIED</td>
+</tr>
+<tr>
+<td>Cross-dtype <code>Tensor[f32] + Tensor[f64]</code> is compile-time error</td>
+<td>VERIFIED</td>
+</tr>
+<tr>
+<td>Zero-copy bitcast view safe (no ASAP UAF)</td>
+<td>VERIFIED (requires shared refcount — see B4)</td>
+</tr>
+<tr>
+<td><code>Batch[data_dtype, label_dtype]</code> multi-param struct works</td>
+<td>VERIFIED</td>
+</tr>
+<tr>
+<td>Memory pool dtype-agnostic (no impact)</td>
+<td>VERIFIED</td>
+</tr>
+<tr>
+<td>All binary ops reject dtype mismatch at runtime</td>
+<td>VERIFIED</td>
+</tr>
+</tbody>
+</table>
+<h4 id="bugs-found-fixed-in-pr-5001">BUGS FOUND (fixed in PR #5001)</h4>
+<ul>
+<li><code>conv2d</code>: no dtype guard on kernel/bias vs input (<code>conv.mojo:342-476</code>)</li>
+<li><code>batch_norm2d</code>: no dtype guard on gamma/beta/running_stats vs input (<code>normalization.mojo:29-341</code>)</li>
+<li><code>attention</code>: no dtype guard on mask vs scores (<code>attention.mojo:127-128</code>)</li>
+</ul>
+<hr />
+<h2 id="table-of-contents">Table of Contents</h2>
+<ol>
+<li><a href="#1-problem-statement">Problem Statement</a></li>
+<li><a href="#2-how-simd-works">How SIMD Works (The Target Behavior)</a></li>
+<li><a href="#3-why-anytensor-cant-do-this-today">Why AnyTensor Can't Do This Today</a></li>
+<li><a href="#4-the-parametric-solution">The Parametric Solution</a></li>
+<li><a href="#5-critical-design-decisions">Critical Design Decisions</a></li>
+<li><a href="#6-impact-assessment">Impact Assessment</a></li>
+<li><a href="#7-migration-strategy-17-sub-phases">Migration Strategy (17 Sub-Phases)</a></li>
+<li><a href="#8-phase-details">Phase Details</a></li>
+<li><a href="#9-risk-analysis">Risk Analysis</a></li>
+<li><a href="#10-verification-plan">Verification Plan</a></li>
+<li><a href="#11-corner-cases-blockers-deep-analysis">Corner Cases &amp; Blockers</a></li>
+<li><a href="#12-references">References</a></li>
+</ol>
+<hr />
+<h2 id="1-problem-statement">1. Problem Statement</h2>
+<p>AnyTensor stores <code>_dtype</code> as a <strong>runtime</strong> field (<code>var _dtype: DType</code>). This means:</p>
+<ul>
+<li><code>__getitem__</code> returns a fixed type (<code>Float32</code>) regardless of the tensor's actual dtype</li>
+<li><code>tensor[i] = Float64(x)</code> fails: "cannot implicitly convert 'Float64' to 'Float32'"</li>
+<li><code>tensor[i] = Float16(x)</code> fails: same error</li>
+<li><code>tensor[i] = 3.14159</code> on a float64 tensor truncates to Float32 precision</li>
+<li>Mojo does NOT dispatch <code>obj[i] = val</code> to <code>__setitem__</code> — it uses <code>__getitem__</code> as an lvalue</li>
+</ul>
+<p>The current workaround (<code>set()</code> method) introduces precision-losing Float64 round-trips and requires callers to use a non-standard API.</p>
+<p><strong>Source</strong>: <code>src/odyssey/core/any_tensor.mojo:798</code> — <code>__getitem__</code> returns <code>Float32</code>
+<strong>Source</strong>: <code>src/odyssey/core/any_tensor.mojo:116</code> — <code>var _dtype: DType</code> runtime field</p>
+<hr />
+<h2 id="2-how-simd-works">2. How SIMD Works</h2>
+<p>SIMD is <strong>parametric on DType at compile time</strong>: <code>SIMD[DType.float32, 4]</code></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">var</span><span class="w"> </span><span class="nv">s</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">SIMD</span><span class="p">[</span><span class="nb">DType</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">](</span><span class="mf">0.0</span><span class="p">)</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="n">s</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">3.14159</span><span class="w">       </span><span class="c1"># FloatLiteral → Scalar[float32] ✓</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="n">s</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">Float32</span><span class="p">(</span><span class="mf">2.0</span><span class="p">)</span><span class="w">  </span><span class="c1"># Same type ✓</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="n">s</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">42</span><span class="w">            </span><span class="c1"># IntLiteral → Scalar[float32] ✓</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="n">s</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">Float64</span><span class="p">(</span><span class="mf">1.0</span><span class="p">)</span><span class="w">  </span><span class="c1"># ERROR: different type ✗ (strict, by design)</span>
+</code></pre></div>
+<p>Key behaviors:
+- <code>__getitem__</code> returns <code>Scalar[Self.dtype]</code> — the correct type at compile time
+- Assignment works with same-type values and literals only
+- No implicit widening or narrowing between float types
+- The compiler selects a single concrete code path per instantiation</p>
+<p><strong>Source</strong>: Mojo SIMD docs — https://docs.modular.com/mojo/std/builtin/simd/SIMD/
+<strong>Verified</strong>: Tested locally with <code>SIMD[DType.float32, 4]</code> and <code>SIMD[DType.float64, 4]</code></p>
+<hr />
+<h2 id="3-why-anytensor-cant-do-this-today">3. Why AnyTensor Can't Do This Today</h2>
+<h3 id="31-runtime-dtype-prevents-parametric-return-types">3.1 Runtime DType Prevents Parametric Return Types</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1"># Current — runtime dtype</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="k">struct</span><span class="w"> </span><span class="n n-Struct">AnyTensor</span><span class="p">:</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">    </span><span class="k">var</span><span class="w"> </span><span class="nv">_dtype</span><span class="p">:</span><span class="w"> </span><span class="nb">DType</span><span class="w">  </span><span class="c1"># runtime value</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">    </span><span class="k">fn</span><span class="w"> </span><span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">i</span><span class="p">:</span><span class="w"> </span><span class="nb">Int</span><span class="p">)</span><span class="w"> </span><span class="n">raises</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nb">Float32</span><span class="p">:</span><span class="w">  </span><span class="c1"># FIXED return type</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">_get_float32</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+</code></pre></div>
+<p><code>__getitem__</code> can't return <code>Scalar[self._dtype]</code> because <code>self._dtype</code> is a runtime value and Mojo requires compile-time parameters for generic types.</p>
+<h3 id="32-massive-runtime-branching">3.2 Massive Runtime Branching</h3>
+<p>The codebase contains:
+- <strong>177 dtype branch checks</strong> inside <code>any_tensor.mojo</code> alone
+- <strong>174 dtype branch checks</strong> across consumer files
+- <strong>708 <code>_data.bitcast[T]()</code> calls</strong> across the <code>src/odyssey/</code> directory
+- <strong>158 bitcast calls</strong> inside <code>any_tensor.mojo</code></p>
+<p>Each of these represents code that should be monomorphized by the compiler instead of branching at runtime.</p>
+<h3 id="33-the-__setitem__-dead-code-problem">3.3 The <code>__setitem__</code> Dead Code Problem</h3>
+<p>Mojo's <code>obj[i] = val</code> uses <code>__getitem__</code> as an lvalue, not <code>__setitem__</code>. All <code>__setitem__</code> overloads are dead code for subscript assignment syntax. The 12 <code>set()</code> overloads are a workaround, not a solution.</p>
+<p><strong>Source</strong>: <code>src/odyssey/core/any_tensor.mojo:922-992</code> — 12 <code>set()</code> overloads
+<strong>Source</strong>: Verified by test — <code>__setitem__</code> is never called via <code>[i]=</code> syntax</p>
+<hr />
+<h2 id="4-the-parametric-solution">4. The Parametric Solution</h2>
+<h3 id="41-new-struct-definition">4.1 New Struct Definition</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">struct</span><span class="w"> </span><span class="n n-Struct">Tensor</span><span class="p">[</span><span class="n">dtype</span><span class="p">:</span><span class="w"> </span><span class="nb">DType</span><span class="p">]:</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">    </span><span class="k">var</span><span class="w"> </span><span class="nv">_data</span><span class="p">:</span><span class="w"> </span><span class="n">UnsafePointer</span><span class="p">[</span><span class="nb">Scalar</span><span class="p">[</span><span class="n">Self</span><span class="o">.</span><span class="n">dtype</span><span class="p">],</span><span class="w"> </span><span class="n">origin</span><span class="o">=</span><span class="n">MutAnyOrigin</span><span class="p">]</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">    </span><span class="k">var</span><span class="w"> </span><span class="nv">_shape</span><span class="p">:</span><span class="w"> </span><span class="nb">List</span><span class="p">[</span><span class="nb">Int</span><span class="p">]</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">    </span><span class="k">var</span><span class="w"> </span><span class="nv">_strides</span><span class="p">:</span><span class="w"> </span><span class="nb">List</span><span class="p">[</span><span class="nb">Int</span><span class="p">]</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w">    </span><span class="k">var</span><span class="w"> </span><span class="nv">_numel</span><span class="p">:</span><span class="w"> </span><span class="nb">Int</span>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="w">    </span><span class="k">var</span><span class="w"> </span><span class="nv">_is_view</span><span class="p">:</span><span class="w"> </span><span class="n">Bool</span>
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="w">    </span><span class="k">var</span><span class="w"> </span><span class="nv">_refcount</span><span class="p">:</span><span class="w"> </span><span class="n">UnsafePointer</span><span class="p">[</span><span class="nb">Int</span><span class="p">,</span><span class="w"> </span><span class="n">origin</span><span class="o">=</span><span class="n">MutAnyOrigin</span><span class="p">]</span>
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="w">    </span><span class="k">var</span><span class="w"> </span><span class="nv">_allocated_size</span><span class="p">:</span><span class="w"> </span><span class="nb">Int</span>
+<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="w">    </span><span class="k">var</span><span class="w"> </span><span class="nv">_original_numel_quantized</span><span class="p">:</span><span class="w"> </span><span class="nb">Int</span>
+<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="w">    </span><span class="c1"># _dtype field REMOVED — now Self.dtype (compile-time parameter)</span>
+</code></pre></div>
+<h3 id="42-simplified-getitem-assignment">4.2 Simplified <strong>getitem</strong> / Assignment</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="k">fn</span><span class="w"> </span><span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">index</span><span class="p">:</span><span class="w"> </span><span class="nb">Int</span><span class="p">)</span><span class="w"> </span><span class="n">raises</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nb">Scalar</span><span class="p">[</span><span class="n">Self</span><span class="o">.</span><span class="n">dtype</span><span class="p">]:</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">    </span><span class="k">var</span><span class="w"> </span><span class="nv">idx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">_resolve_index</span><span class="p">(</span><span class="n">index</span><span class="p">)</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="c1"># No __setitem__ needed! Mojo handles [i]= via lvalue from __getitem__:</span>
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="c1"># tensor[i] = 3.14159       → FloatLiteral converts to Scalar[dtype] ✓</span>
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="c1"># tensor[i] = Float32(x)    → same type for float32 tensor ✓</span>
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="c1"># tensor[i] = Float64(x)    → same type for float64 tensor ✓</span>
+</code></pre></div>
+<h3 id="43-simplified-internal-methods">4.3 Simplified Internal Methods</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="c1"># BEFORE: 6 branching internal methods (177 branch checks)</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="k">fn</span><span class="w"> </span><span class="nf">_get_float64</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">index</span><span class="p">:</span><span class="w"> </span><span class="nb">Int</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nb">Float64</span><span class="p">:</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">_dtype</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="nb">DType</span><span class="o">.</span><span class="n">float16</span><span class="p">:</span><span class="w"> </span><span class="o">...</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="w">    </span><span class="k">elif</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">_dtype</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="nb">DType</span><span class="o">.</span><span class="n">float32</span><span class="p">:</span><span class="w"> </span><span class="o">...</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="w">    </span><span class="k">elif</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">_dtype</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="nb">DType</span><span class="o">.</span><span class="n">float64</span><span class="p">:</span><span class="w"> </span><span class="o">...</span>
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="w">    </span><span class="k">elif</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">_dtype</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="nb">DType</span><span class="o">.</span><span class="n">bfloat16</span><span class="p">:</span><span class="w"> </span><span class="o">...</span>
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="w">    </span><span class="k">else</span><span class="p">:</span><span class="w"> </span><span class="o">...</span>
+<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>
+<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a><span class="c1"># AFTER: Direct typed access (0 branches)</span>
+<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a><span class="k">fn</span><span class="w"> </span><span class="nf">_get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">index</span><span class="p">:</span><span class="w"> </span><span class="nb">Int</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nb">Scalar</span><span class="p">[</span><span class="n">Self</span><span class="o">.</span><span class="n">dtype</span><span class="p">]:</span>
+<a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+<a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a>
+<a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a><span class="k">fn</span><span class="w"> </span><span class="nf">_set</span><span class="p">(</span><span class="n">mut</span><span class="w"> </span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">index</span><span class="p">:</span><span class="w"> </span><span class="nb">Int</span><span class="p">,</span><span class="w"> </span><span class="n">value</span><span class="p">:</span><span class="w"> </span><span class="nb">Scalar</span><span class="p">[</span><span class="n">Self</span><span class="o">.</span><span class="n">dtype</span><span class="p">]):</span>
+<a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a><span class="w">    </span><span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">value</span>
+</code></pre></div>
+<h3 id="44-factory-functions">4.4 Factory Functions</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="c1"># BEFORE: runtime dtype parameter</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="k">fn</span><span class="w"> </span><span class="nf">zeros</span><span class="p">(</span><span class="n">shape</span><span class="p">:</span><span class="w"> </span><span class="nb">List</span><span class="p">[</span><span class="nb">Int</span><span class="p">],</span><span class="w"> </span><span class="n">dtype</span><span class="p">:</span><span class="w"> </span><span class="nb">DType</span><span class="p">)</span><span class="w"> </span><span class="n">raises</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">AnyTensor</span><span class="p">:</span><span class="w"> </span><span class="o">...</span>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="c1"># AFTER: compile-time dtype parameter</span>
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="k">fn</span><span class="w"> </span><span class="nf">zeros</span><span class="p">[</span><span class="n">dtype</span><span class="p">:</span><span class="w"> </span><span class="nb">DType</span><span class="p">](</span><span class="n">shape</span><span class="p">:</span><span class="w"> </span><span class="nb">List</span><span class="p">[</span><span class="nb">Int</span><span class="p">])</span><span class="w"> </span><span class="n">raises</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nb">Tensor</span><span class="p">[</span><span class="n">dtype</span><span class="p">]:</span><span class="w"> </span><span class="o">...</span>
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>
+<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="c1"># Usage:</span>
+<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a><span class="k">var</span><span class="w"> </span><span class="nv">t</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zeros</span><span class="p">[</span><span class="nb">DType</span><span class="o">.</span><span class="n">float32</span><span class="p">]([</span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">])</span>
+<a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a><span class="n">t</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">3.14</span><span class="w">  </span><span class="c1"># Just works — Scalar[float32] lvalue</span>
+</code></pre></div>
+<hr />
+<h2 id="5-critical-design-decisions">5. Critical Design Decisions</h2>
+<h3 id="51-runtime-to-compile-time-promotion">5.1 Runtime-to-Compile-Time Promotion</h3>
+<p><strong>Problem</strong>: Mojo does NOT allow runtime values as compile-time parameters.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="k">var</span><span class="w"> </span><span class="nv">runtime_dtype</span><span class="p">:</span><span class="w"> </span><span class="nb">DType</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">DType</span><span class="o">.</span><span class="n">float32</span><span class="w">  </span><span class="c1"># runtime value</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="k">var</span><span class="w"> </span><span class="nv">t</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">AnyTensor</span><span class="p">[</span><span class="n">runtime_dtype</span><span class="p">]([</span><span class="mi">3</span><span class="p">])</span><span class="w">       </span><span class="c1"># COMPILE ERROR</span>
+</code></pre></div>
+<p><strong>Solution</strong>: Where dtype must be determined at runtime (e.g., loading from file, user config), use the existing <code>dtype_dispatch</code> pattern to fan out:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="k">fn</span><span class="w"> </span><span class="nf">load_tensor</span><span class="p">(</span><span class="n">path</span><span class="p">:</span><span class="w"> </span><span class="nb">String</span><span class="p">)</span><span class="w"> </span><span class="n">raises</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="err">???</span><span class="p">:</span>
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="w">    </span><span class="k">var</span><span class="w"> </span><span class="nv">dtype</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">read_dtype_from_header</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="n">dtype</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="nb">DType</span><span class="o">.</span><span class="n">float32</span><span class="p">:</span>
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">load_typed</span><span class="p">[</span><span class="nb">DType</span><span class="o">.</span><span class="n">float32</span><span class="p">](</span><span class="n">path</span><span class="p">)</span>
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="w">    </span><span class="k">elif</span><span class="w"> </span><span class="n">dtype</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="nb">DType</span><span class="o">.</span><span class="n">float64</span><span class="p">:</span>
+<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">load_typed</span><span class="p">[</span><span class="nb">DType</span><span class="o">.</span><span class="n">float64</span><span class="p">](</span><span class="n">path</span><span class="p">)</span>
+<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a><span class="w">    </span><span class="c1"># ...</span>
+</code></pre></div>
+<p>This is the same pattern already used in <code>_extensor_binary_arith</code> at <code>any_tensor.mojo:3728</code>.</p>
+<h3 id="52-heterogeneous-collections">5.2 Heterogeneous Collections</h3>
+<p><strong>Problem</strong>: <code>List[AnyTensor]</code> works today because all AnyTensors are the same type. With parametric AnyTensor, <code>List[Tensor[DType.float32]]</code> can't hold <code>Tensor[DType.float64]</code>.</p>
+<p><strong>Solution</strong>: Define a trait <code>Tensor</code> that <code>Tensor[dtype]</code> conforms to. Use <code>List[AnyTensor]</code> (trait object) for heterogeneous collections:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="k">trait</span><span class="w"> </span><span class="n n-Struct">Tensor</span><span class="p">:</span>
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="w">    </span><span class="k">fn</span><span class="w"> </span><span class="nf">shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nb">List</span><span class="p">[</span><span class="nb">Int</span><span class="p">]</span>
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="w">    </span><span class="k">fn</span><span class="w"> </span><span class="nf">numel</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nb">Int</span>
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="w">    </span><span class="k">fn</span><span class="w"> </span><span class="nf">dtype</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nb">DType</span>
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="w">    </span><span class="c1"># ...</span>
+<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>
+<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a><span class="k">struct</span><span class="w"> </span><span class="n n-Struct">Tensor</span><span class="p">[</span><span class="n">dtype</span><span class="p">:</span><span class="w"> </span><span class="nb">DType</span><span class="p">](</span><span class="nb">Tensor</span><span class="p">):</span>
+<a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a><span class="w">    </span><span class="c1"># ...</span>
+</code></pre></div>
+<p><strong>Source</strong>: <code>src/odyssey/core/traits.mojo</code> — already defines trait patterns for the codebase.</p>
+<h3 id="53-cross-dtype-operations">5.3 Cross-DType Operations</h3>
+<p><strong>Problem</strong>: <code>src/odyssey/training/mixed_precision.mojo</code> intentionally converts between dtypes:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="k">fn</span><span class="w"> </span><span class="nf">convert_to_fp32_master</span><span class="p">(</span><span class="n">params</span><span class="p">:</span><span class="w"> </span><span class="n">AnyTensor</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">AnyTensor</span><span class="w">  </span><span class="c1"># float16 → float32</span>
+</code></pre></div></p>
+<p><strong>Solution</strong>: With parametric types, this becomes explicit and type-safe:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="k">fn</span><span class="w"> </span><span class="nf">convert_to_fp32_master</span><span class="p">(</span><span class="n">params</span><span class="p">:</span><span class="w"> </span><span class="nb">Tensor</span><span class="p">[</span><span class="nb">DType</span><span class="o">.</span><span class="n">float16</span><span class="p">])</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nb">Tensor</span><span class="p">[</span><span class="nb">DType</span><span class="o">.</span><span class="n">float32</span><span class="p">]</span>
+</code></pre></div></p>
+<p>Add a <code>cast</code> method for explicit conversions:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="k">fn</span><span class="w"> </span><span class="nf">cast</span><span class="p">[</span><span class="n">target</span><span class="p">:</span><span class="w"> </span><span class="nb">DType</span><span class="p">](</span><span class="bp">self</span><span class="p">)</span><span class="w"> </span><span class="n">raises</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nb">Tensor</span><span class="p">[</span><span class="n">target</span><span class="p">]:</span>
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="w">    </span><span class="k">var</span><span class="w"> </span><span class="nv">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">Tensor</span><span class="p">[</span><span class="n">target</span><span class="p">](</span><span class="bp">self</span><span class="o">.</span><span class="n">_shape</span><span class="p">)</span>
+<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_numel</span><span class="p">):</span>
+<a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a><span class="w">        </span><span class="n">result</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">cast</span><span class="p">[</span><span class="n">target</span><span class="p">]()</span>
+<a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">result</span><span class="o">^</span>
+</code></pre></div></p>
+<p><strong>Source</strong>: <code>src/odyssey/training/mixed_precision.mojo:8,5</code> — 8 AnyTensor params, 5 returns, 6 dtype branches</p>
+<h3 id="54-memory-pool-compatibility">5.4 Memory Pool Compatibility</h3>
+<p><strong>Current</strong>: <code>_data = pooled_alloc(total_bytes)</code> returns <code>UnsafePointer[UInt8]</code>
+<strong>After</strong>: <code>_data = pooled_alloc(total_bytes).bitcast[Scalar[Self.dtype]]()</code> — one bitcast at allocation time, zero bitcasts thereafter.</p>
+<p><strong>Source</strong>: <code>src/odyssey/base/memory_pool.mojo</code> — <code>pooled_alloc</code> / <code>pooled_free</code> byte-level API (moved from <code>src/odyssey/core/</code> in Phase 0)</p>
+<h3 id="55-modulesequential-stays-on-anytensor">5.5 Module/Sequential Stays on AnyTensor</h3>
+<p><strong>Problem</strong>: Mojo 0.26.1 doesn't support parametric trait methods. The <code>Module</code> trait (<code>src/odyssey/core/module.mojo:86</code>) defines <code>fn forward(mut self, input: AnyTensor) raises -&gt; AnyTensor</code>. This signature cannot become <code>fn forward[dt: DType](mut self, input: Tensor[dt]) raises -&gt; Tensor[dt]</code>.</p>
+<p><strong>Consequence</strong>: Type safety benefits of <code>Tensor[dtype]</code> apply only INSIDE individual layer implementations, not across the composition boundary:
+- <code>Linear[DType.float32].forward()</code> internally works with <code>Tensor[DType.float32]</code>
+- But the Module interface forces <code>forward(AnyTensor) -&gt; AnyTensor</code>
+- <code>Sequential2[T0, T1]</code> chains layers through AnyTensor, doing boundary conversion at each step</p>
+<p><strong>Key detail</strong>: Only <code>Linear</code> and <code>ReLULayer</code> implement <code>Module</code>. <code>BatchNorm2dLayer</code>, <code>Conv2dLayer</code>, <code>DropoutLayer</code> do NOT implement Module — they are free to parameterize without trait constraints.</p>
+<p><strong>Future</strong>: When Mojo adds parametric trait methods, introduce <code>TypedModule[dtype: DType]</code> with <code>fn forward(mut self, input: Tensor[dtype]) -&gt; Tensor[dtype]</code> and <code>TypedSequential2[dtype, T0, T1]</code>.</p>
+<hr />
+<h2 id="6-impact-assessment">6. Impact Assessment</h2>
+<h3 id="61-quantitative-summary">6.1 Quantitative Summary</h3>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Count</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Functions taking AnyTensor as parameter</td>
+<td>368</td>
+</tr>
+<tr>
+<td>Functions returning AnyTensor</td>
+<td>480</td>
+</tr>
+<tr>
+<td>Runtime dtype branch checks (any_tensor.mojo)</td>
+<td>177</td>
+</tr>
+<tr>
+<td>Runtime dtype branch checks (consumers)</td>
+<td>174</td>
+</tr>
+<tr>
+<td><code>_data.bitcast[T]()</code> calls (total)</td>
+<td>708</td>
+</tr>
+<tr>
+<td>Factory functions to update</td>
+<td>14</td>
+</tr>
+<tr>
+<td><code>set()</code> overloads to remove</td>
+<td>12</td>
+</tr>
+<tr>
+<td>Internal getter/setter methods to simplify</td>
+<td>6</td>
+</tr>
+<tr>
+<td>Type conversion methods</td>
+<td>16</td>
+</tr>
+<tr>
+<td>Test files using <code>DType.float32</code></td>
+<td>386</td>
+</tr>
+<tr>
+<td>Source files importing AnyTensor</td>
+<td>73</td>
+</tr>
+</tbody>
+</table>
+<h3 id="62-top-10-most-impacted-files">6.2 Top 10 Most Impacted Files</h3>
+<table>
+<thead>
+<tr>
+<th>Rank</th>
+<th>File</th>
+<th>Total Signals</th>
+<th>Why Hard</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><code>src/odyssey/core/any_tensor.mojo</code></td>
+<td>263</td>
+<td>The struct itself — every method changes</td>
+</tr>
+<tr>
+<td>2</td>
+<td><code>src/odyssey/core/elementwise.mojo</code></td>
+<td>99</td>
+<td>27 function signatures change</td>
+</tr>
+<tr>
+<td>3</td>
+<td><code>src/odyssey/core/activation.mojo</code></td>
+<td>79</td>
+<td>18 dtype branches, 29 return sites</td>
+</tr>
+<tr>
+<td>4</td>
+<td><code>src/odyssey/core/arithmetic_contiguous.mojo</code></td>
+<td>67</td>
+<td>40 dtype comparisons in 4 functions</td>
+</tr>
+<tr>
+<td>5</td>
+<td><code>src/odyssey/core/matrix.mojo</code></td>
+<td>64</td>
+<td>48 bitcast calls, partially migrated</td>
+</tr>
+<tr>
+<td>6</td>
+<td><code>src/odyssey/core/dtype_dispatch.mojo</code></td>
+<td>59</td>
+<td>The dispatch infra itself — may be replaced</td>
+</tr>
+<tr>
+<td>7</td>
+<td><code>src/odyssey/core/arithmetic.mojo</code></td>
+<td>58</td>
+<td>15 function signatures</td>
+</tr>
+<tr>
+<td>8</td>
+<td><code>src/odyssey/core/numerical_safety.mojo</code></td>
+<td>51</td>
+<td>21 dtype branches, 21 bitcasts</td>
+</tr>
+<tr>
+<td>9</td>
+<td><code>src/odyssey/core/strassen.mojo</code></td>
+<td>40</td>
+<td>34 bitcasts in 3 long functions</td>
+</tr>
+<tr>
+<td>10</td>
+<td><code>src/odyssey/core/activation_simd.mojo</code></td>
+<td>43</td>
+<td>24 bitcasts in parametric kernels</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Source</strong>: Consumer audit agent — full per-file table available</p>
+<h3 id="63-files-already-using-parametric-patterns">6.3 Files Already Using Parametric Patterns</h3>
+<p>These files already use <code>[dtype: DType]</code> function parameters and will be easiest to migrate:
+- <code>src/odyssey/core/conv.mojo</code> — <code>_conv2d_kernel[dtype: DType]()</code> pattern
+- <code>src/odyssey/core/elementwise.mojo</code> — <code>dispatch_unary</code>/<code>dispatch_binary</code>
+- <code>src/odyssey/core/dtype_dispatch.mojo</code> — the dispatch infrastructure itself
+- <code>src/odyssey/core/matrix.mojo</code> — <code>_matmul_2d_1d_impl[dtype]()</code> (partially migrated)</p>
+<p><strong>Source</strong>: Consumer audit — "Pattern 2: Parametric <code>@parameter if</code>" section</p>
+<hr />
+<h2 id="7-migration-strategy-17-sub-phases">7. Migration Strategy (17 Sub-Phases)</h2>
+<h3 id="overview">Overview</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>Phase 0:  Package split (src/odyssey/base + src/odyssey/tensor + src/odyssey/core)
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>    ↓
+<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>Phase 1a: Create Tensor[dtype] + TensorLike trait in src/odyssey/tensor/ (additive only)
+<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a>Phase 1b: Rename struct AnyTensor → AnyTensor, add alias, fix naming collision (B3)
+<a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a>    ↓
+<a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a>Phase 2:  Factory functions return Tensor[dtype]
+<a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a>    ↓
+<a id="__codelineno-14-8" name="__codelineno-14-8" href="#__codelineno-14-8"></a>Phase 3a: Single-tensor shape ops (reshape, as_contiguous, flatten, etc.)
+<a id="__codelineno-14-9" name="__codelineno-14-9" href="#__codelineno-14-9"></a>Phase 3b: Arithmetic + SIMD ops
+<a id="__codelineno-14-10" name="__codelineno-14-10" href="#__codelineno-14-10"></a>Phase 3c: Elementwise + activation + comparison ops
+<a id="__codelineno-14-11" name="__codelineno-14-11" href="#__codelineno-14-11"></a>Phase 3d: Matrix + reduction + conv ops
+<a id="__codelineno-14-12" name="__codelineno-14-12" href="#__codelineno-14-12"></a>    ↓
+<a id="__codelineno-14-13" name="__codelineno-14-13" href="#__codelineno-14-13"></a>Phase 4a: Parameterize non-Module layers (BatchNorm, Conv2d, Dropout)
+<a id="__codelineno-14-14" name="__codelineno-14-14" href="#__codelineno-14-14"></a>    ↓
+<a id="__codelineno-14-15" name="__codelineno-14-15" href="#__codelineno-14-15"></a>Phase 5a: Update trait signatures (Module, Differentiable, etc.) → AnyTensor
+<a id="__codelineno-14-16" name="__codelineno-14-16" href="#__codelineno-14-16"></a>    ↓ (traits must update BEFORE Module-implementing layers can be parameterized — see M6)
+<a id="__codelineno-14-17" name="__codelineno-14-17" href="#__codelineno-14-17"></a>Phase 4b: Parameterize Module layers (Linear, ReLU) + Sequential
+<a id="__codelineno-14-18" name="__codelineno-14-18" href="#__codelineno-14-18"></a>    ↓
+<a id="__codelineno-14-19" name="__codelineno-14-19" href="#__codelineno-14-19"></a>Phase 5b: Collection ops (concatenate, stack, split, lazy_expr) → List[AnyTensor]
+<a id="__codelineno-14-20" name="__codelineno-14-20" href="#__codelineno-14-20"></a>Phase 5c: Optimizer + Variable + gradient types → AnyTensor
+<a id="__codelineno-14-21" name="__codelineno-14-21" href="#__codelineno-14-21"></a>    ↓
+<a id="__codelineno-14-22" name="__codelineno-14-22" href="#__codelineno-14-22"></a>Phase 6:  Training, autograd tape, data pipelines
+<a id="__codelineno-14-23" name="__codelineno-14-23" href="#__codelineno-14-23"></a>    ↓
+<a id="__codelineno-14-24" name="__codelineno-14-24" href="#__codelineno-14-24"></a>Phase 7a: Tests — src/odyssey/core/ (~180 files)
+<a id="__codelineno-14-25" name="__codelineno-14-25" href="#__codelineno-14-25"></a>Phase 7b: Tests — models/ (~45 files)
+<a id="__codelineno-14-26" name="__codelineno-14-26" href="#__codelineno-14-26"></a>Phase 7c: Tests — training/ + autograd/ + data/ (~120 files)
+<a id="__codelineno-14-27" name="__codelineno-14-27" href="#__codelineno-14-27"></a>Phase 7d: Tests — integration/ + remaining (~40 files)
+<a id="__codelineno-14-28" name="__codelineno-14-28" href="#__codelineno-14-28"></a>Phase 7e: Final cleanup — remove alias, rename any_tensor.mojo → any_tensor.mojo
+</code></pre></div>
+<p><strong>Key ordering change</strong>: Phase 5a (traits) moves BEFORE Phase 4b (Module layers), because <code>Linear</code> and <code>ReLULayer</code> implement <code>Module</code> and can't be parameterized until Module accepts AnyTensor (see M6).</p>
+<p>Each sub-phase is its own PR. Each follows the 12-step workflow (Plan → Test → Implement → Review → Fix → Cleanup).</p>
+<h3 id="revised-scope-estimates">Revised Scope Estimates</h3>
+<table>
+<thead>
+<tr>
+<th>Phase</th>
+<th>Lines</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Phase 0</td>
+<td>~500</td>
+<td>Move files + update import paths</td>
+</tr>
+<tr>
+<td>Phase 1a</td>
+<td>~800 new</td>
+<td>New Tensor[dtype], TensorLike</td>
+</tr>
+<tr>
+<td>Phase 1b</td>
+<td>~1,500</td>
+<td>Rename struct, alias, collision fix</td>
+</tr>
+<tr>
+<td>Phase 2</td>
+<td>~200 new</td>
+<td>Typed factory functions</td>
+</tr>
+<tr>
+<td>Phase 3a-d</td>
+<td>~2,500</td>
+<td>Core op overloads across ~20 files</td>
+</tr>
+<tr>
+<td>Phase 4a</td>
+<td>~500</td>
+<td>Non-Module layer parameterization</td>
+</tr>
+<tr>
+<td>Phase 5a</td>
+<td>~300</td>
+<td>Trait signature updates</td>
+</tr>
+<tr>
+<td>Phase 4b</td>
+<td>~400</td>
+<td>Module layer + Sequential</td>
+</tr>
+<tr>
+<td>Phase 5b-c</td>
+<td>~1,400</td>
+<td>Collection ops + optimizer/variable</td>
+</tr>
+<tr>
+<td>Phase 6</td>
+<td>~1,500</td>
+<td>Training, autograd, data</td>
+</tr>
+<tr>
+<td>Phase 7a-d</td>
+<td>~5,600</td>
+<td>Test updates (4 sub-PRs by directory)</td>
+</tr>
+<tr>
+<td>Phase 7e</td>
+<td>~500</td>
+<td>Final cleanup</td>
+</tr>
+<tr>
+<td><strong>Total</strong></td>
+<td><strong>~15,700</strong></td>
+<td>Up from original 9,700 estimate (see H8)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="8-phase-details">8. Phase Details</h2>
+<h3 id="phase-1-tensordtype-anytensor-tensorlike-trait">Phase 1: Tensor[dtype] + AnyTensor + TensorLike Trait</h3>
+<p><strong>Goal</strong>: Create <code>Tensor[dtype]</code> alongside the existing AnyTensor (renamed to <code>AnyTensor</code>), with a shared <code>TensorLike</code> trait.</p>
+<p><strong>Files</strong>: <code>src/odyssey/tensor/tensor.mojo</code> (NEW), <code>src/odyssey/tensor/tensor_traits.mojo</code> (NEW), <code>src/odyssey/tensor/any_tensor.mojo</code> (MOVED from <code>src/odyssey/core/</code>), <code>src/odyssey/base/</code> (NEW — extracted from <code>src/odyssey/core/</code>)</p>
+<p><strong>3-Layer Package Architecture</strong> (prerequisite: Phase 0 package split):
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>src/odyssey/base/             # LAYER 1: Zero tensor dependencies
+<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>    __init__.mojo
+<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>    memory_pool.mojo     # pooled_alloc/pooled_free (moved from core)
+<a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a>    broadcasting.mojo    # broadcast_shapes (moved from core, pure List[Int] functions)
+<a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a>    dtype_ordinal.mojo   # dtype-to-ordinal mapping (moved from core)
+<a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a>    defaults.mojo        # constants (moved from core)
+<a id="__codelineno-15-7" name="__codelineno-15-7" href="#__codelineno-15-7"></a>    math_constants.mojo  # constants (moved from core)
+<a id="__codelineno-15-8" name="__codelineno-15-8" href="#__codelineno-15-8"></a>    numerical_constants.mojo
+<a id="__codelineno-15-9" name="__codelineno-15-9" href="#__codelineno-15-9"></a>    activation_constants.mojo
+<a id="__codelineno-15-10" name="__codelineno-15-10" href="#__codelineno-15-10"></a>    optimizer_constants.mojo
+<a id="__codelineno-15-11" name="__codelineno-15-11" href="#__codelineno-15-11"></a>    error_utils.mojo
+<a id="__codelineno-15-12" name="__codelineno-15-12" href="#__codelineno-15-12"></a>    types/               # dtype_aliases, fp_constants, mxfp4, nvfp4 (moved from core)
+<a id="__codelineno-15-13" name="__codelineno-15-13" href="#__codelineno-15-13"></a>
+<a id="__codelineno-15-14" name="__codelineno-15-14" href="#__codelineno-15-14"></a>src/odyssey/tensor/           # LAYER 2: Imports base only
+<a id="__codelineno-15-15" name="__codelineno-15-15" href="#__codelineno-15-15"></a>    __init__.mojo
+<a id="__codelineno-15-16" name="__codelineno-15-16" href="#__codelineno-15-16"></a>    tensor.mojo          # NEW struct Tensor[dtype: DType]
+<a id="__codelineno-15-17" name="__codelineno-15-17" href="#__codelineno-15-17"></a>    tensor_traits.mojo   # NEW trait TensorLike
+<a id="__codelineno-15-18" name="__codelineno-15-18" href="#__codelineno-15-18"></a>    any_tensor.mojo        # struct AnyTensor (MOVED from core, filename kept until Phase 7e)
+<a id="__codelineno-15-19" name="__codelineno-15-19" href="#__codelineno-15-19"></a>    gradient_types.mojo  # GradientPair/Triple/Quad (moved from core)
+<a id="__codelineno-15-20" name="__codelineno-15-20" href="#__codelineno-15-20"></a>    validation.mojo      # shape/dtype validation (moved from core)
+<a id="__codelineno-15-21" name="__codelineno-15-21" href="#__codelineno-15-21"></a>    tensor_io.mojo       # save/load (moved from core)
+<a id="__codelineno-15-22" name="__codelineno-15-22" href="#__codelineno-15-22"></a>
+<a id="__codelineno-15-23" name="__codelineno-15-23" href="#__codelineno-15-23"></a>src/odyssey/core/             # LAYER 3: Imports base + tensor
+<a id="__codelineno-15-24" name="__codelineno-15-24" href="#__codelineno-15-24"></a>    __init__.mojo
+<a id="__codelineno-15-25" name="__codelineno-15-25" href="#__codelineno-15-25"></a>    arithmetic.mojo      # (and all 40+ operation files)
+<a id="__codelineno-15-26" name="__codelineno-15-26" href="#__codelineno-15-26"></a>    traits.mojo          # Differentiable, Parameterized, Model, Loss, Optimizer
+<a id="__codelineno-15-27" name="__codelineno-15-27" href="#__codelineno-15-27"></a>    module.mojo          # Module trait
+<a id="__codelineno-15-28" name="__codelineno-15-28" href="#__codelineno-15-28"></a>    sequential.mojo      # Sequential2-5
+<a id="__codelineno-15-29" name="__codelineno-15-29" href="#__codelineno-15-29"></a>    layers/              # Linear, Conv2D, BatchNorm, etc.
+<a id="__codelineno-15-30" name="__codelineno-15-30" href="#__codelineno-15-30"></a>    lazy_expression.mojo
+<a id="__codelineno-15-31" name="__codelineno-15-31" href="#__codelineno-15-31"></a>    lazy_eval.mojo
+<a id="__codelineno-15-32" name="__codelineno-15-32" href="#__codelineno-15-32"></a>    dtype_dispatch.mojo
+<a id="__codelineno-15-33" name="__codelineno-15-33" href="#__codelineno-15-33"></a>    ...
+</code></pre></div></p>
+<p><strong>Dependency chain verified</strong> (no circular deps):
+- <code>any_tensor.mojo</code> imports: <code>memory_pool</code> (→base), <code>broadcasting</code> (→base), <code>dtype_ordinal</code> (→base) ✓
+- <code>broadcasting.mojo</code> imports: nothing from shared (pure stdlib) ✓
+- <code>validation.mojo</code> imports: <code>extensor</code> (→tensor, same package) ✓
+- <code>traits.mojo</code> imports: <code>extensor</code> (→tensor, cross-package but acyclic) ✓</p>
+<p><strong>File rename strategy</strong>: Do NOT rename <code>any_tensor.mojo</code> → <code>any_tensor.mojo</code> until Phase 7e. Keep filename throughout migration to avoid breaking 569 import paths early. Add <code>comptime AnyTensor = AnyTensor</code> alias inside the file.</p>
+<p><strong>Estimated scope</strong>: Phase 0 (~500 lines import path updates), Phase 1a (~800 lines new), Phase 1b (~1,500 lines changed)</p>
+<h4 id="phase-0-package-split-new-prerequisite">Phase 0 — Package Split (NEW — prerequisite)</h4>
+<p>Move files from <code>src/odyssey/core/</code> to create the 3-layer architecture described above. Each moved file gets updated import paths (<code>from odyssey.base.X import Y</code>). <code>src/odyssey/core/__init__.mojo</code> and <code>src/odyssey/__init__.mojo</code> re-export from new locations for backward compat. ~500 lines of import path updates. This is a mechanical move with zero behavior changes.</p>
+<h4 id="phase-1a-create-tensordtype-tensorlike-trait-additive-only">Phase 1a — Create Tensor[dtype] + TensorLike Trait (additive only)</h4>
+<ul>
+<li>Create <code>src/odyssey/tensor/tensor.mojo</code>: <code>struct Tensor[dtype: DType = DType.float32]</code></li>
+<li>Create <code>src/odyssey/tensor/tensor_traits.mojo</code>: <code>trait TensorLike(Copyable, Movable)</code></li>
+<li>Design <code>TensorLike</code> trait interface (<code>numel</code>, <code>shape</code>, <code>dtype</code>, <code>ndim</code>; decide on <code>Hashable</code>)</li>
+<li>Design <code>Tensor[dtype]</code> struct: fields, <code>__getitem__</code> returning <code>Scalar[Self.dtype]</code>, <code>__init__</code>, <code>as_any()</code>, <code>cast[target]()</code></li>
+<li>Design <code>__str__</code>/<code>__repr__</code> using typed <code>self._data[i]</code> access (not <code>_get_float64</code>), output <code>"Tensor(["</code></li>
+<li>Design <code>__hash__</code> using typed access (fix int precision loss, see M2)</li>
+<li>Implement shared refcount protocol for <code>as_any()</code> (see B4)</li>
+<li>Pointer arithmetic does NOT multiply by <code>dtype_size</code> (typed pointer auto-scales)</li>
+<li>Compilation time guard: run <code>time just package</code> after creating Tensor[dtype], record baseline</li>
+<li>Note: all functions returning <code>Tensor</code> must use <code>fn foo[dt: DType](t: Tensor[dt]) -&gt; Tensor[dt]</code> (auto-param fails for return types, see B1)</li>
+<li>Zero existing code changes in this phase</li>
+</ul>
+<h4 id="phase-1b-rename-struct-fix-collision">Phase 1b — Rename Struct + Fix Collision</h4>
+<ul>
+<li>Rename <code>struct AnyTensor</code> → <code>struct AnyTensor</code> inside <code>any_tensor.mojo</code> (keep filename)</li>
+<li>Add <code>comptime AnyTensor = AnyTensor</code> alias for backward compat</li>
+<li>Add <code>as_tensor[dtype: DType]() -&gt; Tensor[dtype]</code> method with shared refcount (see B4)</li>
+<li>Conform AnyTensor to <code>TensorLike</code> trait</li>
+<li>Remove <code>comptime Tensor = AnyTensor</code> from <code>src/odyssey/__init__.mojo:82</code> (see B3)</li>
+<li>Add proper Tensor[dtype] re-export from src/odyssey/tensor/</li>
+<li>Update <code>src/odyssey/core/__init__.mojo</code> and <code>src/odyssey/__init__.mojo</code> exports</li>
+</ul>
+<h4 id="phase-12-commit-plan">Phase 1.2 — Commit Plan</h4>
+<ul>
+<li>Commit plan documentation</li>
+</ul>
+<h4 id="phase-13-test-tdd">Phase 1.3 — Test (TDD)</h4>
+<ul>
+<li>Write tests for <code>Tensor[dtype]</code> element access: <code>t[i] = 3.14159</code>, <code>t[i] = Float32(x)</code>, <code>t[i] = 42</code></li>
+<li>Write tests for <code>AnyTensor.as_tensor[dtype]()</code> — valid and dtype-mismatch cases</li>
+<li>Write tests for <code>Tensor.as_any()</code> round-trip</li>
+<li>Write tests for <code>TensorLike</code> trait conformance</li>
+</ul>
+<h4 id="phase-14-review-tests">Phase 1.4 — Review Tests</h4>
+<ul>
+<li>Review test design for coverage and edge cases</li>
+</ul>
+<h4 id="phase-15-commit-tests">Phase 1.5 — Commit Tests</h4>
+<ul>
+<li>Commit test files</li>
+</ul>
+<h4 id="phase-16-implement">Phase 1.6 — Implement</h4>
+<ul>
+<li>Create <code>src/odyssey/tensor/</code> module with <code>struct Tensor[dtype: DType = DType.float32](TensorLike)</code></li>
+<li>Implement <code>__getitem__</code> returning <code>Scalar[Self.dtype]</code>, <code>__str__</code>, <code>__repr__</code>, <code>__hash__</code> with typed access</li>
+<li>Implement <code>as_any() -&gt; AnyTensor</code> (zero-copy, bitcast to UInt8)</li>
+<li>Implement <code>cast[target: DType]() -&gt; Tensor[target]</code></li>
+<li>Rename AnyTensor → AnyTensor in <code>src/odyssey/core/any_tensor.mojo</code>, add <code>as_tensor[dtype]()</code>, conform to <code>TensorLike</code></li>
+<li>Update <code>src/odyssey/core/__init__.mojo</code> and <code>src/odyssey/__init__.mojo</code> exports</li>
+<li>Add <code>comptime AnyTensor = AnyTensor</code> alias for backward compat</li>
+<li>Ensure pointer arithmetic does NOT multiply by dtype_size (typed pointer auto-scales)</li>
+</ul>
+<h4 id="phase-17-review-implementation">Phase 1.7 — Review Implementation</h4>
+<ul>
+<li>Review against plan, check trait conformance, verify zero-copy conversions</li>
+</ul>
+<h4 id="phase-18-commit-implementation">Phase 1.8 — Commit Implementation</h4>
+<ul>
+<li>Commit implementation</li>
+</ul>
+<h4 id="phase-19-final-review">Phase 1.9 — Final Review</h4>
+<ul>
+<li>End-to-end review: plan + tests + implementation coherence</li>
+<li>Verify <code>tensor[i] = value</code> just works for all supported types/literals</li>
+</ul>
+<h4 id="phase-110-fix-validate">Phase 1.10 — Fix &amp; Validate</h4>
+<ul>
+<li>Address review findings</li>
+<li>Run <code>just package</code> and <code>just test-mojo</code> via Podman</li>
+<li>Verify no regressions in existing tests</li>
+</ul>
+<h4 id="phase-111-commit-fixes">Phase 1.11 — Commit Fixes</h4>
+<ul>
+<li>Commit review fixes</li>
+</ul>
+<h4 id="phase-112-cleanup">Phase 1.12 — Cleanup</h4>
+<ul>
+<li>Remove any dead code from Phase 1</li>
+<li>Update docs/ADRs if needed</li>
+<li>Verify CI green</li>
+</ul>
+<h3 id="phase-2-factory-functions">Phase 2: Factory Functions</h3>
+<p><strong>Goal</strong>: Add <code>Tensor[dtype]</code>-returning factory functions alongside existing ones.</p>
+<p><strong>Files</strong>: <code>src/odyssey/core/tensor.mojo</code>, <code>src/odyssey/core/initializers.mojo</code></p>
+<p><strong>Estimated scope</strong>: ~200 lines new</p>
+<h4 id="phase-21-plan">Phase 2.1 — Plan</h4>
+<ul>
+<li>Design typed factory signatures: <code>fn zeros[dtype: DType](shape) -&gt; Tensor[dtype]</code></li>
+<li>Decide: new functions or overloads? (New functions recommended — keep existing for AnyTensor)</li>
+<li>Cover all 14: <code>zeros</code>, <code>ones</code>, <code>full</code>, <code>empty</code>, <code>arange</code>, <code>eye</code>, <code>linspace</code>, <code>*_like</code>, <code>nan_tensor</code>, <code>inf_tensor</code>, <code>neg_inf_tensor</code>, <code>randn</code></li>
+</ul>
+<h4 id="phase-22-commit-plan">Phase 2.2 — Commit Plan</h4>
+<h4 id="phase-23-test-tdd">Phase 2.3 — Test (TDD)</h4>
+<ul>
+<li><code>var t = zeros[DType.float32]([3, 4])</code> — verify type inference, element access</li>
+<li><code>var t = ones[DType.float64]([2])</code> — verify literal assignment works at float64 precision</li>
+<li><code>var t2 = zeros_like(t)</code> — verify dtype propagation</li>
+</ul>
+<h4 id="phase-24-review-tests">Phase 2.4 — Review Tests</h4>
+<h4 id="phase-25-commit-tests">Phase 2.5 — Commit Tests</h4>
+<h4 id="phase-26-implement">Phase 2.6 — Implement</h4>
+<ul>
+<li>Add typed factory functions that create <code>Tensor[dtype]</code> using <code>pooled_alloc</code> + bitcast</li>
+<li><code>*_like</code> functions use auto-parameterization: <code>fn zeros_like(t: Tensor) -&gt; Tensor</code></li>
+</ul>
+<h4 id="phase-27-review-implementation">Phase 2.7 — Review Implementation</h4>
+<h4 id="phase-28-commit-implementation">Phase 2.8 — Commit Implementation</h4>
+<h4 id="phase-29-final-review">Phase 2.9 — Final Review</h4>
+<h4 id="phase-210-fix-validate">Phase 2.10 — Fix &amp; Validate</h4>
+<h4 id="phase-211-commit-fixes">Phase 2.11 — Commit Fixes</h4>
+<h4 id="phase-212-cleanup">Phase 2.12 — Cleanup</h4>
+<h3 id="phase-3-core-operations-accept-tensordtype-4-sub-prs">Phase 3: Core Operations Accept Tensor[dtype] (4 sub-PRs)</h3>
+<p><strong>Goal</strong>: Migrate core ops to accept <code>Tensor[dtype]</code>. Split into 4 sub-PRs for manageable PR sizes.</p>
+<p><strong>Estimated scope</strong>: ~2,500 lines changed across ~20 files</p>
+<p><strong>Key transformation</strong> — <code>_extensor_binary_arith</code> (<code>any_tensor.mojo:3728-3796</code>) becomes:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="k">fn</span><span class="w"> </span><span class="nf">_tensor_binary_arith</span><span class="p">[</span>
+<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a><span class="w">    </span><span class="n">dtype</span><span class="p">:</span><span class="w"> </span><span class="nb">DType</span><span class="p">,</span><span class="w"> </span><span class="n">op</span><span class="p">:</span><span class="w"> </span><span class="n">fn</span><span class="p">(</span><span class="nb">Scalar</span><span class="p">[</span><span class="n">dtype</span><span class="p">],</span><span class="w"> </span><span class="nb">Scalar</span><span class="p">[</span><span class="n">dtype</span><span class="p">])</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nb">Scalar</span><span class="p">[</span><span class="n">dtype</span><span class="p">]</span>
+<a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a><span class="p">](</span><span class="n">a</span><span class="p">:</span><span class="w"> </span><span class="nb">Tensor</span><span class="p">[</span><span class="n">dtype</span><span class="p">],</span><span class="w"> </span><span class="n">b</span><span class="p">:</span><span class="w"> </span><span class="nb">Tensor</span><span class="p">[</span><span class="n">dtype</span><span class="p">])</span><span class="w"> </span><span class="n">raises</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nb">Tensor</span><span class="p">[</span><span class="n">dtype</span><span class="p">]:</span>
+<a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a><span class="w">    </span><span class="c1"># Zero dtype dispatch — dtype is compile-time parameter</span>
+<a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a><span class="w">    </span><span class="c1"># Broadcasting logic unchanged from _extensor_binary_arith</span>
+<a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a><span class="w">    </span><span class="k">var</span><span class="w"> </span><span class="nv">result_shape</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">broadcast_shapes</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">shape</span><span class="p">(),</span><span class="w"> </span><span class="n">b</span><span class="o">.</span><span class="n">shape</span><span class="p">())</span>
+<a id="__codelineno-16-7" name="__codelineno-16-7" href="#__codelineno-16-7"></a><span class="w">    </span><span class="k">var</span><span class="w"> </span><span class="nv">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">Tensor</span><span class="p">[</span><span class="n">dtype</span><span class="p">](</span><span class="n">result_shape</span><span class="p">)</span>
+<a id="__codelineno-16-8" name="__codelineno-16-8" href="#__codelineno-16-8"></a><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="nb">range</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">numel</span><span class="p">()):</span>
+<a id="__codelineno-16-9" name="__codelineno-16-9" href="#__codelineno-16-9"></a><span class="w">        </span><span class="n">result</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">op</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="n">a_idx</span><span class="p">],</span><span class="w"> </span><span class="n">b</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="n">b_idx</span><span class="p">])</span>
+<a id="__codelineno-16-10" name="__codelineno-16-10" href="#__codelineno-16-10"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">result</span><span class="o">^</span>
+</code></pre></div>
+AnyTensor version (<code>_extensor_binary_arith</code>) preserved until Phase 7e. Same pattern for <code>_extensor_compare_op</code>.</p>
+<h4 id="phase-3a-single-tensor-shape-ops">Phase 3a — Single-tensor shape ops</h4>
+<p><strong>Files</strong>: <code>shape.mojo</code> (single-tensor ops ONLY: <code>reshape</code>, <code>as_contiguous</code>, <code>flatten</code>, <code>flatten_to_2d</code>, <code>squeeze</code>, <code>unsqueeze</code>, <code>expand_dims</code>, <code>permute</code>, <code>broadcast_to</code>)
+- NOTE: <code>concatenate</code>/<code>stack</code>/<code>split</code>/<code>tile</code>/<code>repeat</code> deferred to Phase 5b (they take <code>List</code>)</p>
+<h4 id="phase-3b-arithmetic-simd-ops">Phase 3b — Arithmetic + SIMD ops</h4>
+<p><strong>Files</strong>: <code>arithmetic.mojo</code>, <code>arithmetic_contiguous.mojo</code>, <code>arithmetic_simd.mojo</code>
+- Add <code>Tensor[dtype]</code> overloads alongside existing AnyTensor functions
+- Use explicit parametric signatures: <code>fn add[dt: DType](a: Tensor[dt], b: Tensor[dt]) -&gt; Tensor[dt]</code>
+- Eliminate runtime dtype branches, remove bitcasts</p>
+<h4 id="phase-3c-elementwise-activation-comparison-ops">Phase 3c — Elementwise + activation + comparison ops</h4>
+<p><strong>Files</strong>: <code>elementwise.mojo</code>, <code>activation.mojo</code>, <code>activation_simd.mojo</code>, <code>comparison.mojo</code>
+- Merge SIMD helpers: <code>_relu_simd_float32</code>/<code>_float64</code> → single <code>_relu_simd[dt: DType]</code> (see M4)</p>
+<h4 id="phase-3d-matrix-reduction-conv-ops">Phase 3d — Matrix + reduction + conv ops</h4>
+<p><strong>Files</strong>: <code>matrix.mojo</code>, <code>matmul.mojo</code>, <code>reduction.mojo</code>, <code>reduction_ops.mojo</code>, <code>conv.mojo</code>, <code>strassen.mojo</code></p>
+<p>Each sub-phase follows the 12-step workflow (Plan → Test → Implement → Review → Fix → Cleanup).</p>
+<h3 id="phase-4a-parameterize-non-module-layers">Phase 4a: Parameterize Non-Module Layers</h3>
+<p><strong>Goal</strong>: Parameterize layer structs that do NOT implement the Module trait.</p>
+<p><strong>Files</strong>: <code>layers/batchnorm.mojo</code>, <code>layers/conv2d.mojo</code>, <code>layers/dropout.mojo</code>, <code>normalization.mojo</code>, <code>normalization_simd.mojo</code>, <code>pooling.mojo</code>, <code>attention.mojo</code>, <code>loss.mojo</code>, <code>loss_utils.mojo</code>, <code>dtype_cast.mojo</code>, <code>numerical_safety.mojo</code></p>
+<p><strong>Estimated scope</strong>: ~500 lines changed</p>
+<ul>
+<li>Parameterize: <code>BatchNorm2dLayer[dtype: DType = DType.float32]</code>, <code>Conv2dLayer[dtype: DType = DType.float32]</code></li>
+<li><code>DropoutLayer</code> has no AnyTensor fields — may not need parameterization</li>
+<li>Design <code>cast[target]()</code> for <code>dtype_cast.mojo</code></li>
+<li>I/O: <code>Tensor[dtype].save()</code> → <code>self.as_any().save()</code>. Loading returns <code>AnyTensor</code></li>
+<li>Preserve circular import workaround in <code>tensor_io.mojo</code> (lines 3-14)</li>
+</ul>
+<h3 id="phase-5a-update-trait-signatures-anytensor">Phase 5a: Update Trait Signatures → AnyTensor</h3>
+<p><strong>Goal</strong>: Change trait signatures from <code>AnyTensor</code> to <code>AnyTensor</code>. Must happen BEFORE Phase 4b (see M6).</p>
+<p><strong>Files</strong>: <code>traits.mojo</code>, <code>module.mojo</code></p>
+<p><strong>Estimated scope</strong>: ~300 lines changed</p>
+<ul>
+<li><code>Module.forward(mut self, input: AnyTensor) raises -&gt; AnyTensor</code></li>
+<li><code>Module.parameters(self) raises -&gt; List[AnyTensor]</code></li>
+<li><code>Differentiable.forward/backward</code> → AnyTensor</li>
+<li><code>Parameterized.parameters/gradients</code> → <code>List[AnyTensor]</code></li>
+<li><code>Optimizer.step</code> → <code>List[AnyTensor]</code></li>
+<li>Note: These traits stay on AnyTensor permanently (not Tensor[dtype]) because Mojo 0.26.1 doesn't support parametric trait methods and collections require type erasure (see section 5.5)</li>
+</ul>
+<h3 id="phase-4b-parameterize-module-layers-sequential">Phase 4b: Parameterize Module Layers + Sequential</h3>
+<p><strong>Goal</strong>: Parameterize layers that implement Module. Only possible after Phase 5a updates Module's signature.</p>
+<p><strong>Files</strong>: <code>layers/linear.mojo</code>, <code>layers/relu.mojo</code>, <code>sequential.mojo</code></p>
+<p><strong>Estimated scope</strong>: ~400 lines changed</p>
+<ul>
+<li><code>Linear[dtype: DType = DType.float32]</code> implements <code>Module</code> with AnyTensor boundary:</li>
+<li><code>forward(mut self, input: AnyTensor) -&gt; AnyTensor</code> converts at boundary</li>
+<li>Internal computation uses <code>Tensor[dtype]</code> for type safety</li>
+<li><code>ReLULayer</code> — implements Module (no dtype fields, may not need parameterization)</li>
+<li><code>Sequential2-5</code> — keep Module-conforming, work with AnyTensor at boundaries</li>
+</ul>
+<h3 id="phase-5b-collection-operations-listanytensor">Phase 5b: Collection Operations → List[AnyTensor]</h3>
+<p><strong>Goal</strong>: Migrate operations that take <code>List[AnyTensor]</code> to <code>List[AnyTensor]</code>.</p>
+<p><strong>Files</strong>: <code>shape.mojo</code> (collection ops), <code>lazy_expression.mojo</code>, <code>lazy_eval.mojo</code></p>
+<p><strong>Estimated scope</strong>: ~600 lines changed</p>
+<ul>
+<li><code>concatenate</code>, <code>stack</code>, <code>split</code>, <code>split_with_indices</code>, <code>tile</code>, <code>repeat</code> → accept <code>List[AnyTensor]</code> (H3)</li>
+<li><code>TensorExpr._tensors: List[AnyTensor]</code> (B2)</li>
+<li><code>lazy_eval.mojo</code> dispatch updated</li>
+</ul>
+<h3 id="phase-5c-optimizer-variable-gradient-types-anytensor">Phase 5c: Optimizer + Variable + Gradient Types → AnyTensor</h3>
+<p><strong>Goal</strong>: Migrate autograd infrastructure to AnyTensor.</p>
+<p><strong>Files</strong>: <code>autograd/variable.mojo</code>, <code>autograd/optimizers.mojo</code>, <code>autograd/tape_types.mojo</code>, <code>gradient_types.mojo</code>, <code>testing/models.mojo</code></p>
+<p><strong>Estimated scope</strong>: ~800 lines changed</p>
+<ul>
+<li><code>Variable.data: AnyTensor</code> (keeps runtime dtype for autograd tape)</li>
+<li>All gradient containers: AnyTensor fields (<code>GradientPair</code>, <code>GradientTriple</code>, <code>GradientQuad</code>, etc.)</li>
+<li><code>SavedTensors.tensors: List[AnyTensor]</code>, <code>VariableRegistry.grads: List[AnyTensor]</code></li>
+<li>All 3 optimizer systems updated: functional (training/optimizers/), autograd (autograd/optimizers.mojo), trait-based (traits.mojo)</li>
+<li>Optimizer velocity/moment buffers: <code>List[AnyTensor]</code></li>
+<li><code>state_dict() -&gt; Dict[String, AnyTensor]</code></li>
+<li>Boundary conversions: <code>param.as_tensor[dtype]()</code> before compute</li>
+</ul>
+<h3 id="phase-6-training-autograd-data-pipelines">Phase 6: Training, Autograd, Data Pipelines</h3>
+<p><strong>Goal</strong>: Migrate training infrastructure, autograd, data loading, metrics.</p>
+<p><strong>Files</strong>: <code>training/mixed_precision.mojo</code>, <code>training/gradient_ops.mojo</code>, <code>training/metrics/*.mojo</code>, <code>autograd/tape_types.mojo</code>, <code>autograd/functional.mojo</code>, <code>data/transforms.mojo</code>, <code>data/_datasets_core.mojo</code>, <code>data/cache.mojo</code>, <code>testing/assertions.mojo</code>, <code>testing/gradient_checker.mojo</code>, <code>utils/file_io.mojo</code></p>
+<p><strong>Estimated scope</strong>: ~1000 lines changed across 15+ files</p>
+<h4 id="phase-61-plan">Phase 6.1 — Plan</h4>
+<ul>
+<li>Design <code>mixed_precision.mojo</code> with explicit cross-dtype signatures: <code>fn convert(Tensor[f16]) -&gt; Tensor[f32]</code></li>
+<li>Design <code>Batch</code> struct: <code>Batch[data_dtype: DType, label_dtype: DType]</code> or <code>data: Tensor[dtype]</code> + <code>labels: AnyTensor</code></li>
+<li>Design file I/O boundary: <code>load_tensor() -&gt; AnyTensor</code> (runtime dtype from file)</li>
+<li>Plan <code>PrecisionConfig</code> integration with <code>AnyTensor</code> (runtime dtype selection)</li>
+</ul>
+<h4 id="phase-62-commit-plan">Phase 6.2 — Commit Plan</h4>
+<h4 id="phase-63-test-tdd">Phase 6.3 — Test (TDD)</h4>
+<ul>
+<li>Mixed-precision: <code>convert_fp16_to_fp32(Tensor[f16]) -&gt; Tensor[f32]</code></li>
+<li>Data loading: <code>load_tensor() -&gt; AnyTensor</code>, then <code>as_tensor[f32]()</code></li>
+<li>Gradient checker with <code>Tensor[dtype]</code></li>
+<li>Metrics with typed tensors</li>
+</ul>
+<h4 id="phase-64-review-tests">Phase 6.4 — Review Tests</h4>
+<h4 id="phase-65-commit-tests">Phase 6.5 — Commit Tests</h4>
+<h4 id="phase-66-implement">Phase 6.6 — Implement</h4>
+<ul>
+<li>Update mixed_precision with explicit typed signatures</li>
+<li>Update data pipeline: <code>Batch</code> uses typed data + <code>AnyTensor</code> labels</li>
+<li>File I/O returns <code>AnyTensor</code> with dispatch at boundary</li>
+<li>Update gradient checker, assertions, metrics</li>
+</ul>
+<h4 id="phase-67-review-implementation">Phase 6.7 — Review Implementation</h4>
+<h4 id="phase-68-commit-implementation">Phase 6.8 — Commit Implementation</h4>
+<h4 id="phase-69-final-review">Phase 6.9 — Final Review</h4>
+<h4 id="phase-610-fix-validate">Phase 6.10 — Fix &amp; Validate</h4>
+<h4 id="phase-611-commit-fixes">Phase 6.11 — Commit Fixes</h4>
+<h4 id="phase-612-cleanup">Phase 6.12 — Cleanup</h4>
+<h3 id="phase-7-tests-final-cleanup-5-sub-prs">Phase 7: Tests + Final Cleanup (5 sub-PRs)</h3>
+<p><strong>Goal</strong>: Migrate all 395+ test files, remove AnyTensor alias, rename file, remove all workarounds.</p>
+<p><strong>Estimated scope</strong>: ~6,100 lines changed across 395+ files</p>
+<p><strong>Mechanical replacement patterns</strong> (for parallel sub-agents):
+- <code>zeros([3, 4], DType.float32)</code> → <code>zeros[DType.float32]([3, 4])</code>
+- <code>var t: AnyTensor = ...</code> → <code>var t = ...</code> (type inference)
+- <code>tensor.set(i, val)</code> → <code>tensor[i] = val</code>
+- <code>tensor._set_float64(i, val)</code> → <code>tensor[i] = Scalar[dtype](val)</code>
+- Import path updates from <code>shared.core.any_tensor</code> → <code>shared.tensor.extensor</code></p>
+<h4 id="phase-7a-tests-srcodysseycore-180-files-2500-lines">Phase 7a — Tests: src/odyssey/core/ (~180 files, ~2,500 lines)</h4>
+<ul>
+<li>Core tensor operation tests</li>
+<li>Activation, arithmetic, matrix, shape, comparison, reduction tests</li>
+<li>Add regression test: <code>tensor[i] = 3.14159</code> on float64 tensor preserves full precision</li>
+</ul>
+<h4 id="phase-7b-tests-models-45-files-700-lines">Phase 7b — Tests: models/ (~45 files, ~700 lines)</h4>
+<ul>
+<li>Model layer tests, forward/backward pass tests</li>
+</ul>
+<h4 id="phase-7c-tests-training-autograd-data-120-files-1800-lines">Phase 7c — Tests: training/ + autograd/ + data/ (~120 files, ~1,800 lines)</h4>
+<ul>
+<li>Training loop tests, optimizer tests, gradient tests, data loading tests</li>
+</ul>
+<h4 id="phase-7d-tests-integration-remaining-40-files-600-lines">Phase 7d — Tests: integration/ + remaining (~40 files, ~600 lines)</h4>
+<ul>
+<li>Integration tests, packaging tests, benchmark tests</li>
+</ul>
+<h4 id="phase-7e-final-cleanup-500-lines">Phase 7e — Final Cleanup (~500 lines)</h4>
+<ul>
+<li>Remove <code>comptime AnyTensor = AnyTensor</code> alias</li>
+<li>Rename file <code>any_tensor.mojo</code> → <code>any_tensor.mojo</code>, update ALL import paths</li>
+<li>Remove deprecated <code>set()</code> overloads from AnyTensor (if no longer needed)</li>
+<li>Remove dead code: old internal setters/getters (<code>_get_float64</code>, <code>_set_float64</code>, etc.)</li>
+<li>Remove <code>dtype_dispatch.mojo</code> if fully superseded</li>
+<li>Full CI green check + performance regression check</li>
+<li>Update CLAUDE.md, ADRs, documentation</li>
+<li>Close epic #4998</li>
+</ul>
+<hr />
+<h2 id="9-risk-analysis">9. Risk Analysis</h2>
+<h3 id="91-high-risk">9.1 High Risk</h3>
+<table>
+<thead>
+<tr>
+<th>Risk</th>
+<th>Impact</th>
+<th>Mitigation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>List[AnyTensor]</code> breaks — heterogeneous collections</td>
+<td>Batches, model params</td>
+<td>Use <code>AnyTensor</code> for heterogeneous collections</td>
+</tr>
+<tr>
+<td>Runtime dtype determination (file loading, config)</td>
+<td>Data pipeline</td>
+<td>Keep dispatch fan-out at boundary</td>
+</tr>
+<tr>
+<td>Compilation time explosion (13 dtype instantiations)</td>
+<td>CI slowdown</td>
+<td>Profile; consider supporting fewer dtypes</td>
+</tr>
+<tr>
+<td>Mojo compiler bugs with complex parametric types</td>
+<td>Blocked</td>
+<td>Test incrementally; file upstream issues</td>
+</tr>
+</tbody>
+</table>
+<h3 id="92-medium-risk">9.2 Medium Risk</h3>
+<table>
+<thead>
+<tr>
+<th>Risk</th>
+<th>Impact</th>
+<th>Mitigation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>mixed_precision.mojo</code> cross-dtype semantics</td>
+<td>Training</td>
+<td>Make explicit: <code>AnyTensor[float16] → AnyTensor[float32]</code></td>
+</tr>
+<tr>
+<td><code>__init__</code> can't take runtime dtype</td>
+<td>All callers</td>
+<td>Move dtype to compile-time parameter position</td>
+</tr>
+<tr>
+<td>Quantization methods (FP8, MXFP4, NVFP4)</td>
+<td>Inference</td>
+<td>These produce <code>AnyTensor[uint8]</code> — explicit output type</td>
+</tr>
+</tbody>
+</table>
+<h3 id="93-low-risk">9.3 Low Risk</h3>
+<table>
+<thead>
+<tr>
+<th>Risk</th>
+<th>Impact</th>
+<th>Mitigation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Memory pool compatibility</td>
+<td>Allocation</td>
+<td>Single bitcast at alloc time</td>
+</tr>
+<tr>
+<td>Import patterns</td>
+<td>All files</td>
+<td>No change to imports</td>
+</tr>
+<tr>
+<td>Test migration volume (386 files)</td>
+<td>Time</td>
+<td>Mechanical; sub-agents can parallelize</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="10-verification-plan">10. Verification Plan</h2>
+<h3 id="per-phase-verification">Per-Phase Verification</h3>
+<p>Each phase must pass before proceeding:
+1. <code>just package</code> — compiles with <code>--Werror</code>
+2. <code>just test-mojo</code> — all tests pass
+3. No precision regressions — existing test tolerances unchanged</p>
+<h3 id="key-test-cases">Key Test Cases</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="c1"># Phase 1: Basic element access</span>
+<a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>just<span class="w"> </span>test-group<span class="w"> </span><span class="s2">&quot;tests/odyssey/core&quot;</span><span class="w"> </span><span class="s2">&quot;test_extensor_setitem.mojo&quot;</span>
+<a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a>just<span class="w"> </span>test-group<span class="w"> </span><span class="s2">&quot;tests/odyssey/core&quot;</span><span class="w"> </span><span class="s2">&quot;test_creation_part1.mojo&quot;</span>
+<a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a>
+<a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a><span class="c1"># Phase 4: Core operations</span>
+<a id="__codelineno-17-6" name="__codelineno-17-6" href="#__codelineno-17-6"></a>just<span class="w"> </span>test-group<span class="w"> </span><span class="s2">&quot;tests/odyssey/core&quot;</span><span class="w"> </span><span class="s2">&quot;test_backward_*.mojo&quot;</span>
+<a id="__codelineno-17-7" name="__codelineno-17-7" href="#__codelineno-17-7"></a>just<span class="w"> </span>test-group<span class="w"> </span><span class="s2">&quot;tests/odyssey/core&quot;</span><span class="w"> </span><span class="s2">&quot;test_arithmetic*.mojo&quot;</span>
+<a id="__codelineno-17-8" name="__codelineno-17-8" href="#__codelineno-17-8"></a>
+<a id="__codelineno-17-9" name="__codelineno-17-9" href="#__codelineno-17-9"></a><span class="c1"># Phase 5: Higher-level</span>
+<a id="__codelineno-17-10" name="__codelineno-17-10" href="#__codelineno-17-10"></a>just<span class="w"> </span>test-group<span class="w"> </span><span class="s2">&quot;tests/odyssey/core&quot;</span><span class="w"> </span><span class="s2">&quot;test_activation*.mojo&quot;</span>
+<a id="__codelineno-17-11" name="__codelineno-17-11" href="#__codelineno-17-11"></a>just<span class="w"> </span>test-group<span class="w"> </span><span class="s2">&quot;tests/odyssey/core&quot;</span><span class="w"> </span><span class="s2">&quot;test_normalization*.mojo&quot;</span>
+<a id="__codelineno-17-12" name="__codelineno-17-12" href="#__codelineno-17-12"></a>
+<a id="__codelineno-17-13" name="__codelineno-17-13" href="#__codelineno-17-13"></a><span class="c1"># Phase 7: Full suite</span>
+<a id="__codelineno-17-14" name="__codelineno-17-14" href="#__codelineno-17-14"></a>just<span class="w"> </span>test-mojo
+</code></pre></div>
+<h3 id="precision-verification">Precision Verification</h3>
+<p>The parametric refactor should IMPROVE precision:
+- <code>tensor[i] = 3.14159</code> on float64 tensor → stores full Float64 precision (currently truncates to Float32)
+- <code>tensor[i] = Float32(x)</code> on float32 tensor → stores exact Float32 bits (currently round-trips through Float64)</p>
+<hr />
+<h2 id="11-corner-cases-blockers-deep-analysis">11. Corner Cases &amp; Blockers (Deep Analysis)</h2>
+<p>This section documents findings from 4 parallel research agents that audited every AnyTensor usage pattern in the codebase and tested Mojo 0.26.1 parametric capabilities.</p>
+<h3 id="111-blocker-no-trait-objects-existential-types-in-mojo-0261">11.1 BLOCKER: No Trait Objects / Existential Types in Mojo 0.26.1</h3>
+<p><code>List[TensorLike]</code> where <code>TensorLike</code> is a trait does NOT compile. Mojo has no vtable/fat-pointer dispatch for trait objects. Each <code>Tensor[DType.float32]</code> and <code>Tensor[DType.float64]</code> are completely distinct types that cannot be unified in a single collection.</p>
+<p><strong>Impact on codebase</strong> — these patterns ALL break:</p>
+<table>
+<thead>
+<tr>
+<th>Pattern</th>
+<th>Location</th>
+<th>Why It Breaks</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>fn parameters(self) -&gt; List[AnyTensor]</code></td>
+<td><code>traits.mojo:136,151</code></td>
+<td>Can't hold mixed-dtype params</td>
+</tr>
+<tr>
+<td><code>fn step(mut self, params: List[AnyTensor])</code></td>
+<td><code>traits.mojo:626</code></td>
+<td>Optimizer receives mixed list</td>
+</tr>
+<tr>
+<td><code>var velocities: List[AnyTensor]</code></td>
+<td><code>autograd/optimizers.mojo:100</code></td>
+<td>Created from <code>param.dtype()</code> at runtime</td>
+</tr>
+<tr>
+<td><code>fn state_dict(self) -&gt; Dict[String, AnyTensor]</code></td>
+<td><code>testing/models.mojo:934</code></td>
+<td>Mixed-dtype state</td>
+</tr>
+<tr>
+<td><code>var G_buffers: Dict[Int, AnyTensor]</code></td>
+<td><code>autograd/optimizers.mojo:895</code></td>
+<td>Per-param dtype</td>
+</tr>
+<tr>
+<td><code>Dict[Int, Tuple[AnyTensor, AnyTensor]]</code></td>
+<td><code>data/cache.mojo:61</code></td>
+<td>(float data, int label) tuples</td>
+</tr>
+<tr>
+<td><code>var data: List[AnyTensor]</code> / <code>var targets: List[AnyTensor]</code></td>
+<td><code>.templates/dataset_template.mojo:22-23</code></td>
+<td>float images + int labels</td>
+</tr>
+<tr>
+<td><code>var train_images: AnyTensor</code> + <code>var train_labels: AnyTensor</code></td>
+<td><code>training/dataset_loaders.mojo:40-43</code></td>
+<td>Different dtypes in same struct</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Workaround</strong>: <code>Variant[Tensor[DType.float32], Tensor[DType.float64], ...]</code> — tagged union. Verified to compile. But requires <code>isa[T]()</code> + <code>unsafe_get[T]()</code> dispatch at every access site.</p>
+<h3 id="112-blocker-runtime-dtype-determination">11.2 BLOCKER: Runtime DType Determination</h3>
+<p>These patterns cannot use compile-time dtype:</p>
+<table>
+<thead>
+<tr>
+<th>Pattern</th>
+<th>Location</th>
+<th>Source of Runtime DType</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>var dtype = _parse_tensor_dtype(dtype_str)</code></td>
+<td><code>utils/file_io.mojo:357</code></td>
+<td>Loaded from file header</td>
+</tr>
+<tr>
+<td><code>var compute_dtype: DType</code></td>
+<td><code>training/precision_config.mojo:144</code></td>
+<td>Config struct field</td>
+</tr>
+<tr>
+<td><code>if dtype_str == "float16": dtype = DType.float16</code></td>
+<td><code>papers/_template/examples/train.mojo:138-146</code></td>
+<td>CLI argument</td>
+</tr>
+<tr>
+<td><code>AnyTensor(grad.shape(), grad.dtype())</code></td>
+<td><code>autograd/optimizers.mojo:163</code> (19 sites)</td>
+<td>Derived from another tensor</td>
+</tr>
+<tr>
+<td><code>zeros([channels], x.dtype())</code></td>
+<td><code>normalization.mojo:120-121</code> (hundreds of sites)</td>
+<td>Derived from input tensor</td>
+</tr>
+</tbody>
+</table>
+<p>The <code>zeros(shape, tensor.dtype())</code> pattern appears <strong>hundreds of times</strong>. With parametric AnyTensor, these become <code>zeros[dtype](shape)</code> where <code>dtype</code> is the compile-time parameter of the input tensor — this works. But file I/O and CLI paths require a dispatch fan-out at the boundary.</p>
+<h3 id="113-blocker-anytensor-as-struct-fields-cascading-parameterization">11.3 BLOCKER: AnyTensor as Struct Fields (Cascading Parameterization)</h3>
+<p>Every struct storing <code>AnyTensor</code> must either become parametric or use type erasure:</p>
+<table>
+<thead>
+<tr>
+<th>Struct</th>
+<th>Fields</th>
+<th>File</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>BatchNorm</code></td>
+<td><code>gamma, beta, running_mean, running_var</code></td>
+<td><code>layers/batchnorm.mojo:34-40</code></td>
+</tr>
+<tr>
+<td><code>Conv2D</code></td>
+<td><code>weight, bias</code></td>
+<td><code>layers/conv2d.mojo:34-36</code></td>
+</tr>
+<tr>
+<td><code>Linear</code></td>
+<td><code>weight, bias</code></td>
+<td><code>layers/linear.mojo:30-31</code></td>
+</tr>
+<tr>
+<td><code>MultiHeadAttention</code></td>
+<td><code>wq, wk, wv, wo</code></td>
+<td><code>attention.mojo:398-404</code></td>
+</tr>
+<tr>
+<td><code>Variable</code></td>
+<td><code>data</code></td>
+<td><code>autograd/variable.mojo:87</code></td>
+</tr>
+<tr>
+<td><code>LossResult</code></td>
+<td><code>loss, grad</code></td>
+<td><code>autograd/functional.mojo:216-217</code></td>
+</tr>
+<tr>
+<td><code>GradientPair/Triple/ConvGradients</code></td>
+<td><code>grad_input, grad_weight, ...</code></td>
+<td><code>gradient_types.mojo</code></td>
+</tr>
+<tr>
+<td><code>Batch</code></td>
+<td><code>data, labels</code> (DIFFERENT dtypes)</td>
+<td><code>data/_datasets_core.mojo:65-66</code></td>
+</tr>
+<tr>
+<td>All model structs</td>
+<td>10-30 weight fields each</td>
+<td><code>examples/*/model.mojo</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Critical</strong>: <code>Batch</code> holds <code>data</code> (float) and <code>labels</code> (int) — cannot share a single dtype parameter.</p>
+<p><strong>Critical</strong>: <code>Variable</code> becoming <code>Variable[dtype]</code> makes the entire autograd tape parametric.</p>
+<h3 id="114-blocker-trait-signatures-reference-anytensor">11.4 BLOCKER: Trait Signatures Reference AnyTensor</h3>
+<p>All 5 core traits reference <code>AnyTensor</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>Differentiable:  fn forward(input: AnyTensor) -&gt; AnyTensor
+<a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a>Parameterized:   fn parameters() -&gt; List[AnyTensor]
+<a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a>Model:           fn forward(input: AnyTensor) -&gt; AnyTensor
+<a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a>Loss:            fn compute(pred: AnyTensor, target: AnyTensor) -&gt; AnyTensor
+<a id="__codelineno-18-5" name="__codelineno-18-5" href="#__codelineno-18-5"></a>Optimizer:       fn step(params: List[AnyTensor])
+</code></pre></div>
+<p>Trait methods can't be parametric on additional type parameters in Mojo 0.26.1.</p>
+<h3 id="115-missing-dtype-guards-bugs-found-fix-regardless">11.5 Missing DType Guards (Bugs Found — Fix Regardless)</h3>
+<p>3 functions silently corrupt data on dtype mismatch:</p>
+<table>
+<thead>
+<tr>
+<th>Function</th>
+<th>File</th>
+<th>Missing Guard</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>conv2d(x, kernel, bias)</code></td>
+<td><code>conv.mojo:342-476</code></td>
+<td>kernel/bias dtype not checked vs x</td>
+</tr>
+<tr>
+<td><code>batch_norm2d(x, gamma, beta, ...)</code></td>
+<td><code>normalization.mojo:29-341</code></td>
+<td>gamma/beta/running_* dtype not checked</td>
+</tr>
+<tr>
+<td><code>scaled_dot_product_attention_masked</code></td>
+<td><code>attention.mojo:127-128</code></td>
+<td>Mask dtype not checked</td>
+</tr>
+</tbody>
+</table>
+<h3 id="116-cross-dtype-policy-hard-reject-everywhere">11.6 Cross-DType Policy: Hard Reject Everywhere</h3>
+<p>The audit found that <strong>every</strong> binary AnyTensor operation rejects mismatched dtypes with a hard error — there is zero dtype promotion in the codebase. 20+ guard sites across arithmetic, comparison, matmul, loss, optimizers, autograd. This is GOOD for the parametric migration — the compiler will enforce what runtime checks currently do.</p>
+<h3 id="117-mojo-0261-parametric-capabilities-verified-by-compilation">11.7 Mojo 0.26.1 Parametric Capabilities (Verified by Compilation)</h3>
+<table>
+<thead>
+<tr>
+<th>Capability</th>
+<th>Works?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>struct Tensor[dtype: DType]</code></td>
+<td><strong>Yes</strong></td>
+</tr>
+<tr>
+<td>Conforming to traits (<code>Copyable</code>, <code>Movable</code>, custom)</td>
+<td><strong>Yes</strong></td>
+</tr>
+<tr>
+<td><code>__copyinit__</code> / <code>__moveinit__</code> on parametric struct</td>
+<td><strong>Yes</strong></td>
+</tr>
+<tr>
+<td><code>@parameter if dtype == DType.X:</code> in methods</td>
+<td><strong>Yes</strong></td>
+</tr>
+<tr>
+<td>Default parameter: <code>[dtype: DType = DType.float32]</code></td>
+<td><strong>Yes</strong></td>
+</tr>
+<tr>
+<td>Type inference: <code>var t = zeros[DType.float32]([3])</code></td>
+<td><strong>Yes</strong></td>
+</tr>
+<tr>
+<td><code>sizeof[Scalar[Self.dtype]]()</code></td>
+<td><strong>Yes</strong></td>
+</tr>
+<tr>
+<td><code>List[TensorLike]</code> (trait objects)</td>
+<td><strong>No</strong></td>
+</tr>
+<tr>
+<td><code>Variant[AnyTensor[float32], AnyTensor[float64]]</code></td>
+<td><strong>Yes</strong></td>
+</tr>
+<tr>
+<td>Runtime dtype → compile-time parameter</td>
+<td><strong>No</strong></td>
+</tr>
+<tr>
+<td>Parametric trait methods</td>
+<td><strong>No</strong></td>
+</tr>
+<tr>
+<td><code>rebind</code> for cross-type casting</td>
+<td><strong>No</strong> (same-type assertion only)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="118-revised-architecture-dual-type-design-tensor-anytensor">11.8 Revised Architecture: Dual-Type Design (Tensor + AnyTensor)</h3>
+<p>Given the blockers, the migration uses <strong>two coexisting types</strong> following Mojo naming conventions (<code>AnyType</code>, <code>AnyOrigin</code> → <code>AnyTensor</code>):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="c1"># Shared interface trait</span>
+<a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a><span class="k">trait</span><span class="w"> </span><span class="n n-Struct">TensorLike</span><span class="p">(</span><span class="nb">Copyable</span><span class="p">,</span><span class="w"> </span><span class="nb">Movable</span><span class="p">):</span>
+<a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a><span class="w">    </span><span class="k">fn</span><span class="w"> </span><span class="nf">numel</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nb">Int</span>
+<a id="__codelineno-19-4" name="__codelineno-19-4" href="#__codelineno-19-4"></a><span class="w">    </span><span class="k">fn</span><span class="w"> </span><span class="nf">shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nb">List</span><span class="p">[</span><span class="nb">Int</span><span class="p">]</span>
+<a id="__codelineno-19-5" name="__codelineno-19-5" href="#__codelineno-19-5"></a><span class="w">    </span><span class="k">fn</span><span class="w"> </span><span class="nf">dtype</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nb">DType</span>
+<a id="__codelineno-19-6" name="__codelineno-19-6" href="#__codelineno-19-6"></a><span class="w">    </span><span class="k">fn</span><span class="w"> </span><span class="nf">ndim</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nb">Int</span>
+<a id="__codelineno-19-7" name="__codelineno-19-7" href="#__codelineno-19-7"></a>
+<a id="__codelineno-19-8" name="__codelineno-19-8" href="#__codelineno-19-8"></a><span class="c1"># Compile-time typed tensor — SIMD-like, for computation</span>
+<a id="__codelineno-19-9" name="__codelineno-19-9" href="#__codelineno-19-9"></a><span class="k">struct</span><span class="w"> </span><span class="n n-Struct">Tensor</span><span class="p">[</span><span class="n">dtype</span><span class="p">:</span><span class="w"> </span><span class="nb">DType</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">DType</span><span class="o">.</span><span class="n">float32</span><span class="p">](</span><span class="n">TensorLike</span><span class="p">):</span>
+<a id="__codelineno-19-10" name="__codelineno-19-10" href="#__codelineno-19-10"></a><span class="w">    </span><span class="k">var</span><span class="w"> </span><span class="nv">_data</span><span class="p">:</span><span class="w"> </span><span class="n">UnsafePointer</span><span class="p">[</span><span class="nb">Scalar</span><span class="p">[</span><span class="n">Self</span><span class="o">.</span><span class="n">dtype</span><span class="p">],</span><span class="w"> </span><span class="n">origin</span><span class="o">=</span><span class="n">MutAnyOrigin</span><span class="p">]</span>
+<a id="__codelineno-19-11" name="__codelineno-19-11" href="#__codelineno-19-11"></a><span class="w">    </span><span class="k">var</span><span class="w"> </span><span class="nv">_shape</span><span class="p">:</span><span class="w"> </span><span class="nb">List</span><span class="p">[</span><span class="nb">Int</span><span class="p">]</span>
+<a id="__codelineno-19-12" name="__codelineno-19-12" href="#__codelineno-19-12"></a><span class="w">    </span><span class="k">var</span><span class="w"> </span><span class="nv">_strides</span><span class="p">:</span><span class="w"> </span><span class="nb">List</span><span class="p">[</span><span class="nb">Int</span><span class="p">]</span>
+<a id="__codelineno-19-13" name="__codelineno-19-13" href="#__codelineno-19-13"></a><span class="w">    </span><span class="c1"># ...</span>
+<a id="__codelineno-19-14" name="__codelineno-19-14" href="#__codelineno-19-14"></a>
+<a id="__codelineno-19-15" name="__codelineno-19-15" href="#__codelineno-19-15"></a><span class="w">    </span><span class="k">fn</span><span class="w"> </span><span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">i</span><span class="p">:</span><span class="w"> </span><span class="nb">Int</span><span class="p">)</span><span class="w"> </span><span class="n">raises</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nb">Scalar</span><span class="p">[</span><span class="n">Self</span><span class="o">.</span><span class="n">dtype</span><span class="p">]:</span>
+<a id="__codelineno-19-16" name="__codelineno-19-16" href="#__codelineno-19-16"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_resolve_index</span><span class="p">(</span><span class="n">i</span><span class="p">)]</span>
+<a id="__codelineno-19-17" name="__codelineno-19-17" href="#__codelineno-19-17"></a><span class="w">    </span><span class="c1"># tensor[i] = value just works — same as SIMD</span>
+<a id="__codelineno-19-18" name="__codelineno-19-18" href="#__codelineno-19-18"></a>
+<a id="__codelineno-19-19" name="__codelineno-19-19" href="#__codelineno-19-19"></a><span class="w">    </span><span class="k">fn</span><span class="w"> </span><span class="nf">as_any</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">AnyTensor</span><span class="p">:</span>
+<a id="__codelineno-19-20" name="__codelineno-19-20" href="#__codelineno-19-20"></a><span class="w">        </span><span class="s2">&quot;&quot;&quot;Zero-copy conversion to type-erased tensor.&quot;&quot;&quot;</span>
+<a id="__codelineno-19-21" name="__codelineno-19-21" href="#__codelineno-19-21"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">AnyTensor</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="o">.</span><span class="n">bitcast</span><span class="p">[</span><span class="nb">UInt8</span><span class="p">](),</span><span class="w"> </span><span class="n">Self</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">_shape</span><span class="p">,</span><span class="w"> </span><span class="o">...</span><span class="p">)</span>
+<a id="__codelineno-19-22" name="__codelineno-19-22" href="#__codelineno-19-22"></a>
+<a id="__codelineno-19-23" name="__codelineno-19-23" href="#__codelineno-19-23"></a><span class="w">    </span><span class="k">fn</span><span class="w"> </span><span class="nf">cast</span><span class="p">[</span><span class="n">target</span><span class="p">:</span><span class="w"> </span><span class="nb">DType</span><span class="p">](</span><span class="bp">self</span><span class="p">)</span><span class="w"> </span><span class="n">raises</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nb">Tensor</span><span class="p">[</span><span class="n">target</span><span class="p">]:</span>
+<a id="__codelineno-19-24" name="__codelineno-19-24" href="#__codelineno-19-24"></a><span class="w">        </span><span class="s2">&quot;&quot;&quot;Explicit dtype conversion.&quot;&quot;&quot;</span>
+<a id="__codelineno-19-25" name="__codelineno-19-25" href="#__codelineno-19-25"></a><span class="w">        </span><span class="o">...</span>
+<a id="__codelineno-19-26" name="__codelineno-19-26" href="#__codelineno-19-26"></a>
+<a id="__codelineno-19-27" name="__codelineno-19-27" href="#__codelineno-19-27"></a><span class="c1"># Runtime-typed tensor — for collections, I/O, trait interfaces</span>
+<a id="__codelineno-19-28" name="__codelineno-19-28" href="#__codelineno-19-28"></a><span class="k">struct</span><span class="w"> </span><span class="n n-Struct">AnyTensor</span><span class="p">(</span><span class="n">TensorLike</span><span class="p">):</span>
+<a id="__codelineno-19-29" name="__codelineno-19-29" href="#__codelineno-19-29"></a><span class="w">    </span><span class="k">var</span><span class="w"> </span><span class="nv">_data</span><span class="p">:</span><span class="w"> </span><span class="n">UnsafePointer</span><span class="p">[</span><span class="nb">UInt8</span><span class="p">,</span><span class="w"> </span><span class="n">origin</span><span class="o">=</span><span class="n">MutAnyOrigin</span><span class="p">]</span>
+<a id="__codelineno-19-30" name="__codelineno-19-30" href="#__codelineno-19-30"></a><span class="w">    </span><span class="k">var</span><span class="w"> </span><span class="nv">_dtype</span><span class="p">:</span><span class="w"> </span><span class="nb">DType</span><span class="w">  </span><span class="c1"># runtime</span>
+<a id="__codelineno-19-31" name="__codelineno-19-31" href="#__codelineno-19-31"></a><span class="w">    </span><span class="k">var</span><span class="w"> </span><span class="nv">_shape</span><span class="p">:</span><span class="w"> </span><span class="nb">List</span><span class="p">[</span><span class="nb">Int</span><span class="p">]</span>
+<a id="__codelineno-19-32" name="__codelineno-19-32" href="#__codelineno-19-32"></a><span class="w">    </span><span class="k">var</span><span class="w"> </span><span class="nv">_strides</span><span class="p">:</span><span class="w"> </span><span class="nb">List</span><span class="p">[</span><span class="nb">Int</span><span class="p">]</span>
+<a id="__codelineno-19-33" name="__codelineno-19-33" href="#__codelineno-19-33"></a><span class="w">    </span><span class="c1"># ... (current AnyTensor internals)</span>
+<a id="__codelineno-19-34" name="__codelineno-19-34" href="#__codelineno-19-34"></a>
+<a id="__codelineno-19-35" name="__codelineno-19-35" href="#__codelineno-19-35"></a><span class="w">    </span><span class="k">fn</span><span class="w"> </span><span class="nf">as_tensor</span><span class="p">[</span><span class="n">dtype</span><span class="p">:</span><span class="w"> </span><span class="nb">DType</span><span class="p">](</span><span class="bp">self</span><span class="p">)</span><span class="w"> </span><span class="n">raises</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nb">Tensor</span><span class="p">[</span><span class="n">dtype</span><span class="p">]:</span>
+<a id="__codelineno-19-36" name="__codelineno-19-36" href="#__codelineno-19-36"></a><span class="w">        </span><span class="s2">&quot;&quot;&quot;Zero-copy conversion to typed tensor. Raises on dtype mismatch.&quot;&quot;&quot;</span>
+<a id="__codelineno-19-37" name="__codelineno-19-37" href="#__codelineno-19-37"></a><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">_dtype</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">dtype</span><span class="p">:</span>
+<a id="__codelineno-19-38" name="__codelineno-19-38" href="#__codelineno-19-38"></a><span class="w">            </span><span class="k">raise</span><span class="w"> </span><span class="nb">Error</span><span class="p">(</span><span class="s2">&quot;dtype mismatch: expected &quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nb">String</span><span class="p">(</span><span class="n">dtype</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s2">&quot;, got &quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nb">String</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dtype</span><span class="p">))</span>
+<a id="__codelineno-19-39" name="__codelineno-19-39" href="#__codelineno-19-39"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nb">Tensor</span><span class="p">[</span><span class="n">dtype</span><span class="p">](</span><span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="o">.</span><span class="n">bitcast</span><span class="p">[</span><span class="nb">Scalar</span><span class="p">[</span><span class="n">dtype</span><span class="p">]](),</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">_shape</span><span class="p">,</span><span class="w"> </span><span class="o">...</span><span class="p">)</span>
+<a id="__codelineno-19-40" name="__codelineno-19-40" href="#__codelineno-19-40"></a>
+<a id="__codelineno-19-41" name="__codelineno-19-41" href="#__codelineno-19-41"></a><span class="w">    </span><span class="k">fn</span><span class="w"> </span><span class="nf">set</span><span class="p">(</span><span class="n">mut</span><span class="w"> </span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">index</span><span class="p">:</span><span class="w"> </span><span class="nb">Int</span><span class="p">,</span><span class="w"> </span><span class="n">value</span><span class="p">:</span><span class="w"> </span><span class="nb">Float64</span><span class="p">)</span><span class="w"> </span><span class="n">raises</span><span class="p">:</span>
+<a id="__codelineno-19-42" name="__codelineno-19-42" href="#__codelineno-19-42"></a><span class="w">        </span><span class="s2">&quot;&quot;&quot;Runtime-typed element assignment (no SIMD-like [i]= possible).&quot;&quot;&quot;</span>
+<a id="__codelineno-19-43" name="__codelineno-19-43" href="#__codelineno-19-43"></a><span class="w">        </span><span class="o">...</span>
+</code></pre></div>
+<p><strong>Usage patterns</strong>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="c1"># Computation — full type safety, SIMD-like assignment</span>
+<a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a><span class="k">var</span><span class="w"> </span><span class="nv">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zeros</span><span class="p">[</span><span class="nb">DType</span><span class="o">.</span><span class="n">float32</span><span class="p">]([</span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">])</span><span class="w">   </span><span class="c1"># returns Tensor[DType.float32]</span>
+<a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">3.14159</span><span class="w">                          </span><span class="c1"># just works</span>
+<a id="__codelineno-20-4" name="__codelineno-20-4" href="#__codelineno-20-4"></a><span class="k">var</span><span class="w"> </span><span class="nv">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">relu</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="w">                          </span><span class="c1"># auto-parameterized</span>
+<a id="__codelineno-20-5" name="__codelineno-20-5" href="#__codelineno-20-5"></a>
+<a id="__codelineno-20-6" name="__codelineno-20-6" href="#__codelineno-20-6"></a><span class="c1"># Collections — type-erased</span>
+<a id="__codelineno-20-7" name="__codelineno-20-7" href="#__codelineno-20-7"></a><span class="k">var</span><span class="w"> </span><span class="nv">params</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">List</span><span class="p">[</span><span class="n">AnyTensor</span><span class="p">]()</span>
+<a id="__codelineno-20-8" name="__codelineno-20-8" href="#__codelineno-20-8"></a><span class="n">params</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">weight</span><span class="o">.</span><span class="n">as_any</span><span class="p">())</span>
+<a id="__codelineno-20-9" name="__codelineno-20-9" href="#__codelineno-20-9"></a><span class="n">params</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">bias</span><span class="o">.</span><span class="n">as_any</span><span class="p">())</span>
+<a id="__codelineno-20-10" name="__codelineno-20-10" href="#__codelineno-20-10"></a>
+<a id="__codelineno-20-11" name="__codelineno-20-11" href="#__codelineno-20-11"></a><span class="c1"># At boundary — one runtime check, then typed</span>
+<a id="__codelineno-20-12" name="__codelineno-20-12" href="#__codelineno-20-12"></a><span class="k">var</span><span class="w"> </span><span class="nv">w</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">params</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">as_tensor</span><span class="p">[</span><span class="nb">DType</span><span class="o">.</span><span class="n">float32</span><span class="p">]()</span><span class="w">  </span><span class="c1"># raises if mismatch</span>
+<a id="__codelineno-20-13" name="__codelineno-20-13" href="#__codelineno-20-13"></a><span class="n">w</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">3.14159</span><span class="w">  </span><span class="c1"># now typed, just works</span>
+<a id="__codelineno-20-14" name="__codelineno-20-14" href="#__codelineno-20-14"></a>
+<a id="__codelineno-20-15" name="__codelineno-20-15" href="#__codelineno-20-15"></a><span class="c1"># I/O — runtime dtype at load, dispatch at boundary</span>
+<a id="__codelineno-20-16" name="__codelineno-20-16" href="#__codelineno-20-16"></a><span class="k">var</span><span class="w"> </span><span class="nv">loaded</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">load_from_file</span><span class="p">(</span><span class="s2">&quot;model.bin&quot;</span><span class="p">)</span><span class="w">  </span><span class="c1"># returns AnyTensor</span>
+<a id="__codelineno-20-17" name="__codelineno-20-17" href="#__codelineno-20-17"></a><span class="k">if</span><span class="w"> </span><span class="n">loaded</span><span class="o">.</span><span class="n">dtype</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="nb">DType</span><span class="o">.</span><span class="n">float32</span><span class="p">:</span>
+<a id="__codelineno-20-18" name="__codelineno-20-18" href="#__codelineno-20-18"></a><span class="w">    </span><span class="k">var</span><span class="w"> </span><span class="nv">t</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">loaded</span><span class="o">.</span><span class="n">as_tensor</span><span class="p">[</span><span class="nb">DType</span><span class="o">.</span><span class="n">float32</span><span class="p">]()</span>
+<a id="__codelineno-20-19" name="__codelineno-20-19" href="#__codelineno-20-19"></a><span class="w">    </span><span class="n">process</span><span class="p">(</span><span class="n">t</span><span class="p">)</span><span class="w">  </span><span class="c1"># typed path</span>
+</code></pre></div></p>
+<p><strong>Naming convention</strong>:
+| Type | Role | Follows |
+| --- | --- | --- |
+| <code>Tensor[dtype]</code> | Compile-time typed | <code>SIMD[dtype, size]</code> |
+| <code>AnyTensor</code> | Runtime typed / type-erased | <code>AnyType</code>, <code>AnyOrigin</code> |
+| <code>TensorLike</code> | Trait interface | <code>Writable</code>, <code>Copyable</code>, <code>Movable</code> |</p>
+<h3 id="119-mojo-0261-features-that-help-the-migration">11.9 Mojo 0.26.1 Features That Help the Migration</h3>
+<p>Several Mojo features significantly reduce migration friction:</p>
+<p><strong>Automatic Parameterization</strong> — Functions can accept unbound parametric types and the compiler auto-parameterizes:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a><span class="c1"># Instead of writing:</span>
+<a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a><span class="k">fn</span><span class="w"> </span><span class="nf">relu</span><span class="p">[</span><span class="n">dtype</span><span class="p">:</span><span class="w"> </span><span class="nb">DType</span><span class="p">](</span><span class="n">tensor</span><span class="p">:</span><span class="w"> </span><span class="nb">Tensor</span><span class="p">[</span><span class="n">dtype</span><span class="p">])</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nb">Tensor</span><span class="p">[</span><span class="n">dtype</span><span class="p">]:</span><span class="w"> </span><span class="o">...</span>
+<a id="__codelineno-21-3" name="__codelineno-21-3" href="#__codelineno-21-3"></a>
+<a id="__codelineno-21-4" name="__codelineno-21-4" href="#__codelineno-21-4"></a><span class="c1"># You can write (compiler infers the parameter):</span>
+<a id="__codelineno-21-5" name="__codelineno-21-5" href="#__codelineno-21-5"></a><span class="k">fn</span><span class="w"> </span><span class="nf">relu</span><span class="p">(</span><span class="n">tensor</span><span class="p">:</span><span class="w"> </span><span class="nb">Tensor</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nb">Tensor</span><span class="p">:</span><span class="w"> </span><span class="o">...</span>
+<a id="__codelineno-21-6" name="__codelineno-21-6" href="#__codelineno-21-6"></a><span class="c1"># Equivalent to: fn relu[dtype: DType, //](tensor: Tensor[dtype]) -&gt; Tensor[dtype]</span>
+</code></pre></div>
+<p>This means many function signatures won't need explicit <code>[dtype: DType]</code> — just change the type name from <code>AnyTensor</code> to <code>Tensor</code> and the compiler handles the rest.</p>
+<p>Source: <a href="https://github.com/modular/modular/blob/modular/v26.1/mojo/docs/manual/parameters/index.mdx">Parameters docs</a> — "Automatic parameterization" section</p>
+<p><strong>Parameter Inference</strong> — DType can be inferred from arguments:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a><span class="k">fn</span><span class="w"> </span><span class="nf">zeros</span><span class="p">[</span><span class="n">dtype</span><span class="p">:</span><span class="w"> </span><span class="nb">DType</span><span class="p">](</span><span class="n">shape</span><span class="p">:</span><span class="w"> </span><span class="nb">List</span><span class="p">[</span><span class="nb">Int</span><span class="p">])</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nb">Tensor</span><span class="p">[</span><span class="n">dtype</span><span class="p">]:</span><span class="w"> </span><span class="o">...</span>
+<a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a><span class="k">var</span><span class="w"> </span><span class="nv">t</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zeros</span><span class="p">[</span><span class="nb">DType</span><span class="o">.</span><span class="n">float32</span><span class="p">]([</span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">])</span><span class="w">  </span><span class="c1"># Compiler infers Tensor[DType.float32]</span>
+</code></pre></div>
+<p>Source: <a href="https://github.com/modular/modular/blob/modular/v26.1/mojo/docs/manual/parameters/index.mdx">Parameters docs</a> — "Parameter inference" section</p>
+<p><strong>Default Parameter Values</strong> — <code>Tensor[dtype: DType = DType.float32]</code> allows <code>Tensor(shape)</code> without explicit dtype:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a><span class="k">struct</span><span class="w"> </span><span class="n n-Struct">Tensor</span><span class="p">[</span><span class="n">dtype</span><span class="p">:</span><span class="w"> </span><span class="nb">DType</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">DType</span><span class="o">.</span><span class="n">float32</span><span class="p">]:</span>
+<a id="__codelineno-23-2" name="__codelineno-23-2" href="#__codelineno-23-2"></a><span class="w">    </span><span class="o">...</span>
+<a id="__codelineno-23-3" name="__codelineno-23-3" href="#__codelineno-23-3"></a><span class="k">var</span><span class="w"> </span><span class="nv">t</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">Tensor</span><span class="p">([</span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">])</span><span class="w">  </span><span class="c1"># defaults to float32</span>
+</code></pre></div>
+<p>Source: <a href="https://github.com/modular/modular/blob/modular/v26.1/mojo/docs/manual/parameters/index.mdx">Parameters docs</a> — "Optional parameters" section</p>
+<p><strong>Conditional Conformance</strong> — Methods can require stricter constraints on the type parameter:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a><span class="k">struct</span><span class="w"> </span><span class="n n-Struct">Tensor</span><span class="p">[</span><span class="n">dtype</span><span class="p">:</span><span class="w"> </span><span class="nb">DType</span><span class="p">]:</span>
+<a id="__codelineno-24-2" name="__codelineno-24-2" href="#__codelineno-24-2"></a><span class="w">    </span><span class="c1"># Only available when dtype is float:</span>
+<a id="__codelineno-24-3" name="__codelineno-24-3" href="#__codelineno-24-3"></a><span class="w">    </span><span class="k">def</span><span class="w"> </span><span class="nf">to_string</span><span class="p">[</span><span class="n">FloatType</span><span class="p">:</span><span class="w"> </span><span class="n">Writable</span><span class="p">,</span><span class="w"> </span><span class="o">//</span><span class="p">](</span><span class="bp">self</span><span class="p">:</span><span class="w"> </span><span class="nb">Tensor</span><span class="p">[</span><span class="n">FloatType</span><span class="p">])</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nb">String</span><span class="p">:</span><span class="w"> </span><span class="o">...</span>
+</code></pre></div>
+<p>Source: <a href="https://github.com/modular/modular/blob/modular/v26.1/mojo/docs/manual/traits.mdx">Traits docs</a> — "Conditional conformance" section</p>
+<p><strong>Associated Types via comptime</strong> — Traits can define associated types:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a><span class="k">trait</span><span class="w"> </span><span class="n n-Struct">Stacklike</span><span class="p">:</span>
+<a id="__codelineno-25-2" name="__codelineno-25-2" href="#__codelineno-25-2"></a><span class="w">    </span><span class="n">comptime</span><span class="w"> </span><span class="n">EltType</span><span class="p">:</span><span class="w"> </span><span class="nb">Copyable</span>
+<a id="__codelineno-25-3" name="__codelineno-25-3" href="#__codelineno-25-3"></a><span class="w">    </span><span class="k">fn</span><span class="w"> </span><span class="nf">push</span><span class="p">(</span><span class="n">mut</span><span class="w"> </span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="k">var</span><span class="w"> </span><span class="nv">item</span><span class="p">:</span><span class="w"> </span><span class="n">Self</span><span class="o">.</span><span class="n">EltType</span><span class="p">):</span><span class="w"> </span><span class="o">...</span>
+</code></pre></div>
+<p>Source: <a href="https://github.com/modular/modular/blob/modular/v26.1/mojo/docs/manual/traits.mdx">Traits docs</a> — "Associated types" section</p>
+<p><strong>Key Limitations from docs</strong>:
+- "All parameters must resolve at compile time" — no runtime-to-parameter promotion
+- "Conditional conformance is limited" — compiler can't always recognize specialized conformance
+- "Can't add traits to existing types" — no retroactive conformance
+- "<code>DType.float64</code> isn't a type, it's a value" — can't declare <code>var x: DType.float64</code>
+- Destructors can't raise errors
+- <code>@parameter if</code> branches with different types need <code>rebind()</code> at the boundaries</p>
+<h3 id="1110-mojo-0261-documentation-references">11.10 Mojo 0.26.1 Documentation References</h3>
+<table>
+<thead>
+<tr>
+<th>Topic</th>
+<th>URL</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Parameters (compile-time, inference, auto-parameterization)</td>
+<td>https://github.com/modular/modular/blob/modular/v26.1/mojo/docs/manual/parameters/index.mdx</td>
+</tr>
+<tr>
+<td>Structs (parametric structs, fields)</td>
+<td>https://github.com/modular/modular/blob/modular/v26.1/mojo/docs/manual/structs/index.mdx</td>
+</tr>
+<tr>
+<td>Traits (conformance, associated types, conditional conformance)</td>
+<td>https://github.com/modular/modular/blob/modular/v26.1/mojo/docs/manual/traits.mdx</td>
+</tr>
+<tr>
+<td>Lifecycle — constructors</td>
+<td>https://github.com/modular/modular/blob/modular/v26.1/mojo/docs/manual/lifecycle/life.mdx</td>
+</tr>
+<tr>
+<td>Lifecycle — destructors, ASAP policy</td>
+<td>https://github.com/modular/modular/blob/modular/v26.1/mojo/docs/manual/lifecycle/death.mdx</td>
+</tr>
+<tr>
+<td>UnsafePointer (alloc, bitcast, origin)</td>
+<td>https://github.com/modular/modular/blob/modular/v26.1/mojo/docs/manual/pointers/unsafe-pointers.mdx</td>
+</tr>
+<tr>
+<td>Types (SIMD, Scalar, DType system)</td>
+<td>https://github.com/modular/modular/blob/modular/v26.1/mojo/docs/manual/types.mdx</td>
+</tr>
+<tr>
+<td>Metaprogramming (materialization, comptime)</td>
+<td>https://github.com/modular/modular/blob/modular/v26.1/mojo/docs/manual/metaprogramming/materialization.mdx</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="12-references">12. References</h2>
+<h3 id="codebase-sources">Codebase Sources</h3>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Relevance</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>src/odyssey/core/any_tensor.mojo</code></td>
+<td>The struct — 4704 lines, 177 dtype branches, 158 bitcasts</td>
+</tr>
+<tr>
+<td><code>src/odyssey/core/dtype_dispatch.mojo</code></td>
+<td>Existing parametric dispatch infrastructure</td>
+</tr>
+<tr>
+<td><code>src/odyssey/core/dtype_ordinal.mojo</code></td>
+<td>Ordinal mapping for dispatch fan-out</td>
+</tr>
+<tr>
+<td><code>src/odyssey/core/conv.mojo</code></td>
+<td>Best example of fully-parametric kernel pattern</td>
+</tr>
+<tr>
+<td><code>src/odyssey/core/arithmetic_contiguous.mojo</code></td>
+<td>Worst dtype-branching case (40 branches)</td>
+</tr>
+<tr>
+<td><code>src/odyssey/core/normalization.mojo</code></td>
+<td>Struct-field propagation example</td>
+</tr>
+<tr>
+<td><code>src/odyssey/training/mixed_precision.mojo</code></td>
+<td>Cross-dtype edge case</td>
+</tr>
+<tr>
+<td><code>src/odyssey/core/traits.mojo</code></td>
+<td>Existing trait patterns</td>
+</tr>
+<tr>
+<td><code>src/odyssey/core/memory_pool.mojo</code></td>
+<td>Pool allocation API</td>
+</tr>
+<tr>
+<td><code>.claude/shared/mojo-anti-patterns.md</code></td>
+<td>UAF via bitcast documentation</td>
+</tr>
+</tbody>
+</table>
+<h3 id="external-sources">External Sources</h3>
+<table>
+<thead>
+<tr>
+<th>Source</th>
+<th>URL</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Mojo SIMD documentation</td>
+<td>https://docs.modular.com/mojo/std/builtin/simd/SIMD/</td>
+</tr>
+<tr>
+<td>Mojo parameters documentation</td>
+<td>https://docs.modular.com/mojo/manual/parameters/</td>
+</tr>
+<tr>
+<td>Python Array API Standard</td>
+<td>https://data-apis.org/array-api/latest/</td>
+</tr>
+<tr>
+<td>Modular upstream issue (bitcast UAF)</td>
+<td>https://github.com/modular/modular/issues/6187</td>
+</tr>
+</tbody>
+</table>
+<h3 id="previous-work">Previous Work</h3>
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Reference</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>PR #4997</td>
+<td>Short-term fix: <code>set()</code> method, <code>_resolve_index</code>, tolerance adjustments</td>
+</tr>
+<tr>
+<td>Issue #4998</td>
+<td>This epic — parametric AnyTensor migration</td>
+</tr>
+<tr>
+<td>Skill: mojo-setitem-lvalue-semantics</td>
+<td>ProjectMnemosyne — documents the <code>__getitem__</code> lvalue discovery</td>
+</tr>
+<tr>
+<td>Skill: extensor-parametric-dtype-migration</td>
+<td>ProjectMnemosyne — architecture research</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="prompt-for-implementation">Prompt for Implementation</h2>
+<p>Use the following prompt to start each phase:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a>Implement Phase N of the AnyTensor parametric DType migration (issue #4998).
+<a id="__codelineno-26-2" name="__codelineno-26-2" href="#__codelineno-26-2"></a>
+<a id="__codelineno-26-3" name="__codelineno-26-3" href="#__codelineno-26-3"></a>Read ~/AnyTensorRefactor.md for the full plan. Focus on Phase N only.
+<a id="__codelineno-26-4" name="__codelineno-26-4" href="#__codelineno-26-4"></a>
+<a id="__codelineno-26-5" name="__codelineno-26-5" href="#__codelineno-26-5"></a>Key constraints:
+<a id="__codelineno-26-6" name="__codelineno-26-6" href="#__codelineno-26-6"></a>- Tensor[dtype: DType] must behave like SIMD — tensor[i] = value just works
+<a id="__codelineno-26-7" name="__codelineno-26-7" href="#__codelineno-26-7"></a>- No precision-losing type round-trips
+<a id="__codelineno-26-8" name="__codelineno-26-8" href="#__codelineno-26-8"></a>- Each phase must compile and pass tests before moving to the next
+<a id="__codelineno-26-9" name="__codelineno-26-9" href="#__codelineno-26-9"></a>- Use Podman for all builds and tests (just podman-up, just shell)
+<a id="__codelineno-26-10" name="__codelineno-26-10" href="#__codelineno-26-10"></a>- Never use NATIVE=1
+<a id="__codelineno-26-11" name="__codelineno-26-11" href="#__codelineno-26-11"></a>- Create a PR for each phase, linked to issue #4998
+<a id="__codelineno-26-12" name="__codelineno-26-12" href="#__codelineno-26-12"></a>
+<a id="__codelineno-26-13" name="__codelineno-26-13" href="#__codelineno-26-13"></a>Start by reading the current state of the files listed in Phase N,
+<a id="__codelineno-26-14" name="__codelineno-26-14" href="#__codelineno-26-14"></a>then implement the changes incrementally, verifying compilation after
+<a id="__codelineno-26-15" name="__codelineno-26-15" href="#__codelineno-26-15"></a>each major change.
+</code></pre></div>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "search.suggest", "search.highlight", "content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>

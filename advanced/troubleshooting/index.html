@@ -1,0 +1,2218 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Mojo-based AI research platform for reproducing classic research papers">
+      
+      
+      
+        <link rel="canonical" href="https://github.com/HomericIntelligence/Odyssey/advanced/troubleshooting/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Troubleshooting Guide - ML Odyssey</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#troubleshooting-guide" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="ML Odyssey" class="md-header__button md-logo" aria-label="ML Odyssey" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            ML Odyssey
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Troubleshooting Guide
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/HomericIntelligence/Odyssey" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    HomericIntelligence/Odyssey
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../glossary/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Glossary
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../dev/release-process/" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../integration/supporting-directories/" class="md-tabs__link">
+          
+  
+  
+  Integration
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="ML Odyssey" class="md-nav__button md-logo" aria-label="ML Odyssey" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    ML Odyssey
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/HomericIntelligence/Odyssey" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    HomericIntelligence/Odyssey
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../glossary/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Glossary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/quickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quickstart
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/first_model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    First Model
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/repository-structure/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Repository Structure
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../dev/release-process/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Release Process
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Integration
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Integration
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../integration/supporting-directories/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Supporting Directories
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../integration/papers-shared-integration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Papers & Shared Integration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../integration/quick-start-new-paper/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start New Paper
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#quick-diagnostic-checklist" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quick Diagnostic Checklist
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#installation-issues" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Installation Issues
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Installation Issues">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#symptom-command-not-found-mojo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Symptom: "command not found: mojo"
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#symptom-error-module-shared-not-found-or-no-module-named-shared" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Symptom: "Error: module 'shared' not found" or "No module named shared"
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#symptom-importerror-no-module-named-shared-in-python" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Symptom: "ImportError: No module named 'shared'" in Python
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#symptom-uv-environment-issues-or-uv-command-not-found" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Symptom: uv environment issues or "uv: command not found"
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#build-errors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Build Errors
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Build Errors">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#symptom-module-does-not-contain-a-main-function" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Symptom: "module does not contain a 'main' function"
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#symptom-unable-to-locate-module-or-failed-to-resolve-module" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Symptom: "unable to locate module" or "failed to resolve module"
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#symptom-error-use-of-unknown-directive-or-version-mismatch-errors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Symptom: "error: use of unknown directive" or version mismatch errors
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#symptom-error-cannot-build-package-without-initmojo-or-similar-package-errors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Symptom: "error: cannot build package without 'init.mojo'" or similar package errors
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#runtime-errors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Runtime Errors
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Runtime Errors">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#symptom-shape-mismatch-expected-but-got" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Symptom: "Shape mismatch: expected (...) but got (...)"
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#symptom-segfault-aborted-core-dumped-or-out-of-bounds" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Symptom: "SEGFAULT", "Aborted (core dumped)", or "out of bounds"
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#symptom-cuda-out-of-memory-or-runtimeerror-cannot-allocate-x-mb" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Symptom: "CUDA out of memory" or "RuntimeError: Cannot allocate X MB"
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#symptom-typeerror-incompatible-argument-type-or-expected-dtype-but-got-int" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Symptom: "TypeError: incompatible argument type" or "expected DType but got Int"
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mojo-specific-issues" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mojo-Specific Issues
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Mojo-Specific Issues">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#symptom-error-cannot-transfer-ownership-of-non-copyable-type" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Symptom: "error: cannot transfer ownership of non-copyable type"
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#symptom-error-cannot-pass-temporary-to-var-parameter" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Symptom: "error: cannot pass temporary to var parameter"
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#symptom-error-cannot-transfer-ownership-of-nonetype" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Symptom: "error: cannot transfer ownership of NoneType"
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#symptom-error-x-does-not-conform-to-trait-implicitlycopyable" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Symptom: "error: 'X' does not conform to trait 'ImplicitlyCopyable'"
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#symptom-error-fn-initmut-self-should-use-out-self" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Symptom: "error: fn init(mut self,...) should use out self"
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#symptom-error-variable-x-does-not-conform-to-trait-copyable" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Symptom: "error: variable 'X' does not conform to trait 'Copyable'"
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#performance-issues" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Performance Issues
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Performance Issues">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#symptom-training-is-very-slow-wall-clock-time" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Symptom: Training is very slow (wall clock time)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#symptom-memory-usage-grows-during-training-memory-leak" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Symptom: Memory usage grows during training (memory leak)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#symptom-simd-optimization-not-being-used-no-vectorization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Symptom: SIMD optimization not being used (no vectorization)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#testing-issues" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Testing Issues
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Testing Issues">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#symptom-test-compilation-failed-or-error-unknown-declaration-test_" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Symptom: "Test compilation failed" or "error: unknown declaration 'test_*'"
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#symptom-test-failed-assertion-error-with-cryptic-message" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Symptom: "Test failed: assertion error" with cryptic message
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#symptom-runtime-error-in-test-or-test-timeout" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Symptom: "Runtime error in test" or "test timeout"
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#symptom-ci-workflow-failed-but-tests-pass-locally" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Symptom: "CI workflow failed" but tests pass locally
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#getting-help" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Getting Help
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Getting Help">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#filing-an-issue" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Filing an Issue
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#getting-community-help" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Getting Community Help
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#common-resources" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Common Resources
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#contact-escalation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Contact &amp; Escalation
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#quick-reference-links" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quick Reference Links
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="troubleshooting-guide">Troubleshooting Guide</h1>
+<p>This guide provides diagnostic and resolution steps for common issues encountered when working
+with ML Odyssey. Follow the quick diagnostic checklist first, then navigate to the specific
+section for your issue.</p>
+<h2 id="quick-diagnostic-checklist">Quick Diagnostic Checklist</h2>
+<p>Use this 5-point checklist to identify the problem category:</p>
+<ol>
+<li><strong>Can't import modules or run commands?</strong> → See Installation Issues</li>
+<li><strong>Compilation errors during <code>mojo build</code>?</strong> → See Build Errors</li>
+<li><strong>Errors when running code?</strong> → See Runtime Errors</li>
+<li><strong>Ownership or constructor errors?</strong> → See Mojo-Specific Issues</li>
+<li><strong>Tests failing or CI broken?</strong> → See Testing Issues</li>
+</ol>
+<hr />
+<h2 id="installation-issues">Installation Issues</h2>
+<h3 id="symptom-command-not-found-mojo">Symptom: "command not found: mojo"</h3>
+<p><strong>Cause</strong>: Mojo is not installed or not in PATH.</p>
+<p><strong>Solution</strong>:</p>
+<ol>
+<li>Verify Mojo is installed:</li>
+</ol>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>mojo<span class="w"> </span>--version
+</code></pre></div>
+<ol>
+<li>If not found, activate the uv environment:</li>
+</ol>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="nb">cd</span><span class="w"> </span>/path/to/Odyssey
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="nb">source</span><span class="w"> </span>.venv/bin/activate
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>mojo<span class="w"> </span>--version
+</code></pre></div>
+<ol>
+<li>If still not found, reinstall uv dependencies:</li>
+</ol>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>uv<span class="w"> </span>sync<span class="w"> </span>--locked
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="nb">source</span><span class="w"> </span>.venv/bin/activate
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>mojo<span class="w"> </span>--version
+</code></pre></div>
+<ol>
+<li>Verify you are in the correct directory with <code>pyproject.toml</code>:</li>
+</ol>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>ls<span class="w"> </span>pyproject.toml
+</code></pre></div>
+<h3 id="symptom-error-module-shared-not-found-or-no-module-named-shared">Symptom: "Error: module 'shared' not found" or "No module named shared"</h3>
+<p><strong>Cause</strong>: Import paths are incorrect or the <code>-I .</code> flag is missing.</p>
+<p><strong>Solution</strong>:</p>
+<p>When building executables that import from the <code>shared</code> package, always use the <code>-I .</code> flag:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="c1"># WRONG - Missing -I flag</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>mojo<span class="w"> </span>build<span class="w"> </span>examples/train.mojo
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="c1"># CORRECT - Include current directory in import path</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>mojo<span class="w"> </span>build<span class="w"> </span>-I<span class="w"> </span>.<span class="w"> </span>examples/train.mojo
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="c1"># CORRECT - Using uv run (includes -I . automatically)</span>
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>uv<span class="w"> </span>run<span class="w"> </span>mojo<span class="w"> </span>build<span class="w"> </span>examples/train.mojo
+</code></pre></div>
+<p>For Python scripts, ensure the working directory is the repository root:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="nb">cd</span><span class="w"> </span>/path/to/Odyssey
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>python3<span class="w"> </span>scripts/your_script.py
+</code></pre></div>
+<h3 id="symptom-importerror-no-module-named-shared-in-python">Symptom: "ImportError: No module named 'shared'" in Python</h3>
+<p><strong>Cause</strong>: PYTHONPATH is not set or script is running from wrong directory.</p>
+<p><strong>Solution</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="c1"># Add repository root to PYTHONPATH</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="nb">cd</span><span class="w"> </span>/path/to/Odyssey
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="nb">export</span><span class="w"> </span><span class="nv">PYTHONPATH</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">PYTHONPATH</span><span class="si">}</span><span class="s2">:</span><span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span><span class="s2">&quot;</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>python3<span class="w"> </span>scripts/your_script.py
+</code></pre></div>
+<p>Or run from the repository root without changing PYTHONPATH:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="nb">cd</span><span class="w"> </span>/path/to/Odyssey
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>python3<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;import sys; sys.path.insert(0, &#39;.&#39;); from scripts import your_script&quot;</span>
+</code></pre></div>
+<h3 id="symptom-uv-environment-issues-or-uv-command-not-found">Symptom: uv environment issues or "uv: command not found"</h3>
+<p><strong>Cause</strong>: uv is not installed or shell is not configured.</p>
+<p><strong>Solution</strong>:</p>
+<ol>
+<li>Install uv globally:</li>
+</ol>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>curl<span class="w"> </span>-fsSL<span class="w"> </span>https://astral.sh/uv/install.sh<span class="w"> </span><span class="p">|</span><span class="w"> </span>sh
+</code></pre></div>
+<ol>
+<li>Activate uv in current shell:</li>
+</ol>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="nb">source</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$HOME</span><span class="s2">/.local/bin/env&quot;</span>
+</code></pre></div>
+<ol>
+<li>Verify installation:</li>
+</ol>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>uv<span class="w"> </span>--version
+</code></pre></div>
+<ol>
+<li>Navigate to repository and create environment:</li>
+</ol>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="nb">cd</span><span class="w"> </span>/path/to/Odyssey
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>uv<span class="w"> </span>sync<span class="w"> </span>--locked
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="nb">source</span><span class="w"> </span>.venv/bin/activate
+</code></pre></div>
+<hr />
+<h2 id="build-errors">Build Errors</h2>
+<h3 id="symptom-module-does-not-contain-a-main-function">Symptom: "module does not contain a 'main' function"</h3>
+<p><strong>Cause</strong>: Attempting to build a library file standalone instead of building the package.</p>
+<p><strong>Solution</strong>:</p>
+<p>Library files like <code>src/odyssey/core/extensor.mojo</code> or <code>src/odyssey/training/optimizer.mojo</code> don't have
+a <code>main()</code> function. Build the package instead:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="c1"># WRONG - Library files don&#39;t have main()</span>
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>mojo<span class="w"> </span>build<span class="w"> </span>src/odyssey/core/extensor.mojo
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>
+<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a><span class="c1"># CORRECT - Build the package</span>
+<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a>mojo<span class="w"> </span>package<span class="w"> </span>shared<span class="w"> </span>-o<span class="w"> </span>dist/shared-0.1.0.mojopkg
+<a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a>
+<a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a><span class="c1"># CORRECT - Build executables that import from shared</span>
+<a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a>mojo<span class="w"> </span>build<span class="w"> </span>-I<span class="w"> </span>.<span class="w"> </span>examples/train.mojo
+</code></pre></div>
+<h3 id="symptom-unable-to-locate-module-or-failed-to-resolve-module">Symptom: "unable to locate module" or "failed to resolve module"</h3>
+<p><strong>Cause</strong>: Import path or package directory structure is incorrect.</p>
+<p><strong>Solution</strong>:</p>
+<ol>
+<li>Verify the package directory structure exists:</li>
+</ol>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>ls<span class="w"> </span>-la<span class="w"> </span>src/odyssey/**init**.mojo
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>ls<span class="w"> </span>-la<span class="w"> </span>src/odyssey/core/**init**.mojo
+<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>ls<span class="w"> </span>-la<span class="w"> </span>src/odyssey/training/**init**.mojo
+</code></pre></div>
+<ol>
+<li>Use absolute import paths from the repository root:</li>
+</ol>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="c1"># CORRECT - Import from root</span>
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">odyssey.core.any_tensor</span><span class="w"> </span><span class="kn">import</span><span class="w"> </span><span class="n">AnyTensor</span>
+<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">odyssey.training.optimizer</span><span class="w"> </span><span class="kn">import</span><span class="w"> </span><span class="n">Adam</span>
+<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a>
+<a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a><span class="c1"># For relative imports within a package, use ..</span>
+<a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a><span class="c1"># Only valid within the package structure</span>
+<a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a><span class="kn">from</span><span class="w"> </span><span class="nn">..version</span><span class="w"> </span><span class="kn">import</span><span class="w"> </span><span class="n">VERSION</span>
+</code></pre></div>
+<ol>
+<li>Always build with <code>-I .</code> to set the import path:</li>
+</ol>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>mojo<span class="w"> </span>build<span class="w"> </span>-I<span class="w"> </span>.<span class="w"> </span>examples/train.mojo
+</code></pre></div>
+<ol>
+<li>If using <code>mojo package</code>, verify the package path:</li>
+</ol>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>mojo<span class="w"> </span>package<span class="w"> </span>shared<span class="w"> </span>-o<span class="w"> </span>dist/shared-0.1.0.mojopkg
+<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>mojo<span class="w"> </span>package<span class="w"> </span>src/odyssey/training<span class="w"> </span>-o<span class="w"> </span>dist/training-0.1.0.mojopkg
+</code></pre></div>
+<h3 id="symptom-error-use-of-unknown-directive-or-version-mismatch-errors">Symptom: "error: use of unknown directive" or version mismatch errors</h3>
+<p><strong>Cause</strong>: Mojo version is incompatible with code.</p>
+<p><strong>Solution</strong>:</p>
+<ol>
+<li>Verify Mojo version:</li>
+</ol>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>mojo<span class="w"> </span>--version
+</code></pre></div>
+<ol>
+<li>Check required version in <code>pyproject.toml</code> or <code>AGENTS.md</code>:</li>
+</ol>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>grep<span class="w"> </span>-A5<span class="w"> </span><span class="s2">&quot;mojo&quot;</span><span class="w"> </span>pyproject.toml
+</code></pre></div>
+<ol>
+<li>Update Mojo via uv:</li>
+</ol>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a>uv<span class="w"> </span>lock<span class="w"> </span>--upgrade-package<span class="w"> </span>mojo
+<a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a>uv<span class="w"> </span>sync<span class="w"> </span>--locked
+<a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a><span class="nb">source</span><span class="w"> </span>.venv/bin/activate
+<a id="__codelineno-19-4" name="__codelineno-19-4" href="#__codelineno-19-4"></a>mojo<span class="w"> </span>--version
+</code></pre></div>
+<ol>
+<li>If still incompatible, create a new environment:</li>
+</ol>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a>rm<span class="w"> </span>-rf<span class="w"> </span>.venv/
+<a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a>uv<span class="w"> </span>sync<span class="w"> </span>--locked
+<a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a><span class="nb">source</span><span class="w"> </span>.venv/bin/activate
+</code></pre></div>
+<h3 id="symptom-error-cannot-build-package-without-initmojo-or-similar-package-errors">Symptom: "error: cannot build package without '<strong>init</strong>.mojo'" or similar package errors</h3>
+<p><strong>Cause</strong>: Missing <code>**init**.mojo</code> files in package directories.</p>
+<p><strong>Solution</strong>:</p>
+<p>Create <code>**init**.mojo</code> in all package directories:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a>touch<span class="w"> </span>src/odyssey/**init**.mojo
+<a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a>touch<span class="w"> </span>src/odyssey/core/**init**.mojo
+<a id="__codelineno-21-3" name="__codelineno-21-3" href="#__codelineno-21-3"></a>touch<span class="w"> </span>src/odyssey/training/**init**.mojo
+<a id="__codelineno-21-4" name="__codelineno-21-4" href="#__codelineno-21-4"></a>touch<span class="w"> </span>src/odyssey/data/**init**.mojo
+<a id="__codelineno-21-5" name="__codelineno-21-5" href="#__codelineno-21-5"></a>touch<span class="w"> </span>src/odyssey/utils/**init**.mojo
+</code></pre></div>
+<p>Each <code>**init**.mojo</code> should contain version export (if applicable):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a><span class="c1"># src/odyssey/**init**.mojo</span>
+<a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">.version</span><span class="w"> </span><span class="kn">import</span><span class="w"> </span><span class="n">VERSION</span>
+<a id="__codelineno-22-3" name="__codelineno-22-3" href="#__codelineno-22-3"></a>
+<a id="__codelineno-22-4" name="__codelineno-22-4" href="#__codelineno-22-4"></a><span class="o">**</span><span class="nb">all</span><span class="o">**</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;VERSION&quot;</span><span class="p">]</span>
+</code></pre></div>
+<hr />
+<h2 id="runtime-errors">Runtime Errors</h2>
+<h3 id="symptom-shape-mismatch-expected-but-got">Symptom: "Shape mismatch: expected (...) but got (...)"</h3>
+<p><strong>Cause</strong>: Tensor dimensions don't match in operation.</p>
+<p><strong>Solution</strong>:</p>
+<ol>
+<li>Verify input and output shapes in your code:</li>
+</ol>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a><span class="k">var</span><span class="w"> </span><span class="nv">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">AnyTensor</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+<a id="__codelineno-23-2" name="__codelineno-23-2" href="#__codelineno-23-2"></a><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Input shape:&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">x</span><span class="o">.</span><span class="n">_shape</span><span class="p">)</span>
+<a id="__codelineno-23-3" name="__codelineno-23-3" href="#__codelineno-23-3"></a><span class="k">var</span><span class="w"> </span><span class="nv">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">forward</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+<a id="__codelineno-23-4" name="__codelineno-23-4" href="#__codelineno-23-4"></a><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Output shape:&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="o">.</span><span class="n">_shape</span><span class="p">)</span>
+</code></pre></div>
+<ol>
+<li>Check the layer documentation for expected dimensions:</li>
+</ol>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a><span class="c1"># For example, Linear layer expects:</span>
+<a id="__codelineno-24-2" name="__codelineno-24-2" href="#__codelineno-24-2"></a><span class="c1"># Input: (batch_size, in_features)</span>
+<a id="__codelineno-24-3" name="__codelineno-24-3" href="#__codelineno-24-3"></a><span class="c1"># Output: (batch_size, out_features)</span>
+</code></pre></div>
+<ol>
+<li>Ensure batch dimensions are preserved through pipeline:</li>
+</ol>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a><span class="c1"># CORRECT - Batch dimension preserved</span>
+<a id="__codelineno-25-2" name="__codelineno-25-2" href="#__codelineno-25-2"></a><span class="k">var</span><span class="w"> </span><span class="nv">input_shape</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">List</span><span class="p">[</span><span class="nb">Int</span><span class="p">]()</span>
+<a id="__codelineno-25-3" name="__codelineno-25-3" href="#__codelineno-25-3"></a><span class="n">input_shape</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">batch_size</span><span class="p">)</span>
+<a id="__codelineno-25-4" name="__codelineno-25-4" href="#__codelineno-25-4"></a><span class="n">input_shape</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">input_features</span><span class="p">)</span>
+<a id="__codelineno-25-5" name="__codelineno-25-5" href="#__codelineno-25-5"></a>
+<a id="__codelineno-25-6" name="__codelineno-25-6" href="#__codelineno-25-6"></a><span class="c1"># WRONG - Batch dimension dropped</span>
+<a id="__codelineno-25-7" name="__codelineno-25-7" href="#__codelineno-25-7"></a><span class="k">var</span><span class="w"> </span><span class="nv">wrong_shape</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">List</span><span class="p">[</span><span class="nb">Int</span><span class="p">]()</span>
+<a id="__codelineno-25-8" name="__codelineno-25-8" href="#__codelineno-25-8"></a><span class="n">wrong_shape</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">input_features</span><span class="p">)</span>
+</code></pre></div>
+<ol>
+<li>For convolutional layers, verify the full 4D shape (batch, channels, height, width):</li>
+</ol>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a><span class="c1"># CORRECT - 4D shape for Conv2D</span>
+<a id="__codelineno-26-2" name="__codelineno-26-2" href="#__codelineno-26-2"></a><span class="k">var</span><span class="w"> </span><span class="nv">conv_input</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">List</span><span class="p">[</span><span class="nb">Int</span><span class="p">]()</span>
+<a id="__codelineno-26-3" name="__codelineno-26-3" href="#__codelineno-26-3"></a><span class="n">conv_input</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">batch_size</span><span class="p">)</span><span class="w">  </span><span class="c1"># N</span>
+<a id="__codelineno-26-4" name="__codelineno-26-4" href="#__codelineno-26-4"></a><span class="n">conv_input</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">in_channels</span><span class="p">)</span><span class="w">  </span><span class="c1"># C</span>
+<a id="__codelineno-26-5" name="__codelineno-26-5" href="#__codelineno-26-5"></a><span class="n">conv_input</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">height</span><span class="p">)</span><span class="w">       </span><span class="c1"># H</span>
+<a id="__codelineno-26-6" name="__codelineno-26-6" href="#__codelineno-26-6"></a><span class="n">conv_input</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">width</span><span class="p">)</span><span class="w">        </span><span class="c1"># W</span>
+</code></pre></div>
+<h3 id="symptom-segfault-aborted-core-dumped-or-out-of-bounds">Symptom: "SEGFAULT", "Aborted (core dumped)", or "out of bounds"</h3>
+<p><strong>Cause</strong>: Accessing invalid memory or uninitialized tensor data.</p>
+<p><strong>Solution</strong>:</p>
+<ol>
+<li>Never access uninitialized list indices:</li>
+</ol>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-27-1" name="__codelineno-27-1" href="#__codelineno-27-1"></a><span class="c1"># WRONG - Uninitialized list access</span>
+<a id="__codelineno-27-2" name="__codelineno-27-2" href="#__codelineno-27-2"></a><span class="k">var</span><span class="w"> </span><span class="nv">list</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">List</span><span class="p">[</span><span class="nb">Int</span><span class="p">]()</span>
+<a id="__codelineno-27-3" name="__codelineno-27-3" href="#__codelineno-27-3"></a><span class="nb">list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">42</span><span class="w">  </span><span class="c1"># SEGFAULT - index 0 doesn&#39;t exist</span>
+<a id="__codelineno-27-4" name="__codelineno-27-4" href="#__codelineno-27-4"></a>
+<a id="__codelineno-27-5" name="__codelineno-27-5" href="#__codelineno-27-5"></a><span class="c1"># CORRECT - Use append to create elements</span>
+<a id="__codelineno-27-6" name="__codelineno-27-6" href="#__codelineno-27-6"></a><span class="k">var</span><span class="w"> </span><span class="nv">list</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">List</span><span class="p">[</span><span class="nb">Int</span><span class="p">]()</span>
+<a id="__codelineno-27-7" name="__codelineno-27-7" href="#__codelineno-27-7"></a><span class="nb">list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
+</code></pre></div>
+<ol>
+<li>Verify tensor is initialized before accessing data:</li>
+</ol>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-28-1" name="__codelineno-28-1" href="#__codelineno-28-1"></a><span class="c1"># WRONG - Empty shape means 0D scalar (1 element only)</span>
+<a id="__codelineno-28-2" name="__codelineno-28-2" href="#__codelineno-28-2"></a><span class="k">var</span><span class="w"> </span><span class="nv">shape</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">List</span><span class="p">[</span><span class="nb">Int</span><span class="p">]()</span>
+<a id="__codelineno-28-3" name="__codelineno-28-3" href="#__codelineno-28-3"></a><span class="k">var</span><span class="w"> </span><span class="nv">tensor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">AnyTensor</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span><span class="w"> </span><span class="nb">DType</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+<a id="__codelineno-28-4" name="__codelineno-28-4" href="#__codelineno-28-4"></a><span class="n">tensor</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.0</span><span class="w">  </span><span class="c1"># SEGFAULT - out of bounds</span>
+<a id="__codelineno-28-5" name="__codelineno-28-5" href="#__codelineno-28-5"></a>
+<a id="__codelineno-28-6" name="__codelineno-28-6" href="#__codelineno-28-6"></a><span class="c1"># CORRECT - Initialize shape with dimensions</span>
+<a id="__codelineno-28-7" name="__codelineno-28-7" href="#__codelineno-28-7"></a><span class="k">var</span><span class="w"> </span><span class="nv">shape</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">List</span><span class="p">[</span><span class="nb">Int</span><span class="p">]()</span>
+<a id="__codelineno-28-8" name="__codelineno-28-8" href="#__codelineno-28-8"></a><span class="n">shape</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<a id="__codelineno-28-9" name="__codelineno-28-9" href="#__codelineno-28-9"></a><span class="k">var</span><span class="w"> </span><span class="nv">tensor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">AnyTensor</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span><span class="w"> </span><span class="nb">DType</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+<a id="__codelineno-28-10" name="__codelineno-28-10" href="#__codelineno-28-10"></a><span class="c1"># Now indices 0-3 are valid</span>
+</code></pre></div>
+<ol>
+<li>Check bounds before indexing:</li>
+</ol>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-29-1" name="__codelineno-29-1" href="#__codelineno-29-1"></a><span class="k">fn</span><span class="w"> </span><span class="nf">safe_access</span><span class="p">(</span><span class="n">tensor</span><span class="p">:</span><span class="w"> </span><span class="n">AnyTensor</span><span class="p">,</span><span class="w"> </span><span class="n">index</span><span class="p">:</span><span class="w"> </span><span class="nb">Int</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nb">Float32</span><span class="p">:</span>
+<a id="__codelineno-29-2" name="__codelineno-29-2" href="#__codelineno-29-2"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="n">index</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="ow">and</span><span class="w"> </span><span class="n">index</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">tensor</span><span class="o">.</span><span class="n">numel</span><span class="p">():</span>
+<a id="__codelineno-29-3" name="__codelineno-29-3" href="#__codelineno-29-3"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">tensor</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+<a id="__codelineno-29-4" name="__codelineno-29-4" href="#__codelineno-29-4"></a><span class="w">    </span><span class="k">else</span><span class="p">:</span>
+<a id="__codelineno-29-5" name="__codelineno-29-5" href="#__codelineno-29-5"></a><span class="w">        </span><span class="c1"># Handle out of bounds</span>
+<a id="__codelineno-29-6" name="__codelineno-29-6" href="#__codelineno-29-6"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="mf">0.0</span>
+</code></pre></div>
+<h3 id="symptom-cuda-out-of-memory-or-runtimeerror-cannot-allocate-x-mb">Symptom: "CUDA out of memory" or "RuntimeError: Cannot allocate X MB"</h3>
+<p><strong>Cause</strong>: Tensor operations exceed available memory.</p>
+<p><strong>Solution</strong>:</p>
+<ol>
+<li>Reduce batch size:</li>
+</ol>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-30-1" name="__codelineno-30-1" href="#__codelineno-30-1"></a><span class="c1"># WRONG - Too large batch</span>
+<a id="__codelineno-30-2" name="__codelineno-30-2" href="#__codelineno-30-2"></a>just<span class="w"> </span>train<span class="w"> </span>lenet5<span class="w"> </span>fp32<span class="w"> </span><span class="m">20</span><span class="w"> </span><span class="nv">batch_size</span><span class="o">=</span><span class="m">1024</span>
+<a id="__codelineno-30-3" name="__codelineno-30-3" href="#__codelineno-30-3"></a>
+<a id="__codelineno-30-4" name="__codelineno-30-4" href="#__codelineno-30-4"></a><span class="c1"># CORRECT - Smaller batch</span>
+<a id="__codelineno-30-5" name="__codelineno-30-5" href="#__codelineno-30-5"></a>just<span class="w"> </span>train<span class="w"> </span>lenet5<span class="w"> </span>fp32<span class="w"> </span><span class="m">20</span><span class="w"> </span><span class="nv">batch_size</span><span class="o">=</span><span class="m">32</span>
+</code></pre></div>
+<ol>
+<li>Use lower precision (float16 instead of float32):</li>
+</ol>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-31-1" name="__codelineno-31-1" href="#__codelineno-31-1"></a><span class="c1"># Uses less memory</span>
+<a id="__codelineno-31-2" name="__codelineno-31-2" href="#__codelineno-31-2"></a>just<span class="w"> </span>train<span class="w"> </span>lenet5<span class="w"> </span>fp16<span class="w"> </span><span class="m">20</span>
+</code></pre></div>
+<ol>
+<li>Reduce model size (remove layers, channels):</li>
+</ol>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-32-1" name="__codelineno-32-1" href="#__codelineno-32-1"></a><span class="c1"># Modify model configuration to use fewer parameters</span>
+</code></pre></div>
+<ol>
+<li>Monitor memory during execution:</li>
+</ol>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-33-1" name="__codelineno-33-1" href="#__codelineno-33-1"></a>watch<span class="w"> </span>-n<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="s1">&#39;nvidia-smi&#39;</span><span class="w">  </span><span class="c1"># For GPU</span>
+<a id="__codelineno-33-2" name="__codelineno-33-2" href="#__codelineno-33-2"></a>free<span class="w"> </span>-h<span class="w">  </span><span class="c1"># For system memory</span>
+</code></pre></div>
+<ol>
+<li>Check memory requirements in documentation:</li>
+</ol>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-34-1" name="__codelineno-34-1" href="#__codelineno-34-1"></a>cat<span class="w"> </span>docs/MEMORY_REQUIREMENTS.md
+</code></pre></div>
+<h3 id="symptom-typeerror-incompatible-argument-type-or-expected-dtype-but-got-int">Symptom: "TypeError: incompatible argument type" or "expected DType but got Int"</h3>
+<p><strong>Cause</strong>: Wrong data type passed to function.</p>
+<p><strong>Solution</strong>:</p>
+<ol>
+<li>Verify function signature:</li>
+</ol>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-35-1" name="__codelineno-35-1" href="#__codelineno-35-1"></a><span class="c1"># WRONG - Passing Int instead of DType</span>
+<a id="__codelineno-35-2" name="__codelineno-35-2" href="#__codelineno-35-2"></a><span class="k">var</span><span class="w"> </span><span class="nv">tensor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">AnyTensor</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span><span class="w"> </span><span class="mi">32</span><span class="p">)</span>
+<a id="__codelineno-35-3" name="__codelineno-35-3" href="#__codelineno-35-3"></a>
+<a id="__codelineno-35-4" name="__codelineno-35-4" href="#__codelineno-35-4"></a><span class="c1"># CORRECT - Use DType enum</span>
+<a id="__codelineno-35-5" name="__codelineno-35-5" href="#__codelineno-35-5"></a><span class="k">var</span><span class="w"> </span><span class="nv">tensor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">AnyTensor</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span><span class="w"> </span><span class="nb">DType</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+</code></pre></div>
+<ol>
+<li>Use correct DType values:</li>
+</ol>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-36-1" name="__codelineno-36-1" href="#__codelineno-36-1"></a><span class="nb">DType</span><span class="o">.</span><span class="n">int8</span><span class="w">        </span><span class="c1"># 8-bit integer</span>
+<a id="__codelineno-36-2" name="__codelineno-36-2" href="#__codelineno-36-2"></a><span class="nb">DType</span><span class="o">.</span><span class="n">int16</span><span class="w">       </span><span class="c1"># 16-bit integer</span>
+<a id="__codelineno-36-3" name="__codelineno-36-3" href="#__codelineno-36-3"></a><span class="nb">DType</span><span class="o">.</span><span class="n">int32</span><span class="w">       </span><span class="c1"># 32-bit integer</span>
+<a id="__codelineno-36-4" name="__codelineno-36-4" href="#__codelineno-36-4"></a><span class="nb">DType</span><span class="o">.</span><span class="n">float32</span><span class="w">     </span><span class="c1"># 32-bit float (default)</span>
+<a id="__codelineno-36-5" name="__codelineno-36-5" href="#__codelineno-36-5"></a><span class="nb">DType</span><span class="o">.</span><span class="n">float16</span><span class="w">     </span><span class="c1"># 16-bit float</span>
+<a id="__codelineno-36-6" name="__codelineno-36-6" href="#__codelineno-36-6"></a><span class="nb">DType</span><span class="o">.</span><span class="n">bfloat16</span><span class="w">    </span><span class="c1"># Brain float 16</span>
+</code></pre></div>
+<ol>
+<li>For tensor operations, ensure dtype consistency:</li>
+</ol>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-37-1" name="__codelineno-37-1" href="#__codelineno-37-1"></a><span class="c1"># WRONG - Mixing dtypes</span>
+<a id="__codelineno-37-2" name="__codelineno-37-2" href="#__codelineno-37-2"></a><span class="k">var</span><span class="w"> </span><span class="nv">a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">AnyTensor</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span><span class="w"> </span><span class="nb">DType</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+<a id="__codelineno-37-3" name="__codelineno-37-3" href="#__codelineno-37-3"></a><span class="k">var</span><span class="w"> </span><span class="nv">b</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">AnyTensor</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span><span class="w"> </span><span class="nb">DType</span><span class="o">.</span><span class="n">float16</span><span class="p">)</span>
+<a id="__codelineno-37-4" name="__codelineno-37-4" href="#__codelineno-37-4"></a><span class="k">var</span><span class="w"> </span><span class="nv">c</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">add</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="p">)</span><span class="w">  </span><span class="c1"># Type mismatch</span>
+<a id="__codelineno-37-5" name="__codelineno-37-5" href="#__codelineno-37-5"></a>
+<a id="__codelineno-37-6" name="__codelineno-37-6" href="#__codelineno-37-6"></a><span class="c1"># CORRECT - Matching dtypes</span>
+<a id="__codelineno-37-7" name="__codelineno-37-7" href="#__codelineno-37-7"></a><span class="k">var</span><span class="w"> </span><span class="nv">a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">AnyTensor</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span><span class="w"> </span><span class="nb">DType</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+<a id="__codelineno-37-8" name="__codelineno-37-8" href="#__codelineno-37-8"></a><span class="k">var</span><span class="w"> </span><span class="nv">b</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">AnyTensor</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span><span class="w"> </span><span class="nb">DType</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+<a id="__codelineno-37-9" name="__codelineno-37-9" href="#__codelineno-37-9"></a><span class="k">var</span><span class="w"> </span><span class="nv">c</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">add</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="p">)</span>
+</code></pre></div>
+<hr />
+<h2 id="mojo-specific-issues">Mojo-Specific Issues</h2>
+<h3 id="symptom-error-cannot-transfer-ownership-of-non-copyable-type">Symptom: "error: cannot transfer ownership of non-copyable type"</h3>
+<p><strong>Cause</strong>: Attempting to use a <code>List</code>, <code>Dict</code>, or <code>String</code> without the transfer operator <code>^</code>.</p>
+<p><strong>Solution</strong>:</p>
+<p>Always use <code>^</code> when returning or passing non-copyable types:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-38-1" name="__codelineno-38-1" href="#__codelineno-38-1"></a><span class="c1"># WRONG - Cannot implicitly copy</span>
+<a id="__codelineno-38-2" name="__codelineno-38-2" href="#__codelineno-38-2"></a><span class="k">fn</span><span class="w"> </span><span class="nf">get_params</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nb">List</span><span class="p">[</span><span class="nb">Float32</span><span class="p">]:</span>
+<a id="__codelineno-38-3" name="__codelineno-38-3" href="#__codelineno-38-3"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">params</span>
+<a id="__codelineno-38-4" name="__codelineno-38-4" href="#__codelineno-38-4"></a>
+<a id="__codelineno-38-5" name="__codelineno-38-5" href="#__codelineno-38-5"></a><span class="c1"># CORRECT - Explicit ownership transfer</span>
+<a id="__codelineno-38-6" name="__codelineno-38-6" href="#__codelineno-38-6"></a><span class="k">fn</span><span class="w"> </span><span class="nf">get_params</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nb">List</span><span class="p">[</span><span class="nb">Float32</span><span class="p">]:</span>
+<a id="__codelineno-38-7" name="__codelineno-38-7" href="#__codelineno-38-7"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">^</span>
+</code></pre></div>
+<p>For List returns:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-39-1" name="__codelineno-39-1" href="#__codelineno-39-1"></a><span class="c1"># WRONG</span>
+<a id="__codelineno-39-2" name="__codelineno-39-2" href="#__codelineno-39-2"></a><span class="k">fn</span><span class="w"> </span><span class="nf">get_weights</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nb">List</span><span class="p">[</span><span class="nb">Float32</span><span class="p">]:</span>
+<a id="__codelineno-39-3" name="__codelineno-39-3" href="#__codelineno-39-3"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">weights</span>
+<a id="__codelineno-39-4" name="__codelineno-39-4" href="#__codelineno-39-4"></a>
+<a id="__codelineno-39-5" name="__codelineno-39-5" href="#__codelineno-39-5"></a><span class="c1"># CORRECT</span>
+<a id="__codelineno-39-6" name="__codelineno-39-6" href="#__codelineno-39-6"></a><span class="k">fn</span><span class="w"> </span><span class="nf">get_weights</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nb">List</span><span class="p">[</span><span class="nb">Float32</span><span class="p">]:</span>
+<a id="__codelineno-39-7" name="__codelineno-39-7" href="#__codelineno-39-7"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">weights</span><span class="o">^</span>
+</code></pre></div>
+<h3 id="symptom-error-cannot-pass-temporary-to-var-parameter">Symptom: "error: cannot pass temporary to var parameter"</h3>
+<p><strong>Cause</strong>: Passing a temporary expression to a function parameter marked <code>var</code> (owned parameter).</p>
+<p><strong>Solution</strong>:</p>
+<p>Create a named variable first, then pass it:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-40-1" name="__codelineno-40-1" href="#__codelineno-40-1"></a><span class="c1"># WRONG - Cannot transfer ownership of temporary</span>
+<a id="__codelineno-40-2" name="__codelineno-40-2" href="#__codelineno-40-2"></a><span class="k">var</span><span class="w"> </span><span class="nv">tensor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">AnyTensor</span><span class="p">(</span><span class="nb">List</span><span class="p">[</span><span class="nb">Int</span><span class="p">](),</span><span class="w"> </span><span class="nb">DType</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+<a id="__codelineno-40-3" name="__codelineno-40-3" href="#__codelineno-40-3"></a>
+<a id="__codelineno-40-4" name="__codelineno-40-4" href="#__codelineno-40-4"></a><span class="c1"># CORRECT - Named variable can be transferred</span>
+<a id="__codelineno-40-5" name="__codelineno-40-5" href="#__codelineno-40-5"></a><span class="k">var</span><span class="w"> </span><span class="nv">shape</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">List</span><span class="p">[</span><span class="nb">Int</span><span class="p">]()</span>
+<a id="__codelineno-40-6" name="__codelineno-40-6" href="#__codelineno-40-6"></a><span class="k">var</span><span class="w"> </span><span class="nv">tensor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">AnyTensor</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span><span class="w"> </span><span class="nb">DType</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+</code></pre></div>
+<p>For multiple parameters:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-41-1" name="__codelineno-41-1" href="#__codelineno-41-1"></a><span class="c1"># WRONG</span>
+<a id="__codelineno-41-2" name="__codelineno-41-2" href="#__codelineno-41-2"></a><span class="k">var</span><span class="w"> </span><span class="nv">model</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MyModel</span><span class="p">(</span><span class="nb">List</span><span class="p">[</span><span class="nb">Int</span><span class="p">](),</span><span class="w"> </span><span class="nb">List</span><span class="p">[</span><span class="nb">Float32</span><span class="p">]())</span>
+<a id="__codelineno-41-3" name="__codelineno-41-3" href="#__codelineno-41-3"></a>
+<a id="__codelineno-41-4" name="__codelineno-41-4" href="#__codelineno-41-4"></a><span class="c1"># CORRECT</span>
+<a id="__codelineno-41-5" name="__codelineno-41-5" href="#__codelineno-41-5"></a><span class="k">var</span><span class="w"> </span><span class="nv">layer_sizes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">List</span><span class="p">[</span><span class="nb">Int</span><span class="p">]()</span>
+<a id="__codelineno-41-6" name="__codelineno-41-6" href="#__codelineno-41-6"></a><span class="k">var</span><span class="w"> </span><span class="nv">weights</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">List</span><span class="p">[</span><span class="nb">Float32</span><span class="p">]()</span>
+<a id="__codelineno-41-7" name="__codelineno-41-7" href="#__codelineno-41-7"></a><span class="k">var</span><span class="w"> </span><span class="nv">model</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MyModel</span><span class="p">(</span><span class="n">layer_sizes</span><span class="p">,</span><span class="w"> </span><span class="n">weights</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="symptom-error-cannot-transfer-ownership-of-nonetype">Symptom: "error: cannot transfer ownership of NoneType"</h3>
+<p><strong>Cause</strong>: Empty constructor call <code>List[Int]()</code> with nothing inside parentheses.</p>
+<p><strong>Solution</strong>:</p>
+<p>Use list initialization or append:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-42-1" name="__codelineno-42-1" href="#__codelineno-42-1"></a><span class="c1"># WRONG - Ambiguous</span>
+<a id="__codelineno-42-2" name="__codelineno-42-2" href="#__codelineno-42-2"></a><span class="k">var</span><span class="w"> </span><span class="nv">list</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">List</span><span class="p">[</span><span class="nb">Int</span><span class="p">]()</span>
+<a id="__codelineno-42-3" name="__codelineno-42-3" href="#__codelineno-42-3"></a>
+<a id="__codelineno-42-4" name="__codelineno-42-4" href="#__codelineno-42-4"></a><span class="c1"># CORRECT - Use literal syntax</span>
+<a id="__codelineno-42-5" name="__codelineno-42-5" href="#__codelineno-42-5"></a><span class="k">var</span><span class="w"> </span><span class="nv">list</span><span class="p">:</span><span class="w"> </span><span class="nb">List</span><span class="p">[</span><span class="nb">Int</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[]</span>
+<a id="__codelineno-42-6" name="__codelineno-42-6" href="#__codelineno-42-6"></a>
+<a id="__codelineno-42-7" name="__codelineno-42-7" href="#__codelineno-42-7"></a><span class="c1"># CORRECT - Use append</span>
+<a id="__codelineno-42-8" name="__codelineno-42-8" href="#__codelineno-42-8"></a><span class="k">var</span><span class="w"> </span><span class="nv">list</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">List</span><span class="p">[</span><span class="nb">Int</span><span class="p">]()</span>
+<a id="__codelineno-42-9" name="__codelineno-42-9" href="#__codelineno-42-9"></a><span class="nb">list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+<a id="__codelineno-42-10" name="__codelineno-42-10" href="#__codelineno-42-10"></a><span class="nb">list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="symptom-error-x-does-not-conform-to-trait-implicitlycopyable">Symptom: "error: 'X' does not conform to trait 'ImplicitlyCopyable'"</h3>
+<p><strong>Cause</strong>: Adding <code>ImplicitlyCopyable</code> to a struct with non-copyable fields.</p>
+<p><strong>Solution</strong>:</p>
+<p>Remove <code>ImplicitlyCopyable</code> if the struct contains <code>List</code>, <code>Dict</code>, or <code>String</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-43-1" name="__codelineno-43-1" href="#__codelineno-43-1"></a><span class="c1"># WRONG - List is NOT ImplicitlyCopyable</span>
+<a id="__codelineno-43-2" name="__codelineno-43-2" href="#__codelineno-43-2"></a><span class="k">struct</span><span class="w"> </span><span class="n n-Struct">Model</span><span class="p">(</span><span class="nb">Copyable</span><span class="p">,</span><span class="w"> </span><span class="nb">Movable</span><span class="p">,</span><span class="w"> </span><span class="n">ImplicitlyCopyable</span><span class="p">):</span>
+<a id="__codelineno-43-3" name="__codelineno-43-3" href="#__codelineno-43-3"></a><span class="w">    </span><span class="k">var</span><span class="w"> </span><span class="nv">weights</span><span class="p">:</span><span class="w"> </span><span class="nb">List</span><span class="p">[</span><span class="nb">Float32</span><span class="p">]</span>
+<a id="__codelineno-43-4" name="__codelineno-43-4" href="#__codelineno-43-4"></a>
+<a id="__codelineno-43-5" name="__codelineno-43-5" href="#__codelineno-43-5"></a><span class="c1"># CORRECT - Remove ImplicitlyCopyable</span>
+<a id="__codelineno-43-6" name="__codelineno-43-6" href="#__codelineno-43-6"></a><span class="k">struct</span><span class="w"> </span><span class="n n-Struct">Model</span><span class="p">(</span><span class="nb">Copyable</span><span class="p">,</span><span class="w"> </span><span class="nb">Movable</span><span class="p">):</span>
+<a id="__codelineno-43-7" name="__codelineno-43-7" href="#__codelineno-43-7"></a><span class="w">    </span><span class="k">var</span><span class="w"> </span><span class="nv">weights</span><span class="p">:</span><span class="w"> </span><span class="nb">List</span><span class="p">[</span><span class="nb">Float32</span><span class="p">]</span>
+<a id="__codelineno-43-8" name="__codelineno-43-8" href="#__codelineno-43-8"></a>
+<a id="__codelineno-43-9" name="__codelineno-43-9" href="#__codelineno-43-9"></a><span class="w">    </span><span class="c1"># Provide explicit transfer for returns</span>
+<a id="__codelineno-43-10" name="__codelineno-43-10" href="#__codelineno-43-10"></a><span class="w">    </span><span class="k">fn</span><span class="w"> </span><span class="nf">get_weights</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nb">List</span><span class="p">[</span><span class="nb">Float32</span><span class="p">]:</span>
+<a id="__codelineno-43-11" name="__codelineno-43-11" href="#__codelineno-43-11"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">weights</span><span class="o">^</span>
+</code></pre></div>
+<h3 id="symptom-error-fn-initmut-self-should-use-out-self">Symptom: "error: fn <strong>init</strong>(mut self,...) should use out self"</h3>
+<p><strong>Cause</strong>: Using <code>mut self</code> in constructor instead of <code>out self</code>.</p>
+<p><strong>Solution</strong>:</p>
+<p>Use <code>out self</code> for all constructors:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-44-1" name="__codelineno-44-1" href="#__codelineno-44-1"></a><span class="c1"># WRONG - mut self in constructor</span>
+<a id="__codelineno-44-2" name="__codelineno-44-2" href="#__codelineno-44-2"></a><span class="k">fn</span><span class="w"> </span><span class="o">**</span><span class="n">init</span><span class="o">**</span><span class="p">(</span><span class="n">mut</span><span class="w"> </span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">value</span><span class="p">:</span><span class="w"> </span><span class="nb">Int</span><span class="p">):</span>
+<a id="__codelineno-44-3" name="__codelineno-44-3" href="#__codelineno-44-3"></a><span class="w">    </span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">value</span>
+<a id="__codelineno-44-4" name="__codelineno-44-4" href="#__codelineno-44-4"></a>
+<a id="__codelineno-44-5" name="__codelineno-44-5" href="#__codelineno-44-5"></a><span class="c1"># CORRECT - out self for constructors</span>
+<a id="__codelineno-44-6" name="__codelineno-44-6" href="#__codelineno-44-6"></a><span class="k">fn</span><span class="w"> </span><span class="o">**</span><span class="n">init</span><span class="o">**</span><span class="p">(</span><span class="n">out</span><span class="w"> </span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">value</span><span class="p">:</span><span class="w"> </span><span class="nb">Int</span><span class="p">):</span>
+<a id="__codelineno-44-7" name="__codelineno-44-7" href="#__codelineno-44-7"></a><span class="w">    </span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">value</span>
+</code></pre></div>
+<p>Constructor convention reference:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-45-1" name="__codelineno-45-1" href="#__codelineno-45-1"></a><span class="k">fn</span><span class="w"> </span><span class="o">**</span><span class="n">init</span><span class="o">**</span><span class="p">(</span><span class="n">out</span><span class="w"> </span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">value</span><span class="p">:</span><span class="w"> </span><span class="nb">Int</span><span class="p">):</span>
+<a id="__codelineno-45-2" name="__codelineno-45-2" href="#__codelineno-45-2"></a><span class="w">    </span><span class="s2">&quot;&quot;&quot;Constructor - use out self&quot;&quot;&quot;</span>
+<a id="__codelineno-45-3" name="__codelineno-45-3" href="#__codelineno-45-3"></a><span class="w">    </span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">value</span>
+<a id="__codelineno-45-4" name="__codelineno-45-4" href="#__codelineno-45-4"></a>
+<a id="__codelineno-45-5" name="__codelineno-45-5" href="#__codelineno-45-5"></a><span class="k">fn</span><span class="w"> </span><span class="o">**</span><span class="n">moveinit</span><span class="o">**</span><span class="p">(</span><span class="n">out</span><span class="w"> </span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">owned</span><span class="w"> </span><span class="n">existing</span><span class="p">:</span><span class="w"> </span><span class="n">Self</span><span class="p">):</span>
+<a id="__codelineno-45-6" name="__codelineno-45-6" href="#__codelineno-45-6"></a><span class="w">    </span><span class="s2">&quot;&quot;&quot;Move constructor - use out self, owned parameter&quot;&quot;&quot;</span>
+<a id="__codelineno-45-7" name="__codelineno-45-7" href="#__codelineno-45-7"></a><span class="w">    </span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">existing</span><span class="o">.</span><span class="n">value</span>
+<a id="__codelineno-45-8" name="__codelineno-45-8" href="#__codelineno-45-8"></a>
+<a id="__codelineno-45-9" name="__codelineno-45-9" href="#__codelineno-45-9"></a><span class="k">fn</span><span class="w"> </span><span class="o">**</span><span class="n">copyinit</span><span class="o">**</span><span class="p">(</span><span class="n">out</span><span class="w"> </span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">existing</span><span class="p">:</span><span class="w"> </span><span class="n">Self</span><span class="p">):</span>
+<a id="__codelineno-45-10" name="__codelineno-45-10" href="#__codelineno-45-10"></a><span class="w">    </span><span class="s2">&quot;&quot;&quot;Copy constructor - use out self&quot;&quot;&quot;</span>
+<a id="__codelineno-45-11" name="__codelineno-45-11" href="#__codelineno-45-11"></a><span class="w">    </span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">existing</span><span class="o">.</span><span class="n">value</span>
+<a id="__codelineno-45-12" name="__codelineno-45-12" href="#__codelineno-45-12"></a>
+<a id="__codelineno-45-13" name="__codelineno-45-13" href="#__codelineno-45-13"></a><span class="k">fn</span><span class="w"> </span><span class="nf">modify</span><span class="p">(</span><span class="n">mut</span><span class="w"> </span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">value</span><span class="p">:</span><span class="w"> </span><span class="nb">Int</span><span class="p">):</span>
+<a id="__codelineno-45-14" name="__codelineno-45-14" href="#__codelineno-45-14"></a><span class="w">    </span><span class="s2">&quot;&quot;&quot;Mutating method - use mut self&quot;&quot;&quot;</span>
+<a id="__codelineno-45-15" name="__codelineno-45-15" href="#__codelineno-45-15"></a><span class="w">    </span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">value</span>
+<a id="__codelineno-45-16" name="__codelineno-45-16" href="#__codelineno-45-16"></a>
+<a id="__codelineno-45-17" name="__codelineno-45-17" href="#__codelineno-45-17"></a><span class="k">fn</span><span class="w"> </span><span class="nf">read</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nb">Int</span><span class="p">:</span>
+<a id="__codelineno-45-18" name="__codelineno-45-18" href="#__codelineno-45-18"></a><span class="w">    </span><span class="s2">&quot;&quot;&quot;Read-only method - implicit read&quot;&quot;&quot;</span>
+<a id="__codelineno-45-19" name="__codelineno-45-19" href="#__codelineno-45-19"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">value</span>
+</code></pre></div>
+<h3 id="symptom-error-variable-x-does-not-conform-to-trait-copyable">Symptom: "error: variable 'X' does not conform to trait 'Copyable'"</h3>
+<p><strong>Cause</strong>: Attempting to copy a non-copyable type.</p>
+<p><strong>Solution</strong>:</p>
+<p>Use move semantics (<code>^</code>) instead of copying:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-46-1" name="__codelineno-46-1" href="#__codelineno-46-1"></a><span class="c1"># WRONG - Cannot copy non-copyable type</span>
+<a id="__codelineno-46-2" name="__codelineno-46-2" href="#__codelineno-46-2"></a><span class="k">var</span><span class="w"> </span><span class="nv">a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">List</span><span class="p">[</span><span class="nb">Int</span><span class="p">]()</span>
+<a id="__codelineno-46-3" name="__codelineno-46-3" href="#__codelineno-46-3"></a><span class="n">a</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<a id="__codelineno-46-4" name="__codelineno-46-4" href="#__codelineno-46-4"></a><span class="k">var</span><span class="w"> </span><span class="nv">b</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">a</span><span class="w">  </span><span class="c1"># Error: List is not copyable</span>
+<a id="__codelineno-46-5" name="__codelineno-46-5" href="#__codelineno-46-5"></a>
+<a id="__codelineno-46-6" name="__codelineno-46-6" href="#__codelineno-46-6"></a><span class="c1"># CORRECT - Move instead of copy</span>
+<a id="__codelineno-46-7" name="__codelineno-46-7" href="#__codelineno-46-7"></a><span class="k">var</span><span class="w"> </span><span class="nv">a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">List</span><span class="p">[</span><span class="nb">Int</span><span class="p">]()</span>
+<a id="__codelineno-46-8" name="__codelineno-46-8" href="#__codelineno-46-8"></a><span class="n">a</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<a id="__codelineno-46-9" name="__codelineno-46-9" href="#__codelineno-46-9"></a><span class="k">var</span><span class="w"> </span><span class="nv">b</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">a</span><span class="o">^</span><span class="w">  </span><span class="c1"># Transfer ownership with ^</span>
+</code></pre></div>
+<hr />
+<h2 id="performance-issues">Performance Issues</h2>
+<h3 id="symptom-training-is-very-slow-wall-clock-time">Symptom: Training is very slow (wall clock time)</h3>
+<p><strong>Cause</strong>: Multiple possible causes - suboptimal batch size, missing SIMD optimization, or
+wrong precision.</p>
+<p><strong>Solution</strong>:</p>
+<ol>
+<li>Profile to identify bottleneck:</li>
+</ol>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-47-1" name="__codelineno-47-1" href="#__codelineno-47-1"></a><span class="c1"># Time individual components</span>
+<a id="__codelineno-47-2" name="__codelineno-47-2" href="#__codelineno-47-2"></a><span class="nb">time</span><span class="w"> </span>uv<span class="w"> </span>run<span class="w"> </span>mojo<span class="w"> </span><span class="nb">test</span><span class="w"> </span>tests/models/test_lenet5_layers.mojo
+</code></pre></div>
+<ol>
+<li>Increase batch size (within memory limits):</li>
+</ol>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-48-1" name="__codelineno-48-1" href="#__codelineno-48-1"></a><span class="c1"># Too small batch size</span>
+<a id="__codelineno-48-2" name="__codelineno-48-2" href="#__codelineno-48-2"></a>just<span class="w"> </span>train<span class="w"> </span>lenet5<span class="w"> </span>fp32<span class="w"> </span><span class="m">20</span><span class="w"> </span><span class="nv">batch_size</span><span class="o">=</span><span class="m">8</span>
+<a id="__codelineno-48-3" name="__codelineno-48-3" href="#__codelineno-48-3"></a>
+<a id="__codelineno-48-4" name="__codelineno-48-4" href="#__codelineno-48-4"></a><span class="c1"># Optimal batch size (2^N for SIMD efficiency)</span>
+<a id="__codelineno-48-5" name="__codelineno-48-5" href="#__codelineno-48-5"></a>just<span class="w"> </span>train<span class="w"> </span>lenet5<span class="w"> </span>fp32<span class="w"> </span><span class="m">20</span><span class="w"> </span><span class="nv">batch_size</span><span class="o">=</span><span class="m">32</span>
+</code></pre></div>
+<ol>
+<li>Use float16 instead of float32 (2x faster):</li>
+</ol>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-49-1" name="__codelineno-49-1" href="#__codelineno-49-1"></a><span class="c1"># Slower - 32-bit floats</span>
+<a id="__codelineno-49-2" name="__codelineno-49-2" href="#__codelineno-49-2"></a>just<span class="w"> </span>train<span class="w"> </span>lenet5<span class="w"> </span>fp32<span class="w"> </span><span class="m">20</span>
+<a id="__codelineno-49-3" name="__codelineno-49-3" href="#__codelineno-49-3"></a>
+<a id="__codelineno-49-4" name="__codelineno-49-4" href="#__codelineno-49-4"></a><span class="c1"># Faster - 16-bit floats</span>
+<a id="__codelineno-49-5" name="__codelineno-49-5" href="#__codelineno-49-5"></a>just<span class="w"> </span>train<span class="w"> </span>lenet5<span class="w"> </span>fp16<span class="w"> </span><span class="m">20</span>
+</code></pre></div>
+<ol>
+<li>Verify SIMD is being used:</li>
+</ol>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-50-1" name="__codelineno-50-1" href="#__codelineno-50-1"></a><span class="c1"># Check generated assembly</span>
+<a id="__codelineno-50-2" name="__codelineno-50-2" href="#__codelineno-50-2"></a>mojo<span class="w"> </span>build<span class="w"> </span>-I<span class="w"> </span>.<span class="w"> </span>--emit-mlir<span class="w"> </span>examples/train.mojo
+</code></pre></div>
+<ol>
+<li>Reduce number of epochs if unnecessary:</li>
+</ol>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-51-1" name="__codelineno-51-1" href="#__codelineno-51-1"></a><span class="c1"># Too many epochs</span>
+<a id="__codelineno-51-2" name="__codelineno-51-2" href="#__codelineno-51-2"></a>just<span class="w"> </span>train<span class="w"> </span>lenet5<span class="w"> </span>fp32<span class="w"> </span><span class="m">100</span>
+<a id="__codelineno-51-3" name="__codelineno-51-3" href="#__codelineno-51-3"></a>
+<a id="__codelineno-51-4" name="__codelineno-51-4" href="#__codelineno-51-4"></a><span class="c1"># Fewer epochs for faster testing</span>
+<a id="__codelineno-51-5" name="__codelineno-51-5" href="#__codelineno-51-5"></a>just<span class="w"> </span>train<span class="w"> </span>lenet5<span class="w"> </span>fp32<span class="w"> </span><span class="m">5</span>
+</code></pre></div>
+<h3 id="symptom-memory-usage-grows-during-training-memory-leak">Symptom: Memory usage grows during training (memory leak)</h3>
+<p><strong>Cause</strong>: Tensors not being freed or gradients accumulating.</p>
+<p><strong>Solution</strong>:</p>
+<ol>
+<li>Ensure tensors are properly destructed:</li>
+</ol>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-52-1" name="__codelineno-52-1" href="#__codelineno-52-1"></a><span class="c1"># Use scope to force destruction</span>
+<a id="__codelineno-52-2" name="__codelineno-52-2" href="#__codelineno-52-2"></a><span class="k">fn</span><span class="w"> </span><span class="nf">train_epoch</span><span class="p">()</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nb">Float32</span><span class="p">:</span>
+<a id="__codelineno-52-3" name="__codelineno-52-3" href="#__codelineno-52-3"></a><span class="w">    </span><span class="p">{</span><span class="w">  </span><span class="c1"># Scope for automatic cleanup</span>
+<a id="__codelineno-52-4" name="__codelineno-52-4" href="#__codelineno-52-4"></a><span class="w">        </span><span class="k">var</span><span class="w"> </span><span class="nv">batch</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">create_batch</span><span class="p">()</span>
+<a id="__codelineno-52-5" name="__codelineno-52-5" href="#__codelineno-52-5"></a><span class="w">        </span><span class="k">var</span><span class="w"> </span><span class="nv">loss</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">forward_backward</span><span class="p">(</span><span class="n">batch</span><span class="p">)</span>
+<a id="__codelineno-52-6" name="__codelineno-52-6" href="#__codelineno-52-6"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">loss</span>
+<a id="__codelineno-52-7" name="__codelineno-52-7" href="#__codelineno-52-7"></a><span class="w">    </span><span class="p">}</span><span class="w">  </span><span class="c1"># batch and gradients freed here</span>
+</code></pre></div>
+<ol>
+<li>Clear gradients between batches:</li>
+</ol>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-53-1" name="__codelineno-53-1" href="#__codelineno-53-1"></a><span class="c1"># CORRECT - Reset gradients</span>
+<a id="__codelineno-53-2" name="__codelineno-53-2" href="#__codelineno-53-2"></a><span class="k">var</span><span class="w"> </span><span class="nv">model</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">create_model</span><span class="p">()</span>
+<a id="__codelineno-53-3" name="__codelineno-53-3" href="#__codelineno-53-3"></a><span class="k">for</span><span class="w"> </span><span class="n">batch</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">batches</span><span class="p">:</span>
+<a id="__codelineno-53-4" name="__codelineno-53-4" href="#__codelineno-53-4"></a><span class="w">    </span><span class="n">zero_gradients</span><span class="p">(</span><span class="n">model</span><span class="p">)</span><span class="w">  </span><span class="c1"># Important!</span>
+<a id="__codelineno-53-5" name="__codelineno-53-5" href="#__codelineno-53-5"></a><span class="w">    </span><span class="k">var</span><span class="w"> </span><span class="nv">loss</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">train_step</span><span class="p">(</span><span class="n">batch</span><span class="p">,</span><span class="w"> </span><span class="n">model</span><span class="p">)</span>
+</code></pre></div>
+<ol>
+<li>Use <code>del</code> to explicitly free large tensors:</li>
+</ol>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-54-1" name="__codelineno-54-1" href="#__codelineno-54-1"></a><span class="k">var</span><span class="w"> </span><span class="nv">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">AnyTensor</span><span class="p">(</span><span class="n">large_shape</span><span class="p">,</span><span class="w"> </span><span class="nb">DType</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+<a id="__codelineno-54-2" name="__codelineno-54-2" href="#__codelineno-54-2"></a><span class="c1"># ... use x ...</span>
+<a id="__codelineno-54-3" name="__codelineno-54-3" href="#__codelineno-54-3"></a><span class="k">del</span><span class="w"> </span><span class="n">x</span><span class="w">  </span><span class="c1"># Explicitly free if needed</span>
+</code></pre></div>
+<ol>
+<li>Monitor memory during training:</li>
+</ol>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-55-1" name="__codelineno-55-1" href="#__codelineno-55-1"></a>watch<span class="w"> </span>-n<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="s1">&#39;free -h&#39;</span>
+</code></pre></div>
+<h3 id="symptom-simd-optimization-not-being-used-no-vectorization">Symptom: SIMD optimization not being used (no vectorization)</h3>
+<p><strong>Cause</strong>: Loop structure doesn't match SIMD patterns or using scalar operations.</p>
+<p><strong>Solution</strong>:</p>
+<ol>
+<li>Structure loops for SIMD:</li>
+</ol>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-56-1" name="__codelineno-56-1" href="#__codelineno-56-1"></a><span class="c1"># WRONG - Scalar operations</span>
+<a id="__codelineno-56-2" name="__codelineno-56-2" href="#__codelineno-56-2"></a><span class="k">for</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="nb">range</span><span class="p">(</span><span class="n">numel</span><span class="p">):</span>
+<a id="__codelineno-56-3" name="__codelineno-56-3" href="#__codelineno-56-3"></a><span class="w">    </span><span class="n">result</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">scale</span>
+<a id="__codelineno-56-4" name="__codelineno-56-4" href="#__codelineno-56-4"></a>
+<a id="__codelineno-56-5" name="__codelineno-56-5" href="#__codelineno-56-5"></a><span class="c1"># CORRECT - Use vectorized operations</span>
+<a id="__codelineno-56-6" name="__codelineno-56-6" href="#__codelineno-56-6"></a><span class="k">fn</span><span class="w"> </span><span class="nf">vectorized_scale</span><span class="p">(</span><span class="n">data</span><span class="p">:</span><span class="w"> </span><span class="n">DTypePointer</span><span class="p">[</span><span class="nb">DType</span><span class="o">.</span><span class="n">float32</span><span class="p">],</span>
+<a id="__codelineno-56-7" name="__codelineno-56-7" href="#__codelineno-56-7"></a><span class="w">                   </span><span class="n">scale</span><span class="p">:</span><span class="w"> </span><span class="nb">Float32</span><span class="p">,</span><span class="w"> </span><span class="n">numel</span><span class="p">:</span><span class="w"> </span><span class="nb">Int</span><span class="p">):</span>
+<a id="__codelineno-56-8" name="__codelineno-56-8" href="#__codelineno-56-8"></a><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">numel</span><span class="p">,</span><span class="w"> </span><span class="n">simd_width</span><span class="p">):</span><span class="w">  </span><span class="c1"># SIMD width step</span>
+<a id="__codelineno-56-9" name="__codelineno-56-9" href="#__codelineno-56-9"></a><span class="w">        </span><span class="k">var</span><span class="w"> </span><span class="nv">chunk</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">simdload</span><span class="p">[</span><span class="nb">DType</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span><span class="w"> </span><span class="n">simd_width</span><span class="p">](</span>
+<a id="__codelineno-56-10" name="__codelineno-56-10" href="#__codelineno-56-10"></a><span class="w">            </span><span class="n">data</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">i</span><span class="p">)</span>
+<a id="__codelineno-56-11" name="__codelineno-56-11" href="#__codelineno-56-11"></a><span class="w">        </span><span class="n">chunk</span><span class="w"> </span><span class="o">*=</span><span class="w"> </span><span class="n">scale</span>
+<a id="__codelineno-56-12" name="__codelineno-56-12" href="#__codelineno-56-12"></a><span class="w">        </span><span class="n">simdstore</span><span class="p">[</span><span class="nb">DType</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span><span class="w"> </span><span class="n">simd_width</span><span class="p">](</span>
+<a id="__codelineno-56-13" name="__codelineno-56-13" href="#__codelineno-56-13"></a><span class="w">            </span><span class="n">data</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">chunk</span><span class="p">)</span>
+</code></pre></div>
+<ol>
+<li>Use appropriate SIMD widths:</li>
+</ol>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-57-1" name="__codelineno-57-1" href="#__codelineno-57-1"></a><span class="c1"># Typical SIMD widths</span>
+<a id="__codelineno-57-2" name="__codelineno-57-2" href="#__codelineno-57-2"></a><span class="c1"># float32: simd_width = 4-8</span>
+<a id="__codelineno-57-3" name="__codelineno-57-3" href="#__codelineno-57-3"></a><span class="c1"># float16: simd_width = 8-16</span>
+<a id="__codelineno-57-4" name="__codelineno-57-4" href="#__codelineno-57-4"></a>
+<a id="__codelineno-57-5" name="__codelineno-57-5" href="#__codelineno-57-5"></a><span class="k">fn</span><span class="w"> </span><span class="nf">get_simd_width</span><span class="p">()</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nb">Int</span><span class="p">:</span>
+<a id="__codelineno-57-6" name="__codelineno-57-6" href="#__codelineno-57-6"></a><span class="w">    </span><span class="c1"># Use compile-time known width</span>
+<a id="__codelineno-57-7" name="__codelineno-57-7" href="#__codelineno-57-7"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">4</span><span class="w">  </span><span class="c1"># For float32</span>
+</code></pre></div>
+<ol>
+<li>Check alignment for SIMD operations:</li>
+</ol>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-58-1" name="__codelineno-58-1" href="#__codelineno-58-1"></a><span class="c1"># SIMD works best with aligned memory</span>
+<a id="__codelineno-58-2" name="__codelineno-58-2" href="#__codelineno-58-2"></a><span class="c1"># AnyTensor uses DTypePointer which is automatically aligned</span>
+</code></pre></div>
+<hr />
+<h2 id="testing-issues">Testing Issues</h2>
+<h3 id="symptom-test-compilation-failed-or-error-unknown-declaration-test_">Symptom: "Test compilation failed" or "error: unknown declaration 'test_*'"</h3>
+<p><strong>Cause</strong>: Test syntax is incorrect or test harness is not imported.</p>
+<p><strong>Solution</strong>:</p>
+<ol>
+<li>Verify test file has correct structure:</li>
+</ol>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-59-1" name="__codelineno-59-1" href="#__codelineno-59-1"></a><span class="k">fn</span><span class="w"> </span><span class="nf">test_basic_operation</span><span class="p">():</span>
+<a id="__codelineno-59-2" name="__codelineno-59-2" href="#__codelineno-59-2"></a><span class="w">    </span><span class="s2">&quot;&quot;&quot;Test basic tensor operations.&quot;&quot;&quot;</span>
+<a id="__codelineno-59-3" name="__codelineno-59-3" href="#__codelineno-59-3"></a><span class="w">    </span><span class="c1"># Test implementation</span>
+<a id="__codelineno-59-4" name="__codelineno-59-4" href="#__codelineno-59-4"></a><span class="w">    </span><span class="k">pass</span>
+<a id="__codelineno-59-5" name="__codelineno-59-5" href="#__codelineno-59-5"></a>
+<a id="__codelineno-59-6" name="__codelineno-59-6" href="#__codelineno-59-6"></a><span class="k">fn</span><span class="w"> </span><span class="nf">test_another_case</span><span class="p">():</span>
+<a id="__codelineno-59-7" name="__codelineno-59-7" href="#__codelineno-59-7"></a><span class="w">    </span><span class="s2">&quot;&quot;&quot;Another test case.&quot;&quot;&quot;</span>
+<a id="__codelineno-59-8" name="__codelineno-59-8" href="#__codelineno-59-8"></a><span class="w">    </span><span class="k">pass</span>
+</code></pre></div>
+<ol>
+<li>Import test utilities:</li>
+</ol>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-60-1" name="__codelineno-60-1" href="#__codelineno-60-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">odyssey.testing.assertions</span><span class="w"> </span><span class="kn">import</span><span class="w"> </span><span class="n">assert_equal</span><span class="p">,</span><span class="w"> </span><span class="n">assert_true</span>
+<a id="__codelineno-60-2" name="__codelineno-60-2" href="#__codelineno-60-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">odyssey.testing.special_values</span><span class="w"> </span><span class="kn">import</span><span class="w"> </span><span class="n">get_test_values</span>
+<a id="__codelineno-60-3" name="__codelineno-60-3" href="#__codelineno-60-3"></a>
+<a id="__codelineno-60-4" name="__codelineno-60-4" href="#__codelineno-60-4"></a><span class="k">fn</span><span class="w"> </span><span class="nf">test_with_assertions</span><span class="p">():</span>
+<a id="__codelineno-60-5" name="__codelineno-60-5" href="#__codelineno-60-5"></a><span class="w">    </span><span class="s2">&quot;&quot;&quot;Using test assertions.&quot;&quot;&quot;</span>
+<a id="__codelineno-60-6" name="__codelineno-60-6" href="#__codelineno-60-6"></a><span class="w">    </span><span class="k">var</span><span class="w"> </span><span class="nv">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">some_operation</span><span class="p">()</span>
+<a id="__codelineno-60-7" name="__codelineno-60-7" href="#__codelineno-60-7"></a><span class="w">    </span><span class="n">assert_true</span><span class="p">(</span><span class="n">result</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">expected</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;Operation failed&quot;</span><span class="p">)</span>
+</code></pre></div>
+<ol>
+<li>Run test with correct command:</li>
+</ol>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-61-1" name="__codelineno-61-1" href="#__codelineno-61-1"></a><span class="c1"># Run single test file</span>
+<a id="__codelineno-61-2" name="__codelineno-61-2" href="#__codelineno-61-2"></a>uv<span class="w"> </span>run<span class="w"> </span>mojo<span class="w"> </span><span class="nb">test</span><span class="w"> </span>tests/models/test_lenet5_layers.mojo
+<a id="__codelineno-61-3" name="__codelineno-61-3" href="#__codelineno-61-3"></a>
+<a id="__codelineno-61-4" name="__codelineno-61-4" href="#__codelineno-61-4"></a><span class="c1"># Run all tests in directory</span>
+<a id="__codelineno-61-5" name="__codelineno-61-5" href="#__codelineno-61-5"></a>uv<span class="w"> </span>run<span class="w"> </span>mojo<span class="w"> </span><span class="nb">test</span><span class="w"> </span>tests/models/
+<a id="__codelineno-61-6" name="__codelineno-61-6" href="#__codelineno-61-6"></a>
+<a id="__codelineno-61-7" name="__codelineno-61-7" href="#__codelineno-61-7"></a><span class="c1"># Run specific test (if supported)</span>
+<a id="__codelineno-61-8" name="__codelineno-61-8" href="#__codelineno-61-8"></a>uv<span class="w"> </span>run<span class="w"> </span>mojo<span class="w"> </span><span class="nb">test</span><span class="w"> </span>tests/models/test_lenet5_layers.mojo::test_forward_pass
+</code></pre></div>
+<h3 id="symptom-test-failed-assertion-error-with-cryptic-message">Symptom: "Test failed: assertion error" with cryptic message</h3>
+<p><strong>Cause</strong>: Test assertions are failing due to incorrect implementation or test data.</p>
+<p><strong>Solution</strong>:</p>
+<ol>
+<li>Add debug output to test:</li>
+</ol>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-62-1" name="__codelineno-62-1" href="#__codelineno-62-1"></a><span class="k">fn</span><span class="w"> </span><span class="nf">test_with_debug</span><span class="p">():</span>
+<a id="__codelineno-62-2" name="__codelineno-62-2" href="#__codelineno-62-2"></a><span class="w">    </span><span class="s2">&quot;&quot;&quot;Test with debug output.&quot;&quot;&quot;</span>
+<a id="__codelineno-62-3" name="__codelineno-62-3" href="#__codelineno-62-3"></a><span class="w">    </span><span class="k">var</span><span class="w"> </span><span class="nv">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">AnyTensor</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span><span class="w"> </span><span class="nb">DType</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+<a id="__codelineno-62-4" name="__codelineno-62-4" href="#__codelineno-62-4"></a><span class="w">    </span><span class="k">var</span><span class="w"> </span><span class="nv">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">forward</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+<a id="__codelineno-62-5" name="__codelineno-62-5" href="#__codelineno-62-5"></a>
+<a id="__codelineno-62-6" name="__codelineno-62-6" href="#__codelineno-62-6"></a><span class="w">    </span><span class="c1"># Debug output</span>
+<a id="__codelineno-62-7" name="__codelineno-62-7" href="#__codelineno-62-7"></a><span class="w">    </span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Input shape:&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">x</span><span class="o">.</span><span class="n">numel</span><span class="p">())</span>
+<a id="__codelineno-62-8" name="__codelineno-62-8" href="#__codelineno-62-8"></a><span class="w">    </span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Output shape:&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="o">.</span><span class="n">numel</span><span class="p">())</span>
+<a id="__codelineno-62-9" name="__codelineno-62-9" href="#__codelineno-62-9"></a>
+<a id="__codelineno-62-10" name="__codelineno-62-10" href="#__codelineno-62-10"></a><span class="w">    </span><span class="n">assert_true</span><span class="p">(</span><span class="n">y</span><span class="o">.</span><span class="n">numel</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">expected</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;Shape mismatch&quot;</span><span class="p">)</span>
+</code></pre></div>
+<ol>
+<li>Use special FP-representable values in tests:</li>
+</ol>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-63-1" name="__codelineno-63-1" href="#__codelineno-63-1"></a><span class="c1"># These values are exactly representable in all float dtypes</span>
+<a id="__codelineno-63-2" name="__codelineno-63-2" href="#__codelineno-63-2"></a><span class="k">var</span><span class="w"> </span><span class="nv">test_values</span><span class="p">:</span><span class="w"> </span><span class="nb">List</span><span class="p">[</span><span class="nb">Float32</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="mf">0.0</span><span class="p">,</span><span class="w"> </span><span class="mf">0.5</span><span class="p">,</span><span class="w"> </span><span class="mf">1.0</span><span class="p">,</span><span class="w"> </span><span class="mf">1.5</span><span class="p">,</span><span class="w"> </span><span class="o">-</span><span class="mf">1.0</span><span class="p">,</span><span class="w"> </span><span class="o">-</span><span class="mf">0.5</span><span class="p">]</span>
+<a id="__codelineno-63-3" name="__codelineno-63-3" href="#__codelineno-63-3"></a>
+<a id="__codelineno-63-4" name="__codelineno-63-4" href="#__codelineno-63-4"></a><span class="k">for</span><span class="w"> </span><span class="n">value</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">test_values</span><span class="p">:</span>
+<a id="__codelineno-63-5" name="__codelineno-63-5" href="#__codelineno-63-5"></a><span class="w">    </span><span class="k">var</span><span class="w"> </span><span class="nv">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">operation</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+<a id="__codelineno-63-6" name="__codelineno-63-6" href="#__codelineno-63-6"></a><span class="w">    </span><span class="n">assert_true</span><span class="p">(</span><span class="n">result</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">expected_value</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;Failed for value: &quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
+</code></pre></div>
+<ol>
+<li>For gradient checking, use seeded randomness:</li>
+</ol>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-64-1" name="__codelineno-64-1" href="#__codelineno-64-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">odyssey.testing.special_values</span><span class="w"> </span><span class="kn">import</span><span class="w"> </span><span class="n">seeded_rand</span>
+<a id="__codelineno-64-2" name="__codelineno-64-2" href="#__codelineno-64-2"></a>
+<a id="__codelineno-64-3" name="__codelineno-64-3" href="#__codelineno-64-3"></a><span class="k">fn</span><span class="w"> </span><span class="nf">test_gradients</span><span class="p">():</span>
+<a id="__codelineno-64-4" name="__codelineno-64-4" href="#__codelineno-64-4"></a><span class="w">    </span><span class="s2">&quot;&quot;&quot;Test backward pass with seeded random tensors.&quot;&quot;&quot;</span>
+<a id="__codelineno-64-5" name="__codelineno-64-5" href="#__codelineno-64-5"></a><span class="w">    </span><span class="k">var</span><span class="w"> </span><span class="nv">tensor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">seeded_rand</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span><span class="w"> </span><span class="n">seed</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span><span class="w">  </span><span class="c1"># Reproducible</span>
+<a id="__codelineno-64-6" name="__codelineno-64-6" href="#__codelineno-64-6"></a><span class="w">    </span><span class="k">var</span><span class="w"> </span><span class="nv">backward_pass</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">compute_gradients</span><span class="p">(</span><span class="n">tensor</span><span class="p">)</span>
+<a id="__codelineno-64-7" name="__codelineno-64-7" href="#__codelineno-64-7"></a>
+<a id="__codelineno-64-8" name="__codelineno-64-8" href="#__codelineno-64-8"></a><span class="w">    </span><span class="c1"># Check against numerical gradients</span>
+<a id="__codelineno-64-9" name="__codelineno-64-9" href="#__codelineno-64-9"></a><span class="w">    </span><span class="k">var</span><span class="w"> </span><span class="nv">numerical</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">numerical_gradient</span><span class="p">(</span><span class="n">tensor</span><span class="p">)</span>
+<a id="__codelineno-64-10" name="__codelineno-64-10" href="#__codelineno-64-10"></a><span class="w">    </span><span class="n">assert_close</span><span class="p">(</span><span class="n">backward_pass</span><span class="p">,</span><span class="w"> </span><span class="n">numerical</span><span class="p">,</span><span class="w"> </span><span class="n">tolerance</span><span class="o">=</span><span class="mf">1e-2</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="symptom-runtime-error-in-test-or-test-timeout">Symptom: "Runtime error in test" or "test timeout"</h3>
+<p><strong>Cause</strong>: Test is taking too long or running out of memory.</p>
+<p><strong>Solution</strong>:</p>
+<ol>
+<li>Use smaller tensors in layerwise tests:</li>
+</ol>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-65-1" name="__codelineno-65-1" href="#__codelineno-65-1"></a><span class="c1"># WRONG - Too large for unit test</span>
+<a id="__codelineno-65-2" name="__codelineno-65-2" href="#__codelineno-65-2"></a><span class="k">var</span><span class="w"> </span><span class="nv">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">AnyTensor</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">[</span><span class="mi">1024</span><span class="p">,</span><span class="w"> </span><span class="mi">1024</span><span class="p">,</span><span class="w"> </span><span class="mi">512</span><span class="p">],</span><span class="w"> </span><span class="nb">DType</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+<a id="__codelineno-65-3" name="__codelineno-65-3" href="#__codelineno-65-3"></a>
+<a id="__codelineno-65-4" name="__codelineno-65-4" href="#__codelineno-65-4"></a><span class="c1"># CORRECT - Smaller for fast unit tests</span>
+<a id="__codelineno-65-5" name="__codelineno-65-5" href="#__codelineno-65-5"></a><span class="k">var</span><span class="w"> </span><span class="nv">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">AnyTensor</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">[</span><span class="mi">32</span><span class="p">,</span><span class="w"> </span><span class="mi">64</span><span class="p">,</span><span class="w"> </span><span class="mi">64</span><span class="p">],</span><span class="w"> </span><span class="nb">DType</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+</code></pre></div>
+<ol>
+<li>Reduce number of test iterations:</li>
+</ol>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-66-1" name="__codelineno-66-1" href="#__codelineno-66-1"></a><span class="c1"># WRONG - Too many iterations</span>
+<a id="__codelineno-66-2" name="__codelineno-66-2" href="#__codelineno-66-2"></a><span class="k">for</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="nb">range</span><span class="p">(</span><span class="mi">1000</span><span class="p">):</span>
+<a id="__codelineno-66-3" name="__codelineno-66-3" href="#__codelineno-66-3"></a><span class="w">    </span><span class="k">var</span><span class="w"> </span><span class="nv">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">operation</span><span class="p">()</span>
+<a id="__codelineno-66-4" name="__codelineno-66-4" href="#__codelineno-66-4"></a>
+<a id="__codelineno-66-5" name="__codelineno-66-5" href="#__codelineno-66-5"></a><span class="c1"># CORRECT - Fewer for unit test</span>
+<a id="__codelineno-66-6" name="__codelineno-66-6" href="#__codelineno-66-6"></a><span class="k">for</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">):</span>
+<a id="__codelineno-66-7" name="__codelineno-66-7" href="#__codelineno-66-7"></a><span class="w">    </span><span class="k">var</span><span class="w"> </span><span class="nv">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">operation</span><span class="p">()</span>
+</code></pre></div>
+<ol>
+<li>Check test timeout settings:</li>
+</ol>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-67-1" name="__codelineno-67-1" href="#__codelineno-67-1"></a><span class="c1"># See timeout in justfile</span>
+<a id="__codelineno-67-2" name="__codelineno-67-2" href="#__codelineno-67-2"></a>just<span class="w"> </span>--show<span class="w"> </span><span class="nb">test</span>
+<a id="__codelineno-67-3" name="__codelineno-67-3" href="#__codelineno-67-3"></a>
+<a id="__codelineno-67-4" name="__codelineno-67-4" href="#__codelineno-67-4"></a><span class="c1"># Run with extended timeout if needed</span>
+<a id="__codelineno-67-5" name="__codelineno-67-5" href="#__codelineno-67-5"></a>timeout<span class="w"> </span><span class="m">120</span><span class="w"> </span>uv<span class="w"> </span>run<span class="w"> </span>mojo<span class="w"> </span><span class="nb">test</span><span class="w"> </span>tests/models/test_lenet5_layers.mojo
+</code></pre></div>
+<h3 id="symptom-ci-workflow-failed-but-tests-pass-locally">Symptom: "CI workflow failed" but tests pass locally</h3>
+<p><strong>Cause</strong>: Environment differences between local and CI.</p>
+<p><strong>Solution</strong>:</p>
+<ol>
+<li>Reproduce CI environment locally:</li>
+</ol>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-68-1" name="__codelineno-68-1" href="#__codelineno-68-1"></a><span class="c1"># Use same commands as CI workflow</span>
+<a id="__codelineno-68-2" name="__codelineno-68-2" href="#__codelineno-68-2"></a><span class="nb">cd</span><span class="w"> </span>/path/to/Odyssey
+<a id="__codelineno-68-3" name="__codelineno-68-3" href="#__codelineno-68-3"></a>uv<span class="w"> </span>sync<span class="w"> </span>--locked
+<a id="__codelineno-68-4" name="__codelineno-68-4" href="#__codelineno-68-4"></a><span class="nb">source</span><span class="w"> </span>.venv/bin/activate
+<a id="__codelineno-68-5" name="__codelineno-68-5" href="#__codelineno-68-5"></a>just<span class="w"> </span>validate<span class="w">  </span><span class="c1"># Runs all CI checks locally</span>
+</code></pre></div>
+<ol>
+<li>Check CI logs for specific failure:</li>
+</ol>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-69-1" name="__codelineno-69-1" href="#__codelineno-69-1"></a><span class="c1"># View CI logs</span>
+<a id="__codelineno-69-2" name="__codelineno-69-2" href="#__codelineno-69-2"></a>gh<span class="w"> </span>workflow<span class="w"> </span>view<span class="w"> </span>build-validation
+<a id="__codelineno-69-3" name="__codelineno-69-3" href="#__codelineno-69-3"></a>gh<span class="w"> </span>run<span class="w"> </span>view<span class="w"> </span>&lt;run-id&gt;
+</code></pre></div>
+<ol>
+<li>Ensure all pre-commit hooks pass:</li>
+</ol>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-70-1" name="__codelineno-70-1" href="#__codelineno-70-1"></a><span class="c1"># Run all pre-commit checks</span>
+<a id="__codelineno-70-2" name="__codelineno-70-2" href="#__codelineno-70-2"></a>just<span class="w"> </span>pre-commit-all
+<a id="__codelineno-70-3" name="__codelineno-70-3" href="#__codelineno-70-3"></a>
+<a id="__codelineno-70-4" name="__codelineno-70-4" href="#__codelineno-70-4"></a><span class="c1"># Individual checks</span>
+<a id="__codelineno-70-5" name="__codelineno-70-5" href="#__codelineno-70-5"></a>uv<span class="w"> </span>run<span class="w"> </span>mojo<span class="w"> </span>format<span class="w"> </span>tests/
+<a id="__codelineno-70-6" name="__codelineno-70-6" href="#__codelineno-70-6"></a>uv<span class="w"> </span>run<span class="w"> </span>npx<span class="w"> </span>markdownlint-cli2<span class="w"> </span>docs/
+</code></pre></div>
+<ol>
+<li>Verify Mojo version matches CI:</li>
+</ol>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-71-1" name="__codelineno-71-1" href="#__codelineno-71-1"></a><span class="c1"># Check pyproject.toml for exact version</span>
+<a id="__codelineno-71-2" name="__codelineno-71-2" href="#__codelineno-71-2"></a>grep<span class="w"> </span>mojo<span class="w"> </span>pyproject.toml
+<a id="__codelineno-71-3" name="__codelineno-71-3" href="#__codelineno-71-3"></a>
+<a id="__codelineno-71-4" name="__codelineno-71-4" href="#__codelineno-71-4"></a><span class="c1"># Update if needed</span>
+<a id="__codelineno-71-5" name="__codelineno-71-5" href="#__codelineno-71-5"></a>uv<span class="w"> </span>lock<span class="w"> </span>--upgrade-package<span class="w"> </span>mojo<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>uv<span class="w"> </span>sync<span class="w"> </span>--locked
+<a id="__codelineno-71-6" name="__codelineno-71-6" href="#__codelineno-71-6"></a>mojo<span class="w"> </span>--version
+</code></pre></div>
+<hr />
+<h2 id="getting-help">Getting Help</h2>
+<h3 id="filing-an-issue">Filing an Issue</h3>
+<p>If you encounter a problem not covered in this guide:</p>
+<ol>
+<li><strong>Search existing issues first</strong>:</li>
+</ol>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-72-1" name="__codelineno-72-1" href="#__codelineno-72-1"></a><span class="c1"># Search for similar issues</span>
+<a id="__codelineno-72-2" name="__codelineno-72-2" href="#__codelineno-72-2"></a>gh<span class="w"> </span>issue<span class="w"> </span>list<span class="w"> </span>--label<span class="w"> </span>bug<span class="w"> </span>--state<span class="w"> </span>all
+<a id="__codelineno-72-3" name="__codelineno-72-3" href="#__codelineno-72-3"></a>gh<span class="w"> </span>search<span class="w"> </span>issues<span class="w"> </span><span class="s2">&quot;your error message&quot;</span>
+</code></pre></div>
+<ol>
+<li><strong>Gather diagnostic information</strong>:</li>
+</ol>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-73-1" name="__codelineno-73-1" href="#__codelineno-73-1"></a><span class="c1"># System information</span>
+<a id="__codelineno-73-2" name="__codelineno-73-2" href="#__codelineno-73-2"></a>mojo<span class="w"> </span>--version
+<a id="__codelineno-73-3" name="__codelineno-73-3" href="#__codelineno-73-3"></a>uv<span class="w"> </span>--version
+<a id="__codelineno-73-4" name="__codelineno-73-4" href="#__codelineno-73-4"></a>python3<span class="w"> </span>--version
+<a id="__codelineno-73-5" name="__codelineno-73-5" href="#__codelineno-73-5"></a>
+<a id="__codelineno-73-6" name="__codelineno-73-6" href="#__codelineno-73-6"></a><span class="c1"># Error output</span>
+<a id="__codelineno-73-7" name="__codelineno-73-7" href="#__codelineno-73-7"></a>mojo<span class="w"> </span>build<span class="w"> </span>-I<span class="w"> </span>.<span class="w"> </span>examples/train.mojo<span class="w"> </span><span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>head<span class="w"> </span>-50
+<a id="__codelineno-73-8" name="__codelineno-73-8" href="#__codelineno-73-8"></a>
+<a id="__codelineno-73-9" name="__codelineno-73-9" href="#__codelineno-73-9"></a><span class="c1"># Relevant file versions</span>
+<a id="__codelineno-73-10" name="__codelineno-73-10" href="#__codelineno-73-10"></a>git<span class="w"> </span>log<span class="w"> </span>-1<span class="w"> </span>--oneline
+<a id="__codelineno-73-11" name="__codelineno-73-11" href="#__codelineno-73-11"></a>git<span class="w"> </span>status
+</code></pre></div>
+<ol>
+<li><strong>Create detailed issue</strong>:</li>
+</ol>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-74-1" name="__codelineno-74-1" href="#__codelineno-74-1"></a>gh<span class="w"> </span>issue<span class="w"> </span>create<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-74-2" name="__codelineno-74-2" href="#__codelineno-74-2"></a><span class="w">  </span>--title<span class="w"> </span><span class="s2">&quot;Mojo compilation error in training loop&quot;</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-74-3" name="__codelineno-74-3" href="#__codelineno-74-3"></a><span class="w">  </span>--body<span class="w"> </span><span class="s2">&quot;</span><span class="k">$(</span>cat<span class="w"> </span><span class="s">&lt;&lt;&#39;EOF&#39;</span>
+<a id="__codelineno-74-4" name="__codelineno-74-4" href="#__codelineno-74-4"></a><span class="s">## Error</span>
+<a id="__codelineno-74-5" name="__codelineno-74-5" href="#__codelineno-74-5"></a><span class="s">Error message here</span>
+<a id="__codelineno-74-6" name="__codelineno-74-6" href="#__codelineno-74-6"></a>
+<a id="__codelineno-74-7" name="__codelineno-74-7" href="#__codelineno-74-7"></a><span class="s">## Steps to Reproduce</span>
+<a id="__codelineno-74-8" name="__codelineno-74-8" href="#__codelineno-74-8"></a><span class="s">1. Run uv run mojo test tests/models/test_lenet5_layers.mojo</span>
+<a id="__codelineno-74-9" name="__codelineno-74-9" href="#__codelineno-74-9"></a><span class="s">1. Observe failure</span>
+<a id="__codelineno-74-10" name="__codelineno-74-10" href="#__codelineno-74-10"></a>
+<a id="__codelineno-74-11" name="__codelineno-74-11" href="#__codelineno-74-11"></a><span class="s">## Environment</span>
+<a id="__codelineno-74-12" name="__codelineno-74-12" href="#__codelineno-74-12"></a><span class="s">- Mojo: output of mojo --version</span>
+<a id="__codelineno-74-13" name="__codelineno-74-13" href="#__codelineno-74-13"></a><span class="s">- OS: output of uname -a</span>
+<a id="__codelineno-74-14" name="__codelineno-74-14" href="#__codelineno-74-14"></a><span class="s">- Branch: output of git rev-parse --abbrev-ref HEAD</span>
+<a id="__codelineno-74-15" name="__codelineno-74-15" href="#__codelineno-74-15"></a>
+<a id="__codelineno-74-16" name="__codelineno-74-16" href="#__codelineno-74-16"></a><span class="s">## Expected Behavior</span>
+<a id="__codelineno-74-17" name="__codelineno-74-17" href="#__codelineno-74-17"></a><span class="s">Tests should pass</span>
+<a id="__codelineno-74-18" name="__codelineno-74-18" href="#__codelineno-74-18"></a>
+<a id="__codelineno-74-19" name="__codelineno-74-19" href="#__codelineno-74-19"></a><span class="s">## Actual Behavior</span>
+<a id="__codelineno-74-20" name="__codelineno-74-20" href="#__codelineno-74-20"></a><span class="s">Compilation fails with ownership error</span>
+<a id="__codelineno-74-21" name="__codelineno-74-21" href="#__codelineno-74-21"></a><span class="s">EOF</span>
+<a id="__codelineno-74-22" name="__codelineno-74-22" href="#__codelineno-74-22"></a><span class="k">)</span><span class="s2">&quot;</span>
+</code></pre></div>
+<h3 id="getting-community-help">Getting Community Help</h3>
+<ul>
+<li><strong>Mojo Discord</strong>: <a href="https://discord.gg/modular">Mojo Discord</a></li>
+<li><strong>ML Odyssey Discussions</strong>: GitHub Discussions on the repository</li>
+<li><strong>Documentation</strong>: Check <code>/docs/dev/mojo-test-failure-patterns.md</code> for detailed patterns</li>
+<li><strong>Anti-Patterns Reference</strong>: See <code>.claude/shared/mojo-anti-patterns.md</code> for 64+ common mistakes</li>
+</ul>
+<h3 id="common-resources">Common Resources</h3>
+<table>
+<thead>
+<tr>
+<th>Resource</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>mojo-test-failure-patterns.md</code></td>
+<td>Comprehensive failure analysis</td>
+</tr>
+<tr>
+<td><code>mojo-anti-patterns.md</code></td>
+<td>Common mistakes to avoid</td>
+</tr>
+<tr>
+<td><code>mojo-guidelines.md</code></td>
+<td>Mojo v0.26.1+ syntax and patterns</td>
+</tr>
+<tr>
+<td><code>AGENTS.md</code></td>
+<td>Agent system and development workflow</td>
+</tr>
+<tr>
+<td><code>docs/dev/build.md</code></td>
+<td>Build and package instructions</td>
+</tr>
+</tbody>
+</table>
+<h3 id="contact-escalation">Contact &amp; Escalation</h3>
+<p>For issues requiring immediate attention:</p>
+<ol>
+<li>Post to the relevant GitHub issue</li>
+<li>Use <code>@mention</code> for code owners</li>
+<li>For security issues, use GitHub's private vulnerability reporting</li>
+<li>For infrastructure issues, contact DevOps team (if applicable)</li>
+</ol>
+<hr />
+<h2 id="quick-reference-links">Quick Reference Links</h2>
+<ul>
+<li>Installation: <a href="../../getting-started/installation/">docs/getting-started/installation.md</a></li>
+<li>Build Instructions: <a href="../../dev/build/">docs/dev/build.md</a></li>
+</ul>
+<hr />
+<p><strong>Last Updated</strong>: 2025-12-28
+<strong>Related Issues</strong>: #2649</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "search.suggest", "search.highlight", "content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>

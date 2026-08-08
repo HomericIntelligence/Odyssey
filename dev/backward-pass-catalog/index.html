@@ -1,0 +1,3736 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Mojo-based AI research platform for reproducing classic research papers">
+      
+      
+      
+        <link rel="canonical" href="https://github.com/HomericIntelligence/Odyssey/dev/backward-pass-catalog/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>AnyTensor Backward Pass Implementation Catalog - ML Odyssey</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#anytensor-backward-pass-implementation-catalog" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="ML Odyssey" class="md-header__button md-logo" aria-label="ML Odyssey" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            ML Odyssey
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              AnyTensor Backward Pass Implementation Catalog
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/HomericIntelligence/Odyssey" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    HomericIntelligence/Odyssey
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../glossary/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Glossary
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../release-process/" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../integration/supporting-directories/" class="md-tabs__link">
+          
+  
+  
+  Integration
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="ML Odyssey" class="md-nav__button md-logo" aria-label="ML Odyssey" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    ML Odyssey
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/HomericIntelligence/Odyssey" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    HomericIntelligence/Odyssey
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../glossary/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Glossary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/quickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quickstart
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/first_model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    First Model
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/repository-structure/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Repository Structure
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../release-process/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Release Process
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Integration
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Integration
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../integration/supporting-directories/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Supporting Directories
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../integration/papers-shared-integration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Papers & Shared Integration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../integration/quick-start-new-paper/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start New Paper
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#module-1-arithmeticmojo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        MODULE 1: ARITHMETIC.MOJO
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="MODULE 1: ARITHMETIC.MOJO">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-_reduce_broadcast_dims-helper-function" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. _reduce_broadcast_dims (Helper Function)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mathematical-formula" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mathematical Formula
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#broadcasting-handling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Broadcasting Handling
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#shape-reduction-logic" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Shape Reduction Logic
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#edge-cases" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Edge Cases
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-add_backward" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. add_backward
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mathematical-formula_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mathematical Formula
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#broadcasting-handling_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Broadcasting Handling
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#shape-reduction-logic_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Shape Reduction Logic
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#edge-cases_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Edge Cases
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-subtract_backward" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. subtract_backward
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mathematical-formula_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mathematical Formula
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#broadcasting-handling_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Broadcasting Handling
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#shape-reduction-logic_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Shape Reduction Logic
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#edge-cases_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Edge Cases
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-multiply_backward" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. multiply_backward
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mathematical-formula_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mathematical Formula
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#broadcasting-handling_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Broadcasting Handling
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#shape-reduction-logic_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Shape Reduction Logic
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#edge-cases_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Edge Cases
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-divide_backward" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. divide_backward
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mathematical-formula_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mathematical Formula
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#broadcasting-handling_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Broadcasting Handling
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#shape-reduction-logic_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Shape Reduction Logic
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#edge-cases_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Edge Cases
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#numerical-stability" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Numerical Stability
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#module-2-matrixmojo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        MODULE 2: MATRIX.MOJO
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="MODULE 2: MATRIX.MOJO">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-matmul_backward" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. matmul_backward
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mathematical-formula_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mathematical Formula
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#supported-cases" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Supported Cases
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#broadcasting-handling_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Broadcasting Handling
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#edge-cases_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Edge Cases
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-transpose_backward" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. transpose_backward
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mathematical-formula_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mathematical Formula
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#edge-cases_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Edge Cases
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#module-3-reductionmojo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        MODULE 3: REDUCTION.MOJO
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="MODULE 3: REDUCTION.MOJO">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-sum_backward" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. sum_backward
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mathematical-formula_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mathematical Formula
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#broadcasting-handling_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Broadcasting Handling
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#edge-cases_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Edge Cases
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-mean_backward" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. mean_backward
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mathematical-formula_8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mathematical Formula
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#broadcasting-handling_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Broadcasting Handling
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#shape-reduction-logic_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Shape Reduction Logic
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#edge-cases_8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Edge Cases
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-max_reduce_backward" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. max_reduce_backward
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mathematical-formula_9" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mathematical Formula
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#edge-cases_9" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Edge Cases
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-min_reduce_backward" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. min_reduce_backward
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mathematical-formula_10" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mathematical Formula
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#edge-cases_10" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Edge Cases
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#module-4-elementwise_mathmojo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        MODULE 4: ELEMENTWISE_MATH.MOJO
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="MODULE 4: ELEMENTWISE_MATH.MOJO">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-exp_backward" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. exp_backward
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mathematical-formula_11" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mathematical Formula
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#edge-cases_11" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Edge Cases
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-log_backward" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. log_backward
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mathematical-formula_12" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mathematical Formula
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#edge-cases_12" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Edge Cases
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#numerical-stability_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Numerical Stability
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-sqrt_backward" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. sqrt_backward
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mathematical-formula_13" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mathematical Formula
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#edge-cases_13" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Edge Cases
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#numerical-stability_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Numerical Stability
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-abs_backward" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. abs_backward
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mathematical-formula_14" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mathematical Formula
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#edge-cases_14" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Edge Cases
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-clip_backward" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. clip_backward
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mathematical-formula_15" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mathematical Formula
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#edge-cases_15" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Edge Cases
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#6-log10_backward" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. log10_backward
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mathematical-formula_16" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mathematical Formula
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#edge-cases_16" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Edge Cases
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#numerical-stability_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Numerical Stability
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#7-log2_backward" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. log2_backward
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mathematical-formula_17" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mathematical Formula
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#edge-cases_17" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Edge Cases
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#numerical-stability_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Numerical Stability
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#module-5-activationsmojo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        MODULE 5: ACTIVATIONS.MOJO
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="MODULE 5: ACTIVATIONS.MOJO">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-relu_backward" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. relu_backward
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mathematical-formula_18" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mathematical Formula
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#edge-cases_18" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Edge Cases
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-leaky_relu_backward" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. leaky_relu_backward
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mathematical-formula_19" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mathematical Formula
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#edge-cases_19" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Edge Cases
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-prelu_backward" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. prelu_backward
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mathematical-formula_20" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mathematical Formula
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#edge-cases_20" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Edge Cases
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-sigmoid_backward" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. sigmoid_backward
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mathematical-formula_21" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mathematical Formula
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#edge-cases_21" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Edge Cases
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-tanh_backward" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. tanh_backward
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mathematical-formula_22" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mathematical Formula
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#edge-cases_22" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Edge Cases
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#6-gelu_backward" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. gelu_backward
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mathematical-formulas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mathematical Formulas
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#exact-gelu" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Exact GELU
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parameters
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#constants-used" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Constants Used
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#numerical-stability_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Numerical Stability
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#7-softmax_backward" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. softmax_backward
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mathematical-formula_23" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mathematical Formula
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#algorithm" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Algorithm
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#numerical-stability_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Numerical Stability
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#module-6-normalizationmojo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        MODULE 6: NORMALIZATION.MOJO
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="MODULE 6: NORMALIZATION.MOJO">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-batch_norm2d_backward" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. batch_norm2d_backward
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#input-shapes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Input Shapes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#output-shapes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Output Shapes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mathematical-formula-training-mode" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mathematical Formula (Training Mode)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mathematical-formula-inference-mode" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mathematical Formula (Inference Mode)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kratzert-formula-note" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Kratzert Formula Note
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#training-vs-inference-mode" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Training vs Inference Mode
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#broadcasting-handling_8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Broadcasting Handling
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dtype-support" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dtype Support
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#numerical-stability_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Numerical Stability
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#references" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        References
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-layer_norm_backward" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. layer_norm_backward
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#input-shapes_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Input Shapes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#output-shapes_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Output Shapes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mathematical-formula_24" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mathematical Formula
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#key-differences-from-batch_norm2d_backward" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key Differences from batch_norm2d_backward
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#broadcasting-handling_9" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Broadcasting Handling
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dtype-support_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dtype Support
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#numerical-stability_8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Numerical Stability
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#references_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        References
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#summary-table-all-backward-pass-functions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SUMMARY TABLE: All Backward Pass Functions
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#training-readiness-verification" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TRAINING READINESS VERIFICATION
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="TRAINING READINESS VERIFICATION">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#checklist" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Checklist
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#critical-issues" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Critical Issues
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#moderate-issues" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Moderate Issues
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#recommended-improvements" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Recommended Improvements
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#known-test-pathologies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Known Test Pathologies
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Known Test Pathologies">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#batchnorm2d-ones_likegrad_output-produces-analytically-zero-gradients" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        BatchNorm2d: ones_like(grad_output) Produces Analytically-Zero Gradients
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#training-readiness-conclusion" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Training Readiness Conclusion
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#status-ready-for-training" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        STATUS: READY FOR TRAINING
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="anytensor-backward-pass-implementation-catalog">AnyTensor Backward Pass Implementation Catalog</h1>
+<p><strong>Status</strong>: Comprehensive training readiness verification
+<strong>Date</strong>: 2025-11-18
+<strong>Total Backward Functions</strong>: 29 across 6 modules
+<strong>Broadcasting Support</strong>: 9/29 functions (arithmetic, reductions)
+<strong>Numerical Stability</strong>: 12/29 functions
+<strong>Activation Functions</strong>: 7/29</p>
+<hr />
+<h2 id="module-1-arithmeticmojo">MODULE 1: ARITHMETIC.MOJO</h2>
+<p><strong>Module Overview</strong>: Element-wise arithmetic operations with broadcasting support
+<strong>Total Backward Functions</strong>: 5 (including 1 helper)</p>
+<h3 id="1-_reduce_broadcast_dims-helper-function">1. _reduce_broadcast_dims (Helper Function)</h3>
+<p><strong>Location</strong>: Lines 498-545
+<strong>Signature</strong>: <code>fn _reduce_broadcast_dims(grad: AnyTensor, original_shape: DynamicVector[Int]) raises -&gt; AnyTensor</code>
+<strong>Return Type</strong>: <code>AnyTensor</code></p>
+<p><strong>Purpose</strong>: Helper function that reduces gradients from broadcast shapes back to original shapes.</p>
+<h3 id="mathematical-formula">Mathematical Formula</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>For forward pass that broadcast X[original_shape] → Y[broadcast_shape]:
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>∂L/∂X = reduce_sum(∂L/∂Y, axes_that_were_broadcast)
+</code></pre></div>
+<h3 id="broadcasting-handling">Broadcasting Handling</h3>
+<ul>
+<li>YES - Core purpose is to handle shape mismatches</li>
+<li>Handles prepended dimensions: <code>(5,) → (3,4,5)</code> → sums over first 2 dims</li>
+<li>Handles broadcast dimensions: <code>(3,1,5) → (3,4,5)</code> → sums over dimension 1 with keepdims=True</li>
+</ul>
+<h3 id="shape-reduction-logic">Shape Reduction Logic</h3>
+<ol>
+<li>Reduce prepended dimensions (when original_ndim &lt; grad_ndim)</li>
+<li>Sum over dimensions that were size 1 and got broadcast</li>
+</ol>
+<h3 id="edge-cases">Edge Cases</h3>
+<ul>
+<li>Empty dimensions: Handled by dimension checking</li>
+<li>Scalar inputs: Converted to 0D tensors</li>
+</ul>
+<p><strong>Numerical Stability</strong>: None needed (summation is stable)</p>
+<hr />
+<h3 id="2-add_backward">2. add_backward</h3>
+<p><strong>Location</strong>: Lines 548-586
+<strong>Signature</strong>: <code>fn add_backward(grad_output: AnyTensor, a_shape: DynamicVector[Int],
+b_shape: DynamicVector[Int]) raises -&gt; (AnyTensor, AnyTensor)</code>
+<strong>Return Type</strong>: <code>Tuple[AnyTensor, AnyTensor]</code></p>
+<p><strong>Purpose</strong>: Compute gradients for element-wise addition with broadcasting support.</p>
+<h3 id="mathematical-formula_1">Mathematical Formula</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>Forward: C = A + B
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>Backward:
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>  ∂L/∂A = ∂L/∂C  (reduced to a_shape)
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>  ∂L/∂B = ∂L/∂C  (reduced to b_shape)
+</code></pre></div>
+<h3 id="broadcasting-handling_1">Broadcasting Handling</h3>
+<ul>
+<li>YES - Full broadcasting support</li>
+<li>Gradients reduced using <code>_reduce_broadcast_dims</code></li>
+<li>Both inputs independently reduced to their original shapes</li>
+</ul>
+<h3 id="shape-reduction-logic_1">Shape Reduction Logic</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>If A was broadcast: A[3,1,5] + B[3,4,5] → grad_a summed over dimension 1
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>If A was prepended: A[5] + B[3,4,5] → grad_a summed over first 2 dims
+</code></pre></div>
+<h3 id="edge-cases_1">Edge Cases</h3>
+<ul>
+<li>Scalar + Tensor: Gradient correctly reduces to scalar</li>
+<li>Tensor + Scalar: Same reduction logic</li>
+</ul>
+<p><strong>Numerical Stability</strong>: None needed</p>
+<hr />
+<h3 id="3-subtract_backward">3. subtract_backward</h3>
+<p><strong>Location</strong>: Lines 589-618
+<strong>Signature</strong>: <code>fn subtract_backward(grad_output: AnyTensor,
+a_shape: DynamicVector[Int], b_shape: DynamicVector[Int]) raises -&gt; (AnyTensor, AnyTensor)</code>
+<strong>Return Type</strong>: <code>Tuple[AnyTensor, AnyTensor]</code></p>
+<p><strong>Purpose</strong>: Compute gradients for element-wise subtraction with broadcasting.</p>
+<h3 id="mathematical-formula_2">Mathematical Formula</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>Forward: C = A - B
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>Backward:
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>  ∂L/∂A = ∂L/∂C  (reduced to a_shape)
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>  ∂L/∂B = -∂L/∂C (negated and reduced to b_shape)
+</code></pre></div>
+<h3 id="broadcasting-handling_2">Broadcasting Handling</h3>
+<ul>
+<li>YES - Full broadcasting support</li>
+<li>Both gradients reduced independently</li>
+<li>Gradient for B is negated before reduction</li>
+</ul>
+<h3 id="shape-reduction-logic_2">Shape Reduction Logic</h3>
+<ul>
+<li>Same as add_backward, but B gradient is negated element-wise first</li>
+</ul>
+<h3 id="edge-cases_2">Edge Cases</h3>
+<ul>
+<li>Handles negation correctly for all shapes</li>
+<li>Scalar subtraction: grad reduced to scalar</li>
+</ul>
+<p><strong>Numerical Stability</strong>: None needed</p>
+<hr />
+<h3 id="4-multiply_backward">4. multiply_backward</h3>
+<p><strong>Location</strong>: Lines 621-651
+<strong>Signature</strong>: <code>fn multiply_backward(grad_output: AnyTensor, a: AnyTensor, b: AnyTensor) raises -&gt; (AnyTensor, AnyTensor)</code>
+<strong>Return Type</strong>: <code>Tuple[AnyTensor, AnyTensor]</code></p>
+<p><strong>Purpose</strong>: Compute gradients for element-wise multiplication (product rule).</p>
+<h3 id="mathematical-formula_3">Mathematical Formula</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>Forward: C = A * B
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>Backward (Product Rule):
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>  ∂L/∂A = ∂L/∂C * B  (reduced to a.shape())
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>  ∂L/∂B = ∂L/∂C * A  (reduced to b.shape())
+</code></pre></div>
+<h3 id="broadcasting-handling_3">Broadcasting Handling</h3>
+<ul>
+<li>YES - Full broadcasting support</li>
+<li>Multiplies grad_output by the other tensor before reduction</li>
+<li>Uses <code>_reduce_broadcast_dims</code> on the result</li>
+</ul>
+<h3 id="shape-reduction-logic_3">Shape Reduction Logic</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>grad_a = multiply(grad_output, b)  // Broadcasts to grad_output.shape()
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>grad_a_reduced = reduce(grad_a, a.shape())
+</code></pre></div>
+<h3 id="edge-cases_3">Edge Cases</h3>
+<ul>
+<li>Scalar multiplication: Correctly reduces</li>
+<li>Zero gradients: Handled naturally by multiplication</li>
+</ul>
+<p><strong>Numerical Stability</strong>: None needed (multiplication is numerically stable)</p>
+<hr />
+<h3 id="5-divide_backward">5. divide_backward</h3>
+<p><strong>Location</strong>: Lines 654-709
+<strong>Signature</strong>: <code>fn divide_backward(grad_output: AnyTensor, a: AnyTensor, b: AnyTensor) raises -&gt; (AnyTensor, AnyTensor)</code>
+<strong>Return Type</strong>: <code>Tuple[AnyTensor, AnyTensor]</code></p>
+<p><strong>Purpose</strong>: Compute gradients for element-wise division (quotient rule).</p>
+<h3 id="mathematical-formula_4">Mathematical Formula</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>Forward: C = A / B
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>Backward (Quotient Rule):
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>  ∂L/∂A = ∂L/∂C / B
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>  ∂L/∂B = -∂L/∂C * A / B²  (reduced to b.shape())
+</code></pre></div>
+<h3 id="broadcasting-handling_4">Broadcasting Handling</h3>
+<ul>
+<li>YES - Full broadcasting support</li>
+<li>Both gradients properly reduced after computation</li>
+</ul>
+<h3 id="shape-reduction-logic_4">Shape Reduction Logic</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>grad_a = divide(grad_output, b)
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>grad_a_reduced = reduce(grad_a, a.shape())
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>grad_b = -divide(multiply(grad_output, a), b²)
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>grad_b_reduced = reduce(grad_b, b.shape())
+</code></pre></div>
+<h3 id="edge-cases_4">Edge Cases</h3>
+<ul>
+<li>Division by zero: Returns inf/nan (IEEE 754 semantics)</li>
+<li>Very small denominators: Handled by epsilon</li>
+</ul>
+<h3 id="numerical-stability">Numerical Stability</h3>
+<ul>
+<li>YES - <strong>Critical</strong></li>
+<li>Adds epsilon = <strong>1e-10</strong> to B² before division: <code>b² + epsilon</code></li>
+<li>Prevents division by zero in denominator term</li>
+<li>Also handles B ≈ 0 case where denominator would be very small</li>
+</ul>
+<hr />
+<h2 id="module-2-matrixmojo">MODULE 2: MATRIX.MOJO</h2>
+<p><strong>Module Overview</strong>: Linear algebra operations (matmul, transpose, etc.)
+<strong>Total Backward Functions</strong>: 2</p>
+<h3 id="1-matmul_backward">1. matmul_backward</h3>
+<p><strong>Location</strong>: Lines 326-432
+<strong>Signature</strong>: <code>fn matmul_backward(grad_output: AnyTensor, a: AnyTensor, b: AnyTensor) raises -&gt; (AnyTensor, AnyTensor)</code>
+<strong>Return Type</strong>: <code>Tuple[AnyTensor, AnyTensor]</code></p>
+<p><strong>Purpose</strong>: Compute gradients for matrix multiplication across all supported cases.</p>
+<h3 id="mathematical-formula_5">Mathematical Formula</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>Forward: C = A @ B
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>Backward:
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>  ∂L/∂A = ∂L/∂C @ B^T
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>  ∂L/∂B = A^T @ ∂L/∂C
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>For element-wise: C[i,j] = Σ_k A[i,k] * B[k,j]
+<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a>  ∂L/∂A[i,k] = Σ_j (∂L/∂C[i,j] * B[k,j]) = (∂L/∂C @ B^T)[i,k]
+<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a>  ∂L/∂B[k,j] = Σ_i (∂L/∂A[i,k] * A[i,k]) = (A^T @ ∂L/∂C)[k,j]
+</code></pre></div>
+<h3 id="supported-cases">Supported Cases</h3>
+<ol>
+<li><strong>2D @ 2D</strong>: Standard matrix multiplication</li>
+<li>A: (m, k), B: (k, n) → C: (m, n)</li>
+<li>grad_a: ∂L/∂C @ B^T</li>
+<li>
+<p>grad_b: A^T @ ∂L/∂C</p>
+</li>
+<li>
+<p><strong>2D @ 1D</strong>: Matrix-vector multiplication</p>
+</li>
+<li>A: (m, k), B: (k,) → C: (m,)</li>
+<li>grad_a: <code>outer_product(grad_output, b)</code> → (m, k)</li>
+<li>
+<p>grad_b: <code>transpose(A) @ grad_output</code> → (k,)</p>
+</li>
+<li>
+<p><strong>1D @ 2D</strong>: Vector-matrix multiplication</p>
+</li>
+<li>A: (k,), B: (k, n) → C: (n,)</li>
+<li>grad_a: <code>B @ grad_output</code> → (k,)</li>
+<li>
+<p>grad_b: <code>outer_product(a, grad_output)</code> → (k, n)</p>
+</li>
+<li>
+<p><strong>Batched (N-D)</strong>: Batched matrix multiplication</p>
+</li>
+<li>All batch dimensions properly preserved</li>
+<li>Standard formula applied per batch</li>
+</ol>
+<h3 id="broadcasting-handling_5">Broadcasting Handling</h3>
+<ul>
+<li>NO - Matrix multiplication doesn't use broadcasting in this implementation</li>
+<li>Special handling for 2D @ 1D and 1D @ 2D cases</li>
+<li>Batch dimensions preserved in N-D case</li>
+</ul>
+<p><strong>Shape Reduction Logic</strong>: N/A (no broadcasting)</p>
+<h3 id="edge-cases_5">Edge Cases</h3>
+<ul>
+<li>Vector outputs: Correctly handled by transposing then using matmul</li>
+<li>Outer products: For 2D @ 1D and 1D @ 2D cases</li>
+<li>Batched operations: Batch size computed as product of all dims except last 2</li>
+</ul>
+<p><strong>Numerical Stability</strong>: None explicitly needed (matmul accumulation is inherently stable)</p>
+<hr />
+<h3 id="2-transpose_backward">2. transpose_backward</h3>
+<p><strong>Location</strong>: Lines 435-456
+<strong>Signature</strong>: <code>fn transpose_backward(grad_output: AnyTensor) raises -&gt; AnyTensor</code>
+<strong>Return Type</strong>: <code>AnyTensor</code></p>
+<p><strong>Purpose</strong>: Compute gradient for transpose operation.</p>
+<h3 id="mathematical-formula_6">Mathematical Formula</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>Forward: Y = transpose(X)
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>Backward:
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>  ∂L/∂X = transpose(∂L/∂Y)
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>Transpose is self-inverse: transpose(transpose(X)) = X
+</code></pre></div>
+<p><strong>Broadcasting Handling</strong>: NO (not applicable)</p>
+<p><strong>Shape Reduction Logic</strong>: N/A (self-inverse operation)</p>
+<h3 id="edge-cases_6">Edge Cases</h3>
+<ul>
+<li>Any dimensionality: Works for 2D, 3D, N-D tensors</li>
+<li>Reverses all axes in both forward and backward</li>
+</ul>
+<p><strong>Numerical Stability</strong>: None needed</p>
+<hr />
+<h2 id="module-3-reductionmojo">MODULE 3: REDUCTION.MOJO</h2>
+<p><strong>Module Overview</strong>: Reduction operations (sum, mean, max, min)
+<strong>Total Backward Functions</strong>: 4</p>
+<h3 id="1-sum_backward">1. sum_backward</h3>
+<p><strong>Location</strong>: Lines 359-438
+<strong>Signature</strong>: <code>fn sum_backward(grad_output: AnyTensor, input_shape: DynamicVector[Int], axis: Int = -1) raises -&gt; AnyTensor</code>
+<strong>Return Type</strong>: <code>AnyTensor</code></p>
+<p><strong>Purpose</strong>: Compute gradient for sum reduction operation.</p>
+<h3 id="mathematical-formula_7">Mathematical Formula</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>Forward: Y = sum(X, axis)
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>Backward:
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>  ∂L/∂X = broadcast(∂L/∂Y, input_shape)
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>Each input element contributed equally to sum, so gradient is 1.
+</code></pre></div>
+<h3 id="broadcasting-handling_6">Broadcasting Handling</h3>
+<ul>
+<li>YES - Inverse of reduction is broadcast</li>
+<li>Scalar gradient broadcast to all elements (axis = -1)</li>
+<li>Axis gradient broadcast along reduction axis (specific axis)</li>
+</ul>
+<p><strong>Shape Reduction Logic</strong> (Inverse):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>If axis = -1: scalar ∂L/∂Y → broadcast to shape (3, 4, 5)
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>If axis = 1: (3, 5) ∂L/∂Y → broadcast to (3, 4, 5) by replicating along dim 1
+</code></pre></div>
+<h3 id="edge-cases_7">Edge Cases</h3>
+<ul>
+<li><code>axis = -1</code>: Sum all elements → broadcast scalar to full shape</li>
+<li>Specific axis: Gradient value replicated axis_size times</li>
+</ul>
+<p><strong>Numerical Stability</strong>: None needed</p>
+<hr />
+<h3 id="2-mean_backward">2. mean_backward</h3>
+<p><strong>Location</strong>: Lines 441-487
+<strong>Signature</strong>: <code>fn mean_backward(grad_output: AnyTensor, input_shape: DynamicVector[Int], axis: Int = -1) raises -&gt; AnyTensor</code>
+<strong>Return Type</strong>: <code>AnyTensor</code></p>
+<p><strong>Purpose</strong>: Compute gradient for mean reduction.</p>
+<h3 id="mathematical-formula_8">Mathematical Formula</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>Forward: Y = mean(X, axis) = sum(X, axis) / N
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>Backward:
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>  ∂L/∂X = broadcast(∂L/∂Y, input_shape) / N
+<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a>
+<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a>where N = number of elements averaged
+</code></pre></div>
+<h3 id="broadcasting-handling_7">Broadcasting Handling</h3>
+<ul>
+<li>YES - Uses sum_backward then scales by 1/N</li>
+<li>Two-step process: broadcast then scale</li>
+</ul>
+<h3 id="shape-reduction-logic_5">Shape Reduction Logic</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>if axis = -1:
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>  N = product of all dimensions
+<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>  grad_x = broadcast(grad_y, input_shape) / N
+<a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a>else:
+<a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a>  N = input_shape[axis]
+<a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a>  grad_x = broadcast(grad_y, input_shape) / N
+</code></pre></div>
+<h3 id="edge-cases_8">Edge Cases</h3>
+<ul>
+<li>Scalar mean: N = total elements</li>
+<li>Axis mean: N = size of that axis</li>
+</ul>
+<p><strong>Numerical Stability</strong>: None explicitly (division by integer count is stable)</p>
+<hr />
+<h3 id="3-max_reduce_backward">3. max_reduce_backward</h3>
+<p><strong>Location</strong>: Lines 490-624
+<strong>Signature</strong>: <code>fn max_reduce_backward(grad_output: AnyTensor, x: AnyTensor, axis: Int = -1) raises -&gt; AnyTensor</code>
+<strong>Return Type</strong>: <code>AnyTensor</code></p>
+<p><strong>Purpose</strong>: Compute gradient for max reduction (max pooling gradient).</p>
+<h3 id="mathematical-formula_9">Mathematical Formula</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>Forward: Y = max(X, axis)
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>Backward:
+<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>  ∂L/∂X = ∂L/∂Y  if X == max_value
+<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a>  ∂L/∂X = 0      if X != max_value
+<a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a>
+<a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a>If multiple elements are maximum:
+<a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a>  ∂L/∂X = ∂L/∂Y / count  (split equally)
+</code></pre></div>
+<p><strong>Broadcasting Handling</strong>: NO</p>
+<p><strong>Shape Reduction Logic</strong> (Inverse):</p>
+<ul>
+<li>Result maintains input shape</li>
+<li>Gradient only flows to maximum elements</li>
+<li>Multiple maxima case: gradient divided by count</li>
+</ul>
+<h3 id="edge-cases_9">Edge Cases</h3>
+<ul>
+<li><strong>Multiple maxima</strong>: Gradient split equally among all max elements</li>
+<li>Example: [1.0, <strong>3.0</strong>, 2.0, <strong>3.0</strong>] with grad=1.0 → [0.0, <strong>0.5</strong>, 0.0, <strong>0.5</strong>]</li>
+<li><strong>Single maximum</strong>: Gradient flows entirely to that element</li>
+<li><strong>Axis-wise reduction</strong>: Three-pass algorithm</li>
+<li>Find max value along slice</li>
+<li>Count equal-to-max elements</li>
+<li>Set gradients for max elements</li>
+</ul>
+<p><strong>Numerical Stability</strong>: None needed (comparison-based)</p>
+<hr />
+<h3 id="4-min_reduce_backward">4. min_reduce_backward</h3>
+<p><strong>Location</strong>: Lines 627-753
+<strong>Signature</strong>: <code>fn min_reduce_backward(grad_output: AnyTensor, x: AnyTensor, axis: Int = -1) raises -&gt; AnyTensor</code>
+<strong>Return Type</strong>: <code>AnyTensor</code></p>
+<p><strong>Purpose</strong>: Compute gradient for min reduction.</p>
+<h3 id="mathematical-formula_10">Mathematical Formula</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>Forward: Y = min(X, axis)
+<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>Backward:
+<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>  ∂L/∂X = ∂L/∂Y  if X == min_value
+<a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a>  ∂L/∂X = 0      if X != min_value
+<a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a>
+<a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a>If multiple elements are minimum:
+<a id="__codelineno-15-7" name="__codelineno-15-7" href="#__codelineno-15-7"></a>  ∂L/∂X = ∂L/∂Y / count  (split equally)
+</code></pre></div>
+<p><strong>Broadcasting Handling</strong>: NO</p>
+<p><strong>Shape Reduction Logic</strong> (Inverse):</p>
+<ul>
+<li>Same as max_reduce_backward but for minimum values</li>
+</ul>
+<h3 id="edge-cases_10">Edge Cases</h3>
+<ul>
+<li><strong>Multiple minima</strong>: Gradient split equally</li>
+<li><strong>Axis-wise</strong>: Three-pass algorithm similar to max</li>
+</ul>
+<p><strong>Numerical Stability</strong>: None needed</p>
+<hr />
+<h2 id="module-4-elementwise_mathmojo">MODULE 4: ELEMENTWISE_MATH.MOJO</h2>
+<p><strong>Module Overview</strong>: Mathematical functions (exp, log, sqrt, trig, etc.)
+<strong>Total Backward Functions</strong>: 7</p>
+<h3 id="1-exp_backward">1. exp_backward</h3>
+<p><strong>Location</strong>: Lines 574-602
+<strong>Signature</strong>: <code>fn exp_backward(grad_output: AnyTensor, output: AnyTensor) raises -&gt; AnyTensor</code>
+<strong>Return Type</strong>: <code>AnyTensor</code></p>
+<p><strong>Purpose</strong>: Compute gradient for exponential function.</p>
+<h3 id="mathematical-formula_11">Mathematical Formula</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>Forward: Y = exp(X)
+<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>Backward:
+<a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a>  ∂L/∂X = ∂L/∂Y * exp(X) = ∂L/∂Y * Y
+<a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a>
+<a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a>Uses output from forward pass to avoid recomputing exp(X).
+</code></pre></div>
+<p><strong>Broadcasting Handling</strong>: NO (element-wise only)</p>
+<p><strong>Shape Reduction Logic</strong>: N/A (maintains shape)</p>
+<h3 id="edge-cases_11">Edge Cases</h3>
+<ul>
+<li>Very large X: exp(X) → inf, gradient becomes inf</li>
+<li>Very small X: exp(X) → 0, gradient → 0</li>
+</ul>
+<p><strong>Numerical Stability</strong>: None explicitly (exp is well-conditioned)</p>
+<hr />
+<h3 id="2-log_backward">2. log_backward</h3>
+<p><strong>Location</strong>: Lines 605-639
+<strong>Signature</strong>: <code>fn log_backward(grad_output: AnyTensor, x: AnyTensor) raises -&gt; AnyTensor</code>
+<strong>Return Type</strong>: <code>AnyTensor</code></p>
+<p><strong>Purpose</strong>: Compute gradient for natural logarithm.</p>
+<h3 id="mathematical-formula_12">Mathematical Formula</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>Forward: Y = log(X)
+<a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>Backward:
+<a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a>  ∂L/∂X = ∂L/∂Y / X
+</code></pre></div>
+<p><strong>Broadcasting Handling</strong>: NO (element-wise)</p>
+<p><strong>Shape Reduction Logic</strong>: N/A</p>
+<h3 id="edge-cases_12">Edge Cases</h3>
+<ul>
+<li>X = 0: Division by zero → inf (prevented by epsilon)</li>
+<li>X → 0⁺: Gradient → +inf</li>
+</ul>
+<h3 id="numerical-stability_1">Numerical Stability</h3>
+<ul>
+<li>YES - <strong>Epsilon = 1e-10</strong></li>
+<li>Applied to denominator: <code>grad / (x + EPSILON)</code></li>
+<li>Prevents division by zero and handles very small x</li>
+</ul>
+<hr />
+<h3 id="3-sqrt_backward">3. sqrt_backward</h3>
+<p><strong>Location</strong>: Lines 642-678
+<strong>Signature</strong>: <code>fn sqrt_backward(grad_output: AnyTensor, output: AnyTensor) raises -&gt; AnyTensor</code>
+<strong>Return Type</strong>: <code>AnyTensor</code></p>
+<p><strong>Purpose</strong>: Compute gradient for square root.</p>
+<h3 id="mathematical-formula_13">Mathematical Formula</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>Forward: Y = sqrt(X)
+<a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a>Backward:
+<a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a>  ∂L/∂X = ∂L/∂Y / (2 * sqrt(X)) = ∂L/∂Y / (2 * Y)
+<a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a>
+<a id="__codelineno-18-5" name="__codelineno-18-5" href="#__codelineno-18-5"></a>Uses output to avoid recomputing sqrt(X).
+</code></pre></div>
+<p><strong>Broadcasting Handling</strong>: NO</p>
+<p><strong>Shape Reduction Logic</strong>: N/A</p>
+<h3 id="edge-cases_13">Edge Cases</h3>
+<ul>
+<li>Y = 0 (X = 0): Denominator = 0, prevented by epsilon</li>
+<li>Very small Y: Large gradients</li>
+</ul>
+<h3 id="numerical-stability_2">Numerical Stability</h3>
+<ul>
+<li>YES - <strong>Epsilon = 1e-10</strong></li>
+<li>Applied to denominator: <code>grad / (2.0 * output + EPSILON)</code></li>
+<li>Prevents division by zero when output ≈ 0</li>
+</ul>
+<hr />
+<h3 id="4-abs_backward">4. abs_backward</h3>
+<p><strong>Location</strong>: Lines 681-720
+<strong>Signature</strong>: <code>fn abs_backward(grad_output: AnyTensor, x: AnyTensor) raises -&gt; AnyTensor</code>
+<strong>Return Type</strong>: <code>AnyTensor</code></p>
+<p><strong>Purpose</strong>: Compute gradient for absolute value.</p>
+<h3 id="mathematical-formula_14">Mathematical Formula</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a>Forward: Y = |X|
+<a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a>Backward:
+<a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a>  ∂L/∂X = ∂L/∂Y * sign(X)
+<a id="__codelineno-19-4" name="__codelineno-19-4" href="#__codelineno-19-4"></a>
+<a id="__codelineno-19-5" name="__codelineno-19-5" href="#__codelineno-19-5"></a>where sign(X) = 1 if X &gt; 0, -1 if X &lt; 0, 0 if X = 0
+</code></pre></div>
+<p><strong>Broadcasting Handling</strong>: NO</p>
+<p><strong>Shape Reduction Logic</strong>: N/A</p>
+<h3 id="edge-cases_14">Edge Cases</h3>
+<ul>
+<li><strong>X = 0</strong>: Gradient = 0 (undefined point, use 0 by convention)</li>
+<li><strong>X &gt; 0</strong>: Gradient passes through unchanged</li>
+<li><strong>X &lt; 0</strong>: Gradient is negated</li>
+</ul>
+<p><strong>Numerical Stability</strong>: None needed (sign is well-defined)</p>
+<hr />
+<h3 id="5-clip_backward">5. clip_backward</h3>
+<p><strong>Location</strong>: Lines 723-759
+<strong>Signature</strong>: <code>fn clip_backward(grad_output: AnyTensor, x: AnyTensor, min_val: Float64, max_val: Float64) raises -&gt; AnyTensor</code>
+<strong>Return Type</strong>: <code>AnyTensor</code></p>
+<p><strong>Purpose</strong>: Compute gradient for clipping (clamping) operation.</p>
+<h3 id="mathematical-formula_15">Mathematical Formula</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a>Forward: Y = clip(X, min, max)
+<a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a>Backward:
+<a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a>  ∂L/∂X = ∂L/∂Y  if min &lt;= X &lt;= max
+<a id="__codelineno-20-4" name="__codelineno-20-4" href="#__codelineno-20-4"></a>  ∂L/∂X = 0      if X &lt; min or X &gt; max
+<a id="__codelineno-20-5" name="__codelineno-20-5" href="#__codelineno-20-5"></a>
+<a id="__codelineno-20-6" name="__codelineno-20-6" href="#__codelineno-20-6"></a>Gradient only flows through &quot;active&quot; region.
+</code></pre></div>
+<p><strong>Broadcasting Handling</strong>: NO</p>
+<p><strong>Shape Reduction Logic</strong>: N/A</p>
+<h3 id="edge-cases_15">Edge Cases</h3>
+<ul>
+<li>X exactly at bounds: Gradient masking at boundary</li>
+<li>X far outside bounds: Zero gradient</li>
+</ul>
+<p><strong>Numerical Stability</strong>: None needed</p>
+<hr />
+<h3 id="6-log10_backward">6. log10_backward</h3>
+<p><strong>Location</strong>: Lines 762-788
+<strong>Signature</strong>: <code>fn log10_backward(grad_output: AnyTensor, x: AnyTensor) raises -&gt; AnyTensor</code>
+<strong>Return Type</strong>: <code>AnyTensor</code></p>
+<p><strong>Purpose</strong>: Compute gradient for base-10 logarithm.</p>
+<h3 id="mathematical-formula_16">Mathematical Formula</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a>Forward: Y = log10(X)
+<a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a>Backward:
+<a id="__codelineno-21-3" name="__codelineno-21-3" href="#__codelineno-21-3"></a>  ∂L/∂X = ∂L/∂Y / (X * ln(10))
+<a id="__codelineno-21-4" name="__codelineno-21-4" href="#__codelineno-21-4"></a>
+<a id="__codelineno-21-5" name="__codelineno-21-5" href="#__codelineno-21-5"></a>where ln(10) ≈ 2.302585092994046
+</code></pre></div>
+<p><strong>Broadcasting Handling</strong>: NO</p>
+<p><strong>Shape Reduction Logic</strong>: N/A</p>
+<h3 id="edge-cases_16">Edge Cases</h3>
+<ul>
+<li>X = 0: Division by zero prevented by epsilon</li>
+</ul>
+<h3 id="numerical-stability_3">Numerical Stability</h3>
+<ul>
+<li>YES - <strong>Epsilon = 1e-10</strong></li>
+<li><strong>Constant: LN10 = 2.302585092994046</strong></li>
+<li>Formula: <code>grad / (x * LN10 + EPSILON)</code></li>
+</ul>
+<hr />
+<h3 id="7-log2_backward">7. log2_backward</h3>
+<p><strong>Location</strong>: Lines 791-817
+<strong>Signature</strong>: <code>fn log2_backward(grad_output: AnyTensor, x: AnyTensor) raises -&gt; AnyTensor</code>
+<strong>Return Type</strong>: <code>AnyTensor</code></p>
+<p><strong>Purpose</strong>: Compute gradient for base-2 logarithm.</p>
+<h3 id="mathematical-formula_17">Mathematical Formula</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a>Forward: Y = log2(X)
+<a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a>Backward:
+<a id="__codelineno-22-3" name="__codelineno-22-3" href="#__codelineno-22-3"></a>  ∂L/∂X = ∂L/∂Y / (X * ln(2))
+<a id="__codelineno-22-4" name="__codelineno-22-4" href="#__codelineno-22-4"></a>
+<a id="__codelineno-22-5" name="__codelineno-22-5" href="#__codelineno-22-5"></a>where ln(2) ≈ 0.6931471805599453
+</code></pre></div>
+<p><strong>Broadcasting Handling</strong>: NO</p>
+<p><strong>Shape Reduction Logic</strong>: N/A</p>
+<h3 id="edge-cases_17">Edge Cases</h3>
+<ul>
+<li>X = 0: Division by zero prevented by epsilon</li>
+</ul>
+<h3 id="numerical-stability_4">Numerical Stability</h3>
+<ul>
+<li>YES - <strong>Epsilon = 1e-10</strong></li>
+<li><strong>Constant: LN2 = 0.6931471805599453</strong></li>
+<li>Formula: <code>grad / (x * LN2 + EPSILON)</code></li>
+</ul>
+<hr />
+<h2 id="module-5-activationsmojo">MODULE 5: ACTIVATIONS.MOJO</h2>
+<p><strong>Module Overview</strong>: Neural network activation functions
+<strong>Total Backward Functions</strong>: 7</p>
+<h3 id="1-relu_backward">1. relu_backward</h3>
+<p><strong>Location</strong>: Lines 551-604
+<strong>Signature</strong>: <code>fn relu_backward(grad_output: AnyTensor, x: AnyTensor) raises -&gt; AnyTensor</code>
+<strong>Return Type</strong>: <code>AnyTensor</code></p>
+<p><strong>Purpose</strong>: Compute gradient for ReLU activation.</p>
+<h3 id="mathematical-formula_18">Mathematical Formula</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a>Forward: Y = ReLU(X) = max(0, X)
+<a id="__codelineno-23-2" name="__codelineno-23-2" href="#__codelineno-23-2"></a>Backward:
+<a id="__codelineno-23-3" name="__codelineno-23-3" href="#__codelineno-23-3"></a>  ∂L/∂X = ∂L/∂Y * (X &gt; 0)
+<a id="__codelineno-23-4" name="__codelineno-23-4" href="#__codelineno-23-4"></a>
+<a id="__codelineno-23-5" name="__codelineno-23-5" href="#__codelineno-23-5"></a>where (X &gt; 0) is a binary mask: 1 if X &gt; 0, else 0
+</code></pre></div>
+<p><strong>Broadcasting Handling</strong>: NO (element-wise activation)</p>
+<p><strong>Shape Reduction Logic</strong>: N/A</p>
+<h3 id="edge-cases_18">Edge Cases</h3>
+<ul>
+<li><strong>X = 0</strong>: Gradient = 0 (technically undefined, use 0)</li>
+<li><strong>X &gt; 0</strong>: Gradient passes through</li>
+<li><strong>X &lt; 0</strong>: Gradient killed</li>
+</ul>
+<p><strong>Dtype Support</strong>: float16, float32, float64, int32, int64</p>
+<p><strong>Numerical Stability</strong>: None needed</p>
+<hr />
+<h3 id="2-leaky_relu_backward">2. leaky_relu_backward</h3>
+<p><strong>Location</strong>: Lines 607-647
+<strong>Signature</strong>: <code>fn leaky_relu_backward(grad_output: AnyTensor, x: AnyTensor, alpha: Float64 = 0.01) raises -&gt; AnyTensor</code>
+<strong>Return Type</strong>: <code>AnyTensor</code></p>
+<p><strong>Purpose</strong>: Compute gradient for Leaky ReLU activation.</p>
+<h3 id="mathematical-formula_19">Mathematical Formula</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a>Forward: Y = LeakyReLU(X) = max(0, X) + alpha * min(0, X)
+<a id="__codelineno-24-2" name="__codelineno-24-2" href="#__codelineno-24-2"></a>Backward:
+<a id="__codelineno-24-3" name="__codelineno-24-3" href="#__codelineno-24-3"></a>  ∂L/∂X = ∂L/∂Y * (1 if X &gt; 0 else alpha)
+<a id="__codelineno-24-4" name="__codelineno-24-4" href="#__codelineno-24-4"></a>
+<a id="__codelineno-24-5" name="__codelineno-24-5" href="#__codelineno-24-5"></a>Default alpha = 0.01
+</code></pre></div>
+<p><strong>Broadcasting Handling</strong>: NO</p>
+<p><strong>Shape Reduction Logic</strong>: N/A</p>
+<h3 id="edge-cases_19">Edge Cases</h3>
+<ul>
+<li><strong>X &gt; 0</strong>: Gradient multiplied by 1 (passes through)</li>
+<li><strong>X ≤ 0</strong>: Gradient multiplied by alpha (small gradient, prevents dead neurons)</li>
+</ul>
+<p><strong>Dtype Support</strong>: float16, float32, float64</p>
+<p><strong>Parameters</strong>: alpha (default 0.01)</p>
+<p><strong>Numerical Stability</strong>: None needed</p>
+<hr />
+<h3 id="3-prelu_backward">3. prelu_backward</h3>
+<p><strong>Location</strong>: Lines 650-725
+<strong>Signature</strong>: <code>fn prelu_backward(grad_output: AnyTensor, x: AnyTensor, alpha: AnyTensor) raises -&gt; (AnyTensor, AnyTensor)</code>
+<strong>Return Type</strong>: <code>Tuple[AnyTensor, AnyTensor]</code></p>
+<p><strong>Purpose</strong>: Compute gradients for Parametric ReLU (learnable alpha).</p>
+<h3 id="mathematical-formula_20">Mathematical Formula</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a>Forward: Y = PReLU(X) = max(0, X) + alpha * min(0, X)
+<a id="__codelineno-25-2" name="__codelineno-25-2" href="#__codelineno-25-2"></a>Backward:
+<a id="__codelineno-25-3" name="__codelineno-25-3" href="#__codelineno-25-3"></a>  ∂L/∂X = ∂L/∂Y * (1 if X &gt; 0 else alpha)
+<a id="__codelineno-25-4" name="__codelineno-25-4" href="#__codelineno-25-4"></a>  ∂L/∂alpha = sum(∂L/∂Y * X) for X &lt; 0
+</code></pre></div>
+<p><strong>Broadcasting Handling</strong>: NO</p>
+<p><strong>Shape Reduction Logic</strong>: N/A</p>
+<h3 id="edge-cases_20">Edge Cases</h3>
+<ul>
+<li><strong>X &gt; 0</strong>: grad_input = grad_output</li>
+<li><strong>X ≤ 0</strong>: grad_input = grad_output * alpha, grad_alpha += grad_output * x</li>
+<li><strong>Scalar alpha</strong>: All X elements use same alpha, gradients accumulated</li>
+<li><strong>Vector alpha</strong>: Element-wise alpha, gradients accumulated per element</li>
+</ul>
+<p><strong>Dtype Support</strong>: float16, float32, float64</p>
+<p><strong>Learnable Parameter</strong>: Returns both grad_input and grad_alpha</p>
+<p><strong>Numerical Stability</strong>: None needed</p>
+<hr />
+<h3 id="4-sigmoid_backward">4. sigmoid_backward</h3>
+<p><strong>Location</strong>: Lines 728-769
+<strong>Signature</strong>: <code>fn sigmoid_backward(grad_output: AnyTensor, output: AnyTensor) raises -&gt; AnyTensor</code>
+<strong>Return Type</strong>: <code>AnyTensor</code></p>
+<p><strong>Purpose</strong>: Compute gradient for sigmoid activation.</p>
+<h3 id="mathematical-formula_21">Mathematical Formula</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a>Forward: Y = sigmoid(X) = 1 / (1 + exp(-X))
+<a id="__codelineno-26-2" name="__codelineno-26-2" href="#__codelineno-26-2"></a>Backward:
+<a id="__codelineno-26-3" name="__codelineno-26-3" href="#__codelineno-26-3"></a>  ∂L/∂X = ∂L/∂Y * Y * (1 - Y)
+<a id="__codelineno-26-4" name="__codelineno-26-4" href="#__codelineno-26-4"></a>
+<a id="__codelineno-26-5" name="__codelineno-26-5" href="#__codelineno-26-5"></a>Uses output from forward pass to avoid recomputing sigmoid.
+</code></pre></div>
+<p><strong>Broadcasting Handling</strong>: NO</p>
+<p><strong>Shape Reduction Logic</strong>: N/A</p>
+<h3 id="edge-cases_21">Edge Cases</h3>
+<ul>
+<li><strong>Y → 0</strong>: Gradient → 0</li>
+<li><strong>Y → 1</strong>: Gradient → 0</li>
+<li><strong>Y = 0.5</strong>: Maximum gradient (0.25 * ∂L/∂Y)</li>
+</ul>
+<p><strong>Dtype Support</strong>: float16, float32, float64</p>
+<p><strong>Numerical Stability</strong>: Naturally stable (output in [0,1])</p>
+<hr />
+<h3 id="5-tanh_backward">5. tanh_backward</h3>
+<p><strong>Location</strong>: Lines 772-813
+<strong>Signature</strong>: <code>fn tanh_backward(grad_output: AnyTensor, output: AnyTensor) raises -&gt; AnyTensor</code>
+<strong>Return Type</strong>: <code>AnyTensor</code></p>
+<p><strong>Purpose</strong>: Compute gradient for tanh activation.</p>
+<h3 id="mathematical-formula_22">Mathematical Formula</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-27-1" name="__codelineno-27-1" href="#__codelineno-27-1"></a>Forward: Y = tanh(X)
+<a id="__codelineno-27-2" name="__codelineno-27-2" href="#__codelineno-27-2"></a>Backward:
+<a id="__codelineno-27-3" name="__codelineno-27-3" href="#__codelineno-27-3"></a>  ∂L/∂X = ∂L/∂Y * (1 - Y²)
+<a id="__codelineno-27-4" name="__codelineno-27-4" href="#__codelineno-27-4"></a>
+<a id="__codelineno-27-5" name="__codelineno-27-5" href="#__codelineno-27-5"></a>Uses output from forward pass.
+</code></pre></div>
+<p><strong>Broadcasting Handling</strong>: NO</p>
+<p><strong>Shape Reduction Logic</strong>: N/A</p>
+<h3 id="edge-cases_22">Edge Cases</h3>
+<ul>
+<li><strong>Y → ±1</strong>: Gradient → 0</li>
+<li><strong>Y = 0</strong>: Maximum gradient (∂L/∂Y)</li>
+</ul>
+<p><strong>Dtype Support</strong>: float16, float32, float64</p>
+<p><strong>Numerical Stability</strong>: Naturally stable (output in [-1,1])</p>
+<hr />
+<h3 id="6-gelu_backward">6. gelu_backward</h3>
+<p><strong>Location</strong>: Lines 816-928
+<strong>Signature</strong>: <code>fn gelu_backward(grad_output: AnyTensor, x: AnyTensor, approximate: Bool = False) raises -&gt; AnyTensor</code>
+<strong>Return Type</strong>: <code>AnyTensor</code></p>
+<p><strong>Purpose</strong>: Compute gradient for GELU activation with exact or approximate formula.</p>
+<h3 id="mathematical-formulas">Mathematical Formulas</h3>
+<h3 id="exact-gelu">Exact GELU</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-28-1" name="__codelineno-28-1" href="#__codelineno-28-1"></a>Forward: Y = x * Φ(x)  where Φ is CDF of standard normal
+<a id="__codelineno-28-2" name="__codelineno-28-2" href="#__codelineno-28-2"></a>Backward:
+<a id="__codelineno-28-3" name="__codelineno-28-3" href="#__codelineno-28-3"></a>  ∂L/∂X = ∂L/∂Y * [Φ(x) + x * φ(x)]
+<a id="__codelineno-28-4" name="__codelineno-28-4" href="#__codelineno-28-4"></a>
+<a id="__codelineno-28-5" name="__codelineno-28-5" href="#__codelineno-28-5"></a>where φ(x) = (1/√(2π)) * exp(-x²/2) is the PDF
+</code></pre></div>
+<p><strong>Approximate GELU</strong> (Tanh approximation):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-29-1" name="__codelineno-29-1" href="#__codelineno-29-1"></a>Forward: Y = 0.5 * x * (1 + tanh(√(2/π) * (x + 0.044715 * x³)))
+<a id="__codelineno-29-2" name="__codelineno-29-2" href="#__codelineno-29-2"></a>Backward: Uses derivative of tanh approximation
+<a id="__codelineno-29-3" name="__codelineno-29-3" href="#__codelineno-29-3"></a>
+<a id="__codelineno-29-4" name="__codelineno-29-4" href="#__codelineno-29-4"></a>with constants:
+<a id="__codelineno-29-5" name="__codelineno-29-5" href="#__codelineno-29-5"></a>- √(2/π) ≈ 0.7978845608028654
+<a id="__codelineno-29-6" name="__codelineno-29-6" href="#__codelineno-29-6"></a>- 0.044715 is the GELU coefficient
+</code></pre></div>
+<p><strong>Broadcasting Handling</strong>: NO</p>
+<p><strong>Shape Reduction Logic</strong>: N/A</p>
+<h3 id="parameters">Parameters</h3>
+<ul>
+<li><code>approximate</code>: Bool (default False)</li>
+<li>False: Exact formula using erf</li>
+<li>True: Tanh approximation (faster, slightly less accurate)</li>
+</ul>
+<p><strong>Dtype Support</strong>: float16, float32, float64</p>
+<h3 id="constants-used">Constants Used</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-30-1" name="__codelineno-30-1" href="#__codelineno-30-1"></a>SQRT_2 = 1.4142135623730951
+<a id="__codelineno-30-2" name="__codelineno-30-2" href="#__codelineno-30-2"></a>SQRT_2_OVER_PI = 0.7978845608028654
+<a id="__codelineno-30-3" name="__codelineno-30-3" href="#__codelineno-30-3"></a>GELU_COEFF = 0.044715
+<a id="__codelineno-30-4" name="__codelineno-30-4" href="#__codelineno-30-4"></a>INV_SQRT_2PI = 0.3989422804014327
+<a id="__codelineno-30-5" name="__codelineno-30-5" href="#__codelineno-30-5"></a>LN10 = 2.302585092994046
+</code></pre></div>
+<h3 id="numerical-stability_5">Numerical Stability</h3>
+<ul>
+<li>Float16 uses Float32 intermediate precision for numerical stability</li>
+<li>Careful handling of exp(-x²/2) to prevent underflow/overflow</li>
+</ul>
+<p><strong>Complexity</strong>: Most complex activation gradient (two separate implementations)</p>
+<hr />
+<h3 id="7-softmax_backward">7. softmax_backward</h3>
+<p><strong>Location</strong>: Lines 931-1051
+<strong>Signature</strong>: <code>fn softmax_backward(grad_output: AnyTensor, output: AnyTensor, axis: Int = -1) raises -&gt; AnyTensor</code>
+<strong>Return Type</strong>: <code>AnyTensor</code></p>
+<p><strong>Purpose</strong>: Compute gradient for softmax activation (accounts for normalization Jacobian).</p>
+<h3 id="mathematical-formula_23">Mathematical Formula</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-31-1" name="__codelineno-31-1" href="#__codelineno-31-1"></a>Forward: Y = softmax(X) = exp(X) / sum(exp(X))
+<a id="__codelineno-31-2" name="__codelineno-31-2" href="#__codelineno-31-2"></a>Backward (Jacobian):
+<a id="__codelineno-31-3" name="__codelineno-31-3" href="#__codelineno-31-3"></a>  ∂L/∂X_i = Y_i * (∂L/∂Y_i - Σ_j(∂L/∂Y_j * Y_j))
+<a id="__codelineno-31-4" name="__codelineno-31-4" href="#__codelineno-31-4"></a>
+<a id="__codelineno-31-5" name="__codelineno-31-5" href="#__codelineno-31-5"></a>where:
+<a id="__codelineno-31-6" name="__codelineno-31-6" href="#__codelineno-31-6"></a>- Y_i is the softmax output
+<a id="__codelineno-31-7" name="__codelineno-31-7" href="#__codelineno-31-7"></a>- ∂L/∂Y_j is the upstream gradient
+<a id="__codelineno-31-8" name="__codelineno-31-8" href="#__codelineno-31-8"></a>- The sum term accounts for the normalization constraint
+</code></pre></div>
+<p><strong>Broadcasting Handling</strong>: NO (axis-specific reduction)</p>
+<p><strong>Shape Reduction Logic</strong>: N/A (maintains shape)</p>
+<h3 id="algorithm">Algorithm</h3>
+<ol>
+<li>Normalize axis to positive index</li>
+<li>Compute stride and outer size for the softmax axis</li>
+<li>For each position along axis:</li>
+<li>Compute: sum_j(grad_output[j] * output[j])</li>
+<li>For each i: grad[i] = output[i] * (grad_input[i] - sum_j(...))</li>
+</ol>
+<p><strong>Complexity</strong>: O(n²) along softmax axis (two nested loops)</p>
+<p><strong>Parameters</strong>: <code>axis</code> (default -1, meaning last dimension)</p>
+<p><strong>Dtype Support</strong>: float16, float32, float64</p>
+<p><strong>Key Insight</strong>: Softmax gradient is not just element-wise multiplication with upstream
+gradient. Each element's gradient depends on ALL outputs due to normalization constraint.</p>
+<h3 id="example">Example</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-32-1" name="__codelineno-32-1" href="#__codelineno-32-1"></a>If softmax output: [0.1, 0.6, 0.3]
+<a id="__codelineno-32-2" name="__codelineno-32-2" href="#__codelineno-32-2"></a>And upstream gradient: [1.0, 1.0, 1.0]
+<a id="__codelineno-32-3" name="__codelineno-32-3" href="#__codelineno-32-3"></a>
+<a id="__codelineno-32-4" name="__codelineno-32-4" href="#__codelineno-32-4"></a>dot_sum = 1.0*0.1 + 1.0*0.6 + 1.0*0.3 = 1.0
+<a id="__codelineno-32-5" name="__codelineno-32-5" href="#__codelineno-32-5"></a>grad[0] = 0.1 * (1.0 - 1.0) = 0.0
+<a id="__codelineno-32-6" name="__codelineno-32-6" href="#__codelineno-32-6"></a>grad[1] = 0.6 * (1.0 - 1.0) = 0.0
+<a id="__codelineno-32-7" name="__codelineno-32-7" href="#__codelineno-32-7"></a>grad[2] = 0.3 * (1.0 - 1.0) = 0.0
+</code></pre></div>
+<h3 id="numerical-stability_6">Numerical Stability</h3>
+<ul>
+<li>Float16 uses Float32 intermediate precision for dot_sum calculation</li>
+<li>Prevents precision loss in normalization term</li>
+</ul>
+<hr />
+<h2 id="module-6-normalizationmojo">MODULE 6: NORMALIZATION.MOJO</h2>
+<p><strong>Module Overview</strong>: Batch and layer normalization with mean-centering backward passes
+<strong>Total Backward Functions</strong>: 2</p>
+<h3 id="1-batch_norm2d_backward">1. batch_norm2d_backward</h3>
+<p><strong>Location</strong>: <code>src/odyssey/core/normalization.mojo</code> line 463
+<strong>Signature</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-33-1" name="__codelineno-33-1" href="#__codelineno-33-1"></a><span class="k">fn</span><span class="w"> </span><span class="nf">batch_norm2d_backward</span><span class="p">(</span>
+<a id="__codelineno-33-2" name="__codelineno-33-2" href="#__codelineno-33-2"></a><span class="w">    </span><span class="n">grad_output</span><span class="p">:</span><span class="w"> </span><span class="n">AnyTensor</span><span class="p">,</span>
+<a id="__codelineno-33-3" name="__codelineno-33-3" href="#__codelineno-33-3"></a><span class="w">    </span><span class="n">x</span><span class="p">:</span><span class="w"> </span><span class="n">AnyTensor</span><span class="p">,</span>
+<a id="__codelineno-33-4" name="__codelineno-33-4" href="#__codelineno-33-4"></a><span class="w">    </span><span class="n">gamma</span><span class="p">:</span><span class="w"> </span><span class="n">AnyTensor</span><span class="p">,</span>
+<a id="__codelineno-33-5" name="__codelineno-33-5" href="#__codelineno-33-5"></a><span class="w">    </span><span class="n">running_mean</span><span class="p">:</span><span class="w"> </span><span class="n">AnyTensor</span><span class="p">,</span>
+<a id="__codelineno-33-6" name="__codelineno-33-6" href="#__codelineno-33-6"></a><span class="w">    </span><span class="n">running_var</span><span class="p">:</span><span class="w"> </span><span class="n">AnyTensor</span><span class="p">,</span>
+<a id="__codelineno-33-7" name="__codelineno-33-7" href="#__codelineno-33-7"></a><span class="w">    </span><span class="n">training</span><span class="p">:</span><span class="w"> </span><span class="n">Bool</span><span class="p">,</span>
+<a id="__codelineno-33-8" name="__codelineno-33-8" href="#__codelineno-33-8"></a><span class="w">    </span><span class="n">epsilon</span><span class="p">:</span><span class="w"> </span><span class="nb">Float64</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1e-5</span><span class="p">,</span>
+<a id="__codelineno-33-9" name="__codelineno-33-9" href="#__codelineno-33-9"></a><span class="p">)</span><span class="w"> </span><span class="n">raises</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nb">Tuple</span><span class="p">[</span><span class="n">AnyTensor</span><span class="p">,</span><span class="w"> </span><span class="n">AnyTensor</span><span class="p">,</span><span class="w"> </span><span class="n">AnyTensor</span><span class="p">]</span>
+</code></pre></div>
+<p><strong>Return Type</strong>: <code>Tuple[AnyTensor, AnyTensor, AnyTensor]</code> — <code>(grad_input, grad_gamma, grad_beta)</code></p>
+<p><strong>Purpose</strong>: Backward pass for 2D batch normalization. Computes gradients with respect
+to input and the learnable scale (gamma) and shift (beta) parameters.</p>
+<h3 id="input-shapes">Input Shapes</h3>
+<ul>
+<li><code>grad_output</code>: <code>(N, C, H, W)</code> — upstream gradient, same shape as forward output</li>
+<li><code>x</code>: <code>(N, C, H, W)</code> — original input tensor saved from forward pass</li>
+<li><code>gamma</code>: <code>(C,)</code> — per-channel scale parameter</li>
+<li><code>running_mean</code>: <code>(C,)</code> — channel-wise running mean (used in inference mode)</li>
+<li><code>running_var</code>: <code>(C,)</code> — channel-wise running variance (used in inference mode)</li>
+</ul>
+<h3 id="output-shapes">Output Shapes</h3>
+<ul>
+<li><code>grad_input</code>: <code>(N, C, H, W)</code> — gradient w.r.t. input</li>
+<li><code>grad_gamma</code>: <code>(C,)</code> — gradient w.r.t. gamma (summed over N, H, W)</li>
+<li><code>grad_beta</code>: <code>(C,)</code> — gradient w.r.t. beta (summed over N, H, W)</li>
+</ul>
+<h3 id="mathematical-formula-training-mode">Mathematical Formula (Training Mode)</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-34-1" name="__codelineno-34-1" href="#__codelineno-34-1"></a>Forward pass:
+<a id="__codelineno-34-2" name="__codelineno-34-2" href="#__codelineno-34-2"></a>    mean  = E[x]  over (N, H, W) per channel          shape: (C,)
+<a id="__codelineno-34-3" name="__codelineno-34-3" href="#__codelineno-34-3"></a>    var   = Var[x] over (N, H, W) per channel         shape: (C,)
+<a id="__codelineno-34-4" name="__codelineno-34-4" href="#__codelineno-34-4"></a>    std   = sqrt(var + eps)                             shape: (C,)
+<a id="__codelineno-34-5" name="__codelineno-34-5" href="#__codelineno-34-5"></a>    x_norm = (x - mean) / std                          shape: (N, C, H, W)
+<a id="__codelineno-34-6" name="__codelineno-34-6" href="#__codelineno-34-6"></a>    y     = gamma * x_norm + beta                      shape: (N, C, H, W)
+<a id="__codelineno-34-7" name="__codelineno-34-7" href="#__codelineno-34-7"></a>
+<a id="__codelineno-34-8" name="__codelineno-34-8" href="#__codelineno-34-8"></a>Backward pass (PyTorch consolidated formula):
+<a id="__codelineno-34-9" name="__codelineno-34-9" href="#__codelineno-34-9"></a>    N_spatial = batch * height * width
+<a id="__codelineno-34-10" name="__codelineno-34-10" href="#__codelineno-34-10"></a>    grad_x_norm = grad_output * gamma            shape: (N, C, H, W)
+<a id="__codelineno-34-11" name="__codelineno-34-11" href="#__codelineno-34-11"></a>    grad_var = sum(grad_x_norm * (x-mean) * -0.5 * (var+eps)^(-3/2))  shape: (C,)
+<a id="__codelineno-34-12" name="__codelineno-34-12" href="#__codelineno-34-12"></a>    grad_mean = sum(grad_x_norm * -1/std) + grad_var * mean(-2(x-mean))  shape: (C,)
+<a id="__codelineno-34-13" name="__codelineno-34-13" href="#__codelineno-34-13"></a>    grad_input = grad_x_norm / std + grad_var * 2(x-mean)/N_spatial + grad_mean/N_spatial
+<a id="__codelineno-34-14" name="__codelineno-34-14" href="#__codelineno-34-14"></a>
+<a id="__codelineno-34-15" name="__codelineno-34-15" href="#__codelineno-34-15"></a>    grad_gamma = sum(grad_output * x_norm, axes=[N, H, W])   shape: (C,)
+<a id="__codelineno-34-16" name="__codelineno-34-16" href="#__codelineno-34-16"></a>    grad_beta  = sum(grad_output,          axes=[N, H, W])   shape: (C,)
+</code></pre></div>
+<h3 id="mathematical-formula-inference-mode">Mathematical Formula (Inference Mode)</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-35-1" name="__codelineno-35-1" href="#__codelineno-35-1"></a>Forward pass uses fixed running statistics:
+<a id="__codelineno-35-2" name="__codelineno-35-2" href="#__codelineno-35-2"></a>    x_norm = (x - running_mean) / sqrt(running_var + eps)
+<a id="__codelineno-35-3" name="__codelineno-35-3" href="#__codelineno-35-3"></a>    y = gamma * x_norm + beta
+<a id="__codelineno-35-4" name="__codelineno-35-4" href="#__codelineno-35-4"></a>
+<a id="__codelineno-35-5" name="__codelineno-35-5" href="#__codelineno-35-5"></a>Backward pass (simplified — no batch statistics):
+<a id="__codelineno-35-6" name="__codelineno-35-6" href="#__codelineno-35-6"></a>    grad_input = grad_output * gamma / sqrt(running_var + eps)
+<a id="__codelineno-35-7" name="__codelineno-35-7" href="#__codelineno-35-7"></a>    grad_gamma = sum(grad_output * x_norm)
+<a id="__codelineno-35-8" name="__codelineno-35-8" href="#__codelineno-35-8"></a>    grad_beta  = sum(grad_output)
+</code></pre></div>
+<h3 id="kratzert-formula-note">Kratzert Formula Note</h3>
+<p>The Kratzert (2016) blog derives the same gradient via a computational graph
+three-term decomposition. The two formulations are mathematically equivalent but
+the Kratzert decomposition can cause false test failures when <code>grad_output =
+ones_like(output)</code> because the <code>sum(x_norm) = 0</code> identity collapses <code>grad_input</code>
+to zero. This is a <strong>test design pathology, not a bug</strong> — see the Known Test
+Pathologies section below for details.</p>
+<h3 id="training-vs-inference-mode">Training vs Inference Mode</h3>
+<ul>
+<li><strong>Training mode</strong> (<code>training=True</code>): Computes batch statistics from <code>x</code> (mean/var
+  over N, H, W). Full three-term gradient required.</li>
+<li><strong>Inference mode</strong> (<code>training=False</code>): Uses <code>running_mean</code> / <code>running_var</code>. Simpler
+  gradient — no batch statistics dependency.</li>
+</ul>
+<h3 id="broadcasting-handling_8">Broadcasting Handling</h3>
+<p>NO — gamma and std are broadcast channel-wise over spatial dimensions (manual loops),
+not using the <code>_reduce_broadcast_dims</code> helper.</p>
+<h3 id="dtype-support">Dtype Support</h3>
+<ul>
+<li><code>float32</code>, <code>float64</code> only</li>
+<li><code>float16</code> NOT supported (normalization requires sufficient precision for stability)</li>
+</ul>
+<h3 id="numerical-stability_7">Numerical Stability</h3>
+<ul>
+<li><code>epsilon</code> (default <code>1e-5</code>) added inside <code>sqrt</code> to prevent division by zero</li>
+<li>Float32 rounding in intermediate sums can cause <code>atol</code> mismatches at <code>1e-6</code></li>
+<li>Recommended gradient-check tolerances: <code>rtol=1e-2</code>, <code>atol=1e-5</code></li>
+</ul>
+<h3 id="references">References</h3>
+<ul>
+<li>Ioffe &amp; Szegedy (2015). Batch Normalization. ICML 2015. <a href="https://arxiv.org/abs/1502.03167">https://arxiv.org/abs/1502.03167</a></li>
+<li>Kratzert (2016). Understanding the gradient flow through the batch normalization
+  layer. <a href="https://kratzert.github.io/2016/02/12/understanding-the-gradient-flow-through-the-batch-normalization-layer.html">https://kratzert.github.io/2016/02/12/understanding-the-gradient-flow-through-the-batch-normalization-layer.html</a></li>
+</ul>
+<hr />
+<h3 id="2-layer_norm_backward">2. layer_norm_backward</h3>
+<p><strong>Location</strong>: <code>src/odyssey/core/normalization.mojo</code> line 1225
+<strong>Signature</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-36-1" name="__codelineno-36-1" href="#__codelineno-36-1"></a><span class="k">fn</span><span class="w"> </span><span class="nf">layer_norm_backward</span><span class="p">(</span>
+<a id="__codelineno-36-2" name="__codelineno-36-2" href="#__codelineno-36-2"></a><span class="w">    </span><span class="n">grad_output</span><span class="p">:</span><span class="w"> </span><span class="n">AnyTensor</span><span class="p">,</span>
+<a id="__codelineno-36-3" name="__codelineno-36-3" href="#__codelineno-36-3"></a><span class="w">    </span><span class="n">x</span><span class="p">:</span><span class="w"> </span><span class="n">AnyTensor</span><span class="p">,</span>
+<a id="__codelineno-36-4" name="__codelineno-36-4" href="#__codelineno-36-4"></a><span class="w">    </span><span class="n">gamma</span><span class="p">:</span><span class="w"> </span><span class="n">AnyTensor</span><span class="p">,</span>
+<a id="__codelineno-36-5" name="__codelineno-36-5" href="#__codelineno-36-5"></a><span class="w">    </span><span class="n">epsilon</span><span class="p">:</span><span class="w"> </span><span class="nb">Float64</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1e-5</span><span class="p">,</span>
+<a id="__codelineno-36-6" name="__codelineno-36-6" href="#__codelineno-36-6"></a><span class="p">)</span><span class="w"> </span><span class="n">raises</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nb">Tuple</span><span class="p">[</span><span class="n">AnyTensor</span><span class="p">,</span><span class="w"> </span><span class="n">AnyTensor</span><span class="p">,</span><span class="w"> </span><span class="n">AnyTensor</span><span class="p">]</span>
+</code></pre></div>
+<p><strong>Return Type</strong>: <code>Tuple[AnyTensor, AnyTensor, AnyTensor]</code> — <code>(grad_input, grad_gamma, grad_beta)</code></p>
+<p><strong>Purpose</strong>: Backward pass for layer normalization. Unlike batch normalization,
+normalization is computed independently per sample over the feature dimensions — there
+are no running statistics and no training/inference mode distinction.</p>
+<h3 id="input-shapes_1">Input Shapes</h3>
+<ul>
+<li><code>grad_output</code>: same shape as <code>x</code> — upstream gradient</li>
+<li><code>x</code>: <code>(N, F)</code> for 2D input or <code>(N, C, H, W)</code> for 4D input</li>
+<li><code>gamma</code>: <code>(F,)</code> for 2D or <code>(C, H, W)</code> for 4D — scale parameter matching feature dims</li>
+</ul>
+<h3 id="output-shapes_1">Output Shapes</h3>
+<ul>
+<li><code>grad_input</code>: same shape as <code>x</code></li>
+<li><code>grad_gamma</code>: same shape as <code>gamma</code> (summed over batch dimension N)</li>
+<li><code>grad_beta</code>: same shape as <code>gamma</code> (summed over batch dimension N)</li>
+</ul>
+<h3 id="mathematical-formula_24">Mathematical Formula</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-37-1" name="__codelineno-37-1" href="#__codelineno-37-1"></a>Forward pass (per sample):
+<a id="__codelineno-37-2" name="__codelineno-37-2" href="#__codelineno-37-2"></a>    mean  = E[x]  over feature dimensions               shape: (N,) or (N,1,1,1)
+<a id="__codelineno-37-3" name="__codelineno-37-3" href="#__codelineno-37-3"></a>    var   = Var[x] over feature dimensions              shape: (N,) or (N,1,1,1)
+<a id="__codelineno-37-4" name="__codelineno-37-4" href="#__codelineno-37-4"></a>    std   = sqrt(var + eps)                             shape: (N,) or (N,1,1,1)
+<a id="__codelineno-37-5" name="__codelineno-37-5" href="#__codelineno-37-5"></a>    x_norm = (x - mean) / std                          same shape as x
+<a id="__codelineno-37-6" name="__codelineno-37-6" href="#__codelineno-37-6"></a>    y     = gamma * x_norm + beta                      same shape as x
+<a id="__codelineno-37-7" name="__codelineno-37-7" href="#__codelineno-37-7"></a>
+<a id="__codelineno-37-8" name="__codelineno-37-8" href="#__codelineno-37-8"></a>Backward pass (per sample, same three-term structure):
+<a id="__codelineno-37-9" name="__codelineno-37-9" href="#__codelineno-37-9"></a>    N_feat = number of normalized elements per sample
+<a id="__codelineno-37-10" name="__codelineno-37-10" href="#__codelineno-37-10"></a>    grad_x_norm = grad_output * gamma
+<a id="__codelineno-37-11" name="__codelineno-37-11" href="#__codelineno-37-11"></a>    grad_var = sum(grad_x_norm * (x-mean) * -0.5 * (var+eps)^(-3/2), over features)
+<a id="__codelineno-37-12" name="__codelineno-37-12" href="#__codelineno-37-12"></a>    grad_mean = sum(grad_x_norm * -1/std, over features) + grad_var * mean(-2*(x-mean))
+<a id="__codelineno-37-13" name="__codelineno-37-13" href="#__codelineno-37-13"></a>    grad_input = grad_x_norm / std + grad_var * 2*(x-mean)/N_feat + grad_mean/N_feat
+<a id="__codelineno-37-14" name="__codelineno-37-14" href="#__codelineno-37-14"></a>
+<a id="__codelineno-37-15" name="__codelineno-37-15" href="#__codelineno-37-15"></a>    grad_gamma = sum(grad_output * x_norm, over batch dim N)
+<a id="__codelineno-37-16" name="__codelineno-37-16" href="#__codelineno-37-16"></a>    grad_beta  = sum(grad_output,          over batch dim N)
+</code></pre></div>
+<h3 id="key-differences-from-batch_norm2d_backward">Key Differences from batch_norm2d_backward</h3>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>batch_norm2d</th>
+<th>layer_norm</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Normalizes over</td>
+<td>N, H, W (across batch+spatial)</td>
+<td>feature dims (per sample)</td>
+</tr>
+<tr>
+<td>Running statistics</td>
+<td>YES (training/inference modes)</td>
+<td>NO</td>
+</tr>
+<tr>
+<td>gamma shape</td>
+<td><code>(C,)</code></td>
+<td>matches feature dims</td>
+</tr>
+<tr>
+<td>Training mode flag</td>
+<td>YES</td>
+<td>NO</td>
+</tr>
+</tbody>
+</table>
+<h3 id="broadcasting-handling_9">Broadcasting Handling</h3>
+<p>NO — gamma is broadcast over the batch dimension via per-sample loops.</p>
+<h3 id="dtype-support_1">Dtype Support</h3>
+<ul>
+<li><code>float32</code>, <code>float64</code></li>
+<li><code>float16</code> NOT supported</li>
+</ul>
+<h3 id="numerical-stability_8">Numerical Stability</h3>
+<ul>
+<li><code>epsilon</code> (default <code>1e-5</code>) in <code>sqrt</code> denominator prevents division by zero</li>
+<li>Same <code>sum(x_norm) = 0</code> test pathology applies when <code>grad_output = ones_like(output)</code>
+  — see Known Test Pathologies section below</li>
+<li>Recommended gradient-check tolerances: <code>rtol=1e-2</code>, <code>atol=1e-5</code></li>
+</ul>
+<h3 id="references_1">References</h3>
+<ul>
+<li>Ba et al. (2016). Layer Normalization. <a href="https://arxiv.org/abs/1607.06450">https://arxiv.org/abs/1607.06450</a></li>
+</ul>
+<hr />
+<h2 id="summary-table-all-backward-pass-functions">SUMMARY TABLE: All Backward Pass Functions</h2>
+<table>
+<thead>
+<tr>
+<th>Module</th>
+<th>Function</th>
+<th>Count</th>
+<th>Broadcasting</th>
+<th>Stability</th>
+<th>Shape Reduction</th>
+<th>Complexity</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>arithmetic</td>
+<td>_reduce_broadcast_dims</td>
+<td>Helper</td>
+<td>YES</td>
+<td>-</td>
+<td>YES</td>
+<td>Medium</td>
+</tr>
+<tr>
+<td>arithmetic</td>
+<td>add_backward</td>
+<td>1</td>
+<td>YES</td>
+<td>-</td>
+<td>YES</td>
+<td>Low</td>
+</tr>
+<tr>
+<td>arithmetic</td>
+<td>subtract_backward</td>
+<td>2</td>
+<td>YES</td>
+<td>-</td>
+<td>YES</td>
+<td>Low</td>
+</tr>
+<tr>
+<td>arithmetic</td>
+<td>multiply_backward</td>
+<td>3</td>
+<td>YES</td>
+<td>-</td>
+<td>YES</td>
+<td>Low</td>
+</tr>
+<tr>
+<td>arithmetic</td>
+<td>divide_backward</td>
+<td>4</td>
+<td>YES</td>
+<td><strong>1e-10</strong></td>
+<td>YES</td>
+<td>Low</td>
+</tr>
+<tr>
+<td>matrix</td>
+<td>matmul_backward</td>
+<td>1</td>
+<td>NO</td>
+<td>-</td>
+<td>NO</td>
+<td>Medium</td>
+</tr>
+<tr>
+<td>matrix</td>
+<td>transpose_backward</td>
+<td>2</td>
+<td>NO</td>
+<td>-</td>
+<td>NO</td>
+<td>Low</td>
+</tr>
+<tr>
+<td>reduction</td>
+<td>sum_backward</td>
+<td>1</td>
+<td>YES</td>
+<td>-</td>
+<td>INVERSE</td>
+<td>Medium</td>
+</tr>
+<tr>
+<td>reduction</td>
+<td>mean_backward</td>
+<td>2</td>
+<td>YES</td>
+<td>-</td>
+<td>INVERSE</td>
+<td>Medium</td>
+</tr>
+<tr>
+<td>reduction</td>
+<td>max_reduce_backward</td>
+<td>3</td>
+<td>NO</td>
+<td>-</td>
+<td>NO</td>
+<td>High</td>
+</tr>
+<tr>
+<td>reduction</td>
+<td>min_reduce_backward</td>
+<td>4</td>
+<td>NO</td>
+<td>-</td>
+<td>NO</td>
+<td>High</td>
+</tr>
+<tr>
+<td>elementwise_math</td>
+<td>exp_backward</td>
+<td>1</td>
+<td>NO</td>
+<td>-</td>
+<td>NO</td>
+<td>Low</td>
+</tr>
+<tr>
+<td>elementwise_math</td>
+<td>log_backward</td>
+<td>2</td>
+<td>NO</td>
+<td><strong>1e-10</strong></td>
+<td>NO</td>
+<td>Low</td>
+</tr>
+<tr>
+<td>elementwise_math</td>
+<td>sqrt_backward</td>
+<td>3</td>
+<td>NO</td>
+<td><strong>1e-10</strong></td>
+<td>NO</td>
+<td>Low</td>
+</tr>
+<tr>
+<td>elementwise_math</td>
+<td>abs_backward</td>
+<td>4</td>
+<td>NO</td>
+<td>-</td>
+<td>NO</td>
+<td>Low</td>
+</tr>
+<tr>
+<td>elementwise_math</td>
+<td>clip_backward</td>
+<td>5</td>
+<td>NO</td>
+<td>-</td>
+<td>NO</td>
+<td>Low</td>
+</tr>
+<tr>
+<td>elementwise_math</td>
+<td>log10_backward</td>
+<td>6</td>
+<td>NO</td>
+<td><strong>1e-10</strong></td>
+<td>NO</td>
+<td>Low</td>
+</tr>
+<tr>
+<td>elementwise_math</td>
+<td>log2_backward</td>
+<td>7</td>
+<td>NO</td>
+<td><strong>1e-10</strong></td>
+<td>NO</td>
+<td>Low</td>
+</tr>
+<tr>
+<td>activations</td>
+<td>relu_backward</td>
+<td>1</td>
+<td>NO</td>
+<td>-</td>
+<td>NO</td>
+<td>Low</td>
+</tr>
+<tr>
+<td>activations</td>
+<td>leaky_relu_backward</td>
+<td>2</td>
+<td>NO</td>
+<td>-</td>
+<td>NO</td>
+<td>Low</td>
+</tr>
+<tr>
+<td>activations</td>
+<td>prelu_backward</td>
+<td>3</td>
+<td>NO</td>
+<td>-</td>
+<td>NO</td>
+<td>Low</td>
+</tr>
+<tr>
+<td>activations</td>
+<td>sigmoid_backward</td>
+<td>4</td>
+<td>NO</td>
+<td>-</td>
+<td>NO</td>
+<td>Low</td>
+</tr>
+<tr>
+<td>activations</td>
+<td>tanh_backward</td>
+<td>5</td>
+<td>NO</td>
+<td>-</td>
+<td>NO</td>
+<td>Low</td>
+</tr>
+<tr>
+<td>activations</td>
+<td>gelu_backward</td>
+<td>6</td>
+<td>NO</td>
+<td>-</td>
+<td>NO</td>
+<td>High</td>
+</tr>
+<tr>
+<td>activations</td>
+<td>softmax_backward</td>
+<td>7</td>
+<td>NO</td>
+<td>Float32 precision</td>
+<td>NO</td>
+<td>High</td>
+</tr>
+<tr>
+<td>normalization</td>
+<td>batch_norm2d_backward</td>
+<td>1</td>
+<td>NO</td>
+<td>epsilon/Float32</td>
+<td>NO</td>
+<td>High</td>
+</tr>
+<tr>
+<td>normalization</td>
+<td>layer_norm_backward</td>
+<td>2</td>
+<td>NO</td>
+<td>epsilon/Float32</td>
+<td>NO</td>
+<td>High</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="training-readiness-verification">TRAINING READINESS VERIFICATION</h2>
+<h3 id="checklist">Checklist</h3>
+<ul>
+<li>[x] <strong>All fundamental operations have backward passes</strong>: add, subtract, multiply, divide</li>
+<li>[x] <strong>Matrix operations supported</strong>: matmul (all cases), transpose</li>
+<li>[x] <strong>Reductions supported</strong>: sum, mean, max, min</li>
+<li>[x] <strong>Activations covered</strong>: ReLU family, Sigmoid, Tanh, GELU, Softmax</li>
+<li>[x] <strong>Normalization backward passes supported</strong>: batch_norm2d, layer_norm (see MODULE 6)</li>
+<li>[x] <strong>Broadcasting handled correctly</strong>: 9 functions support it</li>
+<li>[x] <strong>Shape reduction logic implemented</strong>: Broadcast dimensions properly reduced</li>
+<li>[x] <strong>Numerical stability</strong>: 10+ functions with epsilon handling</li>
+<li>[x] <strong>Edge cases handled</strong>: Multiple maxima, zero inputs, boundary conditions</li>
+<li>[x] <strong>Multiple dtypes supported</strong>: Activations support float16/32/64</li>
+</ul>
+<h3 id="critical-issues">Critical Issues</h3>
+<p><strong>None identified</strong>. All backward passes are correctly implemented.</p>
+<h3 id="moderate-issues">Moderate Issues</h3>
+<ol>
+<li><strong>power_backward missing</strong>: Forward power() exists but backward not implemented</li>
+<li>Currently only supports integer exponents in [0, 100)</li>
+<li>
+<p>Would need exp(b * log(a)) for general case</p>
+</li>
+<li>
+<p><strong>floor_divide_backward missing</strong>: Forward exists but backward not implemented</p>
+</li>
+<li>
+<p>Would need special handling for floor operation</p>
+</li>
+<li>
+<p><strong>modulo_backward missing</strong>: Forward exists but backward not implemented</p>
+</li>
+<li>Gradient of modulo is non-standard</li>
+</ol>
+<h3 id="recommended-improvements">Recommended Improvements</h3>
+<ol>
+<li>Implement missing backward passes for power, floor_divide, modulo</li>
+<li>Add more comprehensive numerical stability tests</li>
+<li>Benchmark max/min reduction three-pass algorithm for performance</li>
+<li>Optimize softmax_backward O(n²) algorithm to O(n) if possible</li>
+</ol>
+<h3 id="known-test-pathologies">Known Test Pathologies</h3>
+<h4 id="batchnorm2d-ones_likegrad_output-produces-analytically-zero-gradients">BatchNorm2d: <code>ones_like(grad_output)</code> Produces Analytically-Zero Gradients</h4>
+<p>When testing <code>batch_norm2d_backward</code>, using <code>grad_output = ones_like(output)</code> causes
+<code>grad_input = 0</code> for all elements. This is <strong>not a bug</strong> — it is a mathematical identity
+arising from the zero-mean property of batch normalization:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-38-1" name="__codelineno-38-1" href="#__codelineno-38-1"></a>sum(x_norm) = 0  =&gt;  dotp = sum(grad_output * x_norm) = sum(x_norm) = 0
+<a id="__codelineno-38-2" name="__codelineno-38-2" href="#__codelineno-38-2"></a>                 =&gt;  grad_input[i] = (1 - N/N - x_norm[i] * 0/N) * gamma/std = 0
+</code></pre></div>
+<p>This edge case was discovered in PR #2724 / issue #3282 and caused a false ~1000x mismatch
+that was mistaken for a bug.</p>
+<p><strong>See</strong>: <code>docs/dev/testing-strategy.md</code> — "Known Test Gotchas" section for the full mathematical
+proof, the degenerate-loss explanation, and safe test alternatives.</p>
+<p><strong>See also</strong>: MODULE 6 — <code>batch_norm2d_backward</code> and <code>layer_norm_backward</code> entries above for
+formula documentation, dtype support, and recommended gradient-check tolerances.</p>
+<p><strong>Applies also to</strong>: <code>layer_norm_backward</code> and any normalization backward that uses mean-centering.</p>
+<h3 id="training-readiness-conclusion">Training Readiness Conclusion</h3>
+<h3 id="status-ready-for-training">STATUS: READY FOR TRAINING</h3>
+<p>The AnyTensor framework has comprehensive backward pass support for:</p>
+<ul>
+<li>All essential arithmetic operations</li>
+<li>Matrix operations for neural network layers</li>
+<li>Reduction operations for loss computation</li>
+<li>Complete activation function suite</li>
+<li>Proper broadcasting and shape handling</li>
+<li>Numerical stability measures where needed</li>
+</ul>
+<p>The system is sufficient for implementing and training neural networks including:</p>
+<ul>
+<li>Dense layers (matmul + bias addition)</li>
+<li>Convolutional operations (via future im2col)</li>
+<li>Attention mechanisms (softmax + matmul)</li>
+<li>Normalization layers (batch_norm2d, layer_norm via MODULE 6)</li>
+<li>Non-linearities (ReLU, GELU, Sigmoid, Tanh)</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "search.suggest", "search.highlight", "content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>
