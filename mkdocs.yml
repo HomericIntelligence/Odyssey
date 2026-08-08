@@ -35,16 +35,16 @@ nav:
   - Home: index.md
   - Glossary: glossary.md
   - Getting Started:
-    - Installation: getting-started/installation.md
-    - Quickstart: getting-started/quickstart.md
-    - First Model: getting-started/first_model.md
-    - Repository Structure: getting-started/repository-structure.md
+      - Installation: getting-started/installation.md
+      - Quickstart: getting-started/quickstart.md
+      - First Model: getting-started/first_model.md
+      - Repository Structure: getting-started/repository-structure.md
   - Development:
-    - Release Process: dev/release-process.md
+      - Release Process: dev/release-process.md
   - Integration:
-    - Supporting Directories: integration/supporting-directories.md
-    - Papers & Shared Integration: integration/papers-shared-integration.md
-    - Quick Start New Paper: integration/quick-start-new-paper.md
+      - Supporting Directories: integration/supporting-directories.md
+      - Papers & Shared Integration: integration/papers-shared-integration.md
+      - Quick Start New Paper: integration/quick-start-new-paper.md
 
 markdown_extensions:
   - pymdownx.highlight:
