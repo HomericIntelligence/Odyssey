@@ -48,6 +48,7 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y --no-install-reco
     jq \
     yamllint \
     shellcheck \
+    just \
     && rm -rf /var/lib/apt/lists/*
 
 COPY --from=uv /usr/local/bin/uv /usr/local/bin/uvx /usr/local/bin/

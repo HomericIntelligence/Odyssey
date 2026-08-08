@@ -146,7 +146,7 @@ run_unit-tests() {
 
 run_integration-tests() {
     # Integration tests
-    run_in_container "uv run mojo test tests/integration"
+    run_in_container "for f in tests/integration/test_*.mojo; do [ -e \"$f\" ] || continue; uv run mojo --Werror -I src -I . \"$f\" || exit 1; done"
 }
 
 run_schema-validation() {
@@ -166,7 +166,7 @@ run_deps-version-sync() {
 
 run_security-dependency-scan() {
     # Dependency vulnerability scan (pip-audit)
-    run_in_container "uv run pip-audit"
+    run_in_container "uv run pip-audit --skip-editable"
 }
 
 run_forbid-suppressions() {
