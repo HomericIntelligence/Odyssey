@@ -56,7 +56,8 @@ dependencies = [
     #   gitpython  CVE-2026-42215 / -42284 / -44244 / GHSA-mv93-w799-cj2w
     #   mistune    CVE-2026-33079 / -44897
     "authlib>=1.6.11",
-    "gitpython>=3.1.57",
+    "cryptography>=50.0.0",  # PYSEC-2026-3552 (#5386)
+    "gitpython>=3.1.58",
     "mistune>=3.3.4",
 ]
 
