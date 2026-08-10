@@ -11,7 +11,7 @@
 # Pinned by version + digest. The digest was verified against the ghcr manifest
 # API (HTTP 200) before use — a wrong digest yields 'manifest unknown'. Bump the
 # tag AND re-resolve the digest together when upgrading uv.
-FROM ghcr.io/astral-sh/uv:0.12.0@sha256:606e70c71c852d03f611b1e56a195d08648507018a7057fab82c4974c4eae105 AS uv
+FROM ghcr.io/astral-sh/uv:0.12.1@sha256:cf4eedcaa81655197f625739489effcbe71b61ceb1506f332c3facae5deceded AS uv
 
 # ---------------------------
 # Stage 1: Base image with system deps

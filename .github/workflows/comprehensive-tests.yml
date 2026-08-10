@@ -198,20 +198,20 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { example: resnet18_cifar10,   entry: train.mojo }
-          - { example: resnet18_cifar10,   entry: train_autograd.mojo }
-          - { example: googlenet_cifar10,  entry: train.mojo }
-          - { example: googlenet_cifar10,  entry: train_autograd.mojo }
-          - { example: vgg16_cifar10,      entry: train.mojo }
-          - { example: vgg16_cifar10,      entry: train_autograd.mojo }
+          - { example: resnet18_cifar10, entry: train.mojo }
+          - { example: resnet18_cifar10, entry: train_autograd.mojo }
+          - { example: googlenet_cifar10, entry: train.mojo }
+          - { example: googlenet_cifar10, entry: train_autograd.mojo }
+          - { example: vgg16_cifar10, entry: train.mojo }
+          - { example: vgg16_cifar10, entry: train_autograd.mojo }
           - { example: mobilenetv1_cifar10, entry: train.mojo }
           - { example: mobilenetv1_cifar10, entry: train_autograd.mojo }
-          - { example: alexnet_cifar10,    entry: run_train.mojo }
-          - { example: alexnet_cifar10,    entry: run_train_autograd.mojo }
-          - { example: mnist,              entry: train.mojo }
-          - { example: mnist,              entry: train_autograd.mojo }
-          - { example: lenet_emnist,       entry: train.mojo }
-          - { example: lenet_emnist,       entry: run_train.mojo }
+          - { example: alexnet_cifar10, entry: run_train.mojo }
+          - { example: alexnet_cifar10, entry: run_train_autograd.mojo }
+          - { example: mnist, entry: train.mojo }
+          - { example: mnist, entry: train_autograd.mojo }
+          - { example: lenet_emnist, entry: train.mojo }
+          - { example: lenet_emnist, entry: run_train.mojo }
 
     steps:
       - name: Checkout code
@@ -241,7 +241,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
         with:
-          python-version: '3.11'
+          python-version: '3.13'
 
       - name: Install dependencies
         run: |
@@ -286,7 +286,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
         with:
-          python-version: '3.11'
+          python-version: '3.13'
 
       - name: Install dependencies
         run: pip install "homericintelligence-hephaestus>=0.9.0,<1"
@@ -750,7 +750,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
         with:
-          python-version: '3.11'
+          python-version: '3.13'
           cache: 'pip'
 
       - name: Install uv for requirements export tests
@@ -836,7 +836,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
         with:
-          python-version: '3.11'
+          python-version: '3.13'
           cache: 'pip'
 
       - name: Install analysis tools
@@ -1254,7 +1254,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
         with:
-          python-version: '3.11'
+          python-version: '3.13'
 
       - name: Install dependencies
         run: pip install "homericintelligence-hephaestus>=0.9.0,<1"

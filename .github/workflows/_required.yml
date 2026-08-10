@@ -12,8 +12,10 @@ on:
   # single fast `merge-queue-smoke` job in merge-queue-smoke.yml. Re-running
   # the full required matrix per queue entry serialized on runner slots
   # (70-90 min per merge). PR-side jobs in this workflow are unchanged.
+
   push:
     branches: [main]
+
   workflow_dispatch:
 
 # One run per branch at a time; cancel any in-progress run when a new commit arrives.
@@ -30,6 +32,7 @@ jobs:
   # `|| true` in shell/YAML/Dockerfile/justfile/HCL and `continue-on-error: true`
   # in GitHub workflow YAML, so the silent-failure idiom cannot return without
   # tripping a required check.
+
   forbid-suppressions:
     name: forbid-suppressions
     runs-on: ubuntu-latest
@@ -111,247 +114,142 @@ jobs:
           echo 'OK: no advisory annotations found'
 
   # ── 1. lint ────────────────────────────────────────────────────────────────
+
   lint:
     name: lint
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 30
-
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
-          fetch-depth: 0
+          fetch-depth: 1
 
-      - name: Set up uv
-        uses: ./.github/actions/setup-uv
-
-      - name: Install pre-commit
-        run: uv pip install pre-commit
-
-      - name: Cache pre-commit environments
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v5
+      - name: Cache podman container storage
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
         with:
-          path: ~/.cache/pre-commit
-          key: pre-commit-${{ runner.os }}-${{ hashFiles('.pre-commit-config.yaml') }}
+          path: ~/.local/share/containers/storage
+          key: podman-odyssey-${{ runner.os }}-${{ hashFiles('pyproject.toml', 'uv.lock') }}
           restore-keys: |
-            pre-commit-${{ runner.os }}-
+            podman-odyssey-${{ runner.os }}-
 
-      - name: Run pre-commit (all files, skip mojo-format)
-        # mojo-format is advisory/non-blocking due to Mojo 0.26.x formatter limitations —
-        # see docs/dev/mojo-glibc-compatibility.md. All other hooks are enforced.
-        run: SKIP=mojo-format uv run pre-commit run --all-files --show-diff-on-failure
+      - name: Build CI image (podman)
+        run: podman build --ignorefile ci/.dockerignore -f ci/Containerfile -t odyssey-ci:local .
+      # All checks run inside the CI container — the same image developers
+      # use via `just ci-lint`.
+      - name: lint (in container)
+        run: bash scripts/run_ci_local.sh lint
 
-      - name: Enforce no .__matmul__() call sites
-        run: |
-          # Bucket D: `grep -v` returns 1 with no matches and breaks pipefail.
-          # Use `awk` filters (always exit 0) plus a `set +e` around the
-          # initial `grep` so absence of any hit doesn't fail the pipeline.
-          set +e
-          raw=$(grep -rn '\.__matmul__(' . \
-                  --include='*.mojo' --include='*.🔥' \
-                  --exclude-dir='.pixi' --exclude-dir='.git')
-          set -e
-          violations=$(printf '%s\n' "$raw" \
-            | awk '!/fn __matmul__\(/ && !/# __matmul__/ && !/__matmul__.*deprecated/ && NF')
-          if [ -n "$violations" ]; then
-            echo "::error::Found .__matmul__() call sites (use matmul(A, B) instead):"
-            echo "$violations"
-            exit 1
-          fi
-
-      - name: Install mypy and stubs
-        run: uv pip install mypy types-PyYAML
-
-      - name: Run mypy
-        # mypy.ini at repo root is the single source of truth for mypy config.
-        # Exclude generators/ due to module path ambiguity (same as pre-commit.yml).
-        run: |
-          uv run mypy --exclude 'generators/' scripts/
-
-  # ── 2. unit-tests ──────────────────────────────────────────────────────────
   unit-tests:
     name: unit-tests
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 30
-
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
-
-      - name: Set up uv
-        uses: ./.github/actions/setup-uv
-
-      - name: Check pre-commit vs uv version drift
-        run: uv run python scripts/check_precommit_versions.py
-
-      - name: Run Python unit tests
-        run: |
-          uv run pytest tests/unit/ \
-            --override-ini="addopts=" \
-            -v --strict-markers \
-            --cov=scripts \
-            --cov-report=term-missing \
-            --cov-report=xml \
-            --junitxml=junit-unit.xml
-
-      - name: Upload test artifacts on failure
-        if: failure()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7
         with:
-          name: test-results-unit
-          path: |
-            coverage.xml
-            junit-unit.xml
-          retention-days: 7
+          fetch-depth: 1
 
-  # ── 3. integration-tests ───────────────────────────────────────────────────
+      - name: Cache podman container storage
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
+        with:
+          path: ~/.local/share/containers/storage
+          key: podman-odyssey-${{ runner.os }}-${{ hashFiles('pyproject.toml', 'uv.lock') }}
+          restore-keys: |
+            podman-odyssey-${{ runner.os }}-
+
+      - name: Build CI image (podman)
+        run: podman build --ignorefile ci/.dockerignore -f ci/Containerfile -t odyssey-ci:local .
+      # All checks run inside the CI container — the same image developers
+      # use via `just ci-unit-tests`.
+      - name: unit-tests (in container)
+        run: bash scripts/run_ci_local.sh unit-tests
+
   integration-tests:
     name: integration-tests
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 30
-
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
-
-      - name: Set up uv
-        uses: ./.github/actions/setup-uv
-
-      - name: Run Python integration tests
-        # tests/integration/ contains architecture-level tests that validate
-        # the src/odyssey library and model implementations end-to-end without
-        # requiring live network access or external services.
-        # Exit code 5 means no tests collected (integration dir has only .mojo tests).
-        run: |
-          set +e
-          uv run pytest tests/integration/ \
-            --override-ini="addopts=" \
-            -v --strict-markers \
-            --junitxml=junit-integration.xml
-          code=$?
-          set -e
-          if [ "$code" -eq 5 ]; then
-            echo "::notice::No Python integration tests collected — skipping"
-          elif [ "$code" -ne 0 ]; then
-            exit "$code"
-          fi
-
-      - name: Validate YAML configs
-        # Secondary integration validator: ensures all YAML configs in configs/
-        # parse correctly and pass yamllint structure checks.
-        run: |
-          uv pip install yamllint
-          find configs/ -type f \( -name "*.yaml" -o -name "*.yml" \) 2>/dev/null | \
-            sort | while read -r f; do
-              echo "Validating $f ..."
-              uv run python3 -c "import yaml; yaml.safe_load(open('$f'))" || exit 1
-            done
-          echo "All config YAML files are valid."
-
-      - name: Upload test artifacts on failure
-        if: failure()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7
         with:
-          name: test-results-integration
-          path: junit-integration.xml
-          retention-days: 7
+          fetch-depth: 1
 
-  # ── 4. security/dependency-scan ────────────────────────────────────────────
+      - name: Cache podman container storage
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
+        with:
+          path: ~/.local/share/containers/storage
+          key: podman-odyssey-${{ runner.os }}-${{ hashFiles('pyproject.toml', 'uv.lock') }}
+          restore-keys: |
+            podman-odyssey-${{ runner.os }}-
+
+      - name: Build CI image (podman)
+        run: podman build --ignorefile ci/.dockerignore -f ci/Containerfile -t odyssey-ci:local .
+      # All checks run inside the CI container — the same image developers
+      # use via `just ci-integration-tests`.
+      - name: integration-tests (in container)
+        run: bash scripts/run_ci_local.sh integration-tests
+
   security-dependency-scan:
     name: security/dependency-scan
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
-
-      - name: Set up Python
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
         with:
-          python-version: '3.11'
+          fetch-depth: 1
 
-      - name: Install pip-audit
-        # Upgrade pip first so the audited environment does not carry the
-        # runner's pre-installed vulnerable pip (PYSEC-2026-196 affects pip
-        # 26.1.1, fixed in 26.1.2). pip-audit scans the whole environment, so
-        # a stale runner pip would otherwise fail the scan on a vuln unrelated
-        # to this project's declared dependencies.
-        run: |
-          python -m pip install --upgrade pip
-          pip install pip-audit
+      - name: Cache podman container storage
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
+        with:
+          path: ~/.local/share/containers/storage
+          key: podman-odyssey-${{ runner.os }}-${{ hashFiles('pyproject.toml', 'uv.lock') }}
+          restore-keys: |
+            podman-odyssey-${{ runner.os }}-
 
-      - name: Run pip-audit against pyproject.toml dependencies
-        id: pip-audit
-        run: |
-          # Fail-fast pip-audit per HomericIntelligence/Odysseus#282 (Bucket F).
-          # Both wrappers (editable install + pip-audit) were advisory `::warning::`
-          # patterns that let CVE findings pass silently. Now:
-          #   - The editable install is required (a real build-backend failure
-          #     means the audit cannot evaluate project deps; fix the metadata).
-          #   - pip-audit exits non-zero on findings and blocks the PR.
-          #
-          # Three transitive-dep CVEs remain allowlisted because upstream has
-          # not published a fix version (tracked in #5386). The other 10 CVEs
-          # were resolved by version floors in pyproject.toml and are no longer
-          # ignored. Drop the remaining entries once upstream lands a fix.
-          set -euo pipefail
-          # --upgrade is required: without it, pip leaves the runner's
-          # pre-installed setuptools in place ("Requirement already
-          # satisfied"), and pip-audit scans the whole environment — a stale
-          # runner setuptools fails the scan on a vuln unrelated to this
-          # project's declared dependencies (e.g. PYSEC-2026-3447 against
-          # setuptools 79.0.1, fixed in 83.0.0). Same rationale as the pip
-          # upgrade in the "Install pip-audit" step above.
-          pip install --upgrade setuptools wheel
-          pip install -e . --no-deps
-          pip-audit --skip-editable \
-            --ignore-vuln CVE-2026-44708 \
-            --ignore-vuln CVE-2026-44896 \
-            --ignore-vuln CVE-2026-3219
+      - name: Build CI image (podman)
+        run: podman build --ignorefile ci/.dockerignore -f ci/Containerfile -t odyssey-ci:local .
+      # All checks run inside the CI container — the same image developers
+      # use via `just ci-security-dependency-scan`.
+      - name: security-dependency-scan (in container)
+        run: bash scripts/run_ci_local.sh security-dependency-scan
 
-      - name: Post pip-audit summary
-        if: always()
-        env:
-          AUDIT_OUTCOME: ${{ steps.pip-audit.outcome }}
-        run: |
-          {
-            echo "## pip-audit Security Scan"
-            echo ""
-            if [ "$AUDIT_OUTCOME" = "success" ]; then
-              echo "No HIGH/CRITICAL vulnerabilities found."
-            else
-              echo "Vulnerabilities detected — see job logs for details."
-            fi
-          } >> "$GITHUB_STEP_SUMMARY"
-
-  # ── 5. security/secrets-scan ───────────────────────────────────────────────
   security-secrets-scan:
     name: security/secrets-scan
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
     steps:
-      # Full history so gitleaks can scan all commits, not just HEAD.
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
           fetch-depth: 0
 
-      - name: Install gitleaks
-        run: |
-          # Pinned to v8.30.0 — matches security.yml pin (see #3316)
-          GITLEAKS_VERSION="8.30.0"
-          wget -q "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz"
-          echo "79a3ab579b53f71efd634f3aaf7e04a0fa0cf206b7ed434638d1547a2470a66e  gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz" | sha256sum --check
-          tar -xzf "gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz"
-          chmod +x gitleaks
-          sudo mv gitleaks /usr/local/bin/
+      - name: Cache podman container storage
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
+        with:
+          path: ~/.local/share/containers/storage
+          key: podman-odyssey-${{ runner.os }}-${{ hashFiles('pyproject.toml', 'uv.lock') }}
+          restore-keys: |
+            podman-odyssey-${{ runner.os }}-
 
-      - name: Run gitleaks
+      - name: Build CI image (podman)
+        run: podman build --ignorefile ci/.dockerignore -f ci/Containerfile -t odyssey-ci:local .
+      - name: Run Gitleaks
         run: |
           if [ -f .gitleaks.toml ]; then
-            gitleaks detect --source=. --config=.gitleaks.toml --verbose --exit-code=1
+            podman run --rm --userns=keep-id:uid=1000,gid=1000 \
+              -v "$PWD:/workspace:Z" -w /workspace odyssey-ci:local \
+              gitleaks detect --source /workspace --config .gitleaks.toml \
+                --report-format sarif --report-path gitleaks.sarif --redact
           else
-            gitleaks detect --source=. --verbose --exit-code=1
+            podman run --rm --userns=keep-id:uid=1000,gid=1000 \
+              -v "$PWD:/workspace:Z" -w /workspace odyssey:local \
+              gitleaks detect --source /workspace \
+                --report-format sarif --report-path gitleaks.sarif --redact
           fi
 
-  # ── 6. build ───────────────────────────────────────────────────────────────
+      - name: Upload Gitleaks SARIF
+        if: always() && hashFiles('gitleaks.sarif') != ''
+        uses: github/codeql-action/upload-sarif@4e828ff8d448a8a6e532957b1811f387a63867e8  # v3
+        with:
+          sarif_file: gitleaks.sarif
+
   build:
     name: build
     runs-on: ubuntu-latest
@@ -374,101 +272,87 @@ jobs:
           ls -lh dist/
 
   # ── 7. schema-validation ───────────────────────────────────────────────────
+
   schema-validation:
     name: schema-validation
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
-
-      - name: Set up Python
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
         with:
-          python-version: '3.11'
+          fetch-depth: 1
 
-      - name: Install check-jsonschema
-        run: pip install check-jsonschema
+      - name: Cache podman container storage
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
+        with:
+          path: ~/.local/share/containers/storage
+          key: podman-odyssey-${{ runner.os }}-${{ hashFiles('pyproject.toml', 'uv.lock') }}
+          restore-keys: |
+            podman-odyssey-${{ runner.os }}-
 
-      - name: Validate workflow YAML schemas
-        run: |
-          find .github/workflows -name "*.yml" | sort | \
-            xargs check-jsonschema \
-              --schemafile https://json.schemastore.org/github-workflow
+      - name: Build CI image (podman)
+        run: podman build --ignorefile ci/.dockerignore -f ci/Containerfile -t odyssey-ci:local .
+      # All checks run inside the CI container — the same image developers
+      # use via `just ci-schema-validation`.
+      - name: schema-validation (in container)
+        run: bash scripts/run_ci_local.sh schema-validation
 
-      - name: Validate JSON schemas in schemas/
-        run: |
-          # Ensure every schema file in schemas/ is valid JSON
-          find schemas/ -name "*.json" 2>/dev/null | sort | while read -r f; do
-            echo "Checking $f ..."
-            python3 -c "import json, sys; json.load(open('$f'))" || exit 1
-          done
-          echo "All JSON schema files are valid."
-
-  # ── 9. deps/version-sync ───────────────────────────────────────────────────
   deps-version-sync:
     name: deps/version-sync
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          fetch-depth: 1
 
-      - name: Cross-check pyproject.toml and mojo.toml versions
-        # pixi.toml is gone (ADR-018); pyproject.toml is now the single source of
-        # truth. Cross-check it against mojo.toml so a version bump that touches
-        # only one still trips this required check.
-        run: |
-          python3 - <<'EOF'
-          import re, sys, tomllib
+      - name: Cache podman container storage
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
+        with:
+          path: ~/.local/share/containers/storage
+          key: podman-odyssey-${{ runner.os }}-${{ hashFiles('pyproject.toml', 'uv.lock') }}
+          restore-keys: |
+            podman-odyssey-${{ runner.os }}-
 
-          with open("pyproject.toml", "rb") as f:
-              pyproject = tomllib.load(f)
-          pyproject_ver = pyproject.get("project", {}).get("version") or \
-                          pyproject.get("tool", {}).get("poetry", {}).get("version")
-
-          # mojo.toml stores version under [package]
-          with open("mojo.toml", "rb") as f:
-              mojo = tomllib.load(f)
-          mojo_ver = mojo.get("package", {}).get("version")
-
-          print(f"pyproject.toml version : {pyproject_ver}")
-          print(f"mojo.toml version      : {mojo_ver}")
-
-          if pyproject_ver and mojo_ver and pyproject_ver != mojo_ver:
-              print(f"::error::Version mismatch: pyproject.toml={pyproject_ver}, mojo.toml={mojo_ver}")
-              sys.exit(1)
-          print("Versions are consistent.")
-          EOF
-
-      - name: Install uv
+      - name: Build CI image (podman)
+        run: podman build --ignorefile ci/.dockerignore -f ci/Containerfile -t odyssey-ci:local .
+      # All checks run inside the CI container — the same image developers
+      # use via `just ci-deps-version-sync`.
+      - name: Setup uv
         uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9  # v9.0.0
         with:
           version: "0.12.0"
           enable-cache: true
-          cache-dependency-glob: "uv.lock"
 
-      - name: Validate generated dependency files
-        # Validate the lock against pyproject.toml, then verify both pip-only
-        # requirements exports against that frozen lockfile.
+      - name: deps-version-sync (uv lock + exports + container)
         run: |
           uv lock --check
           python scripts/sync_requirements.py --check --repo-root .
+          bash scripts/run_ci_local.sh deps-version-sync
 
   markdownlint:
     name: markdownlint
     runs-on: ubuntu-24.04
-    timeout-minutes: 5
-    needs: lint
-    permissions:
-      contents: read
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
-      - name: Run markdownlint-cli2
-        uses: DavidAnson/markdownlint-cli2-action@6bf21b07787794f89a243495939cd651942aeabe  # v20.0.0
         with:
-          globs: "**/*.md"
-          config: ".markdownlint.yaml"
+          fetch-depth: 1
+
+      - name: Cache podman container storage
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
+        with:
+          path: ~/.local/share/containers/storage
+          key: podman-odyssey-${{ runner.os }}-${{ hashFiles('pyproject.toml', 'uv.lock') }}
+          restore-keys: |
+            podman-odyssey-${{ runner.os }}-
+
+      - name: Build CI image (podman)
+        run: podman build --ignorefile ci/.dockerignore -f ci/Containerfile -t odyssey-ci:local .
+      # All checks run inside the CI container — the same image developers
+      # use via `just ci-markdownlint`.
+      - name: markdownlint (in container)
+        run: bash scripts/run_ci_local.sh markdownlint
 
   pixi-check:
     name: pixi-check
@@ -511,52 +395,51 @@ jobs:
   justfile-check:
     name: justfile-check
     runs-on: ubuntu-24.04
-    timeout-minutes: 5
-    needs: lint
-    permissions:
-      contents: read
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
-      - name: Skip if no justfile
-        id: detect
-        run: |
-          if [ ! -f justfile ] && [ ! -f Justfile ]; then
-            echo "::notice::No justfile in repo, skipping justfile-check"
-            echo "skip=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "skip=false" >> "$GITHUB_OUTPUT"
-          fi
-      - name: Install just
-        if: steps.detect.outputs.skip == 'false'
-        uses: extractions/setup-just@53165ef7e734c5c07cb06b3c8e7b647c5aa16db3  # v4.0.0
         with:
-          just-version: "1.36.0"
-      - name: Validate justfile
-        if: steps.detect.outputs.skip == 'false'
-        run: |
-          just --evaluate >/dev/null
-          just --list >/dev/null
+          fetch-depth: 1
+
+      - name: Cache podman container storage
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
+        with:
+          path: ~/.local/share/containers/storage
+          key: podman-odyssey-${{ runner.os }}-${{ hashFiles('pyproject.toml', 'uv.lock') }}
+          restore-keys: |
+            podman-odyssey-${{ runner.os }}-
+
+      - name: Build CI image (podman)
+        run: podman build --ignorefile ci/.dockerignore -f ci/Containerfile -t odyssey-ci:local .
+      # All checks run inside the CI container — the same image developers
+      # use via `just ci-justfile-check`.
+      - name: justfile-check (in container)
+        run: bash scripts/run_ci_local.sh justfile-check
 
   symlink-check:
     name: symlink-check
     runs-on: ubuntu-24.04
-    timeout-minutes: 3
-    needs: lint
-    permissions:
-      contents: read
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
-      - name: Run symlink check
-        run: bash scripts/check-symlinks.sh
+        with:
+          fetch-depth: 1
 
-  # ── 10. test ─────────────────────────────────────────────────────────────────
-  # Canonical aggregate for the **test** category of the Odysseus Ecosystem CI
-  # board (docs/ci-naming-convention.md). The repo's Python suites already emit
-  # `unit-tests` and `integration-tests`; this thin job aggregates them into the
-  # single canonical `test` check-run the board targets. The descriptive Mojo
-  # suites (Comprehensive Mojo Tests, Python Tests, …) stay as their own custom
-  # checks in comprehensive-tests.yml. No `|| true`: if either suite fails, the
-  # `needs:` gate fails this job.
+      - name: Cache podman container storage
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
+        with:
+          path: ~/.local/share/containers/storage
+          key: podman-odyssey-${{ runner.os }}-${{ hashFiles('pyproject.toml', 'uv.lock') }}
+          restore-keys: |
+            podman-odyssey-${{ runner.os }}-
+
+      - name: Build CI image (podman)
+        run: podman build --ignorefile ci/.dockerignore -f ci/Containerfile -t odyssey-ci:local .
+      # All checks run inside the CI container — the same image developers
+      # use via `just ci-symlink-check`.
+      - name: symlink-check (in container)
+        run: bash scripts/run_ci_local.sh symlink-check
+
   test:
     name: test
     runs-on: ubuntu-latest
@@ -573,6 +456,7 @@ jobs:
   # wheel) and validates the artifacts with `twine check`. The Mojo .mojopkg /
   # .conda artifacts are built in release.yml on tags and surface as their own
   # custom checks; the Python package is the canonical, renameable one here.
+
   package:
     name: package
     runs-on: ubuntu-latest
@@ -585,7 +469,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
         with:
-          python-version: '3.11'
+          python-version: '3.13'
 
       - name: Build sdist + wheel
         run: |
@@ -606,6 +490,7 @@ jobs:
   # (install smoke test). `scripts*` ships without an __init__.py, so the smoke
   # test asserts on the installed distribution metadata rather than importing a
   # package object.
+
   install:
     name: install
     runs-on: ubuntu-latest
@@ -618,7 +503,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
         with:
-          python-version: '3.11'
+          python-version: '3.13'
 
       - name: Build wheel
         run: |
@@ -650,6 +535,7 @@ jobs:
   # main and validates release *readiness* — version format + consistency —
   # without publishing or deploying anything. It does NOT touch release.yml's
   # `deploy` custom check.
+
   release:
     name: release
     runs-on: ubuntu-latest

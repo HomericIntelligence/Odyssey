@@ -12,10 +12,10 @@ inputs:
   python-version:
     description: Python version uv should use for the project env.
     required: false
-    # Must match .python-version / requires-python (>=3.11). Pinning here keeps
+    # Must match .python-version / requires-python (>=3.13). Pinning here keeps
     # the resolver on the same minor the lockfile was generated against and
     # avoids the Scylla PR #2054 py-version-drift trap.
-    default: "3.11"
+    default: "3.13"
   sync-args:
     description: Extra args appended to `uv sync` (e.g. "--group notebook").
     required: false

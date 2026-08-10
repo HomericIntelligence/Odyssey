@@ -225,7 +225,7 @@ repos:
     hooks:
       - id: mypy
         files: ^(scripts|tests|tools)/.*\.py$
-        args: [--ignore-missing-imports, --no-strict-optional, --explicit-package-bases, --check-untyped-defs, --python-version, "3.10", --exclude, generators/]
+        args: [--ignore-missing-imports, --no-strict-optional, --explicit-package-bases, --check-untyped-defs, --python-version, "3.13", --exclude, generators/]
         additional_dependencies: [types-PyYAML]
 
   # Type checking for examples/ — uses a per-file wrapper because examples/
@@ -236,7 +236,7 @@ repos:
       - id: mypy-examples
         name: mypy (examples)
         description: Type-check Python files in examples/ one file at a time
-        entry: uv run python scripts/mypy-each-file.py --ignore-missing-imports --no-strict-optional --explicit-package-bases --check-untyped-defs --python-version 3.10
+        entry: uv run python scripts/mypy-each-file.py --ignore-missing-imports --no-strict-optional --explicit-package-bases --check-untyped-defs --python-version 3.13
         language: system
         files: ^examples/.*\.py$
         types: [python]

@@ -16,7 +16,7 @@ name = "Odyssey"
 version = "0.2.0"
 description = "Mojo-based AI research platform for reproducing classic research papers"
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.13,<3.14"
 license = {text = "BSD"}
 authors = [
     {name = "Micah Villmow", email = "4211002+mvillmow@users.noreply.github.com"}
@@ -56,7 +56,8 @@ dependencies = [
     #   gitpython  CVE-2026-42215 / -42284 / -44244 / GHSA-mv93-w799-cj2w
     #   mistune    CVE-2026-33079 / -44897
     "authlib>=1.6.11",
-    "gitpython>=3.1.57",
+    "cryptography>=50.0.0",  # PYSEC-2026-3552 (#5386)
+    "gitpython>=3.1.58",
     "mistune>=3.3.4",
 ]
 
@@ -113,9 +114,9 @@ default-groups = ["dev"]
 prerelease = "allow"
 
 # NOTE on Python version (Scylla PR #2054 py-version-drift trap): the resolver
-# interpreter is pinned to 3.11 via the checked-in `.python-version` file so
+# interpreter is pinned to 3.13 via the checked-in `.python-version` file so
 # `uv sync` resolves against the SAME Python minor the repo targets
-# (requires-python = ">=3.11"), not whatever newest interpreter (e.g. 3.14) the
+# (requires-python = ">=3.13,<3.14"), not whatever newest interpreter (e.g. 3.14) the
 # runner happens to have. This keeps the transitive resolution identical to the
 # former pixi env and avoids latent version-delta bugs.
 

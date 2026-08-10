@@ -35,10 +35,11 @@ colorama==0.4.6 ; sys_platform == 'win32'
     # via
     #   click
     #   tqdm
-cryptography==49.0.0
+cryptography==50.0.0
     # via
     #   authlib
     #   joserfc
+    #   odyssey
     #   pyjwt
 defusedxml==0.7.1
     # via
@@ -48,7 +49,7 @@ fastjsonschema==2.21.2
     # via nbformat
 gitdb==4.0.12
     # via gitpython
-gitpython==3.1.57
+gitpython==3.1.58
     # via odyssey
 homericintelligence-hephaestus==0.10.0
     # via odyssey
@@ -101,9 +102,7 @@ nbformat==5.10.4
     #   nbclient
     #   nbconvert
     #   odyssey
-numpy==2.4.6 ; python_full_version < '3.12'
-    # via odyssey
-numpy==2.5.1 ; python_full_version >= '3.12'
+numpy==2.5.1
     # via odyssey
 packaging==26.2
     # via
@@ -183,7 +182,6 @@ typing-extensions==4.16.0
     #   pydantic
     #   pydantic-core
     #   pygithub
-    #   referencing
     #   typing-inspection
 typing-inspection==0.4.2
     # via pydantic
