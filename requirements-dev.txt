@@ -525,7 +525,7 @@ ruamel-yaml==0.19.1
     #   pre-commit-hooks
     #   safety
     #   safety-schemas
-ruff==0.16.0
+ruff==0.16.1
 safety==3.8.1
 safety-schemas==0.0.16
     # via safety
