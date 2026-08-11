@@ -44,7 +44,7 @@ dependencies = [
     "jsonschema>=4.0",
     "nbformat>=5.10.0,<6",
     "nbconvert>=7.16.0,<8",
-    "pydantic>=2.12.5,<3",
+    "pydantic>=2.14.0b1,<3",
 
     # PyPI-only deps (were [pypi-dependencies] in pixi.toml)
     "homericintelligence-hephaestus>=0.10.0,<1",

@@ -124,7 +124,7 @@ prettytable==3.18.0
     #   pip-licenses
 pycparser==3.0 ; (implementation_name != 'PyPy' and platform_python_implementation != 'PyPy') or (implementation_name == 'pypy' and platform_python_implementation == 'PyPy')
     # via cffi
-pydantic==2.14.0a1
+pydantic==2.14.0b1
     # via odyssey
 pydantic-core==2.47.0
     # via pydantic

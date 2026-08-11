@@ -414,7 +414,7 @@ py-serializable==2.1.0
     # via cyclonedx-python-lib
 pycparser==3.0 ; implementation_name != 'PyPy'
     # via cffi
-pydantic==2.14.0a1
+pydantic==2.14.0b1
     # via
     #   odyssey
     #   safety
