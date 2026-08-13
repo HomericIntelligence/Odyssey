@@ -21,6 +21,8 @@ argon2-cffi-bindings==25.1.0
     # via argon2-cffi
 arrow==1.4.0
     # via isoduration
+ast-serialize==0.8.0
+    # via mypy
 asttokens==3.0.2
     # via stack-data
 async-lru==2.3.0
@@ -37,7 +39,7 @@ babel==2.18.0
     # via
     #   jupyterlab-server
     #   mkdocs-material
-backrefs==8.0
+backrefs==7.0
     # via mkdocs-material
 bandit==1.9.4
 beautifulsoup4==4.15.0
@@ -557,9 +559,7 @@ terminado==0.18.1
 tinycss2==1.5.1
     # via bleach
 tomli==2.4.1
-    # via
-    #   pip-audit
-    #   pip-licenses
+    # via pip-audit
 tomli-w==1.2.0
     # via pip-audit
 tomlkit==0.15.1
