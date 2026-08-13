@@ -48,7 +48,7 @@ dependencies = [
 
     # PyPI-only deps (were [pypi-dependencies] in pixi.toml)
     "homericintelligence-hephaestus>=0.10.0,<1",
-    "pip-licenses>=4.0.0,<5",
+    "pip-licenses>=5.5.5,<6",
 
     # Transitive-dependency CVE floors (#5386). Not imported by project code;
     # the constraints force the resolver past known CVEs:
@@ -71,7 +71,7 @@ dev = [
 
     # Testing
     "pytest>=9.0.3",  # CVE-2025-71176 (#5386)
-    "pytest-cov>=6.0.0,<7",
+    "pytest-cov>=7.1.0,<8",
     "pytest-timeout>=2.1.0,<3",
     "pytest-xdist>=3.0.0,<4",
     "pytest-benchmark>=5.0.0,<6",
@@ -79,14 +79,14 @@ dev = [
     # Code quality
     "ruff>=0.16.1,<0.17",
     "bandit>=1.7.5",
-    "mypy>=1.19.1,<2",
+    "mypy>=2.3.0,<3",
     "types-PyYAML>=6.0.12.20260724",
     "safety>=3.0.0,<4",
     "pip-audit>=2.7.0,<3",
 
     # Pre-commit
     "pre-commit>=4.6.1",
-    "pre-commit-hooks>=4.6.0,<4.7",  # pinned to match .pre-commit-config.yaml rev (Issue #4030)
+    "pre-commit-hooks>=6.0.0,<6.1",  # pinned to match .pre-commit-config.yaml rev (Issue #4030)
     "nbstripout>=0.7.1",             # tracked to keep in sync with .pre-commit-config.yaml (Issue #4030)
 
     # Documentation

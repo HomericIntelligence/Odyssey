@@ -37,7 +37,7 @@ babel==2.18.0
     # via
     #   jupyterlab-server
     #   mkdocs-material
-backrefs==7.0
+backrefs==8.0
     # via mkdocs-material
 bandit==1.9.4
 beautifulsoup4==4.15.0
@@ -296,7 +296,7 @@ mkdocs-material-extensions==1.3.1
     # via mojo
 msgpack==1.2.1
     # via cachecontrol
-mypy==1.20.2
+mypy==2.3.0
 mypy-extensions==1.1.0
     # via
     #   mblack
@@ -372,7 +372,7 @@ pip==26.1.2
 pip-api==0.0.34
     # via pip-audit
 pip-audit==2.10.1
-pip-licenses==4.5.1
+pip-licenses==5.5.5
     # via odyssey
 pip-requirements-parser==32.0.1
     # via pip-audit
@@ -389,7 +389,7 @@ pluggy==1.6.0
     #   pytest
     #   pytest-cov
 pre-commit==4.6.1
-pre-commit-hooks==4.6.0
+pre-commit-hooks==6.0.0
 prettytable==3.18.0
     # via
     #   odyssey
@@ -450,7 +450,7 @@ pytest==9.1.1
     #   pytest-timeout
     #   pytest-xdist
 pytest-benchmark==5.2.3
-pytest-cov==6.3.0
+pytest-cov==7.1.0
 pytest-timeout==2.4.0
 pytest-xdist==3.8.0
 python-dateutil==2.9.0.post0
