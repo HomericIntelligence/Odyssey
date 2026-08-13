@@ -642,7 +642,7 @@ wheels = [
 
 [[package]]
 name = "homericintelligence-hephaestus"
-version = "0.10.0"
+version = "0.10.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "jinja2" },
@@ -650,9 +650,9 @@ dependencies = [
     { name = "pyyaml" },
     { name = "tzdata", marker = "sys_platform == 'win32'" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/a9/ec/764cb23509fc4c6c4f0804db3529e6bb5ea44e9f6cdf1cfb45d3e1143f71/homericintelligence_hephaestus-0.10.0.tar.gz", hash = "sha256:5e005ea7b434e3e0516596668a0fe829364ae3c1266759066c30ff0388e32da3", size = 687717, upload-time = "2026-07-24T08:39:58.172Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/d7/62/dd9a0d3496cc3ae78b0051a50022f8bf40c42ca722c1aba9d079756c2d94/homericintelligence_hephaestus-0.10.1.tar.gz", hash = "sha256:9d8ac53451eed63adc91dc832018bf3e2568c392ae56dcce6cf06a6fde6d45f0", size = 788270, upload-time = "2026-08-05T19:56:42.339Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/ac/a2/2c40d4e29b8992c52f902062486bc751d8fa519a614fd96aa0de8347f2e3/homericintelligence_hephaestus-0.10.0-py3-none-any.whl", hash = "sha256:8ee61fbebddab959a607cf3a894c210a21a16feea6ed1f93eb92fcf2a8b2e28b", size = 844876, upload-time = "2026-07-24T08:39:56.604Z" },
+    { url = "https://files.pythonhosted.org/packages/0c/d6/4b29f3035bc0411dc6113f658fc20881ced8504d013993136d4182056403/homericintelligence_hephaestus-0.10.1-py3-none-any.whl", hash = "sha256:051384e1b82018c669fe73753091af72a71cb24c5a1f82e63d7a94cc7d2be207", size = 962119, upload-time = "2026-08-05T19:56:40.247Z" },
 ]
 
 [[package]]
@@ -1517,7 +1517,7 @@ wheels = [
 
 [[package]]
 name = "nbformat"
-version = "5.10.4"
+version = "5.11.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "fastjsonschema" },
@@ -1525,9 +1525,9 @@ dependencies = [
     { name = "jupyter-core" },
     { name = "traitlets" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/6d/fd/91545e604bc3dad7dca9ed03284086039b294c6b3d75c0d2fa45f9e9caf3/nbformat-5.10.4.tar.gz", hash = "sha256:322168b14f937a5d11362988ecac2a4952d3d8e3a2cbeb2319584631226d5b3a", size = 142749, upload-time = "2024-04-04T11:20:37.371Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/b2/fd/80f407a9525bc5bd9865e5c37db3b78867fa43217f8aac5eab22b5f028b3/nbformat-5.11.0.tar.gz", hash = "sha256:7dbaed4a69cae28c2b4d44ab7430a6af4544fb89455023f6f21550be757b60c8", size = 151822, upload-time = "2026-08-06T12:29:55.597Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/a9/82/0340caa499416c78e5d8f5f05947ae4bc3cba53c9f038ab6e9ed964e22f1/nbformat-5.10.4-py3-none-any.whl", hash = "sha256:3b48d6c8fbca4b299bf3982ea7db1af21580e4fec269ad087b9e81588891200b", size = 78454, upload-time = "2024-04-04T11:20:34.895Z" },
+    { url = "https://files.pythonhosted.org/packages/be/4a/0eece9dad5e73230ca972f7bc29456ce7d74772f123d401fcf67379008f7/nbformat-5.11.0-py3-none-any.whl", hash = "sha256:f70a17f591a9ccd1c601d5e61a4b20972703926df0ba42458ce14bf575766bb6", size = 79820, upload-time = "2026-08-06T12:29:54.178Z" },
 ]
 
 [[package]]
@@ -1669,13 +1669,13 @@ requires-dist = [
     { name = "cryptography", specifier = ">=50.0.0" },
     { name = "defusedxml", specifier = ">=0.0.1" },
     { name = "gitpython", specifier = ">=3.1.58" },
-    { name = "homericintelligence-hephaestus", specifier = ">=0.10.0,<1" },
+    { name = "homericintelligence-hephaestus", specifier = ">=0.10.1,<1" },
     { name = "jinja2", specifier = ">=3.1.0,<4" },
     { name = "jsonschema", specifier = ">=4.0" },
     { name = "mistune", specifier = ">=3.3.4" },
     { name = "mojo", specifier = "==1.0.0b2" },
     { name = "nbconvert", specifier = ">=7.16.0,<8" },
-    { name = "nbformat", specifier = ">=5.10.0,<6" },
+    { name = "nbformat", specifier = ">=5.11.0,<6" },
     { name = "numpy", specifier = ">=2.3.5,<3" },
     { name = "pip-licenses", specifier = ">=4.0.0,<5" },
     { name = "prettytable", specifier = ">=3.17.0,<4" },
@@ -1694,7 +1694,7 @@ dev = [
     { name = "mkdocs-material", specifier = ">=9.0.0,<10" },
     { name = "mypy", specifier = ">=1.19.1,<2" },
     { name = "nbstripout", specifier = ">=0.7.1" },
-    { name = "pip", specifier = ">=26.1" },
+    { name = "pip", specifier = ">=26.2.1" },
     { name = "pip-audit", specifier = ">=2.7.0,<3" },
     { name = "pre-commit", specifier = ">=4.6.1" },
     { name = "pre-commit-hooks", specifier = ">=4.6.0,<4.7" },
@@ -1823,11 +1823,11 @@ wheels = [
 
 [[package]]
 name = "pip"
-version = "26.1.2"
+version = "26.2.1"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/01/91/47e7d486260f618783899587af63ccf7980fb60245c3e63dd4571c6b57ad/pip-26.1.2.tar.gz", hash = "sha256:f49cd134c61cf2fd75e0ce2676db03e4054504a5a4986d00f8299ae632dc4605", size = 1840799, upload-time = "2026-05-31T17:33:58.56Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/ae/15/4500e320e6b101ec3b719ae85b697d9940b6cda672bc555bd6016fc60c6f/pip-26.2.1.tar.gz", hash = "sha256:f6ad667e89a1fe78046c8f13232b247200f5258d7828f3f7883d660878e0813f", size = 1848877, upload-time = "2026-08-04T22:51:14.148Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/5d/95/6b5cb3461ea5673ba0995989746db58eb18b91b54dbf331e72f569540946/pip-26.1.2-py3-none-any.whl", hash = "sha256:382ff9f685ee3bc25864f820aa50505825f10f5458ffff07e30a6d96e5715cab", size = 1813144, upload-time = "2026-05-31T17:33:56.772Z" },
+    { url = "https://files.pythonhosted.org/packages/f3/6e/1736e5b4ae2b778ef2f81c47d797de9f891d4d8acb047a24ca37a60294dd/pip-26.2.1-py3-none-any.whl", hash = "sha256:71138adf1f4ca900cdb7d289c21b7494329f2332b6d85f0e1c42108c0384ed3e", size = 1816632, upload-time = "2026-08-04T22:51:12.472Z" },
 ]
 
 [[package]]
