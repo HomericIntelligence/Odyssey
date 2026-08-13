@@ -246,7 +246,7 @@ jobs:
 
       - name: Upload Gitleaks SARIF
         if: always() && hashFiles('gitleaks.sarif') != ''
-        uses: github/codeql-action/upload-sarif@4e828ff8d448a8a6e532957b1811f387a63867e8  # v3
+        uses: github/codeql-action/upload-sarif@5595ccaf912efad79be6eef63a5619ff05969be3  # v3
         with:
           sarif_file: gitleaks.sarif
 
@@ -374,7 +374,7 @@ jobs:
           fi
       - name: Setup pixi
         if: steps.detect.outputs.skip == 'false'
-        uses: prefix-dev/setup-pixi@a09b6247153796b190642a2b53fac4241043cf6f  # v0.10.0
+        uses: prefix-dev/setup-pixi@f00437f565399d418b0acc85936d12c1fb668347  # v0.10.1
         with:
           # Must read lockfile v7 (written by local pixi 0.70.x); <=0.67 cannot.
           pixi-version: v0.70.2
