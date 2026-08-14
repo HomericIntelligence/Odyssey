@@ -71,10 +71,14 @@ jobs:
 
       - name: Compare versions
         id: compare
+        env:
+          CURRENT: ${{ steps.current.outputs.version }}
+          LATEST: ${{ steps.latest.outputs.version }}
+          FORCE: ${{ inputs.force_check }}
         run: |
-          CURRENT="${{ steps.current.outputs.version }}"
-          LATEST="${{ steps.latest.outputs.version }}"
-          FORCE="${{ inputs.force_check }}"
+          CURRENT="$CURRENT"
+          LATEST="$LATEST"
+          FORCE="$FORCE"
 
           echo "Current: $CURRENT"
           echo "Latest: $LATEST"

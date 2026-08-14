@@ -20,12 +20,15 @@ runs:
       uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd  # v8
       with:
         github-token: ${{ inputs.github-token }}
+        env:
+          REPORT_FILE: ${{ inputs.report-file }}
+          COMMENT_MARKER: ${{ inputs.comment-marker }}
         script: |
           const fs = require('fs');
 
           try {
-            const report = fs.readFileSync('${{ inputs.report-file }}', 'utf8');
-            const marker = '${{ inputs.comment-marker }}';
+            const report = fs.readFileSync(process.env.REPORT_FILE, 'utf8');
+            const marker = process.env.COMMENT_MARKER;
 
             const { data: comments } = await github.rest.issues.listComments({
               owner: context.repo.owner,

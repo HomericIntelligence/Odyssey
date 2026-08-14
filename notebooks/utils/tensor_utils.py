@@ -4,6 +4,7 @@ Handles serialization/deserialization of tensors for
 Mojo-Python interop.
 """
 
+import ast
 import numpy as np
 from pathlib import Path
 from typing import Tuple, Optional
@@ -166,8 +167,9 @@ def parse_mojo_tensor_output(output: str) -> Optional[np.ndarray]:
         for line in lines:
             line = line.strip()
             if line.startswith("[[") or line.startswith("["):
-                # Try to parse as list
-                tensor_list = eval(line)  # Use ast.literal_eval for safety in production
+                # Try to parse as list. literal_eval only evaluates literals,
+                # so untrusted notebook output cannot execute code.
+                tensor_list = ast.literal_eval(line)
                 return np.array(tensor_list)
         return None
     except Exception:
