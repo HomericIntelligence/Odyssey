@@ -18,11 +18,11 @@ runs:
   steps:
     - name: Post or update PR comment
       uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd  # v8
+      env:
+        REPORT_FILE: ${{ inputs.report-file }}
+        COMMENT_MARKER: ${{ inputs.comment-marker }}
       with:
         github-token: ${{ inputs.github-token }}
-        env:
-          REPORT_FILE: ${{ inputs.report-file }}
-          COMMENT_MARKER: ${{ inputs.comment-marker }}
         script: |
           const fs = require('fs');
 
