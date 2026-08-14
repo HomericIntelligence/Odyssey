@@ -2,6 +2,9 @@ name: Validate Configurations
 
 # Also covers: test-agents, script-validation, paper-validation, validate-workflows
 
+permissions:
+  contents: read
+
 on:
   push:
     branches: [main]

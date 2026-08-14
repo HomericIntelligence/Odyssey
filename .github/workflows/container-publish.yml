@@ -186,8 +186,10 @@ jobs:
 
       - name: Export image for SBOM
         if: github.event_name != 'pull_request' && matrix.target == 'runtime'
+        env:
+          REF_NAME: ${{ github.ref_name }}
         run: |
-          podman save -o /tmp/runtime-image.tar "$REGISTRY/$IMAGE_NAME:${{ github.ref_name }}"
+          podman save -o /tmp/runtime-image.tar "$REGISTRY/$IMAGE_NAME:$REF_NAME"
 
       - name: Generate SBOM
         if: github.event_name != 'pull_request' && matrix.target == 'runtime'

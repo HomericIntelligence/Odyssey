@@ -66,9 +66,12 @@ jobs:
 
       - name: Check if should run this suite
         id: check-suite
+        env:
+          REQUESTED_SUITE: ${{ github.event.inputs.suite || 'all' }}
+          CURRENT_SUITE: ${{ matrix.benchmark-suite }}
         run: |
-          REQUESTED_SUITE="${{ github.event.inputs.suite || 'all' }}"
-          CURRENT_SUITE="${{ matrix.benchmark-suite }}"
+          REQUESTED_SUITE="$REQUESTED_SUITE"
+          CURRENT_SUITE="$CURRENT_SUITE"
 
           if [ "$REQUESTED_SUITE" = "all" ] || [ "$REQUESTED_SUITE" = "$CURRENT_SUITE" ]; then
             echo "run=true" >> $GITHUB_OUTPUT
