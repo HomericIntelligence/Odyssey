@@ -85,7 +85,10 @@ jobs:
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v5
         with:
           path: ~/.local/share/containers
-          key: podman-ci-${{ matrix.target }}-${{ hashFiles('Dockerfile.ci') }}
+          # uv.lock/pyproject.toml drive the venv baked into the image - without them,
+          # dependency bumps reuse stale cached image layers and the published image
+          # keeps shipping vulnerable pins (see HomericIntelligence/Odyssey#5786).
+          key: podman-ci-${{ matrix.target }}-${{ hashFiles('Dockerfile.ci', 'pyproject.toml', 'uv.lock') }}
           restore-keys: |
             podman-ci-${{ matrix.target }}-
 
