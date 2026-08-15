@@ -1108,20 +1108,20 @@ def validate_canonical_dependencies(
     bundle: ArtifactBundle,
     *,
     candidate_pyproject: bytes,
-    trusted_pyproject: bytes,
-    trusted_lock: bytes,
-    trusted_python_version: bytes,
+    baseline_pyproject: bytes,
+    baseline_lock: bytes,
+    baseline_python_version: bytes,
     runner: Callable[..., subprocess.CompletedProcess[str]] = subprocess.run,
     uv_binary: str = "uv",
 ) -> None:
     """Independently prove candidate files by regenerating from trusted inputs."""
-    _validate_candidate_pyproject(candidate_pyproject, trusted_pyproject)
+    _validate_candidate_pyproject(candidate_pyproject, baseline_pyproject)
     _validate_lock_structure(bundle.files["uv.lock"])
-    _validate_lock_structure(trusted_lock)
+    _validate_lock_structure(baseline_lock)
     for relative_path in ("requirements.txt", "requirements-dev.txt"):
         _validate_requirement_export(bundle.files[relative_path], relative_path)
     try:
-        python_version = trusted_python_version.decode("ascii")
+        python_version = baseline_python_version.decode("ascii")
     except UnicodeDecodeError as error:
         raise PublishError("trusted .python-version is not ASCII") from error
     if not re.fullmatch(r"3\.\d+\n", python_version):
@@ -1136,8 +1136,8 @@ def validate_canonical_dependencies(
     with tempfile.TemporaryDirectory(prefix="odyssey-dependency-validation-") as temporary_directory:
         validation_root = Path(temporary_directory)
         (validation_root / PROJECT_METADATA_PATH).write_bytes(candidate_pyproject)
-        (validation_root / PYTHON_VERSION_PATH).write_bytes(trusted_python_version)
-        (validation_root / "uv.lock").write_bytes(trusted_lock)
+        (validation_root / PYTHON_VERSION_PATH).write_bytes(baseline_python_version)
+        (validation_root / "uv.lock").write_bytes(baseline_lock)
         for relative_path in ("requirements.txt", "requirements-dev.txt"):
             (validation_root / relative_path).write_bytes(bundle.files[relative_path])
         environment = {
@@ -1209,21 +1209,21 @@ def validate_published_dependency_candidate(
             token=token,
             opener=opener,
         ),
-        trusted_pyproject=get_file_at_oid(
+        baseline_pyproject=get_file_at_oid(
             bundle.repository,
             PROJECT_METADATA_PATH,
             trusted_default_oid,
             token=token,
             opener=opener,
         ),
-        trusted_lock=get_file_at_oid(
+        baseline_lock=get_file_at_oid(
             bundle.repository,
             "uv.lock",
             trusted_default_oid,
             token=token,
             opener=opener,
         ),
-        trusted_python_version=get_file_at_oid(
+        baseline_python_version=get_file_at_oid(
             bundle.repository,
             PYTHON_VERSION_PATH,
             trusted_default_oid,

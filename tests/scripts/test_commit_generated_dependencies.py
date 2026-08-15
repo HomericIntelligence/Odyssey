@@ -682,9 +682,9 @@ def test_trusted_validator_accepts_only_pinned_uv_canonical_lock_and_exports() -
     validator(
         _canonical_bundle(),
         candidate_pyproject=(PROJECT_ROOT / "pyproject.toml").read_bytes(),
-        trusted_pyproject=(PROJECT_ROOT / "pyproject.toml").read_bytes(),
-        trusted_lock=(PROJECT_ROOT / "uv.lock").read_bytes(),
-        trusted_python_version=(PROJECT_ROOT / ".python-version").read_bytes(),
+        baseline_pyproject=(PROJECT_ROOT / "pyproject.toml").read_bytes(),
+        baseline_lock=(PROJECT_ROOT / "uv.lock").read_bytes(),
+        baseline_python_version=(PROJECT_ROOT / ".python-version").read_bytes(),
         runner=_successful_validation_runner(commands),
     )
 
@@ -723,9 +723,9 @@ def test_trusted_validator_rejects_invalid_lock_urls_and_includes_before_running
         validator(
             _canonical_bundle(files=files),
             candidate_pyproject=(PROJECT_ROOT / "pyproject.toml").read_bytes(),
-            trusted_pyproject=(PROJECT_ROOT / "pyproject.toml").read_bytes(),
-            trusted_lock=(PROJECT_ROOT / "uv.lock").read_bytes(),
-            trusted_python_version=(PROJECT_ROOT / ".python-version").read_bytes(),
+            baseline_pyproject=(PROJECT_ROOT / "pyproject.toml").read_bytes(),
+            baseline_lock=(PROJECT_ROOT / "uv.lock").read_bytes(),
+            baseline_python_version=(PROJECT_ROOT / ".python-version").read_bytes(),
             runner=lambda *_args, **_kwargs: pytest.fail("unsafe bytes must fail before invoking uv"),
         )
 
@@ -738,9 +738,9 @@ def test_trusted_validator_rejects_noncanonical_lock_bytes() -> None:
         validator(
             _canonical_bundle(),
             candidate_pyproject=(PROJECT_ROOT / "pyproject.toml").read_bytes(),
-            trusted_pyproject=(PROJECT_ROOT / "pyproject.toml").read_bytes(),
-            trusted_lock=(PROJECT_ROOT / "uv.lock").read_bytes(),
-            trusted_python_version=(PROJECT_ROOT / ".python-version").read_bytes(),
+            baseline_pyproject=(PROJECT_ROOT / "pyproject.toml").read_bytes(),
+            baseline_lock=(PROJECT_ROOT / "uv.lock").read_bytes(),
+            baseline_python_version=(PROJECT_ROOT / ".python-version").read_bytes(),
             runner=_successful_validation_runner([], rewrite_lock=True),
         )
 
@@ -757,9 +757,9 @@ def test_trusted_validator_rejects_unused_canonical_looking_lock_package() -> No
         validator(
             _canonical_bundle(files=files),
             candidate_pyproject=(PROJECT_ROOT / "pyproject.toml").read_bytes(),
-            trusted_pyproject=(PROJECT_ROOT / "pyproject.toml").read_bytes(),
-            trusted_lock=(PROJECT_ROOT / "uv.lock").read_bytes(),
-            trusted_python_version=(PROJECT_ROOT / ".python-version").read_bytes(),
+            baseline_pyproject=(PROJECT_ROOT / "pyproject.toml").read_bytes(),
+            baseline_lock=(PROJECT_ROOT / "uv.lock").read_bytes(),
+            baseline_python_version=(PROJECT_ROOT / ".python-version").read_bytes(),
             runner=_successful_validation_runner([]),
         )
 
@@ -767,15 +767,15 @@ def test_trusted_validator_rejects_unused_canonical_looking_lock_package() -> No
 def test_trusted_validator_rejects_contaminated_lock_with_unrelated_upgrades() -> None:
     validator = getattr(PUBLISHER, "validate_canonical_dependencies", None)
     assert callable(validator), "trusted publisher must independently validate generated dependency bytes"
-    trusted_pyproject = (PROJECT_ROOT / "pyproject.toml").read_bytes()
+    baseline_pyproject = (PROJECT_ROOT / "pyproject.toml").read_bytes()
     candidate_pyproject = _replace_dependency_declaration(
-        trusted_pyproject,
+        baseline_pyproject,
         "types-PyYAML",
         "types-PyYAML>=999.0.0",
     )
-    trusted_lock = (PROJECT_ROOT / "uv.lock").read_bytes()
+    baseline_lock = (PROJECT_ROOT / "uv.lock").read_bytes()
     canonical_lock = _replace_locked_version(
-        trusted_lock,
+        baseline_lock,
         "types-pyyaml",
         "999.0.0",
     )
@@ -791,9 +791,9 @@ def test_trusted_validator_rejects_contaminated_lock_with_unrelated_upgrades() -
         validator(
             _canonical_bundle(files=files),
             candidate_pyproject=candidate_pyproject,
-            trusted_pyproject=trusted_pyproject,
-            trusted_lock=trusted_lock,
-            trusted_python_version=(PROJECT_ROOT / ".python-version").read_bytes(),
+            baseline_pyproject=baseline_pyproject,
+            baseline_lock=baseline_lock,
+            baseline_python_version=(PROJECT_ROOT / ".python-version").read_bytes(),
             runner=_successful_validation_runner(
                 commands,
                 regenerated_lock=canonical_lock,
@@ -808,15 +808,15 @@ def test_trusted_validator_rejects_contaminated_lock_with_unrelated_upgrades() -
 def test_trusted_validator_accepts_clean_recreated_dependency_head() -> None:
     validator = getattr(PUBLISHER, "validate_canonical_dependencies", None)
     assert callable(validator), "trusted publisher must independently validate generated dependency bytes"
-    trusted_pyproject = (PROJECT_ROOT / "pyproject.toml").read_bytes()
+    baseline_pyproject = (PROJECT_ROOT / "pyproject.toml").read_bytes()
     candidate_pyproject = _replace_dependency_declaration(
-        trusted_pyproject,
+        baseline_pyproject,
         "types-PyYAML",
         "types-PyYAML>=999.0.0",
     )
-    trusted_lock = (PROJECT_ROOT / "uv.lock").read_bytes()
+    baseline_lock = (PROJECT_ROOT / "uv.lock").read_bytes()
     canonical_lock = _replace_locked_version(
-        trusted_lock,
+        baseline_lock,
         "types-pyyaml",
         "999.0.0",
     )
@@ -827,9 +827,9 @@ def test_trusted_validator_accepts_clean_recreated_dependency_head() -> None:
     validator(
         _canonical_bundle(files=files),
         candidate_pyproject=candidate_pyproject,
-        trusted_pyproject=trusted_pyproject,
-        trusted_lock=trusted_lock,
-        trusted_python_version=(PROJECT_ROOT / ".python-version").read_bytes(),
+        baseline_pyproject=baseline_pyproject,
+        baseline_lock=baseline_lock,
+        baseline_python_version=(PROJECT_ROOT / ".python-version").read_bytes(),
         runner=_successful_validation_runner(
             commands,
             regenerated_lock=canonical_lock,
@@ -849,9 +849,9 @@ def test_trusted_validator_rejects_identity_only_rewrite_without_upgrade_authori
 ) -> None:
     validator = getattr(PUBLISHER, "validate_canonical_dependencies", None)
     assert callable(validator), "trusted publisher must independently validate generated dependency bytes"
-    trusted_pyproject = (PROJECT_ROOT / "pyproject.toml").read_bytes()
+    baseline_pyproject = (PROJECT_ROOT / "pyproject.toml").read_bytes()
     candidate_pyproject = _replace_dependency_name(
-        trusted_pyproject,
+        baseline_pyproject,
         "gitpython",
         rewritten_name,
     )
@@ -860,9 +860,9 @@ def test_trusted_validator_rejects_identity_only_rewrite_without_upgrade_authori
         validator(
             _canonical_bundle(),
             candidate_pyproject=candidate_pyproject,
-            trusted_pyproject=trusted_pyproject,
-            trusted_lock=(PROJECT_ROOT / "uv.lock").read_bytes(),
-            trusted_python_version=(PROJECT_ROOT / ".python-version").read_bytes(),
+            baseline_pyproject=baseline_pyproject,
+            baseline_lock=(PROJECT_ROOT / "uv.lock").read_bytes(),
+            baseline_python_version=(PROJECT_ROOT / ".python-version").read_bytes(),
             runner=lambda *_args, **_kwargs: pytest.fail("identity-only rewrite must not invoke uv"),
         )
 
@@ -885,9 +885,9 @@ def test_trusted_validator_rejects_noncanonical_requirement_bytes() -> None:
         validator(
             _canonical_bundle(files=files),
             candidate_pyproject=(PROJECT_ROOT / "pyproject.toml").read_bytes(),
-            trusted_pyproject=(PROJECT_ROOT / "pyproject.toml").read_bytes(),
-            trusted_lock=(PROJECT_ROOT / "uv.lock").read_bytes(),
-            trusted_python_version=(PROJECT_ROOT / ".python-version").read_bytes(),
+            baseline_pyproject=(PROJECT_ROOT / "pyproject.toml").read_bytes(),
+            baseline_lock=(PROJECT_ROOT / "uv.lock").read_bytes(),
+            baseline_python_version=(PROJECT_ROOT / ".python-version").read_bytes(),
             runner=reject_stale_export,
         )
 
@@ -914,9 +914,9 @@ def test_trusted_validator_rejects_candidate_project_urls_or_unrelated_changes()
         validator(
             _canonical_bundle(),
             candidate_pyproject=candidate,
-            trusted_pyproject=trusted,
-            trusted_lock=(PROJECT_ROOT / "uv.lock").read_bytes(),
-            trusted_python_version=(PROJECT_ROOT / ".python-version").read_bytes(),
+            baseline_pyproject=trusted,
+            baseline_lock=(PROJECT_ROOT / "uv.lock").read_bytes(),
+            baseline_python_version=(PROJECT_ROOT / ".python-version").read_bytes(),
             runner=lambda *_args, **_kwargs: pytest.fail("unsafe project metadata must fail before invoking uv"),
         )
 
