@@ -257,7 +257,7 @@ def parse_ci_matrix(workflow_file: Path) -> Dict[str, Dict[str, str]]:
                         name = job.get("name", job_name)
                         groups[name] = {"path": path, "pattern": pattern}
                     except (ValueError, IndexError):
-                        pass
+                        continue
 
     return groups
 

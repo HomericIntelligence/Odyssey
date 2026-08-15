@@ -414,7 +414,8 @@ class TestSupportingDirectoriesIntegration:
         # All should have same parent
         parents = {dir_path.parent for dir_path in supporting_dirs.values()}
         assert len(parents) == 1, "All supporting directories should share the same parent"
-        assert parents.pop() == repo_root, "All supporting directories should be under repository root"
+        parent = parents.pop()
+        assert parent == repo_root, "All supporting directories should be under repository root"
 
         # No directory should be nested under another
         dir_paths = set(supporting_dirs.values())

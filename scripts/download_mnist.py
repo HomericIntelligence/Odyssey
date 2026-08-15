@@ -6,6 +6,8 @@
 # See: HomericIntelligence/ProjectHephaestus v0.7.0
 from hephaestus.datasets.downloader import MNISTDownloader, main  # noqa: F401
 
+__all__ = ["MNISTDownloader", "main"]
+
 if __name__ == "__main__":
     from hephaestus.datasets.downloader import main
 
