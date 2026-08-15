@@ -3,17 +3,10 @@
 Download and prepare CIFAR-10 dataset for ML Odyssey examples.
 
 This is a wrapper script that imports the shared download utility.
-For the implementation, see scripts/download_cifar10.py.
+For the implementation, see hephaestus.datasets.downloader.
 """
 
-import sys
-from pathlib import Path
-
-# Add scripts directory to path for import
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "scripts"))
-
-# noqa: E402 - import must follow sys.path modification
-from download_cifar10 import main  # type: ignore[attr-defined]  # noqa: E402
+from hephaestus.datasets.downloader import main
 
 if __name__ == "__main__":
     main()

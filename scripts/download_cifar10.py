@@ -6,6 +6,8 @@
 # See: HomericIntelligence/ProjectHephaestus v0.7.0
 from hephaestus.datasets.downloader import CIFAR10Downloader, main  # noqa: F401
 
+__all__ = ["CIFAR10Downloader", "main"]
+
 if __name__ == "__main__":
     from hephaestus.datasets.downloader import main
 

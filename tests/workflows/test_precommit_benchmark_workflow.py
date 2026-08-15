@@ -28,7 +28,7 @@ def workflow_yaml() -> dict:
         assert isinstance(parsed, dict), f"Workflow must be a YAML mapping, got {type(parsed)}"
         return parsed
     except yaml.YAMLError as e:
-        pytest.fail(f"Workflow YAML is invalid: {e}")
+        return pytest.fail(f"Workflow YAML is invalid: {e}")
 
 
 class TestWorkflowStructure:

@@ -3,7 +3,6 @@
 Uses ipywidgets for interactive progress displays.
 """
 
-from IPython.display import display, HTML
 from typing import Optional, Dict
 import time
 
