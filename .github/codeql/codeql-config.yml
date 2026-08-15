@@ -1,0 +1,16 @@
+# CodeQL configuration for Odyssey.
+#
+# Scope CodeQL analysis to first-party source. Build artifacts, vendored
+# dependencies, and generated trees are third-party code we do not maintain,
+# so their findings must not be reported against this repo.
+#
+# Part of the fleet-wide security coverage rollout (HomericIntelligence/Odysseus#455).
+name: "Odyssey CodeQL config"
+
+paths-ignore:
+  - build/**
+  - "**/_deps/**"
+  - "**/node_modules/**"
+  - "**/.venv/**"
+  - dist/**
+  - vendor/**

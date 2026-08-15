@@ -224,7 +224,6 @@ if __name__ == "__main__":
                 test_class.teardown_method()
             except Exception as e:
                 print(f"✗ {method_name}: {e}")
-                pass
 
     # Run TestRunTestsScript tests
     test_class2 = TestRunTestsScript()

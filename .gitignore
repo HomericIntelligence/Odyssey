@@ -61,3 +61,8 @@ checkpoints/
 /test_cumulative.mojo
 lenet5_weights_autograd/
 .claude-prompt-*.md
+
+# Bytecode must never be committed: !tests/** above re-includes __pycache__
+# under tests/, so re-exclude it here (later rules win).
+__pycache__
+*.py[cod]

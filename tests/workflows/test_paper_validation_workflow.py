@@ -38,7 +38,7 @@ def workflow_yaml(workflow_content: str) -> dict:
         assert isinstance(parsed, dict), f"Workflow must be a YAML mapping, got {type(parsed)}"
         return parsed
     except yaml.YAMLError as e:
-        pytest.fail(f"paper-validation.yml is invalid YAML: {e}")
+        return pytest.fail(f"paper-validation.yml is invalid YAML: {e}")
 
 
 class TestWorkflowExists:

@@ -1,195 +1,81 @@
-# Dependabot configuration for Odyssey
-# Manages Python dependencies (uv/pyproject.toml), GitHub Actions, and containers
-# Documentation: https://docs.github.com/en/code-security/dependabot/dependabot-version-updates
+# Dependabot configuration — HomericIntelligence fleet baseline
+# Cadence: monthly. Grouping: minor+patch updates in one PR, major-version
+# bumps in their own PR for focused review. See the Dependabot options
+# reference for details.
 
 version: 2
-
 updates:
-  # ============================================================================
-  # Python Dependencies (pip ecosystem)
-  # ============================================================================
-  # Purpose: Keep Python tooling and development dependencies current
-  # Frequency: Weekly (Tuesdays) to batch updates
-  # Scope: pyproject.toml [project.dependencies] + [dependency-groups]
-  - package-ecosystem: "pip"
-    directory: "/"
+  - package-ecosystem: 'uv'
+    directory: '/'
     schedule:
-      interval: "weekly"
-      day: "tuesday"
-      time: "09:00"
-      timezone: "America/New_York"
-
-    # Version Update Strategy
-    # - Allow all: Patches, minor, and major updates
-    # - Rationale: Early in project lifecycle, want latest stable versions
-    # - Will restrict to semver-minor after 1.0 release
-    versioning-strategy: increase
-
-    # Pull Request Configuration
-    # - Limit active PRs to prevent overwhelming review queue
-    # - Group related updates when possible
+      interval: "monthly"
+    cooldown:
+      default-days: 7
     open-pull-requests-limit: 5
-
-    # PR Metadata
-    # - Labels for automation and filtering
-    # - Assignees for review responsibility
-    # - Reviewers for explicit review requests
     labels:
       - "dependencies"
       - "python"
-      - "automated"
-    assignees:
-      - "mvillmow"
-    reviewers:
-      - "mvillmow"
-
-    # Commit Message Format
-    # - Follow conventional commits for consistency
     commit-message:
-      prefix: "chore(deps)"
-      prefix-development: "chore(dev-deps)"
-      include: "scope"
-
-    # Grouping Rules
-    # - Batch minor/patch updates to reduce PR volume
-    # - Keep major updates separate for careful review
+      prefix: 'chore(deps)'
     groups:
-      python-minor-patch:
+      minor-patch:
         patterns:
           - "*"
         update-types:
           - "minor"
           - "patch"
-
-    # Ignore Rules
-    # - Pin Mojo version - manually updated after testing
-    #   Rationale: Mojo updates require careful compatibility testing
-    # - Ignore major version updates - reviewed manually
-    #   Rationale: Major version updates may have breaking changes
-    ignore:
-      - dependency-name: "mojo"
-      - dependency-name: "*"
-        update-types: ["version-update:semver-major"]
-
-  # ============================================================================
-  # GitHub Actions Dependencies
-  # ============================================================================
-  # Purpose: Keep CI/CD workflows secure and up-to-date
-  # Frequency: Weekly (Tuesdays) same as Python
-  # Scope: All GitHub Actions in .github/workflows/ and composite actions in
-  #        .github/actions/ (github-actions ecosystem covers all action.yml files)
-  - package-ecosystem: "github-actions"
-    directory: "/"
-    schedule:
-      interval: "weekly"
-      day: "tuesday"
-      time: "10:00"
-      timezone: "America/New_York"
-
-    # PR Configuration
-    open-pull-requests-limit: 5
-
-    # PR Metadata
-    labels:
-      - "dependencies"
-      - "github-actions"
-      - "ci-cd"
-      - "automated"
-    assignees:
-      - "mvillmow"
-    reviewers:
-      - "mvillmow"
-
-    # Commit Message Format
-    commit-message:
-      prefix: "chore(ci)"
-      include: "scope"
-
-    # Grouping Rules
-    # - Batch all GitHub Actions updates together
-    # - Actions updates are typically low-risk
-    groups:
-      github-actions:
+      major:
         patterns:
           - "*"
-
-  # ============================================================================
-  # Container Base Images
-  # ============================================================================
-  # Purpose: Keep container base images and dependencies current
-  # Frequency: Weekly (Wednesdays)
-  # Scope: Dockerfile and Dockerfile.ci
-  - package-ecosystem: "docker"
-    directory: "/"
+        update-types:
+          - "major"
+    ignore:
+      - dependency-name: "mojo"
+  - package-ecosystem: 'docker'
+    directory: '/'
     schedule:
-      interval: "weekly"
-      day: "wednesday"
-      time: "09:00"
-      timezone: "America/New_York"
-
-    # PR Configuration
+      interval: "monthly"
+    cooldown:
+      default-days: 7
     open-pull-requests-limit: 3
-
-    # PR Metadata
     labels:
       - "dependencies"
       - "docker"
-      - "automated"
-    assignees:
-      - "mvillmow"
-    reviewers:
-      - "mvillmow"
-
-    # Commit Message Format
     commit-message:
-      prefix: "chore(docker)"
-      include: "scope"
-
-  # ============================================================================
-  # Pixi Ecosystem (Future - Placeholder)
-  # ============================================================================
-  # Purpose: Native pixi dependency management when ecosystem support is available
-  # Status: Pending - Dependabot doesn't support pixi ecosystem yet
-  # Workaround: Currently using pip ecosystem for Python deps in pixi.toml
-  # TODO: Enable when Dependabot adds pixi support
-  #
-  # - package-ecosystem: "pixi"  # Not yet supported
-  #   directory: "/"
-  #   schedule:
-  #     interval: "weekly"
-  #     day: "tuesday"
-  #     time: "09:00"
-  #   labels:
-  #     - "dependencies"
-  #     - "pixi"
-  #     - "automated"
-
-# ============================================================================
-# Configuration Notes
-# ============================================================================
-# 1. Schedule Timing:
-#    - Python: 9:00 AM ET Tuesday (start of work week)
-#    - Actions: 10:00 AM ET Tuesday (after Python, sequential review)
-#
-# 2. PR Limits:
-#    - 5 PRs per ecosystem prevents overwhelming review queue
-#    - Adjust based on team capacity and velocity
-#
-# 3. Grouping Strategy:
-#    - Reduces PR volume by batching compatible updates
-#    - Major updates kept separate for careful review
-#    - Actions grouped together (low risk)
-#
-# 4. Ignore Strategy:
-#    - Mojo pinned: requires compatibility testing with research papers
-#    - Major versions: reviewed manually for breaking changes
-#
-# 5. Labels:
-#    - Integrate with GitHub Projects for automation
-#    - Filter PRs in review queue
-#    - Trigger CI/CD workflows conditionally
-#
-# 6. Future Enhancements:
-#    - Add pixi ecosystem when available
-#    - Add security-only updates (daily schedule)
-#    - Add rebase-strategy when GitHub Actions stabilize
+      prefix: 'chore(docker)'
+    groups:
+      minor-patch:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
+      docker-major:
+        patterns:
+          - "*"
+        update-types:
+          - "major"
+  - package-ecosystem: 'github-actions'
+    directory: '/'
+    schedule:
+      interval: "monthly"
+    cooldown:
+      default-days: 7
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "ci"
+    commit-message:
+      prefix: 'chore(ci)'
+    groups:
+      minor-patch:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
+      major:
+        patterns:
+          - "*"
+        update-types:
+          - "major"

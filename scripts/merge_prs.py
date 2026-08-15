@@ -82,15 +82,15 @@ def try_push_head_branch(head_branch, dry_run):
 
 def handle_merge_result(result, pr_number, base_branch):
     # PyGithub returns a PullRequestMergeStatus-like object; use attributes
+    attrs: dict = {}
     try:
-        merged = getattr(result, "merged", None)
-        message = getattr(result, "message", None)
-        sha = getattr(result, "sha", None)
+        attrs = {k: getattr(result, k, None) for k in ("merged", "message", "sha")}
     except Exception:
         # Fallback for unexpected types
-        merged = False
-        message = str(result)
-        sha = None
+        attrs = {"merged": False, "message": str(result)}
+    merged = attrs["merged"]
+    message = attrs["message"]
+    sha = attrs["sha"]
 
     if merged:
         print(f"  🎉 PR #{pr_number} merged into {base_branch} via rebase. sha={sha}")
