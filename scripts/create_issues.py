@@ -785,11 +785,11 @@ def get_repo_name() -> str:
             return match.group(1)
 
         print(f"{Colors.FAIL}Error: Could not parse repository name from: {remote_url}{Colors.ENDC}")
-        sys.exit(1)
+        raise SystemExit(1)
 
     except subprocess.CalledProcessError:
         print(f"{Colors.FAIL}Error: Could not get git remote. Are you in a git repository?{Colors.ENDC}")
-        sys.exit(1)
+        raise SystemExit(1)
 
 
 def main():

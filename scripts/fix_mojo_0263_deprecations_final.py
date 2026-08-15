@@ -71,7 +71,6 @@ def fix_file(filepath: Path, dry_run: bool = False) -> tuple[bool, list[str]]:
     content = content.replace("from itertools import", "from std.itertools import")
     if len(content) != old_len:
         changes.append("itertools → std.itertools")
-        old_len = len(content)
 
     # Write back if changed (unless dry-run)
     if content != original:
