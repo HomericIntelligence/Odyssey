@@ -227,7 +227,11 @@ def test_dispatch_allowlist_is_literal_exact_and_every_target_is_read_only() -> 
         assert isinstance(jobs, dict)
         for job in jobs.values():
             assert isinstance(job, dict)
-            assert "write" not in job.get("permissions", {}).values()
+            # security-events:write is required for SARIF upload to the
+            # Security tab (github/codeql-action/upload-sarif) and is not a
+            # privileged code-write scope — allow it.
+            perms = job.get("permissions", {})
+            assert "write" not in {k: v for k, v in perms.items() if k != "security-events"}.values()
 
 
 def test_writer_dispatches_the_comment_monitor_beside_required_checks() -> None:
