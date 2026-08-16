@@ -147,7 +147,7 @@ gitpython==3.1.58
     # via odyssey
 h11==0.16.0
     # via httpcore
-homericintelligence-hephaestus==0.10.0
+homericintelligence-hephaestus==0.10.3
     # via odyssey
 httpcore==1.0.9
     # via httpx
@@ -309,7 +309,7 @@ nbconvert==7.17.1
     # via
     #   jupyter-server
     #   odyssey
-nbformat==5.10.4
+nbformat==5.11.0
     # via
     #   jupyter-server
     #   nbclient
@@ -416,12 +416,12 @@ py-serializable==2.1.0
     # via cyclonedx-python-lib
 pycparser==3.0 ; implementation_name != 'PyPy'
     # via cffi
-pydantic==2.14.0a1
+pydantic==2.14.0b1
     # via
     #   odyssey
     #   safety
     #   safety-schemas
-pydantic-core==2.47.0
+pydantic-core==2.48.0
     # via pydantic
 pygithub==2.9.1
     # via odyssey
@@ -527,7 +527,7 @@ ruamel-yaml==0.19.1
     #   pre-commit-hooks
     #   safety
     #   safety-schemas
-ruff==0.16.1
+ruff==0.16.2
 safety==3.8.1
 safety-schemas==0.0.16
     # via safety

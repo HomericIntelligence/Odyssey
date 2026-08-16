@@ -456,10 +456,6 @@ def main() -> int:
 
     # Validate input
     if agents_dir_arg:
-        if not agents_dir_arg:
-            logger.error("agents_dir path is required")
-            return 1
-
         agents_dir = Path(agents_dir_arg)
         if not agents_dir.exists():
             logger.error(f"Directory does not exist: {agents_dir_arg}")

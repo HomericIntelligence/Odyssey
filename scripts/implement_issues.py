@@ -22,6 +22,7 @@ from __future__ import annotations
 import argparse
 import atexit
 import collections
+import contextlib
 import curses
 import dataclasses
 import datetime as dt
@@ -650,8 +651,7 @@ def get_worker_slot() -> int:
 # ---------------------------------------------------------------------
 
 
-# Global verbose/debug flags (set from Options)
-_verbose_mode = False
+# Global debug flag (set from Options)
 _debug_mode = False
 
 # Global lock for stdout/stderr to prevent output races
@@ -690,9 +690,9 @@ class DaemonThreadPoolExecutor(ThreadPoolExecutor):
 
 
 def set_verbose(verbose: bool, debug: bool = False) -> None:
-    """Set the global verbose and debug modes."""
-    global _verbose_mode, _debug_mode
-    _verbose_mode = verbose
+    """Set the global debug mode; verbose is retained for API compatibility."""
+    global _debug_mode
+    del verbose  # verbose mode is currently a no-op
     _debug_mode = debug
 
 
@@ -892,8 +892,8 @@ def get_repo_info() -> tuple[str, str]:
             if owner and name:
                 _repo_info_cache = (owner, name)
                 return _repo_info_cache
-        except json.JSONDecodeError:
-            pass
+        except json.JSONDecodeError as exc:
+            log("DEBUG", f"repo-info cache unreadable, falling back to git remote: {exc}")
 
     # Fallback: parse git remote URL
     cp = run(["git", "remote", "get-url", "origin"])
@@ -1561,8 +1561,8 @@ class CursesUI:
 
                 # Render UI
                 self._render()
-            except curses.error:
-                pass
+            except curses.error as exc:
+                log("DEBUG", f"curses render error ignored: {exc}")
             self._status_tracker._update_event.wait(0.1)
             self._status_tracker._update_event.clear()
 
@@ -1585,13 +1585,13 @@ class CursesUI:
             try:
                 self._screen.addstr(i, 0, line, color)
             except curses.error:
-                pass
+                continue
 
         # Separator line
         try:
             self._screen.hline(log_height, 0, curses.ACS_HLINE, width)
-        except curses.error:
-            pass
+        except curses.error as exc:
+            log("DEBUG", f"curses hline error ignored: {exc}")
 
         # Status panel (bottom section)
         data = self._status_tracker.get_status_data()
@@ -1604,8 +1604,8 @@ class CursesUI:
                 header[: width - 1],  # Truncate to screen width
                 curses.color_pair(self.COLOR_HEADER) | curses.A_BOLD,
             )
-        except curses.error:
-            pass
+        except curses.error as exc:
+            log("DEBUG", f"curses header error ignored: {exc}")
 
         # Main thread status
         if StatusTracker.MAIN_THREAD in data["slots"]:
@@ -1615,8 +1615,8 @@ class CursesUI:
             line = f"  Main:     [{stage:12}] ({elapsed}){info_str}"[: width - 1]
             try:
                 self._screen.addstr(log_height + 2, 0, line, curses.color_pair(self.COLOR_HEADER))
-            except curses.error:
-                pass
+            except curses.error as exc:
+                log("DEBUG", f"curses status-line error ignored: {exc}")
         else:
             try:
                 self._screen.addstr(
@@ -1625,8 +1625,8 @@ class CursesUI:
                     "  Main:     [Idle        ]",
                     curses.color_pair(self.COLOR_HEADER),
                 )
-            except curses.error:
-                pass
+            except curses.error as exc:
+                log("DEBUG", f"curses idle-line error ignored: {exc}")
 
         # Worker status lines
         for slot in range(data["max_workers"]):
@@ -1656,7 +1656,7 @@ class CursesUI:
             try:
                 self._screen.addstr(row, 0, line, color)
             except curses.error:
-                pass
+                continue
 
         self._screen.refresh()
 
@@ -1769,11 +1769,9 @@ class CursesUI:
                 self._cycle_view()
 
             # 'q' key: quit (optional - could be disabled to prevent accidental quits)
-            # elif ch == ord('q'):
-            #     self._stop_event.set()
 
-        except curses.error:
-            pass
+        except curses.error as exc:
+            log("DEBUG", f"curses input error ignored: {exc}")
 
     def stop(self) -> None:
         """Signal the UI to stop."""
@@ -1905,10 +1903,8 @@ class ImplementationState:
 
             except Exception as e:
                 # Cleanup temp file on error
-                try:
+                with contextlib.suppress(OSError):
                     os.unlink(temp_path)
-                except OSError:
-                    pass
                 raise RuntimeError(f"Failed to save state: {e}")
 
     @classmethod
@@ -2828,11 +2824,9 @@ class IssueImplementer:
 
             log("ERROR", f"  Claude execution failed: {e}\n{traceback.format_exc()}")
             # Ensure process is dead
-            try:
+            with contextlib.suppress(OSError, subprocess.SubprocessError):
                 proc.kill()
                 proc.wait(timeout=5)
-            except (OSError, subprocess.SubprocessError):
-                pass
             return False, str(e)
 
     def _get_summary(self, worktree: pathlib.Path, slot: int, issue: int) -> str:
@@ -3569,7 +3563,6 @@ DO NOT describe what you're doing - just run the commands to commit.
             if slot != -1 and self.status_tracker:
                 log("DEBUG", f"  Releasing slot {slot} for #{issue} (interrupted)")
                 self.status_tracker.release_slot(slot)
-                slot = -1
 
             if issue in self.state.in_progress:
                 # Update state with synchronization, then save (save() handles its own locking)
@@ -3592,7 +3585,6 @@ DO NOT describe what you're doing - just run the commands to commit.
             if slot != -1 and self.status_tracker:
                 log("DEBUG", f"  Releasing slot {slot} for #{issue} (error)")
                 self.status_tracker.release_slot(slot)
-                slot = -1
 
             if issue in self.state.in_progress:
                 # Update state with synchronization, then save (save() handles its own locking)
@@ -3620,7 +3612,6 @@ DO NOT describe what you're doing - just run the commands to commit.
             if slot != -1 and self.status_tracker:
                 log("DEBUG", f"  Releasing slot {slot} for #{issue} (unexpected error)")
                 self.status_tracker.release_slot(slot)
-                slot = -1
 
             if issue in self.state.in_progress:
                 # Update state with synchronization, then save (save() handles its own locking)

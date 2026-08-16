@@ -142,12 +142,15 @@ jobs:
 
       - name: Determine validation level
         id: validation-level
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          INPUT_LEVEL: ${{ github.event.inputs.validation_level }}
         run: |
           # Manual dispatch uses input
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            LEVEL="${{ github.event.inputs.validation_level }}"
+          if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
+            LEVEL="$INPUT_LEVEL"
           # Weekly schedule (Sunday = day 0) = comprehensive
-          elif [ "${{ github.event_name }}" = "schedule" ]; then
+          elif [ "$EVENT_NAME" = "schedule" ]; then
             DAY_OF_WEEK=$(date +%w)
             if [ "$DAY_OF_WEEK" = "0" ]; then
               LEVEL="comprehensive"

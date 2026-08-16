@@ -16,6 +16,7 @@ install or execute pull-request dependencies.
 from __future__ import annotations
 
 import argparse
+import contextlib
 import json
 import os
 from pathlib import Path
@@ -347,8 +348,7 @@ def render_comment(
     lines.extend(
         [
             "",
-            "_This comment is rendered by trusted default-branch code from "
-            "GitHub API job results. Test artifacts remain diagnostic only._",
+            "_This comment is rendered by trusted default-branch code from GitHub API job results. Test artifacts remain diagnostic only._",
             "",
         ]
     )
@@ -386,10 +386,8 @@ def render_comment_file(
         with os.fdopen(descriptor, "wb") as output:
             output.write(encoded)
     except OSError as error:
-        try:
+        with contextlib.suppress(OSError):
             output_path.unlink(missing_ok=True)
-        except OSError:
-            pass
         raise _fail("trusted comment output could not be written") from error
 
 
