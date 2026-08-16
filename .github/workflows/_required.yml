@@ -215,6 +215,9 @@ jobs:
     name: security/secrets-scan
     runs-on: ubuntu-24.04
     timeout-minutes: 15
+    permissions:
+      contents: read
+      security-events: write
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
@@ -236,19 +239,16 @@ jobs:
             podman run --rm --userns=keep-id:uid=1000,gid=1000 \
               -v "$PWD:/workspace:Z" -w /workspace odyssey-ci:local \
               gitleaks detect --source /workspace --config .gitleaks.toml \
-                --report-format sarif --report-path gitleaks.sarif --redact
+                --report-format sarif --report-path gitleaks.sarif --redact \
+                --exit-code=1
           else
             podman run --rm --userns=keep-id:uid=1000,gid=1000 \
               -v "$PWD:/workspace:Z" -w /workspace odyssey:local \
               gitleaks detect --source /workspace \
-                --report-format sarif --report-path gitleaks.sarif --redact
+                --report-format sarif --report-path gitleaks.sarif --redact \
+                --exit-code=1
           fi
 
-      - name: Upload Gitleaks SARIF
-        if: always() && hashFiles('gitleaks.sarif') != ''
-        uses: github/codeql-action/upload-sarif@5595ccaf912efad79be6eef63a5619ff05969be3  # v3
-        with:
-          sarif_file: gitleaks.sarif
 
   build:
     name: build

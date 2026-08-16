@@ -650,7 +650,10 @@ model: sonnet
 
         raw = extract_frontmatter_raw(content)
         assert raw is not None
-        assert "https://example.com" in raw
+        # Verify via the parsed dict so the URL-bearing value is asserted as data,
+        # not as a URL-substring sanitization check.
+        _, parsed = extract_frontmatter_parsed(content)
+        assert parsed["description"] == "See https://example.com for details"
 
 
 if __name__ == "__main__":

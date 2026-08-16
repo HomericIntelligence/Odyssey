@@ -145,7 +145,7 @@ gitpython==3.1.58
     # via odyssey
 h11==0.16.0
     # via httpcore
-homericintelligence-hephaestus==0.10.0
+homericintelligence-hephaestus==0.10.3
     # via odyssey
 httpcore==1.0.9
     # via httpx
@@ -307,7 +307,7 @@ nbconvert==7.17.1
     # via
     #   jupyter-server
     #   odyssey
-nbformat==5.10.4
+nbformat==5.11.0
     # via
     #   jupyter-server
     #   nbclient
@@ -525,7 +525,7 @@ ruamel-yaml==0.19.1
     #   pre-commit-hooks
     #   safety
     #   safety-schemas
-ruff==0.16.1
+ruff==0.16.2
 safety==3.8.1
 safety-schemas==0.0.16
     # via safety
