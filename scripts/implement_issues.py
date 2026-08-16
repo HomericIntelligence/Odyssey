@@ -2739,6 +2739,9 @@ class IssueImplementer:
                     # Non-blocking read with timeout using select
                     import select
 
+                    if proc.stdout is None:
+                        break
+
                     readable, _, _ = select.select([proc.stdout], [], [], 0.5)
 
                     if readable and proc.stdout is not None:

@@ -221,7 +221,7 @@ repos:
 
   # Python type checking
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.19.1
+    rev: v2.3.0
     hooks:
       - id: mypy
         files: ^(scripts|tests|tools)/.*\.py$
@@ -323,7 +323,7 @@ repos:
 
   # General file checks
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.6.0
+    rev: v6.0.0
     hooks:
       - id: trailing-whitespace
         name: Trim Trailing Whitespace
