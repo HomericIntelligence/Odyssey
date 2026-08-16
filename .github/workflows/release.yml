@@ -96,13 +96,15 @@ jobs:
         id: check-prerelease
         env:
           VERSION: ${{ steps.get-version.outputs.version }}
+          EVENT_NAME: ${{ github.event_name }}
+          PRERELEASE_INPUT: ${{ github.event.inputs.prerelease }}
         run: |
           VERSION="$VERSION"
           IS_PRERELEASE="false"
 
           # Check manual input first
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            IS_PRERELEASE="${{ github.event.inputs.prerelease }}"
+          if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
+            IS_PRERELEASE="$PRERELEASE_INPUT"
           else
             # Auto-detect from version string
             if echo "$VERSION" | grep -qE '-(alpha|beta|rc|dev|pre)'; then
