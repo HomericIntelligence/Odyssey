@@ -49,9 +49,12 @@ jobs:
 
       - name: Get version from tag or input
         id: get-version
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          INPUT_VERSION: ${{ github.event.inputs.version }}
         run: |
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            VERSION="${{ github.event.inputs.version }}"
+          if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
+            VERSION="$INPUT_VERSION"
           else
             VERSION="${GITHUB_REF#refs/tags/}"
           fi
@@ -91,8 +94,10 @@ jobs:
 
       - name: Determine if pre-release
         id: check-prerelease
+        env:
+          VERSION: ${{ steps.get-version.outputs.version }}
         run: |
-          VERSION="${{ steps.get-version.outputs.version }}"
+          VERSION="$VERSION"
           IS_PRERELEASE="false"
 
           # Check manual input first

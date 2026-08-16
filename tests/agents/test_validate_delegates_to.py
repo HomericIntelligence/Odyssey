@@ -339,7 +339,7 @@ class TestDelegatesToRealAgents:
             agents_dir = candidate / ".claude" / "agents"
             if agents_dir.is_dir():
                 return agents_dir
-        pytest.skip(".claude/agents/ not found — skipping integration test")
+        return pytest.skip(".claude/agents/ not found — skipping integration test")
 
     def test_all_agent_delegates_to_references_exist(self) -> None:
         """Every delegates_to name in .claude/agents/ maps to a real .md file."""

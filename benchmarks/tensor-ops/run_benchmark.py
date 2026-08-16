@@ -157,8 +157,8 @@ def get_environment_info() -> Dict[str, str]:
         )
         if result.returncode == 0:
             mojo_version = result.stdout.strip().split("\n")[0]
-    except Exception:
-        pass
+    except Exception as exc:
+        _ = exc  # env probe is best-effort; mojo_version stays "unknown"
 
     # Get git commit
     git_commit = "unknown"
@@ -172,8 +172,8 @@ def get_environment_info() -> Dict[str, str]:
         )
         if result.returncode == 0:
             git_commit = result.stdout.strip()
-    except Exception:
-        pass
+    except Exception as exc:
+        _ = exc  # env probe is best-effort; git_commit stays "unknown"
 
     return {
         "os": platform.system().lower(),

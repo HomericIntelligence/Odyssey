@@ -77,7 +77,7 @@ def test_tarball_is_readable(tmp_path):
     extract_dir.mkdir()
 
     with tarfile.open(tarball_path, "r:gz") as tar:
-        tar.extractall(extract_dir)
+        tar.extractall(extract_dir, filter="data")
 
     # Verify extracted structure
     papers_dir = extract_dir / "papers"
@@ -110,7 +110,7 @@ def test_papers_readme_content(tmp_path):
     extract_dir.mkdir()
 
     with tarfile.open(tarball_path, "r:gz") as tar:
-        tar.extractall(extract_dir)
+        tar.extractall(extract_dir, filter="data")
 
     extracted_readme = extract_dir / "papers" / "README.md"
     extracted_content = extracted_readme.read_text()

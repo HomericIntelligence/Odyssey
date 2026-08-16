@@ -76,7 +76,7 @@ def rewrite_source_block(recipe_text: str, commit_sha: str) -> str:
     surrounding fields (build, requirements, tests, about) untouched.
     """
     # Match the entire `source:` block up to the next top-level key (`build:`).
-    pattern = re.compile(r"^source:\n(?:[ \t]+.*\n|\n)*?(?=^[A-Za-z])", re.MULTILINE)
+    pattern = re.compile(r"^source:\n(?:[ \t][^\n]*\n|\n)*?(?=^[A-Za-z])", re.MULTILINE)
     replacement = (
         f"source:\n"
         f"  - git: {UPSTREAM_REPO_URL[:-4]}\n"  # strip ".git" — the modular-community recipes don't suffix it
