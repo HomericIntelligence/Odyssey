@@ -65,7 +65,7 @@ dependencies = [
 # Dev-only tools (were [feature.dev.dependencies] in pixi.toml).
 dev = [
     "flask>=3.0.0,<4",
-    "pip>=26.1",  # CVE-2026-1703 / -6357 (#5386)
+    "pip>=26.2.1",  # CVE-2026-1703 / -6357 (#5386)
     # Python build frontend — used by `just wheel` to produce the odyssey wheel.
     "build>=1.2,<2",
 

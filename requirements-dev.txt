@@ -367,7 +367,7 @@ pexpect==4.9.0 ; sys_platform != 'emscripten' and sys_platform != 'win32'
     # via ipython
 pillow==12.3.0
     # via matplotlib
-pip==26.1.2
+pip==26.2.1
     # via pip-api
 pip-api==0.0.34
     # via pip-audit
