@@ -642,11 +642,7 @@ wheels = [
 
 [[package]]
 name = "homericintelligence-hephaestus"
-<<<<<<< HEAD
-version = "0.10.1"
-=======
 version = "0.10.3"
->>>>>>> origin/main
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "jinja2" },
@@ -654,15 +650,9 @@ dependencies = [
     { name = "pyyaml" },
     { name = "tzdata", marker = "sys_platform == 'win32'" },
 ]
-<<<<<<< HEAD
-sdist = { url = "https://files.pythonhosted.org/packages/d7/62/dd9a0d3496cc3ae78b0051a50022f8bf40c42ca722c1aba9d079756c2d94/homericintelligence_hephaestus-0.10.1.tar.gz", hash = "sha256:9d8ac53451eed63adc91dc832018bf3e2568c392ae56dcce6cf06a6fde6d45f0", size = 788270, upload-time = "2026-08-05T19:56:42.339Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/0c/d6/4b29f3035bc0411dc6113f658fc20881ced8504d013993136d4182056403/homericintelligence_hephaestus-0.10.1-py3-none-any.whl", hash = "sha256:051384e1b82018c669fe73753091af72a71cb24c5a1f82e63d7a94cc7d2be207", size = 962119, upload-time = "2026-08-05T19:56:40.247Z" },
-=======
 sdist = { url = "https://files.pythonhosted.org/packages/2a/50/e98ecdf25a233ab5f08cdbbe8ed8110b42216eb0c280438932150d353097/homericintelligence_hephaestus-0.10.3.tar.gz", hash = "sha256:5577b54bb3b325ddea4aceb311ad3b20950dbb57e06271f459c544621fee3e73", size = 813406, upload-time = "2026-08-08T00:08:52.218Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/ca/ea/142832afabe495ec057e523db411ad472b9fe8af4eb2c838a3299e825ac5/homericintelligence_hephaestus-0.10.3-py3-none-any.whl", hash = "sha256:f15526c07893a4c5c70c6c35f551b60b40e8390b748ba87279dafcea54f9bd7e", size = 989625, upload-time = "2026-08-08T00:08:50.215Z" },
->>>>>>> origin/main
 ]
 
 [[package]]
@@ -1679,11 +1669,7 @@ requires-dist = [
     { name = "cryptography", specifier = ">=50.0.0" },
     { name = "defusedxml", specifier = ">=0.0.1" },
     { name = "gitpython", specifier = ">=3.1.58" },
-<<<<<<< HEAD
-    { name = "homericintelligence-hephaestus", specifier = ">=0.10.1,<1" },
-=======
     { name = "homericintelligence-hephaestus", specifier = ">=0.10.3,<1" },
->>>>>>> origin/main
     { name = "jinja2", specifier = ">=3.1.0,<4" },
     { name = "jsonschema", specifier = ">=4.0" },
     { name = "mistune", specifier = ">=3.3.4" },

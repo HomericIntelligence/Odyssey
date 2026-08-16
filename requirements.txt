@@ -51,11 +51,7 @@ gitdb==4.0.12
     # via gitpython
 gitpython==3.1.58
     # via odyssey
-<<<<<<< HEAD
-homericintelligence-hephaestus==0.10.1
-=======
 homericintelligence-hephaestus==0.10.3
->>>>>>> origin/main
     # via odyssey
 idna==3.18
     # via requests

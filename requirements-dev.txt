@@ -145,11 +145,7 @@ gitpython==3.1.58
     # via odyssey
 h11==0.16.0
     # via httpcore
-<<<<<<< HEAD
-homericintelligence-hephaestus==0.10.1
-=======
 homericintelligence-hephaestus==0.10.3
->>>>>>> origin/main
     # via odyssey
 httpcore==1.0.9
     # via httpx
