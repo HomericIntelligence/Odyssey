@@ -14,7 +14,7 @@ FROM ghcr.io/astral-sh/uv:0.12.3@sha256:2d890623d310b57771ce840f0da5eed5fc6d657d
 # ==============================================================================
 # Stage 1: Builder - Install dependencies and build packages
 # ==============================================================================
-FROM mcr.microsoft.com/mirror/docker/library/ubuntu:24.04 AS builder
+FROM mcr.microsoft.com/mirror/docker/library/ubuntu:24.04@sha256:4fdf0125919d24aec972544669dcd7d6a26a8ad7e6561c73d5549bd6db258ac2 AS builder
 
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -71,12 +71,12 @@ COPY --chown=${USER_NAME}:${USER_NAME} pyproject.toml ./
 # ==============================================================================
 # Stage 2: Runtime - Minimal image for running tests/inference
 # ==============================================================================
-FROM mcr.microsoft.com/mirror/docker/library/ubuntu:24.04 AS runtime
+FROM mcr.microsoft.com/mirror/docker/library/ubuntu:24.04@sha256:4fdf0125919d24aec972544669dcd7d6a26a8ad7e6561c73d5549bd6db258ac2 AS runtime
 
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Install minimal runtime dependencies (as root)
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && apt-get upgrade -y && apt-get install -y \
     curl \
     ca-certificates \
     && rm -rf /var/lib/apt/lists/*
