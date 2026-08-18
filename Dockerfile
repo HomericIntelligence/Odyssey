@@ -119,6 +119,12 @@ COPY --chown=${USER_NAME}:${USER_NAME} pyproject.toml uv.lock .python-version .p
 # baked in here; the workspace source is bind-mounted at runtime.
 RUN uv sync --locked --no-install-project
 
+# Security pin for the system python3 preinstalled in the ubuntu:24.04 base.
+# trivy flags the base-shipped setuptools 70.3.0 (CVE-2025-47273, CVE-2026-59890)
+# and msgpack 1.1.2 (GHSA-6v7p-g79w-8964). PEP 668 on noble requires
+# --break-system-packages for the distro-managed interpreter.
+RUN if command -v python3 >/dev/null 2>&1; then         python3 -m ensurepip --upgrade --break-system-packages >/dev/null 2>&1;         python3 -m pip install --no-cache-dir --break-system-packages             setuptools==83.0.0 msgpack==1.2.1;     fi
+
 # Ensure pre-commit is available in the uv environment
 RUN uv run pre-commit --version
 
