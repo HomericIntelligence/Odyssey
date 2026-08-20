@@ -258,7 +258,7 @@ def test_stopped_default_machine_does_not_mask_reachable_active_engine(
 @pytest.mark.parametrize(
     ("cpus", "memory_mib"),
     [
-        ("5", "16384"),
+        ("3", "16384"),
         ("6", "8192"),
     ],
 )
@@ -267,7 +267,7 @@ def test_preflight_fails_when_active_engine_is_below_default_resources(
     cpus: str,
     memory_mib: str,
 ) -> None:
-    """The default profile requires the Compose-aligned 6 CPU / 16 GiB VM."""
+    """The default profile requires at least 4 CPUs and a 16 GiB VM."""
     result = _run_preflight(
         tmp_path,
         overrides={
@@ -347,10 +347,10 @@ def test_constrained_profile_rejects_excess_guest_reservation(
 
 
 def test_default_profile_accepts_usable_memory_boundary(tmp_path: Path) -> None:
-    """A 16-GiB nominal VM may reserve exactly 512 MiB from Host.MemTotal."""
+    """A 16-GiB nominal VM may reserve up to 1 GiB from Host.MemTotal."""
     result = _run_preflight(
         tmp_path,
-        overrides={"STUB_HOST_MEMORY_BYTES": str(15872 * 1024**2)},
+        overrides={"STUB_HOST_MEMORY_BYTES": str(15360 * 1024**2)},
     )
 
     assert result.returncode == 0, result.stderr
@@ -359,15 +359,15 @@ def test_default_profile_accepts_usable_memory_boundary(tmp_path: Path) -> None:
 def test_default_profile_rejects_below_usable_memory_boundary(
     tmp_path: Path,
 ) -> None:
-    """A default profile below 15872 MiB usable memory fails closed."""
+    """A default profile below 15360 MiB usable memory fails closed."""
     result = _run_preflight(
         tmp_path,
-        overrides={"STUB_HOST_MEMORY_BYTES": str(15871 * 1024**2)},
+        overrides={"STUB_HOST_MEMORY_BYTES": str(15359 * 1024**2)},
     )
 
     assert result.returncode != 0
     assert "16 GiB nominal configured capacity" in result.stderr
-    assert "Host.MemTotal of at least 15872 MiB" in result.stderr
+    assert "Host.MemTotal of at least 15360 MiB" in result.stderr
 
 
 def test_preflight_rejects_undocumented_resource_profile(tmp_path: Path) -> None:
@@ -485,7 +485,7 @@ def test_preflight_rejects_compose_cpu_quota_above_active_runtime(
     """The effective container CPU quota must fit the connected engine."""
     result = _run_preflight(
         tmp_path,
-        overrides={"STUB_HOST_CPUS": "5"},
+        overrides={"STUB_HOST_CPUS": "3"},
     )
 
     assert result.returncode != 0
@@ -547,7 +547,7 @@ def test_preflight_checks_native_linux_host_resources(tmp_path: Path) -> None:
         tmp_path,
         overrides={
             "STUB_MACHINE_PRESENT": "0",
-            "STUB_HOST_CPUS": "4",
+            "STUB_HOST_CPUS": "3",
             "STUB_HOST_MEMORY_BYTES": str(32 * 1024**3),
         },
     )
@@ -610,6 +610,18 @@ def test_just_container_entry_recipes_depend_on_preflight() -> None:
     )
     for recipe in recipes:
         assert "podman-preflight" in _recipe_header(justfile, recipe)
+
+
+def test_podman_up_cpu_controller_probe_distinguishes_present_and_absent() -> None:
+    """The rootless fallback only activates when Podman lacks CPU cgroups."""
+    justfile = JUSTFILE.read_text(encoding="utf-8")
+    probe_line = next(line for line in justfile.splitlines() if '"cgroupControllers"' in line)
+    match = re.search(r"grep -Eq '([^']+)'", probe_line)
+    assert match is not None
+    probe = match.group(1)
+
+    assert re.search(probe, '{"cgroupControllers":["cpu","memory"]}')
+    assert not re.search(probe, '{"cgroupControllers":["memory","pids"]}')
 
 
 def test_non_compute_podman_recipes_are_not_needlessly_gated() -> None:
@@ -700,7 +712,7 @@ def test_compose_services_share_the_preflighted_resource_contract() -> None:
     for service_name in ("odyssey-dev", "odyssey-ci", "odyssey-prod"):
         service = compose["services"][service_name]
         assert service["mem_limit"] == "${ODYSSEY_MEM_LIMIT:-14g}"
-        assert service["cpus"] == "${ODYSSEY_CPU_LIMIT:-6.0}"
+        assert service["cpus"] == "${ODYSSEY_CPU_LIMIT:-4.0}"
 
 
 def test_example_environment_exposes_only_supported_resource_profiles() -> None:
@@ -711,12 +723,12 @@ def test_example_environment_exposes_only_supported_resource_profiles() -> None:
     assert {
         "BUILD_PARALLELISM=4",
         "ODYSSEY_MEM_LIMIT=14g",
-        "ODYSSEY_CPU_LIMIT=6.0",
+        "ODYSSEY_CPU_LIMIT=4.0",
     } <= assignments
     assert {
         "BUILD_PARALLELISM=1",
         "ODYSSEY_MEM_LIMIT=7g",
-        "ODYSSEY_CPU_LIMIT=6.0",
+        "ODYSSEY_CPU_LIMIT=4.0",
     } <= assignments
     assert "ODYSSEY_PODMAN_MIN_CPUS" not in env_example
     assert "ODYSSEY_PODMAN_MIN_MEMORY_GIB" not in env_example
