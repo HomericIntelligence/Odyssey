@@ -26,7 +26,7 @@ export GROUP_ID := env_var_or_default("GROUP_ID", `id -g`)
 export USER_NAME := "dev"
 export BUILD_PARALLELISM := env_var_or_default("BUILD_PARALLELISM", "4")
 export ODYSSEY_MEM_LIMIT := env_var_or_default("ODYSSEY_MEM_LIMIT", "14g")
-export ODYSSEY_CPU_LIMIT := env_var_or_default("ODYSSEY_CPU_LIMIT", "6.0")
+export ODYSSEY_CPU_LIMIT := env_var_or_default("ODYSSEY_CPU_LIMIT", "4.0")
 
 show-user:
 	@echo "USER_ID = {{USER_ID}}"
@@ -137,7 +137,22 @@ podman-up: podman-preflight
         echo "    Recreating container against the current clone..."
         podman compose down
     fi
-    podman compose up -d {{podman_service}}
+    # Rootless cgroup v2 setups may not delegate the CPU controller. In that
+    # case, a non-zero Compose `cpus` quota makes crun refuse to start the
+    # container even though the engine reports the host CPUs correctly. Use
+    # zero to request no CPU quota while retaining the memory limit.
+    COMPOSE_CPU_LIMIT="{{ODYSSEY_CPU_LIMIT}}"
+    COMPOSE_BUILD_PARALLELISM="{{BUILD_PARALLELISM}}"
+    if ! podman info --format json 2>/dev/null \
+        | grep -Eq '"cgroupControllers":\\[[^]]*"cpu"'; then
+        echo "⚠️  Podman CPU cgroup controller is unavailable; disabling the CPU quota."
+        echo "   Limiting Mojo builds to one compiler at a time to avoid host OOM."
+        COMPOSE_CPU_LIMIT="0"
+        COMPOSE_BUILD_PARALLELISM="1"
+    fi
+    BUILD_PARALLELISM="$COMPOSE_BUILD_PARALLELISM" \
+        ODYSSEY_CPU_LIMIT="$COMPOSE_CPU_LIMIT" \
+        podman compose up -d --build {{podman_service}}
 
 # Stop Podman development environment
 podman-down:
@@ -250,7 +265,7 @@ ci-podman-validate: podman-preflight
 # ==============================================================================
 
 # Build/compile Mojo files with mode-specific flags
-build mode="debug":
+build mode="debug": podman-up
     @just _run "just _build-inner {{mode}}"
 
 [private]

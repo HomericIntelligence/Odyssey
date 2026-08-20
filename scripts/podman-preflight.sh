@@ -4,7 +4,7 @@
 #
 # Mojo compilation is memory intensive. The default and constrained profiles
 # target nominal 16-GiB and 8-GiB runtimes, respectively. Podman Host.MemTotal
-# may be at most 512 MiB lower because the guest reserves memory for itself.
+# may be at most 1 GiB lower because the guest reserves memory for itself.
 # The rendered Compose model and active engine are authoritative; this script
 # never guesses which Podman machine is in use.
 
@@ -92,9 +92,9 @@ resource_remediation() {
     printf 'Podman connection, then restart Podman as needed.\n'
     printf 'Inspect the active connection with: podman system connection list\n'
     printf 'Supported profiles:\n'
-    printf '  default:     ODYSSEY_MEM_LIMIT=14g ODYSSEY_CPU_LIMIT=6.0 '
-    printf 'BUILD_PARALLELISM=1..4 (16-GiB nominal; Host.MemTotal >=15872 MiB)\n'
-    printf '  constrained: ODYSSEY_MEM_LIMIT=7g ODYSSEY_CPU_LIMIT=6.0 '
+    printf '  default:     ODYSSEY_MEM_LIMIT=14g ODYSSEY_CPU_LIMIT=4.0 '
+    printf 'BUILD_PARALLELISM=1..4 (16-GiB nominal; Host.MemTotal >=15360 MiB)\n'
+    printf '  constrained: ODYSSEY_MEM_LIMIT=7g ODYSSEY_CPU_LIMIT=4.0 '
     printf 'BUILD_PARALLELISM=1 (8-GiB nominal; Host.MemTotal >=7680 MiB)\n'
 }
 
@@ -109,7 +109,7 @@ user_id="${USER_ID:-$(id -u)}"
 group_id="${GROUP_ID:-$(id -g)}"
 build_parallelism="${BUILD_PARALLELISM:-4}"
 compose_memory_limit="${ODYSSEY_MEM_LIMIT:-14g}"
-compose_cpu_limit="${ODYSSEY_CPU_LIMIT:-6.0}"
+compose_cpu_limit="${ODYSSEY_CPU_LIMIT:-4.0}"
 
 require_positive_integer "USER_ID" "$user_id"
 require_positive_integer "GROUP_ID" "$group_id"
@@ -259,15 +259,18 @@ fi
 gib=$((1024 * 1024 * 1024))
 default_memory_bytes=$((14 * gib))
 constrained_memory_bytes=$((7 * gib))
-required_cpu_micros=6000000
+minimum_profile_cpu_micros=4000000
+maximum_profile_cpu_micros=6000000
 if ((compose_memory_bytes == default_memory_bytes)) \
-    && ((compose_cpu_micros == required_cpu_micros)) \
+    && ((compose_cpu_micros >= minimum_profile_cpu_micros)) \
+    && ((compose_cpu_micros <= maximum_profile_cpu_micros)) \
     && ((build_parallelism <= 4)); then
     profile_name="default"
     nominal_memory_gib=16
-    minimum_usable_memory_mib=15872
+    minimum_usable_memory_mib=15360
 elif ((compose_memory_bytes == constrained_memory_bytes)) \
-    && ((compose_cpu_micros == required_cpu_micros)) \
+    && ((compose_cpu_micros >= minimum_profile_cpu_micros)) \
+    && ((compose_cpu_micros <= maximum_profile_cpu_micros)) \
     && ((build_parallelism == 1)); then
     profile_name="constrained"
     nominal_memory_gib=8
@@ -279,7 +282,7 @@ else
     } >&2
     exit 1
 fi
-minimum_cpus=6
+minimum_cpus=4
 minimum_usable_memory_bytes=$((minimum_usable_memory_mib * 1024 * 1024))
 
 if ((compose_memory_bytes > runtime_memory_bytes)); then
@@ -306,7 +309,7 @@ if ((runtime_cpus < minimum_cpus)) || ((runtime_memory_bytes < minimum_usable_me
             "$profile_name" "$nominal_memory_gib"
         printf 'requires at least %s CPUs, and requires Host.MemTotal of at least %s MiB ' \
             "$minimum_cpus" "$minimum_usable_memory_mib"
-        printf '(allowing up to 512 MiB for the Podman guest reservation).\n'
+        printf '(allowing up to 1 GiB for the Podman guest reservation).\n'
         resource_remediation
     } >&2
     exit 1
