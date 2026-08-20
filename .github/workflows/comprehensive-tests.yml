@@ -75,6 +75,19 @@ jobs:
             echo "✅ PASSED: No deprecated List constructor patterns found"
           fi
 
+      - name: Reject AVX-512 target overrides
+        run: |
+          echo "Checking active build and test paths for AVX-512 feature disables..."
+          if grep -RInEi --exclude="comprehensive-tests.yml" \
+              -- "-avx512|MOJO_TARGET_CPU" \
+              justfile .github scripts src tests examples benchmarks 2>/dev/null; then
+            echo ""
+            echo "❌ FAILED: Active paths must not disable AVX-512 explicitly."
+            echo "The #6413 canary must observe the compiler's native CPU-feature detection."
+            exit 1
+          fi
+          echo "✅ PASSED: No active AVX-512 feature disable found"
+
       - name: Check for deprecated backward result alias names
         run: |
           echo "============================================================"

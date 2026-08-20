@@ -45,22 +45,12 @@ MOJO_DEBUG := "-g2 --no-optimization"
 MOJO_RELEASE := "-g0 -O3"
 MOJO_TEST := "-g1"
 
-# Disable AVX-512 for sanitizer-instrumented builds only.
-#
-# The upstream AVX-512 mis-emission bug (modular/modular#6413) is fixed in the
-# driver path: `mojo build --print-effective-target` correctly downgrades the
-# target when the runner masks AVX-512. However, ASAN-instrumented codegen on
-# Mojo 1.0.0b2.dev2026052506 still emits AVX-512 encodings that SIGILL on
-# AVX-512-masked GHA runners (confirmed: tests/odyssey/core/test_hash.mojo
-# fails with "Illegal instruction (core dumped)" under just test-group-asan when
-# this strip is absent). The non-sanitizer paths now run without this workaround.
-#
-# Once the driver fix propagates through sanitizer codegen upstream, remove this
-# block and let MOJO_ASAN/MOJO_TSAN fall through to the bare sanitizer flag.
-MOJO_TARGET_CPU := "--target-features -avx512bf16,-avx512bitalg,-avx512bw,-avx512cd,-avx512dq,-avx512f,-avx512ifma,-avx512vbmi,-avx512vbmi2,-avx512vl,-avx512vnni,-avx512vpopcntdq"
-
-MOJO_ASAN := "--sanitize address " + MOJO_TARGET_CPU
-MOJO_TSAN := "--sanitize thread " + MOJO_TARGET_CPU
+# Sanitizer flags are intentionally unmodified so sanitizer codegen exercises
+# the compiler's native CPU-feature detection. In particular, do not add an
+# AVX-512 feature override here: the #6413 regression test must observe any
+# future reintroduction of unsafe instructions.
+MOJO_ASAN := "--sanitize address"
+MOJO_TSAN := "--sanitize thread"
 
 # ==============================================================================
 # Internal Helpers
@@ -710,7 +700,7 @@ train model="lenet_emnist" precision="fp32" epochs="10" batch_size="32" lr="0.00
     MODEL="{{model}}"
     if [ "$MODEL" = "lenet" ] || [ "$MODEL" = "lenet5" ]; then MODEL="lenet_emnist"; fi
     echo "Training $MODEL with precision={{precision}}, epochs={{epochs}}"
-    just _run "uv run mojo run {{MOJO_TARGET_CPU}} -I . examples/$MODEL/run_train.mojo \
+    just _run "uv run mojo run -I . examples/$MODEL/run_train.mojo \
         --epochs {{epochs}} --batch-size {{batch_size}} \
         --lr {{lr}} --precision {{precision}}"
 
@@ -720,7 +710,7 @@ infer model="lenet_emnist" checkpoint="lenet5_weights":
     MODEL="{{model}}"
     if [ "$MODEL" = "lenet" ] || [ "$MODEL" = "lenet5" ]; then MODEL="lenet_emnist"; fi
     echo "Running inference for $MODEL with checkpoint={{checkpoint}}"
-    just _run "uv run mojo run {{MOJO_TARGET_CPU}} -I . examples/$MODEL/run_infer.mojo \
+    just _run "uv run mojo run -I . examples/$MODEL/run_infer.mojo \
         --checkpoint {{checkpoint}} --test-set"
 
 # Run inference on single image. Accepts lenet/lenet5 as aliases for lenet_emnist.
@@ -729,7 +719,7 @@ infer-image checkpoint image_path model="lenet_emnist":
     MODEL="{{model}}"
     if [ "$MODEL" = "lenet" ] || [ "$MODEL" = "lenet5" ]; then MODEL="lenet_emnist"; fi
     echo "Running inference on {{image_path}}"
-    just _run "uv run mojo run {{MOJO_TARGET_CPU}} -I . examples/$MODEL/run_infer.mojo \
+    just _run "uv run mojo run -I . examples/$MODEL/run_infer.mojo \
         --checkpoint {{checkpoint}} --image {{image_path}}"
 
 # Download EMNIST dataset (balanced split) and flatten to datasets/emnist/
@@ -1466,23 +1456,9 @@ _test-example-backward-inner:
         echo "=================================================="
         echo "Running example test: $f"
         echo "=================================================="
-        # Strip AVX-512 from the target (modular/modular#6413). The "Example
-        # Backward Tests" job flakes with "execution crashed" inside
-        # libKGENCompilerRTShared.so on AVX-512-masked GHA runners (Azure Zen4:
-        # Hyper-V masks the AVX-512 CPUID bits, but --target-cpu fingerprinting
-        # sees a Zen4 name and emits AVX-512 anyway → SIGILL). The MOJO_TARGET_CPU
-        # strip (defined justfile:52, wired into MOJO_ASAN/MOJO_TSAN at :54-55)
-        # is the repo's fix for the same crash under sanitizers.
-        #
-        # `mojo run`'s in-process JIT DOES honor --target-features (proven: on an
-        # AVX-512-less host, forcing `--target-features +avx512f` makes `mojo run`
-        # emit AVX-512 and SIGILL with this same libKGENCompilerRTShared.so
-        # backtrace, while the strip below runs clean). This directly reproduces
-        # #6413 and confirms the strip removes the crashing codegen — not just an
-        # AOT-only flag (correcting the "only helps for AOT" hedge in
-        # notes/mojo-cpu-detection-source-review.md). Harmless where AVX-512 is
-        # absent (features are simply already-off).
-        if ! uv run mojo run --Werror {{MOJO_TARGET_CPU}} \
+        # Run without target-feature overrides so this path remains a direct
+        # canary for modular/modular#6413 if unsafe JIT codegen returns.
+        if ! uv run mojo run --Werror \
                 -I "$REPO_ROOT/src" -I "$REPO_ROOT" \
                 -I "$REPO_ROOT/examples/$ex" -Xlinker -lm "$f"; then
             echo "FAILED: $f"
@@ -1513,8 +1489,9 @@ _training-smoke-one-inner example entry:
     echo "=================================================="
     # --epochs 1 is REQUIRED: some models loop `for epoch in range(epochs)`
     # (default up to 200); --max-batches only caps batches PER epoch. The
-    # {{MOJO_TARGET_CPU}} strip is the #6413 AVX-512 workaround (see MOJO_TARGET_CPU def).
-    out=$(uv run mojo run --Werror {{MOJO_TARGET_CPU}} \
+    # Keep this smoke path unmodified so compiler CPU-feature regressions fail
+    # loudly instead of being hidden by a target override.
+    out=$(uv run mojo run --Werror \
             -I "$REPO_ROOT/src" -I "$REPO_ROOT" \
             -I "$REPO_ROOT/examples/$ex" -Xlinker -lm "$f" \
             --smoke --max-batches 3 --batch-size 4 --epochs 1 2>&1)
