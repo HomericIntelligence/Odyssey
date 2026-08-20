@@ -972,13 +972,13 @@ jobs:
   # ============================================================================
   # Build Validation (absorbed from build-validation.yml)
   # ============================================================================
+  # `mojo-compilation` already runs the full `just ci-build` validation. Keep
+  # this required status for compatibility, but avoid launching a second full
+  # example sweep that can exceed the job timeout.
   build-validation:
-    needs: [mojo-syntax-check]
+    needs: [mojo-compilation]
     runs-on: ubuntu-latest
-    # 30 min: `just build` + `just package` now compile the full src/odyssey
-    # package and 46 example/benchmark binaries (#5389). Previously the
-    # build recipe was a 1-file no-op, so 10 min was sufficient.
-    timeout-minutes: 30
+    timeout-minutes: 10
     name: "Build Validation"
 
     steps:
@@ -991,10 +991,7 @@ jobs:
       - name: Install Just
         uses: extractions/setup-just@53165ef7e734c5c07cb06b3c8e7b647c5aa16db3  # v4.0.0
 
-      - name: Build project
-        run: just build
-
-      - name: Validate package
+      - name: Validate shared package
         run: just package
 
   # ============================================================================
