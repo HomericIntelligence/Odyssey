@@ -612,6 +612,18 @@ def test_just_container_entry_recipes_depend_on_preflight() -> None:
         assert "podman-preflight" in _recipe_header(justfile, recipe)
 
 
+def test_podman_up_cpu_controller_probe_distinguishes_present_and_absent() -> None:
+    """The rootless fallback only activates when Podman lacks CPU cgroups."""
+    justfile = JUSTFILE.read_text(encoding="utf-8")
+    probe_line = next(line for line in justfile.splitlines() if '"cgroupControllers"' in line)
+    match = re.search(r"grep -Eq '([^']+)'", probe_line)
+    assert match is not None
+    probe = match.group(1)
+
+    assert re.search(probe, '{"cgroupControllers":["cpu","memory"]}')
+    assert not re.search(probe, '{"cgroupControllers":["memory","pids"]}')
+
+
 def test_non_compute_podman_recipes_are_not_needlessly_gated() -> None:
     """Inspection, shutdown, and publishing controls stay independently usable."""
     justfile = JUSTFILE.read_text(encoding="utf-8")

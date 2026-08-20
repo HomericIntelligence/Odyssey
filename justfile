@@ -144,7 +144,7 @@ podman-up: podman-preflight
     COMPOSE_CPU_LIMIT="{{ODYSSEY_CPU_LIMIT}}"
     COMPOSE_BUILD_PARALLELISM="{{BUILD_PARALLELISM}}"
     if ! podman info --format json 2>/dev/null \
-        | grep -Eq '"cgroupControllers":\\[[^]]*"cpu"'; then
+        | grep -Eq '"cgroupControllers":\[[^]]*"cpu"'; then
         echo "⚠️  Podman CPU cgroup controller is unavailable; disabling the CPU quota."
         echo "   Limiting Mojo builds to one compiler at a time to avoid host OOM."
         COMPOSE_CPU_LIMIT="0"
