@@ -68,7 +68,7 @@ See Also:
 from odyssey.tensor.any_tensor import AnyTensor
 
 
-trait Module(ImplicitlyDestructible):
+trait Module(Deinitable):
     """Standard interface for neural network modules and layers.
 
     A Module is any component in a neural network that can be composed

@@ -300,14 +300,20 @@ def _softmax_backward(
             var dot_sum = Float32(0.0)
             for i in range(last_dim):
                 dot_sum += (
-                    grad_ptr.bitcast[Float32]()[offset + i]
-                    * softmax_ptr.bitcast[Float32]()[offset + i]
+                    grad_ptr.unsafe_bitcast[Float32]()[unsafe_offset=offset + i]
+                    * softmax_ptr.unsafe_bitcast[Float32]()[
+                        unsafe_offset=offset + i
+                    ]
                 )
 
             # Compute gradient: softmax * (grad - dot_sum)
             for i in range(last_dim):
-                var s = softmax_ptr.bitcast[Float32]()[offset + i]
-                var g = grad_ptr.bitcast[Float32]()[offset + i]
+                var s = softmax_ptr.unsafe_bitcast[Float32]()[
+                    unsafe_offset=offset + i
+                ]
+                var g = grad_ptr.unsafe_bitcast[Float32]()[
+                    unsafe_offset=offset + i
+                ]
                 result[offset + i] = Float32(s * (g - dot_sum))
 
     elif grad_output.dtype() == DType.float64:
@@ -317,13 +323,19 @@ def _softmax_backward(
             var dot_sum = Float64(0.0)
             for i in range(last_dim):
                 dot_sum += (
-                    grad_ptr.bitcast[Float64]()[offset + i]
-                    * softmax_ptr.bitcast[Float64]()[offset + i]
+                    grad_ptr.unsafe_bitcast[Float64]()[unsafe_offset=offset + i]
+                    * softmax_ptr.unsafe_bitcast[Float64]()[
+                        unsafe_offset=offset + i
+                    ]
                 )
 
             for i in range(last_dim):
-                var s = softmax_ptr.bitcast[Float64]()[offset + i]
-                var g = grad_ptr.bitcast[Float64]()[offset + i]
+                var s = softmax_ptr.unsafe_bitcast[Float64]()[
+                    unsafe_offset=offset + i
+                ]
+                var g = grad_ptr.unsafe_bitcast[Float64]()[
+                    unsafe_offset=offset + i
+                ]
                 result.set(offset + i, s * (g - dot_sum))
 
     else:
@@ -624,7 +636,9 @@ def _reshape_for_heads(
                             + k
                         )
                         result[dst_idx] = Float32(
-                            x_ptr.bitcast[Float32]()[src_idx]
+                            x_ptr.unsafe_bitcast[Float32]()[
+                                unsafe_offset=src_idx
+                            ]
                         )
     else:
         for b in range(batch):
@@ -640,7 +654,12 @@ def _reshape_for_heads(
                             + s * d_k
                             + k
                         )
-                        result.set(dst_idx, x_ptr.bitcast[Float64]()[src_idx])
+                        result.set(
+                            dst_idx,
+                            x_ptr.unsafe_bitcast[Float64]()[
+                                unsafe_offset=src_idx
+                            ],
+                        )
 
     return result
 
@@ -685,7 +704,9 @@ def _reshape_from_heads(
                             b * (seq_len * d_model) + s * d_model + h * d_k + k
                         )
                         result[dst_idx] = Float32(
-                            x_ptr.bitcast[Float32]()[src_idx]
+                            x_ptr.unsafe_bitcast[Float32]()[
+                                unsafe_offset=src_idx
+                            ]
                         )
     else:
         for b in range(batch):
@@ -701,7 +722,12 @@ def _reshape_from_heads(
                         var dst_idx = (
                             b * (seq_len * d_model) + s * d_model + h * d_k + k
                         )
-                        result.set(dst_idx, x_ptr.bitcast[Float64]()[src_idx])
+                        result.set(
+                            dst_idx,
+                            x_ptr.unsafe_bitcast[Float64]()[
+                                unsafe_offset=src_idx
+                            ],
+                        )
 
     return result
 

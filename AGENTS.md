@@ -431,7 +431,7 @@ Skills with `mcp_fallback` in YAML frontmatter will be updated to use direct CLI
 
 ### Mojo Development Guidelines
 
-This project uses **Mojo 1.0.0b2** (pinned as `mojo==1.0.0b2` in `pyproject.toml`).
+This project uses **Mojo 1.0.0** (pinned as `mojo==1.0.0` in `pyproject.toml`).
 The Mojo compiler is now installed via uv from the Modular PyPI index (ADR-018).
 Official docs: <https://mojolang.org/docs/>
 
@@ -487,7 +487,7 @@ uv sync --locked
 **`pyproject.toml` is the single source of truth for all dependencies** (Python packages, Mojo
 version, and dev tools), locked in `uv.lock` — including inside Docker/container contexts. The
 Mojo compiler is installed via uv from the Modular PyPI index (ADR-018), version pinned
-`mojo==1.0.0b2`, configured in `pyproject.toml` under `[tool.uv]` as an index named `modular`
+`mojo==1.0.0`, configured in `pyproject.toml` under `[tool.uv]` as an index named `modular`
 (`extra-index-url https://modular.gateway.scarf.sh/simple/`). It is **no longer** installed from
 conda/pixi. To add or change a dependency, edit `pyproject.toml` then run `uv lock`; dev tools
 live under `[dependency-groups] dev`. Do NOT hand-edit `requirements*.txt` — they are generated

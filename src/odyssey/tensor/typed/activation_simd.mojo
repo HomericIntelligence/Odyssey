@@ -12,7 +12,7 @@ from odyssey.tensor.tensor import Tensor
 # Typed Tensor[dtype] SIMD Overloads
 # ============================================================================
 # These accept Tensor[dtype] directly, avoiding AnyTensor bitcasts.
-# Tensor[dtype]._data is already UnsafePointer[Scalar[dtype], MutAnyOrigin].
+# Tensor[dtype]._data is already Pointer[Scalar[dtype], MutUntrackedOrigin].
 
 
 def _relu_simd_typed[dt: DType](input: Tensor[dt], mut result: Tensor[dt]):

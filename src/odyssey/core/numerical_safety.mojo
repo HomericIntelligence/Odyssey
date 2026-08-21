@@ -582,7 +582,7 @@ def _clip_norm_sq_simd_f32(tensor: AnyTensor) -> Float64:
     """Compute squared L2 norm using SIMD for float32 tensors."""
     comptime simd_width = simd_width_of[DType.float32]()
     var size = tensor._numel
-    var ptr = tensor._data.bitcast[Float32]()
+    var ptr = tensor._data.unsafe_bitcast[Float32]()
     var acc = Float64(0.0)
 
     def vectorized_norm[width: Int](idx: Int) {var ptr, mut acc}:
@@ -599,7 +599,7 @@ def _clip_norm_sq_simd_f64(tensor: AnyTensor) -> Float64:
     """Compute squared L2 norm using SIMD for float64 tensors."""
     comptime simd_width = simd_width_of[DType.float64]()
     var size = tensor._numel
-    var ptr = tensor._data.bitcast[Float64]()
+    var ptr = tensor._data.unsafe_bitcast[Float64]()
     var acc = Float64(0.0)
 
     def vectorized_norm[width: Int](idx: Int) {var ptr, mut acc}:
@@ -616,7 +616,7 @@ def _clip_scale_simd_f32(tensor: AnyTensor, scale: Float32):
     """Scale all elements in-place using SIMD for float32 tensors."""
     comptime simd_width = simd_width_of[DType.float32]()
     var size = tensor._numel
-    var ptr = tensor._data.bitcast[Float32]()
+    var ptr = tensor._data.unsafe_bitcast[Float32]()
 
     def vectorized_scale[width: Int](idx: Int) {var ptr, var scale}:
         var vec = ptr.load[width=width](idx)
@@ -631,7 +631,7 @@ def _clip_scale_simd_f64(tensor: AnyTensor, scale: Float64):
     """Scale all elements in-place using SIMD for float64 tensors."""
     comptime simd_width = simd_width_of[DType.float64]()
     var size = tensor._numel
-    var ptr = tensor._data.bitcast[Float64]()
+    var ptr = tensor._data.unsafe_bitcast[Float64]()
 
     def vectorized_scale[width: Int](idx: Int) {var ptr, var scale}:
         var vec = ptr.load[width=width](idx)
@@ -646,7 +646,7 @@ def _clip_clamp_simd_f32(tensor: AnyTensor, min_val: Float32, max_val: Float32):
     """Clamp all elements in-place using SIMD for float32 tensors."""
     comptime simd_width = simd_width_of[DType.float32]()
     var size = tensor._numel
-    var ptr = tensor._data.bitcast[Float32]()
+    var ptr = tensor._data.unsafe_bitcast[Float32]()
 
     def vectorized_clamp[
         width: Int
@@ -664,7 +664,7 @@ def _clip_clamp_simd_f64(tensor: AnyTensor, min_val: Float64, max_val: Float64):
     """Clamp all elements in-place using SIMD for float64 tensors."""
     comptime simd_width = simd_width_of[DType.float64]()
     var size = tensor._numel
-    var ptr = tensor._data.bitcast[Float64]()
+    var ptr = tensor._data.unsafe_bitcast[Float64]()
 
     def vectorized_clamp[
         width: Int

@@ -11,7 +11,7 @@ Run with: `mojo test_data_integrity_part1.mojo`
 
 
 from std.collections import List
-from std.memory import UnsafePointer
+from std.memory import Pointer
 from odyssey.tensor.any_tensor import AnyTensor
 from odyssey.tensor.tensor_creation import zeros, ones
 from tests.odyssey.conftest import assert_equal_int, assert_true

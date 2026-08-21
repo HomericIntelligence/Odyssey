@@ -34,7 +34,7 @@ References:
 
 from std.algorithm import vectorize
 from std.sys.info import simd_width_of
-from std.memory import memset_zero
+from std.memory import unsafe_memset_zero
 from odyssey.tensor.any_tensor import AnyTensor
 from odyssey.tensor.tensor_creation import zeros
 from odyssey.core.error_utils import format_dtype, format_matmul_error
@@ -130,9 +130,9 @@ def _matmul_typed_float32(
     Raises:
         Error: If operation fails.
     """
-    var a_ptr = a._data.bitcast[Float32]()
-    var b_ptr = b._data.bitcast[Float32]()
-    var c_ptr = c._data.bitcast[Float32]()
+    var a_ptr = a._data.unsafe_bitcast[Float32]()
+    var b_ptr = b._data.unsafe_bitcast[Float32]()
+    var c_ptr = c._data.unsafe_bitcast[Float32]()
 
     for i in range(M):
         for j in range(N):
@@ -151,9 +151,9 @@ def _matmul_typed_float64(
     Raises:
         Error: If operation fails.
     """
-    var a_ptr = a._data.bitcast[Float64]()
-    var b_ptr = b._data.bitcast[Float64]()
-    var c_ptr = c._data.bitcast[Float64]()
+    var a_ptr = a._data.unsafe_bitcast[Float64]()
+    var b_ptr = b._data.unsafe_bitcast[Float64]()
+    var c_ptr = c._data.unsafe_bitcast[Float64]()
 
     for i in range(M):
         for j in range(N):
@@ -225,9 +225,9 @@ def _matmul_simd_float32(
     """Float32-specific SIMD matmul implementation."""
     comptime simd_width = simd_width_of[DType.float32]()
 
-    var a_ptr = a._data.bitcast[Float32]()
-    var b_ptr = b._data.bitcast[Float32]()
-    var c_ptr = c._data.bitcast[Float32]()
+    var a_ptr = a._data.unsafe_bitcast[Float32]()
+    var b_ptr = b._data.unsafe_bitcast[Float32]()
+    var c_ptr = c._data.unsafe_bitcast[Float32]()
 
     for i in range(M):
         # Vectorize J loop for contiguous access in C and B
@@ -254,9 +254,9 @@ def _matmul_simd_float64(
     """Float64-specific SIMD matmul implementation."""
     comptime simd_width = simd_width_of[DType.float64]()
 
-    var a_ptr = a._data.bitcast[Float64]()
-    var b_ptr = b._data.bitcast[Float64]()
-    var c_ptr = c._data.bitcast[Float64]()
+    var a_ptr = a._data.unsafe_bitcast[Float64]()
+    var b_ptr = b._data.unsafe_bitcast[Float64]()
+    var c_ptr = c._data.unsafe_bitcast[Float64]()
 
     for i in range(M):
         # Vectorize J loop for contiguous access in C and B
@@ -336,8 +336,8 @@ def matmul_tiled(a: AnyTensor, b: AnyTensor, mut c: AnyTensor) raises:
 
 @always_inline
 def _zero_matrix(mut c: AnyTensor, size: Int):
-    """Zero out the matrix using memset."""
-    memset_zero(c._data, size * c._get_dtype_size())
+    """Zero out the matrix using unsafe_memset."""
+    unsafe_memset_zero(c._data, size * c._get_dtype_size())
 
 
 @always_inline
@@ -347,9 +347,9 @@ def _matmul_tiled_float32(
     """Float32-specific cache-blocked SIMD matmul implementation."""
     comptime simd_width = simd_width_of[DType.float32]()
 
-    var a_ptr = a._data.bitcast[Float32]()
-    var b_ptr = b._data.bitcast[Float32]()
-    var c_ptr = c._data.bitcast[Float32]()
+    var a_ptr = a._data.unsafe_bitcast[Float32]()
+    var b_ptr = b._data.unsafe_bitcast[Float32]()
+    var c_ptr = c._data.unsafe_bitcast[Float32]()
 
     # Block over all three dimensions
     for i0 in range(0, M, BLOCK_M):
@@ -398,9 +398,9 @@ def _matmul_tiled_float64(
     """Float64-specific cache-blocked SIMD matmul implementation."""
     comptime simd_width = simd_width_of[DType.float64]()
 
-    var a_ptr = a._data.bitcast[Float64]()
-    var b_ptr = b._data.bitcast[Float64]()
-    var c_ptr = c._data.bitcast[Float64]()
+    var a_ptr = a._data.unsafe_bitcast[Float64]()
+    var b_ptr = b._data.unsafe_bitcast[Float64]()
+    var c_ptr = c._data.unsafe_bitcast[Float64]()
 
     # Block over all three dimensions
     for i0 in range(0, M, BLOCK_M):
@@ -526,8 +526,8 @@ def _transpose_matrix_float32(b: AnyTensor, K: Int, N: Int) raises -> AnyTensor:
     b_t_shape.append(K)
     var b_t = AnyTensor(b_t_shape, DType.float32)
 
-    var b_ptr = b._data.bitcast[Float32]()
-    var bt_ptr = b_t._data.bitcast[Float32]()
+    var b_ptr = b._data.unsafe_bitcast[Float32]()
+    var bt_ptr = b_t._data.unsafe_bitcast[Float32]()
 
     # Transpose with blocking for cache efficiency
     comptime TILE = 32
@@ -550,8 +550,8 @@ def _transpose_matrix_float64(b: AnyTensor, K: Int, N: Int) raises -> AnyTensor:
     b_t_shape.append(K)
     var b_t = AnyTensor(b_t_shape, DType.float64)
 
-    var b_ptr = b._data.bitcast[Float64]()
-    var bt_ptr = b_t._data.bitcast[Float64]()
+    var b_ptr = b._data.unsafe_bitcast[Float64]()
+    var bt_ptr = b_t._data.unsafe_bitcast[Float64]()
 
     # Transpose with blocking for cache efficiency
     comptime TILE = 32
@@ -578,9 +578,9 @@ def _matmul_float32(
     # This makes the dot product use contiguous memory in both operands
     var b_t = _transpose_matrix_float32(b, K, N)
 
-    var a_ptr = a._data.bitcast[Float32]()
-    var bt_ptr = b_t._data.bitcast[Float32]()
-    var c_ptr = c._data.bitcast[Float32]()
+    var a_ptr = a._data.unsafe_bitcast[Float32]()
+    var bt_ptr = b_t._data.unsafe_bitcast[Float32]()
+    var c_ptr = c._data.unsafe_bitcast[Float32]()
 
     # Cache-blocked computation with register-blocked micro-kernel
     for i0 in range(0, M, BLOCK_M):
@@ -691,9 +691,9 @@ def _matmul_float64(
     # Transpose B for contiguous access
     var b_t = _transpose_matrix_float64(b, K, N)
 
-    var a_ptr = a._data.bitcast[Float64]()
-    var bt_ptr = b_t._data.bitcast[Float64]()
-    var c_ptr = c._data.bitcast[Float64]()
+    var a_ptr = a._data.unsafe_bitcast[Float64]()
+    var bt_ptr = b_t._data.unsafe_bitcast[Float64]()
+    var c_ptr = c._data.unsafe_bitcast[Float64]()
 
     # Cache-blocked computation with register-blocked micro-kernel
     for i0 in range(0, M, BLOCK_M):
@@ -958,8 +958,8 @@ def verify_matmul_correctness(M: Int, K: Int, N: Int) raises -> Bool:
     var b = AnyTensor(b_shape, DType.float32)
 
     # Initialize with simple values for reproducibility
-    var a_ptr = a._data.bitcast[Float32]()
-    var b_ptr = b._data.bitcast[Float32]()
+    var a_ptr = a._data.unsafe_bitcast[Float32]()
+    var b_ptr = b._data.unsafe_bitcast[Float32]()
 
     for i in range(M * K):
         a_ptr.store(i, Float32(i % 10) * 0.1)

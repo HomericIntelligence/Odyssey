@@ -126,7 +126,7 @@ def test_original_survives_copy_destruction() raises:
     _modify_through_copy(tensor1)
 
     # Verify modification persists through original
-    var value = tensor1._data.bitcast[Float32]()[0]
+    var value = tensor1._data.unsafe_bitcast[Float32]()[unsafe_offset=0]
     assert_true(value == 99.0, "Original should reflect modification")
 
 
@@ -214,7 +214,7 @@ def test_view_does_not_free_data() raises:
 
     _create_and_drop_view(original)
 
-    var value = original._data.bitcast[Float32]()[0]
+    var value = original._data.unsafe_bitcast[Float32]()[unsafe_offset=0]
     assert_true(value == 42.0, "Original data should be intact")
 
 
@@ -226,7 +226,7 @@ def test_view_modification_affects_original() raises:
     shape.append(4)
     var view = original.reshape(shape)
     view.set(0, Float32(99.0))
-    var value = original._data.bitcast[Float32]()[0]
+    var value = original._data.unsafe_bitcast[Float32]()[unsafe_offset=0]
     assert_true(
         value == 99.0, "Modification through view should affect original"
     )

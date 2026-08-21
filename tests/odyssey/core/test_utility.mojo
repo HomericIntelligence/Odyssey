@@ -53,7 +53,7 @@ def make_bf16_nan_tensor(raw_bits: UInt16) raises -> AnyTensor:
     var shape = List[Int]()
     shape.append(1)
     var tensor = AnyTensor(shape, DType.bfloat16)
-    var ptr = tensor._data.bitcast[UInt16]()
+    var ptr = tensor._data.unsafe_bitcast[UInt16]()
     ptr[] = raw_bits
     return tensor^
 

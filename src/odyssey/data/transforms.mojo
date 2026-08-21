@@ -71,7 +71,7 @@ def infer_image_dimensions(
 # ============================================================================
 
 
-trait Transform(Copyable, ImplicitlyDestructible, Movable):
+trait Transform(Copyable, Deinitable, Movable):
     """Base interface for all transforms.
 
     Transforms modify data in-place or return transformed copies.

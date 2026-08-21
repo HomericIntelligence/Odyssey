@@ -70,7 +70,7 @@ def slice_impl(
     result._shape[axis] = end - start
 
     # Update data pointer to point to sliced data
-    result._data = tensor._data + offset_bytes
+    result._data = tensor._data.unsafe_offset(offset_bytes)
 
     # Strides remain the same (already copied by copy constructor)
 
@@ -152,42 +152,66 @@ def clone_impl(tensor: AnyTensor) raises -> AnyTensor:
         var val: Float64
 
         if tensor._dtype == DType.float16:
-            var ptr = (tensor._data + offset_bytes).bitcast[Float16]()
+            var ptr = tensor._data.unsafe_offset(offset_bytes).unsafe_bitcast[
+                Float16
+            ]()
             val = ptr[].cast[DType.float64]()
         elif tensor._dtype == DType.bfloat16:
-            var ptr = (tensor._data + offset_bytes).bitcast[BFloat16]()
+            var ptr = tensor._data.unsafe_offset(offset_bytes).unsafe_bitcast[
+                BFloat16
+            ]()
             val = Float64(Float32(ptr[]))
         elif tensor._dtype == DType.float32:
-            var ptr = (tensor._data + offset_bytes).bitcast[Float32]()
+            var ptr = tensor._data.unsafe_offset(offset_bytes).unsafe_bitcast[
+                Float32
+            ]()
             val = ptr[].cast[DType.float64]()
         elif tensor._dtype == DType.float64:
-            var ptr = (tensor._data + offset_bytes).bitcast[Float64]()
+            var ptr = tensor._data.unsafe_offset(offset_bytes).unsafe_bitcast[
+                Float64
+            ]()
             val = ptr[]
         else:
             # For integer types, use _get_int64 via byte offset
             if tensor._dtype == DType.int8:
-                var ptr = (tensor._data + offset_bytes).bitcast[Int8]()
+                var ptr = tensor._data.unsafe_offset(
+                    offset_bytes
+                ).unsafe_bitcast[Int8]()
                 val = Float64(ptr[])
             elif tensor._dtype == DType.int16:
-                var ptr = (tensor._data + offset_bytes).bitcast[Int16]()
+                var ptr = tensor._data.unsafe_offset(
+                    offset_bytes
+                ).unsafe_bitcast[Int16]()
                 val = Float64(ptr[])
             elif tensor._dtype == DType.int32:
-                var ptr = (tensor._data + offset_bytes).bitcast[Int32]()
+                var ptr = tensor._data.unsafe_offset(
+                    offset_bytes
+                ).unsafe_bitcast[Int32]()
                 val = Float64(ptr[])
             elif tensor._dtype == DType.int64:
-                var ptr = (tensor._data + offset_bytes).bitcast[Int64]()
+                var ptr = tensor._data.unsafe_offset(
+                    offset_bytes
+                ).unsafe_bitcast[Int64]()
                 val = Float64(ptr[])
             elif tensor._dtype == DType.uint8:
-                var ptr = (tensor._data + offset_bytes).bitcast[UInt8]()
+                var ptr = tensor._data.unsafe_offset(
+                    offset_bytes
+                ).unsafe_bitcast[UInt8]()
                 val = Float64(Int(ptr[]))
             elif tensor._dtype == DType.uint16:
-                var ptr = (tensor._data + offset_bytes).bitcast[UInt16]()
+                var ptr = tensor._data.unsafe_offset(
+                    offset_bytes
+                ).unsafe_bitcast[UInt16]()
                 val = Float64(Int(ptr[]))
             elif tensor._dtype == DType.uint32:
-                var ptr = (tensor._data + offset_bytes).bitcast[UInt32]()
+                var ptr = tensor._data.unsafe_offset(
+                    offset_bytes
+                ).unsafe_bitcast[UInt32]()
                 val = Float64(Int(ptr[]))
             elif tensor._dtype == DType.uint64:
-                var ptr = (tensor._data + offset_bytes).bitcast[UInt64]()
+                var ptr = tensor._data.unsafe_offset(
+                    offset_bytes
+                ).unsafe_bitcast[UInt64]()
                 val = Float64(Int(ptr[]))
             else:
                 val = 0.0

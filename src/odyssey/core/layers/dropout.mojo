@@ -160,18 +160,30 @@ struct DropoutLayer(Copyable, Movable):
 
         if input._dtype == DType.float32:
             for i in range(input._numel):
-                var input_val = input._data.bitcast[Float32]()[i]
-                var mask_val = mask._data.bitcast[Float32]()[i]
+                var input_val = input._data.unsafe_bitcast[Float32]()[
+                    unsafe_offset=i
+                ]
+                var mask_val = mask._data.unsafe_bitcast[Float32]()[
+                    unsafe_offset=i
+                ]
                 result[i] = Float32(mask_val * input_val * scale)
         elif input._dtype == DType.float64:
             for i in range(input._numel):
-                var input_val = input._data.bitcast[Float64]()[i]
-                var mask_val = Float64(mask._data.bitcast[Float32]()[i])
+                var input_val = input._data.unsafe_bitcast[Float64]()[
+                    unsafe_offset=i
+                ]
+                var mask_val = Float64(
+                    mask._data.unsafe_bitcast[Float32]()[unsafe_offset=i]
+                )
                 result.set(i, mask_val * input_val * Float64(scale))
         elif input._dtype == DType.float16:
             for i in range(input._numel):
-                var input_val = input._data.bitcast[Float16]()[i]
-                var mask_val = Float16(mask._data.bitcast[Float32]()[i])
+                var input_val = input._data.unsafe_bitcast[Float16]()[
+                    unsafe_offset=i
+                ]
+                var mask_val = Float16(
+                    mask._data.unsafe_bitcast[Float32]()[unsafe_offset=i]
+                )
                 result.set(i, Float16(mask_val * input_val * Float16(scale)))
         else:
             raise Error("dropout: only float16/32/64 dtypes supported")
@@ -212,18 +224,30 @@ struct DropoutLayer(Copyable, Movable):
 
         if grad_output._dtype == DType.float32:
             for i in range(grad_output._numel):
-                var grad_val = grad_output._data.bitcast[Float32]()[i]
-                var mask_val = mask._data.bitcast[Float32]()[i]
+                var grad_val = grad_output._data.unsafe_bitcast[Float32]()[
+                    unsafe_offset=i
+                ]
+                var mask_val = mask._data.unsafe_bitcast[Float32]()[
+                    unsafe_offset=i
+                ]
                 result[i] = Float32(mask_val * grad_val * scale)
         elif grad_output._dtype == DType.float64:
             for i in range(grad_output._numel):
-                var grad_val = grad_output._data.bitcast[Float64]()[i]
-                var mask_val = Float64(mask._data.bitcast[Float32]()[i])
+                var grad_val = grad_output._data.unsafe_bitcast[Float64]()[
+                    unsafe_offset=i
+                ]
+                var mask_val = Float64(
+                    mask._data.unsafe_bitcast[Float32]()[unsafe_offset=i]
+                )
                 result.set(i, mask_val * grad_val * Float64(scale))
         elif grad_output._dtype == DType.float16:
             for i in range(grad_output._numel):
-                var grad_val = grad_output._data.bitcast[Float16]()[i]
-                var mask_val = Float16(mask._data.bitcast[Float32]()[i])
+                var grad_val = grad_output._data.unsafe_bitcast[Float16]()[
+                    unsafe_offset=i
+                ]
+                var mask_val = Float16(
+                    mask._data.unsafe_bitcast[Float32]()[unsafe_offset=i]
+                )
                 result.set(i, Float16(mask_val * grad_val * Float16(scale)))
         else:
             raise Error("dropout backward: only float16/32/64 dtypes supported")

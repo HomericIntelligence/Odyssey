@@ -68,7 +68,7 @@ def test_confusion_matrix_basic() raises:
         var row_str = "    ["
         for j in range(3):
             var idx = i * 3 + j
-            var val = Int(raw._data.bitcast[Float64]()[idx])
+            var val = Int(raw._data.unsafe_bitcast[Float64]()[idx])
             row_str = row_str + String(val)
             if j < 2:
                 row_str = row_str + " "
@@ -77,19 +77,29 @@ def test_confusion_matrix_basic() raises:
 
     # Verify specific values
     assert_equal(
-        Int(raw._data.bitcast[Float64]()[0]), 1, "Matrix[0,0] should be 1"
+        Int(raw._data.unsafe_bitcast[Float64]()[0]),
+        1,
+        "Matrix[0,0] should be 1",
     )
     assert_equal(
-        Int(raw._data.bitcast[Float64]()[1]), 1, "Matrix[0,1] should be 1"
+        Int(raw._data.unsafe_bitcast[Float64]()[1]),
+        1,
+        "Matrix[0,1] should be 1",
     )
     assert_equal(
-        Int(raw._data.bitcast[Float64]()[4]), 1, "Matrix[1,1] should be 1"
+        Int(raw._data.unsafe_bitcast[Float64]()[4]),
+        1,
+        "Matrix[1,1] should be 1",
     )
     assert_equal(
-        Int(raw._data.bitcast[Float64]()[5]), 1, "Matrix[1,2] should be 1"
+        Int(raw._data.unsafe_bitcast[Float64]()[5]),
+        1,
+        "Matrix[1,2] should be 1",
     )
     assert_equal(
-        Int(raw._data.bitcast[Float64]()[8]), 1, "Matrix[2,2] should be 1"
+        Int(raw._data.unsafe_bitcast[Float64]()[8]),
+        1,
+        "Matrix[2,2] should be 1",
     )
 
     print("  ✓ ConfusionMatrix basic test passed")
@@ -120,13 +130,19 @@ def test_confusion_matrix_perfect() raises:
     var raw = cm.normalize(mode="none")
 
     assert_equal(
-        Int(raw._data.bitcast[Float64]()[0]), 2, "Matrix[0,0] should be 2"
+        Int(raw._data.unsafe_bitcast[Float64]()[0]),
+        2,
+        "Matrix[0,0] should be 2",
     )
     assert_equal(
-        Int(raw._data.bitcast[Float64]()[4]), 2, "Matrix[1,1] should be 2"
+        Int(raw._data.unsafe_bitcast[Float64]()[4]),
+        2,
+        "Matrix[1,1] should be 2",
     )
     assert_equal(
-        Int(raw._data.bitcast[Float64]()[8]), 2, "Matrix[2,2] should be 2"
+        Int(raw._data.unsafe_bitcast[Float64]()[8]),
+        2,
+        "Matrix[2,2] should be 2",
     )
 
     # All off-diagonal should be 0
@@ -135,7 +151,7 @@ def test_confusion_matrix_perfect() raises:
             if i != j:
                 var idx = i * 3 + j
                 assert_equal(
-                    Int(raw._data.bitcast[Float64]()[idx]),
+                    Int(raw._data.unsafe_bitcast[Float64]()[idx]),
                     0,
                     "Off-diagonal should be 0",
                 )
@@ -147,14 +163,18 @@ def test_confusion_matrix_perfect() raises:
 
     for i in range(3):
         assert_equal(
-            precision._data.bitcast[Float64]()[i],
+            precision._data.unsafe_bitcast[Float64]()[i],
             1.0,
             "Precision should be 1.0",
         )
         assert_equal(
-            recall._data.bitcast[Float64]()[i], 1.0, "Recall should be 1.0"
+            recall._data.unsafe_bitcast[Float64]()[i],
+            1.0,
+            "Recall should be 1.0",
         )
-        assert_equal(f1._data.bitcast[Float64]()[i], 1.0, "F1 should be 1.0")
+        assert_equal(
+            f1._data.unsafe_bitcast[Float64]()[i], 1.0, "F1 should be 1.0"
+        )
 
     print("  ✓ Perfect predictions test passed")
 
@@ -192,16 +212,24 @@ def test_confusion_matrix_normalize_row() raises:
     # Row 1: [0, 2] -> [0.0, 1.0]
 
     assert_equal(
-        row_norm._data.bitcast[Float64]()[0], 0.5, "Row 0, col 0 should be 0.5"
+        row_norm._data.unsafe_bitcast[Float64]()[0],
+        0.5,
+        "Row 0, col 0 should be 0.5",
     )
     assert_equal(
-        row_norm._data.bitcast[Float64]()[1], 0.5, "Row 0, col 1 should be 0.5"
+        row_norm._data.unsafe_bitcast[Float64]()[1],
+        0.5,
+        "Row 0, col 1 should be 0.5",
     )
     assert_equal(
-        row_norm._data.bitcast[Float64]()[2], 0.0, "Row 1, col 0 should be 0.0"
+        row_norm._data.unsafe_bitcast[Float64]()[2],
+        0.0,
+        "Row 1, col 0 should be 0.0",
     )
     assert_equal(
-        row_norm._data.bitcast[Float64]()[3], 1.0, "Row 1, col 1 should be 1.0"
+        row_norm._data.unsafe_bitcast[Float64]()[3],
+        1.0,
+        "Row 1, col 1 should be 1.0",
     )
 
     print("  ✓ Row normalization test passed")
@@ -240,16 +268,24 @@ def test_confusion_matrix_normalize_column() raises:
     # Column 1: [1, 2] -> [0.333..., 0.666...]
 
     assert_equal(
-        col_norm._data.bitcast[Float64]()[0], 1.0, "Col 0, row 0 should be 1.0"
+        col_norm._data.unsafe_bitcast[Float64]()[0],
+        1.0,
+        "Col 0, row 0 should be 1.0",
     )
     assert_equal(
-        col_norm._data.bitcast[Float64]()[2], 0.0, "Col 0, row 1 should be 0.0"
+        col_norm._data.unsafe_bitcast[Float64]()[2],
+        0.0,
+        "Col 0, row 1 should be 0.0",
     )
 
     var expected_col1_row0 = 1.0 / 3.0
     var expected_col1_row1 = 2.0 / 3.0
-    var diff0 = abs(col_norm._data.bitcast[Float64]()[1] - expected_col1_row0)
-    var diff1 = abs(col_norm._data.bitcast[Float64]()[3] - expected_col1_row1)
+    var diff0 = abs(
+        col_norm._data.unsafe_bitcast[Float64]()[1] - expected_col1_row0
+    )
+    var diff1 = abs(
+        col_norm._data.unsafe_bitcast[Float64]()[3] - expected_col1_row1
+    )
 
     assert_true(diff0 < 0.01, "Col 1, row 0 should be ~0.333")
     assert_true(diff1 < 0.01, "Col 1, row 1 should be ~0.667")
@@ -289,10 +325,18 @@ def test_confusion_matrix_normalize_total() raises:
     # Total: 4
     # Normalized: [0.25, 0.25; 0.0, 0.5]
 
-    assert_equal(total_norm._data.bitcast[Float64]()[0], 0.25, "Should be 0.25")
-    assert_equal(total_norm._data.bitcast[Float64]()[1], 0.25, "Should be 0.25")
-    assert_equal(total_norm._data.bitcast[Float64]()[2], 0.0, "Should be 0.0")
-    assert_equal(total_norm._data.bitcast[Float64]()[3], 0.5, "Should be 0.5")
+    assert_equal(
+        total_norm._data.unsafe_bitcast[Float64]()[0], 0.25, "Should be 0.25"
+    )
+    assert_equal(
+        total_norm._data.unsafe_bitcast[Float64]()[1], 0.25, "Should be 0.25"
+    )
+    assert_equal(
+        total_norm._data.unsafe_bitcast[Float64]()[2], 0.0, "Should be 0.0"
+    )
+    assert_equal(
+        total_norm._data.unsafe_bitcast[Float64]()[3], 0.5, "Should be 0.5"
+    )
 
     print("  ✓ Total normalization test passed")
 
@@ -330,17 +374,17 @@ def test_confusion_matrix_precision() raises:
     var precision = cm.get_precision()
 
     assert_equal(
-        precision._data.bitcast[Float64]()[0],
+        precision._data.unsafe_bitcast[Float64]()[0],
         0.5,
         "Precision class 0 should be 0.5",
     )
     assert_equal(
-        precision._data.bitcast[Float64]()[1],
+        precision._data.unsafe_bitcast[Float64]()[1],
         1.0,
         "Precision class 1 should be 1.0",
     )
     assert_equal(
-        precision._data.bitcast[Float64]()[2],
+        precision._data.unsafe_bitcast[Float64]()[2],
         1.0,
         "Precision class 2 should be 1.0",
     )
@@ -381,15 +425,21 @@ def test_confusion_matrix_recall() raises:
     var recall = cm.get_recall()
 
     assert_equal(
-        recall._data.bitcast[Float64]()[0], 1.0, "Recall class 0 should be 1.0"
+        recall._data.unsafe_bitcast[Float64]()[0],
+        1.0,
+        "Recall class 0 should be 1.0",
     )
 
     var expected_recall_1 = 2.0 / 3.0
-    var diff = abs(recall._data.bitcast[Float64]()[1] - expected_recall_1)
+    var diff = abs(
+        recall._data.unsafe_bitcast[Float64]()[1] - expected_recall_1
+    )
     assert_true(diff < 0.01, "Recall class 1 should be ~0.667")
 
     assert_equal(
-        recall._data.bitcast[Float64]()[2], 1.0, "Recall class 2 should be 1.0"
+        recall._data.unsafe_bitcast[Float64]()[2],
+        1.0,
+        "Recall class 2 should be 1.0",
     )
 
     print("  ✓ Recall test passed")
@@ -430,10 +480,10 @@ def test_confusion_matrix_f1_score() raises:
     # Class 1: 2 * (0.5 * 0.5) / (0.5 + 0.5) = 0.5 / 1.0 = 0.5
 
     assert_equal(
-        f1._data.bitcast[Float64]()[0], 0.5, "F1 class 0 should be 0.5"
+        f1._data.unsafe_bitcast[Float64]()[0], 0.5, "F1 class 0 should be 0.5"
     )
     assert_equal(
-        f1._data.bitcast[Float64]()[1], 0.5, "F1 class 1 should be 0.5"
+        f1._data.unsafe_bitcast[Float64]()[1], 0.5, "F1 class 1 should be 0.5"
     )
 
     print("  ✓ F1-score test passed")
@@ -484,16 +534,24 @@ def test_confusion_matrix_with_logits() raises:
     var raw = cm.normalize(mode="none")
 
     assert_equal(
-        Int(raw._data.bitcast[Float64]()[0]), 1, "Matrix[0,0] should be 1"
+        Int(raw._data.unsafe_bitcast[Float64]()[0]),
+        1,
+        "Matrix[0,0] should be 1",
     )
     assert_equal(
-        Int(raw._data.bitcast[Float64]()[1]), 1, "Matrix[0,1] should be 1"
+        Int(raw._data.unsafe_bitcast[Float64]()[1]),
+        1,
+        "Matrix[0,1] should be 1",
     )
     assert_equal(
-        Int(raw._data.bitcast[Float64]()[4]), 1, "Matrix[1,1] should be 1"
+        Int(raw._data.unsafe_bitcast[Float64]()[4]),
+        1,
+        "Matrix[1,1] should be 1",
     )
     assert_equal(
-        Int(raw._data.bitcast[Float64]()[8]), 1, "Matrix[2,2] should be 1"
+        Int(raw._data.unsafe_bitcast[Float64]()[8]),
+        1,
+        "Matrix[2,2] should be 1",
     )
 
     print("  ✓ Logits test passed")
@@ -526,7 +584,7 @@ def test_confusion_matrix_reset() raises:
     var raw = cm.normalize(mode="none")
     for i in range(4):
         assert_equal(
-            Int(raw._data.bitcast[Float64]()[i]),
+            Int(raw._data.unsafe_bitcast[Float64]()[i]),
             0,
             "All values should be 0 after reset",
         )
@@ -548,17 +606,17 @@ def test_confusion_matrix_empty() raises:
     # All should be 0.0
     for i in range(3):
         assert_equal(
-            precision._data.bitcast[Float64]()[i],
+            precision._data.unsafe_bitcast[Float64]()[i],
             0.0,
             "Empty precision should be 0.0",
         )
         assert_equal(
-            recall._data.bitcast[Float64]()[i],
+            recall._data.unsafe_bitcast[Float64]()[i],
             0.0,
             "Empty recall should be 0.0",
         )
         assert_equal(
-            f1._data.bitcast[Float64]()[i], 0.0, "Empty F1 should be 0.0"
+            f1._data.unsafe_bitcast[Float64]()[i], 0.0, "Empty F1 should be 0.0"
         )
 
     print("  ✓ Empty matrix test passed")
@@ -586,7 +644,7 @@ def test_confusion_matrix_single_class() raises:
 
     var raw = cm.normalize(mode="none")
     assert_equal(
-        Int(raw._data.bitcast[Float64]()[0]),
+        Int(raw._data.unsafe_bitcast[Float64]()[0]),
         3,
         "Matrix[0,0] should be 3",
     )
@@ -620,22 +678,22 @@ def test_confusion_matrix_misclassification() raises:
     var raw = cm.normalize(mode="none")
     # [1, 1; 1, 1]
     assert_equal(
-        Int(raw._data.bitcast[Float64]()[0]),
+        Int(raw._data.unsafe_bitcast[Float64]()[0]),
         1,
         "Matrix[0,0] should be 1",
     )
     assert_equal(
-        Int(raw._data.bitcast[Float64]()[1]),
+        Int(raw._data.unsafe_bitcast[Float64]()[1]),
         1,
         "Matrix[0,1] should be 1",
     )
     assert_equal(
-        Int(raw._data.bitcast[Float64]()[2]),
+        Int(raw._data.unsafe_bitcast[Float64]()[2]),
         1,
         "Matrix[1,0] should be 1",
     )
     assert_equal(
-        Int(raw._data.bitcast[Float64]()[3]),
+        Int(raw._data.unsafe_bitcast[Float64]()[3]),
         1,
         "Matrix[1,1] should be 1",
     )

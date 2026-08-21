@@ -66,19 +66,29 @@ def test_relu_basic() raises:
 
     # Expected: [0, 0, 0, 1, 2]
     assert_almost_equal(
-        y._data.bitcast[Float32]()[0], Float32(0.0), tolerance=1e-5
+        y._data.unsafe_bitcast[Float32]()[unsafe_offset=0],
+        Float32(0.0),
+        tolerance=1e-5,
     )
     assert_almost_equal(
-        y._data.bitcast[Float32]()[1], Float32(0.0), tolerance=1e-5
+        y._data.unsafe_bitcast[Float32]()[unsafe_offset=1],
+        Float32(0.0),
+        tolerance=1e-5,
     )
     assert_almost_equal(
-        y._data.bitcast[Float32]()[2], Float32(0.0), tolerance=1e-5
+        y._data.unsafe_bitcast[Float32]()[unsafe_offset=2],
+        Float32(0.0),
+        tolerance=1e-5,
     )
     assert_almost_equal(
-        y._data.bitcast[Float32]()[3], Float32(1.0), tolerance=1e-5
+        y._data.unsafe_bitcast[Float32]()[unsafe_offset=3],
+        Float32(1.0),
+        tolerance=1e-5,
     )
     assert_almost_equal(
-        y._data.bitcast[Float32]()[4], Float32(2.0), tolerance=1e-5
+        y._data.unsafe_bitcast[Float32]()[unsafe_offset=4],
+        Float32(2.0),
+        tolerance=1e-5,
     )
 
 
@@ -96,7 +106,7 @@ def test_relu_non_negativity() raises:
 
     # All outputs should be >= 0
     for i in range(100):
-        var val = y._data.bitcast[Float32]()[i]
+        var val = y._data.unsafe_bitcast[Float32]()[unsafe_offset=i]
         assert_true(val >= 0.0)
 
 
@@ -162,11 +172,11 @@ def test_relu_integer_types() raises:
     var y_int32 = relu(x_int32)
 
     # Expected: [0, 0, 0, 1, 2]
-    assert_equal(y_int32._data.bitcast[Int32]()[0], 0)
-    assert_equal(y_int32._data.bitcast[Int32]()[1], 0)
-    assert_equal(y_int32._data.bitcast[Int32]()[2], 0)
-    assert_equal(y_int32._data.bitcast[Int32]()[3], 1)
-    assert_equal(y_int32._data.bitcast[Int32]()[4], 2)
+    assert_equal(y_int32._data.unsafe_bitcast[Int32]()[unsafe_offset=0], 0)
+    assert_equal(y_int32._data.unsafe_bitcast[Int32]()[unsafe_offset=1], 0)
+    assert_equal(y_int32._data.unsafe_bitcast[Int32]()[unsafe_offset=2], 0)
+    assert_equal(y_int32._data.unsafe_bitcast[Int32]()[unsafe_offset=3], 1)
+    assert_equal(y_int32._data.unsafe_bitcast[Int32]()[unsafe_offset=4], 2)
 
     # Test uint8 (already non-negative)
     var x_uint8 = zeros(shape, DType.uint8)
@@ -179,10 +189,10 @@ def test_relu_integer_types() raises:
     var y_uint8 = relu(x_uint8)
 
     # Should be unchanged
-    assert_equal(y_uint8._data.bitcast[UInt8]()[0], 0)
-    assert_equal(y_uint8._data.bitcast[UInt8]()[1], 1)
-    assert_equal(y_uint8._data.bitcast[UInt8]()[2], 128)
-    assert_equal(y_uint8._data.bitcast[UInt8]()[3], 255)
+    assert_equal(y_uint8._data.unsafe_bitcast[UInt8]()[unsafe_offset=0], 0)
+    assert_equal(y_uint8._data.unsafe_bitcast[UInt8]()[unsafe_offset=1], 1)
+    assert_equal(y_uint8._data.unsafe_bitcast[UInt8]()[unsafe_offset=2], 128)
+    assert_equal(y_uint8._data.unsafe_bitcast[UInt8]()[unsafe_offset=3], 255)
 
 
 def test_relu_float64() raises:
@@ -196,8 +206,12 @@ def test_relu_float64() raises:
 
     var y = relu(x)
 
-    assert_almost_equal(y._data.bitcast[Float64]()[0], 0.0, tolerance=1e-10)
-    assert_almost_equal(y._data.bitcast[Float64]()[1], 1.0, tolerance=1e-10)
+    assert_almost_equal(
+        y._data.unsafe_bitcast[Float64]()[unsafe_offset=0], 0.0, tolerance=1e-10
+    )
+    assert_almost_equal(
+        y._data.unsafe_bitcast[Float64]()[unsafe_offset=1], 1.0, tolerance=1e-10
+    )
 
 
 def test_leaky_relu_basic() raises:
@@ -214,13 +228,19 @@ def test_leaky_relu_basic() raises:
 
     # Expected: [-0.2, 0, 2.0]
     assert_almost_equal(
-        y._data.bitcast[Float32]()[0], Float32(-0.2), tolerance=1e-5
+        y._data.unsafe_bitcast[Float32]()[unsafe_offset=0],
+        Float32(-0.2),
+        tolerance=1e-5,
     )
     assert_almost_equal(
-        y._data.bitcast[Float32]()[1], Float32(0.0), tolerance=1e-5
+        y._data.unsafe_bitcast[Float32]()[unsafe_offset=1],
+        Float32(0.0),
+        tolerance=1e-5,
     )
     assert_almost_equal(
-        y._data.bitcast[Float32]()[2], Float32(2.0), tolerance=1e-5
+        y._data.unsafe_bitcast[Float32]()[unsafe_offset=2],
+        Float32(2.0),
+        tolerance=1e-5,
     )
 
 
@@ -237,13 +257,19 @@ def test_leaky_relu_custom_alpha() raises:
 
     # Expected with alpha=0.25: [-1.0, 0, 4.0]
     assert_almost_equal(
-        y._data.bitcast[Float32]()[0], Float32(-1.0), tolerance=1e-6
+        y._data.unsafe_bitcast[Float32]()[unsafe_offset=0],
+        Float32(-1.0),
+        tolerance=1e-6,
     )
     assert_almost_equal(
-        y._data.bitcast[Float32]()[1], Float32(0.0), tolerance=1e-5
+        y._data.unsafe_bitcast[Float32]()[unsafe_offset=1],
+        Float32(0.0),
+        tolerance=1e-5,
     )
     assert_almost_equal(
-        y._data.bitcast[Float32]()[2], Float32(4.0), tolerance=1e-5
+        y._data.unsafe_bitcast[Float32]()[unsafe_offset=2],
+        Float32(4.0),
+        tolerance=1e-5,
     )
 
 
@@ -296,13 +322,19 @@ def test_prelu_basic() raises:
 
     # Expected: [-0.5, 0, 2.0]
     assert_almost_equal(
-        y._data.bitcast[Float32]()[0], Float32(-0.5), tolerance=1e-5
+        y._data.unsafe_bitcast[Float32]()[unsafe_offset=0],
+        Float32(-0.5),
+        tolerance=1e-5,
     )
     assert_almost_equal(
-        y._data.bitcast[Float32]()[1], Float32(0.0), tolerance=1e-5
+        y._data.unsafe_bitcast[Float32]()[unsafe_offset=1],
+        Float32(0.0),
+        tolerance=1e-5,
     )
     assert_almost_equal(
-        y._data.bitcast[Float32]()[2], Float32(2.0), tolerance=1e-5
+        y._data.unsafe_bitcast[Float32]()[unsafe_offset=2],
+        Float32(2.0),
+        tolerance=1e-5,
     )
 
 
@@ -326,19 +358,29 @@ def test_prelu_scalar_alpha() raises:
 
     # Expected with alpha=0.2: [-0.4, -0.2, 0, 1, 2]
     assert_almost_equal(
-        y._data.bitcast[Float32]()[0], Float32(-0.4), tolerance=1e-6
+        y._data.unsafe_bitcast[Float32]()[unsafe_offset=0],
+        Float32(-0.4),
+        tolerance=1e-6,
     )
     assert_almost_equal(
-        y._data.bitcast[Float32]()[1], Float32(-0.2), tolerance=1e-6
+        y._data.unsafe_bitcast[Float32]()[unsafe_offset=1],
+        Float32(-0.2),
+        tolerance=1e-6,
     )
     assert_almost_equal(
-        y._data.bitcast[Float32]()[2], Float32(0.0), tolerance=1e-5
+        y._data.unsafe_bitcast[Float32]()[unsafe_offset=2],
+        Float32(0.0),
+        tolerance=1e-5,
     )
     assert_almost_equal(
-        y._data.bitcast[Float32]()[3], Float32(1.0), tolerance=1e-5
+        y._data.unsafe_bitcast[Float32]()[unsafe_offset=3],
+        Float32(1.0),
+        tolerance=1e-5,
     )
     assert_almost_equal(
-        y._data.bitcast[Float32]()[4], Float32(2.0), tolerance=1e-5
+        y._data.unsafe_bitcast[Float32]()[unsafe_offset=4],
+        Float32(2.0),
+        tolerance=1e-5,
     )
 
 
@@ -361,13 +403,19 @@ def test_prelu_elementwise_alpha() raises:
 
     # Expected: [-0.2, -0.2, 2.0]
     assert_almost_equal(
-        y._data.bitcast[Float32]()[0], Float32(-0.2), tolerance=1e-6
+        y._data.unsafe_bitcast[Float32]()[unsafe_offset=0],
+        Float32(-0.2),
+        tolerance=1e-6,
     )
     assert_almost_equal(
-        y._data.bitcast[Float32]()[1], Float32(-0.2), tolerance=1e-6
+        y._data.unsafe_bitcast[Float32]()[unsafe_offset=1],
+        Float32(-0.2),
+        tolerance=1e-6,
     )
     assert_almost_equal(
-        y._data.bitcast[Float32]()[2], Float32(2.0), tolerance=1e-5
+        y._data.unsafe_bitcast[Float32]()[unsafe_offset=2],
+        Float32(2.0),
+        tolerance=1e-5,
     )
 
 
@@ -423,13 +471,19 @@ def test_sigmoid_basic() raises:
     var y = sigmoid(x)
 
     assert_almost_equal(
-        y._data.bitcast[Float32]()[0], Float32(0.0), tolerance=1e-3
+        y._data.unsafe_bitcast[Float32]()[unsafe_offset=0],
+        Float32(0.0),
+        tolerance=1e-3,
     )
     assert_almost_equal(
-        y._data.bitcast[Float32]()[1], Float32(0.5), tolerance=1e-5
+        y._data.unsafe_bitcast[Float32]()[unsafe_offset=1],
+        Float32(0.5),
+        tolerance=1e-5,
     )
     assert_almost_equal(
-        y._data.bitcast[Float32]()[2], Float32(1.0), tolerance=1e-3
+        y._data.unsafe_bitcast[Float32]()[unsafe_offset=2],
+        Float32(1.0),
+        tolerance=1e-3,
     )
 
 
@@ -483,7 +537,7 @@ def test_sigmoid_range() raises:
 
     # All values should be in (0, 1)
     for i in range(5):
-        var val = y._data.bitcast[Float32]()[i]
+        var val = y._data.unsafe_bitcast[Float32]()[unsafe_offset=i]
         assert_true(val > 0.0)
         assert_true(val < 1.0)
 
@@ -501,12 +555,12 @@ def test_sigmoid_numerical_stability() raises:
     var y = sigmoid(x)
 
     # Large negative values should be close to 0
-    assert_true(y._data.bitcast[Float32]()[0] < 1e-6)
-    assert_true(y._data.bitcast[Float32]()[1] < 1e-6)
+    assert_true(y._data.unsafe_bitcast[Float32]()[unsafe_offset=0] < 1e-6)
+    assert_true(y._data.unsafe_bitcast[Float32]()[unsafe_offset=1] < 1e-6)
 
     # Large positive values should be close to 1
-    assert_true(y._data.bitcast[Float32]()[2] > 0.999999)
-    assert_true(y._data.bitcast[Float32]()[3] > 0.999999)
+    assert_true(y._data.unsafe_bitcast[Float32]()[unsafe_offset=2] > 0.999999)
+    assert_true(y._data.unsafe_bitcast[Float32]()[unsafe_offset=3] > 0.999999)
 
 
 def test_sigmoid_float16() raises:
@@ -521,12 +575,12 @@ def test_sigmoid_float16() raises:
     var y = sigmoid(x)
 
     # Check sigmoid(0) = 0.5
-    var val_0 = Float32(y._data.bitcast[Float16]()[1])
+    var val_0 = Float32(y._data.unsafe_bitcast[Float16]()[unsafe_offset=1])
     assert_almost_equal(val_0, Float32(0.5), tolerance=0.01)
 
     # Check range (0, 1)
     for i in range(3):
-        var val = Float32(y._data.bitcast[Float16]()[i])
+        var val = Float32(y._data.unsafe_bitcast[Float16]()[unsafe_offset=i])
         assert_true(val > 0.0 and val < 1.0)
 
 
@@ -540,7 +594,9 @@ def test_sigmoid_float64() raises:
 
     var y = sigmoid(x)
 
-    assert_almost_equal(y._data.bitcast[Float64]()[0], 0.5, tolerance=1e-10)
+    assert_almost_equal(
+        y._data.unsafe_bitcast[Float64]()[unsafe_offset=0], 0.5, tolerance=1e-10
+    )
 
 
 def test_tanh_basic() raises:
@@ -556,13 +612,19 @@ def test_tanh_basic() raises:
     var y = tanh(x)
 
     assert_almost_equal(
-        y._data.bitcast[Float32]()[0], Float32(-1.0), tolerance=1e-3
+        y._data.unsafe_bitcast[Float32]()[unsafe_offset=0],
+        Float32(-1.0),
+        tolerance=1e-3,
     )
     assert_almost_equal(
-        y._data.bitcast[Float32]()[1], Float32(0.0), tolerance=1e-5
+        y._data.unsafe_bitcast[Float32]()[unsafe_offset=1],
+        Float32(0.0),
+        tolerance=1e-5,
     )
     assert_almost_equal(
-        y._data.bitcast[Float32]()[2], Float32(1.0), tolerance=1e-3
+        y._data.unsafe_bitcast[Float32]()[unsafe_offset=2],
+        Float32(1.0),
+        tolerance=1e-3,
     )
 
 
@@ -578,17 +640,23 @@ def test_tanh_values() raises:
     var y = tanh(x)
 
     # tanh(0) = 0
-    assert_almost_equal(y._data.bitcast[Float64]()[0], 0.0, tolerance=1e-10)
+    assert_almost_equal(
+        y._data.unsafe_bitcast[Float64]()[unsafe_offset=0], 0.0, tolerance=1e-10
+    )
 
     # tanh(1) ≈ 0.7616
     var expected_tanh_1 = math_tanh(1.0)
     assert_almost_equal(
-        y._data.bitcast[Float64]()[1], expected_tanh_1, tolerance=1e-10
+        y._data.unsafe_bitcast[Float64]()[unsafe_offset=1],
+        expected_tanh_1,
+        tolerance=1e-10,
     )
 
     # tanh(-1) ≈ -0.7616
     assert_almost_equal(
-        y._data.bitcast[Float64]()[2], -expected_tanh_1, tolerance=1e-10
+        y._data.unsafe_bitcast[Float64]()[unsafe_offset=2],
+        -expected_tanh_1,
+        tolerance=1e-10,
     )
 
 
@@ -640,7 +708,7 @@ def test_tanh_range() raises:
 
     # All values should be in [-1, 1] (inclusive due to floating point precision)
     for i in range(5):
-        var val = y._data.bitcast[Float32]()[i]
+        var val = y._data.unsafe_bitcast[Float32]()[unsafe_offset=i]
         assert_true(val >= -1.0, "tanh output should be >= -1.0")
         assert_true(val <= 1.0, "tanh output should be <= 1.0")
 
@@ -657,21 +725,27 @@ def test_softmax_basic_2d() raises:
 
     # Sum should be 1.0
     var sum = (
-        y._data.bitcast[Float32]()[0]
-        + y._data.bitcast[Float32]()[1]
-        + y._data.bitcast[Float32]()[2]
+        y._data.unsafe_bitcast[Float32]()[unsafe_offset=0]
+        + y._data.unsafe_bitcast[Float32]()[unsafe_offset=1]
+        + y._data.unsafe_bitcast[Float32]()[unsafe_offset=2]
     )
     assert_almost_equal(sum, Float32(1.0), tolerance=1e-5)
 
     # Each value should be ~1/3
     assert_almost_equal(
-        y._data.bitcast[Float32]()[0], Float32(0.333333), tolerance=1e-3
+        y._data.unsafe_bitcast[Float32]()[unsafe_offset=0],
+        Float32(0.333333),
+        tolerance=1e-3,
     )
     assert_almost_equal(
-        y._data.bitcast[Float32]()[1], Float32(0.333333), tolerance=1e-3
+        y._data.unsafe_bitcast[Float32]()[unsafe_offset=1],
+        Float32(0.333333),
+        tolerance=1e-3,
     )
     assert_almost_equal(
-        y._data.bitcast[Float32]()[2], Float32(0.333333), tolerance=1e-3
+        y._data.unsafe_bitcast[Float32]()[unsafe_offset=2],
+        Float32(0.333333),
+        tolerance=1e-3,
     )
 
 
@@ -690,13 +764,19 @@ def test_softmax_one_hot() raises:
 
     # Middle value should be ~1.0, others ~0.0
     assert_almost_equal(
-        y._data.bitcast[Float32]()[0], Float32(0.0), tolerance=1e-3
+        y._data.unsafe_bitcast[Float32]()[unsafe_offset=0],
+        Float32(0.0),
+        tolerance=1e-3,
     )
     assert_almost_equal(
-        y._data.bitcast[Float32]()[1], Float32(1.0), tolerance=1e-3
+        y._data.unsafe_bitcast[Float32]()[unsafe_offset=1],
+        Float32(1.0),
+        tolerance=1e-3,
     )
     assert_almost_equal(
-        y._data.bitcast[Float32]()[2], Float32(0.0), tolerance=1e-3
+        y._data.unsafe_bitcast[Float32]()[unsafe_offset=2],
+        Float32(0.0),
+        tolerance=1e-3,
     )
 
 
@@ -717,8 +797,8 @@ def test_softmax_sum_to_one() raises:
     var sum_row0 = Float32(0.0)
     var sum_row1 = Float32(0.0)
     for i in range(4):
-        sum_row0 += y._data.bitcast[Float32]()[i]
-        sum_row1 += y._data.bitcast[Float32]()[4 + i]
+        sum_row0 += y._data.unsafe_bitcast[Float32]()[unsafe_offset=i]
+        sum_row1 += y._data.unsafe_bitcast[Float32]()[unsafe_offset=4 + i]
 
     assert_almost_equal(sum_row0, Float32(1.0), tolerance=1e-5)
     assert_almost_equal(sum_row1, Float32(1.0), tolerance=1e-5)
@@ -738,13 +818,19 @@ def test_softmax_numerical_stability() raises:
     # Should still sum to 1 (no overflow)
     var sum: Float32 = 0.0
     for i in range(3):
-        sum += y._data.bitcast[Float32]()[i]
+        sum += y._data.unsafe_bitcast[Float32]()[unsafe_offset=i]
 
     assert_almost_equal(sum, Float32(1.0), tolerance=1e-5)
 
     # Largest value should have largest probability
-    assert_true(y._data.bitcast[Float32]()[2] > y._data.bitcast[Float32]()[1])
-    assert_true(y._data.bitcast[Float32]()[1] > y._data.bitcast[Float32]()[0])
+    assert_true(
+        y._data.unsafe_bitcast[Float32]()[2]
+        > y._data.unsafe_bitcast[Float32]()[unsafe_offset=1]
+    )
+    assert_true(
+        y._data.unsafe_bitcast[Float32]()[1]
+        > y._data.unsafe_bitcast[Float32]()[unsafe_offset=0]
+    )
 
 
 @fieldwise_init
@@ -799,7 +885,9 @@ def test_gelu_basic() raises:
 
     # GELU(0) = 0
     assert_almost_equal(
-        y._data.bitcast[Float32]()[0], Float32(0.0), tolerance=1e-5
+        y._data.unsafe_bitcast[Float32]()[unsafe_offset=0],
+        Float32(0.0),
+        tolerance=1e-5,
     )
 
 
@@ -816,10 +904,10 @@ def test_gelu_positive() raises:
 
     # For positive x, GELU(x) ≈ x (asymptotically)
     # GELU(1) ≈ 0.84, GELU(2) ≈ 1.96
-    assert_true(y._data.bitcast[Float32]()[0] > 0.8)
-    assert_true(y._data.bitcast[Float32]()[0] < 1.0)
-    assert_true(y._data.bitcast[Float32]()[1] > 1.9)
-    assert_true(y._data.bitcast[Float32]()[1] < 2.0)
+    assert_true(y._data.unsafe_bitcast[Float32]()[unsafe_offset=0] > 0.8)
+    assert_true(y._data.unsafe_bitcast[Float32]()[unsafe_offset=0] < 1.0)
+    assert_true(y._data.unsafe_bitcast[Float32]()[unsafe_offset=1] > 1.9)
+    assert_true(y._data.unsafe_bitcast[Float32]()[unsafe_offset=1] < 2.0)
 
 
 def test_gelu_shape() raises:
@@ -850,13 +938,19 @@ def test_gelu_approximate() raises:
 
     # GELU(0) should be 0
     assert_almost_equal(
-        y._data.bitcast[Float32]()[2], Float32(0.0), tolerance=1e-5
+        y._data.unsafe_bitcast[Float32]()[unsafe_offset=2],
+        Float32(0.0),
+        tolerance=1e-5,
     )
 
     # GELU is NOT symmetric (unlike relu). For x < 0, GELU(x) is close to 0.
     # For x > 0, GELU(x) is close to x.
-    var val_neg2 = y._data.bitcast[Float32]()[0]  # GELU(-2.0) ≈ -0.045
-    var val_pos2 = y._data.bitcast[Float32]()[4]  # GELU(2.0) ≈ 1.954
+    var val_neg2 = y._data.unsafe_bitcast[Float32]()[
+        unsafe_offset=0
+    ]  # GELU(-2.0) ≈ -0.045
+    var val_pos2 = y._data.unsafe_bitcast[Float32]()[
+        unsafe_offset=4
+    ]  # GELU(2.0) ≈ 1.954
 
     # For large positive x, GELU(x) ≈ x
     assert_true(val_pos2 > 1.9, "GELU(2.0) should be close to 2.0")
@@ -880,14 +974,16 @@ def test_gelu_exact() raises:
 
     # GELU(0) = 0
     assert_almost_equal(
-        y._data.bitcast[Float32]()[2], Float32(0.0), tolerance=1e-5
+        y._data.unsafe_bitcast[Float32]()[unsafe_offset=2],
+        Float32(0.0),
+        tolerance=1e-5,
     )
 
     # For large positive x, GELU(x) ≈ x
-    assert_true(y._data.bitcast[Float32]()[4] > 1.9)
+    assert_true(y._data.unsafe_bitcast[Float32]()[unsafe_offset=4] > 1.9)
 
     # For large negative x, GELU(x) ≈ 0
-    assert_true(abs(y._data.bitcast[Float32]()[0]) < 0.1)
+    assert_true(abs(y._data.unsafe_bitcast[Float32]()[unsafe_offset=0]) < 0.1)
 
 
 def test_gelu_comparison() raises:
@@ -906,8 +1002,10 @@ def test_gelu_comparison() raises:
 
     # Approximate and exact should be close
     for i in range(5):
-        var approx_val = y_approx._data.bitcast[Float32]()[i]
-        var exact_val = y_exact._data.bitcast[Float32]()[i]
+        var approx_val = y_approx._data.unsafe_bitcast[Float32]()[
+            unsafe_offset=i
+        ]
+        var exact_val = y_exact._data.unsafe_bitcast[Float32]()[unsafe_offset=i]
         var diff = abs(approx_val - exact_val)
 
         # Approximation error should be small (< 1%)
@@ -928,7 +1026,7 @@ def test_gelu_float16() raises:
     var y = gelu(x, approximate=True)
 
     # GELU(0) should be 0
-    var val_0 = Float32(y._data.bitcast[Float16]()[1])
+    var val_0 = Float32(y._data.unsafe_bitcast[Float16]()[unsafe_offset=1])
     assert_almost_equal(val_0, Float32(0.0), tolerance=0.01)
 
 
@@ -974,7 +1072,9 @@ def test_swish_basic() raises:
 
     # swish(0) = 0 * sigmoid(0) = 0 * 0.5 = 0
     assert_almost_equal(
-        y._data.bitcast[Float32]()[0], Float32(0.0), tolerance=1e-5
+        y._data.unsafe_bitcast[Float32]()[unsafe_offset=0],
+        Float32(0.0),
+        tolerance=1e-5,
     )
 
 
@@ -990,7 +1090,9 @@ def test_swish_positive() raises:
 
     # swish(10) ≈ 10 * sigmoid(10) ≈ 10 * 1 ≈ 10
     assert_almost_equal(
-        y._data.bitcast[Float32]()[0], Float32(10.0), tolerance=0.01
+        y._data.unsafe_bitcast[Float32]()[unsafe_offset=0],
+        Float32(10.0),
+        tolerance=0.01,
     )
 
 
@@ -1036,7 +1138,9 @@ def test_mish_basic() raises:
 
     # mish(0) = 0 * tanh(softplus(0)) = 0 * tanh(log(2)) ≈ 0
     assert_almost_equal(
-        y._data.bitcast[Float32]()[0], Float32(0.0), tolerance=0.01
+        y._data.unsafe_bitcast[Float32]()[unsafe_offset=0],
+        Float32(0.0),
+        tolerance=0.01,
     )
 
 
@@ -1101,13 +1205,19 @@ def test_elu_basic() raises:
     # ELU(0) = 0
     # ELU(1) = 1
     assert_almost_equal(
-        y._data.bitcast[Float32]()[0], Float32(-0.632), tolerance=0.01
+        y._data.unsafe_bitcast[Float32]()[unsafe_offset=0],
+        Float32(-0.632),
+        tolerance=0.01,
     )
     assert_almost_equal(
-        y._data.bitcast[Float32]()[1], Float32(0.0), tolerance=1e-5
+        y._data.unsafe_bitcast[Float32]()[unsafe_offset=1],
+        Float32(0.0),
+        tolerance=1e-5,
     )
     assert_almost_equal(
-        y._data.bitcast[Float32]()[2], Float32(1.0), tolerance=1e-5
+        y._data.unsafe_bitcast[Float32]()[unsafe_offset=2],
+        Float32(1.0),
+        tolerance=1e-5,
     )
 
 
@@ -1163,18 +1273,24 @@ def test_integration_forward_backward() raises:
     # Check forward pass values
     # After ReLU: [0, 0.5, 2.0]
     assert_almost_equal(
-        relu_out._data.bitcast[Float32]()[0], Float32(0.0), tolerance=0.001
+        relu_out._data.unsafe_bitcast[Float32]()[unsafe_offset=0],
+        Float32(0.0),
+        tolerance=0.001,
     )
     assert_almost_equal(
-        relu_out._data.bitcast[Float32]()[1], Float32(0.5), tolerance=0.001
+        relu_out._data.unsafe_bitcast[Float32]()[unsafe_offset=1],
+        Float32(0.5),
+        tolerance=0.001,
     )
     assert_almost_equal(
-        relu_out._data.bitcast[Float32]()[2], Float32(2.0), tolerance=0.001
+        relu_out._data.unsafe_bitcast[Float32]()[unsafe_offset=2],
+        Float32(2.0),
+        tolerance=0.001,
     )
 
     # After Sigmoid: [0.5, sigmoid(0.5), sigmoid(2.0)]
-    var sig_0_5 = sigmoid_out._data.bitcast[Float32]()[1]
-    var sig_2_0 = sigmoid_out._data.bitcast[Float32]()[2]
+    var sig_0_5 = sigmoid_out._data.unsafe_bitcast[Float32]()[unsafe_offset=1]
+    var sig_2_0 = sigmoid_out._data.unsafe_bitcast[Float32]()[unsafe_offset=2]
     assert_true(sig_0_5 > 0.6 and sig_0_5 < 0.7)
     assert_true(sig_2_0 > 0.8 and sig_2_0 < 0.9)
 
@@ -1188,12 +1304,14 @@ def test_integration_forward_backward() raises:
     # Check backward pass values
     # Gradient through ReLU should be 0 at x=-1 (negative input)
     assert_almost_equal(
-        grad_x._data.bitcast[Float32]()[0], Float32(0.0), tolerance=0.001
+        grad_x._data.unsafe_bitcast[Float32]()[unsafe_offset=0],
+        Float32(0.0),
+        tolerance=0.001,
     )
 
     # Gradients at positive inputs should be non-zero
-    assert_true(grad_x._data.bitcast[Float32]()[1] > 0.0)
-    assert_true(grad_x._data.bitcast[Float32]()[2] > 0.0)
+    assert_true(grad_x._data.unsafe_bitcast[Float32]()[unsafe_offset=1] > 0.0)
+    assert_true(grad_x._data.unsafe_bitcast[Float32]()[unsafe_offset=2] > 0.0)
 
 
 def main() raises:

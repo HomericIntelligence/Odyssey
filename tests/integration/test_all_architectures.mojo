@@ -54,7 +54,7 @@ def test_model_forward[
         var input = zeros(shape, DType.float32)
 
         # Fill with some non-zero values to avoid all-zero gradients
-        var input_data = input._data.bitcast[Float32]()
+        var input_data = input._data.unsafe_bitcast[Float32]()
         for i in range(batch_size * 3 * 32 * 32):
             input_data[i] = Float32(0.1)  # Small non-zero value
 
@@ -125,8 +125,8 @@ def test_model_forward[
         print("\nChecking mode differences...")
         var same_count = 0
         var total_count = batch_size * 10
-        var logits_inf_data = logits_inference._data.bitcast[Float32]()
-        var logits_train_data = logits_training._data.bitcast[Float32]()
+        var logits_inf_data = logits_inference._data.unsafe_bitcast[Float32]()
+        var logits_train_data = logits_training._data.unsafe_bitcast[Float32]()
 
         for i in range(total_count):
             if logits_inf_data[i] == logits_train_data[i]:

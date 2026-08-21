@@ -7,14 +7,14 @@ This guide is for developers who want to use ML Odyssey's `src/odyssey/` library
 
 | Requirement | Version | Notes |
 | --- | --- | --- |
-| Mojo | 1.0.0b2+ | Installed via `uv sync --locked` from the Modular PyPI index, or [mojolang.org](https://mojolang.org/) |
-| glibc | ≥ 2.32 | Ubuntu 22.04+, Debian 12+, or use Podman (see below) |
+| Mojo | 1.0.0+ | Installed via `uv sync --locked` from the Modular PyPI index, or [mojolang.org](https://mojolang.org/) |
+| glibc | ≥ 2.34 | Ubuntu 22.04+, Debian 12+, or use Podman (see below) |
 | [uv](https://docs.astral.sh/uv/) | latest | Environment and package manager |
 
 ### GLIBC Compatibility
 
-Mojo 1.0.0b2 requires glibc ≥ 2.32. Older distributions (Debian 10/11, Ubuntu 20.04)
-will see `GLIBC_2.32 not found` errors. Compatible OS versions:
+Mojo 1.0.0 requires glibc ≥ 2.34. Older distributions (Debian 10/11, Ubuntu 20.04)
+will see `GLIBC_2.34 not found` errors. Compatible OS versions:
 
 | OS | glibc | Status |
 | --- | --- | --- |
@@ -27,7 +27,7 @@ If your host is incompatible, run everything inside the project's Podman contain
 
 ```bash
 just podman-up
-just shell   # opens a shell with Mojo 1.0.0b2 and glibc 2.39
+just shell   # opens a shell with Mojo 1.0.0 and glibc 2.39
 ```
 
 See [`docs/dev/mojo-glibc-compatibility.md`](dev/mojo-glibc-compatibility.md) for details.
@@ -40,7 +40,7 @@ Mojo package path:
 ```bash
 git clone https://github.com/HomericIntelligence/Odyssey.git
 cd Odyssey
-uv sync --locked      # installs Mojo 1.0.0b2 and all Python tooling
+uv sync --locked      # installs Mojo 1.0.0 and all Python tooling
 just build            # compiles src/odyssey/ into .mojopkg artifacts
 ```
 

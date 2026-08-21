@@ -25,7 +25,7 @@ def test_dropout_forward_preserves_dtype_f32() raises:
     var layer = DropoutLayer(dropout_rate=0.5)
     layer.set_training(False)
     var input = AnyTensor([2, 4], DType.float32)
-    var data = input._data.bitcast[Float32]()
+    var data = input._data.unsafe_bitcast[Float32]()
     for i in range(input.numel()):
         data[i] = Float32(1.0)
     var output = layer.forward(input)
@@ -55,13 +55,13 @@ def test_dropout_inference_passthrough() raises:
     var layer = DropoutLayer(dropout_rate=0.5)
     layer.set_training(False)
     var input = AnyTensor([4], DType.float32)
-    var data = input._data.bitcast[Float32]()
+    var data = input._data.unsafe_bitcast[Float32]()
     data[0] = 0.5
     data[1] = 1.0
     data[2] = 1.5
     data[3] = 0.25
     var output = layer.forward(input)
-    var out = output._data.bitcast[Float32]()
+    var out = output._data.unsafe_bitcast[Float32]()
     assert_almost_equal(out[0], Float32(0.5), atol=1e-6)
     assert_almost_equal(out[1], Float32(1.0), atol=1e-6)
     assert_almost_equal(out[2], Float32(1.5), atol=1e-6)
@@ -75,11 +75,11 @@ def test_dropout_training_zeros_elements() raises:
     layer.set_training(True)
     # Use a large enough tensor that statistically some will be zeroed
     var input = AnyTensor([100], DType.float32)
-    var data = input._data.bitcast[Float32]()
+    var data = input._data.unsafe_bitcast[Float32]()
     for i in range(100):
         data[i] = Float32(1.0)
     var output = layer.forward(input)
-    var out = output._data.bitcast[Float32]()
+    var out = output._data.unsafe_bitcast[Float32]()
     var zero_count = 0
     var nonzero_count = 0
     for i in range(100):
@@ -99,11 +99,11 @@ def test_dropout_training_scale_factor() raises:
     var layer = DropoutLayer(dropout_rate=0.5)
     layer.set_training(True)
     var input = AnyTensor([100], DType.float32)
-    var data = input._data.bitcast[Float32]()
+    var data = input._data.unsafe_bitcast[Float32]()
     for i in range(100):
         data[i] = Float32(1.0)
     var output = layer.forward(input)
-    var out = output._data.bitcast[Float32]()
+    var out = output._data.unsafe_bitcast[Float32]()
     # Non-zero elements should be scaled by 1/(1-0.5) = 2.0
     var scale = Float32(1.0) / (Float32(1.0) - Float32(0.5))
     for i in range(100):
@@ -118,13 +118,13 @@ def test_dropout_zero_rate() raises:
     var layer = DropoutLayer(dropout_rate=0.0)
     layer.set_training(True)
     var input = AnyTensor([4], DType.float32)
-    var data = input._data.bitcast[Float32]()
+    var data = input._data.unsafe_bitcast[Float32]()
     data[0] = 0.5
     data[1] = 1.0
     data[2] = 1.5
     data[3] = 0.25
     var output = layer.forward(input)
-    var out = output._data.bitcast[Float32]()
+    var out = output._data.unsafe_bitcast[Float32]()
     # With rate=0, scale = 1/(1-0) = 1.0, all elements kept
     assert_almost_equal(out[0], Float32(0.5), atol=1e-6)
     assert_almost_equal(out[1], Float32(1.0), atol=1e-6)
@@ -138,13 +138,13 @@ def test_dropout_backward_typed() raises:
     var layer = DropoutLayer(dropout_rate=0.5)
     layer.set_training(True)
     var input = AnyTensor([10], DType.float32)
-    var data = input._data.bitcast[Float32]()
+    var data = input._data.unsafe_bitcast[Float32]()
     for i in range(10):
         data[i] = Float32(1.0)
     # Forward to generate mask
     _ = layer.forward(input)
     var grad_output = AnyTensor([10], DType.float32)
-    var gdata = grad_output._data.bitcast[Float32]()
+    var gdata = grad_output._data.unsafe_bitcast[Float32]()
     for i in range(10):
         gdata[i] = Float32(1.0)
     var grad_input = layer.backward(grad_output, layer.last_mask)

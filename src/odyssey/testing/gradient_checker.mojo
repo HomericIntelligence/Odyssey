@@ -121,7 +121,7 @@ struct IndexGradientPair(Copyable, Movable):
 def _get_val_as_f64[dtype: DType](tensor: AnyTensor, index: Int) -> Float64:
     """Read tensor element at flat index as Float64 using typed pointer."""
     var ptr = tensor.data_ptr[dtype]()
-    return Float64(ptr[index])
+    return Float64(ptr[unsafe_offset=index])
 
 
 def _set_val_from_f64[
@@ -130,7 +130,7 @@ def _set_val_from_f64[
     """Write Float64 value to tensor element at flat index using typed pointer.
     """
     var ptr = tensor.data_ptr[dtype]()
-    ptr[index] = Scalar[dtype](value)
+    ptr[unsafe_offset=index] = Scalar[dtype](value)
 
 
 def _dispatch_get_val_as_f64(tensor: AnyTensor, index: Int) raises -> Float64:
@@ -167,7 +167,7 @@ def _fill_ones[dtype: DType](tensor: AnyTensor):
     """Fill tensor with 1.0 using typed pointer."""
     var ptr = tensor.data_ptr[dtype]()
     for i in range(tensor.numel()):
-        ptr[i] = Scalar[dtype](1.0)
+        ptr[unsafe_offset=i] = Scalar[dtype](1.0)
 
 
 def _is_uniform_tensor(tensor: AnyTensor) raises -> Bool:
@@ -227,14 +227,14 @@ def _check_gradients_perturb[
 
     for i in range(input.numel()):
         # Save original value
-        var original_val = Float64(in_ptr[i])
+        var original_val = Float64(in_ptr[unsafe_offset=i])
 
         # f(x + ε)
-        plus_ptr[i] = Scalar[dtype](original_val + epsilon)
+        plus_ptr[unsafe_offset=i] = Scalar[dtype](original_val + epsilon)
         var output_plus = forward_fn(input_copy_plus)
 
         # f(x - ε)
-        minus_ptr[i] = Scalar[dtype](original_val - epsilon)
+        minus_ptr[unsafe_offset=i] = Scalar[dtype](original_val - epsilon)
         var output_minus = forward_fn(input_copy_minus)
 
         # Compute per-element numerical gradient: sum([f(x+ε) - f(x-ε)] / (2ε))
@@ -246,13 +246,15 @@ def _check_gradients_perturb[
         var out_minus_ptr = output_minus.data_ptr[dtype]()
         var numerical_sum: Float64 = 0.0
         for j in range(output_plus.numel()):
-            var diff = Float64(out_plus_ptr[j]) - Float64(out_minus_ptr[j])
+            var diff = Float64(out_plus_ptr[j]) - Float64(
+                out_minus_ptr[unsafe_offset=j]
+            )
             numerical_sum += diff / (2.0 * epsilon)
-        grad_ptr[i] = Scalar[dtype](numerical_sum)
+        grad_ptr[unsafe_offset=i] = Scalar[dtype](numerical_sum)
 
         # Restore original value for next iteration
-        plus_ptr[i] = Scalar[dtype](original_val)
-        minus_ptr[i] = Scalar[dtype](original_val)
+        plus_ptr[unsafe_offset=i] = Scalar[dtype](original_val)
+        minus_ptr[unsafe_offset=i] = Scalar[dtype](original_val)
 
 
 def _check_gradients_perturb[
@@ -280,14 +282,14 @@ def _check_gradients_perturb[
 
     for i in range(input.numel()):
         # Save original value
-        var original_val = Float64(in_ptr[i])
+        var original_val = Float64(in_ptr[unsafe_offset=i])
 
         # f(x + ε)
-        plus_ptr[i] = Scalar[dtype](original_val + epsilon)
+        plus_ptr[unsafe_offset=i] = Scalar[dtype](original_val + epsilon)
         var output_plus = forward_fn(input_copy_plus)
 
         # f(x - ε)
-        minus_ptr[i] = Scalar[dtype](original_val - epsilon)
+        minus_ptr[unsafe_offset=i] = Scalar[dtype](original_val - epsilon)
         var output_minus = forward_fn(input_copy_minus)
 
         # Compute per-element numerical gradient: sum([f(x+ε) - f(x-ε)] / (2ε))
@@ -299,13 +301,15 @@ def _check_gradients_perturb[
         var out_minus_ptr = output_minus.data_ptr[dtype]()
         var numerical_sum: Float64 = 0.0
         for j in range(output_plus.numel()):
-            var diff = Float64(out_plus_ptr[j]) - Float64(out_minus_ptr[j])
+            var diff = Float64(out_plus_ptr[j]) - Float64(
+                out_minus_ptr[unsafe_offset=j]
+            )
             numerical_sum += diff / (2.0 * epsilon)
-        grad_ptr[i] = Scalar[dtype](numerical_sum)
+        grad_ptr[unsafe_offset=i] = Scalar[dtype](numerical_sum)
 
         # Restore original value for next iteration
-        plus_ptr[i] = Scalar[dtype](original_val)
-        minus_ptr[i] = Scalar[dtype](original_val)
+        plus_ptr[unsafe_offset=i] = Scalar[dtype](original_val)
+        minus_ptr[unsafe_offset=i] = Scalar[dtype](original_val)
 
 
 def _dispatch_check_gradients_perturb[
@@ -947,18 +951,18 @@ def _compute_numerical_grad_perturb[
     var grad_ptr = grad.data_ptr[dtype]()
 
     for i in range(x.numel()):
-        var original_val = Float64(x_ptr[i])
+        var original_val = Float64(x_ptr[unsafe_offset=i])
 
         # Compute f(x + ε)
-        x_ptr[i] = Scalar[dtype](original_val + epsilon)
+        x_ptr[unsafe_offset=i] = Scalar[dtype](original_val + epsilon)
         var f_plus = forward_fn(x)
 
         # Compute f(x - ε)
-        x_ptr[i] = Scalar[dtype](original_val - epsilon)
+        x_ptr[unsafe_offset=i] = Scalar[dtype](original_val - epsilon)
         var f_minus = forward_fn(x)
 
         # Restore original value
-        x_ptr[i] = Scalar[dtype](original_val)
+        x_ptr[unsafe_offset=i] = Scalar[dtype](original_val)
 
         # Central difference: (f(x+ε) - f(x-ε)) / 2ε
         # Use data_ptr[dtype]() to keep f_plus/f_minus alive for the loop
@@ -968,17 +972,18 @@ def _compute_numerical_grad_perturb[
         var f_minus_ptr = f_minus.data_ptr[dtype]()
         var grad_val: Float64
         if f_plus.numel() == 1:
-            grad_val = (Float64(f_plus_ptr[0]) - Float64(f_minus_ptr[0])) / (
-                2.0 * epsilon
-            )
+            grad_val = (
+                Float64(f_plus_ptr[0]) - Float64(f_minus_ptr[unsafe_offset=0])
+            ) / (2.0 * epsilon)
         else:
             grad_val = 0.0
             for j in range(f_plus.numel()):
                 grad_val += (
-                    Float64(f_plus_ptr[j]) - Float64(f_minus_ptr[j])
+                    Float64(f_plus_ptr[j])
+                    - Float64(f_minus_ptr[unsafe_offset=j])
                 ) / (2.0 * epsilon)
 
-        grad_ptr[i] = Scalar[dtype](grad_val)
+        grad_ptr[unsafe_offset=i] = Scalar[dtype](grad_val)
 
 
 def _compute_numerical_grad_perturb_trait[
@@ -990,31 +995,32 @@ def _compute_numerical_grad_perturb_trait[
     var grad_ptr = grad.data_ptr[dtype]()
 
     for i in range(x.numel()):
-        var original_val = Float64(x_ptr[i])
+        var original_val = Float64(x_ptr[unsafe_offset=i])
 
-        x_ptr[i] = Scalar[dtype](original_val + epsilon)
+        x_ptr[unsafe_offset=i] = Scalar[dtype](original_val + epsilon)
         var f_plus = forward_fn(x)
 
-        x_ptr[i] = Scalar[dtype](original_val - epsilon)
+        x_ptr[unsafe_offset=i] = Scalar[dtype](original_val - epsilon)
         var f_minus = forward_fn(x)
 
-        x_ptr[i] = Scalar[dtype](original_val)
+        x_ptr[unsafe_offset=i] = Scalar[dtype](original_val)
 
         var f_plus_ptr = f_plus.data_ptr[dtype]()
         var f_minus_ptr = f_minus.data_ptr[dtype]()
         var grad_val: Float64
         if f_plus.numel() == 1:
-            grad_val = (Float64(f_plus_ptr[0]) - Float64(f_minus_ptr[0])) / (
-                2.0 * epsilon
-            )
+            grad_val = (
+                Float64(f_plus_ptr[0]) - Float64(f_minus_ptr[unsafe_offset=0])
+            ) / (2.0 * epsilon)
         else:
             grad_val = 0.0
             for j in range(f_plus.numel()):
                 grad_val += (
-                    Float64(f_plus_ptr[j]) - Float64(f_minus_ptr[j])
+                    Float64(f_plus_ptr[j])
+                    - Float64(f_minus_ptr[unsafe_offset=j])
                 ) / (2.0 * epsilon)
 
-        grad_ptr[i] = Scalar[dtype](grad_val)
+        grad_ptr[unsafe_offset=i] = Scalar[dtype](grad_val)
 
 
 def compute_numerical_gradient[
@@ -1172,28 +1178,28 @@ def _compute_sampled_grad_perturb[
     var x_ptr = x.data_ptr[dtype]()
 
     for idx in indices:
-        var original_val = Float64(x_ptr[idx])
+        var original_val = Float64(x_ptr[unsafe_offset=idx])
 
         # f(x + ε)
-        x_ptr[idx] = Scalar[dtype](original_val + epsilon)
+        x_ptr[unsafe_offset=idx] = Scalar[dtype](original_val + epsilon)
         var f_plus = forward_fn(x)
         # Use data_ptr[dtype]() to keep f_plus alive across the loop (modular/modular#6187)
         var f_plus_ptr = f_plus.data_ptr[dtype]()
         var f_plus_sum: Float64 = 0.0
         for j in range(f_plus.numel()):
-            f_plus_sum += Float64(f_plus_ptr[j])
+            f_plus_sum += Float64(f_plus_ptr[unsafe_offset=j])
 
         # f(x - ε)
-        x_ptr[idx] = Scalar[dtype](original_val - epsilon)
+        x_ptr[unsafe_offset=idx] = Scalar[dtype](original_val - epsilon)
         var f_minus = forward_fn(x)
         # Use data_ptr[dtype]() to keep f_minus alive across the loop (modular/modular#6187)
         var f_minus_ptr = f_minus.data_ptr[dtype]()
         var f_minus_sum: Float64 = 0.0
         for j in range(f_minus.numel()):
-            f_minus_sum += Float64(f_minus_ptr[j])
+            f_minus_sum += Float64(f_minus_ptr[unsafe_offset=j])
 
         # Restore original
-        x_ptr[idx] = Scalar[dtype](original_val)
+        x_ptr[unsafe_offset=idx] = Scalar[dtype](original_val)
 
         # Compute gradient: (f(x + ε) - f(x - ε)) / (2ε)
         var grad = (f_plus_sum - f_minus_sum) / (2.0 * epsilon)
@@ -1214,23 +1220,23 @@ def _compute_sampled_grad_perturb_trait[
     var x_ptr = x.data_ptr[dtype]()
 
     for idx in indices:
-        var original_val = Float64(x_ptr[idx])
+        var original_val = Float64(x_ptr[unsafe_offset=idx])
 
-        x_ptr[idx] = Scalar[dtype](original_val + epsilon)
+        x_ptr[unsafe_offset=idx] = Scalar[dtype](original_val + epsilon)
         var f_plus = forward_fn(x)
         var f_plus_ptr = f_plus.data_ptr[dtype]()
         var f_plus_sum: Float64 = 0.0
         for j in range(f_plus.numel()):
-            f_plus_sum += Float64(f_plus_ptr[j])
+            f_plus_sum += Float64(f_plus_ptr[unsafe_offset=j])
 
-        x_ptr[idx] = Scalar[dtype](original_val - epsilon)
+        x_ptr[unsafe_offset=idx] = Scalar[dtype](original_val - epsilon)
         var f_minus = forward_fn(x)
         var f_minus_ptr = f_minus.data_ptr[dtype]()
         var f_minus_sum: Float64 = 0.0
         for j in range(f_minus.numel()):
-            f_minus_sum += Float64(f_minus_ptr[j])
+            f_minus_sum += Float64(f_minus_ptr[unsafe_offset=j])
 
-        x_ptr[idx] = Scalar[dtype](original_val)
+        x_ptr[unsafe_offset=idx] = Scalar[dtype](original_val)
 
         var grad = (f_plus_sum - f_minus_sum) / (2.0 * epsilon)
         gradients.append(IndexGradientPair(idx, grad))
@@ -1623,32 +1629,36 @@ def _check_gradient_perturb[
     for i in range(x.numel()):
         # Create deep copies to avoid corrupting original x
         var x_plus = x.clone()
-        var old_val = Float64(x_ptr[i])
+        var old_val = Float64(x_ptr[unsafe_offset=i])
         # Use typed pointer for setting the perturbed value in the clone
         var plus_ptr = x_plus.data_ptr[dtype]()
-        plus_ptr[i] = Scalar[dtype](old_val + eps)
+        plus_ptr[unsafe_offset=i] = Scalar[dtype](old_val + eps)
         var out_plus = forward_fn(x_plus)
         # Use data_ptr[dtype]() to keep out_plus alive across the loop (modular/modular#6187)
         var out_plus_ptr = out_plus.data_ptr[dtype]()
         var grad_out_ptr = grad_output.data_ptr[dtype]()
         var loss_plus: Float64 = 0.0
         for j in range(out_plus.numel()):
-            loss_plus += Float64(out_plus_ptr[j]) * Float64(grad_out_ptr[j])
+            loss_plus += Float64(out_plus_ptr[j]) * Float64(
+                grad_out_ptr[unsafe_offset=j]
+            )
 
         # Backward perturbation
         var x_minus = x.clone()
         var minus_ptr = x_minus.data_ptr[dtype]()
-        minus_ptr[i] = Scalar[dtype](old_val - eps)
+        minus_ptr[unsafe_offset=i] = Scalar[dtype](old_val - eps)
         var out_minus = forward_fn(x_minus)
         # Use data_ptr[dtype]() to keep out_minus alive across the loop (modular/modular#6187)
         var out_minus_ptr = out_minus.data_ptr[dtype]()
         var loss_minus: Float64 = 0.0
         for j in range(out_minus.numel()):
-            loss_minus += Float64(out_minus_ptr[j]) * Float64(grad_out_ptr[j])
+            loss_minus += Float64(out_minus_ptr[j]) * Float64(
+                grad_out_ptr[unsafe_offset=j]
+            )
 
         # Central difference
         var numerical_grad = (loss_plus - loss_minus) / (2.0 * eps)
-        grad_ptr[i] = Scalar[dtype](numerical_grad)
+        grad_ptr[unsafe_offset=i] = Scalar[dtype](numerical_grad)
 
 
 def _check_gradient_perturb[
@@ -1675,32 +1685,36 @@ def _check_gradient_perturb[
     for i in range(x.numel()):
         # Create deep copies to avoid corrupting original x
         var x_plus = x.clone()
-        var old_val = Float64(x_ptr[i])
+        var old_val = Float64(x_ptr[unsafe_offset=i])
         # Use typed pointer for setting the perturbed value in the clone
         var plus_ptr = x_plus.data_ptr[dtype]()
-        plus_ptr[i] = Scalar[dtype](old_val + eps)
+        plus_ptr[unsafe_offset=i] = Scalar[dtype](old_val + eps)
         var out_plus = forward_fn(x_plus)
         # Use data_ptr[dtype]() to keep out_plus alive across the loop (modular/modular#6187)
         var out_plus_ptr = out_plus.data_ptr[dtype]()
         var grad_out_ptr = grad_output.data_ptr[dtype]()
         var loss_plus: Float64 = 0.0
         for j in range(out_plus.numel()):
-            loss_plus += Float64(out_plus_ptr[j]) * Float64(grad_out_ptr[j])
+            loss_plus += Float64(out_plus_ptr[j]) * Float64(
+                grad_out_ptr[unsafe_offset=j]
+            )
 
         # Backward perturbation
         var x_minus = x.clone()
         var minus_ptr = x_minus.data_ptr[dtype]()
-        minus_ptr[i] = Scalar[dtype](old_val - eps)
+        minus_ptr[unsafe_offset=i] = Scalar[dtype](old_val - eps)
         var out_minus = forward_fn(x_minus)
         # Use data_ptr[dtype]() to keep out_minus alive across the loop (modular/modular#6187)
         var out_minus_ptr = out_minus.data_ptr[dtype]()
         var loss_minus: Float64 = 0.0
         for j in range(out_minus.numel()):
-            loss_minus += Float64(out_minus_ptr[j]) * Float64(grad_out_ptr[j])
+            loss_minus += Float64(out_minus_ptr[j]) * Float64(
+                grad_out_ptr[unsafe_offset=j]
+            )
 
         # Central difference
         var numerical_grad = (loss_plus - loss_minus) / (2.0 * eps)
-        grad_ptr[i] = Scalar[dtype](numerical_grad)
+        grad_ptr[unsafe_offset=i] = Scalar[dtype](numerical_grad)
 
 
 def check_gradient[

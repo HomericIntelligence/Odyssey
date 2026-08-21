@@ -59,8 +59,8 @@ def test_strassen_2x2_float32() raises:
     var C = zeros([2, 2], DType.float32)
 
     # Set values: A = [[1, 2], [3, 4]], B = [[5, 6], [7, 8]]
-    var a_ptr = A._data.bitcast[Float32]()
-    var b_ptr = B._data.bitcast[Float32]()
+    var a_ptr = A._data.unsafe_bitcast[Float32]()
+    var b_ptr = B._data.unsafe_bitcast[Float32]()
 
     a_ptr.store(0, Float32(1.0))
     a_ptr.store(1, Float32(2.0))
@@ -76,7 +76,7 @@ def test_strassen_2x2_float32() raises:
     matmul_strassen(A, B, C)
 
     # Verify: C = [[19, 22], [43, 50]]
-    var c_ptr = C._data.bitcast[Float32]()
+    var c_ptr = C._data.unsafe_bitcast[Float32]()
     var c00 = c_ptr.load(0)
     var c01 = c_ptr.load(1)
     var c10 = c_ptr.load(2)
@@ -96,8 +96,8 @@ def test_strassen_4x4_float32() raises:
     var C_ref = zeros([4, 4], DType.float32)
 
     # Fill with sequential values for deterministic test
-    var a_ptr = A._data.bitcast[Float32]()
-    var b_ptr = B._data.bitcast[Float32]()
+    var a_ptr = A._data.unsafe_bitcast[Float32]()
+    var b_ptr = B._data.unsafe_bitcast[Float32]()
 
     for i in range(16):
         a_ptr.store(i, Float32(Float64(i) + 1.0))
@@ -108,8 +108,8 @@ def test_strassen_4x4_float32() raises:
     matmul_tiled(A, B, C_ref)
 
     # Compare results
-    var strassen_ptr = C_strassen._data.bitcast[Float32]()
-    var ref_ptr = C_ref._data.bitcast[Float32]()
+    var strassen_ptr = C_strassen._data.unsafe_bitcast[Float32]()
+    var ref_ptr = C_ref._data.unsafe_bitcast[Float32]()
 
     for i in range(16):
         var s_val = strassen_ptr.load(i)
@@ -125,8 +125,8 @@ def test_strassen_8x8_float64() raises:
     var C_ref = zeros([8, 8], DType.float64)
 
     # Fill with sequential values
-    var a_ptr = A._data.bitcast[Float64]()
-    var b_ptr = B._data.bitcast[Float64]()
+    var a_ptr = A._data.unsafe_bitcast[Float64]()
+    var b_ptr = B._data.unsafe_bitcast[Float64]()
 
     for i in range(64):
         a_ptr.store(i, Float64(i) + 1.0)
@@ -137,8 +137,8 @@ def test_strassen_8x8_float64() raises:
     matmul_tiled(A, B, C_ref)
 
     # Compare results
-    var strassen_ptr = C_strassen._data.bitcast[Float64]()
-    var ref_ptr = C_ref._data.bitcast[Float64]()
+    var strassen_ptr = C_strassen._data.unsafe_bitcast[Float64]()
+    var ref_ptr = C_ref._data.unsafe_bitcast[Float64]()
 
     for i in range(64):
         var s_val = strassen_ptr.load(i)
@@ -160,7 +160,7 @@ def test_strassen_zero_matrix() raises:
     matmul_strassen(A, B, C)
 
     # All elements should be zero
-    var c_ptr = C._data.bitcast[Float32]()
+    var c_ptr = C._data.unsafe_bitcast[Float32]()
     for i in range(16):
         assert_almost_equal(c_ptr.load(i), Float32(0.0), Float32(1e-4))
 
@@ -173,19 +173,19 @@ def test_strassen_identity_matrix() raises:
     var C = zeros([size, size], DType.float32)
 
     # Set A to identity matrix
-    var a_ptr = A._data.bitcast[Float32]()
+    var a_ptr = A._data.unsafe_bitcast[Float32]()
     for i in range(size):
         a_ptr.store(i * size + i, Float32(1.0))
 
     # Set B to sequential values
-    var b_ptr = B._data.bitcast[Float32]()
+    var b_ptr = B._data.unsafe_bitcast[Float32]()
     for i in range(size * size):
         b_ptr.store(i, Float32(Float64(i) + 1.0))
 
     matmul_strassen(A, B, C)
 
     # C should equal B
-    var c_ptr = C._data.bitcast[Float32]()
+    var c_ptr = C._data.unsafe_bitcast[Float32]()
     for i in range(size * size):
         var c_val = c_ptr.load(i)
         var b_val = b_ptr.load(i)
@@ -207,8 +207,8 @@ def test_strassen_power_of_2_sizes() raises:
         var C_ref = zeros([size, size], DType.float32)
 
         # Fill with sequential values
-        var a_ptr = A._data.bitcast[Float32]()
-        var b_ptr = B._data.bitcast[Float32]()
+        var a_ptr = A._data.unsafe_bitcast[Float32]()
+        var b_ptr = B._data.unsafe_bitcast[Float32]()
 
         var numel = size * size
         for i in range(numel):
@@ -220,8 +220,8 @@ def test_strassen_power_of_2_sizes() raises:
         matmul_tiled(A, B, C_ref)
 
         # Compare results
-        var strassen_ptr = C_strassen._data.bitcast[Float32]()
-        var ref_ptr = C_ref._data.bitcast[Float32]()
+        var strassen_ptr = C_strassen._data.unsafe_bitcast[Float32]()
+        var ref_ptr = C_ref._data.unsafe_bitcast[Float32]()
 
         for i in range(numel):
             var s_val = strassen_ptr.load(i)
@@ -242,8 +242,8 @@ def test_strassen_below_threshold() raises:
     var C_ref = zeros([64, 64], DType.float32)
 
     # Fill with ones
-    var a_ptr = A._data.bitcast[Float32]()
-    var b_ptr = B._data.bitcast[Float32]()
+    var a_ptr = A._data.unsafe_bitcast[Float32]()
+    var b_ptr = B._data.unsafe_bitcast[Float32]()
 
     for i in range(64 * 64):
         a_ptr.store(i, Float32(1.0))
@@ -254,8 +254,8 @@ def test_strassen_below_threshold() raises:
     matmul_tiled(A, B, C_ref)
 
     # Results should be identical
-    var strassen_ptr = C_strassen._data.bitcast[Float32]()
-    var ref_ptr = C_ref._data.bitcast[Float32]()
+    var strassen_ptr = C_strassen._data.unsafe_bitcast[Float32]()
+    var ref_ptr = C_ref._data.unsafe_bitcast[Float32]()
 
     for i in range(64 * 64):
         var s_val = strassen_ptr.load(i)
@@ -276,8 +276,8 @@ def test_strassen_non_power_of_2_square() raises:
     var C_ref = zeros([100, 100], DType.float32)
 
     # Fill with ones
-    var a_ptr = A._data.bitcast[Float32]()
-    var b_ptr = B._data.bitcast[Float32]()
+    var a_ptr = A._data.unsafe_bitcast[Float32]()
+    var b_ptr = B._data.unsafe_bitcast[Float32]()
 
     for i in range(100 * 100):
         a_ptr.store(i, Float32(1.0))
@@ -288,8 +288,8 @@ def test_strassen_non_power_of_2_square() raises:
     matmul_tiled(A, B, C_ref)
 
     # Compare results (but use looser tolerance for non-power-of-2)
-    var strassen_ptr = C_strassen._data.bitcast[Float32]()
-    var ref_ptr = C_ref._data.bitcast[Float32]()
+    var strassen_ptr = C_strassen._data.unsafe_bitcast[Float32]()
+    var ref_ptr = C_ref._data.unsafe_bitcast[Float32]()
 
     for i in range(100 * 100):
         var s_val = strassen_ptr.load(i)
@@ -311,8 +311,8 @@ def test_strassen_rectangular_matrices() raises:
     var C_ref = zeros([32, 32], DType.float32)
 
     # Fill with ones
-    var a_ptr = A._data.bitcast[Float32]()
-    var b_ptr = B._data.bitcast[Float32]()
+    var a_ptr = A._data.unsafe_bitcast[Float32]()
+    var b_ptr = B._data.unsafe_bitcast[Float32]()
 
     for i in range(32 * 64):
         a_ptr.store(i, Float32(1.0))
@@ -325,8 +325,8 @@ def test_strassen_rectangular_matrices() raises:
     matmul_tiled(A, B, C_ref)
 
     # Results should be identical
-    var strassen_ptr = C_strassen._data.bitcast[Float32]()
-    var ref_ptr = C_ref._data.bitcast[Float32]()
+    var strassen_ptr = C_strassen._data.unsafe_bitcast[Float32]()
+    var ref_ptr = C_ref._data.unsafe_bitcast[Float32]()
 
     for i in range(32 * 32):
         var s_val = strassen_ptr.load(i)

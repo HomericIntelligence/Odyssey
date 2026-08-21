@@ -889,15 +889,19 @@ def assert_matrices_equal[
         var a_val: Float64
         var b_val: Float64
         comptime if dtype == DType.float32:
-            a_val = Float64(a._data.bitcast[Float32]()[i])
-            b_val = Float64(b._data.bitcast[Float32]()[i])
+            a_val = Float64(a._data.unsafe_bitcast[Float32]()[unsafe_offset=i])
+            b_val = Float64(b._data.unsafe_bitcast[Float32]()[unsafe_offset=i])
         elif dtype == DType.float64:
-            a_val = a._data.bitcast[Float64]()[i]
-            b_val = b._data.bitcast[Float64]()[i]
+            a_val = a._data.unsafe_bitcast[Float64]()[unsafe_offset=i]
+            b_val = b._data.unsafe_bitcast[Float64]()[unsafe_offset=i]
         elif dtype == DType.float16:
             # Float16 -> Float32 -> Float64 for comparison
-            a_val = Float64(Float32(a._data.bitcast[Float16]()[i]))
-            b_val = Float64(Float32(b._data.bitcast[Float16]()[i]))
+            a_val = Float64(
+                Float32(a._data.unsafe_bitcast[Float16]()[unsafe_offset=i])
+            )
+            b_val = Float64(
+                Float32(b._data.unsafe_bitcast[Float16]()[unsafe_offset=i])
+            )
         else:
             raise Error("Unsupported dtype for comparison")
 

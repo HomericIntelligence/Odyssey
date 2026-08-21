@@ -17,7 +17,7 @@ Includes:
 """
 
 from std.collections import List
-from std.memory import memcpy
+from std.memory import unsafe_memcpy
 from odyssey.tensor.any_tensor import AnyTensor
 from odyssey.core.gradient_types import GradientPair
 from odyssey.core.dtype_dispatch import (
@@ -59,25 +59,27 @@ def _matmul_2d_1d_impl[
     See GitHub issue #3009 for rationale.
     """
     comptime if dtype == DType.float16:
-        var a_ptr = a._data.bitcast[Scalar[DType.float16]]()
-        var b_ptr = b._data.bitcast[Scalar[DType.float16]]()
-        var out_ptr = result._data.bitcast[Scalar[DType.float16]]()
+        var a_ptr = a._data.unsafe_bitcast[Scalar[DType.float16]]()
+        var b_ptr = b._data.unsafe_bitcast[Scalar[DType.float16]]()
+        var out_ptr = result._data.unsafe_bitcast[Scalar[DType.float16]]()
 
         for i in range(m):
             var sum_val = Float32(0.0)
             for j in range(k):
-                sum_val += Float32(a_ptr[i * k + j]) * Float32(b_ptr[j])
-            out_ptr[i] = Float16(sum_val)
+                sum_val += Float32(a_ptr[i * k + j]) * Float32(
+                    b_ptr[unsafe_offset=j]
+                )
+            out_ptr[unsafe_offset=i] = Float16(sum_val)
     else:
-        var a_ptr = a._data.bitcast[Scalar[dtype]]()
-        var b_ptr = b._data.bitcast[Scalar[dtype]]()
-        var out_ptr = result._data.bitcast[Scalar[dtype]]()
+        var a_ptr = a._data.unsafe_bitcast[Scalar[dtype]]()
+        var b_ptr = b._data.unsafe_bitcast[Scalar[dtype]]()
+        var out_ptr = result._data.unsafe_bitcast[Scalar[dtype]]()
 
         for i in range(m):
             var sum_val: Scalar[dtype] = 0
             for j in range(k):
-                sum_val += a_ptr[i * k + j] * b_ptr[j]
-            out_ptr[i] = sum_val
+                sum_val += a_ptr[i * k + j] * b_ptr[unsafe_offset=j]
+            out_ptr[unsafe_offset=i] = sum_val
 
 
 def _dispatch_matmul_2d_1d(
@@ -98,25 +100,27 @@ def _matmul_1d_2d_impl[
     See GitHub issue #3009 for rationale.
     """
     comptime if dtype == DType.float16:
-        var a_ptr = a._data.bitcast[Scalar[DType.float16]]()
-        var b_ptr = b._data.bitcast[Scalar[DType.float16]]()
-        var out_ptr = result._data.bitcast[Scalar[DType.float16]]()
+        var a_ptr = a._data.unsafe_bitcast[Scalar[DType.float16]]()
+        var b_ptr = b._data.unsafe_bitcast[Scalar[DType.float16]]()
+        var out_ptr = result._data.unsafe_bitcast[Scalar[DType.float16]]()
 
         for j in range(n):
             var sum_val = Float32(0.0)
             for i in range(m):
-                sum_val += Float32(a_ptr[i]) * Float32(b_ptr[i * n + j])
-            out_ptr[j] = Float16(sum_val)
+                sum_val += Float32(a_ptr[i]) * Float32(
+                    b_ptr[unsafe_offset=i * n + j]
+                )
+            out_ptr[unsafe_offset=j] = Float16(sum_val)
     else:
-        var a_ptr = a._data.bitcast[Scalar[dtype]]()
-        var b_ptr = b._data.bitcast[Scalar[dtype]]()
-        var out_ptr = result._data.bitcast[Scalar[dtype]]()
+        var a_ptr = a._data.unsafe_bitcast[Scalar[dtype]]()
+        var b_ptr = b._data.unsafe_bitcast[Scalar[dtype]]()
+        var out_ptr = result._data.unsafe_bitcast[Scalar[dtype]]()
 
         for j in range(n):
             var sum_val: Scalar[dtype] = 0
             for i in range(m):
-                sum_val += a_ptr[i] * b_ptr[i * n + j]
-            out_ptr[j] = sum_val
+                sum_val += a_ptr[i] * b_ptr[unsafe_offset=i * n + j]
+            out_ptr[unsafe_offset=j] = sum_val
 
 
 def _dispatch_matmul_1d_2d(
@@ -144,29 +148,32 @@ def _matmul_2d_2d_impl[
     See GitHub issue #3009 for rationale.
     """
     comptime if dtype == DType.float16:
-        var a_ptr = a._data.bitcast[Scalar[DType.float16]]()
-        var b_ptr = b._data.bitcast[Scalar[DType.float16]]()
-        var out_ptr = result._data.bitcast[Scalar[DType.float16]]()
+        var a_ptr = a._data.unsafe_bitcast[Scalar[DType.float16]]()
+        var b_ptr = b._data.unsafe_bitcast[Scalar[DType.float16]]()
+        var out_ptr = result._data.unsafe_bitcast[Scalar[DType.float16]]()
 
         for i in range(a_rows):
             for j in range(b_cols):
                 var sum_val = Float32(0.0)
                 for k in range(a_cols):
-                    sum_val += Float32(a_ptr[i * a_cols + k]) * Float32(
-                        b_ptr[k * b_cols + j]
-                    )
-                out_ptr[i * b_cols + j] = Float16(sum_val)
+                    sum_val += Float32(
+                        a_ptr[unsafe_offset=i * a_cols + k]
+                    ) * Float32(b_ptr[unsafe_offset=k * b_cols + j])
+                out_ptr[unsafe_offset=i * b_cols + j] = Float16(sum_val)
     else:
-        var a_ptr = a._data.bitcast[Scalar[dtype]]()
-        var b_ptr = b._data.bitcast[Scalar[dtype]]()
-        var out_ptr = result._data.bitcast[Scalar[dtype]]()
+        var a_ptr = a._data.unsafe_bitcast[Scalar[dtype]]()
+        var b_ptr = b._data.unsafe_bitcast[Scalar[dtype]]()
+        var out_ptr = result._data.unsafe_bitcast[Scalar[dtype]]()
 
         for i in range(a_rows):
             for j in range(b_cols):
                 var sum_val: Scalar[dtype] = 0
                 for k in range(a_cols):
-                    sum_val += a_ptr[i * a_cols + k] * b_ptr[k * b_cols + j]
-                out_ptr[i * b_cols + j] = sum_val
+                    sum_val += (
+                        a_ptr[i * a_cols + k]
+                        * b_ptr[unsafe_offset=k * b_cols + j]
+                    )
+                out_ptr[unsafe_offset=i * b_cols + j] = sum_val
 
 
 def _dispatch_matmul_2d_2d(
@@ -205,9 +212,9 @@ def _matmul_batched_impl[
     See GitHub issue #3009 for rationale.
     """
     comptime if dtype == DType.float16:
-        var a_ptr = a._data.bitcast[Scalar[DType.float16]]()
-        var b_ptr = b._data.bitcast[Scalar[DType.float16]]()
-        var out_ptr = result._data.bitcast[Scalar[DType.float16]]()
+        var a_ptr = a._data.unsafe_bitcast[Scalar[DType.float16]]()
+        var b_ptr = b._data.unsafe_bitcast[Scalar[DType.float16]]()
+        var out_ptr = result._data.unsafe_bitcast[Scalar[DType.float16]]()
 
         for batch in range(batch_size):
             var a_offset = batch * matrix_size_a
@@ -220,13 +227,15 @@ def _matmul_batched_impl[
                     for k in range(a_cols):
                         var a_idx = a_offset + i * a_cols + k
                         var b_idx = b_offset + k * b_cols + j
-                        sum_val += Float32(a_ptr[a_idx]) * Float32(b_ptr[b_idx])
+                        sum_val += Float32(a_ptr[a_idx]) * Float32(
+                            b_ptr[unsafe_offset=b_idx]
+                        )
                     var result_idx = result_offset + i * b_cols + j
-                    out_ptr[result_idx] = Float16(sum_val)
+                    out_ptr[unsafe_offset=result_idx] = Float16(sum_val)
     else:
-        var a_ptr = a._data.bitcast[Scalar[dtype]]()
-        var b_ptr = b._data.bitcast[Scalar[dtype]]()
-        var out_ptr = result._data.bitcast[Scalar[dtype]]()
+        var a_ptr = a._data.unsafe_bitcast[Scalar[dtype]]()
+        var b_ptr = b._data.unsafe_bitcast[Scalar[dtype]]()
+        var out_ptr = result._data.unsafe_bitcast[Scalar[dtype]]()
 
         for batch in range(batch_size):
             var a_offset = batch * matrix_size_a
@@ -239,9 +248,9 @@ def _matmul_batched_impl[
                     for k in range(a_cols):
                         var a_idx = a_offset + i * a_cols + k
                         var b_idx = b_offset + k * b_cols + j
-                        sum_val += a_ptr[a_idx] * b_ptr[b_idx]
+                        sum_val += a_ptr[a_idx] * b_ptr[unsafe_offset=b_idx]
                     var result_idx = result_offset + i * b_cols + j
-                    out_ptr[result_idx] = sum_val
+                    out_ptr[unsafe_offset=result_idx] = sum_val
 
 
 def _dispatch_matmul_batched(
@@ -422,8 +431,8 @@ def _transpose_copy_impl[
     numel: Int,
 ):
     """Dtype-specialized transpose copy."""
-    var in_ptr = tensor._data.bitcast[Scalar[dtype]]()
-    var out_ptr = result._data.bitcast[Scalar[dtype]]()
+    var in_ptr = tensor._data.unsafe_bitcast[Scalar[dtype]]()
+    var out_ptr = result._data.unsafe_bitcast[Scalar[dtype]]()
 
     for result_idx in range(numel):
         # Convert linear result index to coordinates
@@ -437,7 +446,7 @@ def _transpose_copy_impl[
             # Map result axis i to input axis perm[i]
             input_idx += coord * input_strides[perm[i]]
 
-        out_ptr[result_idx] = in_ptr[input_idx]
+        out_ptr[result_idx] = in_ptr[unsafe_offset=input_idx]
 
 
 def _dispatch_transpose_copy(
@@ -512,14 +521,14 @@ def _dot_impl[
     dtype: DType
 ](result: AnyTensor, a: AnyTensor, b: AnyTensor, length: Int):
     """Dtype-specialized dot product."""
-    var a_ptr = a._data.bitcast[Scalar[dtype]]()
-    var b_ptr = b._data.bitcast[Scalar[dtype]]()
-    var out_ptr = result._data.bitcast[Scalar[dtype]]()
+    var a_ptr = a._data.unsafe_bitcast[Scalar[dtype]]()
+    var b_ptr = b._data.unsafe_bitcast[Scalar[dtype]]()
+    var out_ptr = result._data.unsafe_bitcast[Scalar[dtype]]()
 
     var sum_val: Scalar[dtype] = 0
     for i in range(length):
-        sum_val += a_ptr[i] * b_ptr[i]
-    out_ptr[0] = sum_val
+        sum_val += a_ptr[i] * b_ptr[unsafe_offset=i]
+    out_ptr[unsafe_offset=0] = sum_val
 
 
 def _dispatch_dot(
@@ -534,14 +543,14 @@ def _outer_impl[
     dtype: DType
 ](result: AnyTensor, a: AnyTensor, b: AnyTensor, len_a: Int, len_b: Int):
     """Dtype-specialized outer product."""
-    var a_ptr = a._data.bitcast[Scalar[dtype]]()
-    var b_ptr = b._data.bitcast[Scalar[dtype]]()
-    var out_ptr = result._data.bitcast[Scalar[dtype]]()
+    var a_ptr = a._data.unsafe_bitcast[Scalar[dtype]]()
+    var b_ptr = b._data.unsafe_bitcast[Scalar[dtype]]()
+    var out_ptr = result._data.unsafe_bitcast[Scalar[dtype]]()
 
     for i in range(len_a):
-        var a_val = a_ptr[i]
+        var a_val = a_ptr[unsafe_offset=i]
         for j in range(len_b):
-            out_ptr[i * len_b + j] = a_val * b_ptr[j]
+            out_ptr[i * len_b + j] = a_val * b_ptr[unsafe_offset=j]
 
 
 def _dispatch_outer(
@@ -556,14 +565,14 @@ def _matmul_backward_2d_1d_impl[
     dtype: DType
 ](grad_a: AnyTensor, grad_output: AnyTensor, b: AnyTensor, m: Int, k: Int):
     """Dtype-specialized grad_a for 2D @ 1D backward."""
-    var grad_ptr = grad_output._data.bitcast[Scalar[dtype]]()
-    var b_ptr = b._data.bitcast[Scalar[dtype]]()
-    var out_ptr = grad_a._data.bitcast[Scalar[dtype]]()
+    var grad_ptr = grad_output._data.unsafe_bitcast[Scalar[dtype]]()
+    var b_ptr = b._data.unsafe_bitcast[Scalar[dtype]]()
+    var out_ptr = grad_a._data.unsafe_bitcast[Scalar[dtype]]()
 
     for i in range(m):
-        var grad_val = grad_ptr[i]
+        var grad_val = grad_ptr[unsafe_offset=i]
         for j in range(k):
-            out_ptr[i * k + j] = grad_val * b_ptr[j]
+            out_ptr[i * k + j] = grad_val * b_ptr[unsafe_offset=j]
 
 
 def _dispatch_matmul_backward_2d_1d(
@@ -580,14 +589,14 @@ def _matmul_backward_1d_2d_impl[
     dtype: DType
 ](grad_b: AnyTensor, a: AnyTensor, grad_output: AnyTensor, k: Int, n: Int):
     """Dtype-specialized grad_b for 1D @ 2D backward."""
-    var a_ptr = a._data.bitcast[Scalar[dtype]]()
-    var grad_ptr = grad_output._data.bitcast[Scalar[dtype]]()
-    var out_ptr = grad_b._data.bitcast[Scalar[dtype]]()
+    var a_ptr = a._data.unsafe_bitcast[Scalar[dtype]]()
+    var grad_ptr = grad_output._data.unsafe_bitcast[Scalar[dtype]]()
+    var out_ptr = grad_b._data.unsafe_bitcast[Scalar[dtype]]()
 
     for i in range(k):
-        var a_val = a_ptr[i]
+        var a_val = a_ptr[unsafe_offset=i]
         for j in range(n):
-            out_ptr[i * n + j] = a_val * grad_ptr[j]
+            out_ptr[i * n + j] = a_val * grad_ptr[unsafe_offset=j]
 
 
 def _dispatch_matmul_backward_1d_2d(
@@ -912,7 +921,7 @@ def transpose_view(
 
     **IMPORTANT**: Despite the name "view", this function does NOT implement
     true zero-copy view semantics. It allocates a NEW tensor and copies the
-    raw bytes via memcpy, then sets permuted strides. Modifying the original
+    raw bytes via unsafe_memcpy, then sets permuted strides. Modifying the original
     tensor after calling transpose_view() will NOT affect the result and vice versa.
 
     This is a test utility for validating is_contiguous() and as_contiguous()
@@ -920,7 +929,7 @@ def transpose_view(
     which returns a true zero-copy view using stride permutation only.
 
     Unlike transpose(), this does reorder the shape (permutes it) and forces a
-    memcpy to create an independent copy with the new stride layout. For any
+    unsafe_memcpy to create an independent copy with the new stride layout. For any
     non-trivial permutation the result has is_contiguous() == False.
 
     Note: `transpose_view()` is a lower-level testing utility. For production use,
@@ -1006,7 +1015,7 @@ def transpose_view(
     var numel = tensor.numel()
     var dtype_size = tensor._get_dtype_size()
     var total_bytes = numel * dtype_size
-    memcpy(dest=result._data, src=tensor._data, count=total_bytes)
+    unsafe_memcpy(dest=result._data, src=tensor._data, count=total_bytes)
 
     # Overwrite strides with permuted (non-C-order) strides
     result._strides = result_strides^
@@ -1317,16 +1326,16 @@ def tensordot(a: AnyTensor, b: AnyTensor, axes: Int) raises -> AnyTensor:
         var b_reshaped = AnyTensor(b_reshaped_shape, b.dtype())
 
         # Copy data from original tensors
-        var a_src = a._data.bitcast[Scalar[DType.float32]]()
-        var b_src = b._data.bitcast[Scalar[DType.float32]]()
-        var a_dst = a_reshaped._data.bitcast[Scalar[DType.float32]]()
-        var b_dst = b_reshaped._data.bitcast[Scalar[DType.float32]]()
+        var a_src = a._data.unsafe_bitcast[Scalar[DType.float32]]()
+        var b_src = b._data.unsafe_bitcast[Scalar[DType.float32]]()
+        var a_dst = a_reshaped._data.unsafe_bitcast[Scalar[DType.float32]]()
+        var b_dst = b_reshaped._data.unsafe_bitcast[Scalar[DType.float32]]()
 
         # Direct copy since we're just reshaping
         for i in range(a_reshaped.numel()):
-            a_dst[i] = a_src[i]
+            a_dst[i] = a_src[unsafe_offset=i]
         for i in range(b_reshaped.numel()):
-            b_dst[i] = b_src[i]
+            b_dst[i] = b_src[unsafe_offset=i]
 
         _dispatch_matmul_2d_2d(
             result, a_reshaped, b_reshaped, a_rows, a_contract_size, b_cols
@@ -1361,9 +1370,9 @@ def _matmul_2d_2d_grad_a_impl[
 
     Computation: `grad_a[i, j] = sum_n (grad_output[i, n] * B[j, n])`
     """
-    var grad_ptr = grad_output._data.bitcast[Scalar[dtype]]()
-    var b_ptr = b._data.bitcast[Scalar[dtype]]()
-    var out_ptr = grad_a._data.bitcast[Scalar[dtype]]()
+    var grad_ptr = grad_output._data.unsafe_bitcast[Scalar[dtype]]()
+    var b_ptr = b._data.unsafe_bitcast[Scalar[dtype]]()
+    var out_ptr = grad_a._data.unsafe_bitcast[Scalar[dtype]]()
 
     var b_cols = grad_out_cols
 
@@ -1372,12 +1381,12 @@ def _matmul_2d_2d_grad_a_impl[
             var sum_val = Scalar[dtype](0)
             for n in range(grad_out_cols):
                 # grad_output[i, n]
-                var grad_elem = grad_ptr[i * grad_out_cols + n]
+                var grad_elem = grad_ptr[unsafe_offset=i * grad_out_cols + n]
                 # B[j, n]
-                var b_elem = b_ptr[j * b_cols + n]
+                var b_elem = b_ptr[unsafe_offset=j * b_cols + n]
                 sum_val += grad_elem * b_elem
             # grad_a[i, j] = sum
-            out_ptr[i * b_rows + j] = sum_val
+            out_ptr[unsafe_offset=i * b_rows + j] = sum_val
 
 
 def _matmul_2d_2d_grad_b_impl[
@@ -1402,21 +1411,21 @@ def _matmul_2d_2d_grad_b_impl[
 
     Computation: `grad_b[j, n] = sum_i (A[i, j] * grad_output[i, n])`
     """
-    var a_ptr = a._data.bitcast[Scalar[dtype]]()
-    var grad_ptr = grad_output._data.bitcast[Scalar[dtype]]()
-    var out_ptr = grad_b._data.bitcast[Scalar[dtype]]()
+    var a_ptr = a._data.unsafe_bitcast[Scalar[dtype]]()
+    var grad_ptr = grad_output._data.unsafe_bitcast[Scalar[dtype]]()
+    var out_ptr = grad_b._data.unsafe_bitcast[Scalar[dtype]]()
 
     for j in range(a_cols):
         for n in range(grad_out_cols):
             var sum_val = Scalar[dtype](0)
             for i in range(a_rows):
                 # A[i, j]
-                var a_elem = a_ptr[i * a_cols + j]
+                var a_elem = a_ptr[unsafe_offset=i * a_cols + j]
                 # grad_output[i, n]
-                var grad_elem = grad_ptr[i * grad_out_cols + n]
+                var grad_elem = grad_ptr[unsafe_offset=i * grad_out_cols + n]
                 sum_val += a_elem * grad_elem
             # grad_b[j, n] = sum
-            out_ptr[j * grad_out_cols + n] = sum_val
+            out_ptr[unsafe_offset=j * grad_out_cols + n] = sum_val
 
 
 def _dispatch_matmul_2d_2d_grad_a(

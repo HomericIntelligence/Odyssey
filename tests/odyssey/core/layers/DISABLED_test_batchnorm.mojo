@@ -63,7 +63,7 @@ def test_batchnorm_gamma_initialized_to_one() raises:
     """
     var layer = BatchNorm2dLayer(16)
 
-    var gamma_data = layer.gamma._data.bitcast[Float32]()
+    var gamma_data = layer.gamma._data.unsafe_bitcast[Float32]()
     for i in range(layer.gamma.numel()):
         assert_almost_equal(gamma_data[i], 1.0, tolerance=1e-6)
 
@@ -75,7 +75,7 @@ def test_batchnorm_beta_initialized_to_zero() raises:
     """
     var layer = BatchNorm2dLayer(16)
 
-    var beta_data = layer.beta._data.bitcast[Float32]()
+    var beta_data = layer.beta._data.unsafe_bitcast[Float32]()
     for i in range(layer.beta.numel()):
         assert_almost_equal(beta_data[i], 0.0, tolerance=1e-6)
 
@@ -84,7 +84,7 @@ def test_batchnorm_running_mean_initialized_to_zero() raises:
     """Test that running_mean is initialized to 0.0."""
     var layer = BatchNorm2dLayer(16)
 
-    var mean_data = layer.running_mean._data.bitcast[Float32]()
+    var mean_data = layer.running_mean._data.unsafe_bitcast[Float32]()
     for i in range(layer.running_mean.numel()):
         assert_almost_equal(mean_data[i], 0.0, tolerance=1e-6)
 
@@ -93,7 +93,7 @@ def test_batchnorm_running_var_initialized_to_one() raises:
     """Test that running_var is initialized to 1.0."""
     var layer = BatchNorm2dLayer(16)
 
-    var var_data = layer.running_var._data.bitcast[Float32]()
+    var var_data = layer.running_var._data.unsafe_bitcast[Float32]()
     for i in range(layer.running_var.numel()):
         assert_almost_equal(var_data[i], 1.0, tolerance=1e-6)
 
@@ -179,8 +179,8 @@ def test_batchnorm_forward_training_mode() raises:
     # After first forward with momentum=0.1:
     # running_mean = 0.9 * 0 + 0.1 * batch_mean = 0.1 * 3.0 = 0.3
     # (batch_mean = (2.0 * 8 + 4.0 * 8) / 16 = 3.0)
-    var running_mean_data = layer.running_mean._data.bitcast[Float32]()
-    var running_var_data = layer.running_var._data.bitcast[Float32]()
+    var running_mean_data = layer.running_mean._data.unsafe_bitcast[Float32]()
+    var running_var_data = layer.running_var._data.unsafe_bitcast[Float32]()
 
     # Check that running stats changed (not still initial values)
     var mean_changed = Float32(0.0)
@@ -201,8 +201,8 @@ def test_batchnorm_forward_inference_mode() raises:
     var layer = BatchNorm2dLayer(4)
 
     # Manually set running statistics
-    var mean_data = layer.running_mean._data.bitcast[Float32]()
-    var var_data = layer.running_var._data.bitcast[Float32]()
+    var mean_data = layer.running_mean._data.unsafe_bitcast[Float32]()
+    var var_data = layer.running_var._data.unsafe_bitcast[Float32]()
     for i in range(4):
         mean_data[i] = 0.5
         var_data[i] = 2.0
@@ -239,7 +239,7 @@ def test_batchnorm_forward_without_gamma_beta() raises:
     var input = zeros(input_shape, DType.float32)
 
     # Fill channel 0 with [1, 2, 3, 4]
-    var data = input._data.bitcast[Float32]()
+    var data = input._data.unsafe_bitcast[Float32]()
     data[0] = 1.0
     data[1] = 2.0
     data[2] = 3.0
@@ -250,7 +250,7 @@ def test_batchnorm_forward_without_gamma_beta() raises:
 
     # With gamma=1, beta=0, output should be normalized
     # mean = 2.5, std = sqrt(1.25) ≈ 1.118
-    var output_data = output._data.bitcast[Float32]()
+    var output_data = output._data.unsafe_bitcast[Float32]()
 
     # Check that values are roughly normalized (mean ≈ 0)
     var sum = Float32(0.0)
@@ -309,8 +309,8 @@ def test_batchnorm_get_running_stats() raises:
     assert_equal(variance_shape[0], 16)
 
     # Verify initial values
-    var mean_data = mean._data.bitcast[Float32]()
-    var variance_data = variance._data.bitcast[Float32]()
+    var mean_data = mean._data.unsafe_bitcast[Float32]()
+    var variance_data = variance._data.unsafe_bitcast[Float32]()
 
     for i in range(16):
         assert_almost_equal(mean_data[i], 0.0, tolerance=1e-6)
@@ -336,8 +336,8 @@ def test_batchnorm_set_running_stats() raises:
     layer.set_running_stats(new_mean, new_var)
 
     # Verify they were set
-    var mean_data = layer.running_mean._data.bitcast[Float32]()
-    var var_data = layer.running_var._data.bitcast[Float32]()
+    var mean_data = layer.running_mean._data.unsafe_bitcast[Float32]()
+    var var_data = layer.running_var._data.unsafe_bitcast[Float32]()
 
     for i in range(16):
         assert_almost_equal(mean_data[i], 1.0, tolerance=1e-6)
@@ -362,19 +362,19 @@ def test_batchnorm_running_stats_update_over_batches() raises:
     var output1 = layer.forward(input1, training=True)
 
     var (mean1, var1) = layer.get_running_stats()
-    var mean_data1 = mean1._data.bitcast[Float32]()
+    var mean_data1 = mean1._data.unsafe_bitcast[Float32]()
     var mean_after_first = mean_data1[0]
 
     # Second batch: all 3.0
     var input2 = zeros(input1_shape, DType.float32)
-    var data2 = input2._data.bitcast[Float32]()
+    var data2 = input2._data.unsafe_bitcast[Float32]()
     for i in range(4):
         data2[i] = 3.0
 
     var output2 = layer.forward(input2, training=True)
 
     var (mean2, var2) = layer.get_running_stats()
-    var mean_data2 = mean2._data.bitcast[Float32]()
+    var mean_data2 = mean2._data.unsafe_bitcast[Float32]()
     var mean_after_second = mean_data2[0]
 
     # Running mean should have changed (0.9 * 0.1 + 0.1 * 3 ≈ 0.309)

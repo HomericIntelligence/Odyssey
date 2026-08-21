@@ -58,7 +58,7 @@ def _pow_typed[
 def _batch_norm2d_compute_stats[
     dtype: DType
 ](
-    x_ptr: UnsafePointer[UInt8, MutAnyOrigin],
+    x_ptr: Pointer[UInt8, MutUntrackedOrigin],
     batch_mean: AnyTensor,
     batch_var: AnyTensor,
     batch: Int,
@@ -68,9 +68,9 @@ def _batch_norm2d_compute_stats[
     spatial_size: Int,
 ) raises:
     """Compute per-channel mean and variance for batch normalization."""
-    var typed_x = x_ptr.bitcast[Scalar[dtype]]()
-    var mean_ptr = batch_mean._data.bitcast[Scalar[dtype]]()
-    var var_ptr = batch_var._data.bitcast[Scalar[dtype]]()
+    var typed_x = x_ptr.unsafe_bitcast[Scalar[dtype]]()
+    var mean_ptr = batch_mean._data.unsafe_bitcast[Scalar[dtype]]()
+    var var_ptr = batch_var._data.unsafe_bitcast[Scalar[dtype]]()
     var N = Scalar[dtype](spatial_size)
 
     for c in range(channels):
@@ -79,30 +79,30 @@ def _batch_norm2d_compute_stats[
             for h in range(height):
                 for w in range(width):
                     var idx = _idx4d(b, c, h, w, channels, height, width)
-                    sum_val += typed_x[idx]
-        mean_ptr[c] = sum_val / N
+                    sum_val += typed_x[unsafe_offset=idx]
+        mean_ptr[unsafe_offset=c] = sum_val / N
 
     for c in range(channels):
-        var mean_val = mean_ptr[c]
+        var mean_val = mean_ptr[unsafe_offset=c]
         var sum_sq_diff = Scalar[dtype](0.0)
         for b in range(batch):
             for h in range(height):
                 for w in range(width):
                     var idx = _idx4d(b, c, h, w, channels, height, width)
-                    var diff = typed_x[idx] - mean_val
+                    var diff = typed_x[unsafe_offset=idx] - mean_val
                     sum_sq_diff += diff * diff
-        var_ptr[c] = sum_sq_diff / N
+        var_ptr[unsafe_offset=c] = sum_sq_diff / N
 
 
 def _batch_norm2d_normalize[
     dtype: DType
 ](
-    x_ptr: UnsafePointer[UInt8, MutAnyOrigin],
+    x_ptr: Pointer[UInt8, MutUntrackedOrigin],
     output: AnyTensor,
-    mean_ptr_raw: UnsafePointer[UInt8, MutAnyOrigin],
-    var_ptr_raw: UnsafePointer[UInt8, MutAnyOrigin],
-    gamma_ptr_raw: UnsafePointer[UInt8, MutAnyOrigin],
-    beta_ptr_raw: UnsafePointer[UInt8, MutAnyOrigin],
+    mean_ptr_raw: Pointer[UInt8, MutUntrackedOrigin],
+    var_ptr_raw: Pointer[UInt8, MutUntrackedOrigin],
+    gamma_ptr_raw: Pointer[UInt8, MutUntrackedOrigin],
+    beta_ptr_raw: Pointer[UInt8, MutUntrackedOrigin],
     batch: Int,
     channels: Int,
     height: Int,
@@ -110,12 +110,12 @@ def _batch_norm2d_normalize[
     epsilon: Float64,
 ) raises:
     """Normalize using given mean/variance with optional parallelization."""
-    var typed_x = x_ptr.bitcast[Scalar[dtype]]()
-    var out_ptr = output._data.bitcast[Scalar[dtype]]()
-    var mean_ptr = mean_ptr_raw.bitcast[Scalar[dtype]]()
-    var var_ptr = var_ptr_raw.bitcast[Scalar[dtype]]()
-    var gamma_ptr = gamma_ptr_raw.bitcast[Scalar[dtype]]()
-    var beta_ptr = beta_ptr_raw.bitcast[Scalar[dtype]]()
+    var typed_x = x_ptr.unsafe_bitcast[Scalar[dtype]]()
+    var out_ptr = output._data.unsafe_bitcast[Scalar[dtype]]()
+    var mean_ptr = mean_ptr_raw.unsafe_bitcast[Scalar[dtype]]()
+    var var_ptr = var_ptr_raw.unsafe_bitcast[Scalar[dtype]]()
+    var gamma_ptr = gamma_ptr_raw.unsafe_bitcast[Scalar[dtype]]()
+    var beta_ptr = beta_ptr_raw.unsafe_bitcast[Scalar[dtype]]()
     var eps = Scalar[dtype](epsilon)
 
     if should_parallelize(batch):
@@ -123,29 +123,37 @@ def _batch_norm2d_normalize[
         @parameter
         def normalize_batch(b: Int) capturing:
             for c in range(channels):
-                var mean_val = mean_ptr[c]
-                var std = _sqrt_typed[dtype](var_ptr[c] + eps)
-                var gamma_val = gamma_ptr[c]
-                var beta_val = beta_ptr[c]
+                var mean_val = mean_ptr[unsafe_offset=c]
+                var std = _sqrt_typed[dtype](var_ptr[unsafe_offset=c] + eps)
+                var gamma_val = gamma_ptr[unsafe_offset=c]
+                var beta_val = beta_ptr[unsafe_offset=c]
                 for h in range(height):
                     for w in range(width):
                         var idx = _idx4d(b, c, h, w, channels, height, width)
-                        var x_norm = (typed_x[idx] - mean_val) / std
-                        out_ptr[idx] = gamma_val * x_norm + beta_val
+                        var x_norm = (
+                            typed_x[unsafe_offset=idx] - mean_val
+                        ) / std
+                        out_ptr[unsafe_offset=idx] = (
+                            gamma_val * x_norm + beta_val
+                        )
 
         parallelize[normalize_batch](batch)
     else:
         for b in range(batch):
             for c in range(channels):
-                var mean_val = mean_ptr[c]
-                var std = _sqrt_typed[dtype](var_ptr[c] + eps)
-                var gamma_val = gamma_ptr[c]
-                var beta_val = beta_ptr[c]
+                var mean_val = mean_ptr[unsafe_offset=c]
+                var std = _sqrt_typed[dtype](var_ptr[unsafe_offset=c] + eps)
+                var gamma_val = gamma_ptr[unsafe_offset=c]
+                var beta_val = beta_ptr[unsafe_offset=c]
                 for h in range(height):
                     for w in range(width):
                         var idx = _idx4d(b, c, h, w, channels, height, width)
-                        var x_norm = (typed_x[idx] - mean_val) / std
-                        out_ptr[idx] = gamma_val * x_norm + beta_val
+                        var x_norm = (
+                            typed_x[unsafe_offset=idx] - mean_val
+                        ) / std
+                        out_ptr[unsafe_offset=idx] = (
+                            gamma_val * x_norm + beta_val
+                        )
 
 
 def _batch_norm2d_update_running_stats[
@@ -161,18 +169,18 @@ def _batch_norm2d_update_running_stats[
     momentum: Float64,
 ) raises:
     """Update running statistics with EMA."""
-    var rm_ptr = running_mean._data.bitcast[Scalar[dtype]]()
-    var rv_ptr = running_var._data.bitcast[Scalar[dtype]]()
-    var bm_ptr = batch_mean._data.bitcast[Scalar[dtype]]()
-    var bv_ptr = batch_var._data.bitcast[Scalar[dtype]]()
-    var nrm_ptr = new_running_mean._data.bitcast[Scalar[dtype]]()
-    var nrv_ptr = new_running_var._data.bitcast[Scalar[dtype]]()
+    var rm_ptr = running_mean._data.unsafe_bitcast[Scalar[dtype]]()
+    var rv_ptr = running_var._data.unsafe_bitcast[Scalar[dtype]]()
+    var bm_ptr = batch_mean._data.unsafe_bitcast[Scalar[dtype]]()
+    var bv_ptr = batch_var._data.unsafe_bitcast[Scalar[dtype]]()
+    var nrm_ptr = new_running_mean._data.unsafe_bitcast[Scalar[dtype]]()
+    var nrv_ptr = new_running_var._data.unsafe_bitcast[Scalar[dtype]]()
     var mom = Scalar[dtype](momentum)
     var one_minus_mom = Scalar[dtype](1.0 - momentum)
 
     for c in range(channels):
-        nrm_ptr[c] = one_minus_mom * rm_ptr[c] + mom * bm_ptr[c]
-        nrv_ptr[c] = one_minus_mom * rv_ptr[c] + mom * bv_ptr[c]
+        nrm_ptr[c] = one_minus_mom * rm_ptr[c] + mom * bm_ptr[unsafe_offset=c]
+        nrv_ptr[c] = one_minus_mom * rv_ptr[c] + mom * bv_ptr[unsafe_offset=c]
 
 
 def batch_norm2d(
@@ -371,9 +379,9 @@ def batch_norm2d(
 def _batch_norm2d_backward_training[
     dtype: DType
 ](
-    grad_output_ptr: UnsafePointer[UInt8, MutAnyOrigin],
-    x_ptr: UnsafePointer[UInt8, MutAnyOrigin],
-    gamma_ptr: UnsafePointer[UInt8, MutAnyOrigin],
+    grad_output_ptr: Pointer[UInt8, MutUntrackedOrigin],
+    x_ptr: Pointer[UInt8, MutUntrackedOrigin],
+    gamma_ptr: Pointer[UInt8, MutUntrackedOrigin],
     grad_input: AnyTensor,
     grad_gamma: AnyTensor,
     grad_beta: AnyTensor,
@@ -385,12 +393,12 @@ def _batch_norm2d_backward_training[
     epsilon: Float64,
 ) raises:
     """Training-mode backward pass for batch normalization."""
-    var go = grad_output_ptr.bitcast[Scalar[dtype]]()
-    var xp = x_ptr.bitcast[Scalar[dtype]]()
-    var gp = gamma_ptr.bitcast[Scalar[dtype]]()
-    var gi_ptr = grad_input._data.bitcast[Scalar[dtype]]()
-    var gg_ptr = grad_gamma._data.bitcast[Scalar[dtype]]()
-    var gb_ptr = grad_beta._data.bitcast[Scalar[dtype]]()
+    var go = grad_output_ptr.unsafe_bitcast[Scalar[dtype]]()
+    var xp = x_ptr.unsafe_bitcast[Scalar[dtype]]()
+    var gp = gamma_ptr.unsafe_bitcast[Scalar[dtype]]()
+    var gi_ptr = grad_input._data.unsafe_bitcast[Scalar[dtype]]()
+    var gg_ptr = grad_gamma._data.unsafe_bitcast[Scalar[dtype]]()
+    var gb_ptr = grad_beta._data.unsafe_bitcast[Scalar[dtype]]()
     var eps = Scalar[dtype](epsilon)
     var N = Scalar[dtype](spatial_size)
 
@@ -400,7 +408,11 @@ def _batch_norm2d_backward_training[
         for b in range(batch):
             for h in range(height):
                 for w in range(width):
-                    sum_val += xp[_idx4d(b, c, h, w, channels, height, width)]
+                    sum_val += xp[
+                        unsafe_offset=_idx4d(
+                            b, c, h, w, channels, height, width
+                        )
+                    ]
         var mean_val = sum_val / N
 
         var sum_sq_diff = Scalar[dtype](0.0)
@@ -408,7 +420,11 @@ def _batch_norm2d_backward_training[
             for h in range(height):
                 for w in range(width):
                     var diff = (
-                        xp[_idx4d(b, c, h, w, channels, height, width)]
+                        xp[
+                            unsafe_offset=_idx4d(
+                                b, c, h, w, channels, height, width
+                            )
+                        ]
                         - mean_val
                     )
                     sum_sq_diff += diff * diff
@@ -422,16 +438,16 @@ def _batch_norm2d_backward_training[
             for h in range(height):
                 for w in range(width):
                     var idx = _idx4d(b, c, h, w, channels, height, width)
-                    var grad_out = go[idx]
-                    var x_norm = (xp[idx] - mean_val) / std
+                    var grad_out = go[unsafe_offset=idx]
+                    var x_norm = (xp[unsafe_offset=idx] - mean_val) / std
                     sum_grad_output += grad_out
                     sum_grad_output_x_norm += grad_out * x_norm
-        gb_ptr[c] = sum_grad_output
-        gg_ptr[c] = sum_grad_output_x_norm
+        gb_ptr[unsafe_offset=c] = sum_grad_output
+        gg_ptr[unsafe_offset=c] = sum_grad_output_x_norm
 
         # Step 3: Compute grad_input using PyTorch consolidated formula
         var invstd = Scalar[dtype](1.0) / std
-        var gamma_val = gp[c]
+        var gamma_val = gp[unsafe_offset=c]
         var k = Scalar[dtype](0.0)
         var dotp = Scalar[dtype](0.0)
 
@@ -439,8 +455,8 @@ def _batch_norm2d_backward_training[
             for h in range(height):
                 for w in range(width):
                     var idx = _idx4d(b, c, h, w, channels, height, width)
-                    var grad_out = go[idx]
-                    var x_norm = (xp[idx] - mean_val) * invstd
+                    var grad_out = go[unsafe_offset=idx]
+                    var x_norm = (xp[unsafe_offset=idx] - mean_val) * invstd
                     k += grad_out
                     dotp += grad_out * x_norm
 
@@ -448,9 +464,9 @@ def _batch_norm2d_backward_training[
             for h in range(height):
                 for w in range(width):
                     var idx = _idx4d(b, c, h, w, channels, height, width)
-                    var grad_out = go[idx]
-                    var x_norm = (xp[idx] - mean_val) * invstd
-                    gi_ptr[idx] = (
+                    var grad_out = go[unsafe_offset=idx]
+                    var x_norm = (xp[unsafe_offset=idx] - mean_val) * invstd
+                    gi_ptr[unsafe_offset=idx] = (
                         (grad_out - k / N - x_norm * dotp / N)
                         * gamma_val
                         * invstd
@@ -460,11 +476,11 @@ def _batch_norm2d_backward_training[
 def _batch_norm2d_backward_inference[
     dtype: DType
 ](
-    grad_output_ptr: UnsafePointer[UInt8, MutAnyOrigin],
-    x_ptr: UnsafePointer[UInt8, MutAnyOrigin],
-    gamma_ptr: UnsafePointer[UInt8, MutAnyOrigin],
-    rm_ptr: UnsafePointer[UInt8, MutAnyOrigin],
-    rv_ptr: UnsafePointer[UInt8, MutAnyOrigin],
+    grad_output_ptr: Pointer[UInt8, MutUntrackedOrigin],
+    x_ptr: Pointer[UInt8, MutUntrackedOrigin],
+    gamma_ptr: Pointer[UInt8, MutUntrackedOrigin],
+    rm_ptr: Pointer[UInt8, MutUntrackedOrigin],
+    rv_ptr: Pointer[UInt8, MutUntrackedOrigin],
     grad_input: AnyTensor,
     grad_gamma: AnyTensor,
     grad_beta: AnyTensor,
@@ -475,20 +491,20 @@ def _batch_norm2d_backward_inference[
     epsilon: Float64,
 ) raises:
     """Inference-mode backward pass for batch normalization."""
-    var go = grad_output_ptr.bitcast[Scalar[dtype]]()
-    var xp = x_ptr.bitcast[Scalar[dtype]]()
-    var gp = gamma_ptr.bitcast[Scalar[dtype]]()
-    var rm = rm_ptr.bitcast[Scalar[dtype]]()
-    var rv = rv_ptr.bitcast[Scalar[dtype]]()
-    var gi_ptr = grad_input._data.bitcast[Scalar[dtype]]()
-    var gg_ptr = grad_gamma._data.bitcast[Scalar[dtype]]()
-    var gb_ptr = grad_beta._data.bitcast[Scalar[dtype]]()
+    var go = grad_output_ptr.unsafe_bitcast[Scalar[dtype]]()
+    var xp = x_ptr.unsafe_bitcast[Scalar[dtype]]()
+    var gp = gamma_ptr.unsafe_bitcast[Scalar[dtype]]()
+    var rm = rm_ptr.unsafe_bitcast[Scalar[dtype]]()
+    var rv = rv_ptr.unsafe_bitcast[Scalar[dtype]]()
+    var gi_ptr = grad_input._data.unsafe_bitcast[Scalar[dtype]]()
+    var gg_ptr = grad_gamma._data.unsafe_bitcast[Scalar[dtype]]()
+    var gb_ptr = grad_beta._data.unsafe_bitcast[Scalar[dtype]]()
     var eps = Scalar[dtype](epsilon)
 
     # Compute grad_beta and grad_gamma
     for c in range(channels):
-        var mean_val = rm[c]
-        var std = _sqrt_typed[dtype](rv[c] + eps)
+        var mean_val = rm[unsafe_offset=c]
+        var std = _sqrt_typed[dtype](rv[unsafe_offset=c] + eps)
 
         var sum_grad_output = Scalar[dtype](0.0)
         var sum_grad_output_x_norm = Scalar[dtype](0.0)
@@ -497,23 +513,23 @@ def _batch_norm2d_backward_inference[
             for h in range(height):
                 for w in range(width):
                     var idx = _idx4d(b, c, h, w, channels, height, width)
-                    var grad_out = go[idx]
-                    var x_norm = (xp[idx] - mean_val) / std
+                    var grad_out = go[unsafe_offset=idx]
+                    var x_norm = (xp[unsafe_offset=idx] - mean_val) / std
                     sum_grad_output += grad_out
                     sum_grad_output_x_norm += grad_out * x_norm
 
-        gb_ptr[c] = sum_grad_output
-        gg_ptr[c] = sum_grad_output_x_norm
+        gb_ptr[unsafe_offset=c] = sum_grad_output
+        gg_ptr[unsafe_offset=c] = sum_grad_output_x_norm
 
     # Compute grad_input (simple rescaling)
     for b in range(batch):
         for c in range(channels):
-            var std = _sqrt_typed[dtype](rv[c] + eps)
-            var gamma_val = gp[c]
+            var std = _sqrt_typed[dtype](rv[unsafe_offset=c] + eps)
+            var gamma_val = gp[unsafe_offset=c]
             for h in range(height):
                 for w in range(width):
                     var idx = _idx4d(b, c, h, w, channels, height, width)
-                    gi_ptr[idx] = go[idx] * gamma_val / std
+                    gi_ptr[idx] = go[unsafe_offset=idx] * gamma_val / std
 
 
 def batch_norm2d_backward(
@@ -683,47 +699,47 @@ def batch_norm2d_backward(
 def _layer_norm_2d[
     dtype: DType
 ](
-    x_ptr: UnsafePointer[UInt8, MutAnyOrigin],
+    x_ptr: Pointer[UInt8, MutUntrackedOrigin],
     output: AnyTensor,
-    gamma_ptr: UnsafePointer[UInt8, MutAnyOrigin],
-    beta_ptr: UnsafePointer[UInt8, MutAnyOrigin],
+    gamma_ptr: Pointer[UInt8, MutUntrackedOrigin],
+    beta_ptr: Pointer[UInt8, MutUntrackedOrigin],
     batch: Int,
     features: Int,
     epsilon: Float64,
 ) raises:
     """Layer norm for 2D input (batch, features)."""
-    var xp = x_ptr.bitcast[Scalar[dtype]]()
-    var out = output._data.bitcast[Scalar[dtype]]()
-    var gp = gamma_ptr.bitcast[Scalar[dtype]]()
-    var bp = beta_ptr.bitcast[Scalar[dtype]]()
+    var xp = x_ptr.unsafe_bitcast[Scalar[dtype]]()
+    var out = output._data.unsafe_bitcast[Scalar[dtype]]()
+    var gp = gamma_ptr.unsafe_bitcast[Scalar[dtype]]()
+    var bp = beta_ptr.unsafe_bitcast[Scalar[dtype]]()
     var eps = Scalar[dtype](epsilon)
     var N = Scalar[dtype](features)
 
     for b in range(batch):
         var sum_val = Scalar[dtype](0.0)
         for f in range(features):
-            sum_val += xp[b * features + f]
+            sum_val += xp[unsafe_offset=b * features + f]
         var mean_val = sum_val / N
 
         var sum_sq_diff = Scalar[dtype](0.0)
         for f in range(features):
-            var diff = xp[b * features + f] - mean_val
+            var diff = xp[unsafe_offset=b * features + f] - mean_val
             sum_sq_diff += diff * diff
         var std = _sqrt_typed[dtype](sum_sq_diff / N + eps)
 
         for f in range(features):
             var idx = b * features + f
-            var x_norm = (xp[idx] - mean_val) / std
-            out[idx] = gp[f] * x_norm + bp[f]
+            var x_norm = (xp[unsafe_offset=idx] - mean_val) / std
+            out[idx] = gp[f] * x_norm + bp[unsafe_offset=f]
 
 
 def _layer_norm_4d[
     dtype: DType
 ](
-    x_ptr: UnsafePointer[UInt8, MutAnyOrigin],
+    x_ptr: Pointer[UInt8, MutUntrackedOrigin],
     output: AnyTensor,
-    gamma_ptr: UnsafePointer[UInt8, MutAnyOrigin],
-    beta_ptr: UnsafePointer[UInt8, MutAnyOrigin],
+    gamma_ptr: Pointer[UInt8, MutUntrackedOrigin],
+    beta_ptr: Pointer[UInt8, MutUntrackedOrigin],
     batch: Int,
     channels: Int,
     height: Int,
@@ -731,10 +747,10 @@ def _layer_norm_4d[
     epsilon: Float64,
 ) raises:
     """Layer norm for 4D input (batch, channels, height, width)."""
-    var xp = x_ptr.bitcast[Scalar[dtype]]()
-    var out = output._data.bitcast[Scalar[dtype]]()
-    var gp = gamma_ptr.bitcast[Scalar[dtype]]()
-    var bp = beta_ptr.bitcast[Scalar[dtype]]()
+    var xp = x_ptr.unsafe_bitcast[Scalar[dtype]]()
+    var out = output._data.unsafe_bitcast[Scalar[dtype]]()
+    var gp = gamma_ptr.unsafe_bitcast[Scalar[dtype]]()
+    var bp = beta_ptr.unsafe_bitcast[Scalar[dtype]]()
     var eps = Scalar[dtype](epsilon)
     var feature_size = channels * height * width
     var N = Scalar[dtype](feature_size)
@@ -744,7 +760,11 @@ def _layer_norm_4d[
         for c in range(channels):
             for h in range(height):
                 for w in range(width):
-                    sum_val += xp[_idx4d(b, c, h, w, channels, height, width)]
+                    sum_val += xp[
+                        unsafe_offset=_idx4d(
+                            b, c, h, w, channels, height, width
+                        )
+                    ]
         var mean_val = sum_val / N
 
         var sum_sq_diff = Scalar[dtype](0.0)
@@ -752,7 +772,11 @@ def _layer_norm_4d[
             for h in range(height):
                 for w in range(width):
                     var diff = (
-                        xp[_idx4d(b, c, h, w, channels, height, width)]
+                        xp[
+                            unsafe_offset=_idx4d(
+                                b, c, h, w, channels, height, width
+                            )
+                        ]
                         - mean_val
                     )
                     sum_sq_diff += diff * diff
@@ -763,8 +787,10 @@ def _layer_norm_4d[
                 for w in range(width):
                     var idx = _idx4d(b, c, h, w, channels, height, width)
                     var gamma_idx = c * (height * width) + h * width + w
-                    var x_norm = (xp[idx] - mean_val) / std
-                    out[idx] = gp[gamma_idx] * x_norm + bp[gamma_idx]
+                    var x_norm = (xp[unsafe_offset=idx] - mean_val) / std
+                    out[idx] = (
+                        gp[gamma_idx] * x_norm + bp[unsafe_offset=gamma_idx]
+                    )
 
 
 def layer_norm(
@@ -872,9 +898,9 @@ def layer_norm(
 def _layer_norm_backward_2d[
     dtype: DType
 ](
-    grad_output_ptr: UnsafePointer[UInt8, MutAnyOrigin],
-    x_ptr: UnsafePointer[UInt8, MutAnyOrigin],
-    gamma_ptr: UnsafePointer[UInt8, MutAnyOrigin],
+    grad_output_ptr: Pointer[UInt8, MutUntrackedOrigin],
+    x_ptr: Pointer[UInt8, MutUntrackedOrigin],
+    gamma_ptr: Pointer[UInt8, MutUntrackedOrigin],
     grad_input: AnyTensor,
     grad_gamma: AnyTensor,
     grad_beta: AnyTensor,
@@ -883,12 +909,12 @@ def _layer_norm_backward_2d[
     epsilon: Float64,
 ) raises:
     """Layer norm backward for 2D input."""
-    var go = grad_output_ptr.bitcast[Scalar[dtype]]()
-    var xp = x_ptr.bitcast[Scalar[dtype]]()
-    var gp = gamma_ptr.bitcast[Scalar[dtype]]()
-    var gi_ptr = grad_input._data.bitcast[Scalar[dtype]]()
-    var gg_ptr = grad_gamma._data.bitcast[Scalar[dtype]]()
-    var gb_ptr = grad_beta._data.bitcast[Scalar[dtype]]()
+    var go = grad_output_ptr.unsafe_bitcast[Scalar[dtype]]()
+    var xp = x_ptr.unsafe_bitcast[Scalar[dtype]]()
+    var gp = gamma_ptr.unsafe_bitcast[Scalar[dtype]]()
+    var gi_ptr = grad_input._data.unsafe_bitcast[Scalar[dtype]]()
+    var gg_ptr = grad_gamma._data.unsafe_bitcast[Scalar[dtype]]()
+    var gb_ptr = grad_beta._data.unsafe_bitcast[Scalar[dtype]]()
     var eps = Scalar[dtype](epsilon)
     var N = Scalar[dtype](features)
 
@@ -896,33 +922,33 @@ def _layer_norm_backward_2d[
     for b in range(batch):
         var sum_val = Scalar[dtype](0.0)
         for f in range(features):
-            sum_val += xp[b * features + f]
+            sum_val += xp[unsafe_offset=b * features + f]
         var mean_val = sum_val / N
 
         var sum_sq_diff = Scalar[dtype](0.0)
         for f in range(features):
-            var diff = xp[b * features + f] - mean_val
+            var diff = xp[unsafe_offset=b * features + f] - mean_val
             sum_sq_diff += diff * diff
         var std = _sqrt_typed[dtype](sum_sq_diff / N + eps)
         var var_val = sum_sq_diff / N
 
         for f in range(features):
             var idx = b * features + f
-            var grad_out = go[idx]
-            var x_norm = (xp[idx] - mean_val) / std
-            gb_ptr[f] = gb_ptr[f] + grad_out
-            gg_ptr[f] = gg_ptr[f] + grad_out * x_norm
+            var grad_out = go[unsafe_offset=idx]
+            var x_norm = (xp[unsafe_offset=idx] - mean_val) / std
+            gb_ptr[f] = gb_ptr[unsafe_offset=f] + grad_out
+            gg_ptr[f] = gg_ptr[unsafe_offset=f] + grad_out * x_norm
 
     # Second pass: compute grad_input for each sample
     for b in range(batch):
         var sum_val = Scalar[dtype](0.0)
         for f in range(features):
-            sum_val += xp[b * features + f]
+            sum_val += xp[unsafe_offset=b * features + f]
         var mean_val = sum_val / N
 
         var sum_sq_diff = Scalar[dtype](0.0)
         for f in range(features):
-            var diff = xp[b * features + f] - mean_val
+            var diff = xp[unsafe_offset=b * features + f] - mean_val
             sum_sq_diff += diff * diff
         var var_val = sum_sq_diff / N
         var std = _sqrt_typed[dtype](var_val + eps)
@@ -932,8 +958,8 @@ def _layer_norm_backward_2d[
 
         for f in range(features):
             var idx = b * features + f
-            var x_minus_mean = xp[idx] - mean_val
-            var grad_x_norm = go[idx] * gp[f]
+            var x_minus_mean = xp[unsafe_offset=idx] - mean_val
+            var grad_x_norm = go[idx] * gp[unsafe_offset=f]
             grad_var += (
                 grad_x_norm
                 * x_minus_mean
@@ -944,20 +970,20 @@ def _layer_norm_backward_2d[
 
         for f in range(features):
             var idx = b * features + f
-            var x_minus_mean = xp[idx] - mean_val
-            var grad_x_norm = go[idx] * gp[f]
+            var x_minus_mean = xp[unsafe_offset=idx] - mean_val
+            var grad_x_norm = go[idx] * gp[unsafe_offset=f]
             var term1 = grad_x_norm / std
             var term2 = grad_var * Scalar[dtype](2.0) * x_minus_mean / N
             var term3 = grad_mean / N
-            gi_ptr[idx] = term1 + term2 + term3
+            gi_ptr[unsafe_offset=idx] = term1 + term2 + term3
 
 
 def _layer_norm_backward_4d[
     dtype: DType
 ](
-    grad_output_ptr: UnsafePointer[UInt8, MutAnyOrigin],
-    x_ptr: UnsafePointer[UInt8, MutAnyOrigin],
-    gamma_ptr: UnsafePointer[UInt8, MutAnyOrigin],
+    grad_output_ptr: Pointer[UInt8, MutUntrackedOrigin],
+    x_ptr: Pointer[UInt8, MutUntrackedOrigin],
+    gamma_ptr: Pointer[UInt8, MutUntrackedOrigin],
     grad_input: AnyTensor,
     grad_gamma: AnyTensor,
     grad_beta: AnyTensor,
@@ -968,12 +994,12 @@ def _layer_norm_backward_4d[
     epsilon: Float64,
 ) raises:
     """Layer norm backward for 4D input."""
-    var go = grad_output_ptr.bitcast[Scalar[dtype]]()
-    var xp = x_ptr.bitcast[Scalar[dtype]]()
-    var gp = gamma_ptr.bitcast[Scalar[dtype]]()
-    var gi_ptr = grad_input._data.bitcast[Scalar[dtype]]()
-    var gg_ptr = grad_gamma._data.bitcast[Scalar[dtype]]()
-    var gb_ptr = grad_beta._data.bitcast[Scalar[dtype]]()
+    var go = grad_output_ptr.unsafe_bitcast[Scalar[dtype]]()
+    var xp = x_ptr.unsafe_bitcast[Scalar[dtype]]()
+    var gp = gamma_ptr.unsafe_bitcast[Scalar[dtype]]()
+    var gi_ptr = grad_input._data.unsafe_bitcast[Scalar[dtype]]()
+    var gg_ptr = grad_gamma._data.unsafe_bitcast[Scalar[dtype]]()
+    var gb_ptr = grad_beta._data.unsafe_bitcast[Scalar[dtype]]()
     var eps = Scalar[dtype](epsilon)
     var feature_size = channels * height * width
     var N = Scalar[dtype](feature_size)
@@ -984,7 +1010,11 @@ def _layer_norm_backward_4d[
         for c in range(channels):
             for h in range(height):
                 for w in range(width):
-                    sum_val += xp[_idx4d(b, c, h, w, channels, height, width)]
+                    sum_val += xp[
+                        unsafe_offset=_idx4d(
+                            b, c, h, w, channels, height, width
+                        )
+                    ]
         var mean_val = sum_val / N
 
         var sum_sq_diff = Scalar[dtype](0.0)
@@ -992,7 +1022,11 @@ def _layer_norm_backward_4d[
             for h in range(height):
                 for w in range(width):
                     var diff = (
-                        xp[_idx4d(b, c, h, w, channels, height, width)]
+                        xp[
+                            unsafe_offset=_idx4d(
+                                b, c, h, w, channels, height, width
+                            )
+                        ]
                         - mean_val
                     )
                     sum_sq_diff += diff * diff
@@ -1003,10 +1037,14 @@ def _layer_norm_backward_4d[
                 for w in range(width):
                     var idx = _idx4d(b, c, h, w, channels, height, width)
                     var gamma_idx = c * (height * width) + h * width + w
-                    var grad_out = go[idx]
-                    var x_norm = (xp[idx] - mean_val) / std
-                    gb_ptr[gamma_idx] = gb_ptr[gamma_idx] + grad_out
-                    gg_ptr[gamma_idx] = gg_ptr[gamma_idx] + grad_out * x_norm
+                    var grad_out = go[unsafe_offset=idx]
+                    var x_norm = (xp[unsafe_offset=idx] - mean_val) / std
+                    gb_ptr[gamma_idx] = (
+                        gb_ptr[unsafe_offset=gamma_idx] + grad_out
+                    )
+                    gg_ptr[gamma_idx] = (
+                        gg_ptr[unsafe_offset=gamma_idx] + grad_out * x_norm
+                    )
 
     # Second pass: compute grad_input for each sample
     for b in range(batch):
@@ -1014,7 +1052,11 @@ def _layer_norm_backward_4d[
         for c in range(channels):
             for h in range(height):
                 for w in range(width):
-                    sum_val += xp[_idx4d(b, c, h, w, channels, height, width)]
+                    sum_val += xp[
+                        unsafe_offset=_idx4d(
+                            b, c, h, w, channels, height, width
+                        )
+                    ]
         var mean_val = sum_val / N
 
         var sum_sq_diff = Scalar[dtype](0.0)
@@ -1022,7 +1064,11 @@ def _layer_norm_backward_4d[
             for h in range(height):
                 for w in range(width):
                     var diff = (
-                        xp[_idx4d(b, c, h, w, channels, height, width)]
+                        xp[
+                            unsafe_offset=_idx4d(
+                                b, c, h, w, channels, height, width
+                            )
+                        ]
                         - mean_val
                     )
                     sum_sq_diff += diff * diff
@@ -1037,8 +1083,8 @@ def _layer_norm_backward_4d[
                 for w in range(width):
                     var idx = _idx4d(b, c, h, w, channels, height, width)
                     var gamma_idx = c * (height * width) + h * width + w
-                    var x_minus_mean = xp[idx] - mean_val
-                    var grad_x_norm = go[idx] * gp[gamma_idx]
+                    var x_minus_mean = xp[unsafe_offset=idx] - mean_val
+                    var grad_x_norm = go[idx] * gp[unsafe_offset=gamma_idx]
                     grad_var += (
                         grad_x_norm
                         * x_minus_mean
@@ -1052,12 +1098,12 @@ def _layer_norm_backward_4d[
                 for w in range(width):
                     var idx = _idx4d(b, c, h, w, channels, height, width)
                     var gamma_idx = c * (height * width) + h * width + w
-                    var x_minus_mean = xp[idx] - mean_val
-                    var grad_x_norm = go[idx] * gp[gamma_idx]
+                    var x_minus_mean = xp[unsafe_offset=idx] - mean_val
+                    var grad_x_norm = go[idx] * gp[unsafe_offset=gamma_idx]
                     var term1 = grad_x_norm / std
                     var term2 = grad_var * Scalar[dtype](2.0) * x_minus_mean / N
                     var term3 = grad_mean / N
-                    gi_ptr[idx] = term1 + term2 + term3
+                    gi_ptr[unsafe_offset=idx] = term1 + term2 + term3
 
 
 def layer_norm_backward(
@@ -1202,10 +1248,10 @@ def layer_norm_backward(
 def _group_norm_impl[
     dtype: DType
 ](
-    x_ptr: UnsafePointer[UInt8, MutAnyOrigin],
+    x_ptr: Pointer[UInt8, MutUntrackedOrigin],
     output: AnyTensor,
-    gamma_ptr: UnsafePointer[UInt8, MutAnyOrigin],
-    beta_ptr: UnsafePointer[UInt8, MutAnyOrigin],
+    gamma_ptr: Pointer[UInt8, MutUntrackedOrigin],
+    beta_ptr: Pointer[UInt8, MutUntrackedOrigin],
     batch: Int,
     channels: Int,
     height: Int,
@@ -1216,10 +1262,10 @@ def _group_norm_impl[
     epsilon: Float64,
 ) raises:
     """Parametric group norm forward pass."""
-    var xp = x_ptr.bitcast[Scalar[dtype]]()
-    var out = output._data.bitcast[Scalar[dtype]]()
-    var gp = gamma_ptr.bitcast[Scalar[dtype]]()
-    var bp = beta_ptr.bitcast[Scalar[dtype]]()
+    var xp = x_ptr.unsafe_bitcast[Scalar[dtype]]()
+    var out = output._data.unsafe_bitcast[Scalar[dtype]]()
+    var gp = gamma_ptr.unsafe_bitcast[Scalar[dtype]]()
+    var bp = beta_ptr.unsafe_bitcast[Scalar[dtype]]()
     var eps = Scalar[dtype](epsilon)
     var N = Scalar[dtype](group_size)
 
@@ -1242,20 +1288,24 @@ def _group_norm_impl[
                 for h in range(height):
                     for w in range(width):
                         var diff = (
-                            xp[_idx4d(b, c, h, w, channels, height, width)]
+                            xp[
+                                unsafe_offset=_idx4d(
+                                    b, c, h, w, channels, height, width
+                                )
+                            ]
                             - mean_val
                         )
                         sum_sq_diff += diff * diff
             var std = _sqrt_typed[dtype](sum_sq_diff / N + eps)
 
             for c in range(c_start, c_end):
-                var gamma_val = gp[c]
-                var beta_val = bp[c]
+                var gamma_val = gp[unsafe_offset=c]
+                var beta_val = bp[unsafe_offset=c]
                 for h in range(height):
                     for w in range(width):
                         var idx = _idx4d(b, c, h, w, channels, height, width)
-                        var x_norm = (xp[idx] - mean_val) / std
-                        out[idx] = gamma_val * x_norm + beta_val
+                        var x_norm = (xp[unsafe_offset=idx] - mean_val) / std
+                        out[unsafe_offset=idx] = gamma_val * x_norm + beta_val
 
 
 def group_norm(
@@ -1353,9 +1403,9 @@ def group_norm(
 def _group_norm_backward_impl[
     dtype: DType
 ](
-    grad_output_ptr: UnsafePointer[UInt8, MutAnyOrigin],
-    x_ptr: UnsafePointer[UInt8, MutAnyOrigin],
-    gamma_ptr: UnsafePointer[UInt8, MutAnyOrigin],
+    grad_output_ptr: Pointer[UInt8, MutUntrackedOrigin],
+    x_ptr: Pointer[UInt8, MutUntrackedOrigin],
+    gamma_ptr: Pointer[UInt8, MutUntrackedOrigin],
     grad_input: AnyTensor,
     grad_gamma: AnyTensor,
     grad_beta: AnyTensor,
@@ -1369,12 +1419,12 @@ def _group_norm_backward_impl[
     epsilon: Float64,
 ) raises:
     """Parametric group norm backward pass."""
-    var go = grad_output_ptr.bitcast[Scalar[dtype]]()
-    var xp = x_ptr.bitcast[Scalar[dtype]]()
-    var gp = gamma_ptr.bitcast[Scalar[dtype]]()
-    var gi_ptr = grad_input._data.bitcast[Scalar[dtype]]()
-    var gg_ptr = grad_gamma._data.bitcast[Scalar[dtype]]()
-    var gb_ptr = grad_beta._data.bitcast[Scalar[dtype]]()
+    var go = grad_output_ptr.unsafe_bitcast[Scalar[dtype]]()
+    var xp = x_ptr.unsafe_bitcast[Scalar[dtype]]()
+    var gp = gamma_ptr.unsafe_bitcast[Scalar[dtype]]()
+    var gi_ptr = grad_input._data.unsafe_bitcast[Scalar[dtype]]()
+    var gg_ptr = grad_gamma._data.unsafe_bitcast[Scalar[dtype]]()
+    var gb_ptr = grad_beta._data.unsafe_bitcast[Scalar[dtype]]()
     var eps = Scalar[dtype](epsilon)
     var N = Scalar[dtype](group_size)
 
@@ -1398,7 +1448,11 @@ def _group_norm_backward_impl[
                 for h in range(height):
                     for w in range(width):
                         var diff = (
-                            xp[_idx4d(b, c, h, w, channels, height, width)]
+                            xp[
+                                unsafe_offset=_idx4d(
+                                    b, c, h, w, channels, height, width
+                                )
+                            ]
                             - mean_val
                         )
                         sum_sq_diff += diff * diff
@@ -1408,10 +1462,10 @@ def _group_norm_backward_impl[
                 for h in range(height):
                     for w in range(width):
                         var idx = _idx4d(b, c, h, w, channels, height, width)
-                        var grad_out = go[idx]
-                        var x_norm = (xp[idx] - mean_val) / std
-                        gb_ptr[c] = gb_ptr[c] + grad_out
-                        gg_ptr[c] = gg_ptr[c] + grad_out * x_norm
+                        var grad_out = go[unsafe_offset=idx]
+                        var x_norm = (xp[unsafe_offset=idx] - mean_val) / std
+                        gb_ptr[c] = gb_ptr[unsafe_offset=c] + grad_out
+                        gg_ptr[c] = gg_ptr[unsafe_offset=c] + grad_out * x_norm
 
     # Second pass: compute grad_input
     for b in range(batch):
@@ -1433,7 +1487,11 @@ def _group_norm_backward_impl[
                 for h in range(height):
                     for w in range(width):
                         var diff = (
-                            xp[_idx4d(b, c, h, w, channels, height, width)]
+                            xp[
+                                unsafe_offset=_idx4d(
+                                    b, c, h, w, channels, height, width
+                                )
+                            ]
                             - mean_val
                         )
                         sum_sq_diff += diff * diff
@@ -1444,12 +1502,12 @@ def _group_norm_backward_impl[
             var grad_mean = Scalar[dtype](0.0)
 
             for c in range(c_start, c_end):
-                var gamma_val = gp[c]
+                var gamma_val = gp[unsafe_offset=c]
                 for h in range(height):
                     for w in range(width):
                         var idx = _idx4d(b, c, h, w, channels, height, width)
-                        var x_minus_mean = xp[idx] - mean_val
-                        var grad_x_norm = go[idx] * gamma_val
+                        var x_minus_mean = xp[unsafe_offset=idx] - mean_val
+                        var grad_x_norm = go[unsafe_offset=idx] * gamma_val
                         grad_var += (
                             grad_x_norm
                             * x_minus_mean
@@ -1461,18 +1519,18 @@ def _group_norm_backward_impl[
                         grad_mean += grad_x_norm * Scalar[dtype](-1.0) / std
 
             for c in range(c_start, c_end):
-                var gamma_val = gp[c]
+                var gamma_val = gp[unsafe_offset=c]
                 for h in range(height):
                     for w in range(width):
                         var idx = _idx4d(b, c, h, w, channels, height, width)
-                        var x_minus_mean = xp[idx] - mean_val
-                        var grad_x_norm = go[idx] * gamma_val
+                        var x_minus_mean = xp[unsafe_offset=idx] - mean_val
+                        var grad_x_norm = go[unsafe_offset=idx] * gamma_val
                         var term1 = grad_x_norm / std
                         var term2 = (
                             grad_var * Scalar[dtype](2.0) * x_minus_mean / N
                         )
                         var term3 = grad_mean / N
-                        gi_ptr[idx] = term1 + term2 + term3
+                        gi_ptr[unsafe_offset=idx] = term1 + term2 + term3
 
 
 def group_norm_backward(
@@ -1576,10 +1634,10 @@ def group_norm_backward(
 def _instance_norm_impl[
     dtype: DType
 ](
-    x_ptr: UnsafePointer[UInt8, MutAnyOrigin],
+    x_ptr: Pointer[UInt8, MutUntrackedOrigin],
     output: AnyTensor,
-    gamma_ptr: UnsafePointer[UInt8, MutAnyOrigin],
-    beta_ptr: UnsafePointer[UInt8, MutAnyOrigin],
+    gamma_ptr: Pointer[UInt8, MutUntrackedOrigin],
+    beta_ptr: Pointer[UInt8, MutUntrackedOrigin],
     batch: Int,
     channels: Int,
     height: Int,
@@ -1587,10 +1645,10 @@ def _instance_norm_impl[
     epsilon: Float64,
 ) raises:
     """Parametric instance norm forward pass."""
-    var xp = x_ptr.bitcast[Scalar[dtype]]()
-    var out = output._data.bitcast[Scalar[dtype]]()
-    var gp = gamma_ptr.bitcast[Scalar[dtype]]()
-    var bp = beta_ptr.bitcast[Scalar[dtype]]()
+    var xp = x_ptr.unsafe_bitcast[Scalar[dtype]]()
+    var out = output._data.unsafe_bitcast[Scalar[dtype]]()
+    var gp = gamma_ptr.unsafe_bitcast[Scalar[dtype]]()
+    var bp = beta_ptr.unsafe_bitcast[Scalar[dtype]]()
     var eps = Scalar[dtype](epsilon)
     var N = Scalar[dtype](height * width)
 
@@ -1599,26 +1657,34 @@ def _instance_norm_impl[
             var sum_val = Scalar[dtype](0.0)
             for h in range(height):
                 for w in range(width):
-                    sum_val += xp[_idx4d(b, c, h, w, channels, height, width)]
+                    sum_val += xp[
+                        unsafe_offset=_idx4d(
+                            b, c, h, w, channels, height, width
+                        )
+                    ]
             var mean_val = sum_val / N
 
             var sum_sq_diff = Scalar[dtype](0.0)
             for h in range(height):
                 for w in range(width):
                     var diff = (
-                        xp[_idx4d(b, c, h, w, channels, height, width)]
+                        xp[
+                            unsafe_offset=_idx4d(
+                                b, c, h, w, channels, height, width
+                            )
+                        ]
                         - mean_val
                     )
                     sum_sq_diff += diff * diff
             var std = _sqrt_typed[dtype](sum_sq_diff / N + eps)
 
-            var gamma_val = gp[c]
-            var beta_val = bp[c]
+            var gamma_val = gp[unsafe_offset=c]
+            var beta_val = bp[unsafe_offset=c]
             for h in range(height):
                 for w in range(width):
                     var idx = _idx4d(b, c, h, w, channels, height, width)
-                    var x_norm = (xp[idx] - mean_val) / std
-                    out[idx] = gamma_val * x_norm + beta_val
+                    var x_norm = (xp[unsafe_offset=idx] - mean_val) / std
+                    out[unsafe_offset=idx] = gamma_val * x_norm + beta_val
 
 
 def instance_norm(
@@ -1704,9 +1770,9 @@ def instance_norm(
 def _instance_norm_backward_impl[
     dtype: DType
 ](
-    grad_output_ptr: UnsafePointer[UInt8, MutAnyOrigin],
-    x_ptr: UnsafePointer[UInt8, MutAnyOrigin],
-    gamma_ptr: UnsafePointer[UInt8, MutAnyOrigin],
+    grad_output_ptr: Pointer[UInt8, MutUntrackedOrigin],
+    x_ptr: Pointer[UInt8, MutUntrackedOrigin],
+    gamma_ptr: Pointer[UInt8, MutUntrackedOrigin],
     grad_input: AnyTensor,
     grad_gamma: AnyTensor,
     grad_beta: AnyTensor,
@@ -1717,12 +1783,12 @@ def _instance_norm_backward_impl[
     epsilon: Float64,
 ) raises:
     """Parametric instance norm backward pass."""
-    var go = grad_output_ptr.bitcast[Scalar[dtype]]()
-    var xp = x_ptr.bitcast[Scalar[dtype]]()
-    var gp = gamma_ptr.bitcast[Scalar[dtype]]()
-    var gi_ptr = grad_input._data.bitcast[Scalar[dtype]]()
-    var gg_ptr = grad_gamma._data.bitcast[Scalar[dtype]]()
-    var gb_ptr = grad_beta._data.bitcast[Scalar[dtype]]()
+    var go = grad_output_ptr.unsafe_bitcast[Scalar[dtype]]()
+    var xp = x_ptr.unsafe_bitcast[Scalar[dtype]]()
+    var gp = gamma_ptr.unsafe_bitcast[Scalar[dtype]]()
+    var gi_ptr = grad_input._data.unsafe_bitcast[Scalar[dtype]]()
+    var gg_ptr = grad_gamma._data.unsafe_bitcast[Scalar[dtype]]()
+    var gb_ptr = grad_beta._data.unsafe_bitcast[Scalar[dtype]]()
     var eps = Scalar[dtype](epsilon)
     var spatial_size = height * width
     var N = Scalar[dtype](spatial_size)
@@ -1733,14 +1799,22 @@ def _instance_norm_backward_impl[
             var sum_val = Scalar[dtype](0.0)
             for h in range(height):
                 for w in range(width):
-                    sum_val += xp[_idx4d(b, c, h, w, channels, height, width)]
+                    sum_val += xp[
+                        unsafe_offset=_idx4d(
+                            b, c, h, w, channels, height, width
+                        )
+                    ]
             var mean_val = sum_val / N
 
             var sum_sq_diff = Scalar[dtype](0.0)
             for h in range(height):
                 for w in range(width):
                     var diff = (
-                        xp[_idx4d(b, c, h, w, channels, height, width)]
+                        xp[
+                            unsafe_offset=_idx4d(
+                                b, c, h, w, channels, height, width
+                            )
+                        ]
                         - mean_val
                     )
                     sum_sq_diff += diff * diff
@@ -1749,10 +1823,10 @@ def _instance_norm_backward_impl[
             for h in range(height):
                 for w in range(width):
                     var idx = _idx4d(b, c, h, w, channels, height, width)
-                    var grad_out = go[idx]
-                    var x_norm = (xp[idx] - mean_val) / std
-                    gb_ptr[c] = gb_ptr[c] + grad_out
-                    gg_ptr[c] = gg_ptr[c] + grad_out * x_norm
+                    var grad_out = go[unsafe_offset=idx]
+                    var x_norm = (xp[unsafe_offset=idx] - mean_val) / std
+                    gb_ptr[c] = gb_ptr[unsafe_offset=c] + grad_out
+                    gg_ptr[c] = gg_ptr[unsafe_offset=c] + grad_out * x_norm
 
     # Second pass: compute grad_input
     for b in range(batch):
@@ -1760,29 +1834,37 @@ def _instance_norm_backward_impl[
             var sum_val = Scalar[dtype](0.0)
             for h in range(height):
                 for w in range(width):
-                    sum_val += xp[_idx4d(b, c, h, w, channels, height, width)]
+                    sum_val += xp[
+                        unsafe_offset=_idx4d(
+                            b, c, h, w, channels, height, width
+                        )
+                    ]
             var mean_val = sum_val / N
 
             var sum_sq_diff = Scalar[dtype](0.0)
             for h in range(height):
                 for w in range(width):
                     var diff = (
-                        xp[_idx4d(b, c, h, w, channels, height, width)]
+                        xp[
+                            unsafe_offset=_idx4d(
+                                b, c, h, w, channels, height, width
+                            )
+                        ]
                         - mean_val
                     )
                     sum_sq_diff += diff * diff
             var var_val = sum_sq_diff / N
             var std = _sqrt_typed[dtype](var_val + eps)
 
-            var gamma_val = gp[c]
+            var gamma_val = gp[unsafe_offset=c]
             var grad_var = Scalar[dtype](0.0)
             var grad_mean = Scalar[dtype](0.0)
 
             for h in range(height):
                 for w in range(width):
                     var idx = _idx4d(b, c, h, w, channels, height, width)
-                    var x_minus_mean = xp[idx] - mean_val
-                    var grad_x_norm = go[idx] * gamma_val
+                    var x_minus_mean = xp[unsafe_offset=idx] - mean_val
+                    var grad_x_norm = go[unsafe_offset=idx] * gamma_val
                     grad_var += (
                         grad_x_norm
                         * x_minus_mean
@@ -1794,12 +1876,12 @@ def _instance_norm_backward_impl[
             for h in range(height):
                 for w in range(width):
                     var idx = _idx4d(b, c, h, w, channels, height, width)
-                    var x_minus_mean = xp[idx] - mean_val
-                    var grad_x_norm = go[idx] * gamma_val
+                    var x_minus_mean = xp[unsafe_offset=idx] - mean_val
+                    var grad_x_norm = go[unsafe_offset=idx] * gamma_val
                     var term1 = grad_x_norm / std
                     var term2 = grad_var * Scalar[dtype](2.0) * x_minus_mean / N
                     var term3 = grad_mean / N
-                    gi_ptr[idx] = term1 + term2 + term3
+                    gi_ptr[unsafe_offset=idx] = term1 + term2 + term3
 
 
 def instance_norm_backward(

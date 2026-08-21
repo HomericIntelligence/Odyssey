@@ -124,15 +124,17 @@ def test_rmsprop_step_parameter_update() raises:
     # new_params = 1.0 - 0.1 * 3.16 = 1.0 - 0.316 = 0.684
 
     assert_true(
-        new_params._data.bitcast[Float32]()[0] < 1.0
+        new_params._data.unsafe_bitcast[Float32]()[0] < 1.0
     )  # Parameter should decrease
     assert_almost_equal(
-        new_params._data.bitcast[Float32]()[0], Float32(0.684), tolerance=0.01
+        new_params._data.unsafe_bitcast[Float32]()[0],
+        Float32(0.684),
+        tolerance=0.01,
     )
 
     # Check that square_avg was updated
     assert_almost_equal(
-        new_square_avg._data.bitcast[Float32]()[0],
+        new_square_avg._data.unsafe_bitcast[Float32]()[0],
         Float32(0.001),
         tolerance=1e-5,
     )
@@ -163,9 +165,11 @@ def test_rmsprop_simple_parameter_update() raises:
     var new_square_avg = result2[1]
 
     # Should produce same result as rmsprop_step with momentum=0.0
-    assert_true(new_params._data.bitcast[Float32]()[0] < 1.0)
+    assert_true(new_params._data.unsafe_bitcast[Float32]()[0] < 1.0)
     assert_almost_equal(
-        new_params._data.bitcast[Float32]()[0], Float32(0.684), tolerance=0.01
+        new_params._data.unsafe_bitcast[Float32]()[0],
+        Float32(0.684),
+        tolerance=0.01,
     )
 
 
@@ -220,13 +224,15 @@ def test_rmsprop_square_avg_accumulation() raises:
     # square_avg after step 2: 0.9 * 0.001 + 0.1 * 0.01 = 0.0009 + 0.001 = 0.0019
 
     assert_almost_equal(
-        square_avg2._data.bitcast[Float32]()[0], Float32(0.0019), tolerance=1e-5
+        square_avg2._data.unsafe_bitcast[Float32]()[0],
+        Float32(0.0019),
+        tolerance=1e-5,
     )
 
     # Square avg should be increasing
     assert_true(
-        square_avg2._data.bitcast[Float32]()[0]
-        > square_avg1._data.bitcast[Float32]()[0]
+        square_avg2._data.unsafe_bitcast[Float32]()[0]
+        > square_avg1._data.unsafe_bitcast[Float32]()[0]
     )
 
 
@@ -262,7 +268,7 @@ def test_rmsprop_with_momentum() raises:
     var buf1 = result_step1[2]
 
     # buf should now contain momentum-weighted gradient
-    assert_true(buf1._data.bitcast[Float32]()[0] != 0.0)
+    assert_true(buf1._data.unsafe_bitcast[Float32]()[0] != 0.0)
 
     # Step 2 with momentum
     var result_step2 = rmsprop_step(
@@ -283,7 +289,8 @@ def test_rmsprop_with_momentum() raises:
 
     # With momentum, buf accumulates and parameter updates should be larger
     assert_true(
-        buf2._data.bitcast[Float32]()[0] > buf1._data.bitcast[Float32]()[0]
+        buf2._data.unsafe_bitcast[Float32]()[0]
+        > buf1._data.unsafe_bitcast[Float32]()[0]
     )
 
 
@@ -315,7 +322,7 @@ def test_rmsprop_with_weight_decay() raises:
 
     # With weight decay, parameters should decrease even with zero gradient
     # grad_with_decay = grad + weight_decay * params = 0.0 + 0.01 * 1.0 = 0.01
-    assert_true(new_params._data.bitcast[Float32]()[0] < 1.0)
+    assert_true(new_params._data.unsafe_bitcast[Float32]()[0] < 1.0)
 
 
 def test_rmsprop_zero_gradient() raises:
@@ -345,7 +352,9 @@ def test_rmsprop_zero_gradient() raises:
 
     # With zero gradient and no weight decay, parameters should not change
     assert_almost_equal(
-        new_params._data.bitcast[Float32]()[0], Float32(1.0), tolerance=1e-5
+        new_params._data.unsafe_bitcast[Float32]()[0],
+        Float32(1.0),
+        tolerance=1e-5,
     )
 
 
@@ -395,8 +404,8 @@ def test_rmsprop_alpha_parameter() raises:
     # alpha=0.99: 0.99 * 0.0 + 0.01 * 0.01 = 0.0001
     # alpha=0.5: 0.5 * 0.0 + 0.5 * 0.01 = 0.005
     assert_true(
-        square_avg_low._data.bitcast[Float32]()[0]
-        > square_avg_high._data.bitcast[Float32]()[0]
+        square_avg_low._data.unsafe_bitcast[Float32]()[0]
+        > square_avg_high._data.unsafe_bitcast[Float32]()[0]
     )
 
 
@@ -426,7 +435,7 @@ def test_rmsprop_epsilon_prevents_division_by_zero() raises:
     var new_params = result_eps[0]
 
     # Result should be finite
-    var val = new_params._data.bitcast[Float32]()[0]
+    var val = new_params._data.unsafe_bitcast[Float32]()[0]
     assert_true(val == val)  # Not NaN
     assert_true(val > -1e10 and val < 1e10)  # Not infinite
 
@@ -466,8 +475,8 @@ def test_rmsprop_batch_update() raises:
     var all_different = True
     for i in range(50):
         if (
-            new_params._data.bitcast[Float32]()[i]
-            == params._data.bitcast[Float32]()[i]
+            new_params._data.unsafe_bitcast[Float32]()[i]
+            == params._data.unsafe_bitcast[Float32]()[i]
         ):
             all_different = False
             break

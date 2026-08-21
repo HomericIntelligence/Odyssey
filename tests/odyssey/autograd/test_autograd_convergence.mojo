@@ -148,7 +148,7 @@ def test_linear_softmax_converges() raises:
         var logits = variable_linear(x, w, b, tape)
         var loss = variable_cross_entropy(logits, labels, tape)
         loss.backward(tape)
-        losses.append(loss.data._data.bitcast[Float32]()[0])
+        losses.append(loss.data._data.unsafe_bitcast[Float32]()[0])
 
         var params: List[Variable] = []
         params.append(w^)
@@ -217,7 +217,7 @@ def test_conv_linear_softmax_converges() raises:
         var logits = variable_linear(flat, fcw, fcb, tape)
         var loss = variable_cross_entropy(logits, labels, tape)
         loss.backward(tape)
-        losses.append(loss.data._data.bitcast[Float32]()[0])
+        losses.append(loss.data._data.unsafe_bitcast[Float32]()[0])
 
         var params: List[Variable] = []
         params.append(c1w^)
@@ -317,7 +317,7 @@ def test_lenet_shape_converges() raises:
 
         var loss = variable_cross_entropy(logits, labels, tape)
         loss.backward(tape)
-        losses.append(loss.data._data.bitcast[Float32]()[0])
+        losses.append(loss.data._data.unsafe_bitcast[Float32]()[0])
 
         var params: List[Variable] = []
         params.append(v_c1w^)

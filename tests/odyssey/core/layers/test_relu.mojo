@@ -27,7 +27,7 @@ def test_relu_forward_basic() raises:
     # Expected: [0, 0, 0, 1, 2]
     var expected: List[Float32] = [0.0, 0.0, 0.0, 1.0, 2.0]
     for i in range(5):
-        var out_val = output._data.bitcast[Float32]()[i]
+        var out_val = output._data.unsafe_bitcast[Float32]()[i]
         assert_true(
             out_val == expected[i], "ReLU output mismatch at index " + String(i)
         )
@@ -48,7 +48,7 @@ def test_relu_forward_all_negative() raises:
 
     # Expected: [0, 0, 0, 0]
     for i in range(4):
-        var out_val = output._data.bitcast[Float32]()[i]
+        var out_val = output._data.unsafe_bitcast[Float32]()[i]
         assert_true(out_val == 0.0, "ReLU should zero negative values")
 
     print("✓ test_relu_forward_all_negative passed")
@@ -67,7 +67,7 @@ def test_relu_forward_all_positive() raises:
 
     # Expected: [0.5, 1.0, 5.0, 10.0]
     for i in range(4):
-        var out_val = output._data.bitcast[Float32]()[i]
+        var out_val = output._data.unsafe_bitcast[Float32]()[i]
         assert_true(
             out_val == input_values[i], "ReLU should preserve positive values"
         )
@@ -89,7 +89,7 @@ def test_relu_forward_batch() raises:
 
     var expected: List[Float32] = [0.0, 0.5, 0.0, 2.0, 0.0, 1.5]
     for i in range(6):
-        var out_val = output._data.bitcast[Float32]()[i]
+        var out_val = output._data.unsafe_bitcast[Float32]()[i]
         assert_true(out_val == expected[i], "Batch ReLU mismatch")
 
     print("✓ test_relu_forward_batch passed")
@@ -116,7 +116,7 @@ def test_relu_backward_basic() raises:
     # Expected: [0, 0, 0, 0.4, 0.5] (pass through only where input > 0)
     var expected: List[Float32] = [0.0, 0.0, 0.0, 0.4, 0.5]
     for i in range(5):
-        var grad_val = grad_input._data.bitcast[Float32]()[i]
+        var grad_val = grad_input._data.unsafe_bitcast[Float32]()[i]
         assert_true(
             grad_val == expected[i],
             "ReLU backward mismatch at index " + String(i),
@@ -143,7 +143,7 @@ def test_relu_backward_all_positive() raises:
 
     # Expected: [0.1, 0.2, 0.3, 0.4] (all pass through)
     for i in range(4):
-        var grad_val = grad_input._data.bitcast[Float32]()[i]
+        var grad_val = grad_input._data.unsafe_bitcast[Float32]()[i]
         assert_true(
             grad_val == grad_values[i],
             "ReLU backward should pass through all positive",
@@ -170,7 +170,7 @@ def test_relu_backward_all_negative() raises:
 
     # Expected: [0, 0, 0, 0] (all blocked)
     for i in range(4):
-        var grad_val = grad_input._data.bitcast[Float32]()[i]
+        var grad_val = grad_input._data.unsafe_bitcast[Float32]()[i]
         assert_true(grad_val == 0.0, "ReLU backward should block all negative")
 
     print("✓ test_relu_backward_all_negative passed")
@@ -198,7 +198,7 @@ def test_relu_forward_float64() raises:
 
     var expected: List[Float64] = [0.0, 0.5, 0.0, 3.5]
     for i in range(4):
-        var out_val = output._data.bitcast[Float64]()[i]
+        var out_val = output._data.unsafe_bitcast[Float64]()[i]
         assert_true(
             out_val == expected[i],
             "ReLU float64 mismatch at index " + String(i),
@@ -225,7 +225,7 @@ def test_relu_backward_float64() raises:
 
     var expected: List[Float64] = [0.0, 0.0, 0.3, 0.4]
     for i in range(4):
-        var grad_val = grad_input._data.bitcast[Float64]()[i]
+        var grad_val = grad_input._data.unsafe_bitcast[Float64]()[i]
         assert_true(
             grad_val == expected[i],
             "ReLU float64 backward mismatch at index " + String(i),

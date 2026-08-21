@@ -33,7 +33,7 @@ Example:
 from odyssey.tensor.any_tensor import AnyTensor
 
 
-trait Differentiable(ImplicitlyDestructible):
+trait Differentiable(Deinitable):
     """Components that support automatic differentiation.
 
     Implement this trait for all neural network layers and operations
@@ -501,7 +501,7 @@ trait Trainable:
 # ============================================================================
 
 
-trait Model(ImplicitlyDestructible):
+trait Model(Deinitable):
     """Neural network model interface for generic TrainingLoop.
 
     Defines the contract for models that can be trained using TrainingLoop.
@@ -567,7 +567,7 @@ trait Model(ImplicitlyDestructible):
         ...
 
 
-trait Loss(ImplicitlyDestructible):
+trait Loss(Deinitable):
     """Loss function interface for generic TrainingLoop.
 
     Defines the contract for loss functions that measure prediction error.
@@ -600,7 +600,7 @@ trait Loss(ImplicitlyDestructible):
         ...
 
 
-trait Optimizer(ImplicitlyDestructible):
+trait Optimizer(Deinitable):
     """Optimizer interface for generic TrainingLoop.
 
     Defines the contract for optimization algorithms that update parameters.

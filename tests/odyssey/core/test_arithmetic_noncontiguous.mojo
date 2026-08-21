@@ -60,13 +60,13 @@ def test_add_noncontiguous_lhs() raises:
     var result = add(nc, rhs)
 
     # nc logical layout (row-major for 3x2): 0,3,1,4,2,5 → after +10: 10,13,11,14,12,15
-    var ptr = result._data.bitcast[Float32]()
-    assert_almost_equal(ptr[0], Float32(10.0), tolerance=1e-5)
-    assert_almost_equal(ptr[1], Float32(13.0), tolerance=1e-5)
-    assert_almost_equal(ptr[2], Float32(11.0), tolerance=1e-5)
-    assert_almost_equal(ptr[3], Float32(14.0), tolerance=1e-5)
-    assert_almost_equal(ptr[4], Float32(12.0), tolerance=1e-5)
-    assert_almost_equal(ptr[5], Float32(15.0), tolerance=1e-5)
+    var ptr = result._data.unsafe_bitcast[Float32]()
+    assert_almost_equal(ptr[unsafe_offset=0], Float32(10.0), tolerance=1e-5)
+    assert_almost_equal(ptr[unsafe_offset=1], Float32(13.0), tolerance=1e-5)
+    assert_almost_equal(ptr[unsafe_offset=2], Float32(11.0), tolerance=1e-5)
+    assert_almost_equal(ptr[unsafe_offset=3], Float32(14.0), tolerance=1e-5)
+    assert_almost_equal(ptr[unsafe_offset=4], Float32(12.0), tolerance=1e-5)
+    assert_almost_equal(ptr[unsafe_offset=5], Float32(15.0), tolerance=1e-5)
 
 
 def test_add_noncontiguous_rhs() raises:
@@ -76,13 +76,13 @@ def test_add_noncontiguous_rhs() raises:
 
     var result = add(lhs, nc)
 
-    var ptr = result._data.bitcast[Float32]()
-    assert_almost_equal(ptr[0], Float32(10.0), tolerance=1e-5)
-    assert_almost_equal(ptr[1], Float32(13.0), tolerance=1e-5)
-    assert_almost_equal(ptr[2], Float32(11.0), tolerance=1e-5)
-    assert_almost_equal(ptr[3], Float32(14.0), tolerance=1e-5)
-    assert_almost_equal(ptr[4], Float32(12.0), tolerance=1e-5)
-    assert_almost_equal(ptr[5], Float32(15.0), tolerance=1e-5)
+    var ptr = result._data.unsafe_bitcast[Float32]()
+    assert_almost_equal(ptr[unsafe_offset=0], Float32(10.0), tolerance=1e-5)
+    assert_almost_equal(ptr[unsafe_offset=1], Float32(13.0), tolerance=1e-5)
+    assert_almost_equal(ptr[unsafe_offset=2], Float32(11.0), tolerance=1e-5)
+    assert_almost_equal(ptr[unsafe_offset=3], Float32(14.0), tolerance=1e-5)
+    assert_almost_equal(ptr[unsafe_offset=4], Float32(12.0), tolerance=1e-5)
+    assert_almost_equal(ptr[unsafe_offset=5], Float32(15.0), tolerance=1e-5)
 
 
 def test_add_both_noncontiguous() raises:
@@ -93,13 +93,13 @@ def test_add_both_noncontiguous() raises:
     var result = add(nc_a, nc_b)
 
     # Expected: each logical element doubled
-    var ptr = result._data.bitcast[Float32]()
-    assert_almost_equal(ptr[0], Float32(0.0), tolerance=1e-5)
-    assert_almost_equal(ptr[1], Float32(6.0), tolerance=1e-5)
-    assert_almost_equal(ptr[2], Float32(2.0), tolerance=1e-5)
-    assert_almost_equal(ptr[3], Float32(8.0), tolerance=1e-5)
-    assert_almost_equal(ptr[4], Float32(4.0), tolerance=1e-5)
-    assert_almost_equal(ptr[5], Float32(10.0), tolerance=1e-5)
+    var ptr = result._data.unsafe_bitcast[Float32]()
+    assert_almost_equal(ptr[unsafe_offset=0], Float32(0.0), tolerance=1e-5)
+    assert_almost_equal(ptr[unsafe_offset=1], Float32(6.0), tolerance=1e-5)
+    assert_almost_equal(ptr[unsafe_offset=2], Float32(2.0), tolerance=1e-5)
+    assert_almost_equal(ptr[unsafe_offset=3], Float32(8.0), tolerance=1e-5)
+    assert_almost_equal(ptr[unsafe_offset=4], Float32(4.0), tolerance=1e-5)
+    assert_almost_equal(ptr[unsafe_offset=5], Float32(10.0), tolerance=1e-5)
 
 
 def test_subtract_noncontiguous_lhs() raises:
@@ -109,13 +109,13 @@ def test_subtract_noncontiguous_lhs() raises:
 
     var result = subtract(nc, rhs)
 
-    var ptr = result._data.bitcast[Float32]()
-    assert_almost_equal(ptr[0], Float32(-1.0), tolerance=1e-5)
-    assert_almost_equal(ptr[1], Float32(2.0), tolerance=1e-5)
-    assert_almost_equal(ptr[2], Float32(0.0), tolerance=1e-5)
-    assert_almost_equal(ptr[3], Float32(3.0), tolerance=1e-5)
-    assert_almost_equal(ptr[4], Float32(1.0), tolerance=1e-5)
-    assert_almost_equal(ptr[5], Float32(4.0), tolerance=1e-5)
+    var ptr = result._data.unsafe_bitcast[Float32]()
+    assert_almost_equal(ptr[unsafe_offset=0], Float32(-1.0), tolerance=1e-5)
+    assert_almost_equal(ptr[unsafe_offset=1], Float32(2.0), tolerance=1e-5)
+    assert_almost_equal(ptr[unsafe_offset=2], Float32(0.0), tolerance=1e-5)
+    assert_almost_equal(ptr[unsafe_offset=3], Float32(3.0), tolerance=1e-5)
+    assert_almost_equal(ptr[unsafe_offset=4], Float32(1.0), tolerance=1e-5)
+    assert_almost_equal(ptr[unsafe_offset=5], Float32(4.0), tolerance=1e-5)
 
 
 def test_subtract_noncontiguous_rhs() raises:
@@ -125,13 +125,13 @@ def test_subtract_noncontiguous_rhs() raises:
 
     var result = subtract(lhs, nc)
 
-    var ptr = result._data.bitcast[Float32]()
-    assert_almost_equal(ptr[0], Float32(1.0), tolerance=1e-5)
-    assert_almost_equal(ptr[1], Float32(-2.0), tolerance=1e-5)
-    assert_almost_equal(ptr[2], Float32(0.0), tolerance=1e-5)
-    assert_almost_equal(ptr[3], Float32(-3.0), tolerance=1e-5)
-    assert_almost_equal(ptr[4], Float32(-1.0), tolerance=1e-5)
-    assert_almost_equal(ptr[5], Float32(-4.0), tolerance=1e-5)
+    var ptr = result._data.unsafe_bitcast[Float32]()
+    assert_almost_equal(ptr[unsafe_offset=0], Float32(1.0), tolerance=1e-5)
+    assert_almost_equal(ptr[unsafe_offset=1], Float32(-2.0), tolerance=1e-5)
+    assert_almost_equal(ptr[unsafe_offset=2], Float32(0.0), tolerance=1e-5)
+    assert_almost_equal(ptr[unsafe_offset=3], Float32(-3.0), tolerance=1e-5)
+    assert_almost_equal(ptr[unsafe_offset=4], Float32(-1.0), tolerance=1e-5)
+    assert_almost_equal(ptr[unsafe_offset=5], Float32(-4.0), tolerance=1e-5)
 
 
 def test_multiply_noncontiguous_lhs() raises:
@@ -141,13 +141,13 @@ def test_multiply_noncontiguous_lhs() raises:
 
     var result = multiply(nc, rhs)
 
-    var ptr = result._data.bitcast[Float32]()
-    assert_almost_equal(ptr[0], Float32(0.0), tolerance=1e-5)
-    assert_almost_equal(ptr[1], Float32(6.0), tolerance=1e-5)
-    assert_almost_equal(ptr[2], Float32(2.0), tolerance=1e-5)
-    assert_almost_equal(ptr[3], Float32(8.0), tolerance=1e-5)
-    assert_almost_equal(ptr[4], Float32(4.0), tolerance=1e-5)
-    assert_almost_equal(ptr[5], Float32(10.0), tolerance=1e-5)
+    var ptr = result._data.unsafe_bitcast[Float32]()
+    assert_almost_equal(ptr[unsafe_offset=0], Float32(0.0), tolerance=1e-5)
+    assert_almost_equal(ptr[unsafe_offset=1], Float32(6.0), tolerance=1e-5)
+    assert_almost_equal(ptr[unsafe_offset=2], Float32(2.0), tolerance=1e-5)
+    assert_almost_equal(ptr[unsafe_offset=3], Float32(8.0), tolerance=1e-5)
+    assert_almost_equal(ptr[unsafe_offset=4], Float32(4.0), tolerance=1e-5)
+    assert_almost_equal(ptr[unsafe_offset=5], Float32(10.0), tolerance=1e-5)
 
 
 def test_multiply_noncontiguous_rhs() raises:
@@ -157,13 +157,13 @@ def test_multiply_noncontiguous_rhs() raises:
 
     var result = multiply(lhs, nc)
 
-    var ptr = result._data.bitcast[Float32]()
-    assert_almost_equal(ptr[0], Float32(0.0), tolerance=1e-5)
-    assert_almost_equal(ptr[1], Float32(6.0), tolerance=1e-5)
-    assert_almost_equal(ptr[2], Float32(2.0), tolerance=1e-5)
-    assert_almost_equal(ptr[3], Float32(8.0), tolerance=1e-5)
-    assert_almost_equal(ptr[4], Float32(4.0), tolerance=1e-5)
-    assert_almost_equal(ptr[5], Float32(10.0), tolerance=1e-5)
+    var ptr = result._data.unsafe_bitcast[Float32]()
+    assert_almost_equal(ptr[unsafe_offset=0], Float32(0.0), tolerance=1e-5)
+    assert_almost_equal(ptr[unsafe_offset=1], Float32(6.0), tolerance=1e-5)
+    assert_almost_equal(ptr[unsafe_offset=2], Float32(2.0), tolerance=1e-5)
+    assert_almost_equal(ptr[unsafe_offset=3], Float32(8.0), tolerance=1e-5)
+    assert_almost_equal(ptr[unsafe_offset=4], Float32(4.0), tolerance=1e-5)
+    assert_almost_equal(ptr[unsafe_offset=5], Float32(10.0), tolerance=1e-5)
 
 
 def test_divide_noncontiguous_lhs() raises:
@@ -175,13 +175,13 @@ def test_divide_noncontiguous_lhs() raises:
 
     var result = divide(nc, rhs_cont)
 
-    var ptr = result._data.bitcast[Float32]()
-    assert_almost_equal(ptr[0], Float32(0.0), tolerance=1e-5)
-    assert_almost_equal(ptr[1], Float32(1.5), tolerance=1e-5)
-    assert_almost_equal(ptr[2], Float32(0.5), tolerance=1e-5)
-    assert_almost_equal(ptr[3], Float32(2.0), tolerance=1e-5)
-    assert_almost_equal(ptr[4], Float32(1.0), tolerance=1e-5)
-    assert_almost_equal(ptr[5], Float32(2.5), tolerance=1e-5)
+    var ptr = result._data.unsafe_bitcast[Float32]()
+    assert_almost_equal(ptr[unsafe_offset=0], Float32(0.0), tolerance=1e-5)
+    assert_almost_equal(ptr[unsafe_offset=1], Float32(1.5), tolerance=1e-5)
+    assert_almost_equal(ptr[unsafe_offset=2], Float32(0.5), tolerance=1e-5)
+    assert_almost_equal(ptr[unsafe_offset=3], Float32(2.0), tolerance=1e-5)
+    assert_almost_equal(ptr[unsafe_offset=4], Float32(1.0), tolerance=1e-5)
+    assert_almost_equal(ptr[unsafe_offset=5], Float32(2.5), tolerance=1e-5)
 
 
 def test_divide_noncontiguous_rhs() raises:
@@ -197,13 +197,25 @@ def test_divide_noncontiguous_rhs() raises:
     var lhs = full([3, 2], 12.0, DType.float32)
     var result = divide(lhs, nc)
 
-    var ptr = result._data.bitcast[Float32]()
-    assert_almost_equal(ptr[0], Float32(12.0), tolerance=1e-4)  # 12/1
-    assert_almost_equal(ptr[1], Float32(3.0), tolerance=1e-4)  # 12/4
-    assert_almost_equal(ptr[2], Float32(6.0), tolerance=1e-4)  # 12/2
-    assert_almost_equal(ptr[3], Float32(2.4), tolerance=1e-4)  # 12/5
-    assert_almost_equal(ptr[4], Float32(4.0), tolerance=1e-4)  # 12/3
-    assert_almost_equal(ptr[5], Float32(2.0), tolerance=1e-4)  # 12/6
+    var ptr = result._data.unsafe_bitcast[Float32]()
+    assert_almost_equal(
+        ptr[unsafe_offset=0], Float32(12.0), tolerance=1e-4
+    )  # 12/1
+    assert_almost_equal(
+        ptr[unsafe_offset=1], Float32(3.0), tolerance=1e-4
+    )  # 12/4
+    assert_almost_equal(
+        ptr[unsafe_offset=2], Float32(6.0), tolerance=1e-4
+    )  # 12/2
+    assert_almost_equal(
+        ptr[unsafe_offset=3], Float32(2.4), tolerance=1e-4
+    )  # 12/5
+    assert_almost_equal(
+        ptr[unsafe_offset=4], Float32(4.0), tolerance=1e-4
+    )  # 12/3
+    assert_almost_equal(
+        ptr[unsafe_offset=5], Float32(2.0), tolerance=1e-4
+    )  # 12/6
 
 
 def test_result_is_contiguous() raises:
@@ -224,13 +236,13 @@ def test_add_noncontiguous_shape_match() raises:
     var result = add(nc_a, nc_b)
 
     # Each element doubled
-    var ptr = result._data.bitcast[Float32]()
-    assert_almost_equal(ptr[0], Float32(0.0), tolerance=1e-5)
-    assert_almost_equal(ptr[1], Float32(6.0), tolerance=1e-5)
-    assert_almost_equal(ptr[2], Float32(2.0), tolerance=1e-5)
-    assert_almost_equal(ptr[3], Float32(8.0), tolerance=1e-5)
-    assert_almost_equal(ptr[4], Float32(4.0), tolerance=1e-5)
-    assert_almost_equal(ptr[5], Float32(10.0), tolerance=1e-5)
+    var ptr = result._data.unsafe_bitcast[Float32]()
+    assert_almost_equal(ptr[unsafe_offset=0], Float32(0.0), tolerance=1e-5)
+    assert_almost_equal(ptr[unsafe_offset=1], Float32(6.0), tolerance=1e-5)
+    assert_almost_equal(ptr[unsafe_offset=2], Float32(2.0), tolerance=1e-5)
+    assert_almost_equal(ptr[unsafe_offset=3], Float32(8.0), tolerance=1e-5)
+    assert_almost_equal(ptr[unsafe_offset=4], Float32(4.0), tolerance=1e-5)
+    assert_almost_equal(ptr[unsafe_offset=5], Float32(10.0), tolerance=1e-5)
 
 
 def test_subtract_noncontiguous_shape_match() raises:
@@ -241,9 +253,9 @@ def test_subtract_noncontiguous_shape_match() raises:
     var result = subtract(nc_a, nc_b)
 
     # a - a = 0 for all elements
-    var ptr = result._data.bitcast[Float32]()
+    var ptr = result._data.unsafe_bitcast[Float32]()
     for i in range(6):
-        assert_almost_equal(ptr[i], Float32(0.0), tolerance=1e-5)
+        assert_almost_equal(ptr[unsafe_offset=i], Float32(0.0), tolerance=1e-5)
 
 
 def test_multiply_noncontiguous_shape_match() raises:
@@ -254,13 +266,13 @@ def test_multiply_noncontiguous_shape_match() raises:
     var result = multiply(nc_a, nc_b)
 
     # Each element squared: 0*0, 3*3, 1*1, 4*4, 2*2, 5*5
-    var ptr = result._data.bitcast[Float32]()
-    assert_almost_equal(ptr[0], Float32(0.0), tolerance=1e-5)
-    assert_almost_equal(ptr[1], Float32(9.0), tolerance=1e-5)
-    assert_almost_equal(ptr[2], Float32(1.0), tolerance=1e-5)
-    assert_almost_equal(ptr[3], Float32(16.0), tolerance=1e-5)
-    assert_almost_equal(ptr[4], Float32(4.0), tolerance=1e-5)
-    assert_almost_equal(ptr[5], Float32(25.0), tolerance=1e-5)
+    var ptr = result._data.unsafe_bitcast[Float32]()
+    assert_almost_equal(ptr[unsafe_offset=0], Float32(0.0), tolerance=1e-5)
+    assert_almost_equal(ptr[unsafe_offset=1], Float32(9.0), tolerance=1e-5)
+    assert_almost_equal(ptr[unsafe_offset=2], Float32(1.0), tolerance=1e-5)
+    assert_almost_equal(ptr[unsafe_offset=3], Float32(16.0), tolerance=1e-5)
+    assert_almost_equal(ptr[unsafe_offset=4], Float32(4.0), tolerance=1e-5)
+    assert_almost_equal(ptr[unsafe_offset=5], Float32(25.0), tolerance=1e-5)
 
 
 def test_add_broadcast_noncontiguous_1d() raises:
@@ -272,13 +284,25 @@ def test_add_broadcast_noncontiguous_1d() raises:
     var result = add(nc, b)
 
     # Expected: nc[i,j] + b[j] = nc[i,j] + 1
-    var ptr = result._data.bitcast[Float32]()
-    assert_almost_equal(ptr[0], Float32(1.0), tolerance=1e-5)  # 0+1
-    assert_almost_equal(ptr[1], Float32(4.0), tolerance=1e-5)  # 3+1
-    assert_almost_equal(ptr[2], Float32(2.0), tolerance=1e-5)  # 1+1
-    assert_almost_equal(ptr[3], Float32(5.0), tolerance=1e-5)  # 4+1
-    assert_almost_equal(ptr[4], Float32(3.0), tolerance=1e-5)  # 2+1
-    assert_almost_equal(ptr[5], Float32(6.0), tolerance=1e-5)  # 5+1
+    var ptr = result._data.unsafe_bitcast[Float32]()
+    assert_almost_equal(
+        ptr[unsafe_offset=0], Float32(1.0), tolerance=1e-5
+    )  # 0+1
+    assert_almost_equal(
+        ptr[unsafe_offset=1], Float32(4.0), tolerance=1e-5
+    )  # 3+1
+    assert_almost_equal(
+        ptr[unsafe_offset=2], Float32(2.0), tolerance=1e-5
+    )  # 1+1
+    assert_almost_equal(
+        ptr[unsafe_offset=3], Float32(5.0), tolerance=1e-5
+    )  # 4+1
+    assert_almost_equal(
+        ptr[unsafe_offset=4], Float32(3.0), tolerance=1e-5
+    )  # 2+1
+    assert_almost_equal(
+        ptr[unsafe_offset=5], Float32(6.0), tolerance=1e-5
+    )  # 5+1
 
 
 def test_add_broadcast_contiguous_to_noncontiguous() raises:
@@ -288,13 +312,13 @@ def test_add_broadcast_contiguous_to_noncontiguous() raises:
 
     var result = add(b, nc)
 
-    var ptr = result._data.bitcast[Float32]()
-    assert_almost_equal(ptr[0], Float32(1.0), tolerance=1e-5)
-    assert_almost_equal(ptr[1], Float32(4.0), tolerance=1e-5)
-    assert_almost_equal(ptr[2], Float32(2.0), tolerance=1e-5)
-    assert_almost_equal(ptr[3], Float32(5.0), tolerance=1e-5)
-    assert_almost_equal(ptr[4], Float32(3.0), tolerance=1e-5)
-    assert_almost_equal(ptr[5], Float32(6.0), tolerance=1e-5)
+    var ptr = result._data.unsafe_bitcast[Float32]()
+    assert_almost_equal(ptr[unsafe_offset=0], Float32(1.0), tolerance=1e-5)
+    assert_almost_equal(ptr[unsafe_offset=1], Float32(4.0), tolerance=1e-5)
+    assert_almost_equal(ptr[unsafe_offset=2], Float32(2.0), tolerance=1e-5)
+    assert_almost_equal(ptr[unsafe_offset=3], Float32(5.0), tolerance=1e-5)
+    assert_almost_equal(ptr[unsafe_offset=4], Float32(3.0), tolerance=1e-5)
+    assert_almost_equal(ptr[unsafe_offset=5], Float32(6.0), tolerance=1e-5)
 
 
 def test_result_shape_preserved() raises:
@@ -312,13 +336,13 @@ def test_noncontiguous_add_matches_contiguous_baseline() raises:
     """Non-contiguous result must match contiguous baseline computation."""
     # Build contiguous equivalent of the logical 3x2 transposed tensor
     var logical = zeros([3, 2], DType.float32)
-    var lp = logical._data.bitcast[Float32]()
-    lp[0] = 0.0
-    lp[1] = 3.0
-    lp[2] = 1.0
-    lp[3] = 4.0
-    lp[4] = 2.0
-    lp[5] = 5.0
+    var lp = logical._data.unsafe_bitcast[Float32]()
+    lp[unsafe_offset=0] = 0.0
+    lp[unsafe_offset=1] = 3.0
+    lp[unsafe_offset=2] = 1.0
+    lp[unsafe_offset=3] = 4.0
+    lp[unsafe_offset=4] = 2.0
+    lp[unsafe_offset=5] = 5.0
 
     var rhs = full([3, 2], 10.0, DType.float32)
 
@@ -330,10 +354,10 @@ def test_noncontiguous_add_matches_contiguous_baseline() raises:
     var result = add(nc, rhs)
 
     # Compare element by element
-    var bp = baseline._data.bitcast[Float32]()
-    var rp = result._data.bitcast[Float32]()
+    var bp = baseline._data.unsafe_bitcast[Float32]()
+    var rp = result._data.unsafe_bitcast[Float32]()
     for i in range(6):
-        assert_almost_equal(rp[i], bp[i], tolerance=1e-5)
+        assert_almost_equal(rp[i], bp[unsafe_offset=i], tolerance=1e-5)
 
 
 def test_multiply_broadcast_noncontiguous_lhs() raises:
@@ -343,13 +367,25 @@ def test_multiply_broadcast_noncontiguous_lhs() raises:
 
     var result = multiply(nc, b)
 
-    var ptr = result._data.bitcast[Float32]()
-    assert_almost_equal(ptr[0], Float32(0.0), tolerance=1e-5)  # 0*2
-    assert_almost_equal(ptr[1], Float32(6.0), tolerance=1e-5)  # 3*2
-    assert_almost_equal(ptr[2], Float32(2.0), tolerance=1e-5)  # 1*2
-    assert_almost_equal(ptr[3], Float32(8.0), tolerance=1e-5)  # 4*2
-    assert_almost_equal(ptr[4], Float32(4.0), tolerance=1e-5)  # 2*2
-    assert_almost_equal(ptr[5], Float32(10.0), tolerance=1e-5)  # 5*2
+    var ptr = result._data.unsafe_bitcast[Float32]()
+    assert_almost_equal(
+        ptr[unsafe_offset=0], Float32(0.0), tolerance=1e-5
+    )  # 0*2
+    assert_almost_equal(
+        ptr[unsafe_offset=1], Float32(6.0), tolerance=1e-5
+    )  # 3*2
+    assert_almost_equal(
+        ptr[unsafe_offset=2], Float32(2.0), tolerance=1e-5
+    )  # 1*2
+    assert_almost_equal(
+        ptr[unsafe_offset=3], Float32(8.0), tolerance=1e-5
+    )  # 4*2
+    assert_almost_equal(
+        ptr[unsafe_offset=4], Float32(4.0), tolerance=1e-5
+    )  # 2*2
+    assert_almost_equal(
+        ptr[unsafe_offset=5], Float32(10.0), tolerance=1e-5
+    )  # 5*2
 
 
 def test_noncontiguous_result_is_always_contiguous() raises:

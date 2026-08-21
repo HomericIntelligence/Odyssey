@@ -2,14 +2,14 @@
 
 ## Problem
 
-The Mojo binary requires `GLIBC_2.32`, `GLIBC_2.33`, and `GLIBC_2.34`, which were introduced
-in glibc 2.32 (released 2020). Debian 10 (Buster) ships with glibc 2.28, which is too old.
+Mojo 1.0.0 stable ships `manylinux_2_34` wheels, so the binary requires glibc ≥ 2.34
+(released 2022). Debian 10 (Buster) ships with glibc 2.28, which is too old.
 
 When running `uv run mojo format` on an incompatible host, the binary fails with:
 
 ```text
 /home/user/.venv/bin/mojo: /lib/x86_64-linux-gnu/libc.so.6: version
-`GLIBC_2.32' not found
+`GLIBC_2.34' not found
 ```
 
 This caused all `mojo-format` pre-commit hook invocations to fail, forcing contributors on
@@ -40,8 +40,8 @@ so pre-commit invokes it directly without needing `uv run` as the entrypoint.
 
 ### Wrapper Behavior
 
-- **Compatible host (glibc >= 2.32)**: Runs `mojo format`, propagates exit code and output
-- **Incompatible host (glibc < 2.32)**: Exits `0` with a visible warning; files are NOT reformatted
+- **Compatible host (glibc >= 2.34)**: Runs `mojo format`, propagates exit code and output
+- **Incompatible host (glibc < 2.34)**: Exits `0` with a visible warning; files are NOT reformatted
 
 ### Why Exit 0 on Incompatible Hosts?
 
@@ -65,7 +65,7 @@ The hook will run and automatically skip with a warning:
 
 ```text
 WARNING: mojo-format skipped: host glibc is incompatible with Mojo binary.
-         Mojo requires GLIBC_2.32+. Your system has an older glibc.
+         Mojo requires GLIBC_2.34+. Your system has an older glibc.
          Files were NOT reformatted. Run inside Docker for full formatting.
          See docs/dev/mojo-glibc-compatibility.md for details.
 ```

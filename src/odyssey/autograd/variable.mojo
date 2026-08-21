@@ -583,7 +583,7 @@ def variable_neg(
     var result_data = zeros_like(x.data)
     var size = x.data.numel()
     for i in range(size):
-        result_data._data[i] = -x.data._data[i]
+        result_data._data[i] = -x.data._data[unsafe_offset=i]
 
     var result_id = tape.register_variable(x.requires_grad)
 

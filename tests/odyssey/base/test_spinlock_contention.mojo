@@ -38,7 +38,7 @@ fix preserves.
 from std.testing import assert_true, assert_equal
 from odyssey.base.memory_pool import SpinLock
 from std.atomic import Atomic
-from std.memory import UnsafePointer, alloc
+from std.memory import Pointer, alloc
 
 
 def test_lock_sets_counter_to_one() raises:

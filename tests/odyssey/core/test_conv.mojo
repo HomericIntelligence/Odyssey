@@ -315,8 +315,8 @@ def test_conv2d_1x1_kernel() raises:
 
     # Check output values: for 1x1 kernel, output should be sum of input channels * kernel
     # With all ones: output = 1.0 * 2 (in_channels) = 2.0
-    var output_data = output._data.bitcast[Float32]()
-    assert_almost_equal(output_data[0], 2.0, tolerance=1e-5)
+    var output_data = output._data.unsafe_bitcast[Float32]()
+    assert_almost_equal(output_data[unsafe_offset=0], 2.0, tolerance=1e-5)
 
 
 def test_conv2d_single_sample_simple() raises:
@@ -365,8 +365,8 @@ def test_conv2d_single_sample_simple() raises:
     assert_equal(out_shape[3], 1)
 
     # Check output value: sum of 3x3 ones * 1.0 = 9.0
-    var output_data = output._data.bitcast[Float32]()
-    assert_almost_equal(output_data[0], 9.0, tolerance=1e-5)
+    var output_data = output._data.unsafe_bitcast[Float32]()
+    assert_almost_equal(output_data[unsafe_offset=0], 9.0, tolerance=1e-5)
 
 
 def test_conv2d_with_bias() raises:
@@ -402,15 +402,15 @@ def test_conv2d_with_bias() raises:
     var bias_shape = List[Int]()
     bias_shape.append(out_channels)
     var bias = zeros(bias_shape, DType.float32)
-    var bias_data = bias._data.bitcast[Float32]()
-    bias_data[0] = 5.0
+    var bias_data = bias._data.unsafe_bitcast[Float32]()
+    bias_data[unsafe_offset=0] = 5.0
 
     # Compute conv2d
     var output = conv2d(input, kernel, bias, stride=1, padding=0)
 
     # Check output value: sum of 3x3 ones * 1.0 + bias(5.0) = 9.0 + 5.0 = 14.0
-    var output_data = output._data.bitcast[Float32]()
-    assert_almost_equal(output_data[0], 14.0, tolerance=1e-5)
+    var output_data = output._data.unsafe_bitcast[Float32]()
+    assert_almost_equal(output_data[unsafe_offset=0], 14.0, tolerance=1e-5)
 
 
 def test_conv2d_multichannel() raises:
@@ -496,7 +496,7 @@ def test_conv2d_numerical_correctness() raises:
     var output = conv2d(input, kernel, bias, stride=1, padding=0)
 
     # Check output: 1.0 * 2.0 + 0.5 = 2.5
-    var result = output._data.bitcast[Float32]()[0]
+    var result = output._data.unsafe_bitcast[Float32]()[unsafe_offset=0]
     assert_almost_equal(result, Float32(2.5), tolerance=1e-5)
 
 
@@ -577,7 +577,7 @@ def test_conv2d_no_bias() raises:
     assert_equal(out_shape[3], 2)
 
     # Check numerical value: 4 ones summed = 4.0
-    var result = output._data.bitcast[Float32]()[0]
+    var result = output._data.unsafe_bitcast[Float32]()[unsafe_offset=0]
     assert_almost_equal(result, Float32(4.0), tolerance=1e-5)
 
 
@@ -735,7 +735,7 @@ def test_conv2d_backward_bias_gradient() raises:
 
     for oc in range(out_channels):
         assert_almost_equal(
-            grad_bias._data.bitcast[Float32]()[oc],
+            grad_bias._data.unsafe_bitcast[Float32]()[unsafe_offset=oc],
             expected_grad_bias,
             tolerance=1e-4,
         )
@@ -760,24 +760,24 @@ def test_conv2d_backward_weights_only_matches_full() raises:
 
     var input_shape: List[Int] = [batch, in_channels, in_height, in_width]
     var x = zeros(input_shape, DType.float32)
-    var xd = x._data.bitcast[Float32]()
+    var xd = x._data.unsafe_bitcast[Float32]()
     for i in range(batch * in_channels * in_height * in_width):
-        xd[i] = Float32(i % 11) * 0.3 - 1.5
+        xd[unsafe_offset=i] = Float32(i % 11) * 0.3 - 1.5
 
     var kernel_shape: List[Int] = [out_channels, in_channels, kH, kW]
     var kernel = zeros(kernel_shape, DType.float32)
-    var kd = kernel._data.bitcast[Float32]()
+    var kd = kernel._data.unsafe_bitcast[Float32]()
     for i in range(out_channels * in_channels * kH * kW):
-        kd[i] = Float32(i % 7) * 0.2 - 0.5
+        kd[unsafe_offset=i] = Float32(i % 7) * 0.2 - 0.5
 
     var bias_shape: List[Int] = [out_channels]
     var bias = zeros(bias_shape, DType.float32)
     var output = conv2d(x, kernel, bias, stride, padding)
 
     var grad_output = zeros(output.shape(), DType.float32)
-    var god = grad_output._data.bitcast[Float32]()
+    var god = grad_output._data.unsafe_bitcast[Float32]()
     for i in range(grad_output._numel):
-        god[i] = Float32(i % 5) * 0.4 - 0.8
+        god[unsafe_offset=i] = Float32(i % 5) * 0.4 - 0.8
 
     var full = conv2d_backward(grad_output, x, kernel, stride, padding)
     var wonly = conv2d_backward_weights_only(
@@ -785,28 +785,28 @@ def test_conv2d_backward_weights_only_matches_full() raises:
     )
 
     # grad_weights identical element-for-element.
-    var fk = full.grad_weights._data.bitcast[Float32]()
-    var wk = wonly.grad_weights._data.bitcast[Float32]()
+    var fk = full.grad_weights._data.unsafe_bitcast[Float32]()
+    var wk = wonly.grad_weights._data.unsafe_bitcast[Float32]()
     for i in range(full.grad_weights._numel):
-        assert_almost_equal(wk[i], fk[i], tolerance=1e-6)
+        assert_almost_equal(wk[i], fk[unsafe_offset=i], tolerance=1e-6)
 
     # grad_bias identical.
-    var fb = full.grad_bias._data.bitcast[Float32]()
-    var wb = wonly.grad_bias._data.bitcast[Float32]()
+    var fb = full.grad_bias._data.unsafe_bitcast[Float32]()
+    var wb = wonly.grad_bias._data.unsafe_bitcast[Float32]()
     for i in range(full.grad_bias._numel):
-        assert_almost_equal(wb[i], fb[i], tolerance=1e-6)
+        assert_almost_equal(wb[i], fb[unsafe_offset=i], tolerance=1e-6)
 
     # grad_input is zeroed in the weights-only variant (skipped).
-    var wi = wonly.grad_input._data.bitcast[Float32]()
+    var wi = wonly.grad_input._data.unsafe_bitcast[Float32]()
     for i in range(wonly.grad_input._numel):
-        assert_almost_equal(wi[i], Float32(0.0), tolerance=1e-9)
+        assert_almost_equal(wi[unsafe_offset=i], Float32(0.0), tolerance=1e-9)
 
     # And the full variant's grad_input is NOT all-zero (sanity: proves the
     # weights-only zeroing is a real skip, not a degenerate input).
-    var fi = full.grad_input._data.bitcast[Float32]()
+    var fi = full.grad_input._data.unsafe_bitcast[Float32]()
     var any_nonzero = False
     for i in range(full.grad_input._numel):
-        if fi[i] != Float32(0.0):
+        if fi[unsafe_offset=i] != Float32(0.0):
             any_nonzero = True
             break
     assert_true(
@@ -832,43 +832,49 @@ def test_conv2d_backward_weights_only_float64_stride2() raises:
 
     var input_shape: List[Int] = [batch, in_channels, in_height, in_width]
     var x = zeros(input_shape, DType.float64)
-    var xd = x._data.bitcast[Float64]()
+    var xd = x._data.unsafe_bitcast[Float64]()
     for i in range(batch * in_channels * in_height * in_width):
-        xd[i] = Float64(i % 13) * 0.25 - 1.0
+        xd[unsafe_offset=i] = Float64(i % 13) * 0.25 - 1.0
 
     var kernel_shape: List[Int] = [out_channels, in_channels, kH, kW]
     var kernel = zeros(kernel_shape, DType.float64)
-    var kd = kernel._data.bitcast[Float64]()
+    var kd = kernel._data.unsafe_bitcast[Float64]()
     for i in range(out_channels * in_channels * kH * kW):
-        kd[i] = Float64(i % 5) * 0.3 - 0.6
+        kd[unsafe_offset=i] = Float64(i % 5) * 0.3 - 0.6
 
     var bias_shape: List[Int] = [out_channels]
     var bias = zeros(bias_shape, DType.float64)
     var output = conv2d(x, kernel, bias, stride, padding)
 
     var grad_output = zeros(output.shape(), DType.float64)
-    var god = grad_output._data.bitcast[Float64]()
+    var god = grad_output._data.unsafe_bitcast[Float64]()
     for i in range(grad_output._numel):
-        god[i] = Float64(i % 4) * 0.5 - 0.5
+        god[unsafe_offset=i] = Float64(i % 4) * 0.5 - 0.5
 
     var full = conv2d_backward(grad_output, x, kernel, stride, padding)
     var wonly = conv2d_backward_weights_only(
         grad_output, x, kernel, stride, padding
     )
 
-    var fk = full.grad_weights._data.bitcast[Float64]()
-    var wk = wonly.grad_weights._data.bitcast[Float64]()
+    var fk = full.grad_weights._data.unsafe_bitcast[Float64]()
+    var wk = wonly.grad_weights._data.unsafe_bitcast[Float64]()
     for i in range(full.grad_weights._numel):
-        assert_almost_equal(Float32(wk[i]), Float32(fk[i]), tolerance=1e-6)
+        assert_almost_equal(
+            Float32(wk[i]), Float32(fk[unsafe_offset=i]), tolerance=1e-6
+        )
 
-    var fb = full.grad_bias._data.bitcast[Float64]()
-    var wb = wonly.grad_bias._data.bitcast[Float64]()
+    var fb = full.grad_bias._data.unsafe_bitcast[Float64]()
+    var wb = wonly.grad_bias._data.unsafe_bitcast[Float64]()
     for i in range(full.grad_bias._numel):
-        assert_almost_equal(Float32(wb[i]), Float32(fb[i]), tolerance=1e-6)
+        assert_almost_equal(
+            Float32(wb[i]), Float32(fb[unsafe_offset=i]), tolerance=1e-6
+        )
 
-    var wi = wonly.grad_input._data.bitcast[Float64]()
+    var wi = wonly.grad_input._data.unsafe_bitcast[Float64]()
     for i in range(wonly.grad_input._numel):
-        assert_almost_equal(Float32(wi[i]), Float32(0.0), tolerance=1e-9)
+        assert_almost_equal(
+            Float32(wi[unsafe_offset=i]), Float32(0.0), tolerance=1e-9
+        )
 
 
 def test_conv2d_no_bias_backward_shapes() raises:
@@ -1042,10 +1048,10 @@ def test_conv2d_backward_multichannel_values() raises:
     # Verify grad_weights values: each weight gradient = 1.0
     # (single spatial output position, all ones input and grad_output)
     var n_weights = out_channels * in_channels * kH * kW
-    var grad_weights_data = grad_kernel._data.bitcast[Float32]()
+    var grad_weights_data = grad_kernel._data.unsafe_bitcast[Float32]()
     for i in range(n_weights):
         assert_almost_equal(
-            grad_weights_data[i],
+            grad_weights_data[unsafe_offset=i],
             Float32(1.0),
             tolerance=1e-4,
         )
@@ -1053,20 +1059,20 @@ def test_conv2d_backward_multichannel_values() raises:
     # Verify grad_input values: each input gradient = 8.0
     # (8 output channels each contributing kernel=1.0 * grad_output=1.0)
     var n_inputs = batch * in_channels * 3 * 3
-    var grad_input_data = grad_input._data.bitcast[Float32]()
+    var grad_input_data = grad_input._data.unsafe_bitcast[Float32]()
     for i in range(n_inputs):
         assert_almost_equal(
-            grad_input_data[i],
+            grad_input_data[unsafe_offset=i],
             Float32(out_channels),
             tolerance=1e-4,
         )
 
     # Verify grad_bias values: each bias gradient = 1.0
     # (1 batch * 1 spatial position * grad_output=1.0)
-    var grad_bias_data = grad_bias._data.bitcast[Float32]()
+    var grad_bias_data = grad_bias._data.unsafe_bitcast[Float32]()
     for oc in range(out_channels):
         assert_almost_equal(
-            grad_bias_data[oc],
+            grad_bias_data[unsafe_offset=oc],
             Float32(1.0),
             tolerance=1e-4,
         )
@@ -1131,10 +1137,10 @@ def test_conv2d_backward_multichannel_batch_gt_1() raises:
     # Verify grad_weights values: each weight gradient = 2.0
     # (2 batch items each contributing 1.0)
     var n_weights = out_channels * in_channels * kH * kW
-    var grad_weights_data = grad_kernel._data.bitcast[Float32]()
+    var grad_weights_data = grad_kernel._data.unsafe_bitcast[Float32]()
     for i in range(n_weights):
         assert_almost_equal(
-            grad_weights_data[i],
+            grad_weights_data[unsafe_offset=i],
             Float32(2.0),
             tolerance=1e-4,
         )
@@ -1142,20 +1148,20 @@ def test_conv2d_backward_multichannel_batch_gt_1() raises:
     # Verify grad_input values: each input gradient = 8.0
     # (8 output channels, independent of batch size)
     var n_inputs = batch * in_channels * 3 * 3
-    var grad_input_data = grad_input._data.bitcast[Float32]()
+    var grad_input_data = grad_input._data.unsafe_bitcast[Float32]()
     for i in range(n_inputs):
         assert_almost_equal(
-            grad_input_data[i],
+            grad_input_data[unsafe_offset=i],
             Float32(out_channels),
             tolerance=1e-4,
         )
 
     # Verify grad_bias values: each bias gradient = 2.0
     # (2 batch items, each with 1 spatial position)
-    var grad_bias_data = grad_bias._data.bitcast[Float32]()
+    var grad_bias_data = grad_bias._data.unsafe_bitcast[Float32]()
     for oc in range(out_channels):
         assert_almost_equal(
-            grad_bias_data[oc],
+            grad_bias_data[unsafe_offset=oc],
             Float32(2.0),
             tolerance=1e-4,
         )
@@ -1178,9 +1184,9 @@ def test_conv2d_backward_gradient_input() raises:
     input_shape.append(4)
     input_shape.append(4)
     var x = zeros(input_shape, DType.float32)
-    var x_data = x._data.bitcast[Float32]()
+    var x_data = x._data.unsafe_bitcast[Float32]()
     for i in range(16):
-        x_data[i] = Float32(i) * Float32(0.1)
+        x_data[unsafe_offset=i] = Float32(i) * Float32(0.1)
 
     # Kernel: (1, 1, 3, 3) with simple FP-representable values
     var kernel_shape = List[Int]()
@@ -1189,9 +1195,9 @@ def test_conv2d_backward_gradient_input() raises:
     kernel_shape.append(3)
     kernel_shape.append(3)
     var kernel = zeros(kernel_shape, DType.float32)
-    var k_data = kernel._data.bitcast[Float32]()
+    var k_data = kernel._data.unsafe_bitcast[Float32]()
     for i in range(9):
-        k_data[i] = Float32(i + 1) * Float32(0.5)
+        k_data[unsafe_offset=i] = Float32(i + 1) * Float32(0.5)
 
     # Forward pass to get output shape for grad_output
     var output = conv2d_no_bias(x, kernel, stride, padding)
@@ -1231,9 +1237,9 @@ def test_conv2d_backward_gradient_kernel() raises:
     input_shape.append(4)
     input_shape.append(4)
     var x = zeros(input_shape, DType.float32)
-    var x_data = x._data.bitcast[Float32]()
+    var x_data = x._data.unsafe_bitcast[Float32]()
     for i in range(16):
-        x_data[i] = Float32(i) * Float32(0.1)
+        x_data[unsafe_offset=i] = Float32(i) * Float32(0.1)
 
     # Kernel: (1, 1, 3, 3)
     var kernel_shape = List[Int]()
@@ -1242,9 +1248,9 @@ def test_conv2d_backward_gradient_kernel() raises:
     kernel_shape.append(3)
     kernel_shape.append(3)
     var kernel = zeros(kernel_shape, DType.float32)
-    var k_data = kernel._data.bitcast[Float32]()
+    var k_data = kernel._data.unsafe_bitcast[Float32]()
     for i in range(9):
-        k_data[i] = Float32(i + 1) * Float32(0.5)
+        k_data[unsafe_offset=i] = Float32(i + 1) * Float32(0.5)
 
     # Forward pass to get output shape for grad_output
     var output = conv2d_no_bias(x, kernel, stride, padding)
@@ -1292,9 +1298,9 @@ def test_conv2d_backward_gradient_input_with_padding() raises:
     input_shape.append(6)
     input_shape.append(6)
     var x = zeros(input_shape, DType.float32)
-    var x_data = x._data.bitcast[Float32]()
+    var x_data = x._data.unsafe_bitcast[Float32]()
     for i in range(36):
-        x_data[i] = Float32(i) * Float32(0.01)
+        x_data[unsafe_offset=i] = Float32(i) * Float32(0.01)
 
     # Kernel: (1, 1, 3, 3)
     var kernel_shape = List[Int]()
@@ -1303,9 +1309,9 @@ def test_conv2d_backward_gradient_input_with_padding() raises:
     kernel_shape.append(3)
     kernel_shape.append(3)
     var kernel = zeros(kernel_shape, DType.float32)
-    var k_data = kernel._data.bitcast[Float32]()
+    var k_data = kernel._data.unsafe_bitcast[Float32]()
     for i in range(9):
-        k_data[i] = Float32(i + 1) * Float32(0.5)
+        k_data[unsafe_offset=i] = Float32(i + 1) * Float32(0.5)
 
     # Test padding=1
     var padding = 1
@@ -1365,9 +1371,9 @@ def test_conv2d_backward_gradient_kernel_with_padding() raises:
     input_shape.append(6)
     input_shape.append(6)
     var x = zeros(input_shape, DType.float32)
-    var x_data = x._data.bitcast[Float32]()
+    var x_data = x._data.unsafe_bitcast[Float32]()
     for i in range(36):
-        x_data[i] = Float32(i) * Float32(0.01)
+        x_data[unsafe_offset=i] = Float32(i) * Float32(0.01)
 
     # Kernel: (1, 1, 3, 3)
     var kernel_shape = List[Int]()
@@ -1376,9 +1382,9 @@ def test_conv2d_backward_gradient_kernel_with_padding() raises:
     kernel_shape.append(3)
     kernel_shape.append(3)
     var kernel = zeros(kernel_shape, DType.float32)
-    var k_data = kernel._data.bitcast[Float32]()
+    var k_data = kernel._data.unsafe_bitcast[Float32]()
     for i in range(9):
-        k_data[i] = Float32(i + 1) * Float32(0.5)
+        k_data[unsafe_offset=i] = Float32(i + 1) * Float32(0.5)
 
     # Test padding=1
     var padding = 1
@@ -1627,7 +1633,7 @@ def test_conv2d_backward_multichannel_padding1_values() raises:
 
     # Helper to index flat grad_input: shape (1, in_channels, 5, 5)
     # flat index = ic * 5*5 + ih * 5 + iw
-    var grad_input_data = grad_input._data.bitcast[Float32]()
+    var grad_input_data = grad_input._data.unsafe_bitcast[Float32]()
 
     # Corner pixel (0, 0): overlap = 2 * 2 = 4 -> expected 4 * 8 = 32.0
     var expected_corner = Float32(32.0)
@@ -1642,29 +1648,29 @@ def test_conv2d_backward_multichannel_padding1_values() raises:
 
         # Corner (ih=0, iw=0)
         assert_almost_equal(
-            grad_input_data[base + 0 * in_width + 0],
+            grad_input_data[unsafe_offset=base + 0 * in_width + 0],
             expected_corner,
             tolerance=1e-3,
         )
 
         # Edge non-corner (ih=0, iw=1)
         assert_almost_equal(
-            grad_input_data[base + 0 * in_width + 1],
+            grad_input_data[unsafe_offset=base + 0 * in_width + 1],
             expected_edge,
             tolerance=1e-3,
         )
 
         # Interior (ih=1, iw=1)
         assert_almost_equal(
-            grad_input_data[base + 1 * in_width + 1],
+            grad_input_data[unsafe_offset=base + 1 * in_width + 1],
             expected_interior,
             tolerance=1e-3,
         )
 
     # Verify border < interior: corner < edge < interior
-    var corner_val = grad_input_data[0]
-    var edge_val = grad_input_data[1]
-    var interior_val = grad_input_data[1 * in_width + 1]
+    var corner_val = grad_input_data[unsafe_offset=0]
+    var edge_val = grad_input_data[unsafe_offset=1]
+    var interior_val = grad_input_data[unsafe_offset=1 * in_width + 1]
     assert_true(corner_val < edge_val)
     assert_true(edge_val < interior_val)
 

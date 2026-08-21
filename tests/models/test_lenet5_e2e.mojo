@@ -200,8 +200,8 @@ struct LeNet5:
 def _sgd_update(mut param: AnyTensor, grad: AnyTensor, lr: Float32) raises:
     """SGD parameter update: param = param - lr * grad"""
     var numel = param.numel()
-    var param_data = param._data.bitcast[Float32]()
-    var grad_data = grad._data.bitcast[Float32]()
+    var param_data = param._data.unsafe_bitcast[Float32]()
+    var grad_data = grad._data.unsafe_bitcast[Float32]()
 
     for i in range(numel):
         param_data[i] -= lr * grad_data[i]

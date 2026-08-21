@@ -47,7 +47,7 @@ from std.math import sin as math_sin, cos as math_cos, tanh as math_tanh
 # ============================================================================
 
 
-trait ElementwiseUnaryOp(ImplicitlyDestructible):
+trait ElementwiseUnaryOp(Deinitable):
     """Trait for single-input elementwise operations.
 
     Implement this trait to define custom unary operations that can be
@@ -99,7 +99,7 @@ trait ElementwiseUnaryOp(ImplicitlyDestructible):
         ...
 
 
-trait ElementwiseBinaryOp(ImplicitlyDestructible):
+trait ElementwiseBinaryOp(Deinitable):
     """Trait for two-input elementwise operations.
 
     Implement this trait to define custom binary operations that can be

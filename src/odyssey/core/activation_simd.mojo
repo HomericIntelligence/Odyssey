@@ -90,8 +90,8 @@ def _relu_simd_float32(tensor: AnyTensor, mut result: AnyTensor):
     comptime simd_width = simd_width_of[DType.float32]()
     var size = tensor._numel
 
-    var in_ptr = tensor._data.bitcast[Float32]()
-    var out_ptr = result._data.bitcast[Float32]()
+    var in_ptr = tensor._data.unsafe_bitcast[Float32]()
+    var out_ptr = result._data.unsafe_bitcast[Float32]()
 
     @always_inline
     def vectorized_relu[width: Int](idx: Int) {var in_ptr, var out_ptr}:
@@ -109,8 +109,8 @@ def _relu_simd_float64(tensor: AnyTensor, mut result: AnyTensor):
     comptime simd_width = simd_width_of[DType.float64]()
     var size = tensor._numel
 
-    var in_ptr = tensor._data.bitcast[Float64]()
-    var out_ptr = result._data.bitcast[Float64]()
+    var in_ptr = tensor._data.unsafe_bitcast[Float64]()
+    var out_ptr = result._data.unsafe_bitcast[Float64]()
 
     @always_inline
     def vectorized_relu[width: Int](idx: Int) {var in_ptr, var out_ptr}:
@@ -174,8 +174,8 @@ def _leaky_relu_simd_float32(
     comptime simd_width = simd_width_of[DType.float32]()
     var size = tensor._numel
 
-    var in_ptr = tensor._data.bitcast[Float32]()
-    var out_ptr = result._data.bitcast[Float32]()
+    var in_ptr = tensor._data.unsafe_bitcast[Float32]()
+    var out_ptr = result._data.unsafe_bitcast[Float32]()
 
     @always_inline
     def vectorized_leaky_relu[
@@ -198,8 +198,8 @@ def _leaky_relu_simd_float64(
     comptime simd_width = simd_width_of[DType.float64]()
     var size = tensor._numel
 
-    var in_ptr = tensor._data.bitcast[Float64]()
-    var out_ptr = result._data.bitcast[Float64]()
+    var in_ptr = tensor._data.unsafe_bitcast[Float64]()
+    var out_ptr = result._data.unsafe_bitcast[Float64]()
 
     @always_inline
     def vectorized_leaky_relu[
@@ -260,8 +260,8 @@ def _relu6_simd_float32(tensor: AnyTensor, mut result: AnyTensor):
     comptime simd_width = simd_width_of[DType.float32]()
     var size = tensor._numel
 
-    var in_ptr = tensor._data.bitcast[Float32]()
-    var out_ptr = result._data.bitcast[Float32]()
+    var in_ptr = tensor._data.unsafe_bitcast[Float32]()
+    var out_ptr = result._data.unsafe_bitcast[Float32]()
 
     @always_inline
     def vectorized_relu6[width: Int](idx: Int) {var in_ptr, var out_ptr}:
@@ -280,8 +280,8 @@ def _relu6_simd_float64(tensor: AnyTensor, mut result: AnyTensor):
     comptime simd_width = simd_width_of[DType.float64]()
     var size = tensor._numel
 
-    var in_ptr = tensor._data.bitcast[Float64]()
-    var out_ptr = result._data.bitcast[Float64]()
+    var in_ptr = tensor._data.unsafe_bitcast[Float64]()
+    var out_ptr = result._data.unsafe_bitcast[Float64]()
 
     @always_inline
     def vectorized_relu6[width: Int](idx: Int) {var in_ptr, var out_ptr}:
@@ -345,8 +345,8 @@ def _elu_simd_float32(tensor: AnyTensor, mut result: AnyTensor, alpha: Float32):
     comptime simd_width = simd_width_of[DType.float32]()
     var size = tensor._numel
 
-    var in_ptr = tensor._data.bitcast[Float32]()
-    var out_ptr = result._data.bitcast[Float32]()
+    var in_ptr = tensor._data.unsafe_bitcast[Float32]()
+    var out_ptr = result._data.unsafe_bitcast[Float32]()
 
     @always_inline
     def vectorized_elu[
@@ -384,8 +384,8 @@ def _elu_simd_float64(tensor: AnyTensor, mut result: AnyTensor, alpha: Float64):
     comptime simd_width = simd_width_of[DType.float64]()
     var size = tensor._numel
 
-    var in_ptr = tensor._data.bitcast[Float64]()
-    var out_ptr = result._data.bitcast[Float64]()
+    var in_ptr = tensor._data.unsafe_bitcast[Float64]()
+    var out_ptr = result._data.unsafe_bitcast[Float64]()
 
     @always_inline
     def vectorized_elu[
@@ -464,8 +464,8 @@ def _selu_simd_float32(
     comptime simd_width = simd_width_of[DType.float32]()
     var size = tensor._numel
 
-    var in_ptr = tensor._data.bitcast[Float32]()
-    var out_ptr = result._data.bitcast[Float32]()
+    var in_ptr = tensor._data.unsafe_bitcast[Float32]()
+    var out_ptr = result._data.unsafe_bitcast[Float32]()
 
     @always_inline
     def vectorized_selu[
@@ -497,8 +497,8 @@ def _selu_simd_float64(
     comptime simd_width = simd_width_of[DType.float64]()
     var size = tensor._numel
 
-    var in_ptr = tensor._data.bitcast[Float64]()
-    var out_ptr = result._data.bitcast[Float64]()
+    var in_ptr = tensor._data.unsafe_bitcast[Float64]()
+    var out_ptr = result._data.unsafe_bitcast[Float64]()
 
     @always_inline
     def vectorized_selu[
@@ -570,8 +570,8 @@ def _swish_simd_float32(tensor: AnyTensor, mut result: AnyTensor):
     comptime simd_width = simd_width_of[DType.float32]()
     var size = tensor._numel
 
-    var in_ptr = tensor._data.bitcast[Float32]()
-    var out_ptr = result._data.bitcast[Float32]()
+    var in_ptr = tensor._data.unsafe_bitcast[Float32]()
+    var out_ptr = result._data.unsafe_bitcast[Float32]()
 
     @always_inline
     def vectorized_swish[width: Int](idx: Int) {var in_ptr, var out_ptr}:
@@ -602,8 +602,8 @@ def _swish_simd_float64(tensor: AnyTensor, mut result: AnyTensor):
     comptime simd_width = simd_width_of[DType.float64]()
     var size = tensor._numel
 
-    var in_ptr = tensor._data.bitcast[Float64]()
-    var out_ptr = result._data.bitcast[Float64]()
+    var in_ptr = tensor._data.unsafe_bitcast[Float64]()
+    var out_ptr = result._data.unsafe_bitcast[Float64]()
 
     @always_inline
     def vectorized_swish[width: Int](idx: Int) {var in_ptr, var out_ptr}:

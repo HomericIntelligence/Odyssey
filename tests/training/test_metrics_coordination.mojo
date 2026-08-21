@@ -80,7 +80,7 @@ def test_metric_result_tensor() raises:
     var value_tensor = result.get_tensor()
     assert_equal(value_tensor.numel(), 3, "Tensor size")
     assert_equal(
-        value_tensor._data.bitcast[Float32]()[0], 0.9, "Tensor value 0"
+        value_tensor._data.unsafe_bitcast[Float32]()[0], 0.9, "Tensor value 0"
     )
 
     # Should raise when accessing as scalar
@@ -216,7 +216,7 @@ def test_confusion_matrix_integration() raises:
     var raw_after_reset = cm.normalize(mode="none")
     var sum = 0
     for i in range(9):
-        sum += Int(raw_after_reset._data.bitcast[Float64]()[i])
+        sum += Int(raw_after_reset._data.unsafe_bitcast[Float64]()[i])
     assert_equal(sum, 0, "Matrix should be empty after reset")
 
     print("  ✓ ConfusionMatrix integrates correctly")
@@ -432,7 +432,7 @@ def test_metric_interface_consistency() raises:
     var cm_after_reset = confusion.normalize(mode="none")
     var cm_sum = 0
     for i in range(9):
-        cm_sum += Int(cm_after_reset._data.bitcast[Float64]()[i])
+        cm_sum += Int(cm_after_reset._data.unsafe_bitcast[Float64]()[i])
     assert_equal(cm_sum, 0, "Confusion matrix reset to zeros")
 
     print("  ✓ All metrics have consistent interface")

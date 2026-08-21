@@ -20,12 +20,12 @@ References:
 
 from odyssey.tensor.any_tensor import AnyTensor
 from odyssey.tensor.tensor_creation import zeros
-from std.memory import UnsafePointer
+from std.memory import Pointer
 
 
 def read_uint32_be[
     origin: Origin
-](data: UnsafePointer[UInt8, origin], offset: Int) -> Int:
+](data: Pointer[UInt8, origin], offset: Int) -> Int:
     """Read 32-bit unsigned integer in big-endian format.
 
     Args:
@@ -35,10 +35,10 @@ def read_uint32_be[
     Returns:
             Integer value in host byte order.
     """
-    var b0 = Int(data[offset])
-    var b1 = Int(data[offset + 1])
-    var b2 = Int(data[offset + 2])
-    var b3 = Int(data[offset + 3])
+    var b0 = Int(data[unsafe_offset=offset])
+    var b1 = Int(data[unsafe_offset=offset + 1])
+    var b2 = Int(data[unsafe_offset=offset + 2])
+    var b3 = Int(data[unsafe_offset=offset + 3])
 
     return (b0 << 24) | (b1 << 16) | (b2 << 8) | b3
 
@@ -83,7 +83,7 @@ def load_idx_labels(filepath: String) raises -> AnyTensor:
     # Copy label data
     var labels_data = labels._data
     for i in range(num_items):
-        labels_data[i] = data_bytes[8 + i]
+        labels_data[i] = data_bytes[unsafe_offset=8 + i]
 
     return labels^
 
@@ -140,7 +140,7 @@ def load_idx_images(filepath: String) raises -> AnyTensor:
     var images_data = images._data
     var total_pixels = num_images * num_rows * num_cols
     for i in range(total_pixels):
-        images_data[i] = data_bytes[16 + i]
+        images_data[i] = data_bytes[unsafe_offset=16 + i]
 
     return images^
 
@@ -210,7 +210,7 @@ def load_idx_images_rgb(filepath: String) raises -> AnyTensor:
     var images_data = images._data
     var total_pixels = num_images * num_channels * num_rows * num_cols
     for i in range(total_pixels):
-        images_data[i] = data_bytes[20 + i]
+        images_data[i] = data_bytes[unsafe_offset=20 + i]
 
     return images^
 
@@ -235,10 +235,10 @@ def normalize_images(mut images: AnyTensor) raises -> AnyTensor:
 
     var num_elements = images.numel()
     var src_data = images._data
-    var dst_data = normalized._data.bitcast[Float32]()
+    var dst_data = normalized._data.unsafe_bitcast[Float32]()
 
     for i in range(num_elements):
-        dst_data[i] = Float32(src_data[i]) / 255.0
+        dst_data[i] = Float32(src_data[unsafe_offset=i]) / 255.0
 
     return normalized^
 
@@ -276,16 +276,16 @@ def one_hot_encode(labels: AnyTensor, num_classes: Int) raises -> AnyTensor:
 
     # Fill one-hot encoding
     var labels_data = labels._data
-    var one_hot_data = one_hot._data.bitcast[Float32]()
+    var one_hot_data = one_hot._data.unsafe_bitcast[Float32]()
 
     for i in range(num_samples):
-        var label_idx = Int(labels_data[i])
+        var label_idx = Int(labels_data[unsafe_offset=i])
         if label_idx < 0 or label_idx >= num_classes:
             raise Error("Label index out of range: " + String(label_idx))
 
         # Set the corresponding class to 1.0
         var offset = i * num_classes + label_idx
-        one_hot_data[offset] = 1.0
+        one_hot_data[unsafe_offset=offset] = 1.0
 
     return one_hot^
 
@@ -326,7 +326,7 @@ def normalize_images_rgb(mut images: AnyTensor) raises -> AnyTensor:
     var width = shape[3]
 
     var src_data = images._data
-    var dst_data = normalized._data.bitcast[Float32]()
+    var dst_data = normalized._data.unsafe_bitcast[Float32]()
 
     for n in range(batch_size):
         for c in range(channels):
@@ -346,9 +346,11 @@ def normalize_images_rgb(mut images: AnyTensor) raises -> AnyTensor:
             for h in range(height):
                 for w in range(width):
                     var src_idx = ((n * channels + c) * height + h) * width + w
-                    var pixel_val = Float32(src_data[src_idx]) / 255.0
+                    var pixel_val = (
+                        Float32(src_data[unsafe_offset=src_idx]) / 255.0
+                    )
                     var normalized_val = (pixel_val - mean_val) / std_val
-                    dst_data[src_idx] = normalized_val
+                    dst_data[unsafe_offset=src_idx] = normalized_val
 
     return normalized^
 

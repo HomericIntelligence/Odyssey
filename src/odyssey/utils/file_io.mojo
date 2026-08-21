@@ -24,7 +24,7 @@
 # - dir_exists() - Checks if directory exists
 
 from std.python import Python, PythonObject
-from std.memory import UnsafePointer
+from std.memory import Pointer
 from odyssey.tensor.any_tensor import AnyTensor
 from odyssey.tensor.tensor_creation import zeros
 from odyssey.utils.serialization import dtype_to_string
@@ -420,13 +420,13 @@ def _parse_tensor_dtype(dtype_str: String) raises -> DType:
         raise Error("Unknown dtype: " + dtype_str)
 
 
-def _bytes_to_hex(data: UnsafePointer[UInt8, _], num_bytes: Int) -> String:
+def _bytes_to_hex(data: Pointer[UInt8, _], num_bytes: Int) -> String:
     """Convert bytes to hexadecimal string."""
     var hex_chars = "0123456789abcdef"
     var result = String("")
 
     for i in range(num_bytes):
-        var byte = Int(data[i])
+        var byte = Int(data[unsafe_offset=i])
         var high = (byte >> 4) & 0xF
         var low = byte & 0xF
         result += chr(Int(hex_chars.as_bytes()[high]))
@@ -435,11 +435,11 @@ def _bytes_to_hex(data: UnsafePointer[UInt8, _], num_bytes: Int) -> String:
     return result
 
 
-def _hex_to_bytes(hex_str: String, output: UnsafePointer[UInt8, _]) raises:
+def _hex_to_bytes(hex_str: String, output: Pointer[UInt8, _]) raises:
     """Convert hexadecimal string to bytes.
 
         Note: This function validates input but does not write to output.
-        UnsafePointer write requires `origin=MutAnyOrigin` which cannot be
+        Pointer write requires `origin=MutUntrackedOrigin` which cannot be
         declared in function parameters. Callers should use this for validation
         only, or implement write logic with properly-typed pointers.
 
@@ -463,7 +463,7 @@ def _hex_to_bytes(hex_str: String, output: UnsafePointer[UInt8, _]) raises:
         _ = _hex_char_to_int(high_char)
         _ = _hex_char_to_int(low_char)
 
-    # Cannot write to output due to UnsafePointer origin constraints (Mojo v0.26.1)
+    # Cannot write to output due to Pointer origin constraints (Mojo v0.26.1)
     _ = output
 
 

@@ -46,7 +46,7 @@ def _has_nan_core[dtype: DType](tensor: Tensor[dtype]) -> Bool:
 
     # Scalar tail
     while i < size:
-        if isnan(ptr[i]):
+        if isnan(ptr[unsafe_offset=i]):
             return True
         i += 1
     return False
@@ -84,7 +84,7 @@ def _has_inf_core[dtype: DType](tensor: Tensor[dtype]) -> Bool:
 
     # Scalar tail
     while i < size:
-        if isinf(ptr[i]):
+        if isinf(ptr[unsafe_offset=i]):
             return True
         i += 1
     return False
@@ -186,7 +186,7 @@ def _tensor_min_core[dtype: DType](tensor: Tensor[dtype]) -> Float64:
 
     # Scalar tail
     while i < size:
-        var val = Float64(ptr[i])
+        var val = Float64(ptr[unsafe_offset=i])
         if val < min_val:
             min_val = val
         i += 1
@@ -227,7 +227,7 @@ def _tensor_max_core[dtype: DType](tensor: Tensor[dtype]) -> Float64:
 
     # Scalar tail
     while i < size:
-        var val = Float64(ptr[i])
+        var val = Float64(ptr[unsafe_offset=i])
         if val > max_val:
             max_val = val
         i += 1
@@ -264,7 +264,7 @@ def _compute_l2_norm_core[dtype: DType](tensor: Tensor[dtype]) -> Float64:
 
     # Scalar tail
     while i < size:
-        var val = Float64(ptr[i])
+        var val = Float64(ptr[unsafe_offset=i])
         sum_sq += val * val
         i += 1
     return sqrt(sum_sq)

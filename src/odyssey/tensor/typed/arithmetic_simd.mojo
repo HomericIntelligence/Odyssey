@@ -33,7 +33,7 @@ def _add_simd_typed[
         vectorize[simd_width](size, vectorized_add)
     else:
         for i in range(size):
-            result_ptr[i] = a_ptr[i] + b_ptr[i]
+            result_ptr[i] = a_ptr[i] + b_ptr[unsafe_offset=i]
 
     return result^
 
@@ -62,7 +62,7 @@ def _subtract_simd_typed[
         vectorize[simd_width](size, vectorized_subtract)
     else:
         for i in range(size):
-            result_ptr[i] = a_ptr[i] - b_ptr[i]
+            result_ptr[i] = a_ptr[i] - b_ptr[unsafe_offset=i]
 
     return result^
 
@@ -91,7 +91,7 @@ def _multiply_simd_typed[
         vectorize[simd_width](size, vectorized_multiply)
     else:
         for i in range(size):
-            result_ptr[i] = a_ptr[i] * b_ptr[i]
+            result_ptr[i] = a_ptr[i] * b_ptr[unsafe_offset=i]
 
     return result^
 
@@ -120,6 +120,6 @@ def _divide_simd_typed[
         vectorize[simd_width](size, vectorized_divide)
     else:
         for i in range(size):
-            result_ptr[i] = a_ptr[i] / b_ptr[i]
+            result_ptr[i] = a_ptr[i] / b_ptr[unsafe_offset=i]
 
     return result^

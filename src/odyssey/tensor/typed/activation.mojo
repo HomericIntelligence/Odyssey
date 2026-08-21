@@ -33,7 +33,7 @@ from odyssey.base.dtype_ordinal import (
 def _relu_typed[dt: DType](input: Tensor[dt]) raises -> Tensor[dt]:
     """Native typed ReLU -- zero dtype branches.
 
-    Tensor[dt]._data is already typed as UnsafePointer[Scalar[dt], MutAnyOrigin].
+    Tensor[dt]._data is already typed as Pointer[Scalar[dt], MutUntrackedOrigin].
 
     Args:
         input: Input tensor (typed).
@@ -44,7 +44,7 @@ def _relu_typed[dt: DType](input: Tensor[dt]) raises -> Tensor[dt]:
     var result = Tensor[dt](input.shape())
     var size = input.numel()
     for i in range(size):
-        result._data[i] = max(Scalar[dt](0), input._data[i])
+        result._data[i] = max(Scalar[dt](0), input._data[unsafe_offset=i])
     return result^
 
 
@@ -60,8 +60,9 @@ def _relu6_typed[dt: DType](input: Tensor[dt]) raises -> Tensor[dt]:
     var result = Tensor[dt](input.shape())
     var size = input.numel()
     for i in range(size):
-        result._data[i] = min(
-            max(Scalar[dt](0), input._data[i]), Scalar[dt](RELU6_UPPER_BOUND)
+        result._data[unsafe_offset=i] = min(
+            max(Scalar[dt](0), input._data[unsafe_offset=i]),
+            Scalar[dt](RELU6_UPPER_BOUND),
         )
     return result^
 
@@ -80,13 +81,13 @@ def _sigmoid_typed[dt: DType](input: Tensor[dt]) raises -> Tensor[dt]:
     var result = Tensor[dt](input.shape())
     var size = input.numel()
     for i in range(size):
-        var x = input._data[i]
+        var x = input._data[unsafe_offset=i]
         if x > Scalar[dt](SIGMOID_CLIP_THRESHOLD):
-            result._data[i] = Scalar[dt](1.0)
+            result._data[unsafe_offset=i] = Scalar[dt](1.0)
         elif x < Scalar[dt](-SIGMOID_CLIP_THRESHOLD):
-            result._data[i] = Scalar[dt](0.0)
+            result._data[unsafe_offset=i] = Scalar[dt](0.0)
         else:
-            result._data[i] = Scalar[dt](1.0) / (
+            result._data[unsafe_offset=i] = Scalar[dt](1.0) / (
                 Scalar[dt](1.0) + Scalar[dt](exp(-Float32(x)))
             )
     return result^
@@ -108,8 +109,8 @@ def _leaky_relu_typed[
     var size = input.numel()
     var alpha_typed = Scalar[dt](alpha)
     for i in range(size):
-        var val = input._data[i]
-        result._data[i] = max(alpha_typed * val, val)
+        var val = input._data[unsafe_offset=i]
+        result._data[unsafe_offset=i] = max(alpha_typed * val, val)
     return result^
 
 
@@ -129,12 +130,12 @@ def _elu_typed[
     var size = input.numel()
     var alpha_typed = Scalar[dt](alpha)
     for i in range(size):
-        var val = input._data[i]
+        var val = input._data[unsafe_offset=i]
         if val > Scalar[dt](0):
-            result._data[i] = val
+            result._data[unsafe_offset=i] = val
         else:
             var val_clipped = max(val, Scalar[dt](-20.0))
-            result._data[i] = alpha_typed * (
+            result._data[unsafe_offset=i] = alpha_typed * (
                 Scalar[dt](exp(Float32(val_clipped))) - Scalar[dt](1.0)
             )
     return result^
@@ -158,12 +159,12 @@ def _selu_typed[
     var alpha_typed = Scalar[dt](alpha)
     var lambda_typed = Scalar[dt](lambda_)
     for i in range(size):
-        var val = input._data[i]
+        var val = input._data[unsafe_offset=i]
         if val > Scalar[dt](0):
-            result._data[i] = lambda_typed * val
+            result._data[unsafe_offset=i] = lambda_typed * val
         else:
             var val_clipped = max(val, Scalar[dt](-20.0))
-            result._data[i] = (
+            result._data[unsafe_offset=i] = (
                 lambda_typed
                 * alpha_typed
                 * (Scalar[dt](exp(Float32(val_clipped))) - Scalar[dt](1.0))
@@ -408,5 +409,5 @@ def _tanh_typed[dt: DType](input: Tensor[dt]) raises -> Tensor[dt]:
     var result = Tensor[dt](input.shape())
     var size = input.numel()
     for i in range(size):
-        result._data[i] = _tanh_op[dt](input._data[i])
+        result._data[i] = _tanh_op[dt](input._data[unsafe_offset=i])
     return result^

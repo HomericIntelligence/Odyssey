@@ -191,11 +191,11 @@ def concatenate_depthwise(
     var result = zeros([batch_size, total_channels, height, width], t1.dtype())
 
     # Copy data from each tensor
-    var result_data = result._data.bitcast[Float32]()
-    var t1_data = t1._data.bitcast[Float32]()
-    var t2_data = t2._data.bitcast[Float32]()
-    var t3_data = t3._data.bitcast[Float32]()
-    var t4_data = t4._data.bitcast[Float32]()
+    var result_data = result._data.unsafe_bitcast[Float32]()
+    var t1_data = t1._data.unsafe_bitcast[Float32]()
+    var t2_data = t2._data.unsafe_bitcast[Float32]()
+    var t3_data = t3._data.unsafe_bitcast[Float32]()
+    var t4_data = t4._data.unsafe_bitcast[Float32]()
 
     var hw = height * width
 
@@ -325,7 +325,7 @@ def test_inception_module_forward_values() raises:
     var input = ones(
         [batch_size, in_channels, in_height, in_width], DType.float32
     )
-    var input_data = input._data.bitcast[Float32]()
+    var input_data = input._data.unsafe_bitcast[Float32]()
     for i in range(input.numel()):
         input_data[i] = 0.5
 
@@ -351,7 +351,7 @@ def test_inception_module_forward_values() raises:
     assert_equal(output.shape()[3], in_width)
 
     # Verify output contains non-zero values (from ReLU on non-zero input)
-    var output_data = output._data.bitcast[Float32]()
+    var output_data = output._data.unsafe_bitcast[Float32]()
     var sum_val = Float32(0.0)
     for i in range(output.numel()):
         sum_val += output_data[i]
@@ -531,10 +531,10 @@ def test_concatenate_depthwise_4_tensors() raises:
     var t4 = ones([batch_size, 4, height, width], DType.float32)
 
     # Set different values to verify correct concatenation
-    var t1_data = t1._data.bitcast[Float32]()
-    var t2_data = t2._data.bitcast[Float32]()
-    var t3_data = t3._data.bitcast[Float32]()
-    var t4_data = t4._data.bitcast[Float32]()
+    var t1_data = t1._data.unsafe_bitcast[Float32]()
+    var t2_data = t2._data.unsafe_bitcast[Float32]()
+    var t3_data = t3._data.unsafe_bitcast[Float32]()
+    var t4_data = t4._data.unsafe_bitcast[Float32]()
 
     for i in range(t1.numel()):
         t1_data[i] = 1.0
@@ -584,7 +584,7 @@ def test_concatenate_depthwise_values() raises:
     assert_equal(result.shape()[3], width)
 
     # Sample values to verify correct concatenation
-    var result_data = result._data.bitcast[Float32]()
+    var result_data = result._data.unsafe_bitcast[Float32]()
 
     # Result structure: [t1_c0, t1_c1, t2_c0, t2_c1, t3_c0, t3_c1, t4_c0, t4_c1] along channels
     # Each channel has height*width values
@@ -655,7 +655,7 @@ def test_global_avgpool() raises:
 
     # Create input
     var input = ones([batch_size, channels, height, width], DType.float32)
-    var input_data = input._data.bitcast[Float32]()
+    var input_data = input._data.unsafe_bitcast[Float32]()
     for i in range(input.numel()):
         input_data[i] = 2.0
 
@@ -667,7 +667,7 @@ def test_global_avgpool() raises:
     assert_equal(output.shape()[1], channels)
 
     # Verify output values (should be 2.0 since input was all 2.0)
-    var output_data = output._data.bitcast[Float32]()
+    var output_data = output._data.unsafe_bitcast[Float32]()
     for i in range(output.numel()):
         assert_close_float(Float64(output_data[i]), 2.0)
 
@@ -694,7 +694,7 @@ def test_global_avgpool_larger_spatial() raises:
     assert_equal(output.shape()[1], channels)
 
     # Verify averaging: all values should be 4.0
-    var output_data = output._data.bitcast[Float32]()
+    var output_data = output._data.unsafe_bitcast[Float32]()
     for i in range(output.numel()):
         assert_close_float(Float64(output_data[i]), 4.0)
 
@@ -911,7 +911,7 @@ def _channel_split_4(
     var batch = t.shape()[0]
     var total = t.shape()[1]
     var hw = t.shape()[2] * t.shape()[3]
-    var td = t._data.bitcast[Float32]()
+    var td = t._data.unsafe_bitcast[Float32]()
     var out = List[AnyTensor]()
     var offsets = List[Int]()
     offsets.append(0)
@@ -927,7 +927,7 @@ def _channel_split_4(
         var cc = counts[part]
         var off = offsets[part]
         var p = zeros([batch, cc, t.shape()[2], t.shape()[3]], DType.float32)
-        var pd = p._data.bitcast[Float32]()
+        var pd = p._data.unsafe_bitcast[Float32]()
         for b in range(batch):
             for c in range(cc):
                 for i in range(hw):
@@ -956,10 +956,10 @@ def test_split_with_indices_inverse_of_concatenate_depthwise() raises:
     var t4 = ones([batch_size, 4, height, width], DType.float32)
 
     # Fill tensors with unique values for verification
-    var t1_data = t1._data.bitcast[Float32]()
-    var t2_data = t2._data.bitcast[Float32]()
-    var t3_data = t3._data.bitcast[Float32]()
-    var t4_data = t4._data.bitcast[Float32]()
+    var t1_data = t1._data.unsafe_bitcast[Float32]()
+    var t2_data = t2._data.unsafe_bitcast[Float32]()
+    var t3_data = t3._data.unsafe_bitcast[Float32]()
+    var t4_data = t4._data.unsafe_bitcast[Float32]()
 
     for i in range(t1.numel()):
         t1_data[i] = Float32(1.0)
@@ -994,10 +994,10 @@ def test_split_with_indices_inverse_of_concatenate_depthwise() raises:
     assert_shape(parts[3], t4.shape())
 
     # Verify values match (element-wise comparison)
-    var parts_0_data = parts[0]._data.bitcast[Float32]()
-    var parts_1_data = parts[1]._data.bitcast[Float32]()
-    var parts_2_data = parts[2]._data.bitcast[Float32]()
-    var parts_3_data = parts[3]._data.bitcast[Float32]()
+    var parts_0_data = parts[0]._data.unsafe_bitcast[Float32]()
+    var parts_1_data = parts[1]._data.unsafe_bitcast[Float32]()
+    var parts_2_data = parts[2]._data.unsafe_bitcast[Float32]()
+    var parts_3_data = parts[3]._data.unsafe_bitcast[Float32]()
 
     for i in range(t1.numel()):
         assert_close_float(

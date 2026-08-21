@@ -53,7 +53,7 @@ struct MockPredictor:
             Predicted class index.
         """
         # This is a simplified mock - in real usage, this would process the sample
-        return Int(self.predictions._data.bitcast[Int32]()[0])
+        return Int(self.predictions._data.unsafe_bitcast[Int32]()[0])
 
 
 # ============================================================================
@@ -70,7 +70,7 @@ def test_compute_accuracy_on_batch_perfect() raises:
     logits_shape.append(4)
     logits_shape.append(3)
     var logits = zeros(logits_shape, DType.float32)
-    var logits_data = logits._data.bitcast[Float32]()
+    var logits_data = logits._data.unsafe_bitcast[Float32]()
 
     # Set logits so argmax matches labels
     # Sample 0: logits [10, 0, 0] -> argmax=0
@@ -97,7 +97,7 @@ def test_compute_accuracy_on_batch_perfect() raises:
     var labels_shape_temp = List[Int]()
     labels_shape_temp.append(4)
     var labels = zeros(labels_shape_temp, DType.int32)
-    var labels_data = labels._data.bitcast[Int32]()
+    var labels_data = labels._data.unsafe_bitcast[Int32]()
     labels_data[0] = 0
     labels_data[1] = 1
     labels_data[2] = 2
@@ -123,7 +123,7 @@ def test_compute_accuracy_on_batch_partial() raises:
     logits_shape_temp.append(4)
     logits_shape_temp.append(3)
     var logits = zeros(logits_shape_temp, DType.float32)
-    var logits_data = logits._data.bitcast[Float32]()
+    var logits_data = logits._data.unsafe_bitcast[Float32]()
 
     # Sample 0: logits [10, 0, 0] -> argmax=0, label=0 ✓
     logits_data[0] = 10.0
@@ -149,7 +149,7 @@ def test_compute_accuracy_on_batch_partial() raises:
     var labels_shape_temp = List[Int]()
     labels_shape_temp.append(4)
     var labels = zeros(labels_shape_temp, DType.int32)
-    var labels_data = labels._data.bitcast[Int32]()
+    var labels_data = labels._data.unsafe_bitcast[Int32]()
     labels_data[0] = 0
     labels_data[1] = 1
     labels_data[2] = 2
@@ -172,7 +172,7 @@ def test_compute_accuracy_on_batch_with_indices() raises:
     var predictions_shape = List[Int]()
     predictions_shape.append(4)
     var predictions = zeros(predictions_shape, DType.int32)
-    var pred_data = predictions._data.bitcast[Int32]()
+    var pred_data = predictions._data.unsafe_bitcast[Int32]()
     pred_data[0] = 0
     pred_data[1] = 1
     pred_data[2] = 2
@@ -182,7 +182,7 @@ def test_compute_accuracy_on_batch_with_indices() raises:
     var labels_shape_temp = List[Int]()
     labels_shape_temp.append(4)
     var labels = zeros(labels_shape_temp, DType.int32)
-    var labels_data = labels._data.bitcast[Int32]()
+    var labels_data = labels._data.unsafe_bitcast[Int32]()
     labels_data[0] = 0
     labels_data[1] = 1
     labels_data[2] = 2
@@ -205,7 +205,7 @@ def test_compute_accuracy_on_batch_zero() raises:
     logits_shape_temp.append(4)
     logits_shape_temp.append(3)
     var logits = zeros(logits_shape_temp, DType.float32)
-    var logits_data = logits._data.bitcast[Float32]()
+    var logits_data = logits._data.unsafe_bitcast[Float32]()
 
     # Sample 0: logits [10, 0, 0] -> argmax=0, label=1
     logits_data[0] = 10.0
@@ -231,7 +231,7 @@ def test_compute_accuracy_on_batch_zero() raises:
     var labels_shape_temp = List[Int]()
     labels_shape_temp.append(4)
     var labels = zeros(labels_shape_temp, DType.int32)
-    var labels_data = labels._data.bitcast[Int32]()
+    var labels_data = labels._data.unsafe_bitcast[Int32]()
     labels_data[0] = 1
     labels_data[1] = 2
     labels_data[2] = 1
@@ -257,7 +257,7 @@ def test_compute_accuracy_on_batch_single_sample() raises:
     logits_shape_single.append(1)
     logits_shape_single.append(3)
     var logits = zeros(logits_shape_single, DType.float32)
-    var logits_data = logits._data.bitcast[Float32]()
+    var logits_data = logits._data.unsafe_bitcast[Float32]()
     logits_data[0] = 10.0
     logits_data[1] = 0.0
     logits_data[2] = 0.0
@@ -285,7 +285,7 @@ def test_evaluate_logits_batch_perfect() raises:
     logits_shape_temp.append(4)
     logits_shape_temp.append(3)
     var logits = zeros(logits_shape_temp, DType.float32)
-    var logits_data = logits._data.bitcast[Float32]()
+    var logits_data = logits._data.unsafe_bitcast[Float32]()
 
     # Set logits so argmax matches labels
     # Sample 0: logits [10, 0, 0] -> argmax=0
@@ -312,7 +312,7 @@ def test_evaluate_logits_batch_perfect() raises:
     var labels_shape_temp = List[Int]()
     labels_shape_temp.append(4)
     var labels = zeros(labels_shape_temp, DType.int32)
-    var labels_data = labels._data.bitcast[Int32]()
+    var labels_data = labels._data.unsafe_bitcast[Int32]()
     labels_data[0] = 0
     labels_data[1] = 1
     labels_data[2] = 2
@@ -344,7 +344,7 @@ def test_evaluate_with_predict() raises:
     var labels_shape_temp = List[Int]()
     labels_shape_temp.append(4)
     var labels = zeros(labels_shape_temp, DType.int32)
-    var labels_data = labels._data.bitcast[Int32]()
+    var labels_data = labels._data.unsafe_bitcast[Int32]()
     labels_data[0] = 0
     labels_data[1] = 1
     labels_data[2] = 2

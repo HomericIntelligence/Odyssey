@@ -46,10 +46,10 @@ def _fill_uniform_scaled[
     Raises:
             Error: If operation fails.
     """
-    var ptr = result._data.bitcast[Scalar[dtype]]()
+    var ptr = result._data.unsafe_bitcast[Scalar[dtype]]()
     for i in range(result._numel):
         var rand_val = random_float64()
-        ptr[i] = Scalar[dtype](offset + rand_val * scale)
+        ptr[unsafe_offset=i] = Scalar[dtype](offset + rand_val * scale)
 
 
 @always_inline
@@ -69,7 +69,7 @@ def _fill_normal_boxmuller[
     Raises:
             Error: If operation fails.
     """
-    var ptr = result._data.bitcast[Scalar[dtype]]()
+    var ptr = result._data.unsafe_bitcast[Scalar[dtype]]()
     var i = 0
     comptime PI = 3.14159265359
 
@@ -86,11 +86,11 @@ def _fill_normal_boxmuller[
         var z0 = mean + mag * cos(2.0 * PI * u2)
         var z1 = mean + mag * sin(2.0 * PI * u2)
 
-        ptr[i] = Scalar[dtype](z0)
+        ptr[unsafe_offset=i] = Scalar[dtype](z0)
         i += 1
 
         if i < result._numel:
-            ptr[i] = Scalar[dtype](z1)
+            ptr[unsafe_offset=i] = Scalar[dtype](z1)
             i += 1
 
 
@@ -107,10 +107,10 @@ def _fill_constant[dtype: DType](result: AnyTensor, value: Float64) raises:
     Raises:
             Error: If operation fails.
     """
-    var ptr = result._data.bitcast[Scalar[dtype]]()
+    var ptr = result._data.unsafe_bitcast[Scalar[dtype]]()
     var val = Scalar[dtype](value)
     for i in range(result._numel):
-        ptr[i] = val
+        ptr[unsafe_offset=i] = val
 
 
 # ============================================================================

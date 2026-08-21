@@ -107,7 +107,7 @@ def test_dropout_forward_inference_mode() raises:
 
     # In inference mode, output should be identical to input
     for i in range(4):
-        var out_val = output._data.bitcast[Float32]()[i]
+        var out_val = output._data.unsafe_bitcast[Float32]()[i]
         assert_true(
             out_val == input_values[i],
             "Inference mode should pass input unchanged",
@@ -162,7 +162,7 @@ def test_dropout_forward_training_mode_zeros() raises:
     # Count non-zero elements (should be roughly 50%)
     var non_zero_count = 0
     for i in range(100):
-        var val = output._data.bitcast[Float32]()[i]
+        var val = output._data.unsafe_bitcast[Float32]()[i]
         if val != 0.0:
             non_zero_count += 1
 
@@ -190,7 +190,7 @@ def test_dropout_forward_training_mode_scale() raises:
 
     # Non-zero elements should be scaled by 2.0 (1/(1-0.5) = 2)
     for i in range(100):
-        var val = output._data.bitcast[Float32]()[i]
+        var val = output._data.unsafe_bitcast[Float32]()[i]
         if val != 0.0:
             assert_true(
                 val == 2.0,
@@ -253,8 +253,8 @@ def test_dropout_backward_scaling() raises:
     # For elements where mask=1: grad = 1.0 * 2.0 = 2.0
     # For elements where mask=0: grad = 0.0 * 2.0 = 0.0
     for i in range(4):
-        var grad_val = grad_input._data.bitcast[Float32]()[i]
-        var mask_val = mask._data.bitcast[Float32]()[i]
+        var grad_val = grad_input._data.unsafe_bitcast[Float32]()[i]
+        var mask_val = mask._data.unsafe_bitcast[Float32]()[i]
 
         if mask_val == 1.0:
             assert_true(
@@ -289,7 +289,7 @@ def test_dropout_forward_float64() raises:
     # Count non-zero elements
     var non_zero_count = 0
     for i in range(50):
-        var val = output._data.bitcast[Float64]()[i]
+        var val = output._data.unsafe_bitcast[Float64]()[i]
         if val != 0.0:
             non_zero_count += 1
 
@@ -316,7 +316,7 @@ def test_dropout_zero_dropout_rate() raises:
     # With dropout_rate=0, nothing should be dropped
     # Scale factor = 1/(1-0) = 1
     for i in range(10):
-        var val = output._data.bitcast[Float32]()[i]
+        var val = output._data.unsafe_bitcast[Float32]()[i]
         assert_true(
             val == 1.0, "With dropout_rate=0, output should be unchanged"
         )
@@ -338,7 +338,7 @@ def test_dropout_high_dropout_rate() raises:
     # Count non-zero elements (should be roughly 10%)
     var non_zero_count = 0
     for i in range(100):
-        var val = output._data.bitcast[Float32]()[i]
+        var val = output._data.unsafe_bitcast[Float32]()[i]
         if val != 0.0:
             non_zero_count += 1
 
@@ -351,7 +351,7 @@ def test_dropout_high_dropout_rate() raises:
 
     # Check scaling: kept elements should be scaled by 1/(1-0.9) = 10
     for i in range(100):
-        var val = output._data.bitcast[Float32]()[i]
+        var val = output._data.unsafe_bitcast[Float32]()[i]
         if val != 0.0:
             # Check that scaled value is approximately 10.0
             var diff = abs(val - 10.0)

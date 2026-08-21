@@ -164,7 +164,7 @@ def test_residual_block_64_channels_forward() raises:
     assert_equal(out_shape[3], width)
 
     # Output should not be all zeros due to ReLU and residual
-    var out_data = output._data.bitcast[Float32]()
+    var out_data = output._data.unsafe_bitcast[Float32]()
     var total_elements = batch_size * out_channels * height * width
     var non_zero_count = 0
     for i in range(total_elements):
@@ -451,7 +451,7 @@ def test_skip_connection_addition() raises:
     assert_equal(res_shape[3], width)
 
     # Verify values: 1 + 1 = 2
-    var result_data = result._data.bitcast[Float32]()
+    var result_data = result._data.unsafe_bitcast[Float32]()
     var total_elements = batch_size * channels * height * width
     for i in range(min(10, total_elements)):
         assert_almost_equal(result_data[i], 2.0, tolerance=1e-5)
@@ -476,7 +476,7 @@ def test_skip_connection_identity() raises:
     var x = randn(shape, DType.float32)
 
     # Copy original data for comparison
-    var x_data = x._data.bitcast[Float32]()
+    var x_data = x._data.unsafe_bitcast[Float32]()
     var original_values = List[Float32]()
     var total_elements = batch_size * channels * height * width
     for i in range(min(10, total_elements)):
@@ -487,7 +487,7 @@ def test_skip_connection_identity() raises:
     var result = add(x, zeros_tensor)
 
     # Result should equal x
-    var result_data = result._data.bitcast[Float32]()
+    var result_data = result._data.unsafe_bitcast[Float32]()
     for i in range(min(10, total_elements)):
         assert_almost_equal(result_data[i], original_values[i], tolerance=1e-5)
 
@@ -589,10 +589,10 @@ def test_batchnorm2d_inference_mode() raises:
     assert_equal(out_shape[3], width)
 
     # In inference mode, running stats should not change
-    var new_mean_data = new_running_mean._data.bitcast[Float32]()
-    var new_var_data = new_running_var._data.bitcast[Float32]()
-    var running_mean_data = running_mean._data.bitcast[Float32]()
-    var running_var_data = running_var._data.bitcast[Float32]()
+    var new_mean_data = new_running_mean._data.unsafe_bitcast[Float32]()
+    var new_var_data = new_running_var._data.unsafe_bitcast[Float32]()
+    var running_mean_data = running_mean._data.unsafe_bitcast[Float32]()
+    var running_var_data = running_var._data.unsafe_bitcast[Float32]()
 
     for i in range(channels):
         assert_almost_equal(
@@ -639,7 +639,7 @@ def test_batchnorm2d_gamma_beta_effects() raises:
     # With gamma=2 and beta=1, running_mean=0, running_var=1:
     # normalized = (x - running_mean) / sqrt(running_var + eps) = (1 - 0) / 1 = 1
     # output = gamma * normalized + beta = 2 * 1 + 1 = 3
-    var out_data = output._data.bitcast[Float32]()
+    var out_data = output._data.unsafe_bitcast[Float32]()
     var total_elements = batch_size * channels * height * width
     for i in range(min(10, total_elements)):
         # Expected: 3.0 (gamma * normalized + beta = 2 * 1 + 1)
@@ -674,7 +674,7 @@ def test_relu_in_residual_block() raises:
     assert_equal(out_shape[1], channels)
 
     # Verify all values are non-negative
-    var out_data = output._data.bitcast[Float32]()
+    var out_data = output._data.unsafe_bitcast[Float32]()
     var total_elements = batch_size * channels * height * width
     for i in range(min(100, total_elements)):
         assert_true(

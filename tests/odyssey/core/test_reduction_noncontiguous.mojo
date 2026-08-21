@@ -46,8 +46,8 @@ def test_sum_all_noncontiguous() raises:
 
     var result = sum(nc)
 
-    var ptr = result._data.bitcast[Float32]()
-    assert_almost_equal(ptr[0], Float32(15.0), tolerance=1e-4)
+    var ptr = result._data.unsafe_bitcast[Float32]()
+    assert_almost_equal(ptr[unsafe_offset=0], Float32(15.0), tolerance=1e-4)
 
 
 def test_sum_axis0_noncontiguous() raises:
@@ -60,9 +60,9 @@ def test_sum_axis0_noncontiguous() raises:
     var result = sum(nc, axis=0)
 
     assert_equal_int(result.shape()[0], 2)
-    var ptr = result._data.bitcast[Float32]()
-    assert_almost_equal(ptr[0], Float32(3.0), tolerance=1e-4)
-    assert_almost_equal(ptr[1], Float32(12.0), tolerance=1e-4)
+    var ptr = result._data.unsafe_bitcast[Float32]()
+    assert_almost_equal(ptr[unsafe_offset=0], Float32(3.0), tolerance=1e-4)
+    assert_almost_equal(ptr[unsafe_offset=1], Float32(12.0), tolerance=1e-4)
 
 
 def test_sum_axis1_noncontiguous() raises:
@@ -75,10 +75,10 @@ def test_sum_axis1_noncontiguous() raises:
     var result = sum(nc, axis=1)
 
     assert_equal_int(result.shape()[0], 3)
-    var ptr = result._data.bitcast[Float32]()
-    assert_almost_equal(ptr[0], Float32(3.0), tolerance=1e-4)
-    assert_almost_equal(ptr[1], Float32(5.0), tolerance=1e-4)
-    assert_almost_equal(ptr[2], Float32(7.0), tolerance=1e-4)
+    var ptr = result._data.unsafe_bitcast[Float32]()
+    assert_almost_equal(ptr[unsafe_offset=0], Float32(3.0), tolerance=1e-4)
+    assert_almost_equal(ptr[unsafe_offset=1], Float32(5.0), tolerance=1e-4)
+    assert_almost_equal(ptr[unsafe_offset=2], Float32(7.0), tolerance=1e-4)
 
 
 def test_mean_all_noncontiguous() raises:
@@ -88,8 +88,8 @@ def test_mean_all_noncontiguous() raises:
 
     var result = mean(nc)
 
-    var ptr = result._data.bitcast[Float32]()
-    assert_almost_equal(ptr[0], Float32(2.5), tolerance=1e-4)
+    var ptr = result._data.unsafe_bitcast[Float32]()
+    assert_almost_equal(ptr[unsafe_offset=0], Float32(2.5), tolerance=1e-4)
 
 
 def test_mean_axis0_noncontiguous() raises:
@@ -102,9 +102,9 @@ def test_mean_axis0_noncontiguous() raises:
     var result = mean(nc, axis=0)
 
     assert_equal_int(result.shape()[0], 2)
-    var ptr = result._data.bitcast[Float32]()
-    assert_almost_equal(ptr[0], Float32(1.0), tolerance=1e-4)
-    assert_almost_equal(ptr[1], Float32(4.0), tolerance=1e-4)
+    var ptr = result._data.unsafe_bitcast[Float32]()
+    assert_almost_equal(ptr[unsafe_offset=0], Float32(1.0), tolerance=1e-4)
+    assert_almost_equal(ptr[unsafe_offset=1], Float32(4.0), tolerance=1e-4)
 
 
 def test_mean_axis1_noncontiguous() raises:
@@ -117,52 +117,52 @@ def test_mean_axis1_noncontiguous() raises:
     var result = mean(nc, axis=1)
 
     assert_equal_int(result.shape()[0], 3)
-    var ptr = result._data.bitcast[Float32]()
-    assert_almost_equal(ptr[0], Float32(1.5), tolerance=1e-4)
-    assert_almost_equal(ptr[1], Float32(2.5), tolerance=1e-4)
-    assert_almost_equal(ptr[2], Float32(3.5), tolerance=1e-4)
+    var ptr = result._data.unsafe_bitcast[Float32]()
+    assert_almost_equal(ptr[unsafe_offset=0], Float32(1.5), tolerance=1e-4)
+    assert_almost_equal(ptr[unsafe_offset=1], Float32(2.5), tolerance=1e-4)
+    assert_almost_equal(ptr[unsafe_offset=2], Float32(3.5), tolerance=1e-4)
 
 
 def test_sum_noncontiguous_matches_contiguous_baseline() raises:
     """Non-contiguous sum must match contiguous baseline."""
     # Build contiguous tensor with same logical values as nc
     var logical = zeros([3, 2], DType.float32)
-    var lp = logical._data.bitcast[Float32]()
-    lp[0] = 0.0
-    lp[1] = 3.0
-    lp[2] = 1.0
-    lp[3] = 4.0
-    lp[4] = 2.0
-    lp[5] = 5.0
+    var lp = logical._data.unsafe_bitcast[Float32]()
+    lp[unsafe_offset=0] = 0.0
+    lp[unsafe_offset=1] = 3.0
+    lp[unsafe_offset=2] = 1.0
+    lp[unsafe_offset=3] = 4.0
+    lp[unsafe_offset=4] = 2.0
+    lp[unsafe_offset=5] = 5.0
 
     var baseline = sum(logical, axis=0)
     var nc = _make_nc_2x3()
     var result = sum(nc, axis=0)
 
-    var bp = baseline._data.bitcast[Float32]()
-    var rp = result._data.bitcast[Float32]()
+    var bp = baseline._data.unsafe_bitcast[Float32]()
+    var rp = result._data.unsafe_bitcast[Float32]()
     for i in range(2):
-        assert_almost_equal(rp[i], bp[i], tolerance=1e-4)
+        assert_almost_equal(rp[i], bp[unsafe_offset=i], tolerance=1e-4)
 
 
 def test_mean_noncontiguous_matches_contiguous_baseline() raises:
     """Non-contiguous mean must match contiguous baseline."""
     var logical = zeros([3, 2], DType.float32)
-    var lp = logical._data.bitcast[Float32]()
-    lp[0] = 0.0
-    lp[1] = 3.0
-    lp[2] = 1.0
-    lp[3] = 4.0
-    lp[4] = 2.0
-    lp[5] = 5.0
+    var lp = logical._data.unsafe_bitcast[Float32]()
+    lp[unsafe_offset=0] = 0.0
+    lp[unsafe_offset=1] = 3.0
+    lp[unsafe_offset=2] = 1.0
+    lp[unsafe_offset=3] = 4.0
+    lp[unsafe_offset=4] = 2.0
+    lp[unsafe_offset=5] = 5.0
 
     var baseline = mean(logical)
     var nc = _make_nc_2x3()
     var result = mean(nc)
 
-    var bp = baseline._data.bitcast[Float32]()
-    var rp = result._data.bitcast[Float32]()
-    assert_almost_equal(rp[0], bp[0], tolerance=1e-4)
+    var bp = baseline._data.unsafe_bitcast[Float32]()
+    var rp = result._data.unsafe_bitcast[Float32]()
+    assert_almost_equal(rp[0], bp[unsafe_offset=0], tolerance=1e-4)
 
 
 def test_sum_keepdims_noncontiguous() raises:
@@ -173,8 +173,8 @@ def test_sum_keepdims_noncontiguous() raises:
     var result = sum(nc, axis=-1, keepdims=True)
 
     # keepdims=True with axis=-1 should give shape [1, 1] scalar-like
-    var ptr = result._data.bitcast[Float32]()
-    assert_almost_equal(ptr[0], Float32(15.0), tolerance=1e-4)
+    var ptr = result._data.unsafe_bitcast[Float32]()
+    assert_almost_equal(ptr[unsafe_offset=0], Float32(15.0), tolerance=1e-4)
 
 
 def test_max_all_noncontiguous() raises:
@@ -184,8 +184,8 @@ def test_max_all_noncontiguous() raises:
 
     var result = max_reduce(nc)
 
-    var ptr = result._data.bitcast[Float32]()
-    assert_almost_equal(ptr[0], Float32(5.0), tolerance=1e-5)
+    var ptr = result._data.unsafe_bitcast[Float32]()
+    assert_almost_equal(ptr[unsafe_offset=0], Float32(5.0), tolerance=1e-5)
 
 
 def test_max_axis0_noncontiguous() raises:
@@ -197,9 +197,9 @@ def test_max_axis0_noncontiguous() raises:
     var result = max_reduce(nc, axis=0)
 
     assert_equal_int(result.shape()[0], 2)
-    var ptr = result._data.bitcast[Float32]()
-    assert_almost_equal(ptr[0], Float32(2.0), tolerance=1e-5)
-    assert_almost_equal(ptr[1], Float32(5.0), tolerance=1e-5)
+    var ptr = result._data.unsafe_bitcast[Float32]()
+    assert_almost_equal(ptr[unsafe_offset=0], Float32(2.0), tolerance=1e-5)
+    assert_almost_equal(ptr[unsafe_offset=1], Float32(5.0), tolerance=1e-5)
 
 
 def test_max_axis1_noncontiguous() raises:
@@ -211,10 +211,10 @@ def test_max_axis1_noncontiguous() raises:
     var result = max_reduce(nc, axis=1)
 
     assert_equal_int(result.shape()[0], 3)
-    var ptr = result._data.bitcast[Float32]()
-    assert_almost_equal(ptr[0], Float32(3.0), tolerance=1e-5)
-    assert_almost_equal(ptr[1], Float32(4.0), tolerance=1e-5)
-    assert_almost_equal(ptr[2], Float32(5.0), tolerance=1e-5)
+    var ptr = result._data.unsafe_bitcast[Float32]()
+    assert_almost_equal(ptr[unsafe_offset=0], Float32(3.0), tolerance=1e-5)
+    assert_almost_equal(ptr[unsafe_offset=1], Float32(4.0), tolerance=1e-5)
+    assert_almost_equal(ptr[unsafe_offset=2], Float32(5.0), tolerance=1e-5)
 
 
 def test_min_all_noncontiguous() raises:
@@ -224,8 +224,8 @@ def test_min_all_noncontiguous() raises:
 
     var result = min_reduce(nc)
 
-    var ptr = result._data.bitcast[Float32]()
-    assert_almost_equal(ptr[0], Float32(0.0), tolerance=1e-5)
+    var ptr = result._data.unsafe_bitcast[Float32]()
+    assert_almost_equal(ptr[unsafe_offset=0], Float32(0.0), tolerance=1e-5)
 
 
 def test_min_axis0_noncontiguous() raises:
@@ -237,9 +237,9 @@ def test_min_axis0_noncontiguous() raises:
     var result = min_reduce(nc, axis=0)
 
     assert_equal_int(result.shape()[0], 2)
-    var ptr = result._data.bitcast[Float32]()
-    assert_almost_equal(ptr[0], Float32(0.0), tolerance=1e-5)
-    assert_almost_equal(ptr[1], Float32(3.0), tolerance=1e-5)
+    var ptr = result._data.unsafe_bitcast[Float32]()
+    assert_almost_equal(ptr[unsafe_offset=0], Float32(0.0), tolerance=1e-5)
+    assert_almost_equal(ptr[unsafe_offset=1], Float32(3.0), tolerance=1e-5)
 
 
 def test_min_axis1_noncontiguous() raises:
@@ -251,52 +251,52 @@ def test_min_axis1_noncontiguous() raises:
     var result = min_reduce(nc, axis=1)
 
     assert_equal_int(result.shape()[0], 3)
-    var ptr = result._data.bitcast[Float32]()
-    assert_almost_equal(ptr[0], Float32(0.0), tolerance=1e-5)
-    assert_almost_equal(ptr[1], Float32(1.0), tolerance=1e-5)
-    assert_almost_equal(ptr[2], Float32(2.0), tolerance=1e-5)
+    var ptr = result._data.unsafe_bitcast[Float32]()
+    assert_almost_equal(ptr[unsafe_offset=0], Float32(0.0), tolerance=1e-5)
+    assert_almost_equal(ptr[unsafe_offset=1], Float32(1.0), tolerance=1e-5)
+    assert_almost_equal(ptr[unsafe_offset=2], Float32(2.0), tolerance=1e-5)
 
 
 def test_max_noncontiguous_matches_contiguous_baseline() raises:
     """Non-contiguous max_reduce must match contiguous baseline."""
     var logical = zeros([3, 2], DType.float32)
-    var lp = logical._data.bitcast[Float32]()
-    lp[0] = 0.0
-    lp[1] = 3.0
-    lp[2] = 1.0
-    lp[3] = 4.0
-    lp[4] = 2.0
-    lp[5] = 5.0
+    var lp = logical._data.unsafe_bitcast[Float32]()
+    lp[unsafe_offset=0] = 0.0
+    lp[unsafe_offset=1] = 3.0
+    lp[unsafe_offset=2] = 1.0
+    lp[unsafe_offset=3] = 4.0
+    lp[unsafe_offset=4] = 2.0
+    lp[unsafe_offset=5] = 5.0
 
     var baseline = max_reduce(logical, axis=1)
     var nc = _make_nc_2x3()
     var result = max_reduce(nc, axis=1)
 
-    var bp = baseline._data.bitcast[Float32]()
-    var rp = result._data.bitcast[Float32]()
+    var bp = baseline._data.unsafe_bitcast[Float32]()
+    var rp = result._data.unsafe_bitcast[Float32]()
     for i in range(3):
-        assert_almost_equal(rp[i], bp[i], tolerance=1e-5)
+        assert_almost_equal(rp[i], bp[unsafe_offset=i], tolerance=1e-5)
 
 
 def test_min_noncontiguous_matches_contiguous_baseline() raises:
     """Non-contiguous min_reduce must match contiguous baseline."""
     var logical = zeros([3, 2], DType.float32)
-    var lp = logical._data.bitcast[Float32]()
-    lp[0] = 0.0
-    lp[1] = 3.0
-    lp[2] = 1.0
-    lp[3] = 4.0
-    lp[4] = 2.0
-    lp[5] = 5.0
+    var lp = logical._data.unsafe_bitcast[Float32]()
+    lp[unsafe_offset=0] = 0.0
+    lp[unsafe_offset=1] = 3.0
+    lp[unsafe_offset=2] = 1.0
+    lp[unsafe_offset=3] = 4.0
+    lp[unsafe_offset=4] = 2.0
+    lp[unsafe_offset=5] = 5.0
 
     var baseline = min_reduce(logical, axis=0)
     var nc = _make_nc_2x3()
     var result = min_reduce(nc, axis=0)
 
-    var bp = baseline._data.bitcast[Float32]()
-    var rp = result._data.bitcast[Float32]()
+    var bp = baseline._data.unsafe_bitcast[Float32]()
+    var rp = result._data.unsafe_bitcast[Float32]()
     for i in range(2):
-        assert_almost_equal(rp[i], bp[i], tolerance=1e-5)
+        assert_almost_equal(rp[i], bp[unsafe_offset=i], tolerance=1e-5)
 
 
 def test_max_larger_noncontiguous() raises:
@@ -309,8 +309,8 @@ def test_max_larger_noncontiguous() raises:
 
     var result = max_reduce(nc)
 
-    var ptr = result._data.bitcast[Float32]()
-    assert_almost_equal(ptr[0], Float32(11.0), tolerance=1e-5)
+    var ptr = result._data.unsafe_bitcast[Float32]()
+    assert_almost_equal(ptr[unsafe_offset=0], Float32(11.0), tolerance=1e-5)
 
 
 def test_min_larger_noncontiguous() raises:
@@ -322,8 +322,8 @@ def test_min_larger_noncontiguous() raises:
 
     var result = min_reduce(nc)
 
-    var ptr = result._data.bitcast[Float32]()
-    assert_almost_equal(ptr[0], Float32(1.0), tolerance=1e-5)
+    var ptr = result._data.unsafe_bitcast[Float32]()
+    assert_almost_equal(ptr[unsafe_offset=0], Float32(1.0), tolerance=1e-5)
 
 
 def main() raises:

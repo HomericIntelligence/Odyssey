@@ -111,9 +111,9 @@ def test_add_contiguous_same_shape_float32() raises:
     assert_equal_int(result.shape()[1], 3)
 
     # Check all values are 5.0
-    var result_ptr = result._data.bitcast[Float32]()
+    var result_ptr = result._data.unsafe_bitcast[Float32]()
     for i in range(result.numel()):
-        assert_almost_equal(result_ptr[i], 5.0, tolerance=1e-6)
+        assert_almost_equal(result_ptr[unsafe_offset=i], 5.0, tolerance=1e-6)
 
 
 def test_add_contiguous_same_shape_float64() raises:
@@ -133,9 +133,9 @@ def test_add_contiguous_same_shape_float64() raises:
     assert_equal_int(result.shape()[1], 3)
 
     # Check all values are 5.0
-    var result_ptr = result._data.bitcast[Float64]()
+    var result_ptr = result._data.unsafe_bitcast[Float64]()
     for i in range(result.numel()):
-        assert_almost_equal(result_ptr[i], 5.0, tolerance=1e-6)
+        assert_almost_equal(result_ptr[unsafe_offset=i], 5.0, tolerance=1e-6)
 
 
 def test_add_contiguous_large_tensor() raises:
@@ -151,9 +151,9 @@ def test_add_contiguous_large_tensor() raises:
     var result = add(a, b)
 
     # Spot check a few values
-    var result_ptr = result._data.bitcast[Float32]()
-    assert_almost_equal(result_ptr[0], 5.0, tolerance=1e-6)
-    assert_almost_equal(result_ptr[1000000], 5.0, tolerance=1e-6)
+    var result_ptr = result._data.unsafe_bitcast[Float32]()
+    assert_almost_equal(result_ptr[unsafe_offset=0], 5.0, tolerance=1e-6)
+    assert_almost_equal(result_ptr[unsafe_offset=1000000], 5.0, tolerance=1e-6)
 
 
 def test_add_contiguous_small_tensor() raises:
@@ -168,9 +168,9 @@ def test_add_contiguous_small_tensor() raises:
     var result = add(a, b)
 
     # Check values
-    var result_ptr = result._data.bitcast[Float32]()
-    assert_almost_equal(result_ptr[0], 5.0, tolerance=1e-6)
-    assert_almost_equal(result_ptr[1], 5.0, tolerance=1e-6)
+    var result_ptr = result._data.unsafe_bitcast[Float32]()
+    assert_almost_equal(result_ptr[unsafe_offset=0], 5.0, tolerance=1e-6)
+    assert_almost_equal(result_ptr[unsafe_offset=1], 5.0, tolerance=1e-6)
 
 
 def test_subtract_contiguous_same_shape_float32() raises:
@@ -185,9 +185,9 @@ def test_subtract_contiguous_same_shape_float32() raises:
     var result = subtract(a, b)
 
     # Check all values are 3.0
-    var result_ptr = result._data.bitcast[Float32]()
+    var result_ptr = result._data.unsafe_bitcast[Float32]()
     for i in range(result.numel()):
-        assert_almost_equal(result_ptr[i], 3.0, tolerance=1e-6)
+        assert_almost_equal(result_ptr[unsafe_offset=i], 3.0, tolerance=1e-6)
 
 
 def test_subtract_contiguous_same_shape_float64() raises:
@@ -198,9 +198,9 @@ def test_subtract_contiguous_same_shape_float64() raises:
     var result = subtract(a, b)
 
     # Check all values are 3.0
-    var result_ptr = result._data.bitcast[Float64]()
+    var result_ptr = result._data.unsafe_bitcast[Float64]()
     for i in range(result.numel()):
-        assert_almost_equal(result_ptr[i], 3.0, tolerance=1e-6)
+        assert_almost_equal(result_ptr[unsafe_offset=i], 3.0, tolerance=1e-6)
 
 
 def test_multiply_contiguous_same_shape_float32() raises:
@@ -211,9 +211,9 @@ def test_multiply_contiguous_same_shape_float32() raises:
     var result = multiply(a, b)
 
     # Check all values are 6.0
-    var result_ptr = result._data.bitcast[Float32]()
+    var result_ptr = result._data.unsafe_bitcast[Float32]()
     for i in range(result.numel()):
-        assert_almost_equal(result_ptr[i], 6.0, tolerance=1e-6)
+        assert_almost_equal(result_ptr[unsafe_offset=i], 6.0, tolerance=1e-6)
 
 
 def test_multiply_contiguous_same_shape_float64() raises:
@@ -224,9 +224,9 @@ def test_multiply_contiguous_same_shape_float64() raises:
     var result = multiply(a, b)
 
     # Check all values are 6.0
-    var result_ptr = result._data.bitcast[Float64]()
+    var result_ptr = result._data.unsafe_bitcast[Float64]()
     for i in range(result.numel()):
-        assert_almost_equal(result_ptr[i], 6.0, tolerance=1e-6)
+        assert_almost_equal(result_ptr[unsafe_offset=i], 6.0, tolerance=1e-6)
 
 
 def test_divide_contiguous_same_shape_float32() raises:
@@ -237,9 +237,9 @@ def test_divide_contiguous_same_shape_float32() raises:
     var result = divide(a, b)
 
     # Check all values are 3.0
-    var result_ptr = result._data.bitcast[Float32]()
+    var result_ptr = result._data.unsafe_bitcast[Float32]()
     for i in range(result.numel()):
-        assert_almost_equal(result_ptr[i], 3.0, tolerance=1e-6)
+        assert_almost_equal(result_ptr[unsafe_offset=i], 3.0, tolerance=1e-6)
 
 
 def test_divide_contiguous_same_shape_float64() raises:
@@ -250,9 +250,9 @@ def test_divide_contiguous_same_shape_float64() raises:
     var result = divide(a, b)
 
     # Check all values are 3.0
-    var result_ptr = result._data.bitcast[Float64]()
+    var result_ptr = result._data.unsafe_bitcast[Float64]()
     for i in range(result.numel()):
-        assert_almost_equal(result_ptr[i], 3.0, tolerance=1e-6)
+        assert_almost_equal(result_ptr[unsafe_offset=i], 3.0, tolerance=1e-6)
 
 
 def test_add_noncontiguous_fallback() raises:
@@ -269,9 +269,9 @@ def test_add_noncontiguous_fallback() raises:
     var result = add(a, b)
 
     # Verify result is still correct even if using fallback
-    var result_ptr = result._data.bitcast[Float32]()
+    var result_ptr = result._data.unsafe_bitcast[Float32]()
     for i in range(result.numel()):
-        assert_almost_equal(result_ptr[i], 5.0, tolerance=1e-6)
+        assert_almost_equal(result_ptr[unsafe_offset=i], 5.0, tolerance=1e-6)
 
 
 def test_multiply_noncontiguous_fallback() raises:
@@ -282,9 +282,9 @@ def test_multiply_noncontiguous_fallback() raises:
     var result = multiply(a, b)
 
     # Verify result
-    var result_ptr = result._data.bitcast[Float32]()
+    var result_ptr = result._data.unsafe_bitcast[Float32]()
     for i in range(result.numel()):
-        assert_almost_equal(result_ptr[i], 6.0, tolerance=1e-6)
+        assert_almost_equal(result_ptr[unsafe_offset=i], 6.0, tolerance=1e-6)
 
 
 def test_add_contiguous_matches_slow_path() raises:
@@ -295,9 +295,9 @@ def test_add_contiguous_matches_slow_path() raises:
     var result = add(a, b)
 
     # Verify all elements equal 4.0
-    var result_ptr = result._data.bitcast[Float32]()
+    var result_ptr = result._data.unsafe_bitcast[Float32]()
     for i in range(result.numel()):
-        assert_almost_equal(result_ptr[i], 4.0, tolerance=1e-6)
+        assert_almost_equal(result_ptr[unsafe_offset=i], 4.0, tolerance=1e-6)
 
 
 def test_subtract_contiguous_matches_slow_path() raises:
@@ -308,9 +308,9 @@ def test_subtract_contiguous_matches_slow_path() raises:
     var result = subtract(a, b)
 
     # Verify all elements equal 3.0
-    var result_ptr = result._data.bitcast[Float32]()
+    var result_ptr = result._data.unsafe_bitcast[Float32]()
     for i in range(result.numel()):
-        assert_almost_equal(result_ptr[i], 3.0, tolerance=1e-6)
+        assert_almost_equal(result_ptr[unsafe_offset=i], 3.0, tolerance=1e-6)
 
 
 def test_multiply_contiguous_matches_slow_path() raises:
@@ -321,9 +321,9 @@ def test_multiply_contiguous_matches_slow_path() raises:
     var result = multiply(a, b)
 
     # Verify all elements equal 3.0
-    var result_ptr = result._data.bitcast[Float32]()
+    var result_ptr = result._data.unsafe_bitcast[Float32]()
     for i in range(result.numel()):
-        assert_almost_equal(result_ptr[i], 3.0, tolerance=1e-6)
+        assert_almost_equal(result_ptr[unsafe_offset=i], 3.0, tolerance=1e-6)
 
 
 def test_divide_contiguous_matches_slow_path() raises:
@@ -334,9 +334,9 @@ def test_divide_contiguous_matches_slow_path() raises:
     var result = divide(a, b)
 
     # Verify all elements equal 3.0
-    var result_ptr = result._data.bitcast[Float32]()
+    var result_ptr = result._data.unsafe_bitcast[Float32]()
     for i in range(result.numel()):
-        assert_almost_equal(result_ptr[i], 3.0, tolerance=1e-6)
+        assert_almost_equal(result_ptr[unsafe_offset=i], 3.0, tolerance=1e-6)
 
 
 def test_add_contiguous_int32() raises:
@@ -346,9 +346,9 @@ def test_add_contiguous_int32() raises:
 
     var result = add(a, b)
 
-    var result_ptr = result._data.bitcast[Int32]()
+    var result_ptr = result._data.unsafe_bitcast[Int32]()
     for i in range(result.numel()):
-        assert_equal_int(Int(result_ptr[i]), 8)
+        assert_equal_int(Int(result_ptr[unsafe_offset=i]), 8)
 
 
 def test_multiply_contiguous_int64() raises:
@@ -358,9 +358,9 @@ def test_multiply_contiguous_int64() raises:
 
     var result = multiply(a, b)
 
-    var result_ptr = result._data.bitcast[Int64]()
+    var result_ptr = result._data.unsafe_bitcast[Int64]()
     for i in range(result.numel()):
-        assert_equal_int(Int(result_ptr[i]), 12)
+        assert_equal_int(Int(result_ptr[unsafe_offset=i]), 12)
 
 
 def test_add_mixed_contiguous_noncontiguous() raises:
@@ -375,9 +375,9 @@ def test_add_mixed_contiguous_noncontiguous() raises:
     # Both are contiguous by default, result should be correct
     var result = add(a, b)
 
-    var result_ptr = result._data.bitcast[Float32]()
+    var result_ptr = result._data.unsafe_bitcast[Float32]()
     for i in range(result.numel()):
-        assert_almost_equal(result_ptr[i], 5.0, tolerance=1e-6)
+        assert_almost_equal(result_ptr[unsafe_offset=i], 5.0, tolerance=1e-6)
 
 
 def main() raises:

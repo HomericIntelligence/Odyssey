@@ -25,7 +25,7 @@ References:
 """
 
 from std.collections import List
-from std.memory import UnsafePointer
+from std.memory import Pointer
 from odyssey.tensor.any_tensor import AnyTensor
 from odyssey.tensor.tensor_creation import zeros
 from odyssey.data.constants import (
@@ -153,7 +153,7 @@ struct CIFARLoader(Copyable, Movable):
             var labels_data = labels._data
             for i in range(num_images):
                 var offset = i * self.bytes_per_image
-                labels_data[i] = data_bytes[offset]
+                labels_data[i] = data_bytes[unsafe_offset=offset]
 
             return labels^
         else:
@@ -167,9 +167,9 @@ struct CIFARLoader(Copyable, Movable):
             for i in range(num_images):
                 var offset = i * self.bytes_per_image
                 # Coarse label at offset
-                labels_data[i * 2] = data_bytes[offset]
+                labels_data[i * 2] = data_bytes[unsafe_offset=offset]
                 # Fine label at offset + 1
-                labels_data[i * 2 + 1] = data_bytes[offset + 1]
+                labels_data[i * 2 + 1] = data_bytes[unsafe_offset=offset + 1]
 
             return labels^
 
@@ -219,9 +219,9 @@ struct CIFARLoader(Copyable, Movable):
 
             # Copy pixel data: R channel, then G channel, then B channel
             for pixel_idx in range(pixels_per_image * self.channels):
-                images_data[tensor_offset + pixel_idx] = data_bytes[
-                    file_offset + pixel_idx
-                ]
+                images_data[
+                    unsafe_offset=tensor_offset + pixel_idx
+                ] = data_bytes[file_offset + pixel_idx]
 
         return images^
 

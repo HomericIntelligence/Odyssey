@@ -41,9 +41,9 @@ def test_relu_positive_values() raises:
 
     var output = relu(input)
 
-    var output_data = output._data.bitcast[Float32]()
+    var output_data = output._data.unsafe_bitcast[Float32]()
     for i in range(5):
-        assert_almost_equal(output_data[i], 1.0, tolerance=1e-5)
+        assert_almost_equal(output_data[unsafe_offset=i], 1.0, tolerance=1e-5)
 
 
 def test_relu_negative_values() raises:
@@ -52,15 +52,15 @@ def test_relu_negative_values() raises:
     input_shape.append(5)
     var input = zeros(input_shape, DType.float32)
 
-    var input_data = input._data.bitcast[Float32]()
+    var input_data = input._data.unsafe_bitcast[Float32]()
     for i in range(5):
-        input_data[i] = -Float32(i + 1)
+        input_data[unsafe_offset=i] = -Float32(i + 1)
 
     var output = relu(input)
 
-    var output_data = output._data.bitcast[Float32]()
+    var output_data = output._data.unsafe_bitcast[Float32]()
     for i in range(5):
-        assert_almost_equal(output_data[i], 0.0, tolerance=1e-5)
+        assert_almost_equal(output_data[unsafe_offset=i], 0.0, tolerance=1e-5)
 
 
 def test_relu_mixed_values() raises:
@@ -69,21 +69,21 @@ def test_relu_mixed_values() raises:
     input_shape.append(5)
     var input = zeros(input_shape, DType.float32)
 
-    var input_data = input._data.bitcast[Float32]()
-    input_data[0] = -2.0  # Should become 0
-    input_data[1] = -1.0  # Should become 0
-    input_data[2] = 0.0  # Should become 0
-    input_data[3] = 1.0  # Should stay 1
-    input_data[4] = 2.0  # Should stay 2
+    var input_data = input._data.unsafe_bitcast[Float32]()
+    input_data[unsafe_offset=0] = -2.0  # Should become 0
+    input_data[unsafe_offset=1] = -1.0  # Should become 0
+    input_data[unsafe_offset=2] = 0.0  # Should become 0
+    input_data[unsafe_offset=3] = 1.0  # Should stay 1
+    input_data[unsafe_offset=4] = 2.0  # Should stay 2
 
     var output = relu(input)
 
-    var output_data = output._data.bitcast[Float32]()
-    assert_almost_equal(output_data[0], 0.0, tolerance=1e-5)
-    assert_almost_equal(output_data[1], 0.0, tolerance=1e-5)
-    assert_almost_equal(output_data[2], 0.0, tolerance=1e-5)
-    assert_almost_equal(output_data[3], 1.0, tolerance=1e-5)
-    assert_almost_equal(output_data[4], 2.0, tolerance=1e-5)
+    var output_data = output._data.unsafe_bitcast[Float32]()
+    assert_almost_equal(output_data[unsafe_offset=0], 0.0, tolerance=1e-5)
+    assert_almost_equal(output_data[unsafe_offset=1], 0.0, tolerance=1e-5)
+    assert_almost_equal(output_data[unsafe_offset=2], 0.0, tolerance=1e-5)
+    assert_almost_equal(output_data[unsafe_offset=3], 1.0, tolerance=1e-5)
+    assert_almost_equal(output_data[unsafe_offset=4], 2.0, tolerance=1e-5)
 
 
 def test_relu_backward() raises:
@@ -92,12 +92,12 @@ def test_relu_backward() raises:
     input_shape.append(5)
     var input = zeros(input_shape, DType.float32)
 
-    var input_data = input._data.bitcast[Float32]()
-    input_data[0] = -2.0  # Negative
-    input_data[1] = -1.0  # Negative
-    input_data[2] = 0.0  # Zero
-    input_data[3] = 1.0  # Positive
-    input_data[4] = 2.0  # Positive
+    var input_data = input._data.unsafe_bitcast[Float32]()
+    input_data[unsafe_offset=0] = -2.0  # Negative
+    input_data[unsafe_offset=1] = -1.0  # Negative
+    input_data[unsafe_offset=2] = 0.0  # Zero
+    input_data[unsafe_offset=3] = 1.0  # Positive
+    input_data[unsafe_offset=4] = 2.0  # Positive
 
     var grad_output_shape = List[Int]()
     grad_output_shape.append(5)
@@ -105,14 +105,14 @@ def test_relu_backward() raises:
 
     var grad_input = relu_backward(grad_output, input)
 
-    var grad_data = grad_input._data.bitcast[Float32]()
+    var grad_data = grad_input._data.unsafe_bitcast[Float32]()
     # Negative inputs -> grad is 0
-    assert_almost_equal(grad_data[0], 0.0, tolerance=1e-5)
-    assert_almost_equal(grad_data[1], 0.0, tolerance=1e-5)
-    assert_almost_equal(grad_data[2], 0.0, tolerance=1e-5)
+    assert_almost_equal(grad_data[unsafe_offset=0], 0.0, tolerance=1e-5)
+    assert_almost_equal(grad_data[unsafe_offset=1], 0.0, tolerance=1e-5)
+    assert_almost_equal(grad_data[unsafe_offset=2], 0.0, tolerance=1e-5)
     # Positive inputs -> grad passes through
-    assert_almost_equal(grad_data[3], 1.0, tolerance=1e-5)
-    assert_almost_equal(grad_data[4], 1.0, tolerance=1e-5)
+    assert_almost_equal(grad_data[unsafe_offset=3], 1.0, tolerance=1e-5)
+    assert_almost_equal(grad_data[unsafe_offset=4], 1.0, tolerance=1e-5)
 
 
 def test_leaky_relu_forward() raises:
@@ -121,21 +121,25 @@ def test_leaky_relu_forward() raises:
     input_shape.append(5)
     var input = zeros(input_shape, DType.float32)
 
-    var input_data = input._data.bitcast[Float32]()
-    input_data[0] = -2.0
-    input_data[1] = -1.0
-    input_data[2] = 0.0
-    input_data[3] = 1.0
-    input_data[4] = 2.0
+    var input_data = input._data.unsafe_bitcast[Float32]()
+    input_data[unsafe_offset=0] = -2.0
+    input_data[unsafe_offset=1] = -1.0
+    input_data[unsafe_offset=2] = 0.0
+    input_data[unsafe_offset=3] = 1.0
+    input_data[unsafe_offset=4] = 2.0
 
     var output = leaky_relu(input, alpha=0.1)
 
-    var output_data = output._data.bitcast[Float32]()
-    assert_almost_equal(output_data[0], -0.2, tolerance=1e-5)  # -2 * 0.1
-    assert_almost_equal(output_data[1], -0.1, tolerance=1e-5)  # -1 * 0.1
-    assert_almost_equal(output_data[2], 0.0, tolerance=1e-5)
-    assert_almost_equal(output_data[3], 1.0, tolerance=1e-5)
-    assert_almost_equal(output_data[4], 2.0, tolerance=1e-5)
+    var output_data = output._data.unsafe_bitcast[Float32]()
+    assert_almost_equal(
+        output_data[unsafe_offset=0], -0.2, tolerance=1e-5
+    )  # -2 * 0.1
+    assert_almost_equal(
+        output_data[unsafe_offset=1], -0.1, tolerance=1e-5
+    )  # -1 * 0.1
+    assert_almost_equal(output_data[unsafe_offset=2], 0.0, tolerance=1e-5)
+    assert_almost_equal(output_data[unsafe_offset=3], 1.0, tolerance=1e-5)
+    assert_almost_equal(output_data[unsafe_offset=4], 2.0, tolerance=1e-5)
 
 
 def test_sigmoid_range() raises:
@@ -146,19 +150,23 @@ def test_sigmoid_range() raises:
     input_shape.append(5)
     var input = zeros(input_shape, DType.float32)
 
-    var input_data = input._data.bitcast[Float32]()
-    input_data[0] = -10.0
-    input_data[1] = -1.0
-    input_data[2] = 0.0
-    input_data[3] = 1.0
-    input_data[4] = 10.0
+    var input_data = input._data.unsafe_bitcast[Float32]()
+    input_data[unsafe_offset=0] = -10.0
+    input_data[unsafe_offset=1] = -1.0
+    input_data[unsafe_offset=2] = 0.0
+    input_data[unsafe_offset=3] = 1.0
+    input_data[unsafe_offset=4] = 10.0
 
     var output = sigmoid(input)
 
-    var output_data = output._data.bitcast[Float32]()
+    var output_data = output._data.unsafe_bitcast[Float32]()
     for i in range(5):
-        assert_greater_or_equal(output_data[i], 0.0, "Sigmoid lower bound")
-        assert_less_or_equal(output_data[i], 1.0, "Sigmoid upper bound")
+        assert_greater_or_equal(
+            output_data[unsafe_offset=i], 0.0, "Sigmoid lower bound"
+        )
+        assert_less_or_equal(
+            output_data[unsafe_offset=i], 1.0, "Sigmoid upper bound"
+        )
 
 
 def test_sigmoid_at_zero() raises:
@@ -169,8 +177,8 @@ def test_sigmoid_at_zero() raises:
 
     var output = sigmoid(input)
 
-    var output_data = output._data.bitcast[Float32]()
-    assert_almost_equal(output_data[0], 0.5, tolerance=1e-4)
+    var output_data = output._data.unsafe_bitcast[Float32]()
+    assert_almost_equal(output_data[unsafe_offset=0], 0.5, tolerance=1e-4)
 
 
 def test_sigmoid_symmetry() raises:
@@ -178,20 +186,20 @@ def test_sigmoid_symmetry() raises:
     var input_shape = List[Int]()
     input_shape.append(1)
     var x = zeros(input_shape, DType.float32)
-    var x_data = x._data.bitcast[Float32]()
-    x_data[0] = 2.0
+    var x_data = x._data.unsafe_bitcast[Float32]()
+    x_data[unsafe_offset=0] = 2.0
 
     var neg_x = zeros(input_shape, DType.float32)
-    var neg_x_data = neg_x._data.bitcast[Float32]()
-    neg_x_data[0] = -2.0
+    var neg_x_data = neg_x._data.unsafe_bitcast[Float32]()
+    neg_x_data[unsafe_offset=0] = -2.0
 
     var sig_x = sigmoid(x)
     var sig_neg_x = sigmoid(neg_x)
 
-    var sig_x_data = sig_x._data.bitcast[Float32]()
-    var sig_neg_x_data = sig_neg_x._data.bitcast[Float32]()
+    var sig_x_data = sig_x._data.unsafe_bitcast[Float32]()
+    var sig_neg_x_data = sig_neg_x._data.unsafe_bitcast[Float32]()
 
-    var sum_val = sig_x_data[0] + sig_neg_x_data[0]
+    var sum_val = sig_x_data[0] + sig_neg_x_data[unsafe_offset=0]
     assert_almost_equal(sum_val, 1.0, tolerance=1e-4)
 
 
@@ -208,8 +216,8 @@ def test_sigmoid_backward() raises:
     var grad_input = sigmoid_backward(grad_output, output)
 
     # For sigmoid output = 0.5, gradient = 1 * 0.5 * (1 - 0.5) = 0.25
-    var grad_data = grad_input._data.bitcast[Float32]()
-    assert_almost_equal(grad_data[0], 0.25, tolerance=1e-4)
+    var grad_data = grad_input._data.unsafe_bitcast[Float32]()
+    assert_almost_equal(grad_data[unsafe_offset=0], 0.25, tolerance=1e-4)
 
 
 def test_tanh_range() raises:
@@ -220,19 +228,23 @@ def test_tanh_range() raises:
     input_shape.append(5)
     var input = zeros(input_shape, DType.float32)
 
-    var input_data = input._data.bitcast[Float32]()
-    input_data[0] = -10.0
-    input_data[1] = -1.0
-    input_data[2] = 0.0
-    input_data[3] = 1.0
-    input_data[4] = 10.0
+    var input_data = input._data.unsafe_bitcast[Float32]()
+    input_data[unsafe_offset=0] = -10.0
+    input_data[unsafe_offset=1] = -1.0
+    input_data[unsafe_offset=2] = 0.0
+    input_data[unsafe_offset=3] = 1.0
+    input_data[unsafe_offset=4] = 10.0
 
     var output = tanh(input)
 
-    var output_data = output._data.bitcast[Float32]()
+    var output_data = output._data.unsafe_bitcast[Float32]()
     for i in range(5):
-        assert_greater_or_equal(output_data[i], -1.0, "Tanh lower bound")
-        assert_less_or_equal(output_data[i], 1.0, "Tanh upper bound")
+        assert_greater_or_equal(
+            output_data[unsafe_offset=i], -1.0, "Tanh lower bound"
+        )
+        assert_less_or_equal(
+            output_data[unsafe_offset=i], 1.0, "Tanh upper bound"
+        )
 
 
 def test_tanh_at_zero() raises:
@@ -243,8 +255,8 @@ def test_tanh_at_zero() raises:
 
     var output = tanh(input)
 
-    var output_data = output._data.bitcast[Float32]()
-    assert_almost_equal(output_data[0], 0.0, tolerance=1e-5)
+    var output_data = output._data.unsafe_bitcast[Float32]()
+    assert_almost_equal(output_data[unsafe_offset=0], 0.0, tolerance=1e-5)
 
 
 def test_tanh_antisymmetry() raises:
@@ -252,20 +264,22 @@ def test_tanh_antisymmetry() raises:
     var input_shape = List[Int]()
     input_shape.append(1)
     var x = zeros(input_shape, DType.float32)
-    var x_data = x._data.bitcast[Float32]()
-    x_data[0] = 2.0
+    var x_data = x._data.unsafe_bitcast[Float32]()
+    x_data[unsafe_offset=0] = 2.0
 
     var neg_x = zeros(input_shape, DType.float32)
-    var neg_x_data = neg_x._data.bitcast[Float32]()
-    neg_x_data[0] = -2.0
+    var neg_x_data = neg_x._data.unsafe_bitcast[Float32]()
+    neg_x_data[unsafe_offset=0] = -2.0
 
     var tanh_x = tanh(x)
     var tanh_neg_x = tanh(neg_x)
 
-    var tanh_x_data = tanh_x._data.bitcast[Float32]()
-    var tanh_neg_x_data = tanh_neg_x._data.bitcast[Float32]()
+    var tanh_x_data = tanh_x._data.unsafe_bitcast[Float32]()
+    var tanh_neg_x_data = tanh_neg_x._data.unsafe_bitcast[Float32]()
 
-    assert_almost_equal(tanh_x_data[0], -tanh_neg_x_data[0], tolerance=1e-4)
+    assert_almost_equal(
+        tanh_x_data[0], -tanh_neg_x_data[unsafe_offset=0], tolerance=1e-4
+    )
 
 
 def test_tanh_backward() raises:
@@ -273,8 +287,8 @@ def test_tanh_backward() raises:
     var output_shape = List[Int]()
     output_shape.append(1)
     var output = zeros(output_shape, DType.float32)
-    var output_data = output._data.bitcast[Float32]()
-    output_data[0] = 0.5
+    var output_data = output._data.unsafe_bitcast[Float32]()
+    output_data[unsafe_offset=0] = 0.5
 
     var grad_output_shape = List[Int]()
     grad_output_shape.append(1)
@@ -283,8 +297,8 @@ def test_tanh_backward() raises:
     var grad_input = tanh_backward(grad_output, output)
 
     # For tanh output = 0.5, gradient = 1 * (1 - 0.5^2) = 0.75
-    var grad_data = grad_input._data.bitcast[Float32]()
-    assert_almost_equal(grad_data[0], 0.75, tolerance=1e-4)
+    var grad_data = grad_input._data.unsafe_bitcast[Float32]()
+    assert_almost_equal(grad_data[unsafe_offset=0], 0.75, tolerance=1e-4)
 
 
 def test_softmax_output_sum() raises:
@@ -294,15 +308,15 @@ def test_softmax_output_sum() raises:
     input_shape.append(3)
     var input = zeros(input_shape, DType.float32)
 
-    var input_data = input._data.bitcast[Float32]()
-    input_data[0] = 1.0
-    input_data[1] = 2.0
-    input_data[2] = 3.0
+    var input_data = input._data.unsafe_bitcast[Float32]()
+    input_data[unsafe_offset=0] = 1.0
+    input_data[unsafe_offset=1] = 2.0
+    input_data[unsafe_offset=2] = 3.0
 
     var output = softmax(input, axis=-1)
 
-    var output_data = output._data.bitcast[Float32]()
-    var sum_val = output_data[0] + output_data[1] + output_data[2]
+    var output_data = output._data.unsafe_bitcast[Float32]()
+    var sum_val = output_data[0] + output_data[1] + output_data[unsafe_offset=2]
     assert_almost_equal(sum_val, 1.0, tolerance=1e-5)
 
 
@@ -313,16 +327,18 @@ def test_softmax_positive_outputs() raises:
     input_shape.append(3)
     var input = zeros(input_shape, DType.float32)
 
-    var input_data = input._data.bitcast[Float32]()
-    input_data[0] = -5.0
-    input_data[1] = 0.0
-    input_data[2] = 5.0
+    var input_data = input._data.unsafe_bitcast[Float32]()
+    input_data[unsafe_offset=0] = -5.0
+    input_data[unsafe_offset=1] = 0.0
+    input_data[unsafe_offset=2] = 5.0
 
     var output = softmax(input, axis=-1)
 
-    var output_data = output._data.bitcast[Float32]()
+    var output_data = output._data.unsafe_bitcast[Float32]()
     for i in range(3):
-        assert_greater_or_equal(output_data[i], 0.0, "Softmax positive")
+        assert_greater_or_equal(
+            output_data[unsafe_offset=i], 0.0, "Softmax positive"
+        )
 
 
 def test_softmax_uniform() raises:
@@ -332,15 +348,15 @@ def test_softmax_uniform() raises:
     input_shape.append(4)
     var input = zeros(input_shape, DType.float32)
 
-    var input_data = input._data.bitcast[Float32]()
+    var input_data = input._data.unsafe_bitcast[Float32]()
     for i in range(4):
-        input_data[i] = 5.0
+        input_data[unsafe_offset=i] = 5.0
 
     var output = softmax(input, axis=-1)
 
-    var output_data = output._data.bitcast[Float32]()
+    var output_data = output._data.unsafe_bitcast[Float32]()
     for i in range(4):
-        assert_almost_equal(output_data[i], 0.25, tolerance=1e-5)
+        assert_almost_equal(output_data[unsafe_offset=i], 0.25, tolerance=1e-5)
 
 
 def test_softmax_backward() raises:
@@ -350,10 +366,10 @@ def test_softmax_backward() raises:
     output_shape.append(3)
     var output = zeros(output_shape, DType.float32)
 
-    var output_data = output._data.bitcast[Float32]()
-    output_data[0] = 0.1
-    output_data[1] = 0.6
-    output_data[2] = 0.3
+    var output_data = output._data.unsafe_bitcast[Float32]()
+    output_data[unsafe_offset=0] = 0.1
+    output_data[unsafe_offset=1] = 0.6
+    output_data[unsafe_offset=2] = 0.3
 
     var grad_output_shape = List[Int]()
     grad_output_shape.append(1)
@@ -374,26 +390,30 @@ def test_softmax_axis_0() raises:
     input_shape.append(2)
     var input = zeros(input_shape, DType.float32)
 
-    var input_data = input._data.bitcast[Float32]()
+    var input_data = input._data.unsafe_bitcast[Float32]()
     # Shape: (3, 2)
     # [[1, 2],
     #  [3, 4],
     #  [5, 6]]
-    input_data[0] = 1.0  # [0, 0]
-    input_data[1] = 2.0  # [0, 1]
-    input_data[2] = 3.0  # [1, 0]
-    input_data[3] = 4.0  # [1, 1]
-    input_data[4] = 5.0  # [2, 0]
-    input_data[5] = 6.0  # [2, 1]
+    input_data[unsafe_offset=0] = 1.0  # [0, 0]
+    input_data[unsafe_offset=1] = 2.0  # [0, 1]
+    input_data[unsafe_offset=2] = 3.0  # [1, 0]
+    input_data[unsafe_offset=3] = 4.0  # [1, 1]
+    input_data[unsafe_offset=4] = 5.0  # [2, 0]
+    input_data[unsafe_offset=5] = 6.0  # [2, 1]
 
     var output = softmax(input, axis=0)
 
-    var output_data = output._data.bitcast[Float32]()
+    var output_data = output._data.unsafe_bitcast[Float32]()
     # For each column, softmax should sum to 1
     # Column 0: softmax([1, 3, 5])
     # Column 1: softmax([2, 4, 6])
-    var col0_sum = output_data[0] + output_data[2] + output_data[4]
-    var col1_sum = output_data[1] + output_data[3] + output_data[5]
+    var col0_sum = (
+        output_data[0] + output_data[2] + output_data[unsafe_offset=4]
+    )
+    var col1_sum = (
+        output_data[1] + output_data[3] + output_data[unsafe_offset=5]
+    )
     assert_almost_equal(col0_sum, 1.0, tolerance=1e-5)
     assert_almost_equal(col1_sum, 1.0, tolerance=1e-5)
 
@@ -405,23 +425,27 @@ def test_softmax_axis_1() raises:
     input_shape.append(3)
     var input = zeros(input_shape, DType.float32)
 
-    var input_data = input._data.bitcast[Float32]()
+    var input_data = input._data.unsafe_bitcast[Float32]()
     # Shape: (2, 3)
     # [[1, 2, 3],
     #  [4, 5, 6]]
-    input_data[0] = 1.0
-    input_data[1] = 2.0
-    input_data[2] = 3.0
-    input_data[3] = 4.0
-    input_data[4] = 5.0
-    input_data[5] = 6.0
+    input_data[unsafe_offset=0] = 1.0
+    input_data[unsafe_offset=1] = 2.0
+    input_data[unsafe_offset=2] = 3.0
+    input_data[unsafe_offset=3] = 4.0
+    input_data[unsafe_offset=4] = 5.0
+    input_data[unsafe_offset=5] = 6.0
 
     var output = softmax(input, axis=1)
 
-    var output_data = output._data.bitcast[Float32]()
+    var output_data = output._data.unsafe_bitcast[Float32]()
     # For each row, softmax should sum to 1
-    var row0_sum = output_data[0] + output_data[1] + output_data[2]
-    var row1_sum = output_data[3] + output_data[4] + output_data[5]
+    var row0_sum = (
+        output_data[0] + output_data[1] + output_data[unsafe_offset=2]
+    )
+    var row1_sum = (
+        output_data[3] + output_data[4] + output_data[unsafe_offset=5]
+    )
     assert_almost_equal(row0_sum, 1.0, tolerance=1e-5)
     assert_almost_equal(row1_sum, 1.0, tolerance=1e-5)
 
@@ -436,14 +460,14 @@ def test_softmax_axis_negative_indexing() raises:
 
     # Test axis=-1 (last axis)
     var output_neg1 = softmax(input, axis=-1)
-    var output_data_neg1 = output_neg1._data.bitcast[Float32]()
+    var output_data_neg1 = output_neg1._data.unsafe_bitcast[Float32]()
 
     # For axis=-1, each group of 4 elements should sum to 1
     # Since input is all ones, each softmax output should be 0.25
     for i in range(2 * 3):
         var sum_val = Float32(0.0)
         for j in range(4):
-            sum_val += output_data_neg1[i * 4 + j]
+            sum_val += output_data_neg1[unsafe_offset=i * 4 + j]
         assert_almost_equal(sum_val, 1.0, tolerance=1e-5)
 
     # Test axis=-2 (second-to-last axis) on 2D tensor
@@ -452,13 +476,13 @@ def test_softmax_axis_negative_indexing() raises:
     input_shape_2d.append(2)
     var input_2d = ones(input_shape_2d, DType.float32)
     var output_neg2 = softmax(input_2d, axis=-2)
-    var output_data_neg2 = output_neg2._data.bitcast[Float32]()
+    var output_data_neg2 = output_neg2._data.unsafe_bitcast[Float32]()
 
     # axis=-2 on 2D is equivalent to axis=0
     for j in range(2):
         var sum_val = Float32(0.0)
         for i in range(3):
-            sum_val += output_data_neg2[i * 2 + j]
+            sum_val += output_data_neg2[unsafe_offset=i * 2 + j]
         assert_almost_equal(sum_val, 1.0, tolerance=1e-5)
 
 
@@ -471,13 +495,13 @@ def test_softmax_3d_axis_middle() raises:
     var input = zeros(input_shape, DType.float32)
 
     # Fill with sequential values
-    var input_data = input._data.bitcast[Float32]()
+    var input_data = input._data.unsafe_bitcast[Float32]()
     for i in range(24):
-        input_data[i] = Float32(i + 1)
+        input_data[unsafe_offset=i] = Float32(i + 1)
 
     var output = softmax(input, axis=1)
 
-    var output_data = output._data.bitcast[Float32]()
+    var output_data = output._data.unsafe_bitcast[Float32]()
     # For axis=1 on shape (2, 3, 4):
     # For each (i, k) pair, sum over j should be 1
     for i in range(2):
@@ -485,7 +509,7 @@ def test_softmax_3d_axis_middle() raises:
             var sum_val = Float32(0.0)
             for j in range(3):
                 var idx = i * (3 * 4) + j * 4 + k
-                sum_val += output_data[idx]
+                sum_val += output_data[unsafe_offset=idx]
             assert_almost_equal(sum_val, 1.0, tolerance=1e-5)
 
 
@@ -531,11 +555,11 @@ def test_relu_gradient_mask() raises:
     input_shape.append(4)
     var input = zeros(input_shape, DType.float32)
 
-    var input_data = input._data.bitcast[Float32]()
-    input_data[0] = -1.0
-    input_data[1] = 2.0
-    input_data[2] = -3.0
-    input_data[3] = 4.0
+    var input_data = input._data.unsafe_bitcast[Float32]()
+    input_data[unsafe_offset=0] = -1.0
+    input_data[unsafe_offset=1] = 2.0
+    input_data[unsafe_offset=2] = -3.0
+    input_data[unsafe_offset=3] = 4.0
 
     var grad_output_shape = List[Int]()
     grad_output_shape.append(4)
@@ -543,11 +567,19 @@ def test_relu_gradient_mask() raises:
 
     var grad_input = relu_backward(grad_output, input)
 
-    var grad_data = grad_input._data.bitcast[Float32]()
-    assert_almost_equal(grad_data[0], 0.0, tolerance=1e-5)  # Masked
-    assert_almost_equal(grad_data[1], 1.0, tolerance=1e-5)  # Passed through
-    assert_almost_equal(grad_data[2], 0.0, tolerance=1e-5)  # Masked
-    assert_almost_equal(grad_data[3], 1.0, tolerance=1e-5)  # Passed through
+    var grad_data = grad_input._data.unsafe_bitcast[Float32]()
+    assert_almost_equal(
+        grad_data[unsafe_offset=0], 0.0, tolerance=1e-5
+    )  # Masked
+    assert_almost_equal(
+        grad_data[unsafe_offset=1], 1.0, tolerance=1e-5
+    )  # Passed through
+    assert_almost_equal(
+        grad_data[unsafe_offset=2], 0.0, tolerance=1e-5
+    )  # Masked
+    assert_almost_equal(
+        grad_data[unsafe_offset=3], 1.0, tolerance=1e-5
+    )  # Passed through
 
 
 def main() raises:
