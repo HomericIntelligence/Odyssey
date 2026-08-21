@@ -47,7 +47,7 @@ def _unary_typed[
     var result = Tensor[dt](input.shape())
     var size = input.numel()
     for i in range(size):
-        result._data[i] = op[dt](input._data[unsafe_offset=i])
+        result._data[unsafe_offset=i] = op[dt](input._data[unsafe_offset=i])
     return result^
 
 

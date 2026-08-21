@@ -44,7 +44,9 @@ def _relu_typed[dt: DType](input: Tensor[dt]) raises -> Tensor[dt]:
     var result = Tensor[dt](input.shape())
     var size = input.numel()
     for i in range(size):
-        result._data[i] = max(Scalar[dt](0), input._data[unsafe_offset=i])
+        result._data[unsafe_offset=i] = max(
+            Scalar[dt](0), input._data[unsafe_offset=i]
+        )
     return result^
 
 
@@ -409,5 +411,7 @@ def _tanh_typed[dt: DType](input: Tensor[dt]) raises -> Tensor[dt]:
     var result = Tensor[dt](input.shape())
     var size = input.numel()
     for i in range(size):
-        result._data[i] = _tanh_op[dt](input._data[unsafe_offset=i])
+        result._data[unsafe_offset=i] = _tanh_op[dt](
+            input._data[unsafe_offset=i]
+        )
     return result^

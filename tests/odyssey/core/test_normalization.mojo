@@ -468,9 +468,7 @@ def test_batch_norm2d_training_mode() raises:
         momentum=0.1,
         epsilon=1e-5,
     )
-    var output = result2[0]
     var new_mean = result2[1]
-    var new_var = result2[2]
 
     # In training mode, running stats should be updated
     # new_running_mean = (1 - momentum) * old + momentum * batch_mean
@@ -987,8 +985,6 @@ def test_batch_norm2d_backward_training_vs_inference() raises:
     var result9 = batch_norm2d(
         x, gamma, beta, running_mean, running_var, training=False
     )
-    var out_infer = result9[0]
-
     var grad_output = ones_like(out_train)
 
     # Backward passes

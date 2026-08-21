@@ -4,7 +4,7 @@ This module provides pure functional implementations of pooling operations.
 All operations are stateless - caller provides all inputs.
 """
 
-from std.algorithm import parallelize
+from odyssey.core.parallel_utils import parallelize
 from std.collections import List
 
 from odyssey.tensor.any_tensor import AnyTensor

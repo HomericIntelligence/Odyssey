@@ -119,8 +119,8 @@ def _anytensor_binary_op[
                 remaining //= result_shape[d]
                 idx_a += coord * strides_a[d]
                 idx_b += coord * strides_b[d]
-            r_ptr[result_idx] = op[dtype](
-                a_ptr[idx_a], b_ptr[unsafe_offset=idx_b]
+            r_ptr[unsafe_offset=result_idx] = op[dtype](
+                a_ptr[unsafe_offset=idx_a], b_ptr[unsafe_offset=idx_b]
             )
 
     if ordinal == DTYPE_FLOAT16:
@@ -162,7 +162,7 @@ def _anytensor_unary_op[
         var src_ptr = tensor._data.unsafe_bitcast[Scalar[dtype]]()
         var dst_ptr = result._data.unsafe_bitcast[Scalar[dtype]]()
         for i in range(tensor._numel):
-            dst_ptr[i] = op[dtype](src_ptr[unsafe_offset=i])
+            dst_ptr[unsafe_offset=i] = op[dtype](src_ptr[unsafe_offset=i])
 
     if ordinal == DTYPE_FLOAT16:
         _apply[DType.float16]()
@@ -230,8 +230,8 @@ def _anytensor_compare_op[
                 remaining //= result_shape[d]
                 idx_a += coord * strides_a[d]
                 idx_b += coord * strides_b[d]
-            r_ptr[result_idx] = op[dtype](
-                a_ptr[idx_a], b_ptr[unsafe_offset=idx_b]
+            r_ptr[unsafe_offset=result_idx] = op[dtype](
+                a_ptr[unsafe_offset=idx_a], b_ptr[unsafe_offset=idx_b]
             )
 
     if ordinal == DTYPE_FLOAT16:
@@ -296,7 +296,10 @@ def _anytensor_matmul(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
                 for j in range(n):
                     var acc = Scalar[dtype](0)
                     for p in range(k):
-                        acc += a_ptr[i * k + p] * b_ptr[unsafe_offset=p * n + j]
+                        acc += (
+                            a_ptr[unsafe_offset=i * k + p]
+                            * b_ptr[unsafe_offset=p * n + j]
+                        )
                     r_ptr[unsafe_offset=i * n + j] = acc
 
         if ordinal == DTYPE_FLOAT16:

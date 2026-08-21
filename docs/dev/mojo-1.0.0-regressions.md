@@ -1,0 +1,226 @@
+# Mojo 1.0.0 Regressions: Validated Failure Modes
+
+**Status**: Investigation complete — failures root-caused, each validated by running the
+**identical reproducer** under both `mojo==1.0.0b2` (release beta, `2cf4d08a`) and
+`mojo==1.0.0` (stable, `ed45d567`) in the odyssey-dev container.
+
+**Headline**: every failure below **passes on 1.0.0b2 and fails on 1.0.0 stable**.
+
+Reproducers live in `docs/dev/reproducers/`. Each is self-contained, uses only
+the public stdlib, and is the smallest code shape that demonstrates the bug.
+
+---
+
+## Failure Mode 1: Return-move runs the moved-from source's `__deinit__` → use-after-free
+
+**Severity**: Critical (silent memory corruption; wrong tensor values + crashes across the
+core test suite).
+
+### Symptom
+
+A struct that owns a buffer, has a custom `deinit move` constructor, and is **returned by
+value** (`return r^`) has its *moved-from source's* field deinit executed **after the
+function returns but before the caller reads the destination**. The source's deinit frees
+the buffer that the destination now owns → use-after-free.
+
+Simple shapes (parameter moves, `var x = src`) are NOT affected — only **return moves**.
+
+### Cross-version evidence (identical file `docs/dev/reproducers/repro_uaf_return_move.mojo`)
+
+```text
+$ mojo run repro_uaf_return_move.mojo          # 1.0.0b2
+values: 0 1                                     # ✅ correct — moved-from deinit skipped
+
+$ mojo run repro_uaf_return_move.mojo          # 1.0.0 stable
+    deinit freeing ptr                          # ❌ moved-from deinit RUNS before the read
+values: 0 1                                     #    (values correct only by luck — freed
+                                                #     block not yet reused by allocator)
+```
+
+AddressSanitizer makes the UAF unambiguous on stable; on b2 the same binary reports no
+use-after-free:
+
+```text
+$ mojo build --sanitize address repro_uaf_return_move.mojo -o /tmp/r && /tmp/r   # 1.0.0b2
+SUMMARY: AddressSanitizer: 16 byte(s) leaked in 1 allocation(s).                  # no UAF
+
+$ mojo build --sanitize address repro_uaf_return_move.mojo -o /tmp/r && /tmp/r   # 1.0.0 stable
+==ERROR: AddressSanitizer: heap-use-after-free on address 0x502000000138
+READ of size 8 ... in main
+```
+
+Instrumented run (1.0.0 stable) shows the deinit interleaved *before* the destination read:
+
+```text
+main: calling make
+main: got p, p.a.ptr = ...
+main: reading via p
+    deinit freeing ptr     <- moved-from r's deinit (WRONG: should be skipped)
+    deinit freeing ptr
+main: values 0 1 0 1       <- UAF read
+```
+
+### Root cause
+
+In 1.0.0 the compiler does not reliably skip `__deinit__` of a moved-from value for the
+return-move shape. `AnyTensor`'s shared-refcount ownership model (`_refcount` cell shared
+between copies) then decrements the refcount twice for one transfer — once by the
+moved-from source's deinit, once by the destination's eventual deinit — so the buffer is
+freed while the destination still references it.
+
+### Impact on Odyssey
+
+This is the root cause of the core-suite corruption seen during the 1.0.0 migration:
+
+- `tests/odyssey/core/test_arithmetic.mojo` — `test_multiply_backward` reads garbage at
+  element 1 (`5.757e-42 !≈ 5.0`-class failures, value varies run-to-run)
+- `tests/odyssey/core/test_pooling.mojo` — pooled output bytes corrupted
+- `tests/odyssey/core/test_activations.mojo` — gradient-check diffs (`1.9904632568`-class)
+- `tests/odyssey/core/test_conv.mojo` — deterministic crash in `List._realloc` during a
+  fresh `zeros()` (heap corruption from earlier premature frees)
+- Any function returning `GradientPair(grad_a^, grad_b^)` or `Tensor` by value
+
+All of these pass on 1.0.0b2.
+
+### Reproducer
+
+`docs/dev/reproducers/repro_uaf_return_move.mojo` (also the simpler
+`docs/dev/reproducers/repro_min.mojo`). Compiles and runs unchanged on both versions.
+
+---
+
+## Failure Mode 2: `Scalar[dt] ** 0.5` fails to compile for non-float64 dtypes
+
+**Severity**: High (compile failure — `mojo: error: failed to run the pass manager`).
+
+### Symptom
+
+Raising a `Scalar[dt]` to the power `0.5` fails to instantiate for `float16`,
+`bfloat16`, and `float32`. `float64` works.
+
+### Cross-version evidence (identical file `docs/dev/reproducers/repro_scalar_pow.mojo`)
+
+```text
+$ mojo run repro_scalar_pow.mojo        # 1.0.0b2
+float16 => 2.0
+bfloat16 => 2.0
+float32 => 2.0
+float64 => 2.000000000000565
+
+$ mojo run repro_scalar_pow.mojo        # 1.0.0 stable
+error: failed to run the pass manager   # float16/bfloat16/float32 instantiation fails
+note: constraint failed: unsupported type combination   (std/builtin/simd.mojo)
+```
+
+### Root cause
+
+The `**` (pow) operator on `Scalar[dt]` routes through a SIMD implementation that rejects
+the dtype combination for non-float64 types in 1.0.0. The `std.math.sqrt` function
+handles all float dtypes, which is the workaround used in `_sqrt_typed`
+(`src/odyssey/core/normalization.mojo`) to keep the suite compiling.
+
+### Impact on Odyssey
+
+`normalization._sqrt_typed` originally used `x**0.5`; this is the compile error that
+forced the `std.math.sqrt` change. It does not affect float64-only paths.
+
+### Reproducer
+
+`docs/dev/reproducers/repro_scalar_pow.mojo`. Compiles and runs unchanged on both versions.
+
+---
+
+## Non-bugs ruled out during investigation
+
+These were suspected but verified NOT to be regressions (identical behavior on b2 and
+stable):
+
+| Pattern | Result |
+| --- | --- |
+| `ptr.unsafe_bitcast[T]()[unsafe_offset=i]` read | ✅ works on both |
+| `ptr.unsafe_offset(off).unsafe_bitcast[T]()[]` read/write | ✅ works on both |
+| Parameter moves (`consume(x)`), implicit last-use moves | ✅ source deinit skipped on both |
+| `List[Int]`-field struct return-move | ✅ works on both (List tracks its own moved-from state) |
+| `SIMD[dt,1] ** 0.5` (non-Scalar) | ✅ works on both |
+
+The garbage values originally attributed to a "bitcast read miscompile" in the earlier
+session are explained by Failure Mode 1 (reads of already-freed buffers), not by a
+separate miscompile.
+
+---
+
+## Validation of modular/modular#6445 (KGEN JIT buffer overflow) — NOT A REGRESSION
+
+**Status: does NOT reproduce on 1.0.0b2 or 1.0.0 stable — appears fixed** (consistent with
+upstream #6413, the JIT-stability fix that landed in `1.0.0b2.dev2026052506`).
+
+Issue #6445 reported a KGEN JIT **compile-time** crash (`__fortify_fail_abort` in
+`libKGENCompilerRTShared.so`) on mojo 0.26.3, CI-only, from: module-level `std.python`
+import + struct with `List[String]` field + 6 overloaded `__init__`s + `Dict[String, Value]`.
+The reporter (Odyssey) had already seen 10/10 clean on `1.0.0b2.dev2026052506` and suspected
+a duplicate of #6413.
+
+Validation performed on the issue's reproducer adapted to 1.0.0 syntax
+(`docs/dev/reproducers/repro_kgen_6445.mojo`) and on the actual `tests/configs/` group the
+issue claimed to block:
+
+| Check | 1.0.0b2 | 1.0.0 stable |
+| --- | --- | --- |
+| Reproducer, 10 consecutive runs | ✅ 10/10 | ✅ 10/10 |
+| Reproducer, 7 GB `ulimit -v` (CI-like) | ✅ | ✅ prints "KGEN crash did NOT occur" |
+| Reproducer, `mojo build` under 2 GB cap | — | ✅ compile succeeds (exit 0) |
+| `tests/configs/` group (5 files, `--Werror`) | — | ✅ all pass |
+| `test_jit_crash_6413.mojo` canary (200 Python imports) | — | ✅ PASS |
+
+Under an artificial 2 GB `ulimit -v` the program still compiles and starts (prints the
+first line) and only then aborts with a **runtime** `alloc.mojo:602 alloc failed: returned
+a null pointer` (tcmalloc cannot map under the cap) — not the compile-time
+`__fortify_fail_abort` signature from #6445. No `__fortify_fail_abort` /
+`libKGENCompilerRTShared` frames appeared in any constrained run.
+
+**Conclusion**: the #6445 crash mode is fixed in current releases; the issue is a candidate
+for closure (with a note that it may be a duplicate of #6413). Do NOT file a new upstream
+issue for it.
+
+---
+
+## Upstream issue status
+
+- **modular/modular#6187** (heap corruption, `0.26.1`) — closed COMPLETED; different
+  signature (crash at alloc, not move semantics).
+- **modular/modular#6707** (stale read through `UnsafePointer[MutUntrackedOrigin]`,
+  closed NOT_PLANNED "expected behavior") — different mechanism: origin-tracking
+  limitation, not a move-semantics violation.
+- **modular/modular#6475** (bitcast read in struct method vs external, OPEN) — different
+  mechanism (no moves involved).
+
+All failure modes have been filed upstream (2026-08-20/21):
+
+- **Failure Mode 1 (UAF)**: <https://github.com/modular/modular/issues/6939>
+- **Failure Mode 2 (compile)**: <https://github.com/modular/modular/issues/6940>
+- **Failure Mode 3 (virtual-memory limit aborts instead of degrading gracefully)**:
+  <https://github.com/modular/modular/issues/6941>
+
+Each issue embeds the full reproducer and the b2-vs-stable evidence. Labels are added by
+maintainers during triage (repo restricts label permissions).
+
+**On the 2 GB `ulimit -v` crash (FM3)**: the official Mojo system requirements document a
+**8 GiB minimum RAM for Mojo development** (mojolang.org/docs/requirements/), so the
+crash itself is a below-minimum condition. The upstream root cause of the large virtual
+reservation is #6433 (closed COMPLETED, reservation reduced ~3.6 GB → ~2.78 GB measured);
+FM3 (#6941) is the separate failure-mode problem: a hard `abort()` with opaque tcmalloc
+output at the limit instead of a clear, actionable error. Measured thresholds (stable
+1.0.0, identical on b2): `mojo run` reliably passes at ≥~2.75 GB virtual (non-monotonic
+crash bands below, e.g. 2 GB passes but 2.5 GB crashes — tcmalloc 1 GB-aligned mmap
+placement), built binary ≥~1.5 GB. Reproducer:
+`docs/dev/reproducers/repro_vm_limit_hello.mojo`.
+
+---
+
+## Reproducer inventory
+
+| File | Failure mode | Passes b2 | Fails stable |
+| --- | --- | --- | --- |
+| `docs/dev/reproducers/repro_uaf_return_move.mojo` | 1 (UAF) | ✅ | ❌ (ASAN-confirmed) |
+| `docs/dev/reproducers/repro_min.mojo` | 1 (UAF, minimal) | ✅ | ❌ (ASAN-confirmed) |
+| `docs/dev/reproducers/repro_scalar_pow.mojo` | 2 (compile) | ✅ | ❌ |

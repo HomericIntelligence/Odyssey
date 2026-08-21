@@ -246,7 +246,7 @@ def _check_gradients_perturb[
         var out_minus_ptr = output_minus.data_ptr[dtype]()
         var numerical_sum: Float64 = 0.0
         for j in range(output_plus.numel()):
-            var diff = Float64(out_plus_ptr[j]) - Float64(
+            var diff = Float64(out_plus_ptr[unsafe_offset=j]) - Float64(
                 out_minus_ptr[unsafe_offset=j]
             )
             numerical_sum += diff / (2.0 * epsilon)
@@ -301,7 +301,7 @@ def _check_gradients_perturb[
         var out_minus_ptr = output_minus.data_ptr[dtype]()
         var numerical_sum: Float64 = 0.0
         for j in range(output_plus.numel()):
-            var diff = Float64(out_plus_ptr[j]) - Float64(
+            var diff = Float64(out_plus_ptr[unsafe_offset=j]) - Float64(
                 out_minus_ptr[unsafe_offset=j]
             )
             numerical_sum += diff / (2.0 * epsilon)
@@ -973,13 +973,14 @@ def _compute_numerical_grad_perturb[
         var grad_val: Float64
         if f_plus.numel() == 1:
             grad_val = (
-                Float64(f_plus_ptr[0]) - Float64(f_minus_ptr[unsafe_offset=0])
+                Float64(f_plus_ptr[unsafe_offset=0])
+                - Float64(f_minus_ptr[unsafe_offset=0])
             ) / (2.0 * epsilon)
         else:
             grad_val = 0.0
             for j in range(f_plus.numel()):
                 grad_val += (
-                    Float64(f_plus_ptr[j])
+                    Float64(f_plus_ptr[unsafe_offset=j])
                     - Float64(f_minus_ptr[unsafe_offset=j])
                 ) / (2.0 * epsilon)
 
@@ -1010,13 +1011,14 @@ def _compute_numerical_grad_perturb_trait[
         var grad_val: Float64
         if f_plus.numel() == 1:
             grad_val = (
-                Float64(f_plus_ptr[0]) - Float64(f_minus_ptr[unsafe_offset=0])
+                Float64(f_plus_ptr[unsafe_offset=0])
+                - Float64(f_minus_ptr[unsafe_offset=0])
             ) / (2.0 * epsilon)
         else:
             grad_val = 0.0
             for j in range(f_plus.numel()):
                 grad_val += (
-                    Float64(f_plus_ptr[j])
+                    Float64(f_plus_ptr[unsafe_offset=j])
                     - Float64(f_minus_ptr[unsafe_offset=j])
                 ) / (2.0 * epsilon)
 
@@ -1639,7 +1641,7 @@ def _check_gradient_perturb[
         var grad_out_ptr = grad_output.data_ptr[dtype]()
         var loss_plus: Float64 = 0.0
         for j in range(out_plus.numel()):
-            loss_plus += Float64(out_plus_ptr[j]) * Float64(
+            loss_plus += Float64(out_plus_ptr[unsafe_offset=j]) * Float64(
                 grad_out_ptr[unsafe_offset=j]
             )
 
@@ -1652,7 +1654,7 @@ def _check_gradient_perturb[
         var out_minus_ptr = out_minus.data_ptr[dtype]()
         var loss_minus: Float64 = 0.0
         for j in range(out_minus.numel()):
-            loss_minus += Float64(out_minus_ptr[j]) * Float64(
+            loss_minus += Float64(out_minus_ptr[unsafe_offset=j]) * Float64(
                 grad_out_ptr[unsafe_offset=j]
             )
 
@@ -1695,7 +1697,7 @@ def _check_gradient_perturb[
         var grad_out_ptr = grad_output.data_ptr[dtype]()
         var loss_plus: Float64 = 0.0
         for j in range(out_plus.numel()):
-            loss_plus += Float64(out_plus_ptr[j]) * Float64(
+            loss_plus += Float64(out_plus_ptr[unsafe_offset=j]) * Float64(
                 grad_out_ptr[unsafe_offset=j]
             )
 
@@ -1708,7 +1710,7 @@ def _check_gradient_perturb[
         var out_minus_ptr = out_minus.data_ptr[dtype]()
         var loss_minus: Float64 = 0.0
         for j in range(out_minus.numel()):
-            loss_minus += Float64(out_minus_ptr[j]) * Float64(
+            loss_minus += Float64(out_minus_ptr[unsafe_offset=j]) * Float64(
                 grad_out_ptr[unsafe_offset=j]
             )
 

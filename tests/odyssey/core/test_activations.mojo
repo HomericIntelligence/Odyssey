@@ -824,11 +824,11 @@ def test_softmax_numerical_stability() raises:
 
     # Largest value should have largest probability
     assert_true(
-        y._data.unsafe_bitcast[Float32]()[2]
+        y._data.unsafe_bitcast[Float32]()[unsafe_offset=2]
         > y._data.unsafe_bitcast[Float32]()[unsafe_offset=1]
     )
     assert_true(
-        y._data.unsafe_bitcast[Float32]()[1]
+        y._data.unsafe_bitcast[Float32]()[unsafe_offset=1]
         > y._data.unsafe_bitcast[Float32]()[unsafe_offset=0]
     )
 

@@ -1069,7 +1069,7 @@ def _exp_backward_impl[
     var x_ptr = x._data.unsafe_bitcast[Scalar[dtype]]()
     var out_ptr = result._data.unsafe_bitcast[Scalar[dtype]]()
     for i in range(numel):
-        out_ptr[i] = grad_ptr[i] * Scalar[dtype](
+        out_ptr[unsafe_offset=i] = grad_ptr[unsafe_offset=i] * Scalar[dtype](
             math_exp(Float32(x_ptr[unsafe_offset=i]))
         )
 
@@ -1099,7 +1099,9 @@ def _log_backward_impl[
     var x_ptr = x._data.unsafe_bitcast[Scalar[dtype]]()
     var out_ptr = result._data.unsafe_bitcast[Scalar[dtype]]()
     for i in range(numel):
-        out_ptr[i] = grad_ptr[i] / (x_ptr[unsafe_offset=i] + epsilon)
+        out_ptr[unsafe_offset=i] = grad_ptr[unsafe_offset=i] / (
+            x_ptr[unsafe_offset=i] + epsilon
+        )
 
 
 def _dispatch_log_backward(
@@ -1128,7 +1130,7 @@ def _sqrt_backward_impl[
     var x_ptr = x._data.unsafe_bitcast[Scalar[dtype]]()
     var out_ptr = result._data.unsafe_bitcast[Scalar[dtype]]()
     for i in range(numel):
-        out_ptr[i] = grad_ptr[i] / (
+        out_ptr[unsafe_offset=i] = grad_ptr[unsafe_offset=i] / (
             two * math_sqrt(x_ptr[unsafe_offset=i]) + epsilon
         )
 
@@ -1156,7 +1158,7 @@ def _sin_backward_impl[
     var x_ptr = x._data.unsafe_bitcast[Scalar[dtype]]()
     var out_ptr = result._data.unsafe_bitcast[Scalar[dtype]]()
     for i in range(numel):
-        out_ptr[i] = grad_ptr[i] * Scalar[dtype](
+        out_ptr[unsafe_offset=i] = grad_ptr[unsafe_offset=i] * Scalar[dtype](
             math_cos(Float32(x_ptr[unsafe_offset=i]))
         )
 
@@ -1184,7 +1186,7 @@ def _cos_backward_impl[
     var x_ptr = x._data.unsafe_bitcast[Scalar[dtype]]()
     var out_ptr = result._data.unsafe_bitcast[Scalar[dtype]]()
     for i in range(numel):
-        out_ptr[i] = grad_ptr[i] * Scalar[dtype](
+        out_ptr[unsafe_offset=i] = grad_ptr[unsafe_offset=i] * Scalar[dtype](
             -math_sin(Float32(x_ptr[unsafe_offset=i]))
         )
 
@@ -1222,7 +1224,7 @@ def _abs_backward_impl[
             sign_x = one
         elif x_val < zero:
             sign_x = neg_one
-        out_ptr[i] = grad_ptr[unsafe_offset=i] * sign_x
+        out_ptr[unsafe_offset=i] = grad_ptr[unsafe_offset=i] * sign_x
 
 
 def _dispatch_abs_backward(
@@ -1269,7 +1271,7 @@ def _clip_backward_impl[
     for i in range(numel):
         var x_val = x_ptr[unsafe_offset=i]
         if x_val >= min_t and x_val <= max_t:
-            out_ptr[i] = grad_ptr[unsafe_offset=i]
+            out_ptr[unsafe_offset=i] = grad_ptr[unsafe_offset=i]
         else:
             out_ptr[unsafe_offset=i] = zero
 
@@ -1311,7 +1313,9 @@ def _log10_backward_impl[
     var x_ptr = x._data.unsafe_bitcast[Scalar[dtype]]()
     var out_ptr = result._data.unsafe_bitcast[Scalar[dtype]]()
     for i in range(numel):
-        out_ptr[i] = grad_ptr[i] / (x_ptr[unsafe_offset=i] * ln10 + epsilon)
+        out_ptr[unsafe_offset=i] = grad_ptr[unsafe_offset=i] / (
+            x_ptr[unsafe_offset=i] * ln10 + epsilon
+        )
 
 
 def _dispatch_log10_backward(
@@ -1340,7 +1344,9 @@ def _log2_backward_impl[
     var x_ptr = x._data.unsafe_bitcast[Scalar[dtype]]()
     var out_ptr = result._data.unsafe_bitcast[Scalar[dtype]]()
     for i in range(numel):
-        out_ptr[i] = grad_ptr[i] / (x_ptr[unsafe_offset=i] * ln2 + epsilon)
+        out_ptr[unsafe_offset=i] = grad_ptr[unsafe_offset=i] / (
+            x_ptr[unsafe_offset=i] * ln2 + epsilon
+        )
 
 
 def _dispatch_log2_backward(

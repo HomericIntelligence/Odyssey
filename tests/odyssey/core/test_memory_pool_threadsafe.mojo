@@ -5,7 +5,7 @@ access via `parallelize`, with no data corruption, crashes, or
 inconsistent statistics.
 """
 
-from std.algorithm import parallelize
+from odyssey.core.parallel_utils import parallelize
 from std.atomic import Atomic
 
 from odyssey.base.memory_pool import (
@@ -228,7 +228,7 @@ def test_stats_consistency_after_concurrent_work() raises:
     var pool = TensorMemoryPool()
     pool.reset_stats()
     var NUM_THREADS = 8
-    var ITERS_PER_THREAD = 150
+    comptime ITERS_PER_THREAD = 150
 
     @parameter
     def worker(tid: Int) capturing:

@@ -502,7 +502,7 @@ def concatenate(tensors: List[AnyTensor], axis: Int = 0) raises -> AnyTensor:
                     var dst_ptr = result._data.unsafe_bitcast[UInt8]()
                     for b in range(dtype_size):
                         dst_ptr[unsafe_offset=dst_byte_offset + b] = src_ptr[
-                            src_byte_offset + b
+                            unsafe_offset=src_byte_offset + b
                         ]
 
             offset_bytes += t_bytes

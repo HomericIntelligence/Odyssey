@@ -33,7 +33,9 @@ def _add_contiguous_typed[
         vectorize[simd_width](size, vectorized_add)
     else:
         for i in range(size):
-            result_ptr[i] = a_ptr[i] + b_ptr[unsafe_offset=i]
+            result_ptr[unsafe_offset=i] = (
+                a_ptr[unsafe_offset=i] + b_ptr[unsafe_offset=i]
+            )
 
     return result^
 
@@ -62,7 +64,9 @@ def _subtract_contiguous_typed[
         vectorize[simd_width](size, vectorized_sub)
     else:
         for i in range(size):
-            result_ptr[i] = a_ptr[i] - b_ptr[unsafe_offset=i]
+            result_ptr[unsafe_offset=i] = (
+                a_ptr[unsafe_offset=i] - b_ptr[unsafe_offset=i]
+            )
 
     return result^
 
@@ -91,7 +95,9 @@ def _multiply_contiguous_typed[
         vectorize[simd_width](size, vectorized_mul)
     else:
         for i in range(size):
-            result_ptr[i] = a_ptr[i] * b_ptr[unsafe_offset=i]
+            result_ptr[unsafe_offset=i] = (
+                a_ptr[unsafe_offset=i] * b_ptr[unsafe_offset=i]
+            )
 
     return result^
 
@@ -120,6 +126,8 @@ def _divide_contiguous_typed[
         vectorize[simd_width](size, vectorized_div)
     else:
         for i in range(size):
-            result_ptr[i] = a_ptr[i] / b_ptr[unsafe_offset=i]
+            result_ptr[unsafe_offset=i] = (
+                a_ptr[unsafe_offset=i] / b_ptr[unsafe_offset=i]
+            )
 
     return result^

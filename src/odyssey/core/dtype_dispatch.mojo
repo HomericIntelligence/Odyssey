@@ -121,7 +121,7 @@ def elementwise_unary[
     var out_ptr = result._data.unsafe_bitcast[Scalar[dtype]]()
 
     for i in range(size):
-        out_ptr[i] = op[dtype](in_ptr[unsafe_offset=i])
+        out_ptr[unsafe_offset=i] = op[dtype](in_ptr[unsafe_offset=i])
 
     return result^
 
@@ -245,7 +245,9 @@ def elementwise_binary[
     var out_ptr = result._data.unsafe_bitcast[Scalar[dtype]]()
 
     for i in range(size):
-        out_ptr[i] = op[dtype](lhs_ptr[i], rhs_ptr[unsafe_offset=i])
+        out_ptr[unsafe_offset=i] = op[dtype](
+            lhs_ptr[unsafe_offset=i], rhs_ptr[unsafe_offset=i]
+        )
 
     return result^
 
@@ -375,7 +377,9 @@ def elementwise_scalar[
     var scalar_val = Scalar[dtype](scalar)
 
     for i in range(size):
-        out_ptr[i] = op[dtype](in_ptr[unsafe_offset=i], scalar_val)
+        out_ptr[unsafe_offset=i] = op[dtype](
+            in_ptr[unsafe_offset=i], scalar_val
+        )
 
     return result^
 
@@ -655,7 +659,8 @@ def _softmax_impl[
                 # Find max along axis
                 var max_val = Float32(
                     in_ptr[
-                        (outer_idx * axis_size + 0) * axis_stride + inner_idx
+                        unsafe_offset=(outer_idx * axis_size + 0) * axis_stride
+                        + inner_idx
                     ]
                 )
                 for k in range(1, axis_size):
@@ -692,7 +697,8 @@ def _softmax_impl[
                 # Find max along axis
                 var max_val = Float64(
                     in_ptr[
-                        (outer_idx * axis_size + 0) * axis_stride + inner_idx
+                        unsafe_offset=(outer_idx * axis_size + 0) * axis_stride
+                        + inner_idx
                     ]
                 )
                 for k in range(1, axis_size):
@@ -818,14 +824,16 @@ def _softmax_backward_impl[
                 var dot_sum = Scalar[dtype](0.0)
                 for k in range(axis_size):
                     var idx = (outer * axis_size + k) * axis_stride + inner
-                    dot_sum += grad_ptr[idx] * out_ptr[unsafe_offset=idx]
+                    dot_sum += (
+                        grad_ptr[unsafe_offset=idx] * out_ptr[unsafe_offset=idx]
+                    )
 
                 # Compute gradient: output * (grad - dot_sum)
                 for k in range(axis_size):
                     var idx = (outer * axis_size + k) * axis_stride + inner
-                    result_ptr[idx] = out_ptr[idx] * (
-                        grad_ptr[unsafe_offset=idx] - dot_sum
-                    )
+                    result_ptr[unsafe_offset=idx] = out_ptr[
+                        unsafe_offset=idx
+                    ] * (grad_ptr[unsafe_offset=idx] - dot_sum)
 
 
 def dispatch_softmax_backward(

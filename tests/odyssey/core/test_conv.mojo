@@ -788,13 +788,17 @@ def test_conv2d_backward_weights_only_matches_full() raises:
     var fk = full.grad_weights._data.unsafe_bitcast[Float32]()
     var wk = wonly.grad_weights._data.unsafe_bitcast[Float32]()
     for i in range(full.grad_weights._numel):
-        assert_almost_equal(wk[i], fk[unsafe_offset=i], tolerance=1e-6)
+        assert_almost_equal(
+            wk[unsafe_offset=i], fk[unsafe_offset=i], tolerance=1e-6
+        )
 
     # grad_bias identical.
     var fb = full.grad_bias._data.unsafe_bitcast[Float32]()
     var wb = wonly.grad_bias._data.unsafe_bitcast[Float32]()
     for i in range(full.grad_bias._numel):
-        assert_almost_equal(wb[i], fb[unsafe_offset=i], tolerance=1e-6)
+        assert_almost_equal(
+            wb[unsafe_offset=i], fb[unsafe_offset=i], tolerance=1e-6
+        )
 
     # grad_input is zeroed in the weights-only variant (skipped).
     var wi = wonly.grad_input._data.unsafe_bitcast[Float32]()
@@ -860,14 +864,18 @@ def test_conv2d_backward_weights_only_float64_stride2() raises:
     var wk = wonly.grad_weights._data.unsafe_bitcast[Float64]()
     for i in range(full.grad_weights._numel):
         assert_almost_equal(
-            Float32(wk[i]), Float32(fk[unsafe_offset=i]), tolerance=1e-6
+            Float32(wk[unsafe_offset=i]),
+            Float32(fk[unsafe_offset=i]),
+            tolerance=1e-6,
         )
 
     var fb = full.grad_bias._data.unsafe_bitcast[Float64]()
     var wb = wonly.grad_bias._data.unsafe_bitcast[Float64]()
     for i in range(full.grad_bias._numel):
         assert_almost_equal(
-            Float32(wb[i]), Float32(fb[unsafe_offset=i]), tolerance=1e-6
+            Float32(wb[unsafe_offset=i]),
+            Float32(fb[unsafe_offset=i]),
+            tolerance=1e-6,
         )
 
     var wi = wonly.grad_input._data.unsafe_bitcast[Float64]()

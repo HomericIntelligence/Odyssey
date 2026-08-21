@@ -9,7 +9,7 @@ Tensor[dtype] typed wrappers provide type-safe access.
 AnyTensor versions dispatch to typed implementations via ordinal-based table.
 """
 
-from std.algorithm import parallelize
+from odyssey.core.parallel_utils import parallelize
 from std.collections import List
 
 from odyssey.tensor.any_tensor import AnyTensor

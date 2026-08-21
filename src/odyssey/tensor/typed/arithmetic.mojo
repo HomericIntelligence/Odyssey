@@ -111,8 +111,8 @@ def _broadcast_binary_typed[
             idx_b += coord * strides_b[dim]
 
         # Perform operation with zero overhead (no dtype conversion!)
-        result_ptr[result_idx] = op[dtype](
-            a_ptr[idx_a], b_ptr[unsafe_offset=idx_b]
+        result_ptr[unsafe_offset=result_idx] = op[dtype](
+            a_ptr[unsafe_offset=idx_a], b_ptr[unsafe_offset=idx_b]
         )
 
     return result^
@@ -237,7 +237,7 @@ def _multiply_scalar_typed[
     var result_ptr = result._data
     var scalar_cast = Scalar[dt](scalar)
     for i in range(numel):
-        result_ptr[i] = input_ptr[unsafe_offset=i] * scalar_cast
+        result_ptr[unsafe_offset=i] = input_ptr[unsafe_offset=i] * scalar_cast
 
     return result^
 

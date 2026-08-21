@@ -66,7 +66,7 @@ def _matmul_2d_1d_impl[
         for i in range(m):
             var sum_val = Float32(0.0)
             for j in range(k):
-                sum_val += Float32(a_ptr[i * k + j]) * Float32(
+                sum_val += Float32(a_ptr[unsafe_offset=i * k + j]) * Float32(
                     b_ptr[unsafe_offset=j]
                 )
             out_ptr[unsafe_offset=i] = Float16(sum_val)
@@ -78,7 +78,9 @@ def _matmul_2d_1d_impl[
         for i in range(m):
             var sum_val: Scalar[dtype] = 0
             for j in range(k):
-                sum_val += a_ptr[i * k + j] * b_ptr[unsafe_offset=j]
+                sum_val += (
+                    a_ptr[unsafe_offset=i * k + j] * b_ptr[unsafe_offset=j]
+                )
             out_ptr[unsafe_offset=i] = sum_val
 
 
@@ -107,7 +109,7 @@ def _matmul_1d_2d_impl[
         for j in range(n):
             var sum_val = Float32(0.0)
             for i in range(m):
-                sum_val += Float32(a_ptr[i]) * Float32(
+                sum_val += Float32(a_ptr[unsafe_offset=i]) * Float32(
                     b_ptr[unsafe_offset=i * n + j]
                 )
             out_ptr[unsafe_offset=j] = Float16(sum_val)
@@ -119,7 +121,9 @@ def _matmul_1d_2d_impl[
         for j in range(n):
             var sum_val: Scalar[dtype] = 0
             for i in range(m):
-                sum_val += a_ptr[i] * b_ptr[unsafe_offset=i * n + j]
+                sum_val += (
+                    a_ptr[unsafe_offset=i] * b_ptr[unsafe_offset=i * n + j]
+                )
             out_ptr[unsafe_offset=j] = sum_val
 
 
@@ -170,7 +174,7 @@ def _matmul_2d_2d_impl[
                 var sum_val: Scalar[dtype] = 0
                 for k in range(a_cols):
                     sum_val += (
-                        a_ptr[i * a_cols + k]
+                        a_ptr[unsafe_offset=i * a_cols + k]
                         * b_ptr[unsafe_offset=k * b_cols + j]
                     )
                 out_ptr[unsafe_offset=i * b_cols + j] = sum_val
@@ -227,9 +231,9 @@ def _matmul_batched_impl[
                     for k in range(a_cols):
                         var a_idx = a_offset + i * a_cols + k
                         var b_idx = b_offset + k * b_cols + j
-                        sum_val += Float32(a_ptr[a_idx]) * Float32(
-                            b_ptr[unsafe_offset=b_idx]
-                        )
+                        sum_val += Float32(
+                            a_ptr[unsafe_offset=a_idx]
+                        ) * Float32(b_ptr[unsafe_offset=b_idx])
                     var result_idx = result_offset + i * b_cols + j
                     out_ptr[unsafe_offset=result_idx] = Float16(sum_val)
     else:
@@ -248,7 +252,10 @@ def _matmul_batched_impl[
                     for k in range(a_cols):
                         var a_idx = a_offset + i * a_cols + k
                         var b_idx = b_offset + k * b_cols + j
-                        sum_val += a_ptr[a_idx] * b_ptr[unsafe_offset=b_idx]
+                        sum_val += (
+                            a_ptr[unsafe_offset=a_idx]
+                            * b_ptr[unsafe_offset=b_idx]
+                        )
                     var result_idx = result_offset + i * b_cols + j
                     out_ptr[unsafe_offset=result_idx] = sum_val
 
@@ -446,7 +453,7 @@ def _transpose_copy_impl[
             # Map result axis i to input axis perm[i]
             input_idx += coord * input_strides[perm[i]]
 
-        out_ptr[result_idx] = in_ptr[unsafe_offset=input_idx]
+        out_ptr[unsafe_offset=result_idx] = in_ptr[unsafe_offset=input_idx]
 
 
 def _dispatch_transpose_copy(
@@ -527,7 +534,7 @@ def _dot_impl[
 
     var sum_val: Scalar[dtype] = 0
     for i in range(length):
-        sum_val += a_ptr[i] * b_ptr[unsafe_offset=i]
+        sum_val += a_ptr[unsafe_offset=i] * b_ptr[unsafe_offset=i]
     out_ptr[unsafe_offset=0] = sum_val
 
 
@@ -550,7 +557,9 @@ def _outer_impl[
     for i in range(len_a):
         var a_val = a_ptr[unsafe_offset=i]
         for j in range(len_b):
-            out_ptr[i * len_b + j] = a_val * b_ptr[unsafe_offset=j]
+            out_ptr[unsafe_offset=i * len_b + j] = (
+                a_val * b_ptr[unsafe_offset=j]
+            )
 
 
 def _dispatch_outer(
@@ -572,7 +581,7 @@ def _matmul_backward_2d_1d_impl[
     for i in range(m):
         var grad_val = grad_ptr[unsafe_offset=i]
         for j in range(k):
-            out_ptr[i * k + j] = grad_val * b_ptr[unsafe_offset=j]
+            out_ptr[unsafe_offset=i * k + j] = grad_val * b_ptr[unsafe_offset=j]
 
 
 def _dispatch_matmul_backward_2d_1d(
@@ -596,7 +605,7 @@ def _matmul_backward_1d_2d_impl[
     for i in range(k):
         var a_val = a_ptr[unsafe_offset=i]
         for j in range(n):
-            out_ptr[i * n + j] = a_val * grad_ptr[unsafe_offset=j]
+            out_ptr[unsafe_offset=i * n + j] = a_val * grad_ptr[unsafe_offset=j]
 
 
 def _dispatch_matmul_backward_1d_2d(

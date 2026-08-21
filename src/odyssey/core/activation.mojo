@@ -181,7 +181,9 @@ def _prelu_impl[
 
     for i in range(tensor._numel):
         var val = data_ptr[unsafe_offset=i]
-        var a = alpha_ptr[0] if is_scalar else alpha_ptr[unsafe_offset=i]
+        var a = alpha_ptr[unsafe_offset=0] if is_scalar else alpha_ptr[
+            unsafe_offset=i
+        ]
         result_ptr[unsafe_offset=i] = max(a * val, val)
 
 
@@ -597,7 +599,9 @@ def _prelu_backward_impl[
     for i in range(x._numel):
         var x_val = x_ptr[unsafe_offset=i]
         var grad = grad_ptr[unsafe_offset=i]
-        var a = alpha_ptr[0] if is_scalar else alpha_ptr[unsafe_offset=i]
+        var a = alpha_ptr[unsafe_offset=0] if is_scalar else alpha_ptr[
+            unsafe_offset=i
+        ]
 
         if x_val > zero:
             grad_input_ptr[unsafe_offset=i] = grad

@@ -4,7 +4,8 @@ This module provides pure functional implementations of normalization operations
 All operations are stateless - caller manages running statistics and parameters.
 """
 
-from std.algorithm import parallelize
+from odyssey.core.parallel_utils import parallelize
+from std.math import sqrt
 
 from odyssey.tensor.any_tensor import AnyTensor
 from odyssey.tensor.tensor_creation import (
@@ -38,8 +39,13 @@ def _idx4d(
 
 @always_inline
 def _sqrt_typed[dtype: DType](x: Scalar[dtype]) -> Scalar[dtype]:
-    """Compute square root for any float dtype using Scalar[dtype]."""
-    return x**0.5
+    """Compute square root for any float dtype using Scalar[dtype].
+
+    NOTE (Mojo 1.0.0): `x**0.5` fails to instantiate for some dtype
+    combinations (unsupported SIMD type combination in the power op), so
+    use `std.math.sqrt` which handles every float dtype natively.
+    """
+    return sqrt(x)
 
 
 @always_inline
@@ -179,8 +185,14 @@ def _batch_norm2d_update_running_stats[
     var one_minus_mom = Scalar[dtype](1.0 - momentum)
 
     for c in range(channels):
-        nrm_ptr[c] = one_minus_mom * rm_ptr[c] + mom * bm_ptr[unsafe_offset=c]
-        nrv_ptr[c] = one_minus_mom * rv_ptr[c] + mom * bv_ptr[unsafe_offset=c]
+        nrm_ptr[unsafe_offset=c] = (
+            one_minus_mom * rm_ptr[unsafe_offset=c]
+            + mom * bm_ptr[unsafe_offset=c]
+        )
+        nrv_ptr[unsafe_offset=c] = (
+            one_minus_mom * rv_ptr[unsafe_offset=c]
+            + mom * bv_ptr[unsafe_offset=c]
+        )
 
 
 def batch_norm2d(
@@ -529,7 +541,9 @@ def _batch_norm2d_backward_inference[
             for h in range(height):
                 for w in range(width):
                     var idx = _idx4d(b, c, h, w, channels, height, width)
-                    gi_ptr[idx] = go[unsafe_offset=idx] * gamma_val / std
+                    gi_ptr[unsafe_offset=idx] = (
+                        go[unsafe_offset=idx] * gamma_val / std
+                    )
 
 
 def batch_norm2d_backward(
@@ -730,7 +744,9 @@ def _layer_norm_2d[
         for f in range(features):
             var idx = b * features + f
             var x_norm = (xp[unsafe_offset=idx] - mean_val) / std
-            out[idx] = gp[f] * x_norm + bp[unsafe_offset=f]
+            out[unsafe_offset=idx] = (
+                gp[unsafe_offset=f] * x_norm + bp[unsafe_offset=f]
+            )
 
 
 def _layer_norm_4d[
@@ -788,8 +804,9 @@ def _layer_norm_4d[
                     var idx = _idx4d(b, c, h, w, channels, height, width)
                     var gamma_idx = c * (height * width) + h * width + w
                     var x_norm = (xp[unsafe_offset=idx] - mean_val) / std
-                    out[idx] = (
-                        gp[gamma_idx] * x_norm + bp[unsafe_offset=gamma_idx]
+                    out[unsafe_offset=idx] = (
+                        gp[unsafe_offset=gamma_idx] * x_norm
+                        + bp[unsafe_offset=gamma_idx]
                     )
 
 
@@ -930,14 +947,15 @@ def _layer_norm_backward_2d[
             var diff = xp[unsafe_offset=b * features + f] - mean_val
             sum_sq_diff += diff * diff
         var std = _sqrt_typed[dtype](sum_sq_diff / N + eps)
-        var var_val = sum_sq_diff / N
 
         for f in range(features):
             var idx = b * features + f
             var grad_out = go[unsafe_offset=idx]
             var x_norm = (xp[unsafe_offset=idx] - mean_val) / std
-            gb_ptr[f] = gb_ptr[unsafe_offset=f] + grad_out
-            gg_ptr[f] = gg_ptr[unsafe_offset=f] + grad_out * x_norm
+            gb_ptr[unsafe_offset=f] = gb_ptr[unsafe_offset=f] + grad_out
+            gg_ptr[unsafe_offset=f] = (
+                gg_ptr[unsafe_offset=f] + grad_out * x_norm
+            )
 
     # Second pass: compute grad_input for each sample
     for b in range(batch):
@@ -959,7 +977,7 @@ def _layer_norm_backward_2d[
         for f in range(features):
             var idx = b * features + f
             var x_minus_mean = xp[unsafe_offset=idx] - mean_val
-            var grad_x_norm = go[idx] * gp[unsafe_offset=f]
+            var grad_x_norm = go[unsafe_offset=idx] * gp[unsafe_offset=f]
             grad_var += (
                 grad_x_norm
                 * x_minus_mean
@@ -971,7 +989,7 @@ def _layer_norm_backward_2d[
         for f in range(features):
             var idx = b * features + f
             var x_minus_mean = xp[unsafe_offset=idx] - mean_val
-            var grad_x_norm = go[idx] * gp[unsafe_offset=f]
+            var grad_x_norm = go[unsafe_offset=idx] * gp[unsafe_offset=f]
             var term1 = grad_x_norm / std
             var term2 = grad_var * Scalar[dtype](2.0) * x_minus_mean / N
             var term3 = grad_mean / N
@@ -1039,10 +1057,10 @@ def _layer_norm_backward_4d[
                     var gamma_idx = c * (height * width) + h * width + w
                     var grad_out = go[unsafe_offset=idx]
                     var x_norm = (xp[unsafe_offset=idx] - mean_val) / std
-                    gb_ptr[gamma_idx] = (
+                    gb_ptr[unsafe_offset=gamma_idx] = (
                         gb_ptr[unsafe_offset=gamma_idx] + grad_out
                     )
-                    gg_ptr[gamma_idx] = (
+                    gg_ptr[unsafe_offset=gamma_idx] = (
                         gg_ptr[unsafe_offset=gamma_idx] + grad_out * x_norm
                     )
 
@@ -1084,7 +1102,9 @@ def _layer_norm_backward_4d[
                     var idx = _idx4d(b, c, h, w, channels, height, width)
                     var gamma_idx = c * (height * width) + h * width + w
                     var x_minus_mean = xp[unsafe_offset=idx] - mean_val
-                    var grad_x_norm = go[idx] * gp[unsafe_offset=gamma_idx]
+                    var grad_x_norm = (
+                        go[unsafe_offset=idx] * gp[unsafe_offset=gamma_idx]
+                    )
                     grad_var += (
                         grad_x_norm
                         * x_minus_mean
@@ -1099,7 +1119,9 @@ def _layer_norm_backward_4d[
                     var idx = _idx4d(b, c, h, w, channels, height, width)
                     var gamma_idx = c * (height * width) + h * width + w
                     var x_minus_mean = xp[unsafe_offset=idx] - mean_val
-                    var grad_x_norm = go[idx] * gp[unsafe_offset=gamma_idx]
+                    var grad_x_norm = (
+                        go[unsafe_offset=idx] * gp[unsafe_offset=gamma_idx]
+                    )
                     var term1 = grad_x_norm / std
                     var term2 = grad_var * Scalar[dtype](2.0) * x_minus_mean / N
                     var term3 = grad_mean / N
@@ -1464,8 +1486,12 @@ def _group_norm_backward_impl[
                         var idx = _idx4d(b, c, h, w, channels, height, width)
                         var grad_out = go[unsafe_offset=idx]
                         var x_norm = (xp[unsafe_offset=idx] - mean_val) / std
-                        gb_ptr[c] = gb_ptr[unsafe_offset=c] + grad_out
-                        gg_ptr[c] = gg_ptr[unsafe_offset=c] + grad_out * x_norm
+                        gb_ptr[unsafe_offset=c] = (
+                            gb_ptr[unsafe_offset=c] + grad_out
+                        )
+                        gg_ptr[unsafe_offset=c] = (
+                            gg_ptr[unsafe_offset=c] + grad_out * x_norm
+                        )
 
     # Second pass: compute grad_input
     for b in range(batch):
@@ -1825,8 +1851,10 @@ def _instance_norm_backward_impl[
                     var idx = _idx4d(b, c, h, w, channels, height, width)
                     var grad_out = go[unsafe_offset=idx]
                     var x_norm = (xp[unsafe_offset=idx] - mean_val) / std
-                    gb_ptr[c] = gb_ptr[unsafe_offset=c] + grad_out
-                    gg_ptr[c] = gg_ptr[unsafe_offset=c] + grad_out * x_norm
+                    gb_ptr[unsafe_offset=c] = gb_ptr[unsafe_offset=c] + grad_out
+                    gg_ptr[unsafe_offset=c] = (
+                        gg_ptr[unsafe_offset=c] + grad_out * x_norm
+                    )
 
     # Second pass: compute grad_input
     for b in range(batch):

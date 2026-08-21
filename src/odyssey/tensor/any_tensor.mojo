@@ -489,7 +489,17 @@ struct AnyTensor(
         self._refcount[] += 1
 
     def __init__(out self, *, deinit move: Self):
-        """Move constructor - transfers ownership without refcount change."""
+        """Move constructor - transfers ownership without refcount change.
+
+        NOTE (Mojo 1.0.0 regression, modular/modular upstream): whether the
+        moved-from source's `__deinit__` runs is code-shape-dependent. Simple
+        shapes (param moves, `var x = src`) correctly skip it; RETURN moves
+        (`return r^`, `return Pair()`) run it, so the shared refcount cell is
+        decremented once for the destination and once for the moved-from
+        source -> premature free -> use-after-free on the returned value.
+        See docs/dev/reproducers/repro_uaf_return_move.mojo and the
+        upstream issue for the minimal reproducer.
+        """
         self._data = move._data
         self._base_data = move._base_data
         self._shape = move._shape^
@@ -1274,10 +1284,8 @@ struct AnyTensor(
             # Copy each row contiguously
             var src_offset = starts[0] * stride_numel * dtype_size
             for i in range(result_shape[0]):
-                var src_addr = (
-                    src_ptr
-                    + src_offset
-                    + i * steps[0] * stride_numel * dtype_size
+                var src_addr = src_ptr.unsafe_offset(
+                    src_offset + i * steps[0] * stride_numel * dtype_size
                 )
                 var dst_addr = dst_ptr.unsafe_offset(
                     i * stride_numel * dtype_size
