@@ -85,10 +85,10 @@ def test_conv2d_noncontiguous_input_ones() raises:
     var baseline = conv2d(x_cont, kernel, bias, stride=1, padding=0)
     var result = conv2d(nc_x, kernel, bias, stride=1, padding=0)
 
-    var bp = baseline._data.bitcast[Float32]()
-    var rp = result._data.bitcast[Float32]()
+    var bp = baseline._data.unsafe_bitcast[Float32]()
+    var rp = result._data.unsafe_bitcast[Float32]()
     for i in range(baseline.numel()):
-        assert_almost_equal(rp[i], bp[i], tolerance=1e-4)
+        assert_almost_equal(rp[unsafe_offset=i], bp[unsafe_offset=i], tolerance=1e-4)
 
 
 def test_conv2d_noncontiguous_kernel() raises:
@@ -106,10 +106,10 @@ def test_conv2d_noncontiguous_kernel() raises:
     var baseline = conv2d(x, kernel_ref, bias, stride=1, padding=0)
     var result = conv2d(x, nc_kernel, bias, stride=1, padding=0)
 
-    var bp = baseline._data.bitcast[Float32]()
-    var rp = result._data.bitcast[Float32]()
+    var bp = baseline._data.unsafe_bitcast[Float32]()
+    var rp = result._data.unsafe_bitcast[Float32]()
     for i in range(baseline.numel()):
-        assert_almost_equal(rp[i], bp[i], tolerance=1e-4)
+        assert_almost_equal(rp[unsafe_offset=i], bp[unsafe_offset=i], tolerance=1e-4)
 
 
 def test_conv2d_result_shape_correct() raises:
@@ -155,10 +155,10 @@ def test_conv2d_noncontiguous_both_input_and_kernel() raises:
     var baseline = conv2d(x_ref, kernel_ref, bias, stride=1, padding=0)
     var result = conv2d(nc_x, nc_kernel, bias, stride=1, padding=0)
 
-    var bp = baseline._data.bitcast[Float32]()
-    var rp = result._data.bitcast[Float32]()
+    var bp = baseline._data.unsafe_bitcast[Float32]()
+    var rp = result._data.unsafe_bitcast[Float32]()
     for i in range(baseline.numel()):
-        assert_almost_equal(rp[i], bp[i], tolerance=1e-4)
+        assert_almost_equal(rp[unsafe_offset=i], bp[unsafe_offset=i], tolerance=1e-4)
 
 
 def test_conv2d_no_bias_noncontiguous_input() raises:
@@ -170,10 +170,10 @@ def test_conv2d_no_bias_noncontiguous_input() raises:
     var baseline = conv2d_no_bias(x_cont, kernel, stride=1, padding=0)
     var result = conv2d_no_bias(nc_x, kernel, stride=1, padding=0)
 
-    var bp = baseline._data.bitcast[Float32]()
-    var rp = result._data.bitcast[Float32]()
+    var bp = baseline._data.unsafe_bitcast[Float32]()
+    var rp = result._data.unsafe_bitcast[Float32]()
     for i in range(baseline.numel()):
-        assert_almost_equal(rp[i], bp[i], tolerance=1e-4)
+        assert_almost_equal(rp[unsafe_offset=i], bp[unsafe_offset=i], tolerance=1e-4)
 
 
 def test_conv2d_noncontiguous_with_stride() raises:
@@ -191,10 +191,10 @@ def test_conv2d_noncontiguous_with_stride() raises:
     var baseline = conv2d(x_ref, kernel, bias, stride=2, padding=0)
     var result = conv2d(nc_x, kernel, bias, stride=2, padding=0)
 
-    var bp = baseline._data.bitcast[Float32]()
-    var rp = result._data.bitcast[Float32]()
+    var bp = baseline._data.unsafe_bitcast[Float32]()
+    var rp = result._data.unsafe_bitcast[Float32]()
     for i in range(baseline.numel()):
-        assert_almost_equal(rp[i], bp[i], tolerance=1e-4)
+        assert_almost_equal(rp[unsafe_offset=i], bp[unsafe_offset=i], tolerance=1e-4)
 
 
 def test_conv2d_noncontiguous_with_padding() raises:
@@ -208,10 +208,10 @@ def test_conv2d_noncontiguous_with_padding() raises:
     var baseline = conv2d(x_ref, kernel, bias, stride=1, padding=1)
     var result = conv2d(nc_x, kernel, bias, stride=1, padding=1)
 
-    var bp = baseline._data.bitcast[Float32]()
-    var rp = result._data.bitcast[Float32]()
+    var bp = baseline._data.unsafe_bitcast[Float32]()
+    var rp = result._data.unsafe_bitcast[Float32]()
     for i in range(baseline.numel()):
-        assert_almost_equal(rp[i], bp[i], tolerance=1e-4)
+        assert_almost_equal(rp[unsafe_offset=i], bp[unsafe_offset=i], tolerance=1e-4)
 
 
 def test_conv2d_nc_output_shape_with_multichannel() raises:
@@ -258,10 +258,10 @@ def test_conv2d_backward_noncontiguous_grad_output() raises:
     assert_equal_int(bi.shape()[2], ri.shape()[2])
     assert_equal_int(bi.shape()[3], ri.shape()[3])
 
-    var bip = bi._data.bitcast[Float32]()
-    var rip = ri._data.bitcast[Float32]()
+    var bip = bi._data.unsafe_bitcast[Float32]()
+    var rip = ri._data.unsafe_bitcast[Float32]()
     for i in range(bi.numel()):
-        assert_almost_equal(rip[i], bip[i], tolerance=1e-4)
+        assert_almost_equal(rip[unsafe_offset=i], bip[unsafe_offset=i], tolerance=1e-4)
 
 
 def test_conv2d_backward_noncontiguous_input() raises:
@@ -277,10 +277,10 @@ def test_conv2d_backward_noncontiguous_input() raises:
 
     var bk = baseline.grad_weights
     var rk = result.grad_weights
-    var bkp = bk._data.bitcast[Float32]()
-    var rkp = rk._data.bitcast[Float32]()
+    var bkp = bk._data.unsafe_bitcast[Float32]()
+    var rkp = rk._data.unsafe_bitcast[Float32]()
     for i in range(bk.numel()):
-        assert_almost_equal(rkp[i], bkp[i], tolerance=1e-4)
+        assert_almost_equal(rkp[unsafe_offset=i], bkp[unsafe_offset=i], tolerance=1e-4)
 
 
 def test_conv2d_backward_noncontiguous_kernel() raises:
@@ -346,10 +346,10 @@ def test_conv2d_backward_grad_bias_noncontiguous() raises:
 
     var bb = baseline.grad_bias
     var rb = result.grad_bias
-    var bbp = bb._data.bitcast[Float32]()
-    var rbp = rb._data.bitcast[Float32]()
+    var bbp = bb._data.unsafe_bitcast[Float32]()
+    var rbp = rb._data.unsafe_bitcast[Float32]()
     for i in range(bb.numel()):
-        assert_almost_equal(rbp[i], bbp[i], tolerance=1e-4)
+        assert_almost_equal(rbp[unsafe_offset=i], bbp[unsafe_offset=i], tolerance=1e-4)
 
 
 def test_conv2d_no_bias_backward_noncontiguous() raises:
@@ -372,10 +372,10 @@ def test_conv2d_no_bias_backward_noncontiguous() raises:
 
     var bi = baseline.grad_input
     var ri = result.grad_input
-    var bip = bi._data.bitcast[Float32]()
-    var rip = ri._data.bitcast[Float32]()
+    var bip = bi._data.unsafe_bitcast[Float32]()
+    var rip = ri._data.unsafe_bitcast[Float32]()
     for i in range(bi.numel()):
-        assert_almost_equal(rip[i], bip[i], tolerance=1e-4)
+        assert_almost_equal(rip[unsafe_offset=i], bip[unsafe_offset=i], tolerance=1e-4)
 
 
 def test_conv2d_backward_all_noncontiguous() raises:
@@ -398,10 +398,10 @@ def test_conv2d_backward_all_noncontiguous() raises:
 
     var bi = baseline.grad_input
     var ri = result.grad_input
-    var bip = bi._data.bitcast[Float32]()
-    var rip = ri._data.bitcast[Float32]()
+    var bip = bi._data.unsafe_bitcast[Float32]()
+    var rip = ri._data.unsafe_bitcast[Float32]()
     for i in range(bi.numel()):
-        assert_almost_equal(rip[i], bip[i], tolerance=1e-4)
+        assert_almost_equal(rip[unsafe_offset=i], bip[unsafe_offset=i], tolerance=1e-4)
 
 
 def test_conv2d_backward_grad_weights_shape() raises:

@@ -207,6 +207,7 @@ def test_batch_norm_grad_check() raises:
         )
 
     # ---- grad_x: finite-difference check ----
+    var x_tensor = _make_tensor(shape, x_vals)
     var num_grad_x = compute_numerical_gradient(
         _BNInputForward(
             _make_tensor(c_shape, gamma_vals),
@@ -215,7 +216,7 @@ def test_batch_norm_grad_check() raises:
             _make_tensor(c_shape, rv_vals),
             _make_tensor(shape, w_vals),
         ),
-        _make_tensor(shape, x_vals),
+        x_tensor,
         epsilon=1e-3,
     )
     assert_gradients_close(
@@ -227,6 +228,7 @@ def test_batch_norm_grad_check() raises:
     )
 
     # ---- grad_gamma: finite-difference check ----
+    var gamma_tensor = _make_tensor(c_shape, gamma_vals)
     var num_grad_gamma = compute_numerical_gradient(
         _BNGammaForward(
             _make_tensor(shape, x_vals),
@@ -235,7 +237,7 @@ def test_batch_norm_grad_check() raises:
             _make_tensor(c_shape, rv_vals),
             _make_tensor(shape, w_vals),
         ),
-        _make_tensor(c_shape, gamma_vals),
+        gamma_tensor,
         epsilon=1e-3,
     )
     assert_gradients_close(
@@ -342,6 +344,7 @@ def test_batch_norm_inference_grad_check() raises:
     loss.backward(tape)
 
     var grad_x = tape.get_grad(x.id)
+    var x_tensor = _make_tensor(shape, x_vals)
     var num_grad_x = compute_numerical_gradient(
         _BNInferForward(
             _make_tensor(c_shape, gamma_vals),
@@ -350,7 +353,7 @@ def test_batch_norm_inference_grad_check() raises:
             _make_tensor(c_shape, rv_vals),
             _make_tensor(shape, w_vals),
         ),
-        _make_tensor(shape, x_vals),
+        x_tensor,
         epsilon=1e-3,
     )
     assert_gradients_close(

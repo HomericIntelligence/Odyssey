@@ -857,7 +857,7 @@ docs:
 check-glibc:
     #!/usr/bin/env bash
     echo "Checking GLIBC compatibility with Mojo..."
-    required_glibc="2.32"
+    required_glibc="2.34"
     current_glibc=$(ldd --version | head -1 | awk '{print $NF}')
     echo "Current GLIBC: $current_glibc"
     echo "Required GLIBC: $required_glibc+"

@@ -102,7 +102,9 @@ def test_linear_forward() raises:
     # Check output values: sum of weights = 10 * 0.1 = 1.0
     var expected_value = Float32(10.0 * 0.1)
     assert_almost_equal(
-        output._data.bitcast[Float32]()[0], expected_value, tolerance=1e-5
+        output._data.unsafe_bitcast[Float32]()[unsafe_offset=0],
+        expected_value,
+        tolerance=1e-5,
     )
 
 
@@ -143,7 +145,9 @@ def test_linear_no_bias() raises:
     # Check output values: sum = 10 * 0.5 = 5.0 (no bias added)
     var expected_value = Float32(10.0 * 0.5)
     assert_almost_equal(
-        output._data.bitcast[Float32]()[0], expected_value, tolerance=1e-5
+        output._data.unsafe_bitcast[Float32]()[unsafe_offset=0],
+        expected_value,
+        tolerance=1e-5,
     )
 
 
@@ -261,11 +265,31 @@ def test_relu_activation() raises:
     var output = relu(input)
 
     # Expected: [0.0, 0.0, 0.0, 1.0, 2.0]
-    assert_almost_equal(output._data.bitcast[Float32]()[0], 0.0, tolerance=1e-6)
-    assert_almost_equal(output._data.bitcast[Float32]()[1], 0.0, tolerance=1e-6)
-    assert_almost_equal(output._data.bitcast[Float32]()[2], 0.0, tolerance=1e-6)
-    assert_almost_equal(output._data.bitcast[Float32]()[3], 1.0, tolerance=1e-6)
-    assert_almost_equal(output._data.bitcast[Float32]()[4], 2.0, tolerance=1e-6)
+    assert_almost_equal(
+        output._data.unsafe_bitcast[Float32]()[unsafe_offset=0],
+        0.0,
+        tolerance=1e-6,
+    )
+    assert_almost_equal(
+        output._data.unsafe_bitcast[Float32]()[unsafe_offset=1],
+        0.0,
+        tolerance=1e-6,
+    )
+    assert_almost_equal(
+        output._data.unsafe_bitcast[Float32]()[unsafe_offset=2],
+        0.0,
+        tolerance=1e-6,
+    )
+    assert_almost_equal(
+        output._data.unsafe_bitcast[Float32]()[unsafe_offset=3],
+        1.0,
+        tolerance=1e-6,
+    )
+    assert_almost_equal(
+        output._data.unsafe_bitcast[Float32]()[unsafe_offset=4],
+        2.0,
+        tolerance=1e-6,
+    )
 
 
 def test_relu_in_place() raises:
@@ -300,12 +324,16 @@ def test_sigmoid_range() raises:
 
     # All outputs should be in (0, 1)
     for i in range(5):
-        var val = output._data.bitcast[Float32]()[i]
+        var val = output._data.unsafe_bitcast[Float32]()[unsafe_offset=i]
         assert_true(Float32(0.0) < val, "Value must be greater than 0")
         assert_true(val < Float32(1.0), "Value must be less than 1")
 
     # Check sigmoid(0) = 0.5
-    assert_almost_equal(output._data.bitcast[Float32]()[2], 0.5, tolerance=1e-6)
+    assert_almost_equal(
+        output._data.unsafe_bitcast[Float32]()[unsafe_offset=2],
+        0.5,
+        tolerance=1e-6,
+    )
 
 
 def test_tanh_range() raises:
@@ -331,12 +359,16 @@ def test_tanh_range() raises:
 
     # All outputs should be in [-1, 1] (inclusive due to FP precision)
     for i in range(5):
-        var val = output._data.bitcast[Float32]()[i]
+        var val = output._data.unsafe_bitcast[Float32]()[unsafe_offset=i]
         assert_true(Float32(-1.0) <= val, "Value must be >= -1")
         assert_true(val <= Float32(1.0), "Value must be <= 1")
 
     # Check tanh(0) = 0.0
-    assert_almost_equal(output._data.bitcast[Float32]()[2], 0.0, tolerance=1e-6)
+    assert_almost_equal(
+        output._data.unsafe_bitcast[Float32]()[unsafe_offset=2],
+        0.0,
+        tolerance=1e-6,
+    )
 
 
 def test_maxpool2d_downsampling() raises:
@@ -393,8 +425,8 @@ def test_layer_property_batch_independence() raises:
     # Set different values for each batch element
     for i in range(in_features):
         batch_input.set(i, Float32(1.0))  # First batch element
-        batch_input._data.bitcast[Float32]()[
-            in_features + i
+        batch_input._data.unsafe_bitcast[Float32]()[
+            unsafe_offset=in_features + i
         ] = 2.0  # Second batch element
 
     # Process as batch
@@ -413,8 +445,8 @@ def test_layer_property_batch_independence() raises:
     # First batch element output should match individual processing
     for i in range(out_features):
         assert_almost_equal(
-            batch_output._data.bitcast[Float32]()[i],
-            single_output_1._data.bitcast[Float32]()[i],
+            batch_output._data.unsafe_bitcast[Float32]()[unsafe_offset=i],
+            single_output_1._data.unsafe_bitcast[Float32]()[unsafe_offset=i],
             tolerance=1e-5,
         )
 
@@ -459,8 +491,8 @@ def test_layer_property_deterministic() raises:
     var total_elements = 2 * out_features
     for i in range(total_elements):
         assert_almost_equal(
-            output1._data.bitcast[Float32]()[i],
-            output2._data.bitcast[Float32]()[i],
+            output1._data.unsafe_bitcast[Float32]()[unsafe_offset=i],
+            output2._data.unsafe_bitcast[Float32]()[unsafe_offset=i],
             tolerance=1e-9,  # Should be exactly equal
         )
 
@@ -547,17 +579,35 @@ def test_linear_matches_pytorch() raises:
 
     # Validate against corrected reference values
     # Expected output: [[4.0, 9.0, 14.0], [8.0, 19.4, 30.8]]
-    assert_almost_equal(output._data.bitcast[Float32]()[0], 4.0, tolerance=1e-5)
-    assert_almost_equal(output._data.bitcast[Float32]()[1], 9.0, tolerance=1e-5)
     assert_almost_equal(
-        output._data.bitcast[Float32]()[2], 14.0, tolerance=1e-5
-    )
-    assert_almost_equal(output._data.bitcast[Float32]()[3], 8.0, tolerance=1e-5)
-    assert_almost_equal(
-        output._data.bitcast[Float32]()[4], 19.4, tolerance=1e-5
+        output._data.unsafe_bitcast[Float32]()[unsafe_offset=0],
+        4.0,
+        tolerance=1e-5,
     )
     assert_almost_equal(
-        output._data.bitcast[Float32]()[5], 30.8, tolerance=1e-5
+        output._data.unsafe_bitcast[Float32]()[unsafe_offset=1],
+        9.0,
+        tolerance=1e-5,
+    )
+    assert_almost_equal(
+        output._data.unsafe_bitcast[Float32]()[unsafe_offset=2],
+        14.0,
+        tolerance=1e-5,
+    )
+    assert_almost_equal(
+        output._data.unsafe_bitcast[Float32]()[unsafe_offset=3],
+        8.0,
+        tolerance=1e-5,
+    )
+    assert_almost_equal(
+        output._data.unsafe_bitcast[Float32]()[unsafe_offset=4],
+        19.4,
+        tolerance=1e-5,
+    )
+    assert_almost_equal(
+        output._data.unsafe_bitcast[Float32]()[unsafe_offset=5],
+        30.8,
+        tolerance=1e-5,
     )
 
 
@@ -590,13 +640,41 @@ def test_relu_matches_pytorch() raises:
     var output = relu(input)
 
     # Validate against PyTorch reference values
-    assert_almost_equal(output._data.bitcast[Float32]()[0], 0.0, tolerance=1e-6)
-    assert_almost_equal(output._data.bitcast[Float32]()[1], 0.0, tolerance=1e-6)
-    assert_almost_equal(output._data.bitcast[Float32]()[2], 0.0, tolerance=1e-6)
-    assert_almost_equal(output._data.bitcast[Float32]()[3], 0.0, tolerance=1e-6)
-    assert_almost_equal(output._data.bitcast[Float32]()[4], 0.1, tolerance=1e-6)
-    assert_almost_equal(output._data.bitcast[Float32]()[5], 1.5, tolerance=1e-6)
-    assert_almost_equal(output._data.bitcast[Float32]()[6], 3.0, tolerance=1e-6)
+    assert_almost_equal(
+        output._data.unsafe_bitcast[Float32]()[unsafe_offset=0],
+        0.0,
+        tolerance=1e-6,
+    )
+    assert_almost_equal(
+        output._data.unsafe_bitcast[Float32]()[unsafe_offset=1],
+        0.0,
+        tolerance=1e-6,
+    )
+    assert_almost_equal(
+        output._data.unsafe_bitcast[Float32]()[unsafe_offset=2],
+        0.0,
+        tolerance=1e-6,
+    )
+    assert_almost_equal(
+        output._data.unsafe_bitcast[Float32]()[unsafe_offset=3],
+        0.0,
+        tolerance=1e-6,
+    )
+    assert_almost_equal(
+        output._data.unsafe_bitcast[Float32]()[unsafe_offset=4],
+        0.1,
+        tolerance=1e-6,
+    )
+    assert_almost_equal(
+        output._data.unsafe_bitcast[Float32]()[unsafe_offset=5],
+        1.5,
+        tolerance=1e-6,
+    )
+    assert_almost_equal(
+        output._data.unsafe_bitcast[Float32]()[unsafe_offset=6],
+        3.0,
+        tolerance=1e-6,
+    )
 
 
 def test_sigmoid_matches_pytorch() raises:
@@ -628,19 +706,29 @@ def test_sigmoid_matches_pytorch() raises:
 
     # Validate against PyTorch reference values (6 decimal places)
     assert_almost_equal(
-        output._data.bitcast[Float32]()[0], 0.1192, tolerance=1e-4
+        output._data.unsafe_bitcast[Float32]()[unsafe_offset=0],
+        0.1192,
+        tolerance=1e-4,
     )
     assert_almost_equal(
-        output._data.bitcast[Float32]()[1], 0.2689, tolerance=1e-4
+        output._data.unsafe_bitcast[Float32]()[unsafe_offset=1],
+        0.2689,
+        tolerance=1e-4,
     )
     assert_almost_equal(
-        output._data.bitcast[Float32]()[2], 0.5000, tolerance=1e-4
+        output._data.unsafe_bitcast[Float32]()[unsafe_offset=2],
+        0.5000,
+        tolerance=1e-4,
     )
     assert_almost_equal(
-        output._data.bitcast[Float32]()[3], 0.7311, tolerance=1e-4
+        output._data.unsafe_bitcast[Float32]()[unsafe_offset=3],
+        0.7311,
+        tolerance=1e-4,
     )
     assert_almost_equal(
-        output._data.bitcast[Float32]()[4], 0.8808, tolerance=1e-4
+        output._data.unsafe_bitcast[Float32]()[unsafe_offset=4],
+        0.8808,
+        tolerance=1e-4,
     )
 
 

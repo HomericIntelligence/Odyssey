@@ -48,7 +48,7 @@ from std.collections import List
 # ============================================================================
 
 
-trait ReduceOp(ImplicitlyDestructible):
+trait ReduceOp(Deinitable):
     """Trait for reduction operations.
 
     Implement this trait to define custom reduction operations that can be
@@ -183,7 +183,7 @@ trait ReduceOp(ImplicitlyDestructible):
 # ============================================================================
 
 
-trait ReduceBackwardOp(ImplicitlyDestructible):
+trait ReduceBackwardOp(Deinitable):
     """Trait for reduction backward operations.
 
     Implement this trait to define backward passes for reduction operations.

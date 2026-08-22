@@ -126,19 +126,19 @@ def test_linear_single_sample() raises:
     input_shape.append(1)
     input_shape.append(3)
     var input = ones(input_shape, DType.float32)
-    var input_data = input._data.bitcast[Float32]()
-    input_data[0] = 1.0
-    input_data[1] = 2.0
-    input_data[2] = 3.0
+    var input_data = input._data.unsafe_bitcast[Float32]()
+    input_data[unsafe_offset=0] = 1.0
+    input_data[unsafe_offset=1] = 2.0
+    input_data[unsafe_offset=2] = 3.0
 
     # Weights: (2, 3) - identity-like pattern
     var weights_shape = List[Int]()
     weights_shape.append(2)
     weights_shape.append(3)
     var weights = zeros(weights_shape, DType.float32)
-    var weights_data = weights._data.bitcast[Float32]()
-    weights_data[0] = 1.0  # weights[0, 0] = 1.0
-    weights_data[4] = 1.0  # weights[1, 1] = 1.0
+    var weights_data = weights._data.unsafe_bitcast[Float32]()
+    weights_data[unsafe_offset=0] = 1.0  # weights[0, 0] = 1.0
+    weights_data[unsafe_offset=4] = 1.0  # weights[1, 1] = 1.0
 
     # Bias: (2,) - all zeros
     var bias_shape = List[Int]()
@@ -154,9 +154,9 @@ def test_linear_single_sample() raises:
     assert_equal(out_shape[1], 2)
 
     # Check values: output should be [1, 2]
-    var output_data = output._data.bitcast[Float32]()
-    assert_almost_equal(output_data[0], 1.0, tolerance=1e-5)
-    assert_almost_equal(output_data[1], 2.0, tolerance=1e-5)
+    var output_data = output._data.unsafe_bitcast[Float32]()
+    assert_almost_equal(output_data[unsafe_offset=0], 1.0, tolerance=1e-5)
+    assert_almost_equal(output_data[unsafe_offset=1], 2.0, tolerance=1e-5)
 
 
 def test_linear_with_bias() raises:
@@ -175,25 +175,25 @@ def test_linear_with_bias() raises:
     weights_shape.append(2)
     weights_shape.append(2)
     var weights = zeros(weights_shape, DType.float32)
-    var weights_data = weights._data.bitcast[Float32]()
-    weights_data[0] = 1.0  # weights[0, 0]
-    weights_data[3] = 1.0  # weights[1, 1]
+    var weights_data = weights._data.unsafe_bitcast[Float32]()
+    weights_data[unsafe_offset=0] = 1.0  # weights[0, 0]
+    weights_data[unsafe_offset=3] = 1.0  # weights[1, 1]
 
     # Bias: (2,) - [5, 10]
     var bias_shape = List[Int]()
     bias_shape.append(2)
     var bias = zeros(bias_shape, DType.float32)
-    var bias_data = bias._data.bitcast[Float32]()
-    bias_data[0] = 5.0
-    bias_data[1] = 10.0
+    var bias_data = bias._data.unsafe_bitcast[Float32]()
+    bias_data[unsafe_offset=0] = 5.0
+    bias_data[unsafe_offset=1] = 10.0
 
     # Compute linear
     var output = linear(input, weights, bias)
 
     # Check values: [1 + 5, 1 + 10] = [6, 11]
-    var output_data = output._data.bitcast[Float32]()
-    assert_almost_equal(output_data[0], 6.0, tolerance=1e-5)
-    assert_almost_equal(output_data[1], 11.0, tolerance=1e-5)
+    var output_data = output._data.unsafe_bitcast[Float32]()
+    assert_almost_equal(output_data[unsafe_offset=0], 6.0, tolerance=1e-5)
+    assert_almost_equal(output_data[unsafe_offset=1], 11.0, tolerance=1e-5)
 
 
 def test_linear_no_bias_output_shape() raises:
@@ -245,19 +245,19 @@ def test_linear_no_bias_single_sample() raises:
     input_shape.append(1)
     input_shape.append(3)
     var input = ones(input_shape, DType.float32)
-    var input_data = input._data.bitcast[Float32]()
-    input_data[0] = 1.0
-    input_data[1] = 2.0
-    input_data[2] = 3.0
+    var input_data = input._data.unsafe_bitcast[Float32]()
+    input_data[unsafe_offset=0] = 1.0
+    input_data[unsafe_offset=1] = 2.0
+    input_data[unsafe_offset=2] = 3.0
 
     # Weights: (2, 3) - identity-like pattern
     var weights_shape = List[Int]()
     weights_shape.append(2)
     weights_shape.append(3)
     var weights = zeros(weights_shape, DType.float32)
-    var weights_data = weights._data.bitcast[Float32]()
-    weights_data[0] = 1.0  # weights[0, 0] = 1.0
-    weights_data[4] = 1.0  # weights[1, 1] = 1.0
+    var weights_data = weights._data.unsafe_bitcast[Float32]()
+    weights_data[unsafe_offset=0] = 1.0  # weights[0, 0] = 1.0
+    weights_data[unsafe_offset=4] = 1.0  # weights[1, 1] = 1.0
 
     # Compute linear_no_bias
     var output = linear_no_bias(input, weights)
@@ -268,9 +268,9 @@ def test_linear_no_bias_single_sample() raises:
     assert_equal(out_shape[1], 2)
 
     # Check values: output should be [1, 2]
-    var output_data = output._data.bitcast[Float32]()
-    assert_almost_equal(output_data[0], 1.0, tolerance=1e-5)
-    assert_almost_equal(output_data[1], 2.0, tolerance=1e-5)
+    var output_data = output._data.unsafe_bitcast[Float32]()
+    assert_almost_equal(output_data[unsafe_offset=0], 1.0, tolerance=1e-5)
+    assert_almost_equal(output_data[unsafe_offset=1], 2.0, tolerance=1e-5)
 
 
 def test_linear_backward_output_shape() raises:
@@ -344,18 +344,18 @@ def test_linear_backward_single_sample() raises:
     input_shape.append(1)
     input_shape.append(2)
     var input = ones(input_shape, DType.float32)
-    var input_data = input._data.bitcast[Float32]()
-    input_data[0] = 1.0
-    input_data[1] = 2.0
+    var input_data = input._data.unsafe_bitcast[Float32]()
+    input_data[unsafe_offset=0] = 1.0
+    input_data[unsafe_offset=1] = 2.0
 
     # Weights: (2, 2) - identity
     var weights_shape = List[Int]()
     weights_shape.append(2)
     weights_shape.append(2)
     var weights = zeros(weights_shape, DType.float32)
-    var weights_data = weights._data.bitcast[Float32]()
-    weights_data[0] = 1.0  # weights[0, 0]
-    weights_data[3] = 1.0  # weights[1, 1]
+    var weights_data = weights._data.unsafe_bitcast[Float32]()
+    weights_data[unsafe_offset=0] = 1.0  # weights[0, 0]
+    weights_data[unsafe_offset=3] = 1.0  # weights[1, 1]
 
     # grad_output: (1, 2) = [1, 1]
     var grad_output_shape = List[Int]()
@@ -367,21 +367,29 @@ def test_linear_backward_single_sample() raises:
     var result = linear_backward(grad_output, input, weights)
 
     # Check grad_input: should be [1, 1]
-    var grad_input_data = result.grad_input._data.bitcast[Float32]()
-    assert_almost_equal(grad_input_data[0], 1.0, tolerance=1e-5)
-    assert_almost_equal(grad_input_data[1], 1.0, tolerance=1e-5)
+    var grad_input_data = result.grad_input._data.unsafe_bitcast[Float32]()
+    assert_almost_equal(grad_input_data[unsafe_offset=0], 1.0, tolerance=1e-5)
+    assert_almost_equal(grad_input_data[unsafe_offset=1], 1.0, tolerance=1e-5)
 
     # Check grad_weights: should be [[1, 2], [1, 2]]
-    var grad_weights_data = result.grad_weights._data.bitcast[Float32]()
-    assert_almost_equal(grad_weights_data[0], 1.0, tolerance=1e-5)  # [0, 0]
-    assert_almost_equal(grad_weights_data[1], 2.0, tolerance=1e-5)  # [0, 1]
-    assert_almost_equal(grad_weights_data[2], 1.0, tolerance=1e-5)  # [1, 0]
-    assert_almost_equal(grad_weights_data[3], 2.0, tolerance=1e-5)  # [1, 1]
+    var grad_weights_data = result.grad_weights._data.unsafe_bitcast[Float32]()
+    assert_almost_equal(
+        grad_weights_data[unsafe_offset=0], 1.0, tolerance=1e-5
+    )  # [0, 0]
+    assert_almost_equal(
+        grad_weights_data[unsafe_offset=1], 2.0, tolerance=1e-5
+    )  # [0, 1]
+    assert_almost_equal(
+        grad_weights_data[unsafe_offset=2], 1.0, tolerance=1e-5
+    )  # [1, 0]
+    assert_almost_equal(
+        grad_weights_data[unsafe_offset=3], 2.0, tolerance=1e-5
+    )  # [1, 1]
 
     # Check grad_bias: should be [1, 1]
-    var grad_bias_data = result.grad_bias._data.bitcast[Float32]()
-    assert_almost_equal(grad_bias_data[0], 1.0, tolerance=1e-5)
-    assert_almost_equal(grad_bias_data[1], 1.0, tolerance=1e-5)
+    var grad_bias_data = result.grad_bias._data.unsafe_bitcast[Float32]()
+    assert_almost_equal(grad_bias_data[unsafe_offset=0], 1.0, tolerance=1e-5)
+    assert_almost_equal(grad_bias_data[unsafe_offset=1], 1.0, tolerance=1e-5)
 
 
 def test_linear_backward_multiple_samples() raises:
@@ -406,28 +414,28 @@ def test_linear_backward_multiple_samples() raises:
     weights_shape.append(out_features)
     weights_shape.append(in_features)
     var weights = zeros(weights_shape, DType.float32)
-    var weights_data = weights._data.bitcast[Float32]()
-    weights_data[0] = 1.0  # weights[0, 0]
-    weights_data[3] = 1.0  # weights[1, 1]
+    var weights_data = weights._data.unsafe_bitcast[Float32]()
+    weights_data[unsafe_offset=0] = 1.0  # weights[0, 0]
+    weights_data[unsafe_offset=3] = 1.0  # weights[1, 1]
 
     # grad_output: (2, 2) = [[1, 1], [2, 2]]
     var grad_output_shape = List[Int]()
     grad_output_shape.append(batch_size)
     grad_output_shape.append(out_features)
     var grad_output = ones(grad_output_shape, DType.float32)
-    var grad_output_data = grad_output._data.bitcast[Float32]()
-    grad_output_data[0] = 1.0  # grad_output[0, 0]
-    grad_output_data[1] = 1.0  # grad_output[0, 1]
-    grad_output_data[2] = 2.0  # grad_output[1, 0]
-    grad_output_data[3] = 2.0  # grad_output[1, 1]
+    var grad_output_data = grad_output._data.unsafe_bitcast[Float32]()
+    grad_output_data[unsafe_offset=0] = 1.0  # grad_output[0, 0]
+    grad_output_data[unsafe_offset=1] = 1.0  # grad_output[0, 1]
+    grad_output_data[unsafe_offset=2] = 2.0  # grad_output[1, 0]
+    grad_output_data[unsafe_offset=3] = 2.0  # grad_output[1, 1]
 
     # Compute backward
     var result = linear_backward(grad_output, input, weights)
 
     # Check grad_bias: should be [1+2, 1+2] = [3, 3]
-    var grad_bias_data = result.grad_bias._data.bitcast[Float32]()
-    assert_almost_equal(grad_bias_data[0], 3.0, tolerance=1e-5)
-    assert_almost_equal(grad_bias_data[1], 3.0, tolerance=1e-5)
+    var grad_bias_data = result.grad_bias._data.unsafe_bitcast[Float32]()
+    assert_almost_equal(grad_bias_data[unsafe_offset=0], 3.0, tolerance=1e-5)
+    assert_almost_equal(grad_bias_data[unsafe_offset=1], 3.0, tolerance=1e-5)
 
 
 def test_linear_no_bias_backward_output_shape() raises:
@@ -494,18 +502,18 @@ def test_linear_no_bias_backward_single_sample() raises:
     input_shape.append(1)
     input_shape.append(2)
     var input = ones(input_shape, DType.float32)
-    var input_data = input._data.bitcast[Float32]()
-    input_data[0] = 1.0
-    input_data[1] = 2.0
+    var input_data = input._data.unsafe_bitcast[Float32]()
+    input_data[unsafe_offset=0] = 1.0
+    input_data[unsafe_offset=1] = 2.0
 
     # Weights: (2, 2) - identity
     var weights_shape = List[Int]()
     weights_shape.append(2)
     weights_shape.append(2)
     var weights = zeros(weights_shape, DType.float32)
-    var weights_data = weights._data.bitcast[Float32]()
-    weights_data[0] = 1.0  # weights[0, 0]
-    weights_data[3] = 1.0  # weights[1, 1]
+    var weights_data = weights._data.unsafe_bitcast[Float32]()
+    weights_data[unsafe_offset=0] = 1.0  # weights[0, 0]
+    weights_data[unsafe_offset=3] = 1.0  # weights[1, 1]
 
     # grad_output: (1, 2) = [1, 1]
     var grad_output_shape = List[Int]()
@@ -517,16 +525,24 @@ def test_linear_no_bias_backward_single_sample() raises:
     var result = linear_no_bias_backward(grad_output, input, weights)
 
     # Check grad_input (grad_a): should be [1, 1]
-    var grad_input_data = result.grad_a._data.bitcast[Float32]()
-    assert_almost_equal(grad_input_data[0], 1.0, tolerance=1e-5)
-    assert_almost_equal(grad_input_data[1], 1.0, tolerance=1e-5)
+    var grad_input_data = result.grad_a._data.unsafe_bitcast[Float32]()
+    assert_almost_equal(grad_input_data[unsafe_offset=0], 1.0, tolerance=1e-5)
+    assert_almost_equal(grad_input_data[unsafe_offset=1], 1.0, tolerance=1e-5)
 
     # Check grad_weights (grad_b): should be [[1, 2], [1, 2]]
-    var grad_weights_data = result.grad_b._data.bitcast[Float32]()
-    assert_almost_equal(grad_weights_data[0], 1.0, tolerance=1e-5)  # [0, 0]
-    assert_almost_equal(grad_weights_data[1], 2.0, tolerance=1e-5)  # [0, 1]
-    assert_almost_equal(grad_weights_data[2], 1.0, tolerance=1e-5)  # [1, 0]
-    assert_almost_equal(grad_weights_data[3], 2.0, tolerance=1e-5)  # [1, 1]
+    var grad_weights_data = result.grad_b._data.unsafe_bitcast[Float32]()
+    assert_almost_equal(
+        grad_weights_data[unsafe_offset=0], 1.0, tolerance=1e-5
+    )  # [0, 0]
+    assert_almost_equal(
+        grad_weights_data[unsafe_offset=1], 2.0, tolerance=1e-5
+    )  # [0, 1]
+    assert_almost_equal(
+        grad_weights_data[unsafe_offset=2], 1.0, tolerance=1e-5
+    )  # [1, 0]
+    assert_almost_equal(
+        grad_weights_data[unsafe_offset=3], 2.0, tolerance=1e-5
+    )  # [1, 1]
 
 
 def test_linear_batch_processing() raises:
@@ -544,22 +560,22 @@ def test_linear_batch_processing() raises:
     input_shape.append(batch_size)
     input_shape.append(in_features)
     var input = zeros(input_shape, DType.float32)
-    var input_data = input._data.bitcast[Float32]()
-    input_data[0] = 1.0
-    input_data[1] = 1.0  # Sample 1: [1, 1]
-    input_data[2] = 2.0
-    input_data[3] = 2.0  # Sample 2: [2, 2]
-    input_data[4] = 3.0
-    input_data[5] = 3.0  # Sample 3: [3, 3]
+    var input_data = input._data.unsafe_bitcast[Float32]()
+    input_data[unsafe_offset=0] = 1.0
+    input_data[unsafe_offset=1] = 1.0  # Sample 1: [1, 1]
+    input_data[unsafe_offset=2] = 2.0
+    input_data[unsafe_offset=3] = 2.0  # Sample 2: [2, 2]
+    input_data[unsafe_offset=4] = 3.0
+    input_data[unsafe_offset=5] = 3.0  # Sample 3: [3, 3]
 
     # Weights: (1, 2) = [[2, 3]]
     var weights_shape = List[Int]()
     weights_shape.append(out_features)
     weights_shape.append(in_features)
     var weights = zeros(weights_shape, DType.float32)
-    var weights_data = weights._data.bitcast[Float32]()
-    weights_data[0] = 2.0
-    weights_data[1] = 3.0
+    var weights_data = weights._data.unsafe_bitcast[Float32]()
+    weights_data[unsafe_offset=0] = 2.0
+    weights_data[unsafe_offset=1] = 3.0
 
     # Bias: (1,) = [1]
     var bias_shape = List[Int]()
@@ -573,10 +589,10 @@ def test_linear_batch_processing() raises:
     # [1, 1] @ [2, 3]^T + 1 = [1*2 + 1*3] + 1 = 6
     # [2, 2] @ [2, 3]^T + 1 = [2*2 + 2*3] + 1 = 11
     # [3, 3] @ [2, 3]^T + 1 = [3*2 + 3*3] + 1 = 16
-    var output_data = output._data.bitcast[Float32]()
-    assert_almost_equal(output_data[0], 6.0, tolerance=1e-5)
-    assert_almost_equal(output_data[1], 11.0, tolerance=1e-5)
-    assert_almost_equal(output_data[2], 16.0, tolerance=1e-5)
+    var output_data = output._data.unsafe_bitcast[Float32]()
+    assert_almost_equal(output_data[unsafe_offset=0], 6.0, tolerance=1e-5)
+    assert_almost_equal(output_data[unsafe_offset=1], 11.0, tolerance=1e-5)
+    assert_almost_equal(output_data[unsafe_offset=2], 16.0, tolerance=1e-5)
 
 
 def test_linear_forward_backward_consistency() raises:

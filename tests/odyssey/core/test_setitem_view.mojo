@@ -113,10 +113,10 @@ def test_setitem_view_multidim_writes_correctly() raises:
         raise Error("View shape should be (2, 2)")
 
     # Set using List[Int] multi-index
-    var idx1 = [0, 0]
-    var idx2 = [0, 1]
-    var idx3 = [1, 0]
-    var idx4 = [1, 1]
+    var idx1: List[Int] = [0, 0]
+    var idx2: List[Int] = [0, 1]
+    var idx3: List[Int] = [1, 0]
+    var idx4: List[Int] = [1, 1]
 
     view.__setitem__(idx1, 11.0)
     view.__setitem__(idx2, 12.0)
@@ -126,10 +126,10 @@ def test_setitem_view_multidim_writes_correctly() raises:
     # Verify positions in original tensor
     # view[0,0] = original[1,1], view[0,1] = original[1,2],
     # view[1,0] = original[2,1], view[1,1] = original[2,2]
-    var idx_11 = [1, 1]
-    var idx_12 = [1, 2]
-    var idx_21 = [2, 1]
-    var idx_22 = [2, 2]
+    var idx_11: List[Int] = [1, 1]
+    var idx_12: List[Int] = [1, 2]
+    var idx_21: List[Int] = [2, 1]
+    var idx_22: List[Int] = [2, 2]
 
     assert_value_at(
         original,

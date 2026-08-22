@@ -81,8 +81,8 @@ def test_roundtrip_tensor_any_tensor() raises:
     """Tensor -> AnyTensor -> Tensor roundtrip preserves data."""
     var t1 = Tensor[DType.float32]([4])
     # Set a value via the data pointer (since we don't have set() yet)
-    t1._data[0] = Scalar[DType.float32](1.5)
-    t1._data[1] = Scalar[DType.float32](0.25)
+    t1._data[unsafe_offset=0] = Scalar[DType.float32](1.5)
+    t1._data[unsafe_offset=1] = Scalar[DType.float32](0.25)
 
     # Round-trip
     var any_t = t1.as_any()

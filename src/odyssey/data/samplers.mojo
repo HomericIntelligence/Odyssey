@@ -21,7 +21,7 @@ from odyssey.data.sampler_utils import (
 # ============================================================================
 
 
-trait Sampler(ImplicitlyDestructible):
+trait Sampler(Deinitable):
     """Base interface for all samplers.
 
     Samplers determine the order in which samples are accessed from a dataset.

@@ -3,7 +3,7 @@
 Before the fix, appending 5 SpinLocks to a List forces List reallocation
 (capacity 0 → 1 → 2 → 4 → 8). Each reallocation shallow-copies SpinLocks
 (pointer value only) and then destroys the old copies, calling __del__ →
-_state.free(). The new copies still hold those freed pointers, causing a
+_state.unsafe_free(). The new copies still hold those freed pointers, causing a
 double-free crash when the new copies are later destroyed.
 
 This test:

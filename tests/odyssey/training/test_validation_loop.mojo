@@ -434,10 +434,10 @@ def test_confusion_matrix_binary_counts() raises:
     var raw = cm.normalize(mode="none")
     # Matrix layout: raw[row*2 + col] where row=true, col=pred
     # [0,0]=TN=1, [0,1]=FP=1, [1,0]=FN=1, [1,1]=TP=1
-    assert_equal_int(Int(raw._data.bitcast[Float64]()[0]), 1)  # TN
-    assert_equal_int(Int(raw._data.bitcast[Float64]()[1]), 1)  # FP
-    assert_equal_int(Int(raw._data.bitcast[Float64]()[2]), 1)  # FN
-    assert_equal_int(Int(raw._data.bitcast[Float64]()[3]), 1)  # TP
+    assert_equal_int(Int(raw._data.unsafe_bitcast[Float64]()[unsafe_offset=0]), 1)  # TN
+    assert_equal_int(Int(raw._data.unsafe_bitcast[Float64]()[unsafe_offset=1]), 1)  # FP
+    assert_equal_int(Int(raw._data.unsafe_bitcast[Float64]()[unsafe_offset=2]), 1)  # FN
+    assert_equal_int(Int(raw._data.unsafe_bitcast[Float64]()[unsafe_offset=3]), 1)  # TP
     print("  test_confusion_matrix_binary_counts: PASSED")
 
 
@@ -468,10 +468,10 @@ def test_confusion_matrix_all_correct() raises:
     cm.update(preds, labels)
 
     var raw = cm.normalize(mode="none")
-    assert_equal_int(Int(raw._data.bitcast[Float64]()[0]), 2)  # TN=2
-    assert_equal_int(Int(raw._data.bitcast[Float64]()[1]), 0)  # FP=0
-    assert_equal_int(Int(raw._data.bitcast[Float64]()[2]), 0)  # FN=0
-    assert_equal_int(Int(raw._data.bitcast[Float64]()[3]), 2)  # TP=2
+    assert_equal_int(Int(raw._data.unsafe_bitcast[Float64]()[unsafe_offset=0]), 2)  # TN=2
+    assert_equal_int(Int(raw._data.unsafe_bitcast[Float64]()[unsafe_offset=1]), 0)  # FP=0
+    assert_equal_int(Int(raw._data.unsafe_bitcast[Float64]()[unsafe_offset=2]), 0)  # FN=0
+    assert_equal_int(Int(raw._data.unsafe_bitcast[Float64]()[unsafe_offset=3]), 2)  # TP=2
     print("  test_confusion_matrix_all_correct: PASSED")
 
 
@@ -502,10 +502,10 @@ def test_confusion_matrix_all_wrong() raises:
     cm.update(preds, labels)
 
     var raw = cm.normalize(mode="none")
-    assert_equal_int(Int(raw._data.bitcast[Float64]()[0]), 0)  # TN=0
-    assert_equal_int(Int(raw._data.bitcast[Float64]()[1]), 2)  # FP=2
-    assert_equal_int(Int(raw._data.bitcast[Float64]()[2]), 2)  # FN=2
-    assert_equal_int(Int(raw._data.bitcast[Float64]()[3]), 0)  # TP=0
+    assert_equal_int(Int(raw._data.unsafe_bitcast[Float64]()[unsafe_offset=0]), 0)  # TN=0
+    assert_equal_int(Int(raw._data.unsafe_bitcast[Float64]()[unsafe_offset=1]), 2)  # FP=2
+    assert_equal_int(Int(raw._data.unsafe_bitcast[Float64]()[unsafe_offset=2]), 2)  # FN=2
+    assert_equal_int(Int(raw._data.unsafe_bitcast[Float64]()[unsafe_offset=3]), 0)  # TP=0
     print("  test_confusion_matrix_all_wrong: PASSED")
 
 
@@ -586,10 +586,18 @@ def test_validation_loop_confusion_matrix_integration() raises:
     # Inspect the confusion matrix stored on ValidationLoop
     var raw = vloop.confusion_matrix.normalize(mode="none")
     # Matrix layout: raw[row*2 + col] where row=true, col=pred
-    assert_equal_int(Int(raw._data.bitcast[Float64]()[0]), 1)  # [0,0] TN=1
-    assert_equal_int(Int(raw._data.bitcast[Float64]()[1]), 1)  # [0,1] FP=1
-    assert_equal_int(Int(raw._data.bitcast[Float64]()[2]), 1)  # [1,0] FN=1
-    assert_equal_int(Int(raw._data.bitcast[Float64]()[3]), 1)  # [1,1] TP=1
+    assert_equal_int(
+        Int(raw._data.unsafe_bitcast[Float64]()[unsafe_offset=0]), 1
+    )  # [0,0] TN=1
+    assert_equal_int(
+        Int(raw._data.unsafe_bitcast[Float64]()[unsafe_offset=1]), 1
+    )  # [0,1] FP=1
+    assert_equal_int(
+        Int(raw._data.unsafe_bitcast[Float64]()[unsafe_offset=2]), 1
+    )  # [1,0] FN=1
+    assert_equal_int(
+        Int(raw._data.unsafe_bitcast[Float64]()[unsafe_offset=3]), 1
+    )  # [1,1] TP=1
     print("  test_validation_loop_confusion_matrix_integration: PASSED")
 
 

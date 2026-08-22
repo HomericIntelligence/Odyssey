@@ -184,7 +184,7 @@ def test_vgg16_e2e_forward_varying_values() raises:
     var input = zeros([2, 3, 32, 32], DType.float32)
     var input_data = input.data_ptr[DType.float32]()
     for i in range(2 * 3 * 32 * 32):
-        input_data[i] = Float32((i % 256)) / 25600.0
+        input_data[unsafe_offset=i] = Float32((i % 256)) / 25600.0
     var output = vgg16_forward(input)
     assert_equal(output.shape()[0], 2)
     assert_equal(output.shape()[1], 10)
@@ -220,7 +220,7 @@ def test_vgg16_e2e_gradient_flow() raises:
     var grad_output_sum = Float32(0.0)
     var grad_output_data = grad_output.data_ptr[DType.float32]()
     for i in range(2 * 10):
-        grad_output_sum += grad_output_data[i]
+        grad_output_sum += grad_output_data[unsafe_offset=i]
     assert_greater(grad_output_sum, Float32(0.0))
 
 
@@ -235,7 +235,7 @@ def test_vgg16_e2e_output_range() raises:
     var output = vgg16_forward(input)
     var output_data = output.data_ptr[DType.float32]()
     for i in range(2 * 10):
-        var val = output_data[i]
+        var val = output_data[unsafe_offset=i]
         assert_true(val == val)
         assert_less(val, Float32(1e6))
         assert_greater(val, Float32(-1e6))
@@ -260,7 +260,7 @@ def test_vgg16_e2e_no_nans() raises:
     var output = vgg16_forward(input)
     var output_data = output.data_ptr[DType.float32]()
     for i in range(2 * 10):
-        var val = output_data[i]
+        var val = output_data[unsafe_offset=i]
         assert_true(val == val)
 
 
@@ -270,7 +270,7 @@ def test_vgg16_e2e_no_infs() raises:
     var output = vgg16_forward(input)
     var output_data = output.data_ptr[DType.float32]()
     for i in range(2 * 10):
-        var val = output_data[i]
+        var val = output_data[unsafe_offset=i]
         assert_less(val, Float32(1e10))
         assert_greater(val, Float32(-1e10))
 

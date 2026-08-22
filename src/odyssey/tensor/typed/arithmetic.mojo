@@ -37,7 +37,7 @@ def _broadcast_binary_typed[
     """Apply binary operation with broadcasting on native Tensor[dtype].
 
     This is the core implementation -- zero dtype branches, zero bitcasts.
-    Tensor[dtype]._data is already typed as UnsafePointer[Scalar[dtype], MutAnyOrigin].
+    Tensor[dtype]._data is already typed as Pointer[Scalar[dtype], MutUntrackedOrigin].
 
     Parameters:
         dtype: Compile-time dtype parameter.
@@ -92,8 +92,8 @@ def _broadcast_binary_typed[
     # Get typed pointers -- Tensor[dtype]._data is already typed, but
     # a_cont/b_cont are AnyTensor (from contiguity check), so bitcast from
     # their UInt8 storage. Result uses native typed pointer directly.
-    var a_ptr = a_cont._data.bitcast[Scalar[dtype]]()
-    var b_ptr = b_cont._data.bitcast[Scalar[dtype]]()
+    var a_ptr = a_cont._data.unsafe_bitcast[Scalar[dtype]]()
+    var b_ptr = b_cont._data.unsafe_bitcast[Scalar[dtype]]()
     var result_ptr = result._data
 
     # Iterate over all result elements
@@ -111,7 +111,9 @@ def _broadcast_binary_typed[
             idx_b += coord * strides_b[dim]
 
         # Perform operation with zero overhead (no dtype conversion!)
-        result_ptr[result_idx] = op[dtype](a_ptr[idx_a], b_ptr[idx_b])
+        result_ptr[unsafe_offset=result_idx] = op[dtype](
+            a_ptr[unsafe_offset=idx_a], b_ptr[unsafe_offset=idx_b]
+        )
 
     return result^
 
@@ -231,11 +233,11 @@ def _multiply_scalar_typed[
     var result = Tensor[dt](t_cont.shape())
     var numel = result.numel()
 
-    var input_ptr = t_cont._data.bitcast[Scalar[dt]]()
+    var input_ptr = t_cont._data.unsafe_bitcast[Scalar[dt]]()
     var result_ptr = result._data
     var scalar_cast = Scalar[dt](scalar)
     for i in range(numel):
-        result_ptr[i] = input_ptr[i] * scalar_cast
+        result_ptr[unsafe_offset=i] = input_ptr[unsafe_offset=i] * scalar_cast
 
     return result^
 

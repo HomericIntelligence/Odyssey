@@ -125,7 +125,8 @@ def test_relu_gradient() raises:
     shape.append(4)
     var input = full(shape, 2.0, DType.float32)
     var fwd = _ReluFwd()
-    check_gradient(fwd, _ReluBwd(), input, _ones_grad(fwd(input)))
+    var g_out = _ones_grad(fwd(input))
+    check_gradient(fwd, _ReluBwd(), input, g_out)
 
 
 def test_relu_negative_inputs() raises:
@@ -135,7 +136,8 @@ def test_relu_negative_inputs() raises:
     shape.append(4)
     var input = full(shape, -2.0, DType.float32)
     var fwd = _ReluFwd()
-    check_gradient(fwd, _ReluBwd(), input, _ones_grad(fwd(input)))
+    var g_out = _ones_grad(fwd(input))
+    check_gradient(fwd, _ReluBwd(), input, g_out)
 
 
 def test_relu_mixed_inputs() raises:
@@ -160,7 +162,8 @@ def test_relu_mixed_inputs() raises:
     input._set_float64(11, -0.1)
 
     var fwd = _ReluFwd()
-    check_gradient(fwd, _ReluBwd(), input, _ones_grad(fwd(input)))
+    var g_out = _ones_grad(fwd(input))
+    check_gradient(fwd, _ReluBwd(), input, g_out)
 
 
 def test_sigmoid_gradient() raises:
@@ -170,7 +173,8 @@ def test_sigmoid_gradient() raises:
     shape.append(4)
     var input = full(shape, 0.5, DType.float32)
     var fwd = _SigmoidFwd()
-    check_gradient(fwd, _SigmoidBwd(), input, _ones_grad(fwd(input)))
+    var g_out = _ones_grad(fwd(input))
+    check_gradient(fwd, _SigmoidBwd(), input, g_out)
 
 
 def test_tanh_gradient() raises:
@@ -180,7 +184,8 @@ def test_tanh_gradient() raises:
     shape.append(4)
     var input = full(shape, 0.5, DType.float32)
     var fwd = _TanhFwd()
-    check_gradient(fwd, _TanhBwd(), input, _ones_grad(fwd(input)))
+    var g_out = _ones_grad(fwd(input))
+    check_gradient(fwd, _TanhBwd(), input, g_out)
 
 
 def test_add_gradient() raises:
@@ -191,7 +196,8 @@ def test_add_gradient() raises:
     var input_a = ones(shape, DType.float32)
     var input_b = ones(shape, DType.float32)
     var fwd = _AddFwd(input_b)
-    check_gradient(fwd, _AddBwd(input_b), input_a, _ones_grad(fwd(input_a)))
+    var g_out = _ones_grad(fwd(input_a))
+    check_gradient(fwd, _AddBwd(input_b), input_a, g_out)
 
 
 def test_multiply_gradient() raises:
@@ -202,9 +208,8 @@ def test_multiply_gradient() raises:
     var input_a = full(shape, 2.0, DType.float32)
     var input_b = full(shape, 3.0, DType.float32)
     var fwd = _MultiplyFwd(input_b)
-    check_gradient(
-        fwd, _MultiplyBwd(input_b), input_a, _ones_grad(fwd(input_a))
-    )
+    var g_out = _ones_grad(fwd(input_a))
+    check_gradient(fwd, _MultiplyBwd(input_b), input_a, g_out)
 
 
 def test_gradient_at_zero() raises:
@@ -214,7 +219,8 @@ def test_gradient_at_zero() raises:
     shape.append(2)
     var input = full(shape, 0.01, DType.float32)
     var fwd = _ReluFwd()
-    check_gradient(fwd, _ReluBwd(), input, _ones_grad(fwd(input)))
+    var g_out = _ones_grad(fwd(input))
+    check_gradient(fwd, _ReluBwd(), input, g_out)
 
 
 def test_gradient_small_tensor() raises:
@@ -224,7 +230,8 @@ def test_gradient_small_tensor() raises:
     shape.append(1)
     var input = full(shape, 2.0, DType.float32)
     var fwd = _ReluFwd()
-    check_gradient(fwd, _ReluBwd(), input, _ones_grad(fwd(input)))
+    var g_out = _ones_grad(fwd(input))
+    check_gradient(fwd, _ReluBwd(), input, g_out)
 
 
 def main() raises:

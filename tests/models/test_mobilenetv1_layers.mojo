@@ -329,8 +329,8 @@ def test_pointwise_conv2d_forward() raises:
     assert_equal(out_shape[3], width)
 
     # Check output values: 1x1 conv with all ones should produce 32.0
-    var output_data = output._data.bitcast[Float32]()
-    assert_almost_equal(output_data[0], Float32(in_channels), tolerance=1e-5)
+    var output_data = output._data.unsafe_bitcast[Float32]()
+    assert_almost_equal(output_data[unsafe_offset=0], Float32(in_channels), tolerance=1e-5)
 
 
 def test_pointwise_conv2d_backward() raises:
@@ -547,12 +547,12 @@ def test_batchnorm2d_initialization() raises:
     assert_equal(running_var_shape[0], num_channels)
 
     # Verify gamma is initialized to 1.0
-    var gamma_data = bn.gamma._data.bitcast[Float32]()
-    assert_almost_equal(gamma_data[0], 1.0, tolerance=1e-5)
+    var gamma_data = bn.gamma._data.unsafe_bitcast[Float32]()
+    assert_almost_equal(gamma_data[unsafe_offset=0], 1.0, tolerance=1e-5)
 
     # Verify beta is initialized to 0.0
-    var beta_data = bn.beta._data.bitcast[Float32]()
-    assert_almost_equal(beta_data[0], 0.0, tolerance=1e-5)
+    var beta_data = bn.beta._data.unsafe_bitcast[Float32]()
+    assert_almost_equal(beta_data[unsafe_offset=0], 0.0, tolerance=1e-5)
 
 
 def test_batchnorm2d_forward_training() raises:
@@ -641,11 +641,11 @@ def test_relu_activation_basic() raises:
     var input = ones(input_shape, DType.float32)
 
     # Set some values to negative
-    var input_data = input._data.bitcast[Float32]()
-    input_data[0] = -1.0
-    input_data[1] = 0.5
-    input_data[2] = -0.5
-    input_data[3] = 2.0
+    var input_data = input._data.unsafe_bitcast[Float32]()
+    input_data[unsafe_offset=0] = -1.0
+    input_data[unsafe_offset=1] = 0.5
+    input_data[unsafe_offset=2] = -0.5
+    input_data[unsafe_offset=3] = 2.0
 
     # Apply ReLU
     var output = relu(input)
@@ -656,11 +656,11 @@ def test_relu_activation_basic() raises:
     assert_equal(out_shape[1], channels)
 
     # Verify values: negatives become 0, positives stay same
-    var output_data = output._data.bitcast[Float32]()
-    assert_almost_equal(output_data[0], 0.0, tolerance=1e-5)  # -1.0 -> 0.0
-    assert_almost_equal(output_data[1], 0.5, tolerance=1e-5)  # 0.5 -> 0.5
-    assert_almost_equal(output_data[2], 0.0, tolerance=1e-5)  # -0.5 -> 0.0
-    assert_almost_equal(output_data[3], 2.0, tolerance=1e-5)  # 2.0 -> 2.0
+    var output_data = output._data.unsafe_bitcast[Float32]()
+    assert_almost_equal(output_data[unsafe_offset=0], 0.0, tolerance=1e-5)  # -1.0 -> 0.0
+    assert_almost_equal(output_data[unsafe_offset=1], 0.5, tolerance=1e-5)  # 0.5 -> 0.5
+    assert_almost_equal(output_data[unsafe_offset=2], 0.0, tolerance=1e-5)  # -0.5 -> 0.0
+    assert_almost_equal(output_data[unsafe_offset=3], 2.0, tolerance=1e-5)  # 2.0 -> 2.0
 
 
 def test_relu_multiple_applications() raises:
@@ -682,11 +682,11 @@ def test_relu_multiple_applications() raises:
     var input = ones(input_shape, DType.float32)
 
     # Set some values negative
-    var input_data = input._data.bitcast[Float32]()
-    input_data[0] = -1.0
-    input_data[1] = 0.5
-    input_data[2] = 2.0
-    input_data[3] = -0.5
+    var input_data = input._data.unsafe_bitcast[Float32]()
+    input_data[unsafe_offset=0] = -1.0
+    input_data[unsafe_offset=1] = 0.5
+    input_data[unsafe_offset=2] = 2.0
+    input_data[unsafe_offset=3] = -0.5
 
     # First ReLU
     var output1 = relu(input)
@@ -701,11 +701,11 @@ def test_relu_multiple_applications() raises:
     assert_equal(shape2[0], batch_size)
 
     # After ReLU, all negative values should be 0
-    var out_data = output2._data.bitcast[Float32]()
-    assert_almost_equal(out_data[0], 0.0, tolerance=1e-5)  # -1.0 -> 0.0
-    assert_almost_equal(out_data[1], 0.5, tolerance=1e-5)  # 0.5 -> 0.5
-    assert_almost_equal(out_data[2], 2.0, tolerance=1e-5)  # 2.0 -> 2.0
-    assert_almost_equal(out_data[3], 0.0, tolerance=1e-5)  # -0.5 -> 0.0
+    var out_data = output2._data.unsafe_bitcast[Float32]()
+    assert_almost_equal(out_data[unsafe_offset=0], 0.0, tolerance=1e-5)  # -1.0 -> 0.0
+    assert_almost_equal(out_data[unsafe_offset=1], 0.5, tolerance=1e-5)  # 0.5 -> 0.5
+    assert_almost_equal(out_data[unsafe_offset=2], 2.0, tolerance=1e-5)  # 2.0 -> 2.0
+    assert_almost_equal(out_data[unsafe_offset=3], 0.0, tolerance=1e-5)  # -0.5 -> 0.0
 
 
 def test_global_avgpool2d_forward() raises:
@@ -741,8 +741,8 @@ def test_global_avgpool2d_forward() raises:
     assert_equal(out_shape[3], 1)
 
     # Verify output values: average of all ones is 1.0
-    var output_data = output._data.bitcast[Float32]()
-    assert_almost_equal(output_data[0], 1.0, tolerance=1e-5)
+    var output_data = output._data.unsafe_bitcast[Float32]()
+    assert_almost_equal(output_data[unsafe_offset=0], 1.0, tolerance=1e-5)
 
 
 def test_global_avgpool2d_backward() raises:
@@ -780,9 +780,9 @@ def test_global_avgpool2d_backward() raises:
     assert_equal(grad_shape[3], width)
 
     # Verify gradient distribution: each spatial position gets 1/(H*W)
-    var grad_data = grad_input._data.bitcast[Float32]()
+    var grad_data = grad_input._data.unsafe_bitcast[Float32]()
     var expected_grad = 1.0 / Float32(height * width)
-    assert_almost_equal(grad_data[0], expected_grad, tolerance=1e-5)
+    assert_almost_equal(grad_data[unsafe_offset=0], expected_grad, tolerance=1e-5)
 
 
 def test_mobilenetv1_block1_32to64() raises:

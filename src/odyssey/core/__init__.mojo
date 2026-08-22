@@ -528,7 +528,6 @@ from odyssey.core.numerical_safety import (
     check_gradient_safety,
     clip_grad_value_,
     clip_grad_norm_,
-    clip_grad_global_norm_,
 )
 
 # ============================================================================
@@ -686,8 +685,6 @@ from odyssey.core.lazy_eval import (
 # with distinct type identities, breaking operator overloads.
 
 from odyssey.core.grad_utils import (
-    clip_grad_value_,
-    clip_grad_norm_,
     clip_grad_global_norm_,
 )
 

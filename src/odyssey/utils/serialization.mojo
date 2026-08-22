@@ -52,7 +52,7 @@ from odyssey.tensor.tensor_io import (
     parse_dtype,
     dtype_to_string,
 )
-from std.memory import UnsafePointer
+from std.memory import Pointer
 from std.collections import List, Dict
 from std.collections.optional import Optional
 from std import os

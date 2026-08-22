@@ -46,7 +46,7 @@ from std.math import tanh as math_tanh
 from std.math import ceil as math_ceil
 from std.math import floor as math_floor
 from std.math import trunc as math_trunc
-from std.memory import UnsafePointer
+from std.memory import Pointer
 
 
 @always_inline
@@ -379,16 +379,16 @@ def _clip_forward_impl[
     """Dtype-specialized clip forward: clamp values to [min, max]."""
     var min_t = Scalar[dtype](min_val)
     var max_t = Scalar[dtype](max_val)
-    var in_ptr = tensor._data.bitcast[Scalar[dtype]]()
-    var out_ptr = result._data.bitcast[Scalar[dtype]]()
+    var in_ptr = tensor._data.unsafe_bitcast[Scalar[dtype]]()
+    var out_ptr = result._data.unsafe_bitcast[Scalar[dtype]]()
     for i in range(tensor.numel()):
-        var val = in_ptr[i]
+        var val = in_ptr[unsafe_offset=i]
         if val < min_t:
-            out_ptr[i] = min_t
+            out_ptr[unsafe_offset=i] = min_t
         elif val > max_t:
-            out_ptr[i] = max_t
+            out_ptr[unsafe_offset=i] = max_t
         else:
-            out_ptr[i] = val
+            out_ptr[unsafe_offset=i] = val
 
 
 def _dispatch_clip_forward(
@@ -409,16 +409,20 @@ def _log10_forward_impl[
 ](result: AnyTensor, tensor: AnyTensor, numel: Int) raises:
     """Dtype-specialized log10 forward: log(x) / log(10)."""
     comptime ln10 = Scalar[dtype](2.302585092994046)
-    var in_ptr = tensor._data.bitcast[Scalar[dtype]]()
-    var out_ptr = result._data.bitcast[Scalar[dtype]]()
+    var in_ptr = tensor._data.unsafe_bitcast[Scalar[dtype]]()
+    var out_ptr = result._data.unsafe_bitcast[Scalar[dtype]]()
     for i in range(numel):
-        var val = in_ptr[i]
+        var val = in_ptr[unsafe_offset=i]
         if val <= Scalar[dtype](0):
             raise Error("log10 requires positive values")
         comptime if dtype == DType.float16 or dtype == DType.float32:
-            out_ptr[i] = Scalar[dtype](math_log(Float32(val))) / ln10
+            out_ptr[unsafe_offset=i] = (
+                Scalar[dtype](math_log(Float32(val))) / ln10
+            )
         else:
-            out_ptr[i] = Scalar[dtype](math_log(Float64(val))) / ln10
+            out_ptr[unsafe_offset=i] = (
+                Scalar[dtype](math_log(Float64(val))) / ln10
+            )
 
 
 def _dispatch_log10_forward(
@@ -439,16 +443,20 @@ def _log2_forward_impl[
 ](result: AnyTensor, tensor: AnyTensor, numel: Int) raises:
     """Dtype-specialized log2 forward: log(x) / log(2)."""
     comptime ln2 = Scalar[dtype](0.6931471805599453)
-    var in_ptr = tensor._data.bitcast[Scalar[dtype]]()
-    var out_ptr = result._data.bitcast[Scalar[dtype]]()
+    var in_ptr = tensor._data.unsafe_bitcast[Scalar[dtype]]()
+    var out_ptr = result._data.unsafe_bitcast[Scalar[dtype]]()
     for i in range(numel):
-        var val = in_ptr[i]
+        var val = in_ptr[unsafe_offset=i]
         if val <= Scalar[dtype](0):
             raise Error("log2 requires positive values")
         comptime if dtype == DType.float16 or dtype == DType.float32:
-            out_ptr[i] = Scalar[dtype](math_log(Float32(val))) / ln2
+            out_ptr[unsafe_offset=i] = (
+                Scalar[dtype](math_log(Float32(val))) / ln2
+            )
         else:
-            out_ptr[i] = Scalar[dtype](math_log(Float64(val))) / ln2
+            out_ptr[unsafe_offset=i] = (
+                Scalar[dtype](math_log(Float64(val))) / ln2
+            )
 
 
 def _dispatch_log2_forward(
@@ -477,9 +485,9 @@ def _logical_and_impl[
     """Dtype-specialized logical AND."""
     comptime zero = Scalar[dtype](0)
     comptime one = Scalar[dtype](1)
-    var a_ptr = a._data.bitcast[Scalar[dtype]]()
-    var b_ptr = b._data.bitcast[Scalar[dtype]]()
-    var out_ptr = result._data.bitcast[Scalar[dtype]]()
+    var a_ptr = a._data.unsafe_bitcast[Scalar[dtype]]()
+    var b_ptr = b._data.unsafe_bitcast[Scalar[dtype]]()
+    var out_ptr = result._data.unsafe_bitcast[Scalar[dtype]]()
 
     for result_idx in range(total_elems):
         # Convert result_idx to multi-dimensional index
@@ -492,10 +500,10 @@ def _logical_and_impl[
             idx_a += coord * strides_a[d]
             idx_b += coord * strides_b[d]
 
-        var val_a = a_ptr[idx_a]
-        var val_b = b_ptr[idx_b]
+        var val_a = a_ptr[unsafe_offset=idx_a]
+        var val_b = b_ptr[unsafe_offset=idx_b]
         var bool_result = val_a != zero and val_b != zero
-        out_ptr[result_idx] = one if bool_result else zero
+        out_ptr[unsafe_offset=result_idx] = one if bool_result else zero
 
 
 def _dispatch_logical_and(
@@ -532,9 +540,9 @@ def _logical_or_impl[
     """Dtype-specialized logical OR."""
     comptime zero = Scalar[dtype](0)
     comptime one = Scalar[dtype](1)
-    var a_ptr = a._data.bitcast[Scalar[dtype]]()
-    var b_ptr = b._data.bitcast[Scalar[dtype]]()
-    var out_ptr = result._data.bitcast[Scalar[dtype]]()
+    var a_ptr = a._data.unsafe_bitcast[Scalar[dtype]]()
+    var b_ptr = b._data.unsafe_bitcast[Scalar[dtype]]()
+    var out_ptr = result._data.unsafe_bitcast[Scalar[dtype]]()
 
     for result_idx in range(total_elems):
         var remaining = result_idx
@@ -546,10 +554,10 @@ def _logical_or_impl[
             idx_a += coord * strides_a[d]
             idx_b += coord * strides_b[d]
 
-        var val_a = a_ptr[idx_a]
-        var val_b = b_ptr[idx_b]
+        var val_a = a_ptr[unsafe_offset=idx_a]
+        var val_b = b_ptr[unsafe_offset=idx_b]
         var bool_result = val_a != zero or val_b != zero
-        out_ptr[result_idx] = one if bool_result else zero
+        out_ptr[unsafe_offset=result_idx] = one if bool_result else zero
 
 
 def _dispatch_logical_or(
@@ -579,11 +587,11 @@ def _logical_not_impl[
     """Dtype-specialized logical NOT."""
     comptime zero = Scalar[dtype](0)
     comptime one = Scalar[dtype](1)
-    var in_ptr = tensor._data.bitcast[Scalar[dtype]]()
-    var out_ptr = result._data.bitcast[Scalar[dtype]]()
+    var in_ptr = tensor._data.unsafe_bitcast[Scalar[dtype]]()
+    var out_ptr = result._data.unsafe_bitcast[Scalar[dtype]]()
     for i in range(numel):
-        var bool_result = in_ptr[i] == zero
-        out_ptr[i] = one if bool_result else zero
+        var bool_result = in_ptr[unsafe_offset=i] == zero
+        out_ptr[unsafe_offset=i] = one if bool_result else zero
 
 
 def _dispatch_logical_not(
@@ -612,9 +620,9 @@ def _logical_xor_impl[
     """Dtype-specialized logical XOR."""
     comptime zero = Scalar[dtype](0)
     comptime one = Scalar[dtype](1)
-    var a_ptr = a._data.bitcast[Scalar[dtype]]()
-    var b_ptr = b._data.bitcast[Scalar[dtype]]()
-    var out_ptr = result._data.bitcast[Scalar[dtype]]()
+    var a_ptr = a._data.unsafe_bitcast[Scalar[dtype]]()
+    var b_ptr = b._data.unsafe_bitcast[Scalar[dtype]]()
+    var out_ptr = result._data.unsafe_bitcast[Scalar[dtype]]()
 
     for result_idx in range(total_elems):
         var remaining = result_idx
@@ -626,13 +634,13 @@ def _logical_xor_impl[
             idx_a += coord * strides_a[d]
             idx_b += coord * strides_b[d]
 
-        var val_a = a_ptr[idx_a]
-        var val_b = b_ptr[idx_b]
+        var val_a = a_ptr[unsafe_offset=idx_a]
+        var val_b = b_ptr[unsafe_offset=idx_b]
         var bool_a = val_a != zero
         var bool_b = val_b != zero
         # XOR: True if exactly one is True
         var bool_result = (bool_a and not bool_b) or (not bool_a and bool_b)
-        out_ptr[result_idx] = one if bool_result else zero
+        out_ptr[unsafe_offset=result_idx] = one if bool_result else zero
 
 
 def _dispatch_logical_xor(
@@ -1057,11 +1065,13 @@ def _exp_backward_impl[
     dtype: DType
 ](result: AnyTensor, grad_output: AnyTensor, x: AnyTensor, numel: Int) raises:
     """Dtype-specialized exp backward: grad * exp(x)."""
-    var grad_ptr = grad_output._data.bitcast[Scalar[dtype]]()
-    var x_ptr = x._data.bitcast[Scalar[dtype]]()
-    var out_ptr = result._data.bitcast[Scalar[dtype]]()
+    var grad_ptr = grad_output._data.unsafe_bitcast[Scalar[dtype]]()
+    var x_ptr = x._data.unsafe_bitcast[Scalar[dtype]]()
+    var out_ptr = result._data.unsafe_bitcast[Scalar[dtype]]()
     for i in range(numel):
-        out_ptr[i] = grad_ptr[i] * Scalar[dtype](math_exp(Float32(x_ptr[i])))
+        out_ptr[unsafe_offset=i] = grad_ptr[unsafe_offset=i] * Scalar[dtype](
+            math_exp(Float32(x_ptr[unsafe_offset=i]))
+        )
 
 
 def _dispatch_exp_backward(
@@ -1085,11 +1095,13 @@ def _log_backward_impl[
 ](result: AnyTensor, grad_output: AnyTensor, x: AnyTensor, numel: Int):
     """Dtype-specialized log backward: grad / (x + epsilon)."""
     comptime epsilon = Scalar[dtype](1e-10)
-    var grad_ptr = grad_output._data.bitcast[Scalar[dtype]]()
-    var x_ptr = x._data.bitcast[Scalar[dtype]]()
-    var out_ptr = result._data.bitcast[Scalar[dtype]]()
+    var grad_ptr = grad_output._data.unsafe_bitcast[Scalar[dtype]]()
+    var x_ptr = x._data.unsafe_bitcast[Scalar[dtype]]()
+    var out_ptr = result._data.unsafe_bitcast[Scalar[dtype]]()
     for i in range(numel):
-        out_ptr[i] = grad_ptr[i] / (x_ptr[i] + epsilon)
+        out_ptr[unsafe_offset=i] = grad_ptr[unsafe_offset=i] / (
+            x_ptr[unsafe_offset=i] + epsilon
+        )
 
 
 def _dispatch_log_backward(
@@ -1114,11 +1126,13 @@ def _sqrt_backward_impl[
     """Dtype-specialized sqrt backward: grad / (2 * sqrt(x) + epsilon)."""
     comptime epsilon = Scalar[dtype](1e-10)
     comptime two = Scalar[dtype](2.0)
-    var grad_ptr = grad_output._data.bitcast[Scalar[dtype]]()
-    var x_ptr = x._data.bitcast[Scalar[dtype]]()
-    var out_ptr = result._data.bitcast[Scalar[dtype]]()
+    var grad_ptr = grad_output._data.unsafe_bitcast[Scalar[dtype]]()
+    var x_ptr = x._data.unsafe_bitcast[Scalar[dtype]]()
+    var out_ptr = result._data.unsafe_bitcast[Scalar[dtype]]()
     for i in range(numel):
-        out_ptr[i] = grad_ptr[i] / (two * math_sqrt(x_ptr[i]) + epsilon)
+        out_ptr[unsafe_offset=i] = grad_ptr[unsafe_offset=i] / (
+            two * math_sqrt(x_ptr[unsafe_offset=i]) + epsilon
+        )
 
 
 def _dispatch_sqrt_backward(
@@ -1140,11 +1154,13 @@ def _sin_backward_impl[
     dtype: DType
 ](result: AnyTensor, grad_output: AnyTensor, x: AnyTensor, numel: Int) raises:
     """Dtype-specialized sin backward: grad * cos(x)."""
-    var grad_ptr = grad_output._data.bitcast[Scalar[dtype]]()
-    var x_ptr = x._data.bitcast[Scalar[dtype]]()
-    var out_ptr = result._data.bitcast[Scalar[dtype]]()
+    var grad_ptr = grad_output._data.unsafe_bitcast[Scalar[dtype]]()
+    var x_ptr = x._data.unsafe_bitcast[Scalar[dtype]]()
+    var out_ptr = result._data.unsafe_bitcast[Scalar[dtype]]()
     for i in range(numel):
-        out_ptr[i] = grad_ptr[i] * Scalar[dtype](math_cos(Float32(x_ptr[i])))
+        out_ptr[unsafe_offset=i] = grad_ptr[unsafe_offset=i] * Scalar[dtype](
+            math_cos(Float32(x_ptr[unsafe_offset=i]))
+        )
 
 
 def _dispatch_sin_backward(
@@ -1166,11 +1182,13 @@ def _cos_backward_impl[
     dtype: DType
 ](result: AnyTensor, grad_output: AnyTensor, x: AnyTensor, numel: Int) raises:
     """Dtype-specialized cos backward: grad * (-sin(x))."""
-    var grad_ptr = grad_output._data.bitcast[Scalar[dtype]]()
-    var x_ptr = x._data.bitcast[Scalar[dtype]]()
-    var out_ptr = result._data.bitcast[Scalar[dtype]]()
+    var grad_ptr = grad_output._data.unsafe_bitcast[Scalar[dtype]]()
+    var x_ptr = x._data.unsafe_bitcast[Scalar[dtype]]()
+    var out_ptr = result._data.unsafe_bitcast[Scalar[dtype]]()
     for i in range(numel):
-        out_ptr[i] = grad_ptr[i] * Scalar[dtype](-math_sin(Float32(x_ptr[i])))
+        out_ptr[unsafe_offset=i] = grad_ptr[unsafe_offset=i] * Scalar[dtype](
+            -math_sin(Float32(x_ptr[unsafe_offset=i]))
+        )
 
 
 def _dispatch_cos_backward(
@@ -1196,17 +1214,17 @@ def _abs_backward_impl[
     comptime zero = Scalar[dtype](0)
     comptime one = Scalar[dtype](1)
     comptime neg_one = Scalar[dtype](-1)
-    var grad_ptr = grad_output._data.bitcast[Scalar[dtype]]()
-    var x_ptr = x._data.bitcast[Scalar[dtype]]()
-    var out_ptr = result._data.bitcast[Scalar[dtype]]()
+    var grad_ptr = grad_output._data.unsafe_bitcast[Scalar[dtype]]()
+    var x_ptr = x._data.unsafe_bitcast[Scalar[dtype]]()
+    var out_ptr = result._data.unsafe_bitcast[Scalar[dtype]]()
     for i in range(numel):
-        var x_val = x_ptr[i]
+        var x_val = x_ptr[unsafe_offset=i]
         var sign_x = zero
         if x_val > zero:
             sign_x = one
         elif x_val < zero:
             sign_x = neg_one
-        out_ptr[i] = grad_ptr[i] * sign_x
+        out_ptr[unsafe_offset=i] = grad_ptr[unsafe_offset=i] * sign_x
 
 
 def _dispatch_abs_backward(
@@ -1247,15 +1265,15 @@ def _clip_backward_impl[
     comptime zero = Scalar[dtype](0)
     var min_t = Scalar[dtype](min_val)
     var max_t = Scalar[dtype](max_val)
-    var grad_ptr = grad_output._data.bitcast[Scalar[dtype]]()
-    var x_ptr = x._data.bitcast[Scalar[dtype]]()
-    var out_ptr = result._data.bitcast[Scalar[dtype]]()
+    var grad_ptr = grad_output._data.unsafe_bitcast[Scalar[dtype]]()
+    var x_ptr = x._data.unsafe_bitcast[Scalar[dtype]]()
+    var out_ptr = result._data.unsafe_bitcast[Scalar[dtype]]()
     for i in range(numel):
-        var x_val = x_ptr[i]
+        var x_val = x_ptr[unsafe_offset=i]
         if x_val >= min_t and x_val <= max_t:
-            out_ptr[i] = grad_ptr[i]
+            out_ptr[unsafe_offset=i] = grad_ptr[unsafe_offset=i]
         else:
-            out_ptr[i] = zero
+            out_ptr[unsafe_offset=i] = zero
 
 
 def _dispatch_clip_backward(
@@ -1291,11 +1309,13 @@ def _log10_backward_impl[
     """Dtype-specialized log10 backward: grad / (x * ln(10) + epsilon)."""
     comptime epsilon = Scalar[dtype](1e-10)
     comptime ln10 = Scalar[dtype](2.302585092994046)
-    var grad_ptr = grad_output._data.bitcast[Scalar[dtype]]()
-    var x_ptr = x._data.bitcast[Scalar[dtype]]()
-    var out_ptr = result._data.bitcast[Scalar[dtype]]()
+    var grad_ptr = grad_output._data.unsafe_bitcast[Scalar[dtype]]()
+    var x_ptr = x._data.unsafe_bitcast[Scalar[dtype]]()
+    var out_ptr = result._data.unsafe_bitcast[Scalar[dtype]]()
     for i in range(numel):
-        out_ptr[i] = grad_ptr[i] / (x_ptr[i] * ln10 + epsilon)
+        out_ptr[unsafe_offset=i] = grad_ptr[unsafe_offset=i] / (
+            x_ptr[unsafe_offset=i] * ln10 + epsilon
+        )
 
 
 def _dispatch_log10_backward(
@@ -1320,11 +1340,13 @@ def _log2_backward_impl[
     """Dtype-specialized log2 backward: grad / (x * ln(2) + epsilon)."""
     comptime epsilon = Scalar[dtype](1e-10)
     comptime ln2 = Scalar[dtype](0.6931471805599453)
-    var grad_ptr = grad_output._data.bitcast[Scalar[dtype]]()
-    var x_ptr = x._data.bitcast[Scalar[dtype]]()
-    var out_ptr = result._data.bitcast[Scalar[dtype]]()
+    var grad_ptr = grad_output._data.unsafe_bitcast[Scalar[dtype]]()
+    var x_ptr = x._data.unsafe_bitcast[Scalar[dtype]]()
+    var out_ptr = result._data.unsafe_bitcast[Scalar[dtype]]()
     for i in range(numel):
-        out_ptr[i] = grad_ptr[i] / (x_ptr[i] * ln2 + epsilon)
+        out_ptr[unsafe_offset=i] = grad_ptr[unsafe_offset=i] / (
+            x_ptr[unsafe_offset=i] * ln2 + epsilon
+        )
 
 
 def _dispatch_log2_backward(

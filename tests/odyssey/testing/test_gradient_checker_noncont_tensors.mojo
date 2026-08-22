@@ -91,7 +91,7 @@ def test_gradient_check_transposed_input() raises:
     print("Testing gradient checking with transposed input...")
 
     # Create a small 2x3 tensor
-    var shape_2d = [2, 3]
+    var shape_2d: List[Int] = [2, 3]
     var x = full(shape_2d, 2.0, DType.float32)
 
     # Transpose to create non-contiguous view: 3x2 with modified strides
@@ -125,7 +125,7 @@ def test_gradient_check_transposed_relu() raises:
     print("Testing ReLU gradient checking with transposed input...")
 
     # Create a 3x2 tensor with mixed positive/negative values
-    var shape_2d = [3, 2]
+    var shape_2d: List[Int] = [3, 2]
     var x = full(shape_2d, 0.5, DType.float32)
     # Set some negative values to test piecewise behavior
     x._set_float64(0, -1.0)
@@ -155,7 +155,7 @@ def test_gradient_check_partial_transpose() raises:
     print("Testing gradient checking with partial axis permutation...")
 
     # Create a 2x3x2 tensor
-    var shape_3d = [2, 3, 2]
+    var shape_3d: List[Int] = [2, 3, 2]
     var x = randn(shape_3d, DType.float32)
 
     # Permute axes (0, 2, 1) -> shape becomes (2, 2, 3)
@@ -189,7 +189,7 @@ def test_gradient_check_contiguous_copy() raises:
     print("Testing gradient check after as_contiguous() conversion...")
 
     # Create transposed tensor (non-contiguous)
-    var shape_2d = [2, 3]
+    var shape_2d: List[Int] = [2, 3]
     var x = full(shape_2d, 1.5, DType.float32)
     var x_transposed = transpose_view(x)
 
@@ -221,7 +221,7 @@ def test_numerical_gradient_noncont() raises:
     print("Testing numerical gradient computation on non-contiguous tensor...")
 
     # Create a small transposed tensor
-    var shape_2d = [2, 3]
+    var shape_2d: List[Int] = [2, 3]
     var x = full(shape_2d, 2.0, DType.float32)
     var x_transposed = transpose_view(x)
 
@@ -259,7 +259,7 @@ def test_gradient_check_verbose_noncont() raises:
     print("Testing verbose gradient checking with non-contiguous tensor...")
 
     # Create small tensor
-    var shape_2d = [2, 2]
+    var shape_2d: List[Int] = [2, 2]
     var x = full(shape_2d, 1.0, DType.float32)
     var x_transposed = transpose_view(x)
 

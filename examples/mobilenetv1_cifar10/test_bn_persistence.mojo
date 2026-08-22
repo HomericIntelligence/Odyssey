@@ -25,7 +25,7 @@ def _running_var_sig(t: AnyTensor) raises -> Float32:
     count. A training forward pushes it toward the batch variance, changing the
     sum; this gives a single value to compare before/after.
     """
-    var d = t._data.bitcast[Float32]()
+    var d = t._data.unsafe_bitcast[Float32]()
     var s = Float32(0.0)
     for i in range(t._numel):
         s += d[i]
@@ -34,7 +34,7 @@ def _running_var_sig(t: AnyTensor) raises -> Float32:
 
 def _running_mean_sig(t: AnyTensor) raises -> Float32:
     """Sum of running_mean — 0 at init (all-zeros), nonzero after training."""
-    var d = t._data.bitcast[Float32]()
+    var d = t._data.unsafe_bitcast[Float32]()
     var s = Float32(0.0)
     for i in range(t._numel):
         s += d[i]
@@ -47,7 +47,7 @@ def test_bn_running_stats_persist_after_training() raises:
 
     # Non-trivial, non-uniform input so batch statistics differ from init.
     var x = zeros([2, 3, 32, 32], DType.float32)
-    var xd = x._data.bitcast[Float32]()
+    var xd = x._data.unsafe_bitcast[Float32]()
     for i in range(2 * 3 * 32 * 32):
         xd[i] = Float32(i % 7) * 0.1 - 0.3
 
@@ -84,7 +84,7 @@ def test_bn_stats_persist_in_depthwise_blocks() raises:
     """The depthwise-separable blocks also persist their BN running stats."""
     var model = MobileNetV1(num_classes=10)
     var x = zeros([2, 3, 32, 32], DType.float32)
-    var xd = x._data.bitcast[Float32]()
+    var xd = x._data.unsafe_bitcast[Float32]()
     for i in range(2 * 3 * 32 * 32):
         xd[i] = Float32(i % 5) * 0.2 - 0.4
 
@@ -115,7 +115,7 @@ def test_inference_forward_leaves_stats_unchanged() raises:
     """
     var model = MobileNetV1(num_classes=10)
     var x = zeros([2, 3, 32, 32], DType.float32)
-    var xd = x._data.bitcast[Float32]()
+    var xd = x._data.unsafe_bitcast[Float32]()
     for i in range(2 * 3 * 32 * 32):
         xd[i] = Float32(i % 3) * 0.3
 

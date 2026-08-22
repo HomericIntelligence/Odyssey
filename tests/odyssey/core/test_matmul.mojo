@@ -63,16 +63,24 @@ def test_matmul_baseline_2x2() raises:
     # Result = [[1*5+2*7, 1*6+2*8], [3*5+4*7, 3*6+4*8]]
     #        = [[19, 22], [43, 50]]
     assert_almost_equal(
-        result._data.bitcast[Float32]()[0], Float32(19.0), tolerance=1e-5
+        result._data.unsafe_bitcast[Float32]()[unsafe_offset=0],
+        Float32(19.0),
+        tolerance=1e-5,
     )
     assert_almost_equal(
-        result._data.bitcast[Float32]()[1], Float32(22.0), tolerance=1e-5
+        result._data.unsafe_bitcast[Float32]()[unsafe_offset=1],
+        Float32(22.0),
+        tolerance=1e-5,
     )
     assert_almost_equal(
-        result._data.bitcast[Float32]()[2], Float32(43.0), tolerance=1e-5
+        result._data.unsafe_bitcast[Float32]()[unsafe_offset=2],
+        Float32(43.0),
+        tolerance=1e-5,
     )
     assert_almost_equal(
-        result._data.bitcast[Float32]()[3], Float32(50.0), tolerance=1e-5
+        result._data.unsafe_bitcast[Float32]()[unsafe_offset=3],
+        Float32(50.0),
+        tolerance=1e-5,
     )
 
 
@@ -99,8 +107,8 @@ def test_matmul_baseline_identity() raises:
     # A @ I = A
     for i in range(9):
         assert_almost_equal(
-            result._data.bitcast[Float32]()[i],
-            a._data.bitcast[Float32]()[i],
+            result._data.unsafe_bitcast[Float32]()[unsafe_offset=i],
+            a._data.unsafe_bitcast[Float32]()[unsafe_offset=i],
             tolerance=1e-5,
         )
 

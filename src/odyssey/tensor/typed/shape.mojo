@@ -56,7 +56,7 @@ def _as_contiguous_typed[
     if tensor.is_contiguous():
         # Fast path: direct typed copy
         for i in range(numel):
-            dst_ptr[i] = src_ptr[i]
+            dst_ptr[unsafe_offset=i] = src_ptr[unsafe_offset=i]
     else:
         # Slow path: stride-based indexing
         var ndim = len(shape)
@@ -67,7 +67,7 @@ def _as_contiguous_typed[
                 var coord = remaining % shape[d]
                 remaining //= shape[d]
                 src_elem_offset += coord * tensor._strides[d]
-            dst_ptr[i] = src_ptr[src_elem_offset]
+            dst_ptr[unsafe_offset=i] = src_ptr[unsafe_offset=src_elem_offset]
 
     return result^
 
@@ -95,7 +95,7 @@ def _reshape_typed[
     """Reshape tensor to new shape (native Tensor[dtype] core).
 
     This is the core implementation -- zero dtype branches, zero bitcasts.
-    Tensor[dtype]._data is already typed as UnsafePointer[Scalar[dtype], MutAnyOrigin].
+    Tensor[dtype]._data is already typed as Pointer[Scalar[dtype], MutUntrackedOrigin].
 
     Parameters:
         dtype: Compile-time dtype parameter.
@@ -124,7 +124,7 @@ def _reshape_typed[
         var src_ptr = tensor._data
         var dst_ptr = result._data
         for i in range(total_elements):
-            dst_ptr[i] = src_ptr[i]
+            dst_ptr[unsafe_offset=i] = src_ptr[unsafe_offset=i]
     else:
         # Slow path: compute stride-based offset for each element
         var src_shape = tensor.shape()
@@ -138,7 +138,7 @@ def _reshape_typed[
                 var coord = remaining % src_shape[d]
                 remaining //= src_shape[d]
                 src_elem_offset += coord * tensor._strides[d]
-            dst_ptr[i] = src_ptr[src_elem_offset]
+            dst_ptr[unsafe_offset=i] = src_ptr[unsafe_offset=src_elem_offset]
 
     return result^
 
@@ -209,7 +209,7 @@ def _broadcast_to_typed[
             src_idx += coords[j] * broadcast_strides[j]
 
         # Copy value using typed pointer -- zero bitcasts
-        dst_ptr[i] = src_ptr[src_idx]
+        dst_ptr[unsafe_offset=i] = src_ptr[unsafe_offset=src_idx]
 
     return result^
 
@@ -336,7 +336,7 @@ def _permute_typed[
             src_idx += src_coords[j] * tensor._strides[j]
 
         # Copy value using typed pointer -- zero bitcasts
-        dst_ptr[i] = src_ptr[src_idx]
+        dst_ptr[unsafe_offset=i] = src_ptr[unsafe_offset=src_idx]
 
     return result^
 

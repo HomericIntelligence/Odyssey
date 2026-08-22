@@ -200,7 +200,7 @@ def compute_gradients(
 
     # Compute loss
     var loss_tensor = cross_entropy(logits, labels)
-    var loss = loss_tensor._data.bitcast[Float32]()[0]
+    var loss = loss_tensor._data.unsafe_bitcast[Float32]()[0]
 
     # ========== Backward Pass ==========
 
@@ -343,7 +343,7 @@ def train_epoch(
         )
 
         # Copy data into batch tensors using dtype-agnostic accessors.
-        # NOTE: the previous version used `(_data + i).load()` on the UInt8
+        # NOTE: the previous version used `(_data + i).unsafe_load()` on the UInt8
         # byte pointer, copying only 1 byte per element regardless of dtype
         # and silently corrupting float32 training data. _get/_set_float64
         # round-trip through Float64 and preserve the value at whatever
@@ -461,7 +461,7 @@ def main() raises:
         var wanted_batches = max_batches if max_batches > 0 else 3
         var n_smoke = wanted_batches * Int(batch_size)
         train_images = zeros([n_smoke, 1, 28, 28], DType.float32)
-        var img_d = train_images._data.bitcast[Float32]()
+        var img_d = train_images._data.unsafe_bitcast[Float32]()
         for s in range(n_smoke):
             var cls = s % DEFAULT_NUM_CLASSES
             for i in range(1 * 28 * 28):
@@ -469,7 +469,7 @@ def main() raises:
                     Float32(cls) * 0.05 + Float32(i % 5) * 0.01
                 )
         train_labels = zeros([n_smoke], DType.uint8)
-        var lbl_d = train_labels._data.bitcast[UInt8]()
+        var lbl_d = train_labels._data.unsafe_bitcast[UInt8]()
         for s in range(n_smoke):
             lbl_d[s] = UInt8(s % DEFAULT_NUM_CLASSES)
         # Reuse the same synthetic batch for "test" (eval is not asserted here).

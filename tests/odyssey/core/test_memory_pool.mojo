@@ -151,7 +151,7 @@ def test_statistics_tracking() raises:
     var pool = TensorMemoryPool()
 
     # Allocate and deallocate various sizes
-    for i in range(5):
+    for _ in range(5):
         var ptr = pool.allocate(256)
         pool.deallocate(ptr, 256)
 

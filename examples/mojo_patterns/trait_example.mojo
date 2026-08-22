@@ -8,7 +8,7 @@ Usage:
 See documentation: docs/core/mojo-patterns.md
 """
 
-from std.memory import UnsafePointer, alloc
+from std.memory import Pointer, unsafe_alloc
 
 # Note: This is a conceptual example demonstrating trait patterns.
 # It uses a simplified Tensor stub for illustration purposes.
@@ -23,7 +23,7 @@ struct Tensor(Copyable, ImplicitlyCopyable):
     """
 
     var size: Int
-    var _grad_ptr: UnsafePointer[
+    var _grad_ptr: Pointer[
         Int, origin=MutAnyOrigin
     ]  # Points to grad size
 
@@ -31,18 +31,18 @@ struct Tensor(Copyable, ImplicitlyCopyable):
         """Create tensor with given size."""
         self.size = size
         # Allocate space for gradient size
-        self._grad_ptr = alloc[Int](1)
+        self._grad_ptr = unsafe_alloc[Int](1)
         self._grad_ptr[] = size
 
     def __init__(out self, *, copy: Self):
         """Copy constructor."""
         self.size = copy.size
-        self._grad_ptr = alloc[Int](1)
+        self._grad_ptr = unsafe_alloc[Int](1)
         self._grad_ptr[] = copy._grad_ptr[]
 
-    def __del__(deinit self):
+    def __deinit__(deinit self):
         """Destructor to free gradient pointer."""
-        self._grad_ptr.free()
+        self._grad_ptr.unsafe_free()
 
     def get_grad(self) -> Tensor:
         """Get gradient as a Tensor (stub - returns zero tensor of same size).

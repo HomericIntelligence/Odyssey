@@ -61,7 +61,9 @@ def _equal_typed[
             idx_a += coord * strides_a[d]
             idx_b += coord * strides_b[d]
 
-        out_ptr[result_idx] = a_ptr[idx_a] == b_ptr[idx_b]
+        out_ptr[unsafe_offset=result_idx] = (
+            a_ptr[unsafe_offset=idx_a] == b_ptr[unsafe_offset=idx_b]
+        )
 
     return result^
 
@@ -96,7 +98,9 @@ def _not_equal_typed[
             idx_a += coord * strides_a[d]
             idx_b += coord * strides_b[d]
 
-        out_ptr[result_idx] = a_ptr[idx_a] != b_ptr[idx_b]
+        out_ptr[unsafe_offset=result_idx] = (
+            a_ptr[unsafe_offset=idx_a] != b_ptr[unsafe_offset=idx_b]
+        )
 
     return result^
 
@@ -131,7 +135,9 @@ def _less_typed[
             idx_a += coord * strides_a[d]
             idx_b += coord * strides_b[d]
 
-        out_ptr[result_idx] = a_ptr[idx_a] < b_ptr[idx_b]
+        out_ptr[unsafe_offset=result_idx] = (
+            a_ptr[unsafe_offset=idx_a] < b_ptr[unsafe_offset=idx_b]
+        )
 
     return result^
 
@@ -166,7 +172,9 @@ def _less_equal_typed[
             idx_a += coord * strides_a[d]
             idx_b += coord * strides_b[d]
 
-        out_ptr[result_idx] = a_ptr[idx_a] <= b_ptr[idx_b]
+        out_ptr[unsafe_offset=result_idx] = (
+            a_ptr[unsafe_offset=idx_a] <= b_ptr[unsafe_offset=idx_b]
+        )
 
     return result^
 
@@ -201,7 +209,9 @@ def _greater_typed[
             idx_a += coord * strides_a[d]
             idx_b += coord * strides_b[d]
 
-        out_ptr[result_idx] = a_ptr[idx_a] > b_ptr[idx_b]
+        out_ptr[unsafe_offset=result_idx] = (
+            a_ptr[unsafe_offset=idx_a] > b_ptr[unsafe_offset=idx_b]
+        )
 
     return result^
 
@@ -236,7 +246,9 @@ def _greater_equal_typed[
             idx_a += coord * strides_a[d]
             idx_b += coord * strides_b[d]
 
-        out_ptr[result_idx] = a_ptr[idx_a] >= b_ptr[idx_b]
+        out_ptr[unsafe_offset=result_idx] = (
+            a_ptr[unsafe_offset=idx_a] >= b_ptr[unsafe_offset=idx_b]
+        )
 
     return result^
 

@@ -80,12 +80,12 @@ def test_linear_backward_numerical() raises:
     assert_equal(gi_shape[1], 2)
 
     assert_almost_equal(
-        grads.grad_input._data.bitcast[Float32]()[0],
+        grads.grad_input._data.unsafe_bitcast[Float32]()[unsafe_offset=0],
         Float32(0.7),
         tolerance=1e-5,
     )
     assert_almost_equal(
-        grads.grad_input._data.bitcast[Float32]()[1],
+        grads.grad_input._data.unsafe_bitcast[Float32]()[unsafe_offset=1],
         Float32(0.7),
         tolerance=1e-5,
     )

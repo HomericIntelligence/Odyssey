@@ -1315,7 +1315,7 @@ wheels = [
 
 [[package]]
 name = "mblack"
-version = "26.4.0"
+version = "26.5.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "click" },
@@ -1324,7 +1324,7 @@ dependencies = [
     { name = "platformdirs" },
 ]
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/76/aa/43a99605ed807023ae6729b7e0d5f126f48ca33a878ea527ecf36ccc480c/mblack-26.4.0-py3-none-any.whl", hash = "sha256:d497ea3b23b89f6e7b125e56c140905aa604efdafea315466124802e7366dc43", size = 152287, upload-time = "2026-06-18T15:36:51.874Z" },
+    { url = "https://files.pythonhosted.org/packages/f0/36/8147d0627cde9043557f7906eabe64ff6295ec910dade5251e5703f0f6d9/mblack-26.5.0-py3-none-any.whl", hash = "sha256:072b304646c277979e6a1d19b086ef226bb7381810902e975cf1c3886d1d7883", size = 155289, upload-time = "2026-08-11T14:33:49.308Z" },
 ]
 
 [[package]]
@@ -1425,7 +1425,7 @@ wheels = [
 
 [[package]]
 name = "mojo"
-version = "1.0.0b2"
+version = "1.0.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "mblack" },
@@ -1433,40 +1433,40 @@ dependencies = [
     { name = "mojo-lldb-libs" },
 ]
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/eb/64/a04071bc87495905d1fcce48980a8abfd38c30e7c65b121dcb2bad778eb9/mojo-1.0.0b2-py3-none-macosx_13_0_arm64.whl", hash = "sha256:3c7aba4a049c8ca715dbcc4aaa3f610c6415c29b6ec4b9a65a670103d5e81351", size = 15859919, upload-time = "2026-06-18T15:37:40.239Z" },
-    { url = "https://files.pythonhosted.org/packages/88/d5/2c191b54c29fbfc61ed9261046fec544106c24d70e9dbcbad5c48bbbae95/mojo-1.0.0b2-py3-none-manylinux_2_34_aarch64.whl", hash = "sha256:51579b8b5361982b25c42f1c6f669855bde00419bd96c27e3b3c4266f9c836f5", size = 25431915, upload-time = "2026-06-18T15:38:26.319Z" },
-    { url = "https://files.pythonhosted.org/packages/78/63/c1ba98329824d5cdaa6fd3c93dc8541fca34090dce0589c30432ba02701c/mojo-1.0.0b2-py3-none-manylinux_2_34_x86_64.whl", hash = "sha256:6a68fbd862ff8160284ad9fbf3b8f18744e624b1be00eb8affe615036e068d04", size = 25830397, upload-time = "2026-06-18T15:37:22.359Z" },
+    { url = "https://files.pythonhosted.org/packages/e1/f0/80f6d88e19c038b2ef251b137379663a61227d6918602d8d3f702121b7cf/mojo-1.0.0-py3-none-macosx_13_0_arm64.whl", hash = "sha256:69413fee96dfd43c4955ace56e4bb0f89401098daf61538a563c82571bc9d984", size = 34984043, upload-time = "2026-08-11T14:33:45.545Z" },
+    { url = "https://files.pythonhosted.org/packages/31/e3/d429fb53aa018e592dc378def8a92c67d0978078c8c30d089019195a285f/mojo-1.0.0-py3-none-manylinux_2_34_aarch64.whl", hash = "sha256:a6db18b2846ec4877c5cd43a2dce1556400520dc0d4450dc8b4703dab569e9a2", size = 46662292, upload-time = "2026-08-11T14:34:48.124Z" },
+    { url = "https://files.pythonhosted.org/packages/c4/89/326637e71282288e7d3a8ef2990dbf9fbfb07c1b3d21b836ffe2ee3111a9/mojo-1.0.0-py3-none-manylinux_2_34_x86_64.whl", hash = "sha256:725d6b7f29a5a3334e3c225f35f2b709fd46151a0a31a2c22738b1937dfc83d9", size = 47843328, upload-time = "2026-08-11T14:34:11.448Z" },
 ]
 
 [[package]]
 name = "mojo-compiler"
-version = "1.0.0b2"
+version = "1.0.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "mojo-compiler-mojo-libs" },
 ]
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/d5/0b/3b0d33545a684c6e92b77730f55d3317d487a926345ab923f640b03d655e/mojo_compiler-1.0.0b2-py3-none-macosx_13_0_arm64.whl", hash = "sha256:45013b502b31d9dfa02b2071f7ce9a56d3bb7997a91f26b89e3e69614e070a9d", size = 70684069, upload-time = "2026-06-18T15:38:14.876Z" },
-    { url = "https://files.pythonhosted.org/packages/47/6f/037a8337f4f4d8f3be33109134cbfeab07600c6c8261a50da95429c55a7b/mojo_compiler-1.0.0b2-py3-none-manylinux_2_34_aarch64.whl", hash = "sha256:344a35eae3fecb31f6d22380f821e84da1c6c302d852573444fcdc47a5fcf2f5", size = 92042307, upload-time = "2026-06-18T15:37:53.405Z" },
-    { url = "https://files.pythonhosted.org/packages/b7/cb/ace18363deee8f3d8cdf439a2c9460334efd7d3a2883d266a6c7ab9e2e50/mojo_compiler-1.0.0b2-py3-none-manylinux_2_34_x86_64.whl", hash = "sha256:7c10021ca0d775f37af1ee8afa62094294405cee85f0bdb2af7eeb956055f140", size = 96904189, upload-time = "2026-06-18T15:38:22.444Z" },
+    { url = "https://files.pythonhosted.org/packages/60/59/c11cf3129d4bc77b1604ac3a84bee51ee1a7cd8a3a8fa25c14528f4bd51e/mojo_compiler-1.0.0-py3-none-macosx_13_0_arm64.whl", hash = "sha256:5077ee27c0dfbbdf138a11ec12838b0d3f10148a874cf95040c9ca2332ae2622", size = 70979164, upload-time = "2026-08-11T14:34:51.281Z" },
+    { url = "https://files.pythonhosted.org/packages/a5/f9/cbfe2bf947d0926ad57599513d898f1e02ee0c60af1253b779ecaa810235/mojo_compiler-1.0.0-py3-none-manylinux_2_34_aarch64.whl", hash = "sha256:3ae3eb0c58a8956f542e324f736866df0ae2f9f875e8a279cbeea961ec4e9ee8", size = 76295262, upload-time = "2026-08-11T14:34:22.131Z" },
+    { url = "https://files.pythonhosted.org/packages/f0/5f/f38fefe327d1c81e28def69c4a52ae4f75e389cb6e613a2c04ca8d68d582/mojo_compiler-1.0.0-py3-none-manylinux_2_34_x86_64.whl", hash = "sha256:e9e60f9638e69ca0f4be7292468523fc98a143f58dbf9024f60ed68b874a867e", size = 79142588, upload-time = "2026-08-11T14:34:05.301Z" },
 ]
 
 [[package]]
 name = "mojo-compiler-mojo-libs"
-version = "1.0.0b2"
+version = "1.0.0"
 source = { registry = "https://pypi.org/simple" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/16/5c/5c78b66b2e9ce5d94c873583e252c7ccd51195031b966c51836c12528854/mojo_compiler_mojo_libs-1.0.0b2-py3-none-any.whl", hash = "sha256:2d63d3740ca667b1657547ced2d26f4236e1698a9944562b6ebb40b3a95840bc", size = 5207861, upload-time = "2026-06-18T15:37:37.995Z" },
+    { url = "https://files.pythonhosted.org/packages/54/99/ea401ff1db56a4af8607283b95627e01b986fc67f510715b07f100118105/mojo_compiler_mojo_libs-1.0.0-py3-none-any.whl", hash = "sha256:20a92e37ecbd19e2dbb1a525612a8de4c9f266f5536def55c5e2b0786320e8b3", size = 3187048, upload-time = "2026-08-11T14:33:53.171Z" },
 ]
 
 [[package]]
 name = "mojo-lldb-libs"
-version = "1.0.0b2"
+version = "1.0.0"
 source = { registry = "https://pypi.org/simple" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/04/83/309d18f561c5304fd79bb7aa9561346a7774ee9d4a48948a79196353bff3/mojo_lldb_libs-1.0.0b2-py3-none-macosx_13_0_arm64.whl", hash = "sha256:b63e30da8bac75668e2ddf6cac2423710991c14b2ed8c9d234b3e94764cd7936", size = 87860618, upload-time = "2026-06-18T15:37:09.216Z" },
-    { url = "https://files.pythonhosted.org/packages/f7/e6/57f07037bab6783ab1e6dfa75ce27d968474b26d3f2f5153fef61722bc23/mojo_lldb_libs-1.0.0b2-py3-none-manylinux_2_34_aarch64.whl", hash = "sha256:b8e702466668e91baaf46130a0ea0028fd764099090b66b93f47f91e710b4970", size = 87943965, upload-time = "2026-06-18T15:37:18.448Z" },
-    { url = "https://files.pythonhosted.org/packages/cc/48/94c81ad146a22d3913f61362c8518d7529fc509f97ef238f3198e0a2064d/mojo_lldb_libs-1.0.0b2-py3-none-manylinux_2_34_x86_64.whl", hash = "sha256:bf22ec7b7ee2628dac2e1a4a2d1d1042dc5dfc339040d1d3b970134fffbb4df7", size = 90751545, upload-time = "2026-06-18T15:38:39.497Z" },
+    { url = "https://files.pythonhosted.org/packages/ee/2c/b862539eb138fdbb934321f11fe13d67ceb0d8bebcc8351bc88b0ca4f8c2/mojo_lldb_libs-1.0.0-py3-none-macosx_13_0_arm64.whl", hash = "sha256:b8f417c3c2c64058c1c11467086c2e64464abcd91dba938c659b49d94cc75c5b", size = 89030854, upload-time = "2026-08-11T14:34:37.154Z" },
+    { url = "https://files.pythonhosted.org/packages/38/e1/a7c6c73c875f5692587beda9ca68773bae069d60b1c79d9fffd8a2840f4d/mojo_lldb_libs-1.0.0-py3-none-manylinux_2_34_aarch64.whl", hash = "sha256:7eb1f204829f031fda8cc9ee4e7f461f1ca3ddf1c8fb509abf2eb6f02c9de4f5", size = 88995473, upload-time = "2026-08-11T14:34:28.231Z" },
+    { url = "https://files.pythonhosted.org/packages/12/a0/8280a1869d017102d50e0dcf1962e0bc59834f8fe07b435e1a575bb5c923/mojo_lldb_libs-1.0.0-py3-none-manylinux_2_34_x86_64.whl", hash = "sha256:de151c87f3fb4d184a85e735eae05bf43f9a9deb4cb8f2b07cf6b59cb769d93f", size = 91857746, upload-time = "2026-08-11T14:33:56.4Z" },
 ]
 
 [[package]]
@@ -1718,7 +1718,7 @@ requires-dist = [
     { name = "jinja2", specifier = ">=3.1.0,<4" },
     { name = "jsonschema", specifier = ">=4.0" },
     { name = "mistune", specifier = ">=3.3.4" },
-    { name = "mojo", specifier = "==1.0.0b2" },
+    { name = "mojo", specifier = "==1.0.0" },
     { name = "nbconvert", specifier = ">=7.16.0,<8" },
     { name = "nbformat", specifier = ">=5.11.0,<6" },
     { name = "numpy", specifier = ">=2.3.5,<3" },

@@ -74,12 +74,12 @@ def test_transformed_dataset_applies_transform() raises:
     var transformed = TransformedDataset(base_dataset^, normalize^)
 
     # Get a sample with transform
-    var transformed_data, transformed_labels = transformed[0]
+    var transformed_data, _ = transformed[0]
 
     # Original data was all 1.0, normalize with mean=0.5, std=0.5
     # should give (1.0 - 0.5) / 0.5 = 1.0
     # Note: Original data was 1.0, so transformed should also be 1.0
-    var transformed_first = transformed_data._data.bitcast[Float32]()[0]
+    var transformed_first = transformed_data._data.unsafe_bitcast[Float32]()[unsafe_offset=0]
 
     # Transformed value should be 1.0 (from normalize: (1.0 - 0.5) / 0.5 = 1.0)
     assert_true(transformed_first > 0.9)
@@ -105,7 +105,7 @@ def test_transformed_dataset_preserves_labels() raises:
 
     # Labels should still be zeros (unchanged from original)
     # Original labels were created with zeros(), so first element should be 0.0
-    var trans_first = transformed_labels._data.bitcast[Float32]()[0]
+    var trans_first = transformed_labels._data.unsafe_bitcast[Float32]()[unsafe_offset=0]
 
     assert_equal(trans_first, Float32(0.0))
 
@@ -128,7 +128,7 @@ def test_transformed_dataset_all_samples() raises:
     # Check a few samples
     for i in range(3):
         var trans_data, _ = transformed[i]
-        var trans_first = trans_data._data.bitcast[Float32]()[0]
+        var trans_first = trans_data._data.unsafe_bitcast[Float32]()[unsafe_offset=0]
 
         # All should have same normalized value
         assert_true(trans_first > 0.9)

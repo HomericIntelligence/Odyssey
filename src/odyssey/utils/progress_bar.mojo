@@ -71,7 +71,11 @@ def format_duration(seconds: Float64) -> String:
     while result.byte_length() > 0 and result.as_bytes()[
         result.byte_length() - 1
     ] == UInt8(ord(" ")):
-        result = String(result[byte = 0 : result.byte_length() - 1])
+        # Mojo 1.0.0: copying the slice is required before reassigning
+        # (aliasing check) - `String(result[...])` from the same buffer is
+        # rejected when the result is written back to `result`.
+        var trimmed = String(result[byte = 0 : result.byte_length() - 1])
+        result = trimmed^
 
     return result
 

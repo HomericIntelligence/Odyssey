@@ -43,13 +43,17 @@ def test_clip_predictions_within_range() raises:
     var clipped = clip_predictions(predictions)
 
     # All values should be in [1e-7, 1.0 - 1e-7]
-    var clipped_data = clipped._data.bitcast[Float32]()
+    var clipped_data = clipped._data.unsafe_bitcast[Float32]()
     for i in range(3):
         assert_greater_or_equal(
-            clipped_data[i], 1e-7, "Clipped value should be >= epsilon"
+            clipped_data[unsafe_offset=i],
+            1e-7,
+            "Clipped value should be >= epsilon",
         )
         assert_less_or_equal(
-            clipped_data[i], 1.0 - 1e-7, "Clipped value should be <= 1-epsilon"
+            clipped_data[unsafe_offset=i],
+            1.0 - 1e-7,
+            "Clipped value should be <= 1-epsilon",
         )
 
 
@@ -61,8 +65,10 @@ def test_clip_predictions_zero_lower_bound() raises:
 
     var clipped = clip_predictions(predictions, epsilon=1e-5)
 
-    var clipped_data = clipped._data.bitcast[Float32]()
-    assert_almost_equal(Float64(clipped_data[0]), 1e-5, tolerance=1e-6)
+    var clipped_data = clipped._data.unsafe_bitcast[Float32]()
+    assert_almost_equal(
+        Float64(clipped_data[unsafe_offset=0]), 1e-5, tolerance=1e-6
+    )
 
 
 def test_clip_predictions_one_upper_bound() raises:
@@ -73,8 +79,10 @@ def test_clip_predictions_one_upper_bound() raises:
 
     var clipped = clip_predictions(predictions, epsilon=1e-5)
 
-    var clipped_data = clipped._data.bitcast[Float32]()
-    assert_almost_equal(Float64(clipped_data[0]), 1.0 - 1e-5, tolerance=1e-6)
+    var clipped_data = clipped._data.unsafe_bitcast[Float32]()
+    assert_almost_equal(
+        Float64(clipped_data[unsafe_offset=0]), 1.0 - 1e-5, tolerance=1e-6
+    )
 
 
 def test_clip_predictions_custom_epsilon() raises:
@@ -86,9 +94,9 @@ def test_clip_predictions_custom_epsilon() raises:
     var custom_epsilon = 1e-3
     var clipped = clip_predictions(predictions, epsilon=custom_epsilon)
 
-    var clipped_data = clipped._data.bitcast[Float32]()
+    var clipped_data = clipped._data.unsafe_bitcast[Float32]()
     assert_almost_equal(
-        Float64(clipped_data[0]), custom_epsilon, tolerance=1e-6
+        Float64(clipped_data[unsafe_offset=0]), custom_epsilon, tolerance=1e-6
     )
 
 
@@ -120,9 +128,11 @@ def test_create_epsilon_tensor_values() raises:
     var epsilon_val = 1e-7
     var epsilon_tensor = create_epsilon_tensor(template, epsilon=epsilon_val)
 
-    var eps_data = epsilon_tensor._data.bitcast[Float32]()
+    var eps_data = epsilon_tensor._data.unsafe_bitcast[Float32]()
     for i in range(4):
-        assert_almost_equal(Float64(eps_data[i]), epsilon_val, tolerance=1e-8)
+        assert_almost_equal(
+            Float64(eps_data[unsafe_offset=i]), epsilon_val, tolerance=1e-8
+        )
 
 
 def test_validate_tensor_shapes_matching() raises:
@@ -197,8 +207,10 @@ def test_compute_one_minus_tensor_half() raises:
 
     var result = compute_one_minus_tensor(tensor)
 
-    var result_data = result._data.bitcast[Float32]()
-    assert_almost_equal(Float64(result_data[0]), 0.5, tolerance=1e-6)
+    var result_data = result._data.unsafe_bitcast[Float32]()
+    assert_almost_equal(
+        Float64(result_data[unsafe_offset=0]), 0.5, tolerance=1e-6
+    )
 
 
 def test_compute_one_minus_tensor_zero() raises:
@@ -209,8 +221,10 @@ def test_compute_one_minus_tensor_zero() raises:
 
     var result = compute_one_minus_tensor(tensor)
 
-    var result_data = result._data.bitcast[Float32]()
-    assert_almost_equal(Float64(result_data[0]), 1.0, tolerance=1e-6)
+    var result_data = result._data.unsafe_bitcast[Float32]()
+    assert_almost_equal(
+        Float64(result_data[unsafe_offset=0]), 1.0, tolerance=1e-6
+    )
 
 
 def test_compute_one_minus_tensor_one() raises:
@@ -221,8 +235,10 @@ def test_compute_one_minus_tensor_one() raises:
 
     var result = compute_one_minus_tensor(tensor)
 
-    var result_data = result._data.bitcast[Float32]()
-    assert_almost_equal(Float64(result_data[0]), 0.0, tolerance=1e-6)
+    var result_data = result._data.unsafe_bitcast[Float32]()
+    assert_almost_equal(
+        Float64(result_data[unsafe_offset=0]), 0.0, tolerance=1e-6
+    )
 
 
 def test_compute_sign_tensor_positive() raises:
@@ -233,8 +249,10 @@ def test_compute_sign_tensor_positive() raises:
 
     var result = compute_sign_tensor(tensor)
 
-    var result_data = result._data.bitcast[Float32]()
-    assert_almost_equal(Float64(result_data[0]), 1.0, tolerance=1e-6)
+    var result_data = result._data.unsafe_bitcast[Float32]()
+    assert_almost_equal(
+        Float64(result_data[unsafe_offset=0]), 1.0, tolerance=1e-6
+    )
 
 
 def test_compute_sign_tensor_negative() raises:
@@ -245,8 +263,10 @@ def test_compute_sign_tensor_negative() raises:
 
     var result = compute_sign_tensor(tensor)
 
-    var result_data = result._data.bitcast[Float32]()
-    assert_almost_equal(Float64(result_data[0]), -1.0, tolerance=1e-6)
+    var result_data = result._data.unsafe_bitcast[Float32]()
+    assert_almost_equal(
+        Float64(result_data[unsafe_offset=0]), -1.0, tolerance=1e-6
+    )
 
 
 def test_compute_sign_tensor_zero() raises:
@@ -257,8 +277,10 @@ def test_compute_sign_tensor_zero() raises:
 
     var result = compute_sign_tensor(tensor)
 
-    var result_data = result._data.bitcast[Float32]()
-    assert_almost_equal(Float64(result_data[0]), 0.0, tolerance=1e-6)
+    var result_data = result._data.unsafe_bitcast[Float32]()
+    assert_almost_equal(
+        Float64(result_data[unsafe_offset=0]), 0.0, tolerance=1e-6
+    )
 
 
 def test_blend_tensors_all_first() raises:
@@ -272,8 +294,10 @@ def test_blend_tensors_all_first() raises:
 
     var result = blend_tensors(tensor1, tensor2, mask)
 
-    var result_data = result._data.bitcast[Float32]()
-    assert_almost_equal(Float64(result_data[0]), 1.0, tolerance=1e-6)
+    var result_data = result._data.unsafe_bitcast[Float32]()
+    assert_almost_equal(
+        Float64(result_data[unsafe_offset=0]), 1.0, tolerance=1e-6
+    )
 
 
 def test_blend_tensors_all_second() raises:
@@ -287,8 +311,10 @@ def test_blend_tensors_all_second() raises:
 
     var result = blend_tensors(tensor1, tensor2, mask)
 
-    var result_data = result._data.bitcast[Float32]()
-    assert_almost_equal(Float64(result_data[0]), 2.0, tolerance=1e-6)
+    var result_data = result._data.unsafe_bitcast[Float32]()
+    assert_almost_equal(
+        Float64(result_data[unsafe_offset=0]), 2.0, tolerance=1e-6
+    )
 
 
 def test_blend_tensors_mixed() raises:
@@ -300,15 +326,19 @@ def test_blend_tensors_mixed() raises:
     var tensor2 = full(shape, 20.0, DType.float32)
 
     var mask = zeros(shape, DType.float32)
-    var mask_data = mask._data.bitcast[Float32]()
-    mask_data[0] = 1.0  # First element selects tensor1
-    mask_data[1] = 0.0  # Second element selects tensor2
+    var mask_data = mask._data.unsafe_bitcast[Float32]()
+    mask_data[unsafe_offset=0] = 1.0  # First element selects tensor1
+    mask_data[unsafe_offset=1] = 0.0  # Second element selects tensor2
 
     var result = blend_tensors(tensor1, tensor2, mask)
 
-    var result_data = result._data.bitcast[Float32]()
-    assert_almost_equal(Float64(result_data[0]), 10.0, tolerance=1e-6)
-    assert_almost_equal(Float64(result_data[1]), 20.0, tolerance=1e-6)
+    var result_data = result._data.unsafe_bitcast[Float32]()
+    assert_almost_equal(
+        Float64(result_data[unsafe_offset=0]), 10.0, tolerance=1e-6
+    )
+    assert_almost_equal(
+        Float64(result_data[unsafe_offset=1]), 20.0, tolerance=1e-6
+    )
 
 
 def test_compute_difference_basic() raises:
@@ -321,8 +351,10 @@ def test_compute_difference_basic() raises:
 
     var result = compute_difference(tensor1, tensor2)
 
-    var result_data = result._data.bitcast[Float32]()
-    assert_almost_equal(Float64(result_data[0]), 3.0, tolerance=1e-6)
+    var result_data = result._data.unsafe_bitcast[Float32]()
+    assert_almost_equal(
+        Float64(result_data[unsafe_offset=0]), 3.0, tolerance=1e-6
+    )
 
 
 def test_compute_difference_shape_mismatch() raises:
@@ -355,8 +387,10 @@ def test_compute_product_basic() raises:
 
     var result = compute_product(tensor1, tensor2)
 
-    var result_data = result._data.bitcast[Float32]()
-    assert_almost_equal(Float64(result_data[0]), 12.0, tolerance=1e-6)
+    var result_data = result._data.unsafe_bitcast[Float32]()
+    assert_almost_equal(
+        Float64(result_data[unsafe_offset=0]), 12.0, tolerance=1e-6
+    )
 
 
 def test_compute_product_with_zero() raises:
@@ -369,8 +403,10 @@ def test_compute_product_with_zero() raises:
 
     var result = compute_product(tensor1, tensor2)
 
-    var result_data = result._data.bitcast[Float32]()
-    assert_almost_equal(Float64(result_data[0]), 0.0, tolerance=1e-6)
+    var result_data = result._data.unsafe_bitcast[Float32]()
+    assert_almost_equal(
+        Float64(result_data[unsafe_offset=0]), 0.0, tolerance=1e-6
+    )
 
 
 def test_compute_ratio_basic() raises:
@@ -383,8 +419,10 @@ def test_compute_ratio_basic() raises:
 
     var result = compute_ratio(numerator, denominator)
 
-    var result_data = result._data.bitcast[Float32]()
-    assert_almost_equal(Float64(result_data[0]), 3.0, tolerance=1e-6)
+    var result_data = result._data.unsafe_bitcast[Float32]()
+    assert_almost_equal(
+        Float64(result_data[unsafe_offset=0]), 3.0, tolerance=1e-6
+    )
 
 
 def test_compute_ratio_zero_denominator() raises:
@@ -397,10 +435,10 @@ def test_compute_ratio_zero_denominator() raises:
 
     var result = compute_ratio(numerator, denominator, epsilon=1e-5)
 
-    var result_data = result._data.bitcast[Float32]()
+    var result_data = result._data.unsafe_bitcast[Float32]()
     # Should be 1.0 / 1e-5 = 100000, but check it's finite and positive
     assert_greater_or_equal(
-        result_data[0], 0.0, "Result should be non-negative"
+        result_data[unsafe_offset=0], 0.0, "Result should be non-negative"
     )
 
 
@@ -412,8 +450,10 @@ def test_negate_tensor_positive() raises:
 
     var result = negate_tensor(tensor)
 
-    var result_data = result._data.bitcast[Float32]()
-    assert_almost_equal(Float64(result_data[0]), -5.0, tolerance=1e-6)
+    var result_data = result._data.unsafe_bitcast[Float32]()
+    assert_almost_equal(
+        Float64(result_data[unsafe_offset=0]), -5.0, tolerance=1e-6
+    )
 
 
 def test_negate_tensor_negative() raises:
@@ -424,8 +464,10 @@ def test_negate_tensor_negative() raises:
 
     var result = negate_tensor(tensor)
 
-    var result_data = result._data.bitcast[Float32]()
-    assert_almost_equal(Float64(result_data[0]), 3.0, tolerance=1e-6)
+    var result_data = result._data.unsafe_bitcast[Float32]()
+    assert_almost_equal(
+        Float64(result_data[unsafe_offset=0]), 3.0, tolerance=1e-6
+    )
 
 
 def test_negate_tensor_zero() raises:
@@ -436,8 +478,10 @@ def test_negate_tensor_zero() raises:
 
     var result = negate_tensor(tensor)
 
-    var result_data = result._data.bitcast[Float32]()
-    assert_almost_equal(Float64(result_data[0]), 0.0, tolerance=1e-6)
+    var result_data = result._data.unsafe_bitcast[Float32]()
+    assert_almost_equal(
+        Float64(result_data[unsafe_offset=0]), 0.0, tolerance=1e-6
+    )
 
 
 def main() raises:

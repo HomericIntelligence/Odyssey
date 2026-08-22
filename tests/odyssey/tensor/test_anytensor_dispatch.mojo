@@ -146,10 +146,10 @@ def test_anytensor_dtype_mismatch_raises() raises:
 def test_conversion_roundtrip_preserves_values() raises:
     """Tensor -> AnyTensor -> Tensor round-trip preserves data."""
     var t1 = Tensor[DType.float32]([4])
-    t1._data[0] = Scalar[DType.float32](1.5)
-    t1._data[1] = Scalar[DType.float32](-0.5)
-    t1._data[2] = Scalar[DType.float32](0.0)
-    t1._data[3] = Scalar[DType.float32](0.25)
+    t1._data[unsafe_offset=0] = Scalar[DType.float32](1.5)
+    t1._data[unsafe_offset=1] = Scalar[DType.float32](-0.5)
+    t1._data[unsafe_offset=2] = Scalar[DType.float32](0.0)
+    t1._data[unsafe_offset=3] = Scalar[DType.float32](0.25)
 
     # Round-trip: Tensor -> AnyTensor -> Tensor
     var any_t = t1.as_any()

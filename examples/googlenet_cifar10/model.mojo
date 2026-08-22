@@ -569,11 +569,11 @@ def concatenate_depthwise(
     var result = zeros(result_shape, t1.dtype())
 
     # Copy data from each tensor
-    var result_data = result._data.bitcast[Float32]()
-    var t1_data = t1._data.bitcast[Float32]()
-    var t2_data = t2._data.bitcast[Float32]()
-    var t3_data = t3._data.bitcast[Float32]()
-    var t4_data = t4._data.bitcast[Float32]()
+    var result_data = result._data.unsafe_bitcast[Float32]()
+    var t1_data = t1._data.unsafe_bitcast[Float32]()
+    var t2_data = t2._data.unsafe_bitcast[Float32]()
+    var t3_data = t3._data.unsafe_bitcast[Float32]()
+    var t4_data = t4._data.unsafe_bitcast[Float32]()
 
     var hw = height * width
 
@@ -653,11 +653,11 @@ def concatenate_depthwise_backward(
     var g3 = zeros([batch_size, c3, height, width], grad_output.dtype())
     var g4 = zeros([batch_size, c4, height, width], grad_output.dtype())
 
-    var go_data = grad_output._data.bitcast[Float32]()
-    var g1_data = g1._data.bitcast[Float32]()
-    var g2_data = g2._data.bitcast[Float32]()
-    var g3_data = g3._data.bitcast[Float32]()
-    var g4_data = g4._data.bitcast[Float32]()
+    var go_data = grad_output._data.unsafe_bitcast[Float32]()
+    var g1_data = g1._data.unsafe_bitcast[Float32]()
+    var g2_data = g2._data.unsafe_bitcast[Float32]()
+    var g3_data = g3._data.unsafe_bitcast[Float32]()
+    var g4_data = g4._data.unsafe_bitcast[Float32]()
 
     for b in range(batch_size):
         # Branch 1 channels: [0, c1)
@@ -1351,8 +1351,8 @@ struct GoogLeNet:
         var channels = out.shape()[1]
         var flattened_shape: List[Int] = [batch_size, channels]
         var flattened = zeros(flattened_shape, out.dtype())
-        var flattened_data = flattened._data.bitcast[Float32]()
-        var out_data = out._data.bitcast[Float32]()
+        var flattened_data = flattened._data.unsafe_bitcast[Float32]()
+        var out_data = out._data.unsafe_bitcast[Float32]()
 
         for b in range(batch_size):
             for c in range(channels):

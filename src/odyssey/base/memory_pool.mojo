@@ -37,7 +37,8 @@ Example:
 """
 
 from std.collections import List
-from std.memory import UnsafePointer, alloc, memcpy
+from std.memory import Pointer, unsafe_memcpy
+from std.memory.alloc import unsafe_alloc
 from std.atomic import Atomic
 
 # Size bucket boundaries (in bytes)
@@ -101,25 +102,19 @@ struct SpinLock(Copyable, Movable):
     overhead of a deep copy.
     """
 
-    var _state: UnsafePointer[UInt8, MutAnyOrigin]
+    var _state: Pointer[UInt8, MutUntrackedOrigin]
     """Heap-allocated 8-byte region reinterpreted as Atomic[DType.int64]."""
 
     def __init__(out self):
         """Initialize an unlocked spinlock."""
-        self._state = alloc[UInt8](8)
+        self._state = unsafe_alloc[UInt8](8)
         for i in range(8):
-            self._state[i] = 0
+            self._state[unsafe_offset=i] = 0
 
-    def _as_atomic(
-        self,
-    ) -> UnsafePointer[Atomic[DType.int64], MutAnyOrigin]:
-        """Reinterpret backing store as an atomic int64."""
-        return self._state.bitcast[Atomic[DType.int64]]()
-
-    def _lock_word(self) -> UnsafePointer[Int64, MutAnyOrigin]:
+    def _lock_word(self) -> Pointer[Int64, MutUntrackedOrigin]:
         """Return the lock word as a plain Int64 pointer for static Atomic ops.
         """
-        return self._state.bitcast[Int64]()
+        return self._state.unsafe_bitcast[Int64]()
 
     def lock(self):
         """Acquire the lock, spinning until available.
@@ -166,9 +161,38 @@ struct SpinLock(Copyable, Movable):
         """
         _ = Atomic[DType.int64].fetch_add(self._lock_word(), Int64(-1))
 
-    def __del__(deinit self):
+    def peek_counter(mut self) -> Int64:
+        """Atomically read the lock counter (0 = unlocked, 1 = locked).
+
+        WAR for modular/modular#6959 (see also #6707): exposing the raw
+        atomic pointer via `_as_atomic()` lets the raw pointer escape the
+        struct, and the 1.0.0 compiler then hoists `__deinit__` (the
+        `unsafe_free` of `_state`) to right after the last syntactic use of
+        the SpinLock — callers operate on freed memory.  These methods keep
+        all atomic access inside the struct so no pointer ever escapes.
+        """
+        return self._state.unsafe_bitcast[Atomic[DType.int64]]()[].load()
+
+    def fetch_add_counter(mut self, rhs: Int) -> Int64:
+        """Atomically add rhs to the lock counter; returns the previous value.
+
+        Same WAR rationale as `peek_counter` (no pointer escapes).
+        """
+        return self._state.unsafe_bitcast[Atomic[DType.int64]]()[].fetch_add(
+            Int64(rhs)
+        )
+
+    def fetch_sub_counter(mut self, rhs: Int) -> Int64:
+        """Atomically subtract rhs from the lock counter; returns the previous
+        value.  Same WAR rationale as `peek_counter` (no pointer escapes).
+        """
+        return self._state.unsafe_bitcast[Atomic[DType.int64]]()[].fetch_sub(
+            Int64(rhs)
+        )
+
+    def __deinit__(deinit self):
         """Free the backing store."""
-        self._state.free()
+        self._state.unsafe_free()
 
 
 struct AtomicStats(Copyable, Movable):
@@ -183,76 +207,113 @@ struct AtomicStats(Copyable, Movable):
     struct is stored in a List that reallocates.
     """
 
-    var _data: UnsafePointer[UInt8, MutAnyOrigin]
+    var _data: Pointer[UInt8, MutUntrackedOrigin]
     """Heap-allocated storage for 7 atomic int64 counters (56 bytes)."""
 
     def __init__(out self):
         """Initialize all counters to zero."""
-        self._data = alloc[UInt8](_ASTATS_SIZE)
+        self._data = unsafe_alloc[UInt8](_ASTATS_SIZE)
         for i in range(_ASTATS_SIZE):
-            self._data[i] = 0
+            self._data[unsafe_offset=i] = 0
 
-    def _counter(
-        self, offset: Int
-    ) -> UnsafePointer[Atomic[DType.int64], MutAnyOrigin]:
-        """Get pointer to atomic counter at given byte offset."""
-        return (self._data + offset).bitcast[Atomic[DType.int64]]()
+    def peek_counter(mut self, offset: Int) -> Int64:
+        """Atomically read the counter at the given byte offset.
 
-    def add_allocations(self, n: Int):
+        WAR for modular/modular#6959 (see also #6707): `update_peak_cached`
+        used to hold the raw atomic pointer returned by `_counter()` in a
+        local, letting the pointer escape the struct. The 1.0.0 compiler
+        then hoists `__deinit__` (the `unsafe_free` of `_data`) to right
+        after the last syntactic use of the AtomicStats, so callers operate
+        on freed memory. These methods keep all atomic access inside the
+        struct so no pointer ever escapes.
+        """
+        return (
+            self._data.unsafe_offset(offset)
+            .unsafe_bitcast[Atomic[DType.int64]]()[]
+            .load()
+        )
+
+    def fetch_add_counter(mut self, offset: Int, n: Int) -> Int64:
+        """Atomically add n to the counter at the given byte offset.
+
+        Same WAR rationale as `peek_counter` (no pointer escapes).
+        """
+        return (
+            self._data.unsafe_offset(offset)
+            .unsafe_bitcast[Atomic[DType.int64]]()[]
+            .fetch_add(Int64(n))
+        )
+
+    def max_counter(mut self, offset: Int, n: Int64):
+        """Atomically set the counter at the given byte offset to max(old, n).
+
+        Same WAR rationale as `peek_counter` (no pointer escapes).
+        """
+        _ = (
+            self._data.unsafe_offset(offset)
+            .unsafe_bitcast[Atomic[DType.int64]]()[]
+            .max(n)
+        )
+
+    def store_counter(mut self, offset: Int, value: Int):
+        """Atomically store value into the counter at the given byte offset.
+
+        Same WAR rationale as `peek_counter` (no pointer escapes).
+        """
+        Atomic[DType.int64].store(
+            self._data.unsafe_offset(offset).unsafe_bitcast[Int64](),
+            Int64(value),
+        )
+
+    def add_allocations(mut self, n: Int):
         """Atomically increment allocations counter."""
-        _ = self._counter(_ASTATS_ALLOCATIONS)[].fetch_add(Int64(n))
+        _ = self.fetch_add_counter(_ASTATS_ALLOCATIONS, n)
 
-    def add_deallocations(self, n: Int):
+    def add_deallocations(mut self, n: Int):
         """Atomically increment deallocations counter."""
-        _ = self._counter(_ASTATS_DEALLOCATIONS)[].fetch_add(Int64(n))
+        _ = self.fetch_add_counter(_ASTATS_DEALLOCATIONS, n)
 
-    def add_pool_hits(self, n: Int):
+    def add_pool_hits(mut self, n: Int):
         """Atomically increment pool hits counter."""
-        _ = self._counter(_ASTATS_POOL_HITS)[].fetch_add(Int64(n))
+        _ = self.fetch_add_counter(_ASTATS_POOL_HITS, n)
 
-    def add_pool_misses(self, n: Int):
+    def add_pool_misses(mut self, n: Int):
         """Atomically increment pool misses counter."""
-        _ = self._counter(_ASTATS_POOL_MISSES)[].fetch_add(Int64(n))
+        _ = self.fetch_add_counter(_ASTATS_POOL_MISSES, n)
 
-    def add_bytes_allocated(self, n: Int):
+    def add_bytes_allocated(mut self, n: Int):
         """Atomically adjust bytes allocated counter."""
-        _ = self._counter(_ASTATS_BYTES_ALLOCATED)[].fetch_add(Int64(n))
+        _ = self.fetch_add_counter(_ASTATS_BYTES_ALLOCATED, n)
 
-    def add_bytes_cached(self, n: Int):
+    def add_bytes_cached(mut self, n: Int):
         """Atomically adjust bytes cached counter."""
-        _ = self._counter(_ASTATS_BYTES_CACHED)[].fetch_add(Int64(n))
+        _ = self.fetch_add_counter(_ASTATS_BYTES_CACHED, n)
 
-    def update_peak_cached(self):
+    def update_peak_cached(mut self):
         """Update peak cached bytes if current cached exceeds it."""
-        var cached = self._counter(_ASTATS_BYTES_CACHED)[].load()
-        var peak_ptr = self._counter(_ASTATS_PEAK_CACHED)
+        var cached = self.peek_counter(_ASTATS_BYTES_CACHED)
         # Simple load-compare-store; minor races here are acceptable
         # since peak is a high-water-mark metric, not a correctness counter.
-        if cached > peak_ptr[].load():
-            peak_ptr[].max(Int64(cached))
+        if cached > self.peek_counter(_ASTATS_PEAK_CACHED):
+            self.max_counter(_ASTATS_PEAK_CACHED, cached)
 
-    def snapshot(self) -> PoolStats:
+    def snapshot(mut self) -> PoolStats:
         """Take a consistent snapshot of all counters.
 
         Returns:
             A PoolStats struct with current counter values.
         """
         var s = PoolStats()
-        s.allocations = Int(self._counter(_ASTATS_ALLOCATIONS)[].load())
-        s.deallocations = Int(self._counter(_ASTATS_DEALLOCATIONS)[].load())
-        s.pool_hits = Int(self._counter(_ASTATS_POOL_HITS)[].load())
-        s.pool_misses = Int(self._counter(_ASTATS_POOL_MISSES)[].load())
-        s.bytes_allocated = Int(self._counter(_ASTATS_BYTES_ALLOCATED)[].load())
-        s.bytes_cached = Int(self._counter(_ASTATS_BYTES_CACHED)[].load())
-        s.peak_cached_bytes = Int(self._counter(_ASTATS_PEAK_CACHED)[].load())
+        s.allocations = Int(self.peek_counter(_ASTATS_ALLOCATIONS))
+        s.deallocations = Int(self.peek_counter(_ASTATS_DEALLOCATIONS))
+        s.pool_hits = Int(self.peek_counter(_ASTATS_POOL_HITS))
+        s.pool_misses = Int(self.peek_counter(_ASTATS_POOL_MISSES))
+        s.bytes_allocated = Int(self.peek_counter(_ASTATS_BYTES_ALLOCATED))
+        s.bytes_cached = Int(self.peek_counter(_ASTATS_BYTES_CACHED))
+        s.peak_cached_bytes = Int(self.peek_counter(_ASTATS_PEAK_CACHED))
         return s
 
-    def _counter_int64(self, offset: Int) -> UnsafePointer[Int64, MutAnyOrigin]:
-        """Return a plain Int64 pointer at the given byte offset (for atomic store).
-        """
-        return (self._data + offset).bitcast[Int64]()
-
-    def reset(self):
+    def reset(mut self):
         """Reset all counters to zero using atomic stores.
 
         Uses one 8-byte atomic store per counter rather than byte-level zeroing
@@ -262,31 +323,17 @@ struct AtomicStats(Copyable, Movable):
         Caller must ensure no concurrent allocate()/deallocate() calls are in
         flight (see module-level thread-safety note).
         """
-        Atomic[DType.int64].store(
-            self._counter_int64(_ASTATS_ALLOCATIONS), Int64(0)
-        )
-        Atomic[DType.int64].store(
-            self._counter_int64(_ASTATS_DEALLOCATIONS), Int64(0)
-        )
-        Atomic[DType.int64].store(
-            self._counter_int64(_ASTATS_POOL_HITS), Int64(0)
-        )
-        Atomic[DType.int64].store(
-            self._counter_int64(_ASTATS_POOL_MISSES), Int64(0)
-        )
-        Atomic[DType.int64].store(
-            self._counter_int64(_ASTATS_BYTES_ALLOCATED), Int64(0)
-        )
-        Atomic[DType.int64].store(
-            self._counter_int64(_ASTATS_BYTES_CACHED), Int64(0)
-        )
-        Atomic[DType.int64].store(
-            self._counter_int64(_ASTATS_PEAK_CACHED), Int64(0)
-        )
+        self.store_counter(_ASTATS_ALLOCATIONS, 0)
+        self.store_counter(_ASTATS_DEALLOCATIONS, 0)
+        self.store_counter(_ASTATS_POOL_HITS, 0)
+        self.store_counter(_ASTATS_POOL_MISSES, 0)
+        self.store_counter(_ASTATS_BYTES_ALLOCATED, 0)
+        self.store_counter(_ASTATS_BYTES_CACHED, 0)
+        self.store_counter(_ASTATS_PEAK_CACHED, 0)
 
-    def __del__(deinit self):
+    def __deinit__(deinit self):
         """Free the backing store."""
-        self._data.free()
+        self._data.unsafe_free()
 
 
 struct PoolStats(Copyable, ImplicitlyCopyable, Movable):
@@ -365,7 +412,7 @@ struct _FreeListNode(Movable):
         next: Pointer to the next free block, or None if this is the last.
     """
 
-    var next: Optional[UnsafePointer[_FreeListNode, MutAnyOrigin]]
+    var next: Optional[Pointer[_FreeListNode, MutUntrackedOrigin]]
     """Next block in free list, or None if last."""
 
 
@@ -381,7 +428,7 @@ struct FreeList(Copyable, Movable):
         count: Number of blocks currently in the free list.
     """
 
-    var head: Optional[UnsafePointer[_FreeListNode, MutAnyOrigin]]
+    var head: Optional[Pointer[_FreeListNode, MutUntrackedOrigin]]
     """First node in free list, or None if empty."""
     var block_size: Int
     """Size of each block managed by this list."""
@@ -406,11 +453,11 @@ struct FreeList(Copyable, Movable):
         """
         return self.head is None
 
-    def pop(mut self) -> UnsafePointer[UInt8, MutAnyOrigin]:
+    def pop(mut self) -> Pointer[UInt8, MutUntrackedOrigin]:
         """Remove and return a block from the free list.
 
         Returns:
-            UnsafePointer to the allocated block.
+            Pointer to the allocated block.
 
         Note: Caller must ensure the list is not empty before calling.
         """
@@ -419,15 +466,15 @@ struct FreeList(Copyable, Movable):
         self.count -= 1
 
         # Cast the node back to UInt8 pointer
-        return node.bitcast[UInt8]()
+        return node.unsafe_bitcast[UInt8]()
 
-    def push(mut self, ptr: UnsafePointer[UInt8, MutAnyOrigin]):
+    def push(mut self, ptr: Pointer[UInt8, MutUntrackedOrigin]):
         """Add a block back to the free list.
 
         Args:
             ptr: Pointer to the block to return to the pool.
         """
-        var node = ptr.bitcast[_FreeListNode]()
+        var node = ptr.unsafe_bitcast[_FreeListNode]()
         node[].next = self.head
         self.head = node
         self.count += 1
@@ -516,7 +563,7 @@ struct TensorMemoryPool(Copyable, Movable):
             config.small_block_count, config.medium_block_count
         )
 
-    def __del__(deinit self):
+    def __deinit__(deinit self):
         """Destructor - release all pooled memory."""
         self.clear()
 
@@ -534,7 +581,7 @@ struct TensorMemoryPool(Copyable, Movable):
         for i in range(len(self.small_lists)):
             var size = self.small_lists[i].block_size
             for _ in range(small_count):
-                var ptr = alloc[UInt8](size)
+                var ptr = unsafe_alloc[UInt8](size)
                 self.small_lists[i].push(ptr)
                 self._atomic_stats.add_bytes_cached(size)
 
@@ -542,7 +589,7 @@ struct TensorMemoryPool(Copyable, Movable):
         for i in range(len(self.medium_lists)):
             var size = self.medium_lists[i].block_size
             for _ in range(medium_count):
-                var ptr = alloc[UInt8](size)
+                var ptr = unsafe_alloc[UInt8](size)
                 self.medium_lists[i].push(ptr)
                 self._atomic_stats.add_bytes_cached(size)
 
@@ -574,7 +621,7 @@ struct TensorMemoryPool(Copyable, Movable):
         # No bucket found
         return -1
 
-    def allocate(mut self, size: Int) -> UnsafePointer[UInt8, MutAnyOrigin]:
+    def allocate(mut self, size: Int) -> Pointer[UInt8, MutUntrackedOrigin]:
         """Allocate memory from pool or system allocator.
 
         Thread-safe: uses per-bucket spinlocks and atomic stats.
@@ -583,7 +630,7 @@ struct TensorMemoryPool(Copyable, Movable):
             size: Number of bytes to allocate.
 
         Returns:
-            UnsafePointer to allocated memory.
+            Pointer to allocated memory.
         """
         self._atomic_stats.add_allocations(1)
 
@@ -591,7 +638,7 @@ struct TensorMemoryPool(Copyable, Movable):
         if size > LARGE_THRESHOLD:
             self._atomic_stats.add_pool_misses(1)
             self._atomic_stats.add_bytes_allocated(size)
-            return alloc[UInt8](size)
+            return unsafe_alloc[UInt8](size)
 
         var bucket_idx = self._find_bucket_index(size)
 
@@ -599,7 +646,7 @@ struct TensorMemoryPool(Copyable, Movable):
         if bucket_idx < 0:
             self._atomic_stats.add_pool_misses(1)
             self._atomic_stats.add_bytes_allocated(size)
-            return alloc[UInt8](size)
+            return unsafe_alloc[UInt8](size)
 
         # Try to get from small bucket
         if bucket_idx < len(self.small_lists):
@@ -618,7 +665,7 @@ struct TensorMemoryPool(Copyable, Movable):
                 var actual_size = self.small_lists[bucket_idx].block_size
                 self._atomic_stats.add_pool_misses(1)
                 self._atomic_stats.add_bytes_allocated(actual_size)
-                return alloc[UInt8](actual_size)
+                return unsafe_alloc[UInt8](actual_size)
 
         # Try to get from medium bucket
         var medium_idx = bucket_idx - len(self.small_lists)
@@ -638,15 +685,15 @@ struct TensorMemoryPool(Copyable, Movable):
                 var actual_size = self.medium_lists[medium_idx].block_size
                 self._atomic_stats.add_pool_misses(1)
                 self._atomic_stats.add_bytes_allocated(actual_size)
-                return alloc[UInt8](actual_size)
+                return unsafe_alloc[UInt8](actual_size)
 
         # Fallback (should not reach here)
         self._atomic_stats.add_pool_misses(1)
         self._atomic_stats.add_bytes_allocated(size)
-        return alloc[UInt8](size)
+        return unsafe_alloc[UInt8](size)
 
     def deallocate(
-        mut self, ptr: UnsafePointer[UInt8, MutAnyOrigin], size: Int
+        mut self, ptr: Pointer[UInt8, MutUntrackedOrigin], size: Int
     ):
         """Return allocation to pool or system allocator.
 
@@ -660,7 +707,7 @@ struct TensorMemoryPool(Copyable, Movable):
 
         # Large allocations bypass pool
         if size > LARGE_THRESHOLD:
-            ptr.free()
+            ptr.unsafe_free()
             self._atomic_stats.add_bytes_allocated(-size)
             return
 
@@ -668,7 +715,7 @@ struct TensorMemoryPool(Copyable, Movable):
 
         # No suitable bucket found, free directly
         if bucket_idx < 0:
-            ptr.free()
+            ptr.unsafe_free()
             self._atomic_stats.add_bytes_allocated(-size)
             return
 
@@ -696,10 +743,10 @@ struct TensorMemoryPool(Copyable, Movable):
             return
 
         # Fallback (should not reach here)
-        ptr.free()
+        ptr.unsafe_free()
         self._atomic_stats.add_bytes_allocated(-size)
 
-    def get_stats(self) -> PoolStats:
+    def get_stats(mut self) -> PoolStats:
         """Get current pool statistics.
 
         Returns an atomic snapshot of all counters. Safe to call
@@ -737,20 +784,20 @@ struct TensorMemoryPool(Copyable, Movable):
         for i in range(len(self.small_lists)):
             while not self.small_lists[i].is_empty():
                 var ptr = self.small_lists[i].pop()
-                ptr.free()
+                ptr.unsafe_free()
 
         # Free all medium bucket blocks
         for i in range(len(self.medium_lists)):
             while not self.medium_lists[i].is_empty():
                 var ptr = self.medium_lists[i].pop()
-                ptr.free()
+                ptr.unsafe_free()
 
         # Reset byte counters only (preserve allocation/deallocation counts)
         var current_cached = Int(
-            self._atomic_stats._counter(_ASTATS_BYTES_CACHED)[].load()
+            self._atomic_stats.peek_counter(_ASTATS_BYTES_CACHED)
         )
         var current_alloc = Int(
-            self._atomic_stats._counter(_ASTATS_BYTES_ALLOCATED)[].load()
+            self._atomic_stats.peek_counter(_ASTATS_BYTES_ALLOCATED)
         )
         self._atomic_stats.add_bytes_cached(-current_cached)
         self._atomic_stats.add_bytes_allocated(-current_alloc)
@@ -763,7 +810,7 @@ struct TensorMemoryPool(Copyable, Movable):
 # for now. This is a temporary workaround until Mojo adds proper global state support.
 
 
-def pooled_alloc(size: Int) -> UnsafePointer[UInt8, MutAnyOrigin]:
+def pooled_alloc(size: Int) -> Pointer[UInt8, MutUntrackedOrigin]:
     """Allocate memory - currently bypasses pool (direct malloc).
 
     Routes allocations directly to system malloc. The pool infrastructure
@@ -783,7 +830,7 @@ def pooled_alloc(size: Int) -> UnsafePointer[UInt8, MutAnyOrigin]:
         size: Number of bytes to allocate.
 
     Returns:
-        UnsafePointer to allocated memory.
+        Pointer to allocated memory.
 
     See Also:
         - TensorMemoryPool for pool-based allocation strategy
@@ -796,10 +843,10 @@ def pooled_alloc(size: Int) -> UnsafePointer[UInt8, MutAnyOrigin]:
         var large_ptr = pooled_alloc(1024*1024)  # Allocated via malloc
         ```
     """
-    return alloc[UInt8](size)
+    return unsafe_alloc[UInt8](size)
 
 
-def pooled_free(ptr: UnsafePointer[UInt8, MutAnyOrigin], size: Int):
+def pooled_free(ptr: Pointer[UInt8, MutUntrackedOrigin], size: Int):
     """Return allocation to system allocator.
 
     Currently frees directly to system allocator. The pool infrastructure
@@ -829,7 +876,7 @@ def pooled_free(ptr: UnsafePointer[UInt8, MutAnyOrigin], size: Int):
         pooled_free(ptr, 256)  # Freed to system allocator
         ```
     """
-    ptr.free()
+    ptr.unsafe_free()
 
 
 def get_global_pool() -> TensorMemoryPool:

@@ -11,7 +11,7 @@ Test Coverage:
 
 
 from std.collections import List
-from std.memory import UnsafePointer
+from std.memory import Pointer
 from odyssey.tensor.any_tensor import AnyTensor
 from odyssey.tensor.tensor_creation import zeros
 from odyssey.data.formats import (

@@ -94,7 +94,7 @@ struct SimpleMLP:
 
         # Compute loss
         var loss_tensor = cross_entropy(fc2_out, labels)
-        var loss = loss_tensor._data.bitcast[Float32]()[0]
+        var loss = loss_tensor._data.unsafe_bitcast[Float32]()[unsafe_offset=0]
 
         # Backward pass
         var grad_output_shape = List[Int]()

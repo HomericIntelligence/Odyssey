@@ -48,37 +48,37 @@ def cast_tensor(tensor: AnyTensor, target_dtype: DType) raises -> AnyTensor:
     # Optimized paths for common conversions
     # FP32 -> FP16
     if tensor.dtype() == DType.float32 and target_dtype == DType.float16:
-        var src_ptr = tensor._data.bitcast[Float32]()
+        var src_ptr = tensor._data.unsafe_bitcast[Float32]()
         for i in range(size):
-            result[i] = Float32(src_ptr[i])
+            result[i] = Float32(src_ptr[unsafe_offset=i])
         return result
 
     # FP16 -> FP32
     if tensor.dtype() == DType.float16 and target_dtype == DType.float32:
-        var src_ptr = tensor._data.bitcast[Float16]()
+        var src_ptr = tensor._data.unsafe_bitcast[Float16]()
         for i in range(size):
-            result[i] = Float32(src_ptr[i])
+            result[i] = Float32(src_ptr[unsafe_offset=i])
         return result
 
     # FP32 -> FP32 (copy)
     if tensor.dtype() == DType.float32 and target_dtype == DType.float32:
-        var src_ptr = tensor._data.bitcast[Float32]()
+        var src_ptr = tensor._data.unsafe_bitcast[Float32]()
         for i in range(size):
-            result[i] = Float32(src_ptr[i])
+            result[i] = Float32(src_ptr[unsafe_offset=i])
         return result
 
     # FP64 -> FP32
     if tensor.dtype() == DType.float64 and target_dtype == DType.float32:
-        var src_ptr = tensor._data.bitcast[Float64]()
+        var src_ptr = tensor._data.unsafe_bitcast[Float64]()
         for i in range(size):
-            result[i] = Float32(src_ptr[i])
+            result[i] = Float32(src_ptr[unsafe_offset=i])
         return result
 
     # FP32 -> FP64
     if tensor.dtype() == DType.float32 and target_dtype == DType.float64:
-        var src_ptr = tensor._data.bitcast[Float32]()
+        var src_ptr = tensor._data.unsafe_bitcast[Float32]()
         for i in range(size):
-            result[i] = Float32(src_ptr[i])
+            result[i] = Float32(src_ptr[unsafe_offset=i])
         return result
 
     # Generic slow path for other conversions
@@ -170,7 +170,7 @@ def cast_from_bfloat16(
 
     # Convert each element using native SIMD conversion
     for i in range(size):
-        var bf16_bits = tensor._data.bitcast[UInt16]()[i]
+        var bf16_bits = tensor._data.unsafe_bitcast[UInt16]()[unsafe_offset=i]
         # Bitcast uint16 to bfloat16, then convert to float32
         var bf16_val = bitcast[BF16, 1](SIMD[DType.uint16, 1](bf16_bits))
         var f32_val = Float32(bf16_val[0])

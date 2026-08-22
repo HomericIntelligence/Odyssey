@@ -237,7 +237,7 @@ struct GradientScaler(Copyable, Movable):
         return self._num_steps
 
 
-def convert_to_fp32_master(params: AnyTensor) raises -> AnyTensor:
+def convert_to_fp32_master(mut params: AnyTensor) raises -> AnyTensor:
     """Convert model parameters to FP32 master weights with SIMD optimization.
 
     Creates FP32 copy of parameters for optimizer state management.
@@ -297,7 +297,7 @@ def convert_to_fp32_master(params: AnyTensor) raises -> AnyTensor:
 
 
 def update_model_from_master(
-    mut model_params: AnyTensor, master_params: AnyTensor
+    mut model_params: AnyTensor, mut master_params: AnyTensor
 ) raises:
     """Update model parameters from FP32 master weights with SIMD optimization.
 
@@ -434,7 +434,7 @@ def clip_gradients_by_norm(
 
 
 def clip_gradients_by_value(
-    gradients: AnyTensor, min_value: Float32, max_value: Float32
+    mut gradients: AnyTensor, min_value: Float32, max_value: Float32
 ) raises -> AnyTensor:
     """Clip gradients by value range with SIMD optimization.
 
@@ -507,7 +507,7 @@ def clip_gradients_by_value(
 
 
 @always_inline
-def _convert_fp32_to_fp32_simd(src: AnyTensor, mut dst: AnyTensor) raises:
+def _convert_fp32_to_fp32_simd(mut src: AnyTensor, mut dst: AnyTensor) raises:
     """SIMD copy for FP32 to FP32 conversion.
 
     Uses vectorized load/store for maximum throughput.
@@ -521,14 +521,14 @@ def _convert_fp32_to_fp32_simd(src: AnyTensor, mut dst: AnyTensor) raises:
 
     @always_inline
     def vectorized_copy[width: Int](idx: Int) {var src_ptr, var dst_ptr}:
-        var vec = src_ptr.load[width=width](idx)
-        dst_ptr.store[width=width](idx, vec)
+        var vec = src_ptr.unsafe_load[width=width](idx)
+        dst_ptr.unsafe_store[width=width](idx, vec)
 
     vectorize[simd_width](size, vectorized_copy)
 
 
 @always_inline
-def _update_fp32_from_fp32_simd(src: AnyTensor, mut dst: AnyTensor) raises:
+def _update_fp32_from_fp32_simd(mut src: AnyTensor, mut dst: AnyTensor) raises:
     """SIMD copy from FP32 master to FP32 model params.
 
     Uses vectorized load/store for maximum throughput.
@@ -542,15 +542,15 @@ def _update_fp32_from_fp32_simd(src: AnyTensor, mut dst: AnyTensor) raises:
 
     @always_inline
     def vectorized_copy[width: Int](idx: Int) {var src_ptr, var dst_ptr}:
-        var vec = src_ptr.load[width=width](idx)
-        dst_ptr.store[width=width](idx, vec)
+        var vec = src_ptr.unsafe_load[width=width](idx)
+        dst_ptr.unsafe_store[width=width](idx, vec)
 
     vectorize[simd_width](size, vectorized_copy)
 
 
 @always_inline
 def _clip_by_value_simd_float32(
-    src: AnyTensor, mut dst: AnyTensor, min_val: Float32, max_val: Float32
+    mut src: AnyTensor, mut dst: AnyTensor, min_val: Float32, max_val: Float32
 ):
     """SIMD clamp for Float32 gradients.
 
@@ -567,18 +567,18 @@ def _clip_by_value_simd_float32(
     def vectorized_clamp[
         width: Int
     ](idx: Int) {var src_ptr, var dst_ptr, var min_val, var max_val}:
-        var vec = src_ptr.load[width=width](idx)
+        var vec = src_ptr.unsafe_load[width=width](idx)
         var min_vec = SIMD[DType.float32, width](min_val)
         var max_vec = SIMD[DType.float32, width](max_val)
         # min(max(x, min_val), max_val)
-        dst_ptr.store[width=width](idx, min(max(vec, min_vec), max_vec))
+        dst_ptr.unsafe_store[width=width](idx, min(max(vec, min_vec), max_vec))
 
     vectorize[simd_width](size, vectorized_clamp)
 
 
 @always_inline
 def _clip_by_value_simd_float64(
-    src: AnyTensor, mut dst: AnyTensor, min_val: Float32, max_val: Float32
+    mut src: AnyTensor, mut dst: AnyTensor, min_val: Float32, max_val: Float32
 ):
     """SIMD clamp for Float64 gradients.
 
@@ -597,17 +597,17 @@ def _clip_by_value_simd_float64(
     def vectorized_clamp[
         width: Int
     ](idx: Int) {var src_ptr, var dst_ptr, var min_f64, var max_f64}:
-        var vec = src_ptr.load[width=width](idx)
+        var vec = src_ptr.unsafe_load[width=width](idx)
         var min_vec = SIMD[DType.float64, width](min_f64)
         var max_vec = SIMD[DType.float64, width](max_f64)
         # min(max(x, min_val), max_val)
-        dst_ptr.store[width=width](idx, min(max(vec, min_vec), max_vec))
+        dst_ptr.unsafe_store[width=width](idx, min(max(vec, min_vec), max_vec))
 
     vectorize[simd_width](size, vectorized_clamp)
 
 
 @always_inline
-def _convert_fp16_to_fp32_simd(src: AnyTensor, mut dst: AnyTensor) raises:
+def _convert_fp16_to_fp32_simd(mut src: AnyTensor, mut dst: AnyTensor) raises:
     """SIMD conversion from FP16 to FP32 with vectorization.
 
     Uses SIMD load + cast for true vectorized FP16→FP32 conversion.
@@ -621,14 +621,14 @@ def _convert_fp16_to_fp32_simd(src: AnyTensor, mut dst: AnyTensor) raises:
 
     @always_inline
     def vectorized_convert[width: Int](idx: Int) {var src_ptr, var dst_ptr}:
-        var fp16_vec = src_ptr.load[width=width](idx)
-        dst_ptr.store[width=width](idx, fp16_vec.cast[DType.float32]())
+        var fp16_vec = src_ptr.unsafe_load[width=width](idx)
+        dst_ptr.unsafe_store[width=width](idx, fp16_vec.cast[DType.float32]())
 
     vectorize[simd_width](size, vectorized_convert)
 
 
 @always_inline
-def _convert_fp32_to_fp16_simd(src: AnyTensor, mut dst: AnyTensor) raises:
+def _convert_fp32_to_fp16_simd(mut src: AnyTensor, mut dst: AnyTensor) raises:
     """SIMD conversion from FP32 to FP16 with vectorization.
 
     Uses SIMD load + cast for true vectorized FP32→FP16 conversion.
@@ -642,7 +642,7 @@ def _convert_fp32_to_fp16_simd(src: AnyTensor, mut dst: AnyTensor) raises:
 
     @always_inline
     def vectorized_convert[width: Int](idx: Int) {var src_ptr, var dst_ptr}:
-        var fp32_vec = src_ptr.load[width=width](idx)
-        dst_ptr.store[width=width](idx, fp32_vec.cast[DType.float16]())
+        var fp32_vec = src_ptr.unsafe_load[width=width](idx)
+        dst_ptr.unsafe_store[width=width](idx, fp32_vec.cast[DType.float16]())
 
     vectorize[simd_width](size, vectorized_convert)

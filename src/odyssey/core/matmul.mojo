@@ -34,7 +34,7 @@ References:
 
 from std.algorithm import vectorize
 from std.sys.info import simd_width_of
-from std.memory import memset_zero
+from std.memory import unsafe_memset_zero
 from odyssey.tensor.any_tensor import AnyTensor
 from odyssey.tensor.tensor_creation import zeros
 from odyssey.core.error_utils import format_dtype, format_matmul_error
@@ -130,16 +130,16 @@ def _matmul_typed_float32(
     Raises:
         Error: If operation fails.
     """
-    var a_ptr = a._data.bitcast[Float32]()
-    var b_ptr = b._data.bitcast[Float32]()
-    var c_ptr = c._data.bitcast[Float32]()
+    var a_ptr = a._data.unsafe_bitcast[Float32]()
+    var b_ptr = b._data.unsafe_bitcast[Float32]()
+    var c_ptr = c._data.unsafe_bitcast[Float32]()
 
     for i in range(M):
         for j in range(N):
             var sum_val: Float32 = 0.0
             for k in range(K):
-                sum_val += a_ptr.load(i * K + k) * b_ptr.load(k * N + j)
-            c_ptr.store(i * N + j, sum_val)
+                sum_val += a_ptr.unsafe_load(i * K + k) * b_ptr.unsafe_load(k * N + j)
+            c_ptr.unsafe_store(i * N + j, sum_val)
 
 
 @always_inline
@@ -151,16 +151,16 @@ def _matmul_typed_float64(
     Raises:
         Error: If operation fails.
     """
-    var a_ptr = a._data.bitcast[Float64]()
-    var b_ptr = b._data.bitcast[Float64]()
-    var c_ptr = c._data.bitcast[Float64]()
+    var a_ptr = a._data.unsafe_bitcast[Float64]()
+    var b_ptr = b._data.unsafe_bitcast[Float64]()
+    var c_ptr = c._data.unsafe_bitcast[Float64]()
 
     for i in range(M):
         for j in range(N):
             var sum_val: Float64 = 0.0
             for k in range(K):
-                sum_val += a_ptr.load(i * K + k) * b_ptr.load(k * N + j)
-            c_ptr.store(i * N + j, sum_val)
+                sum_val += a_ptr.unsafe_load(i * K + k) * b_ptr.unsafe_load(k * N + j)
+            c_ptr.unsafe_store(i * N + j, sum_val)
 
 
 # ============================================================================
@@ -225,9 +225,9 @@ def _matmul_simd_float32(
     """Float32-specific SIMD matmul implementation."""
     comptime simd_width = simd_width_of[DType.float32]()
 
-    var a_ptr = a._data.bitcast[Float32]()
-    var b_ptr = b._data.bitcast[Float32]()
-    var c_ptr = c._data.bitcast[Float32]()
+    var a_ptr = a._data.unsafe_bitcast[Float32]()
+    var b_ptr = b._data.unsafe_bitcast[Float32]()
+    var c_ptr = c._data.unsafe_bitcast[Float32]()
 
     for i in range(M):
         # Vectorize J loop for contiguous access in C and B
@@ -239,10 +239,10 @@ def _matmul_simd_float32(
         ](j: Int) {var a_ptr, var b_ptr, var c_ptr, var row_i, var K, var N}:
             var c_vec = SIMD[DType.float32, width](0)
             for k in range(K):
-                var a_scalar = a_ptr.load(row_i * K + k)
-                var b_vec = b_ptr.load[width=width](k * N + j)
+                var a_scalar = a_ptr.unsafe_load(row_i * K + k)
+                var b_vec = b_ptr.unsafe_load[width=width](k * N + j)
                 c_vec += a_scalar * b_vec
-            c_ptr.store[width=width](row_i * N + j, c_vec)
+            c_ptr.unsafe_store[width=width](row_i * N + j, c_vec)
 
         vectorize[simd_width](N, vec_j)
 
@@ -254,9 +254,9 @@ def _matmul_simd_float64(
     """Float64-specific SIMD matmul implementation."""
     comptime simd_width = simd_width_of[DType.float64]()
 
-    var a_ptr = a._data.bitcast[Float64]()
-    var b_ptr = b._data.bitcast[Float64]()
-    var c_ptr = c._data.bitcast[Float64]()
+    var a_ptr = a._data.unsafe_bitcast[Float64]()
+    var b_ptr = b._data.unsafe_bitcast[Float64]()
+    var c_ptr = c._data.unsafe_bitcast[Float64]()
 
     for i in range(M):
         # Vectorize J loop for contiguous access in C and B
@@ -268,10 +268,10 @@ def _matmul_simd_float64(
         ](j: Int) {var a_ptr, var b_ptr, var c_ptr, var row_i, var K, var N}:
             var c_vec = SIMD[DType.float64, width](0)
             for k in range(K):
-                var a_scalar = a_ptr.load(row_i * K + k)
-                var b_vec = b_ptr.load[width=width](k * N + j)
+                var a_scalar = a_ptr.unsafe_load(row_i * K + k)
+                var b_vec = b_ptr.unsafe_load[width=width](k * N + j)
                 c_vec += a_scalar * b_vec
-            c_ptr.store[width=width](row_i * N + j, c_vec)
+            c_ptr.unsafe_store[width=width](row_i * N + j, c_vec)
 
         vectorize[simd_width](N, vec_j)
 
@@ -336,8 +336,8 @@ def matmul_tiled(a: AnyTensor, b: AnyTensor, mut c: AnyTensor) raises:
 
 @always_inline
 def _zero_matrix(mut c: AnyTensor, size: Int):
-    """Zero out the matrix using memset."""
-    memset_zero(c._data, size * c._get_dtype_size())
+    """Zero out the matrix using unsafe_memset."""
+    unsafe_memset_zero(c._data, size * c._get_dtype_size())
 
 
 @always_inline
@@ -347,9 +347,9 @@ def _matmul_tiled_float32(
     """Float32-specific cache-blocked SIMD matmul implementation."""
     comptime simd_width = simd_width_of[DType.float32]()
 
-    var a_ptr = a._data.bitcast[Float32]()
-    var b_ptr = b._data.bitcast[Float32]()
-    var c_ptr = c._data.bitcast[Float32]()
+    var a_ptr = a._data.unsafe_bitcast[Float32]()
+    var b_ptr = b._data.unsafe_bitcast[Float32]()
+    var c_ptr = c._data.unsafe_bitcast[Float32]()
 
     # Block over all three dimensions
     for i0 in range(0, M, BLOCK_M):
@@ -381,12 +381,12 @@ def _matmul_tiled_float32(
                         var k1,
                     }:
                         var j = j0 + j_off
-                        var c_vec = c_ptr.load[width=width](row_i * N + j)
+                        var c_vec = c_ptr.unsafe_load[width=width](row_i * N + j)
                         for k in range(k0, k1):
-                            var a_val = a_ptr.load(row_i * K + k)
-                            var b_vec = b_ptr.load[width=width](k * N + j)
+                            var a_val = a_ptr.unsafe_load(row_i * K + k)
+                            var b_vec = b_ptr.unsafe_load[width=width](k * N + j)
                             c_vec += a_val * b_vec
-                        c_ptr.store[width=width](row_i * N + j, c_vec)
+                        c_ptr.unsafe_store[width=width](row_i * N + j, c_vec)
 
                     vectorize[simd_width](block_n, vec_inner)
 
@@ -398,9 +398,9 @@ def _matmul_tiled_float64(
     """Float64-specific cache-blocked SIMD matmul implementation."""
     comptime simd_width = simd_width_of[DType.float64]()
 
-    var a_ptr = a._data.bitcast[Float64]()
-    var b_ptr = b._data.bitcast[Float64]()
-    var c_ptr = c._data.bitcast[Float64]()
+    var a_ptr = a._data.unsafe_bitcast[Float64]()
+    var b_ptr = b._data.unsafe_bitcast[Float64]()
+    var c_ptr = c._data.unsafe_bitcast[Float64]()
 
     # Block over all three dimensions
     for i0 in range(0, M, BLOCK_M):
@@ -432,12 +432,12 @@ def _matmul_tiled_float64(
                         var k1,
                     }:
                         var j = j0 + j_off
-                        var c_vec = c_ptr.load[width=width](row_i * N + j)
+                        var c_vec = c_ptr.unsafe_load[width=width](row_i * N + j)
                         for k in range(k0, k1):
-                            var a_val = a_ptr.load(row_i * K + k)
-                            var b_vec = b_ptr.load[width=width](k * N + j)
+                            var a_val = a_ptr.unsafe_load(row_i * K + k)
+                            var b_vec = b_ptr.unsafe_load[width=width](k * N + j)
                             c_vec += a_val * b_vec
-                        c_ptr.store[width=width](row_i * N + j, c_vec)
+                        c_ptr.unsafe_store[width=width](row_i * N + j, c_vec)
 
                     vectorize[simd_width](block_n, vec_inner)
 
@@ -526,8 +526,8 @@ def _transpose_matrix_float32(b: AnyTensor, K: Int, N: Int) raises -> AnyTensor:
     b_t_shape.append(K)
     var b_t = AnyTensor(b_t_shape, DType.float32)
 
-    var b_ptr = b._data.bitcast[Float32]()
-    var bt_ptr = b_t._data.bitcast[Float32]()
+    var b_ptr = b._data.unsafe_bitcast[Float32]()
+    var bt_ptr = b_t._data.unsafe_bitcast[Float32]()
 
     # Transpose with blocking for cache efficiency
     comptime TILE = 32
@@ -537,7 +537,7 @@ def _transpose_matrix_float32(b: AnyTensor, K: Int, N: Int) raises -> AnyTensor:
             var j1 = min(j0 + TILE, N)
             for i in range(i0, i1):
                 for j in range(j0, j1):
-                    bt_ptr.store(j * K + i, b_ptr.load(i * N + j))
+                    bt_ptr.unsafe_store(j * K + i, b_ptr.unsafe_load(i * N + j))
 
     return b_t^
 
@@ -550,8 +550,8 @@ def _transpose_matrix_float64(b: AnyTensor, K: Int, N: Int) raises -> AnyTensor:
     b_t_shape.append(K)
     var b_t = AnyTensor(b_t_shape, DType.float64)
 
-    var b_ptr = b._data.bitcast[Float64]()
-    var bt_ptr = b_t._data.bitcast[Float64]()
+    var b_ptr = b._data.unsafe_bitcast[Float64]()
+    var bt_ptr = b_t._data.unsafe_bitcast[Float64]()
 
     # Transpose with blocking for cache efficiency
     comptime TILE = 32
@@ -561,7 +561,7 @@ def _transpose_matrix_float64(b: AnyTensor, K: Int, N: Int) raises -> AnyTensor:
             var j1 = min(j0 + TILE, N)
             for i in range(i0, i1):
                 for j in range(j0, j1):
-                    bt_ptr.store(j * K + i, b_ptr.load(i * N + j))
+                    bt_ptr.unsafe_store(j * K + i, b_ptr.unsafe_load(i * N + j))
 
     return b_t^
 
@@ -578,9 +578,9 @@ def _matmul_float32(
     # This makes the dot product use contiguous memory in both operands
     var b_t = _transpose_matrix_float32(b, K, N)
 
-    var a_ptr = a._data.bitcast[Float32]()
-    var bt_ptr = b_t._data.bitcast[Float32]()
-    var c_ptr = c._data.bitcast[Float32]()
+    var a_ptr = a._data.unsafe_bitcast[Float32]()
+    var bt_ptr = b_t._data.unsafe_bitcast[Float32]()
+    var c_ptr = c._data.unsafe_bitcast[Float32]()
 
     # Cache-blocked computation with register-blocked micro-kernel
     for i0 in range(0, M, BLOCK_M):
@@ -617,12 +617,12 @@ def _matmul_float32(
                         mut c2,
                         mut c3,
                     }:
-                        var bt_vec = bt_ptr.load[width=width](col_j * K + k)
+                        var bt_vec = bt_ptr.unsafe_load[width=width](col_j * K + k)
 
-                        var a0_vec = a_ptr.load[width=width]((i + 0) * K + k)
-                        var a1_vec = a_ptr.load[width=width]((i + 1) * K + k)
-                        var a2_vec = a_ptr.load[width=width]((i + 2) * K + k)
-                        var a3_vec = a_ptr.load[width=width]((i + 3) * K + k)
+                        var a0_vec = a_ptr.unsafe_load[width=width]((i + 0) * K + k)
+                        var a1_vec = a_ptr.unsafe_load[width=width]((i + 1) * K + k)
+                        var a2_vec = a_ptr.unsafe_load[width=width]((i + 2) * K + k)
+                        var a3_vec = a_ptr.unsafe_load[width=width]((i + 3) * K + k)
 
                         c0 += (a0_vec * bt_vec).reduce_add()
                         c1 += (a1_vec * bt_vec).reduce_add()
@@ -632,21 +632,21 @@ def _matmul_float32(
                     vectorize[simd_width](K, vec_k)
 
                     # Store accumulated results
-                    c_ptr.store(
+                    c_ptr.unsafe_store(
                         (i + 0) * N + col_j,
-                        c_ptr.load((i + 0) * N + col_j) + c0,
+                        c_ptr.unsafe_load((i + 0) * N + col_j) + c0,
                     )
-                    c_ptr.store(
+                    c_ptr.unsafe_store(
                         (i + 1) * N + col_j,
-                        c_ptr.load((i + 1) * N + col_j) + c1,
+                        c_ptr.unsafe_load((i + 1) * N + col_j) + c1,
                     )
-                    c_ptr.store(
+                    c_ptr.unsafe_store(
                         (i + 2) * N + col_j,
-                        c_ptr.load((i + 2) * N + col_j) + c2,
+                        c_ptr.unsafe_load((i + 2) * N + col_j) + c2,
                     )
-                    c_ptr.store(
+                    c_ptr.unsafe_store(
                         (i + 3) * N + col_j,
-                        c_ptr.load((i + 3) * N + col_j) + c3,
+                        c_ptr.unsafe_load((i + 3) * N + col_j) + c3,
                     )
 
                 i += MICRO_M
@@ -668,13 +668,13 @@ def _matmul_float32(
                         var col_j,
                         mut c_val,
                     }:
-                        var a_vec = a_ptr.load[width=width](i * K + k)
-                        var bt_vec = bt_ptr.load[width=width](col_j * K + k)
+                        var a_vec = a_ptr.unsafe_load[width=width](i * K + k)
+                        var bt_vec = bt_ptr.unsafe_load[width=width](col_j * K + k)
                         c_val += (a_vec * bt_vec).reduce_add()
 
                     vectorize[simd_width](K, vec_k_rem)
-                    c_ptr.store(
-                        i * N + col_j, c_ptr.load(i * N + col_j) + c_val
+                    c_ptr.unsafe_store(
+                        i * N + col_j, c_ptr.unsafe_load(i * N + col_j) + c_val
                     )
 
                 i += 1
@@ -691,9 +691,9 @@ def _matmul_float64(
     # Transpose B for contiguous access
     var b_t = _transpose_matrix_float64(b, K, N)
 
-    var a_ptr = a._data.bitcast[Float64]()
-    var bt_ptr = b_t._data.bitcast[Float64]()
-    var c_ptr = c._data.bitcast[Float64]()
+    var a_ptr = a._data.unsafe_bitcast[Float64]()
+    var bt_ptr = b_t._data.unsafe_bitcast[Float64]()
+    var c_ptr = c._data.unsafe_bitcast[Float64]()
 
     # Cache-blocked computation with register-blocked micro-kernel
     for i0 in range(0, M, BLOCK_M):
@@ -727,12 +727,12 @@ def _matmul_float64(
                         mut c2,
                         mut c3,
                     }:
-                        var bt_vec = bt_ptr.load[width=width](col_j * K + k)
+                        var bt_vec = bt_ptr.unsafe_load[width=width](col_j * K + k)
 
-                        var a0_vec = a_ptr.load[width=width]((i + 0) * K + k)
-                        var a1_vec = a_ptr.load[width=width]((i + 1) * K + k)
-                        var a2_vec = a_ptr.load[width=width]((i + 2) * K + k)
-                        var a3_vec = a_ptr.load[width=width]((i + 3) * K + k)
+                        var a0_vec = a_ptr.unsafe_load[width=width]((i + 0) * K + k)
+                        var a1_vec = a_ptr.unsafe_load[width=width]((i + 1) * K + k)
+                        var a2_vec = a_ptr.unsafe_load[width=width]((i + 2) * K + k)
+                        var a3_vec = a_ptr.unsafe_load[width=width]((i + 3) * K + k)
 
                         c0 += (a0_vec * bt_vec).reduce_add()
                         c1 += (a1_vec * bt_vec).reduce_add()
@@ -741,21 +741,21 @@ def _matmul_float64(
 
                     vectorize[simd_width](K, vec_k)
 
-                    c_ptr.store(
+                    c_ptr.unsafe_store(
                         (i + 0) * N + col_j,
-                        c_ptr.load((i + 0) * N + col_j) + c0,
+                        c_ptr.unsafe_load((i + 0) * N + col_j) + c0,
                     )
-                    c_ptr.store(
+                    c_ptr.unsafe_store(
                         (i + 1) * N + col_j,
-                        c_ptr.load((i + 1) * N + col_j) + c1,
+                        c_ptr.unsafe_load((i + 1) * N + col_j) + c1,
                     )
-                    c_ptr.store(
+                    c_ptr.unsafe_store(
                         (i + 2) * N + col_j,
-                        c_ptr.load((i + 2) * N + col_j) + c2,
+                        c_ptr.unsafe_load((i + 2) * N + col_j) + c2,
                     )
-                    c_ptr.store(
+                    c_ptr.unsafe_store(
                         (i + 3) * N + col_j,
-                        c_ptr.load((i + 3) * N + col_j) + c3,
+                        c_ptr.unsafe_load((i + 3) * N + col_j) + c3,
                     )
 
                 i += MICRO_M
@@ -777,13 +777,13 @@ def _matmul_float64(
                         var col_j,
                         mut c_val,
                     }:
-                        var a_vec = a_ptr.load[width=width](i * K + k)
-                        var bt_vec = bt_ptr.load[width=width](col_j * K + k)
+                        var a_vec = a_ptr.unsafe_load[width=width](i * K + k)
+                        var bt_vec = bt_ptr.unsafe_load[width=width](col_j * K + k)
                         c_val += (a_vec * bt_vec).reduce_add()
 
                     vectorize[simd_width](K, vec_k_rem)
-                    c_ptr.store(
-                        i * N + col_j, c_ptr.load(i * N + col_j) + c_val
+                    c_ptr.unsafe_store(
+                        i * N + col_j, c_ptr.unsafe_load(i * N + col_j) + c_val
                     )
 
                 i += 1
@@ -958,14 +958,14 @@ def verify_matmul_correctness(M: Int, K: Int, N: Int) raises -> Bool:
     var b = AnyTensor(b_shape, DType.float32)
 
     # Initialize with simple values for reproducibility
-    var a_ptr = a._data.bitcast[Float32]()
-    var b_ptr = b._data.bitcast[Float32]()
+    var a_ptr = a._data.unsafe_bitcast[Float32]()
+    var b_ptr = b._data.unsafe_bitcast[Float32]()
 
     for i in range(M * K):
-        a_ptr.store(i, Float32(i % 10) * 0.1)
+        a_ptr.unsafe_store(i, Float32(i % 10) * 0.1)
 
     for i in range(K * N):
-        b_ptr.store(i, Float32(i % 10) * 0.1)
+        b_ptr.unsafe_store(i, Float32(i % 10) * 0.1)
 
     # Create output matrices
     var c_shape = List[Int]()

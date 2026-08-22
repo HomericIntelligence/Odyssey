@@ -91,9 +91,9 @@ def test_evaluate_model_perfect_predictions() raises:
     var labels = zeros(labels_shape, DType.int32)
 
     # Set labels to match expected argmax (for ones input, should go to class 0)
-    var labels_data = labels._data.bitcast[Int32]()
+    var labels_data = labels._data.unsafe_bitcast[Int32]()
     for i in range(10):
-        labels_data[i] = 0  # All samples are class 0
+        labels_data[unsafe_offset=i] = 0  # All samples are class 0
 
     # Evaluate
     var result = evaluate_model(
@@ -163,11 +163,11 @@ def test_evaluate_model_per_class_statistics() raises:
     var labels = zeros(labels_shape, DType.int32)
 
     # Set labels: [0, 1, 0, 1]
-    var labels_data = labels._data.bitcast[Int32]()
-    labels_data[0] = 0
-    labels_data[1] = 1
-    labels_data[2] = 0
-    labels_data[3] = 1
+    var labels_data = labels._data.unsafe_bitcast[Int32]()
+    labels_data[unsafe_offset=0] = 0
+    labels_data[unsafe_offset=1] = 1
+    labels_data[unsafe_offset=2] = 0
+    labels_data[unsafe_offset=3] = 1
 
     # Evaluate
     var result = evaluate_model(
@@ -421,9 +421,9 @@ def test_evaluation_matches_sample_counts() raises:
     var labels = zeros(labels_shape, DType.int32)
 
     # Set labels: 2 samples each for classes 0,1,2,3
-    var labels_data = labels._data.bitcast[Int32]()
+    var labels_data = labels._data.unsafe_bitcast[Int32]()
     for i in range(8):
-        labels_data[i] = Int32(i / 2)  # [0,0,1,1,2,2,3,3]
+        labels_data[unsafe_offset=i] = Int32(i / 2)  # [0,0,1,1,2,2,3,3]
 
     # Evaluate
     var result = evaluate_model(

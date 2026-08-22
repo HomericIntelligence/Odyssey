@@ -23,6 +23,7 @@ Note:
     (e.g. ``adam_default_hyperparams``) that mirror the adan pattern.
 """
 
+from odyssey.tensor.any_tensor import AnyTensor
 from odyssey.training.optimizers.adan import adan_default_hyperparams
 
 # Uniform state-allocation dispatch: each ``init_<name>_state`` has the same

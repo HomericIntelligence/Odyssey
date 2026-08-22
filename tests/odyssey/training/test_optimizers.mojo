@@ -95,13 +95,19 @@ def test_sgd_basic_update() raises:
     # [1.0 - 0.1*0.1, 2.0 - 0.1*0.2, 3.0 - 0.1*0.3]
     # = [0.99, 1.98, 2.97]
     assert_almost_equal(
-        Float64(new_params._data.bitcast[Float32]()[0]), 0.99, tolerance=1e-6
+        Float64(new_params._data.unsafe_bitcast[Float32]()[unsafe_offset=0]),
+        0.99,
+        tolerance=1e-6,
     )
     assert_almost_equal(
-        Float64(new_params._data.bitcast[Float32]()[1]), 1.98, tolerance=1e-6
+        Float64(new_params._data.unsafe_bitcast[Float32]()[unsafe_offset=1]),
+        1.98,
+        tolerance=1e-6,
     )
     assert_almost_equal(
-        Float64(new_params._data.bitcast[Float32]()[2]), 2.97, tolerance=1e-6
+        Float64(new_params._data.unsafe_bitcast[Float32]()[unsafe_offset=2]),
+        2.97,
+        tolerance=1e-6,
     )
 
 
@@ -133,10 +139,10 @@ def test_sgd_momentum_accumulation() raises:
         params, grads, velocity, learning_rate=0.1, momentum=0.9
     )
     params = result[0]
-    velocity = result[1]
+    _ = result[1]
 
     assert_almost_equal(
-        Float64(params._data.bitcast[Float32]()[0]), 0.99, tolerance=1e-6
+        Float64(params._data.unsafe_bitcast[Float32]()[unsafe_offset=0]), 0.99, tolerance=1e-6
     )
 
     # Step 2: velocity = 0.9 * 0.1 + 0.1 = 0.19
@@ -144,10 +150,12 @@ def test_sgd_momentum_accumulation() raises:
     # params = 0.99 - 0.019 = 0.971
     result = sgd_step(params, grads, velocity, learning_rate=0.1, momentum=0.9)
     params = result[0]
-    velocity = result[1]
+    _ = result[1]
 
     assert_almost_equal(
-        Float64(params._data.bitcast[Float32]()[0]), 0.971, tolerance=1e-5
+        Float64(params._data.unsafe_bitcast[Float32]()[unsafe_offset=0]),
+        0.971,
+        tolerance=1e-5,
     )
 
 
@@ -177,7 +185,9 @@ def test_sgd_weight_decay() raises:
     var new_params = result[0]
 
     assert_almost_equal(
-        Float64(new_params._data.bitcast[Float32]()[0]), 0.989, tolerance=1e-6
+        Float64(new_params._data.unsafe_bitcast[Float32]()[unsafe_offset=0]),
+        0.989,
+        tolerance=1e-6,
     )
 
 
@@ -285,14 +295,14 @@ def test_adam_parameter_update() raises:
         epsilon=1e-8,
     )
     params = result[0]
-    m = result[1]
-    v = result[2]
+    _ = result[1]
+    _ = result[2]
 
     # Parameter should decrease from 1.0
     # Exact value ≈ 0.999 (1.0 - 0.001)
-    assert_less(params._data.bitcast[Float32]()[0], 1.0)
+    assert_less(params._data.unsafe_bitcast[Float32]()[unsafe_offset=0], 1.0)
     assert_almost_equal(
-        params._data.bitcast[Float32]()[0], 0.999, tolerance=1e-3
+        params._data.unsafe_bitcast[Float32]()[unsafe_offset=0], 0.999, tolerance=1e-3
     )
 
 
@@ -330,8 +340,8 @@ def test_adam_bias_correction() raises:
         v = result[2]
 
         # Each step should decrease parameters
-        assert_less(params._data.bitcast[Float32]()[0], prev_param)
-        prev_param = params._data.bitcast[Float32]()[0]
+        assert_less(params._data.unsafe_bitcast[Float32]()[unsafe_offset=0], prev_param)
+        prev_param = params._data.unsafe_bitcast[Float32]()[unsafe_offset=0]
 
 
 def test_adamw_weight_decay() raises:
@@ -378,7 +388,7 @@ def test_adamw_weight_decay() raises:
     # Parameter should decrease due to both gradient update and weight decay
     # Adam update: ~1.0 - 0.001 = ~0.999
     # Then weight decay: 0.999 * (1 - 0.001 * 0.01) = 0.999 * 0.99999 ≈ 0.998999
-    var param_val = params._data.bitcast[Float32]()[0]
+    var param_val = params._data.unsafe_bitcast[Float32]()[unsafe_offset=0]
     assert_less(param_val, 1.0)
     assert_less(
         param_val, 0.999
@@ -439,7 +449,7 @@ def test_rmsprop_parameter_update() raises:
     )
 
     var new_params = result[0]
-    var param_value = new_params._data.bitcast[Float32]()[0]
+    var param_value = new_params._data.unsafe_bitcast[Float32]()[unsafe_offset=0]
 
     assert_less(param_value, Float32(0.95))
 
@@ -462,7 +472,7 @@ def test_optimizer_property_decreasing_loss() raises:
 
     for _ in range(100):
         # Gradient of x^2 at the current parameter value.
-        var x = params._data.bitcast[Float32]()[0]
+        var x = params._data.unsafe_bitcast[Float32]()[unsafe_offset=0]
         var grad = zeros(shape, DType.float32)
         grad.set(0, Float32(2.0) * x)
 
@@ -472,7 +482,7 @@ def test_optimizer_property_decreasing_loss() raises:
         params = result[0]
         velocity = result[1]
 
-    var final_x = params._data.bitcast[Float32]()[0]
+    var final_x = params._data.unsafe_bitcast[Float32]()[unsafe_offset=0]
     var final_loss = final_x * final_x
 
     # SGD on a convex quadratic must reduce the loss far below the start.
@@ -546,33 +556,33 @@ def test_sgd_matches_pytorch() raises:
         params, grads, velocity, learning_rate=0.1, momentum=0.9
     )
     params = result[0]
-    velocity = result[1]
+    _ = result[1]
 
     # Validate against PyTorch (step 1)
     assert_almost_equal(
-        params._data.bitcast[Float32]()[0], 0.9900, tolerance=1e-6
+        params._data.unsafe_bitcast[Float32]()[unsafe_offset=0], 0.9900, tolerance=1e-6
     )
     assert_almost_equal(
-        params._data.bitcast[Float32]()[1], 1.9800, tolerance=1e-6
+        params._data.unsafe_bitcast[Float32]()[unsafe_offset=1], 1.9800, tolerance=1e-6
     )
     assert_almost_equal(
-        params._data.bitcast[Float32]()[2], 2.9700, tolerance=1e-6
+        params._data.unsafe_bitcast[Float32]()[unsafe_offset=2], 2.9700, tolerance=1e-6
     )
 
     # Second step (same gradients)
     result = sgd_step(params, grads, velocity, learning_rate=0.1, momentum=0.9)
     params = result[0]
-    velocity = result[1]
+    _ = result[1]
 
     # Validate against PyTorch (step 2)
     assert_almost_equal(
-        params._data.bitcast[Float32]()[0], 0.9710, tolerance=1e-6
+        params._data.unsafe_bitcast[Float32]()[unsafe_offset=0], 0.9710, tolerance=1e-6
     )
     assert_almost_equal(
-        params._data.bitcast[Float32]()[1], 1.9420, tolerance=1e-6
+        params._data.unsafe_bitcast[Float32]()[unsafe_offset=1], 1.9420, tolerance=1e-6
     )
     assert_almost_equal(
-        params._data.bitcast[Float32]()[2], 2.9130, tolerance=1e-6
+        params._data.unsafe_bitcast[Float32]()[unsafe_offset=2], 2.9130, tolerance=1e-6
     )
 
 
@@ -638,18 +648,18 @@ def test_adam_matches_pytorch() raises:
         epsilon=1e-8,
     )
     params = result[0]
-    m = result[1]
-    v = result[2]
+    _ = result[1]
+    _ = result[2]
 
     # Validate against PyTorch (step 1)
     assert_almost_equal(
-        params._data.bitcast[Float32]()[0], 0.9990, tolerance=1e-4
+        params._data.unsafe_bitcast[Float32]()[unsafe_offset=0], 0.9990, tolerance=1e-4
     )
     assert_almost_equal(
-        params._data.bitcast[Float32]()[1], 1.9990, tolerance=1e-4
+        params._data.unsafe_bitcast[Float32]()[unsafe_offset=1], 1.9990, tolerance=1e-4
     )
     assert_almost_equal(
-        params._data.bitcast[Float32]()[2], 2.9990, tolerance=1e-4
+        params._data.unsafe_bitcast[Float32]()[unsafe_offset=2], 2.9990, tolerance=1e-4
     )
 
     # Second step (t=2, same gradients)
@@ -665,18 +675,18 @@ def test_adam_matches_pytorch() raises:
         epsilon=1e-8,
     )
     params = result[0]
-    m = result[1]
-    v = result[2]
+    _ = result[1]
+    _ = result[2]
 
     # Validate against PyTorch (step 2)
     assert_almost_equal(
-        params._data.bitcast[Float32]()[0], 0.9980, tolerance=1e-4
+        params._data.unsafe_bitcast[Float32]()[unsafe_offset=0], 0.9980, tolerance=1e-4
     )
     assert_almost_equal(
-        params._data.bitcast[Float32]()[1], 1.9980, tolerance=1e-4
+        params._data.unsafe_bitcast[Float32]()[unsafe_offset=1], 1.9980, tolerance=1e-4
     )
     assert_almost_equal(
-        params._data.bitcast[Float32]()[2], 2.9980, tolerance=1e-4
+        params._data.unsafe_bitcast[Float32]()[unsafe_offset=2], 2.9980, tolerance=1e-4
     )
 
 
@@ -725,10 +735,10 @@ def test_lion_basic_update_manual() raises:
         weight_decay=0.0,
     )
     var new_params = result[0]
-    var new_momentum = result[1]
+    _ = result[1]
 
     # Verify that parameters updated
-    var param_val = new_params._data.bitcast[Float32]()[0]
+    var param_val = new_params._data.unsafe_bitcast[Float32]()[unsafe_offset=0]
     assert_less(Float64(param_val), 1.0, "Lion should decrease params")
 
 
@@ -746,11 +756,11 @@ def test_lion_descent_on_quadratic() raises:
     var learning_rate = 0.01
     var num_steps = 50
 
-    for step in range(num_steps):
+    for _ in range(num_steps):
         # Gradient of f(x) = ||x||^2 is grad = 2*x
         var grads = zeros(shape, DType.float32)
         for i in range(5):
-            var val = params._data.bitcast[Float32]()[i]
+            var val = params._data.unsafe_bitcast[Float32]()[unsafe_offset=i]
             grads.set(i, val * Float32(2.0))
 
         # Lion step
@@ -771,7 +781,7 @@ def test_lion_descent_on_quadratic() raises:
     # after 50 monotone-downward steps is 1.0 - 50 * 0.01 = 0.5, which Lion
     # attains here (final ~= 0.5000005). Assert clear descent with a margin
     # just above that mathematical floor.
-    var final_val = Float64(params._data.bitcast[Float32]()[0])
+    var final_val = Float64(params._data.unsafe_bitcast[Float32]()[unsafe_offset=0])
     assert_less(
         final_val, 0.55, "Lion descent on quadratic: final value too high"
     )
@@ -815,8 +825,8 @@ def test_lion_weight_decay() raises:
     var new_params_no_wd = result_no_wd[0]
 
     # Weight decay version should have smaller params
-    var wd_val = new_params._data.bitcast[Float32]()[0]
-    var no_wd_val = new_params_no_wd._data.bitcast[Float32]()[0]
+    var wd_val = new_params._data.unsafe_bitcast[Float32]()[unsafe_offset=0]
+    var no_wd_val = new_params_no_wd._data.unsafe_bitcast[Float32]()[unsafe_offset=0]
     assert_less(
         Float64(wd_val), Float64(no_wd_val), "Weight decay should reduce params"
     )
@@ -921,13 +931,13 @@ def test_shampoo_descent_on_quadratic() raises:
     # Quadratic: loss = sum(params^2), grad = 2 * params
     var initial_norm = Float64(0.0)
     for i in range(4):
-        var v = Float64(params._data.bitcast[Float32]()[i])
+        var v = Float64(params._data.unsafe_bitcast[Float32]()[unsafe_offset=i])
         initial_norm = initial_norm + v * v
 
     for _ in range(30):
         var grads = ones(shape, DType.float32)
         for i in range(4):
-            var p = params._data.bitcast[Float32]()[i]
+            var p = params._data.unsafe_bitcast[Float32]()[unsafe_offset=i]
             grads.set(i, p * Float32(2.0))
 
         var result = shampoo_step(params, grads, L, R, m, learning_rate=0.01)
@@ -938,7 +948,7 @@ def test_shampoo_descent_on_quadratic() raises:
 
     var final_norm = Float64(0.0)
     for i in range(4):
-        var v = Float64(params._data.bitcast[Float32]()[i])
+        var v = Float64(params._data.unsafe_bitcast[Float32]()[unsafe_offset=i])
         final_norm = final_norm + v * v
 
     assert_less(final_norm, initial_norm, "Shampoo reduces quadratic loss")
@@ -955,11 +965,11 @@ def test_shampoo_preconditioner_accumulates() raises:
     var R = state[1]
     var m = state[2]
 
-    var L_before = Float64(L._data.bitcast[Float32]()[0])
+    var L_before = Float64(L._data.unsafe_bitcast[Float32]()[unsafe_offset=0])
 
     var result = shampoo_step(params, grads, L, R, m, learning_rate=0.01)
     var new_L = result[1]
-    var L_after = Float64(new_L._data.bitcast[Float32]()[0])
+    var L_after = Float64(new_L._data.unsafe_bitcast[Float32]()[unsafe_offset=0])
 
     assert_true(
         L_after != L_before, "Shampoo L accumulator changes after gradient step"
@@ -1017,7 +1027,9 @@ def test_shampoo_weight_decay() raises:
 
     var initial_sum = Float64(0.0)
     for i in range(4):
-        initial_sum = initial_sum + Float64(params._data.bitcast[Float32]()[i])
+        initial_sum = initial_sum + Float64(
+            params._data.unsafe_bitcast[Float32]()[unsafe_offset=i]
+        )
 
     for _ in range(10):
         var result = shampoo_step(
@@ -1030,7 +1042,9 @@ def test_shampoo_weight_decay() raises:
 
     var final_sum = Float64(0.0)
     for i in range(4):
-        final_sum = final_sum + Float64(params._data.bitcast[Float32]()[i])
+        final_sum = final_sum + Float64(
+            params._data.unsafe_bitcast[Float32]()[unsafe_offset=i]
+        )
 
     assert_less(final_sum, initial_sum, "Shampoo weight decay shrinks params")
 
@@ -1047,9 +1061,9 @@ def test_shampoo_pure_functional() raises:
     var R = state[1]
     var m = state[2]
 
-    var param_val_before = Float64(params._data.bitcast[Float32]()[0])
+    var param_val_before = Float64(params._data.unsafe_bitcast[Float32]()[unsafe_offset=0])
     var _ = shampoo_step(params, grads, L, R, m, learning_rate=0.01)
-    var param_val_after = Float64(params._data.bitcast[Float32]()[0])
+    var param_val_after = Float64(params._data.unsafe_bitcast[Float32]()[unsafe_offset=0])
 
     assert_almost_equal(
         param_val_before,

@@ -49,7 +49,7 @@ def _make_sentinel(
     mismatch rather than an accidental collision.
     """
     var t = zeros([batch, c, 1, hw], DType.float32)
-    var d = t._data.bitcast[Float32]()
+    var d = t._data.unsafe_bitcast[Float32]()
     for b in range(batch):
         for ch in range(c):
             for i in range(hw):
@@ -98,8 +98,8 @@ def test_concat_backward_split_exact() raises:
 
 def _assert_tensor_equal(a: AnyTensor, b: AnyTensor, msg: String) raises:
     assert_true(a._numel == b._numel, msg + " (numel mismatch)")
-    var ad = a._data.bitcast[Float32]()
-    var bd = b._data.bitcast[Float32]()
+    var ad = a._data.unsafe_bitcast[Float32]()
+    var bd = b._data.unsafe_bitcast[Float32]()
     for i in range(a._numel):
         if ad[i] != bd[i]:
             raise Error(
@@ -163,7 +163,7 @@ def test_backward_converges() raises:
     # Synthetic images (batch, 3, 32, 32): class-correlated signal so the task
     # is learnable but not trivial. Deterministic by construction.
     var images = zeros([batch, 3, 32, 32], DType.float32)
-    var img_d = images._data.bitcast[Float32]()
+    var img_d = images._data.unsafe_bitcast[Float32]()
     for s in range(batch):
         var cls = s  # sample s has class s -> every batch sees all classes
         for i in range(3 * 32 * 32):
@@ -172,7 +172,7 @@ def test_backward_converges() raises:
             )
 
     var labels_raw = zeros([batch], DType.uint8)
-    var lbl_d = labels_raw._data.bitcast[UInt8]()
+    var lbl_d = labels_raw._data.unsafe_bitcast[UInt8]()
     for s in range(batch):
         lbl_d[s] = UInt8(s)
     var labels = one_hot_encode(labels_raw, num_classes)

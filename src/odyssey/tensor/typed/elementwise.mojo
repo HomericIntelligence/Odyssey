@@ -32,7 +32,7 @@ def _unary_typed[
     """Apply unary operation on native Tensor[dtype] -- zero dtype branches.
 
     This is the core implementation. Tensor[dt]._data is already typed as
-    UnsafePointer[Scalar[dt], MutAnyOrigin], so no bitcasts are needed.
+    Pointer[Scalar[dt], MutUntrackedOrigin], so no bitcasts are needed.
 
     Parameters:
         dt: Compile-time dtype parameter.
@@ -47,7 +47,7 @@ def _unary_typed[
     var result = Tensor[dt](input.shape())
     var size = input.numel()
     for i in range(size):
-        result._data[i] = op[dt](input._data[i])
+        result._data[unsafe_offset=i] = op[dt](input._data[unsafe_offset=i])
     return result^
 
 

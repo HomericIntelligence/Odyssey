@@ -27,11 +27,15 @@ def format_element_impl(tensor: AnyTensor, flat_idx: Int) -> String:
     elif tensor._dtype == DType.uint64:
         # Read as native UInt64 to avoid sign corruption via _get_int64
         var dtype_size = tensor._get_dtype_size()
-        var ptr = (tensor._data + flat_idx * dtype_size).bitcast[UInt64]()
+        var ptr = tensor._data.unsafe_offset(
+            flat_idx * dtype_size
+        ).unsafe_bitcast[UInt64]()
         return String(ptr[])
     elif tensor._dtype == DType.uint32:
         var dtype_size = tensor._get_dtype_size()
-        var ptr = (tensor._data + flat_idx * dtype_size).bitcast[UInt32]()
+        var ptr = tensor._data.unsafe_offset(
+            flat_idx * dtype_size
+        ).unsafe_bitcast[UInt32]()
         return String(ptr[])
     elif (
         tensor._dtype == DType.int8

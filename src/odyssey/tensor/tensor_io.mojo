@@ -21,7 +21,7 @@ File format (hex-encoded text):
     Line 3: hex-encoded raw bytes
 """
 
-from std.memory import UnsafePointer
+from std.memory import Pointer
 from std.collections import List
 
 # NOTE: relative imports are REQUIRED here. See top-of-file docstring:
@@ -160,7 +160,7 @@ def load_tensor_with_name(filepath: String) raises -> Tuple[String, AnyTensor]:
 
 
 def bytes_to_hex(
-    data: UnsafePointer[UInt8, MutAnyOrigin], num_bytes: Int
+    data: Pointer[UInt8, MutUntrackedOrigin], num_bytes: Int
 ) -> String:
     """Convert bytes to hexadecimal string.
 
@@ -171,14 +171,14 @@ def bytes_to_hex(
     Returns:
         Hex string representation.
     """
-    # UnsafePointer is non-null by design in Mojo 1.0; the historical null
+    # Pointer is non-null by design in Mojo 1.0; the historical null
     # guard from the pre-1.0 nullable API is no longer needed here.
 
     var hex_chars = "0123456789abcdef"
     var result = String("")
 
     for i in range(num_bytes):
-        var byte = Int(data[i])
+        var byte = Int(data[unsafe_offset=i])
         var high = (byte >> 4) & 0xF
         var low = byte & 0xF
         result += chr(Int(hex_chars.as_bytes()[high]))
@@ -206,7 +206,7 @@ def hex_to_bytes(hex_str: String, tensor: AnyTensor) raises:
         var high = _hex_char_to_int(chr(Int(hex_str.as_bytes()[i])))
         var low = _hex_char_to_int(chr(Int(hex_str.as_bytes()[i + 1])))
         var offset = i // 2
-        output[offset] = UInt8((high << 4) | low)
+        output[unsafe_offset=offset] = UInt8((high << 4) | low)
 
 
 def _hex_char_to_int(c: String) raises -> Int:

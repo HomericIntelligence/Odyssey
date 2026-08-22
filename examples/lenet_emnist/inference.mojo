@@ -159,7 +159,7 @@ def infer_single(
     # Find argmax and max value
     var num_classes = logits.shape()[1]
     var max_idx = 0
-    var max_val_data = logits._data.bitcast[Float32]()
+    var max_val_data = logits._data.unsafe_bitcast[Float32]()
     var max_val = max_val_data[0]
 
     for i in range(1, num_classes):

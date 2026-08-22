@@ -76,15 +76,17 @@ def test_dropout_inference_mode() raises:
     var size = x.numel()
     for i in range(size):
         assert_almost_equal(
-            output._data.bitcast[Float32]()[i],
-            x._data.bitcast[Float32]()[i],
+            output._data.unsafe_bitcast[Float32]()[unsafe_offset=i],
+            x._data.unsafe_bitcast[Float32]()[unsafe_offset=i],
             tolerance=1e-5,
         )
 
     # Mask should be all ones
     for i in range(size):
         assert_almost_equal(
-            mask._data.bitcast[Float32]()[i], Float32(1.0), tolerance=1e-5
+            mask._data.unsafe_bitcast[Float32]()[unsafe_offset=i],
+            Float32(1.0),
+            tolerance=1e-5,
         )
 
 
@@ -97,7 +99,7 @@ def test_dropout_probability() raises:
 
     var p = 0.5
     var result3 = dropout(x, p=p, training=True, seed=42)
-    var output = result3[0]
+    _ = result3[0]
     var mask = result3[1]
 
     # Count dropped elements (where mask is 0)
@@ -105,7 +107,7 @@ def test_dropout_probability() raises:
     var dropped = 0
 
     for i in range(total):
-        if mask._data.bitcast[Float32]()[i] == 0.0:
+        if mask._data.unsafe_bitcast[Float32]()[unsafe_offset=i] == 0.0:
             dropped += 1
 
     # Should be approximately 50% dropped (within 10% tolerance for randomness)
@@ -133,8 +135,8 @@ def test_dropout_scaling() raises:
     var expected_scale = Float32(1.0 / (1.0 - p))
 
     for i in range(x.numel()):
-        var mask_val = mask._data.bitcast[Float32]()[i]
-        var out_val = output._data.bitcast[Float32]()[i]
+        var mask_val = mask._data.unsafe_bitcast[Float32]()[unsafe_offset=i]
+        var out_val = output._data.unsafe_bitcast[Float32]()[unsafe_offset=i]
 
         if mask_val > 0:
             # Not dropped - should be scaled
@@ -153,17 +155,17 @@ def test_dropout_reproducibility() raises:
 
     # Same seed should produce same mask
     var result5 = dropout(x, p=0.5, training=True, seed=42)
-    var output1 = result5[0]
+    _ = result5[0]
     var mask1 = result5[1]
     var result6 = dropout(x, p=0.5, training=True, seed=42)
-    var output2 = result6[0]
+    _ = result6[0]
     var mask2 = result6[1]
 
     # Masks should be identical
     for i in range(x.numel()):
         assert_almost_equal(
-            mask1._data.bitcast[Float32]()[i],
-            mask2._data.bitcast[Float32]()[i],
+            mask1._data.unsafe_bitcast[Float32]()[unsafe_offset=i],
+            mask2._data.unsafe_bitcast[Float32]()[unsafe_offset=i],
             tolerance=1e-5,
         )
 
@@ -198,7 +200,7 @@ def test_dropout_backward_gradient_flow() raises:
 
     # Forward pass
     var result8 = dropout(x, p=0.5, training=True, seed=42)
-    var output = result8[0]
+    _ = result8[0]
     var mask = result8[1]
 
     # Backward pass with all-ones gradient
@@ -208,8 +210,10 @@ def test_dropout_backward_gradient_flow() raises:
     # Gradient should only flow where mask is non-zero
     var scale = Float32(1.0 / (1.0 - 0.5))
     for i in range(x.numel()):
-        var mask_val = mask._data.bitcast[Float32]()[i]
-        var grad_val = grad_input._data.bitcast[Float32]()[i]
+        var mask_val = mask._data.unsafe_bitcast[Float32]()[unsafe_offset=i]
+        var grad_val = grad_input._data.unsafe_bitcast[Float32]()[
+            unsafe_offset=i
+        ]
 
         if mask_val > 0:
             # Gradient should be scaled
@@ -304,7 +308,7 @@ def test_dropout2d_channel_level() raises:
     var x = ones(shape, DType.float32)
 
     var result11 = dropout2d(x, p=0.5, training=True, seed=42)
-    var output = result11[0]
+    _ = result11[0]
     var mask = result11[1]
 
     # Check that entire channels are either all kept or all dropped
@@ -316,13 +320,17 @@ def test_dropout2d_channel_level() raises:
     for c in range(channels):
         # Get first pixel value in channel
         var first_idx = c * spatial_size
-        var first_val = mask._data.bitcast[Float32]()[first_idx]
+        var first_val = mask._data.unsafe_bitcast[Float32]()[
+            unsafe_offset=first_idx
+        ]
 
         # All pixels in this channel should have same mask value
         for h in range(height):
             for w in range(width):
                 var idx = c * spatial_size + h * width + w
-                var val = mask._data.bitcast[Float32]()[idx]
+                var val = mask._data.unsafe_bitcast[Float32]()[
+                    unsafe_offset=idx
+                ]
                 assert_almost_equal(val, first_val, tolerance=1e-5)
 
 
@@ -338,14 +346,14 @@ def test_dropout2d_inference_mode() raises:
     # Inference mode
     var result12 = dropout2d(x, p=0.5, training=False)
     var output = result12[0]
-    var mask = result12[1]
+    _ = result12[1]
 
     # Output should be unchanged
     var size = x.numel()
     for i in range(size):
         assert_almost_equal(
-            output._data.bitcast[Float32]()[i],
-            x._data.bitcast[Float32]()[i],
+            output._data.unsafe_bitcast[Float32]()[unsafe_offset=i],
+            x._data.unsafe_bitcast[Float32]()[unsafe_offset=i],
             tolerance=1e-5,
         )
 

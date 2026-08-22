@@ -13,12 +13,12 @@ Layer 3 (core): Tensor[dtype] native implementation (_reshape_typed, etc.)
 
 Optimizations:
 - Zero-copy views with stride-based indexing
-- memcpy for bulk copying of contiguous memory blocks
+- unsafe_memcpy for bulk copying of contiguous memory blocks
 - Automatic contiguity detection and conversion
 """
 
 from std.collections import List
-from std.memory import memcpy, UnsafePointer
+from std.memory import unsafe_memcpy, Pointer
 from odyssey.tensor.any_tensor import AnyTensor
 from odyssey.base.shape_utils import _resolve_shape
 from odyssey.base.dtype_ordinal import (
@@ -55,7 +55,7 @@ def is_contiguous(tensor: AnyTensor) -> Bool:
             True if tensor is contiguous in memory, False otherwise.
 
     Note:
-            Contiguous tensors can be efficiently copied with memcpy instead of
+            Contiguous tensors can be efficiently copied with unsafe_memcpy instead of
             element-by-element copying.
     """
     # Delegate to AnyTensor.is_contiguous() method to avoid code duplication
@@ -478,8 +478,10 @@ def concatenate(tensors: List[AnyTensor], axis: Int = 0) raises -> AnyTensor:
             var t_bytes = t_numel * dtype_size
 
             if is_contiguous(t):
-                memcpy(
-                    dest=(result._data + offset_bytes).bitcast[UInt8](),
+                unsafe_memcpy(
+                    dest=result._data.unsafe_offset(
+                        offset_bytes
+                    ).unsafe_bitcast[UInt8](),
                     src=t._data,
                     count=t_bytes,
                 )
@@ -496,11 +498,11 @@ def concatenate(tensors: List[AnyTensor], axis: Int = 0) raises -> AnyTensor:
                         src_elem_offset += coord * t._strides[d]
                     var src_byte_offset = src_elem_offset * dtype_size
                     var dst_byte_offset = (result_elem_offset + i) * dtype_size
-                    var src_ptr = t._data.bitcast[UInt8]()
-                    var dst_ptr = result._data.bitcast[UInt8]()
+                    var src_ptr = t._data.unsafe_bitcast[UInt8]()
+                    var dst_ptr = result._data.unsafe_bitcast[UInt8]()
                     for b in range(dtype_size):
-                        dst_ptr[dst_byte_offset + b] = src_ptr[
-                            src_byte_offset + b
+                        dst_ptr[unsafe_offset=dst_byte_offset + b] = src_ptr[
+                            unsafe_offset=src_byte_offset + b
                         ]
 
             offset_bytes += t_bytes
@@ -539,9 +541,13 @@ def concatenate(tensors: List[AnyTensor], axis: Int = 0) raises -> AnyTensor:
                 ) * dtype_size
 
                 var chunk_bytes = t_row_width * dtype_size
-                memcpy(
-                    dest=(result._data + dst_offset).bitcast[UInt8](),
-                    src=(t._data + src_offset).bitcast[UInt8](),
+                unsafe_memcpy(
+                    dest=result._data.unsafe_offset(dst_offset).unsafe_bitcast[
+                        UInt8
+                    ](),
+                    src=t._data.unsafe_offset(src_offset).unsafe_bitcast[
+                        UInt8
+                    ](),
                     count=chunk_bytes,
                 )
 
