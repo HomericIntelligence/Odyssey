@@ -237,7 +237,7 @@ struct GradientScaler(Copyable, Movable):
         return self._num_steps
 
 
-def convert_to_fp32_master(params: AnyTensor) raises -> AnyTensor:
+def convert_to_fp32_master(mut params: AnyTensor) raises -> AnyTensor:
     """Convert model parameters to FP32 master weights with SIMD optimization.
 
     Creates FP32 copy of parameters for optimizer state management.
@@ -297,7 +297,7 @@ def convert_to_fp32_master(params: AnyTensor) raises -> AnyTensor:
 
 
 def update_model_from_master(
-    mut model_params: AnyTensor, master_params: AnyTensor
+    mut model_params: AnyTensor, mut master_params: AnyTensor
 ) raises:
     """Update model parameters from FP32 master weights with SIMD optimization.
 
@@ -434,7 +434,7 @@ def clip_gradients_by_norm(
 
 
 def clip_gradients_by_value(
-    gradients: AnyTensor, min_value: Float32, max_value: Float32
+    mut gradients: AnyTensor, min_value: Float32, max_value: Float32
 ) raises -> AnyTensor:
     """Clip gradients by value range with SIMD optimization.
 
@@ -507,7 +507,7 @@ def clip_gradients_by_value(
 
 
 @always_inline
-def _convert_fp32_to_fp32_simd(src: AnyTensor, mut dst: AnyTensor) raises:
+def _convert_fp32_to_fp32_simd(mut src: AnyTensor, mut dst: AnyTensor) raises:
     """SIMD copy for FP32 to FP32 conversion.
 
     Uses vectorized load/store for maximum throughput.
@@ -528,7 +528,7 @@ def _convert_fp32_to_fp32_simd(src: AnyTensor, mut dst: AnyTensor) raises:
 
 
 @always_inline
-def _update_fp32_from_fp32_simd(src: AnyTensor, mut dst: AnyTensor) raises:
+def _update_fp32_from_fp32_simd(mut src: AnyTensor, mut dst: AnyTensor) raises:
     """SIMD copy from FP32 master to FP32 model params.
 
     Uses vectorized load/store for maximum throughput.
@@ -550,7 +550,7 @@ def _update_fp32_from_fp32_simd(src: AnyTensor, mut dst: AnyTensor) raises:
 
 @always_inline
 def _clip_by_value_simd_float32(
-    src: AnyTensor, mut dst: AnyTensor, min_val: Float32, max_val: Float32
+    mut src: AnyTensor, mut dst: AnyTensor, min_val: Float32, max_val: Float32
 ):
     """SIMD clamp for Float32 gradients.
 
@@ -578,7 +578,7 @@ def _clip_by_value_simd_float32(
 
 @always_inline
 def _clip_by_value_simd_float64(
-    src: AnyTensor, mut dst: AnyTensor, min_val: Float32, max_val: Float32
+    mut src: AnyTensor, mut dst: AnyTensor, min_val: Float32, max_val: Float32
 ):
     """SIMD clamp for Float64 gradients.
 
@@ -607,7 +607,7 @@ def _clip_by_value_simd_float64(
 
 
 @always_inline
-def _convert_fp16_to_fp32_simd(src: AnyTensor, mut dst: AnyTensor) raises:
+def _convert_fp16_to_fp32_simd(mut src: AnyTensor, mut dst: AnyTensor) raises:
     """SIMD conversion from FP16 to FP32 with vectorization.
 
     Uses SIMD load + cast for true vectorized FP16→FP32 conversion.
@@ -628,7 +628,7 @@ def _convert_fp16_to_fp32_simd(src: AnyTensor, mut dst: AnyTensor) raises:
 
 
 @always_inline
-def _convert_fp32_to_fp16_simd(src: AnyTensor, mut dst: AnyTensor) raises:
+def _convert_fp32_to_fp16_simd(mut src: AnyTensor, mut dst: AnyTensor) raises:
     """SIMD conversion from FP32 to FP16 with vectorization.
 
     Uses SIMD load + cast for true vectorized FP32→FP16 conversion.

@@ -118,7 +118,7 @@ struct IndexGradientPair(Copyable, Movable):
 # ============================================================================
 
 
-def _get_val_as_f64[dtype: DType](tensor: AnyTensor, index: Int) -> Float64:
+def _get_val_as_f64[dtype: DType](mut tensor: AnyTensor, index: Int) -> Float64:
     """Read tensor element at flat index as Float64 using typed pointer."""
     var ptr = tensor.data_ptr[dtype]()
     return Float64(ptr[unsafe_offset=index])
@@ -126,14 +126,16 @@ def _get_val_as_f64[dtype: DType](tensor: AnyTensor, index: Int) -> Float64:
 
 def _set_val_from_f64[
     dtype: DType
-](tensor: AnyTensor, index: Int, value: Float64):
+](mut tensor: AnyTensor, index: Int, value: Float64):
     """Write Float64 value to tensor element at flat index using typed pointer.
     """
     var ptr = tensor.data_ptr[dtype]()
     ptr[unsafe_offset=index] = Scalar[dtype](value)
 
 
-def _dispatch_get_val_as_f64(tensor: AnyTensor, index: Int) raises -> Float64:
+def _dispatch_get_val_as_f64(
+    mut tensor: AnyTensor, index: Int
+) raises -> Float64:
     """Runtime dtype dispatch wrapper for _get_val_as_f64."""
     if tensor._dtype == DType.float16:
         return _get_val_as_f64[DType.float16](tensor, index)
@@ -148,7 +150,7 @@ def _dispatch_get_val_as_f64(tensor: AnyTensor, index: Int) raises -> Float64:
 
 
 def _dispatch_set_val_from_f64(
-    tensor: AnyTensor, index: Int, value: Float64
+    mut tensor: AnyTensor, index: Int, value: Float64
 ) raises:
     """Runtime dtype dispatch wrapper for _set_val_from_f64."""
     if tensor._dtype == DType.float16:
@@ -163,14 +165,14 @@ def _dispatch_set_val_from_f64(
         raise Error("Unsupported dtype for gradient checking")
 
 
-def _fill_ones[dtype: DType](tensor: AnyTensor):
+def _fill_ones[dtype: DType](mut tensor: AnyTensor):
     """Fill tensor with 1.0 using typed pointer."""
     var ptr = tensor.data_ptr[dtype]()
     for i in range(tensor.numel()):
         ptr[unsafe_offset=i] = Scalar[dtype](1.0)
 
 
-def _is_uniform_tensor(tensor: AnyTensor) raises -> Bool:
+def _is_uniform_tensor(mut tensor: AnyTensor) raises -> Bool:
     """Check if all elements in a tensor have the same value (uniform tensor).
 
     Args:
@@ -209,10 +211,10 @@ def _check_gradients_perturb[
     FwdFn: def(AnyTensor) raises -> AnyTensor,
 ](
     forward_fn: FwdFn,
-    input: AnyTensor,
-    input_copy_plus: AnyTensor,
-    input_copy_minus: AnyTensor,
-    numerical_grad: AnyTensor,
+    mut input: AnyTensor,
+    mut input_copy_plus: AnyTensor,
+    mut input_copy_minus: AnyTensor,
+    mut numerical_grad: AnyTensor,
     epsilon: Float64,
 ) raises:
     """Run the finite-difference perturbation loop using typed pointers.
@@ -262,10 +264,10 @@ def _check_gradients_perturb[
     F: NumericalForward,
 ](
     forward_fn: F,
-    input: AnyTensor,
-    input_copy_plus: AnyTensor,
-    input_copy_minus: AnyTensor,
-    numerical_grad: AnyTensor,
+    mut input: AnyTensor,
+    mut input_copy_plus: AnyTensor,
+    mut input_copy_minus: AnyTensor,
+    mut numerical_grad: AnyTensor,
     epsilon: Float64,
 ) raises:
     """Run the finite-difference perturbation loop using typed pointers — trait-parameterized overload.
@@ -316,10 +318,10 @@ def _dispatch_check_gradients_perturb[
     FwdFn: def(AnyTensor) raises -> AnyTensor,
 ](
     forward_fn: FwdFn,
-    input: AnyTensor,
-    input_copy_plus: AnyTensor,
-    input_copy_minus: AnyTensor,
-    numerical_grad: AnyTensor,
+    mut input: AnyTensor,
+    mut input_copy_plus: AnyTensor,
+    mut input_copy_minus: AnyTensor,
+    mut numerical_grad: AnyTensor,
     epsilon: Float64,
 ) raises:
     """Dispatch perturbation loop to dtype-specific implementation."""
@@ -369,10 +371,10 @@ def _dispatch_check_gradients_perturb_trait[
     F: NumericalForward
 ](
     forward_fn: F,
-    input: AnyTensor,
-    input_copy_plus: AnyTensor,
-    input_copy_minus: AnyTensor,
-    numerical_grad: AnyTensor,
+    mut input: AnyTensor,
+    mut input_copy_plus: AnyTensor,
+    mut input_copy_minus: AnyTensor,
+    mut numerical_grad: AnyTensor,
     epsilon: Float64,
 ) raises:
     """Dispatch perturbation loop to dtype-specific implementation for trait-parameterized forward.
@@ -425,7 +427,7 @@ def check_gradients[
 ](
     forward_fn: FwdFn,
     backward_fn: BwdFn,
-    input: AnyTensor,
+    mut input: AnyTensor,
     epsilon: Float64 = 3e-4,  # Changed from 1e-5 - see #2704
     tolerance: Float64 = 1e-2,
 ) raises -> Bool:
@@ -570,7 +572,7 @@ def check_gradients[
 ](
     forward_fn: F,
     backward_fn: B,
-    input: AnyTensor,
+    mut input: AnyTensor,
     epsilon: Float64 = 3e-4,
     tolerance: Float64 = 1e-2,
 ) raises -> Bool:
@@ -709,7 +711,7 @@ def check_gradients_verbose[
 ](
     forward_fn: FwdFn,
     backward_fn: BwdFn,
-    input: AnyTensor,
+    mut input: AnyTensor,
     epsilon: Float64 = 3e-4,  # Changed from 1e-5 - see #2704
     tolerance: Float64 = 1e-2,
     print_all: Bool = False,
@@ -817,7 +819,7 @@ def check_gradients_verbose[
 ](
     forward_fn: F,
     backward_fn: B,
-    input: AnyTensor,
+    mut input: AnyTensor,
     epsilon: Float64 = 3e-4,
     tolerance: Float64 = 1e-2,
     print_all: Bool = False,
@@ -945,7 +947,12 @@ def relative_error(analytical: Float64, numerical: Float64) -> Float64:
 def _compute_numerical_grad_perturb[
     dtype: DType,
     FwdFn: def(AnyTensor) raises -> AnyTensor,
-](forward_fn: FwdFn, x: AnyTensor, grad: AnyTensor, epsilon: Float64,) raises:
+](
+    forward_fn: FwdFn,
+    mut x: AnyTensor,
+    mut grad: AnyTensor,
+    epsilon: Float64,
+) raises:
     """Perturbation loop for compute_numerical_gradient using typed pointers."""
     var x_ptr = x.data_ptr[dtype]()
     var grad_ptr = grad.data_ptr[dtype]()
@@ -990,7 +997,12 @@ def _compute_numerical_grad_perturb[
 def _compute_numerical_grad_perturb_trait[
     dtype: DType,
     F: NumericalForward,
-](forward_fn: F, x: AnyTensor, grad: AnyTensor, epsilon: Float64,) raises:
+](
+    forward_fn: F,
+    mut x: AnyTensor,
+    mut grad: AnyTensor,
+    epsilon: Float64,
+) raises:
     """Trait-based perturbation loop for NumericalForward implementors."""
     var x_ptr = x.data_ptr[dtype]()
     var grad_ptr = grad.data_ptr[dtype]()
@@ -1029,7 +1041,7 @@ def compute_numerical_gradient[
     FwdFn: def(AnyTensor) raises -> AnyTensor,
 ](
     forward_fn: FwdFn,
-    x: AnyTensor,
+    mut x: AnyTensor,
     epsilon: Float64 = 3e-4,  # Changed from 1e-5 - see #2704
 ) raises -> AnyTensor:
     """Compute numerical gradient using finite differences.
@@ -1117,7 +1129,11 @@ def compute_numerical_gradient[
 
 def compute_numerical_gradient[
     F: NumericalForward
-](forward_fn: F, x: AnyTensor, epsilon: Float64 = 3e-4,) raises -> AnyTensor:
+](
+    forward_fn: F,
+    mut x: AnyTensor,
+    epsilon: Float64 = 3e-4,
+) raises -> AnyTensor:
     """Compute numerical gradient for a NumericalForward trait implementor.
 
     Overload for use with capturing closures wrapped in a struct implementing
@@ -1170,7 +1186,7 @@ def _compute_sampled_grad_perturb[
     FwdFn: def(AnyTensor) raises -> AnyTensor,
 ](
     forward_fn: FwdFn,
-    x: AnyTensor,
+    mut x: AnyTensor,
     indices: List[Int],
     mut gradients: List[IndexGradientPair],
     epsilon: Float64,
@@ -1213,7 +1229,7 @@ def _compute_sampled_grad_perturb_trait[
     F: NumericalForward,
 ](
     forward_fn: F,
-    x: AnyTensor,
+    mut x: AnyTensor,
     indices: List[Int],
     mut gradients: List[IndexGradientPair],
     epsilon: Float64,
@@ -1248,7 +1264,7 @@ def compute_sampled_numerical_gradient[
     FwdFn: def(AnyTensor) raises -> AnyTensor,
 ](
     forward_fn: FwdFn,
-    x: AnyTensor,
+    mut x: AnyTensor,
     num_samples: Int = 100,
     epsilon: Float64 = 3e-4,  # Changed from 1e-5 - see #2704
     seed: Int = 42,
@@ -1361,7 +1377,7 @@ def compute_sampled_numerical_gradient[
     F: NumericalForward
 ](
     forward_fn: F,
-    x: AnyTensor,
+    mut x: AnyTensor,
     num_samples: Int = 100,
     epsilon: Float64 = 3e-4,
     seed: Int = 42,
@@ -1423,7 +1439,7 @@ def compute_sampled_numerical_gradient[
 
 
 def assert_sampled_gradients_close(
-    analytical_grad: AnyTensor,
+    mut analytical_grad: AnyTensor,
     sampled_numerical: List[IndexGradientPair],
     rtol: Float64 = 1e-2,
     atol: Float64 = 1e-2,  # 1% absolute tolerance for small gradients
@@ -1512,8 +1528,8 @@ def assert_sampled_gradients_close(
 
 
 def assert_gradients_close(
-    analytical: AnyTensor,
-    numerical: AnyTensor,
+    mut analytical: AnyTensor,
+    mut numerical: AnyTensor,
     rtol: Float64 = 1e-3,
     atol: Float64 = 1e-6,
     message: String = "Gradients do not match",
@@ -1614,9 +1630,9 @@ def _check_gradient_perturb[
     FwdFn: def(AnyTensor) raises -> AnyTensor,
 ](
     forward_fn: FwdFn,
-    x: AnyTensor,
-    grad_output: AnyTensor,
-    grad: AnyTensor,
+    mut x: AnyTensor,
+    mut grad_output: AnyTensor,
+    mut grad: AnyTensor,
     eps: Float64,
 ) raises:
     """Perturbation loop for check_gradient using typed pointers.
@@ -1668,9 +1684,9 @@ def _check_gradient_perturb[
     F: NumericalForward,
 ](
     forward_fn: F,
-    x: AnyTensor,
-    grad_output: AnyTensor,
-    grad: AnyTensor,
+    mut x: AnyTensor,
+    mut grad_output: AnyTensor,
+    mut grad: AnyTensor,
     eps: Float64,
 ) raises:
     """Perturbation loop for check_gradient using typed pointers — trait-parameterized overload.
@@ -1725,8 +1741,8 @@ def check_gradient[
 ](
     forward_fn: FwdFn,
     backward_fn: BwdFn,
-    x: AnyTensor,
-    grad_output: AnyTensor,
+    mut x: AnyTensor,
+    mut grad_output: AnyTensor,
     epsilon: Float64 = 0.0,  # Auto-select based on dtype if 0.0
     rtol: Float64 = 1e-3,
     atol: Float64 = 1e-6,
@@ -1848,8 +1864,8 @@ def check_gradient[
 ](
     forward_fn: F,
     backward_fn: B,
-    x: AnyTensor,
-    grad_output: AnyTensor,
+    mut x: AnyTensor,
+    mut grad_output: AnyTensor,
     epsilon: Float64 = 0.0,  # Auto-select based on dtype if 0.0
     rtol: Float64 = 1e-3,
     atol: Float64 = 1e-6,

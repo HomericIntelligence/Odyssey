@@ -1597,20 +1597,26 @@ struct AnyTensor(
     @always_inline
     def data_ptr[
         dtype: DType
-    ](self,) -> Pointer[Scalar[dtype], origin=MutUntrackedOrigin]:
+    ](mut self,) -> Pointer[Scalar[dtype], origin_of(self)]:
         """Get typed pointer to underlying data for bulk operations.
 
-        SAFETY: Caller MUST keep the source tensor alive for the duration
-        of pointer use. The returned pointer is invalidated if the tensor
-        is destroyed.
+        WAR for modular/modular#6963 (premature `__deinit__` UAF, same class
+        as #6959/#6707): the returned pointer is origin-tied to `self` so
+        the compiler keeps this tensor alive for the whole lifetime of the
+        pointer instead of hoisting `__deinit__` to right after this call.
+        Requires `mut self` (a `MutOrigin` pointer) so callers must have a
+        mutable tensor; this is fine for the bulk-copy/loop kernels that
+        use it.
 
         Parameters:
             dtype: Compile-time DType matching self._dtype.
 
         Returns:
-            Typed Pointer to element data.
+            Typed Pointer to element data, tied to this tensor's lifetime.
         """
-        return self._data.unsafe_bitcast[Scalar[dtype]]()
+        return self._data.unsafe_bitcast[Scalar[dtype]]().unsafe_origin_cast[
+            origin_of(self)
+        ]()
 
     def _fill_zero(mut self):
         """Internal: Fill tensor with zeros (works for all dtypes)."""

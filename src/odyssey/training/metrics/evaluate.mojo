@@ -69,7 +69,7 @@ def evaluate_with_predict(
 
 
 def evaluate_logits_batch(
-    logits: AnyTensor, labels: AnyTensor
+    mut logits: AnyTensor, labels: AnyTensor
 ) raises -> Float32:
     """Evaluate using logits (2D) by computing argmax per sample.
 
@@ -127,7 +127,7 @@ def evaluate_logits_batch(
 
 
 def compute_accuracy_on_batch(
-    predictions: AnyTensor, labels: AnyTensor
+    mut predictions: AnyTensor, labels: AnyTensor
 ) raises -> Float32:
     """Compute accuracy for a single batch (simple utility).
 

@@ -321,17 +321,27 @@ proving the write path is correct and the mismatch is the escaped pointer.
 | **C — borrowed params (safe)** | kernel funcs taking `tensor: AnyTensor`/`Tensor[dtype]` params, escaping `_data` into locals (~221 `._data` sites across `tensor_ops`, `typed/*`, `dtype_conv`, `gradient_clipping`, `inference_utils`, …) | owner lives in the caller frame, callee cannot destroy → deinit cannot be hoisted *in the callee* | ✅ safe from this bug (owner's own frame is the caller's responsibility) |
 | **D — by-design (low risk)** | pool APIs returning blocks (`FreeList.pop`, `TensorMemoryPool.allocate`), `examples/mojo_patterns/trait_example.mojo` (no pointer returns from storage) | the returned pointer is the *object itself*, not a view into the struct's persistent storage; owner kept alive by caller | ✅ low |
 
-### Fix path (not yet applied — API blast radius)
+### Fix applied (origin-tie WAR)
 
-Per modular/modular#6707, the correct fix is to tie the returned pointer's origin to the
-owner: `AnyTensor.data_ptr()` would return `Pointer[Scalar[dtype], origin=origin_of(self)]`
-via `unsafe_origin_cast[origin_of(self)]()`. Validated on the `SpinLock` shape
-(`/tmp/origin_mod_direct.mojo` + import test, 3/3). For tensors this requires `mut self`
-on `data_ptr`, cascading `mut` through ~15-20 callers (`evaluate_logits_batch`,
-`compute_accuracy_on_batch`, the `mixed_precision` `_simd` helpers, `gradient_checker`
-helpers, `evaluation.mojo`, model e2e tests). Not applied — filed upstream first.
+Per modular/modular#6707, the fix ties the returned pointer's origin to the owner:
+`AnyTensor.data_ptr()` now returns `Pointer[Scalar[dtype], origin=origin_of(self)]` via
+`unsafe_origin_cast[origin_of(self)]()`. This requires `mut self`, cascading `mut` through
+the callers: `evaluate_logits_batch`/`compute_accuracy_on_batch` (`metrics/evaluate.mojo`),
+the `mixed_precision` `_simd` helpers + `convert_to_fp32_master`/`update_model_from_master`/
+`clip_gradients_by_value`, and the `gradient_checker` helpers + public functions
+(`check_gradients`, `check_gradients_verbose`, `compute_numerical_gradient`,
+`compute_sampled_numerical_gradient`, `check_gradient`, `assert_gradients_close`,
+`assert_sampled_gradients_close`). Test files that passed rvalue tensors to these now bind
+a `var` first (`test_gradient_checking_basic`, `test_gradient_checking_dtype`, autograd
+`test_variable_batch_norm`/`test_variable_depthwise_conv2d`).
 
-**Filed**: [#6963](https://github.com/modular/modular/issues/6963) — self-contained
+**Validated**: the `data_ptr` UAF probe (`repro/repro_tensor_data_ptr_uaf.mojo`) now
+passes 3/3 on stable (was 10222 vs 10225 before); AnyTensor, memory-pool, gradient-checking,
+autograd, and training evaluation suites pass. Remaining failures in the sweep
+(`test_typed_*`, `test_activations`/`arithmetic_backward`/`elementwise`, FP16 SIMD test)
+are pre-existing FM-A/FM-B failures, identical on the unpatched baseline.
+
+**Filed upstream**: [#6963](https://github.com/modular/modular/issues/6963) — self-contained
 stdlib-only repro (`repro/repro_tensor_inline.mojo`, fails 3/3 stable / passes 3/3 b2
 mirror `repro/repro_tensor_inline_b2.mojo`, control `repro/repro_tensor_inline_control.mojo`
 passes 3/3) with cross-version evidence and the `mut self` origin-tie workaround.
