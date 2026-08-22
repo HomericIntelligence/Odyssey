@@ -329,5 +329,10 @@ via `unsafe_origin_cast[origin_of(self)]()`. Validated on the `SpinLock` shape
 (`/tmp/origin_mod_direct.mojo` + import test, 3/3). For tensors this requires `mut self`
 on `data_ptr`, cascading `mut` through ~15-20 callers (`evaluate_logits_batch`,
 `compute_accuracy_on_batch`, the `mixed_precision` `_simd` helpers, `gradient_checker`
-helpers, `evaluation.mojo`, model e2e tests). Not applied pending decision — the latent class
-is documented here and tracked under [#6959](https://github.com/modular/modular/issues/6959).
+helpers, `evaluation.mojo`, model e2e tests). Not applied — filed upstream first.
+
+**Filed**: [#6963](https://github.com/modular/modular/issues/6963) — self-contained
+stdlib-only repro (`repro/repro_tensor_inline.mojo`, fails 3/3 stable / passes 3/3 b2
+mirror `repro/repro_tensor_inline_b2.mojo`, control `repro/repro_tensor_inline_control.mojo`
+passes 3/3) with cross-version evidence and the `mut self` origin-tie workaround.
+Related closed issues: #6959 (COMPLETED), #6707 (NOT_PLANNED), #6939 (DUPLICATE).
