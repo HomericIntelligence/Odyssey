@@ -216,69 +216,104 @@ struct AtomicStats(Copyable, Movable):
         for i in range(_ASTATS_SIZE):
             self._data[unsafe_offset=i] = 0
 
-    def _counter(
-        self, offset: Int
-    ) -> Pointer[Atomic[DType.int64], MutUntrackedOrigin]:
-        """Get pointer to atomic counter at given byte offset."""
-        return self._data.unsafe_offset(offset).unsafe_bitcast[
-            Atomic[DType.int64]
-        ]()
+    def peek_counter(mut self, offset: Int) -> Int64:
+        """Atomically read the counter at the given byte offset.
 
-    def add_allocations(self, n: Int):
+        WAR for modular/modular#6959 (see also #6707): `update_peak_cached`
+        used to hold the raw atomic pointer returned by `_counter()` in a
+        local, letting the pointer escape the struct. The 1.0.0 compiler
+        then hoists `__deinit__` (the `unsafe_free` of `_data`) to right
+        after the last syntactic use of the AtomicStats, so callers operate
+        on freed memory. These methods keep all atomic access inside the
+        struct so no pointer ever escapes.
+        """
+        return (
+            self._data.unsafe_offset(offset)
+            .unsafe_bitcast[Atomic[DType.int64]]()[]
+            .load()
+        )
+
+    def fetch_add_counter(mut self, offset: Int, n: Int) -> Int64:
+        """Atomically add n to the counter at the given byte offset.
+
+        Same WAR rationale as `peek_counter` (no pointer escapes).
+        """
+        return (
+            self._data.unsafe_offset(offset)
+            .unsafe_bitcast[Atomic[DType.int64]]()[]
+            .fetch_add(Int64(n))
+        )
+
+    def max_counter(mut self, offset: Int, n: Int64):
+        """Atomically set the counter at the given byte offset to max(old, n).
+
+        Same WAR rationale as `peek_counter` (no pointer escapes).
+        """
+        _ = (
+            self._data.unsafe_offset(offset)
+            .unsafe_bitcast[Atomic[DType.int64]]()[]
+            .max(n)
+        )
+
+    def store_counter(mut self, offset: Int, value: Int):
+        """Atomically store value into the counter at the given byte offset.
+
+        Same WAR rationale as `peek_counter` (no pointer escapes).
+        """
+        Atomic[DType.int64].store(
+            self._data.unsafe_offset(offset).unsafe_bitcast[Int64](),
+            Int64(value),
+        )
+
+    def add_allocations(mut self, n: Int):
         """Atomically increment allocations counter."""
-        _ = self._counter(_ASTATS_ALLOCATIONS)[].fetch_add(Int64(n))
+        _ = self.fetch_add_counter(_ASTATS_ALLOCATIONS, n)
 
-    def add_deallocations(self, n: Int):
+    def add_deallocations(mut self, n: Int):
         """Atomically increment deallocations counter."""
-        _ = self._counter(_ASTATS_DEALLOCATIONS)[].fetch_add(Int64(n))
+        _ = self.fetch_add_counter(_ASTATS_DEALLOCATIONS, n)
 
-    def add_pool_hits(self, n: Int):
+    def add_pool_hits(mut self, n: Int):
         """Atomically increment pool hits counter."""
-        _ = self._counter(_ASTATS_POOL_HITS)[].fetch_add(Int64(n))
+        _ = self.fetch_add_counter(_ASTATS_POOL_HITS, n)
 
-    def add_pool_misses(self, n: Int):
+    def add_pool_misses(mut self, n: Int):
         """Atomically increment pool misses counter."""
-        _ = self._counter(_ASTATS_POOL_MISSES)[].fetch_add(Int64(n))
+        _ = self.fetch_add_counter(_ASTATS_POOL_MISSES, n)
 
-    def add_bytes_allocated(self, n: Int):
+    def add_bytes_allocated(mut self, n: Int):
         """Atomically adjust bytes allocated counter."""
-        _ = self._counter(_ASTATS_BYTES_ALLOCATED)[].fetch_add(Int64(n))
+        _ = self.fetch_add_counter(_ASTATS_BYTES_ALLOCATED, n)
 
-    def add_bytes_cached(self, n: Int):
+    def add_bytes_cached(mut self, n: Int):
         """Atomically adjust bytes cached counter."""
-        _ = self._counter(_ASTATS_BYTES_CACHED)[].fetch_add(Int64(n))
+        _ = self.fetch_add_counter(_ASTATS_BYTES_CACHED, n)
 
-    def update_peak_cached(self):
+    def update_peak_cached(mut self):
         """Update peak cached bytes if current cached exceeds it."""
-        var cached = self._counter(_ASTATS_BYTES_CACHED)[].load()
-        var peak_ptr = self._counter(_ASTATS_PEAK_CACHED)
+        var cached = self.peek_counter(_ASTATS_BYTES_CACHED)
         # Simple load-compare-store; minor races here are acceptable
         # since peak is a high-water-mark metric, not a correctness counter.
-        if cached > peak_ptr[].load():
-            peak_ptr[].max(Int64(cached))
+        if cached > self.peek_counter(_ASTATS_PEAK_CACHED):
+            self.max_counter(_ASTATS_PEAK_CACHED, cached)
 
-    def snapshot(self) -> PoolStats:
+    def snapshot(mut self) -> PoolStats:
         """Take a consistent snapshot of all counters.
 
         Returns:
             A PoolStats struct with current counter values.
         """
         var s = PoolStats()
-        s.allocations = Int(self._counter(_ASTATS_ALLOCATIONS)[].load())
-        s.deallocations = Int(self._counter(_ASTATS_DEALLOCATIONS)[].load())
-        s.pool_hits = Int(self._counter(_ASTATS_POOL_HITS)[].load())
-        s.pool_misses = Int(self._counter(_ASTATS_POOL_MISSES)[].load())
-        s.bytes_allocated = Int(self._counter(_ASTATS_BYTES_ALLOCATED)[].load())
-        s.bytes_cached = Int(self._counter(_ASTATS_BYTES_CACHED)[].load())
-        s.peak_cached_bytes = Int(self._counter(_ASTATS_PEAK_CACHED)[].load())
+        s.allocations = Int(self.peek_counter(_ASTATS_ALLOCATIONS))
+        s.deallocations = Int(self.peek_counter(_ASTATS_DEALLOCATIONS))
+        s.pool_hits = Int(self.peek_counter(_ASTATS_POOL_HITS))
+        s.pool_misses = Int(self.peek_counter(_ASTATS_POOL_MISSES))
+        s.bytes_allocated = Int(self.peek_counter(_ASTATS_BYTES_ALLOCATED))
+        s.bytes_cached = Int(self.peek_counter(_ASTATS_BYTES_CACHED))
+        s.peak_cached_bytes = Int(self.peek_counter(_ASTATS_PEAK_CACHED))
         return s
 
-    def _counter_int64(self, offset: Int) -> Pointer[Int64, MutUntrackedOrigin]:
-        """Return a plain Int64 pointer at the given byte offset (for atomic store).
-        """
-        return self._data.unsafe_offset(offset).unsafe_bitcast[Int64]()
-
-    def reset(self):
+    def reset(mut self):
         """Reset all counters to zero using atomic stores.
 
         Uses one 8-byte atomic store per counter rather than byte-level zeroing
@@ -288,27 +323,13 @@ struct AtomicStats(Copyable, Movable):
         Caller must ensure no concurrent allocate()/deallocate() calls are in
         flight (see module-level thread-safety note).
         """
-        Atomic[DType.int64].store(
-            self._counter_int64(_ASTATS_ALLOCATIONS), Int64(0)
-        )
-        Atomic[DType.int64].store(
-            self._counter_int64(_ASTATS_DEALLOCATIONS), Int64(0)
-        )
-        Atomic[DType.int64].store(
-            self._counter_int64(_ASTATS_POOL_HITS), Int64(0)
-        )
-        Atomic[DType.int64].store(
-            self._counter_int64(_ASTATS_POOL_MISSES), Int64(0)
-        )
-        Atomic[DType.int64].store(
-            self._counter_int64(_ASTATS_BYTES_ALLOCATED), Int64(0)
-        )
-        Atomic[DType.int64].store(
-            self._counter_int64(_ASTATS_BYTES_CACHED), Int64(0)
-        )
-        Atomic[DType.int64].store(
-            self._counter_int64(_ASTATS_PEAK_CACHED), Int64(0)
-        )
+        self.store_counter(_ASTATS_ALLOCATIONS, 0)
+        self.store_counter(_ASTATS_DEALLOCATIONS, 0)
+        self.store_counter(_ASTATS_POOL_HITS, 0)
+        self.store_counter(_ASTATS_POOL_MISSES, 0)
+        self.store_counter(_ASTATS_BYTES_ALLOCATED, 0)
+        self.store_counter(_ASTATS_BYTES_CACHED, 0)
+        self.store_counter(_ASTATS_PEAK_CACHED, 0)
 
     def __deinit__(deinit self):
         """Free the backing store."""
@@ -725,7 +746,7 @@ struct TensorMemoryPool(Copyable, Movable):
         ptr.unsafe_free()
         self._atomic_stats.add_bytes_allocated(-size)
 
-    def get_stats(self) -> PoolStats:
+    def get_stats(mut self) -> PoolStats:
         """Get current pool statistics.
 
         Returns an atomic snapshot of all counters. Safe to call
@@ -773,10 +794,10 @@ struct TensorMemoryPool(Copyable, Movable):
 
         # Reset byte counters only (preserve allocation/deallocation counts)
         var current_cached = Int(
-            self._atomic_stats._counter(_ASTATS_BYTES_CACHED)[].load()
+            self._atomic_stats.peek_counter(_ASTATS_BYTES_CACHED)
         )
         var current_alloc = Int(
-            self._atomic_stats._counter(_ASTATS_BYTES_ALLOCATED)[].load()
+            self._atomic_stats.peek_counter(_ASTATS_BYTES_ALLOCATED)
         )
         self._atomic_stats.add_bytes_cached(-current_cached)
         self._atomic_stats.add_bytes_allocated(-current_alloc)
