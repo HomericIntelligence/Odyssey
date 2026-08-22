@@ -3,19 +3,24 @@
 # KGEN JIT runtime crash in libKGENCompilerRTShared.so on Mojo 1.0.0 stable.
 # Passes on 1.0.0b2, crashes on 1.0.0 stable.
 #
-# This script:
-#   1. Ensures the Odyssey repo is checked out
-#   2. Builds + starts the Podman dev container
-#   3. Installs both Mojo compilers (1.0.0 stable + 1.0.0b2)
-#   4. Runs test_typed_batchnorm and test_mobilenetv1_e2e on b2  (expect PASS)
-#   5. Checks out the migrated branch and runs both tests on stable (expect CRASH)
+# Intended flow (fresh checkout):
 #
-# Usage:
-#   chmod +x repro_6958.sh
-#   ./repro_6958.sh
+#   gh repo clone HomericIntelligence/Odyssey
+#   cd Odyssey
+#   bash scripts/repro_6958.sh          # or ./scripts/repro_6958.sh
+#
+# The script mounts the repo directory it is run from into the container at
+# /workspace (via the repo's docker-compose.yml), builds/starts the Podman dev
+# container, installs both Mojo compilers (1.0.0 stable + 1.0.0b2), and runs
+# the two failing tests on each:
+#
+#   1. b2 baseline:   test_typed_batchnorm / test_mobilenetv1_e2e on 1.0.0b2
+#                     (pre-migration commit)   → expect PASS
+#   2. stable:        test_typed_batchnorm / test_mobilenetv1_e2e on 1.0.0
+#                     (migrated branch)        → expect CRASH
 #
 # Requirements:
-#   - podman (with podman-compose or `just` available in repo)
+#   - podman (with podman-compose or `just` available in the repo)
 #   - git, internet access
 #
 # Exit codes:
@@ -31,18 +36,33 @@ RED='\033[0;31m'; GREEN='\033[0;32m'; YELLOW='\033[1;33m'; CYAN='\033[0;36m'; NC
 info()  { echo -e "${CYAN}[INFO]${NC}  $*"; }
 pass()  { echo -e "${GREEN}[PASS]${NC}  $*"; }
 fail()  { echo -e "${RED}[FAIL]${NC}  $*"; }
+warn()  { echo -e "${YELLOW}[WARN]${NC}  $*"; }
 header(){ echo -e "\n${YELLOW}════════════════════════════════════════════════════════════${NC}"; echo -e "${YELLOW}  $*${NC}"; echo -e "${YELLOW}════════════════════════════════════════════════════════════${NC}"; }
 
 # ── Config ──────────────────────────────────────────────────────────────
-REPO_DIR="${REPO_DIR:-$(pwd)}"                 # default to cwd (assume inside repo)
-B2_COMMIT="${B2_COMMIT:-febfcd23}"             # last b2-compatible commit
-STABLE_BRANCH="${STABLE_BRANCH:-5800-mojo-1.0.0}"  # migrated branch (pushed to origin)
+# Repo root = the directory this script is run from (repo root, or scripts/)
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+if [ -f "$SCRIPT_DIR/docker-compose.yml" ]; then
+    REPO_DIR="$SCRIPT_DIR"
+elif [ -f "$(pwd)/docker-compose.yml" ]; then
+    REPO_DIR="$(pwd)"
+else
+    fail "Run this script from the Odyssey repo root (or scripts/ inside it)."
+    exit 1
+fi
+
+# Force a deterministic compose project name so the container is always
+# odyssey_odyssey-dev_1 regardless of the clone directory name.
+export COMPOSE_PROJECT_NAME="${COMPOSE_PROJECT_NAME:-odyssey}"
 CONTAINER="odyssey_odyssey-dev_1"
+
+B2_COMMIT="${B2_COMMIT:-febfcd23}"             # last b2-compatible commit (on main)
+STABLE_BRANCH="${STABLE_BRANCH:-5800-mojo-1.0.0}"  # migrated branch (on origin)
 MODULAR_INDEX="https://modular.gateway.scarf.sh/simple/"
 TEST1="tests/odyssey/tensor/test_typed_batchnorm.mojo"
 TEST2="tests/models/test_mobilenetv1_e2e.mojo"
 TIMEOUT_S="${TIMEOUT_S:-180}"
-SKIP_BUILD="${SKIP_BUILD:-0}"   # 1 = skip container build + compiler install (use existing)
+SKIP_BUILD="${SKIP_BUILD:-0}"   # 1 = reuse existing container + compilers
 
 # ── Helper: run inside container ────────────────────────────────────────
 run_in() {
@@ -58,7 +78,7 @@ check_prereqs() {
         fi
     done
     if ! git -C "$REPO_DIR" rev-parse --git-dir &>/dev/null; then
-        fail "$REPO_DIR is not a git repository. Set REPO_DIR=<path-to-Odyssey>."
+        fail "$REPO_DIR is not a git repository."
         ok=0
     fi
     if [ "$ok" -eq 0 ]; then
@@ -67,42 +87,70 @@ check_prereqs() {
     return 0
 }
 
-# ── Step 1: repo sanity ────────────────────────────────────────────────
-header "Step 1: Validate repo"
+# ── Step 0: repo sanity ────────────────────────────────────────────────
+header "Step 0: Validate repo ($REPO_DIR)"
 check_prereqs
 cd "$REPO_DIR"
+ORIG_BRANCH="$(git rev-parse --abbrev-ref HEAD)"
 if ! git fetch origin "$STABLE_BRANCH" 2>/dev/null; then
     info "Fetch failed (offline?); using local refs"
 fi
+if ! git rev-parse --verify -q "origin/$STABLE_BRANCH" >/dev/null 2>&1 && \
+   ! git rev-parse --verify -q "$STABLE_BRANCH" >/dev/null 2>&1; then
+    fail "Cannot find branch $STABLE_BRANCH (needed for the stable side)."
+    fail "Check the branch name or fetch from origin."
+    exit 1
+fi
 info "Repo: $REPO_DIR"
-info "HEAD: $(git rev-parse --short HEAD)"
+info "HEAD: $(git rev-parse --short HEAD) on $ORIG_BRANCH"
 
-# ── Step 2: build + start container ────────────────────────────────────
+# ── Step 1: start container with THIS repo mounted ─────────────────────
 if [ "$SKIP_BUILD" = "1" ]; then
-    info "SKIP_BUILD=1: using existing container + compilers"
+    info "SKIP_BUILD=1: reusing existing container + compilers"
+    STATUS=$(podman inspect --format '{{.State.Status}}' "$CONTAINER" 2>/dev/null || echo missing)
+    [ "$STATUS" = "running" ] || { fail "Container not running"; exit 1; }
 else
-    header "Step 2: Build and start Podman dev container"
-    if podman ps --format '{{.Names}}' | grep -q "^${CONTAINER}$"; then
-        info "Container $CONTAINER already running"
-    else
-        if podman ps -a --format '{{.Names}}' | grep -q "^${CONTAINER}$"; then
-            info "Removing stale container and rebuilding (fresh state required)..."
+    header "Step 1: Build + start dev container (mounting $REPO_DIR)"
+    RUNNING=0
+    if podman ps --format '{{.Names}}' 2>/dev/null | grep -q "^${CONTAINER}$"; then
+        RUNNING=1
+        # Verify the running container mounts THIS repo
+        MOUNTED=$(podman inspect --format '{{range .Mounts}}{{.Destination}}={{.Source}} {{end}}' "$CONTAINER" 2>/dev/null \
+            | tr ' ' '\n' | grep '^/workspace=' | cut -d= -f2 || true)
+        MOUNTED_REAL="$(realpath -m "${MOUNTED:-}" 2>/dev/null || echo "$MOUNTED")"
+        REPO_REAL="$(realpath -m "$REPO_DIR")"
+        if [ -n "$MOUNTED" ] && [ "$MOUNTED_REAL" != "$REPO_REAL" ]; then
+            info "Container mounts $MOUNTED, not $REPO_DIR — recreating with correct mount..."
+            if ! podman rm -f "$CONTAINER" >/dev/null 2>&1; then
+                warn "Container removal reported a failure; continuing anyway"
+            fi
+            RUNNING=0
+        else
+            info "Container $CONTAINER already running with this repo mounted"
+        fi
+    fi
+    if [ "$RUNNING" = "0" ]; then
+        if podman ps -a --format '{{.Names}}' 2>/dev/null | grep -q "^${CONTAINER}$"; then
+            info "Removing stale container (fresh state required)..."
             podman rm -f "$CONTAINER" >/dev/null 2>&1 || info "No stale container to remove"
         fi
         info "Building + starting container via compose..."
         if command -v just &>/dev/null; then
             just podman-up
         else
-            podman compose up -d
+            export USER_ID="${USER_ID:-$(id -u)}"
+            export GROUP_ID="${GROUP_ID:-$(id -g)}"
+            podman compose up -d --build
         fi
         sleep 5
     fi
+
     STATUS=$(podman inspect --format '{{.State.Status}}' "$CONTAINER" 2>/dev/null || echo down)
     info "Container status: $STATUS"
     [ "$STATUS" = "running" ] || { fail "Container did not start"; exit 1; }
 
-    # ── Step 3: install both compilers ─────────────────────────────────────
-    header "Step 3: Install Mojo compilers"
+    # ── Step 2: install both compilers ─────────────────────────────────────
+    header "Step 2: Install Mojo compilers"
     info "Installing Mojo 1.0.0 stable into container venv..."
     run_in "uv pip install 'mojo==1.0.0' --extra-index-url $MODULAR_INDEX 2>&1 | tail -2"
 
@@ -126,8 +174,8 @@ case "$STABLE_VER" in
         ;;
 esac
 
-# ── Step 4: b2 baseline ────────────────────────────────────────────────
-header "Step 4: b2 baseline (pre-migration code, expect PASS)"
+# ── Step 3: b2 baseline ────────────────────────────────────────────────
+header "Step 3: b2 baseline (pre-migration code, expect PASS)"
 run_in "cd /workspace && git checkout -q $B2_COMMIT 2>/dev/null || git checkout -q $B2_COMMIT"
 info "Checked out $B2_COMMIT for b2"
 
@@ -156,13 +204,11 @@ if [ "$B2_OK" -ne 2 ]; then
     exit 3
 fi
 
-# ── Step 5: stable (migrated code, expect CRASH) ──────────────────────
-header "Step 5: stable 1.0.0 (migrated code, expect CRASH)"
+# ── Step 4: stable (migrated code, expect CRASH) ──────────────────────
+header "Step 4: stable 1.0.0 (migrated code, expect CRASH)"
 run_in "cd /workspace && git checkout -q $STABLE_BRANCH"
 info "Checked out $STABLE_BRANCH for stable"
 
-# The migrated branch compiles on stable; apply no workarounds — we want
-# the crash as-is. (If the branch does not compile, the repro is invalid.)
 info "Compile-check test file on stable..."
 if ! run_in "cd /workspace && timeout 300 mojo build -I src -I . -Xlinker -lm \
         $TEST1 -o /dev/null 2>&1" >/dev/null; then
@@ -201,6 +247,12 @@ S_BN=$(cat "$STATUS_DIR/bn")
 S_MN=$(cat "$STATUS_DIR/mn")
 [ "$S_BN" = "0" ] && S_OK=$((S_OK+1))
 [ "$S_MN" = "0" ] && S_OK=$((S_OK+1))
+
+# ── Restore the caller's checkout ──────────────────────────────────────
+info "Restoring checkout to $ORIG_BRANCH..."
+if ! run_in "cd /workspace && git checkout -q $ORIG_BRANCH 2>/dev/null || git checkout -q main"; then
+    warn "Could not restore checkout; repo left on $STABLE_BRANCH"
+fi
 
 # ── Summary ─────────────────────────────────────────────────────────────
 header "SUMMARY"
