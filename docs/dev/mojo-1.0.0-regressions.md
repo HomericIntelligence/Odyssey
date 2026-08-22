@@ -248,7 +248,7 @@ stdout/stderr capture. Classification:
 | --- | --- | --- | --- |
 | **FM-A: Memory corruption** | 49 tests | [#6939](https://github.com/modular/modular/issues/6939) | Return-move `__deinit__` UAF — garbage values (`~1.75`, `~4e-41`, `0.0`) or NaN in forward/backward passes |
 | **FM-B: KGEN JIT crash** | 4 tests | [#6958](https://github.com/modular/modular/issues/6958) | Runtime segfault in `libKGENCompilerRTShared.so` after successful compilation |
-| **FM-C: Atomic regression** | 1 test | [#6959](https://github.com/modular/modular/issues/6959) | `Atomic[Int].fetch_add` returns -1 instead of 0 in sequence |
+| **FM-C: Atomic regression** | 1 test | [#6959](https://github.com/modular/modular/issues/6959) | Premature `__deinit__` UAF (same class as [#6707](https://github.com/modular/modular/issues/6707)) — the compiler hoists `unsafe_free` to right after `lock()`, so subsequent `Atomic` ops hit freed memory; the counter value is whatever the freed chunk holds. **WAR applied** (no pointer escapes from `SpinLock`); repro still fails on stable |
 | **FM-D: Timeout/OOM** | 4 tests | N/A (resource limit) | Heavy model tests (AlexNet/VGG16 224×224, MobileNet train) timeout on 4-core container |
 | **FM-E: Non-deterministic** | 6 tests | (same as FM-A) | Pass on re-run; failed in full suite due to FM-A non-determinism |
 | **FM-F: Pre-existing** | 1 test | N/A (already disabled) | `DISABLED_test_batchnorm` — SIMD type constraint, not a regression |
@@ -276,6 +276,8 @@ the non-deterministic nature of FM-A.
 | `tests/odyssey/tensor/test_typed_batchnorm.mojo` | FM-B (KGEN JIT) | ✅ | ❌ |
 | `tests/models/test_mobilenetv1_e2e.mojo` | FM-B (KGEN JIT) | ✅ | ❌ |
 | `repro/fmd_kgen_jit_crash_min.mojo` (atomic stdlib) | FM-C (Atomic) | ✅ | ❌ |
+| `repro/repro_6959_inline.mojo` | FM-C (Atomic UAF) | n/a (1.0.0 APIs) | ❌ (5/5) |
+| `repro/repro_6959_inline_b2.mojo` | FM-C (b2-flavored mirror) | ✅ (5/5) | n/a |
 
 ## Complete issue tracker
 
@@ -285,4 +287,4 @@ the non-deterministic nature of FM-A.
 | FM-2 | Scalar pow compile | OPEN | [#6940](https://github.com/modular/modular/issues/6940) |
 | FM-3 | VM limit abort | OPEN | [#6941](https://github.com/modular/modular/issues/6941) |
 | FM-B | KGEN JIT runtime crash | OPEN | [#6958](https://github.com/modular/modular/issues/6958) |
-| FM-C | Atomic fetch_add regression | OPEN | [#6959](https://github.com/modular/modular/issues/6959) |
+| FM-C | Premature `__deinit__` UAF in `SpinLock` (`_as_atomic` escape) | OPEN — WAR applied (no-escape API) | [#6959](https://github.com/modular/modular/issues/6959) |
