@@ -288,3 +288,46 @@ the non-deterministic nature of FM-A.
 | FM-3 | VM limit abort | OPEN | [#6941](https://github.com/modular/modular/issues/6941) |
 | FM-B | KGEN JIT runtime crash | OPEN | [#6958](https://github.com/modular/modular/issues/6958) |
 | FM-C | Premature `__deinit__` UAF from escaping `Atomic` pointers (`SpinLock._as_atomic`, `AtomicStats._counter`) | OPEN — WAR applied (no-escape API on both) | [#6959](https://github.com/modular/modular/issues/6959) |
+
+---
+
+## Raw-pointer-escape audit (premature `__deinit__` UAF — #6959/#6707 class)
+
+An audit of every raw-pointer escape from heap-owning structs was performed on 1.0.0 stable
+(after the `SpinLock`/`AtomicStats` WARs). **Same root cause everywhere**: a struct's heap
+storage is freed by `__deinit__` that the compiler hoists to right after the last *syntactic*
+use of the struct, so any raw pointer derived from that storage and held in a local reads
+freed memory.
+
+### Confirmed live (probe, 3/3 fail on stable; control 3/3 pass)
+
+`repro/repro_tensor_data_ptr_uaf.mojo` — owned-local `AnyTensor`, `data_ptr` captured into a
+local, then a loop reads through the pointer (the shape in `evaluation.mojo`/model e2e tests):
+
+```text
+acc      = 10222.0   (expected 10225.0 — 3 elements clobbered by tcmalloc freelist reuse)
+MISMATCH: escaped data_ptr read freed memory
+```
+
+`repro/repro_tensor_data_ptr_control.mojo` — identical but reads via `t.load[i]` → `control: OK` 3/3,
+proving the write path is correct and the mismatch is the escaped pointer.
+
+### Inventory (classification)
+
+| Class | Pattern | Sites | Risk |
+| --- | --- | --- | --- |
+| **A — WAR'd** | no-escape API, no pointer leaves the struct | `SpinLock`, `AtomicStats` (`memory_pool.mojo`) | ✅ fixed |
+| **B — latent, owned-local escape** | owned local tensor → `data_ptr`/`_data` into a local → loop | `evaluation.mojo` (`logits_data`), `gradient_checker.mojo` (`f_plus_ptr`/`out_plus_ptr` etc.), model e2e tests (`test_vgg16_e2e.mojo`), `examples/mobilenetv1_cifar10/train.mojo`, and any user code | ⚠️ **UAF — passes today only by heap/codegen luck** (probe proves the class is live) |
+| **C — borrowed params (safe)** | kernel funcs taking `tensor: AnyTensor`/`Tensor[dtype]` params, escaping `_data` into locals (~221 `._data` sites across `tensor_ops`, `typed/*`, `dtype_conv`, `gradient_clipping`, `inference_utils`, …) | owner lives in the caller frame, callee cannot destroy → deinit cannot be hoisted *in the callee* | ✅ safe from this bug (owner's own frame is the caller's responsibility) |
+| **D — by-design (low risk)** | pool APIs returning blocks (`FreeList.pop`, `TensorMemoryPool.allocate`), `examples/mojo_patterns/trait_example.mojo` (no pointer returns from storage) | the returned pointer is the *object itself*, not a view into the struct's persistent storage; owner kept alive by caller | ✅ low |
+
+### Fix path (not yet applied — API blast radius)
+
+Per modular/modular#6707, the correct fix is to tie the returned pointer's origin to the
+owner: `AnyTensor.data_ptr()` would return `Pointer[Scalar[dtype], origin=origin_of(self)]`
+via `unsafe_origin_cast[origin_of(self)]()`. Validated on the `SpinLock` shape
+(`/tmp/origin_mod_direct.mojo` + import test, 3/3). For tensors this requires `mut self`
+on `data_ptr`, cascading `mut` through ~15-20 callers (`evaluate_logits_batch`,
+`compute_accuracy_on_batch`, the `mixed_precision` `_simd` helpers, `gradient_checker`
+helpers, `evaluation.mojo`, model e2e tests). Not applied pending decision — the latent class
+is documented here and tracked under [#6959](https://github.com/modular/modular/issues/6959).
