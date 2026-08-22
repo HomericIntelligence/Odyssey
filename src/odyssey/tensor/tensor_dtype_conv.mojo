@@ -43,13 +43,13 @@ def _convert_to_fp8_family_impl[
         var val: Float32
         # Defensive dtype re-validation (fixes DATA-003)
         if tensor._dtype == DType.float16:
-            val = tensor._data.unsafe_bitcast[Float16]()[i].cast[
+            val = tensor._data.unsafe_bitcast[Float16]()[unsafe_offset=i].cast[
                 DType.float32
             ]()
         elif tensor._dtype == DType.float32:
-            val = tensor._data.unsafe_bitcast[Float32]()[i]
+            val = tensor._data.unsafe_bitcast[Float32]()[unsafe_offset=i]
         elif tensor._dtype == DType.float64:
-            val = tensor._data.unsafe_bitcast[Float64]()[i].cast[
+            val = tensor._data.unsafe_bitcast[Float64]()[unsafe_offset=i].cast[
                 DType.float32
             ]()
         else:
@@ -87,7 +87,7 @@ def from_fp8_impl(tensor: AnyTensor) raises -> AnyTensor:
 
     # Convert each element from FP8 to Float32 using native SIMD
     for i in range(tensor._numel):
-        var fp8_bits = tensor._data.unsafe_bitcast[UInt8]()[i]
+        var fp8_bits = tensor._data.unsafe_bitcast[UInt8]()[unsafe_offset=i]
         # Bitcast uint8 to FP8, then convert to float32
         var fp8_val = bitcast[FP8, 1](SIMD[DType.uint8, 1](fp8_bits))
         var float_val = Float32(fp8_val[0])
@@ -121,31 +121,31 @@ def _convert_to_int_dtype_impl[
         # Read source element as Float32 (handles all supported dtypes).
         var val: Float32
         if tensor._dtype == DType.float16:
-            val = tensor._data.unsafe_bitcast[Float16]()[i].cast[
+            val = tensor._data.unsafe_bitcast[Float16]()[unsafe_offset=i].cast[
                 DType.float32
             ]()
         elif tensor._dtype == DType.float32:
-            val = tensor._data.unsafe_bitcast[Float32]()[i]
+            val = tensor._data.unsafe_bitcast[Float32]()[unsafe_offset=i]
         elif tensor._dtype == DType.float64:
-            val = tensor._data.unsafe_bitcast[Float64]()[i].cast[
+            val = tensor._data.unsafe_bitcast[Float64]()[unsafe_offset=i].cast[
                 DType.float32
             ]()
         elif tensor._dtype == DType.int8:
-            val = Float32(tensor._data.unsafe_bitcast[Int8]()[i])
+            val = Float32(tensor._data.unsafe_bitcast[Int8]()[unsafe_offset=i])
         elif tensor._dtype == DType.int16:
-            val = Float32(tensor._data.unsafe_bitcast[Int16]()[i])
+            val = Float32(tensor._data.unsafe_bitcast[Int16]()[unsafe_offset=i])
         elif tensor._dtype == DType.int32:
-            val = Float32(tensor._data.unsafe_bitcast[Int32]()[i])
+            val = Float32(tensor._data.unsafe_bitcast[Int32]()[unsafe_offset=i])
         elif tensor._dtype == DType.int64:
-            val = Float32(tensor._data.unsafe_bitcast[Int64]()[i])
+            val = Float32(tensor._data.unsafe_bitcast[Int64]()[unsafe_offset=i])
         elif tensor._dtype == DType.uint8:
-            val = Float32(tensor._data.unsafe_bitcast[UInt8]()[i])
+            val = Float32(tensor._data.unsafe_bitcast[UInt8]()[unsafe_offset=i])
         elif tensor._dtype == DType.uint16:
-            val = Float32(tensor._data.unsafe_bitcast[UInt16]()[i])
+            val = Float32(tensor._data.unsafe_bitcast[UInt16]()[unsafe_offset=i])
         elif tensor._dtype == DType.uint32:
-            val = Float32(tensor._data.unsafe_bitcast[UInt32]()[i])
+            val = Float32(tensor._data.unsafe_bitcast[UInt32]()[unsafe_offset=i])
         elif tensor._dtype == DType.uint64:
-            val = Float32(tensor._data.unsafe_bitcast[UInt64]()[i])
+            val = Float32(tensor._data.unsafe_bitcast[UInt64]()[unsafe_offset=i])
         else:
             raise Error("Unsupported dtype for " + method_name + " conversion")
 
@@ -240,7 +240,7 @@ def from_bf8_impl(tensor: AnyTensor) raises -> AnyTensor:
 
     # Convert each element from BF8 to Float32 using native SIMD
     for i in range(tensor._numel):
-        var bf8_bits = tensor._data.unsafe_bitcast[UInt8]()[i]
+        var bf8_bits = tensor._data.unsafe_bitcast[UInt8]()[unsafe_offset=i]
         # Bitcast uint8 to BF8, then convert to float32
         var bf8_val = bitcast[BF8, 1](SIMD[DType.uint8, 1](bf8_bits))
         var float_val = Float32(bf8_val[0])
@@ -305,13 +305,13 @@ def _convert_to_block_quant_impl[
                         raise Error("Index out of bounds during bitcast")
                     var val: Float32
                     if tensor._dtype == DType.float16:
-                        val = tensor._data.unsafe_bitcast[Float16]()[idx].cast[
+                        val = tensor._data.unsafe_bitcast[Float16]()[unsafe_offset=idx].cast[
                             DType.float32
                         ]()
                     elif tensor._dtype == DType.float32:
-                        val = tensor._data.unsafe_bitcast[Float32]()[idx]
+                        val = tensor._data.unsafe_bitcast[Float32]()[unsafe_offset=idx]
                     elif tensor._dtype == DType.float64:
-                        val = tensor._data.unsafe_bitcast[Float64]()[idx].cast[
+                        val = tensor._data.unsafe_bitcast[Float64]()[unsafe_offset=idx].cast[
                             DType.float32
                         ]()
                     else:
@@ -350,13 +350,13 @@ def _convert_to_block_quant_impl[
                         raise Error("Index out of bounds during bitcast")
                     var val: Float32
                     if tensor._dtype == DType.float16:
-                        val = tensor._data.unsafe_bitcast[Float16]()[idx].cast[
+                        val = tensor._data.unsafe_bitcast[Float16]()[unsafe_offset=idx].cast[
                             DType.float32
                         ]()
                     elif tensor._dtype == DType.float32:
-                        val = tensor._data.unsafe_bitcast[Float32]()[idx]
+                        val = tensor._data.unsafe_bitcast[Float32]()[unsafe_offset=idx]
                     elif tensor._dtype == DType.float64:
-                        val = tensor._data.unsafe_bitcast[Float64]()[idx].cast[
+                        val = tensor._data.unsafe_bitcast[Float64]()[unsafe_offset=idx].cast[
                             DType.float32
                         ]()
                     else:
@@ -418,9 +418,9 @@ def from_mxfp4_impl(tensor: AnyTensor) raises -> AnyTensor:
         # Reconstruct MXFP4Block
         var data = SIMD[DType.uint8, 16](0)
         for i in range(16):
-            data[i] = tensor._data.unsafe_bitcast[UInt8]()[block_offset + i]
+            data[i] = tensor._data.unsafe_bitcast[UInt8]()[unsafe_offset=block_offset + i]
         # Reconstruct E8M0 scale from raw exponent byte
-        var scale_byte = tensor._data.unsafe_bitcast[UInt8]()[block_offset + 16]
+        var scale_byte = tensor._data.unsafe_bitcast[UInt8]()[unsafe_offset=block_offset + 16]
         var scale = bitcast[E8M0, 1](SIMD[DType.uint8, 1](scale_byte))
 
         var block = MXFP4Block(data, scale)
@@ -436,7 +436,7 @@ def from_mxfp4_impl(tensor: AnyTensor) raises -> AnyTensor:
     if output_size < padded_output_size:
         var trimmed = AnyTensor([output_size], DType.float32)
         for i in range(output_size):
-            trimmed[i] = result._data.unsafe_bitcast[Float32]()[i]
+            trimmed[i] = result._data.unsafe_bitcast[Float32]()[unsafe_offset=i]
         return trimmed^
 
     return result^
@@ -482,9 +482,9 @@ def from_nvfp4_impl(tensor: AnyTensor) raises -> AnyTensor:
         # Reconstruct NVFP4Block
         var data = SIMD[DType.uint8, 8](0)
         for i in range(8):
-            data[i] = tensor._data.unsafe_bitcast[UInt8]()[block_offset + i]
+            data[i] = tensor._data.unsafe_bitcast[UInt8]()[unsafe_offset=block_offset + i]
         # Reconstruct FP8 (E4M3) scale from raw byte
-        var scale_byte = tensor._data.unsafe_bitcast[UInt8]()[block_offset + 8]
+        var scale_byte = tensor._data.unsafe_bitcast[UInt8]()[unsafe_offset=block_offset + 8]
         var scale = bitcast[FP8, 1](SIMD[DType.uint8, 1](scale_byte))
 
         var block = NVFP4Block(data, scale)
@@ -500,7 +500,7 @@ def from_nvfp4_impl(tensor: AnyTensor) raises -> AnyTensor:
     if output_size < padded_output_size:
         var trimmed = AnyTensor([output_size], DType.float32)
         for i in range(output_size):
-            trimmed[i] = result._data.unsafe_bitcast[Float32]()[i]
+            trimmed[i] = result._data.unsafe_bitcast[Float32]()[unsafe_offset=i]
         return trimmed^
 
     return result^

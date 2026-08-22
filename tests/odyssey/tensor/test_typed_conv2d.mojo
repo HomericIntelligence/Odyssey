@@ -86,9 +86,9 @@ def test_conv2d_forward_typed() raises:
     )
     var input = Tensor[DType.float32]([1, 1, 5, 5])  # NCHW
     # Set some input values using FP-representable values
-    input._data[0] = Scalar[DType.float32](0.5)
-    input._data[1] = Scalar[DType.float32](1.0)
-    input._data[12] = Scalar[DType.float32](1.5)
+    input._data[unsafe_offset=0] = Scalar[DType.float32](0.5)
+    input._data[unsafe_offset=1] = Scalar[DType.float32](1.0)
+    input._data[unsafe_offset=12] = Scalar[DType.float32](1.5)
     var output = layer.forward(input.as_any())
     assert_true(
         output.get_dtype() == DType.float32, "output dtype should be float32"
@@ -138,11 +138,11 @@ def test_conv2d_backward_typed() raises:
     )
     var input = Tensor[DType.float32]([1, 1, 5, 5])
     for i in range(input.numel()):
-        input._data[i] = Scalar[DType.float32](0.5)
+        input._data[unsafe_offset=i] = Scalar[DType.float32](0.5)
     var output = layer.forward(input.as_any())
     var grad_output = Tensor[DType.float32](output.shape())
     for i in range(grad_output.numel()):
-        grad_output._data[i] = Scalar[DType.float32](1.0)
+        grad_output._data[unsafe_offset=i] = Scalar[DType.float32](1.0)
     var grads = layer.backward(grad_output.as_any(), input.as_any())
     var grad_input = grads[0]
     var grad_weight = grads[1]

@@ -23,7 +23,7 @@ def test_convert_fp16_to_fp32_small() raises:
 
     # Fill with test values
     for i in range(8):
-        fp16_ptr[i] = Float16(Float32(i + 1))
+        fp16_ptr[unsafe_offset=i] = Float16(Float32(i + 1))
 
     # Convert to FP32
     var fp32_result = convert_to_fp32_master(fp16_params)
@@ -35,7 +35,7 @@ def test_convert_fp16_to_fp32_small() raises:
     var fp32_ptr = fp32_result._data.unsafe_bitcast[Float32]()
     for i in range(8):
         var expected = Float32(i + 1)
-        var actual = fp32_ptr[i]
+        var actual = fp32_ptr[unsafe_offset=i]
         # Allow small precision loss due to FP16 -> FP32 conversion
         assert_true(
             abs(actual - expected) < 0.01,
@@ -65,7 +65,7 @@ def test_convert_fp16_to_fp32_medium() raises:
     ]
 
     for i in range(256):
-        fp16_ptr[i] = test_values[i % 7]
+        fp16_ptr[unsafe_offset=i] = test_values[i % 7]
 
     # Convert to FP32
     var fp32_result = convert_to_fp32_master(fp16_params)
@@ -74,7 +74,7 @@ def test_convert_fp16_to_fp32_medium() raises:
     var fp32_ptr = fp32_result._data.unsafe_bitcast[Float32]()
     for i in range(256):
         var expected = Float32(test_values[i % 7])
-        var actual = fp32_ptr[i]
+        var actual = fp32_ptr[unsafe_offset=i]
         assert_true(
             abs(actual - expected) < 0.001,
             "Value at index " + String(i) + " mismatch",
@@ -93,7 +93,7 @@ def test_convert_fp16_to_fp32_large() raises:
 
     # Fill with incrementing values
     for i in range(1024 * 1024):
-        fp16_ptr[i] = Float16(Float32(Float64(i % 100) / 100.0))
+        fp16_ptr[unsafe_offset=i] = Float16(Float32(Float64(i % 100) / 100.0))
 
     # Convert to FP32
     var fp32_result = convert_to_fp32_master(fp16_params)
@@ -102,7 +102,7 @@ def test_convert_fp16_to_fp32_large() raises:
     var fp32_ptr = fp32_result._data.unsafe_bitcast[Float32]()
     for i in [0, 100, 1000, 10000, 100000, 1000000 - 1]:
         var expected = Float32(Float64(i % 100) / 100.0)
-        var actual = fp32_ptr[i]
+        var actual = fp32_ptr[unsafe_offset=i]
         assert_true(
             abs(actual - expected) < 0.001,
             "Value at index " + String(i) + " mismatch",
@@ -121,7 +121,7 @@ def test_convert_fp32_to_fp16_small() raises:
 
     # Fill with test values
     for i in range(8):
-        fp32_ptr[i] = Float32(i + 1)
+        fp32_ptr[unsafe_offset=i] = Float32(i + 1)
 
     # Create FP16 target
     var fp16_model = AnyTensor([8], DType.float16)
@@ -133,7 +133,7 @@ def test_convert_fp32_to_fp16_small() raises:
     var fp16_ptr = fp16_model._data.unsafe_bitcast[Float16]()
     for i in range(8):
         var expected = Float16(Float32(i + 1))
-        var actual = fp16_ptr[i]
+        var actual = fp16_ptr[unsafe_offset=i]
         assert_true(
             abs(Float32(actual) - Float32(expected)) < 0.01,
             "Value at index " + String(i) + " mismatch",
@@ -162,7 +162,7 @@ def test_convert_fp32_to_fp16_medium() raises:
     ]
 
     for i in range(256):
-        fp32_ptr[i] = test_values[i % 7]
+        fp32_ptr[unsafe_offset=i] = test_values[i % 7]
 
     # Create FP16 target
     var fp16_model = AnyTensor([16, 16], DType.float16)
@@ -174,7 +174,7 @@ def test_convert_fp32_to_fp16_medium() raises:
     var fp16_ptr = fp16_model._data.unsafe_bitcast[Float16]()
     for i in range(256):
         var expected = Float16(test_values[i % 7])
-        var actual = fp16_ptr[i]
+        var actual = fp16_ptr[unsafe_offset=i]
         assert_true(
             abs(Float32(actual) - Float32(expected)) < 0.001,
             "Value at index " + String(i) + " mismatch",
@@ -193,7 +193,7 @@ def test_convert_fp32_to_fp16_large() raises:
 
     # Fill with incrementing values
     for i in range(1024 * 1024):
-        fp32_ptr[i] = Float32(Float64(i % 100) / 100.0)
+        fp32_ptr[unsafe_offset=i] = Float32(Float64(i % 100) / 100.0)
 
     # Create FP16 target
     var fp16_model = AnyTensor([1024, 1024], DType.float16)
@@ -205,7 +205,7 @@ def test_convert_fp32_to_fp16_large() raises:
     var fp16_ptr = fp16_model._data.unsafe_bitcast[Float16]()
     for i in [0, 100, 1000, 10000, 100000, 1000000 - 1]:
         var expected = Float16(Float32(Float64(i % 100) / 100.0))
-        var actual = fp16_ptr[i]
+        var actual = fp16_ptr[unsafe_offset=i]
         assert_true(
             abs(Float32(actual) - Float32(expected)) < 0.001,
             "Value at index " + String(i) + " mismatch",
@@ -223,7 +223,7 @@ def test_roundtrip_fp16_fp32_fp16() raises:
     var fp16_ptr = fp16_original._data.unsafe_bitcast[Float16]()
 
     for i in range(64):
-        fp16_ptr[i] = Float16(Float32(Float64(i % 10) / 10.0))
+        fp16_ptr[unsafe_offset=i] = Float16(Float32(Float64(i % 10) / 10.0))
 
     # Convert to FP32
     var fp32_intermediate = convert_to_fp32_master(fp16_original)
@@ -235,8 +235,8 @@ def test_roundtrip_fp16_fp32_fp16() raises:
     # Verify roundtrip preserves values (with FP16 precision limits)
     var fp16_result_ptr = fp16_roundtrip._data.unsafe_bitcast[Float16]()
     for i in range(64):
-        var original = fp16_ptr[i]
-        var result = fp16_result_ptr[i]
+        var original = fp16_ptr[unsafe_offset=i]
+        var result = fp16_result_ptr[unsafe_offset=i]
         assert_true(
             abs(Float32(original) - Float32(result)) < 0.001,
             "Roundtrip mismatch at index " + String(i),
@@ -254,7 +254,7 @@ def test_convert_fp32_to_fp32() raises:
     var fp32_ptr = fp32_params._data.unsafe_bitcast[Float32]()
 
     for i in range(64):
-        fp32_ptr[i] = Float32(i + 1)
+        fp32_ptr[unsafe_offset=i] = Float32(i + 1)
 
     # Convert to FP32 master (should use SIMD copy path)
     var fp32_master = convert_to_fp32_master(fp32_params)
@@ -265,7 +265,7 @@ def test_convert_fp32_to_fp32() raises:
     var master_ptr = fp32_master._data.unsafe_bitcast[Float32]()
     for i in range(64):
         var expected = Float32(i + 1)
-        var actual = master_ptr[i]
+        var actual = master_ptr[unsafe_offset=i]
         assert_equal(
             actual,
             expected,
@@ -280,7 +280,7 @@ def test_non_power_of_2_sizes() raises:
     print("Testing non-power-of-2 tensor sizes...")
 
     # Test sizes: 7, 15, 33, 65, 127, 255, 1000
-    var test_sizes = [7, 15, 33, 65, 127, 255, 1000]
+    var test_sizes: List[Int] = [7, 15, 33, 65, 127, 255, 1000]
 
     for size in test_sizes:
         # Test FP16→FP32
@@ -288,14 +288,14 @@ def test_non_power_of_2_sizes() raises:
         var fp16_ptr = fp16_tensor._data.unsafe_bitcast[Float16]()
 
         for i in range(size):
-            fp16_ptr[i] = Float16(Float32(i % 10))
+            fp16_ptr[unsafe_offset=i] = Float16(Float32(i % 10))
 
         var fp32_result = convert_to_fp32_master(fp16_tensor)
         var fp32_ptr = fp32_result._data.unsafe_bitcast[Float32]()
 
         for i in range(size):
             var expected = Float32(i % 10)
-            var actual = fp32_ptr[i]
+            var actual = fp32_ptr[unsafe_offset=i]
             assert_true(
                 abs(actual - expected) < 0.01,
                 "FP16→FP32 size " + String(size) + " mismatch at " + String(i),
@@ -306,7 +306,7 @@ def test_non_power_of_2_sizes() raises:
         fp32_ptr = fp32_tensor._data.unsafe_bitcast[Float32]()
 
         for i in range(size):
-            fp32_ptr[i] = Float32(i % 10)
+            fp32_ptr[unsafe_offset=i] = Float32(i % 10)
 
         var fp16_result = AnyTensor([size], DType.float16)
         update_model_from_master(fp16_result, fp32_tensor)
@@ -314,7 +314,7 @@ def test_non_power_of_2_sizes() raises:
 
         for i in range(size):
             var expected = Float16(Float32(i % 10))
-            var actual = fp16_ptr[i]
+            var actual = fp16_ptr[unsafe_offset=i]
             assert_true(
                 abs(Float32(actual) - Float32(expected)) < 0.01,
                 "FP32→FP16 size " + String(size) + " mismatch at " + String(i),

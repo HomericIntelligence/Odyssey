@@ -34,12 +34,12 @@ def _extract_quadrants_typed[
 
     for i in range(n_half):
         for j in range(n_half):
-            q11_ptr.store(i * n_half + j, src_ptr.load(i * n + j))
-            q12_ptr.store(i * n_half + j, src_ptr.load(i * n + (j + n_half)))
-            q21_ptr.store(i * n_half + j, src_ptr.load((i + n_half) * n + j))
-            q22_ptr.store(
+            q11_ptr.unsafe_store(i * n_half + j, src_ptr.unsafe_load(i * n + j))
+            q12_ptr.unsafe_store(i * n_half + j, src_ptr.unsafe_load(i * n + (j + n_half)))
+            q21_ptr.unsafe_store(i * n_half + j, src_ptr.unsafe_load((i + n_half) * n + j))
+            q22_ptr.unsafe_store(
                 i * n_half + j,
-                src_ptr.load((i + n_half) * n + (j + n_half)),
+                src_ptr.unsafe_load((i + n_half) * n + (j + n_half)),
             )
 
     return (q11^, q12^, q21^, q22^)
@@ -69,12 +69,12 @@ def _combine_quadrants_typed[
 
     for i in range(n_half):
         for j in range(n_half):
-            c_ptr.store(i * n + j, c11_ptr.load(i * n_half + j))
-            c_ptr.store(i * n + (j + n_half), c12_ptr.load(i * n_half + j))
-            c_ptr.store((i + n_half) * n + j, c21_ptr.load(i * n_half + j))
-            c_ptr.store(
+            c_ptr.unsafe_store(i * n + j, c11_ptr.unsafe_load(i * n_half + j))
+            c_ptr.unsafe_store(i * n + (j + n_half), c12_ptr.unsafe_load(i * n_half + j))
+            c_ptr.unsafe_store((i + n_half) * n + j, c21_ptr.unsafe_load(i * n_half + j))
+            c_ptr.unsafe_store(
                 (i + n_half) * n + (j + n_half),
-                c22_ptr.load(i * n_half + j),
+                c22_ptr.unsafe_load(i * n_half + j),
             )
 
     return result^
@@ -91,4 +91,4 @@ def _matmul_strassen_copy_result[
     for i in range(m):
         for j in range(n):
             var idx = i * n + j
-            dst_ptr.store(idx, src_ptr.load(idx))
+            dst_ptr.unsafe_store(idx, src_ptr.unsafe_load(idx))

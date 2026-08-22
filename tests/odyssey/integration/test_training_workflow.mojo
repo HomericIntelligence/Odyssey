@@ -40,8 +40,8 @@ def _mse_loss(predictions: AnyTensor, targets: AnyTensor, n: Int) -> Float32:
     var total = Float32(0.0)
     for i in range(n):
         var diff = (
-            predictions._data.unsafe_bitcast[Float32]()[i]
-            - targets._data.unsafe_bitcast[Float32]()[i]
+            predictions._data.unsafe_bitcast[Float32]()[unsafe_offset=i]
+            - targets._data.unsafe_bitcast[Float32]()[unsafe_offset=i]
         )
         total += diff * diff
     return total / Float32(n)
@@ -110,11 +110,11 @@ def _train_one_layer(
             var g = Float32(0.0)
             for i in range(n_samples):
                 var err = (
-                    preds._data.unsafe_bitcast[Float32]()[i]
-                    - y._data.unsafe_bitcast[Float32]()[i]
+                    preds._data.unsafe_bitcast[Float32]()[unsafe_offset=i]
+                    - y._data.unsafe_bitcast[Float32]()[unsafe_offset=i]
                 )
                 g += (
-                    err * X._data.unsafe_bitcast[Float32]()[i * in_features + j]
+                    err * X._data.unsafe_bitcast[Float32]()[unsafe_offset=i * in_features + j]
                 )
             grad.set(j, (Float32(2.0) / Float32(n_samples)) * g)
 

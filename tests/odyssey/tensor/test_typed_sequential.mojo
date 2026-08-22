@@ -100,7 +100,7 @@ def test_sequential2_relu_clips_negatives() raises:
     var out_data = output._data.unsafe_bitcast[Float32]()
     for i in range(n):
         assert_true(
-            out_data[i] >= 0.0,
+            out_data[unsafe_offset=i] >= 0.0,
             "ReLU output must be non-negative",
         )
     print("PASS: test_sequential2_relu_clips_negatives")

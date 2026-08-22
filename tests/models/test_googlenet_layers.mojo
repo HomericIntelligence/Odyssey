@@ -205,21 +205,21 @@ def concatenate_depthwise(
             for i in range(hw):
                 var src_idx = ((b * c1 + c) * hw) + i
                 var dst_idx = ((b * total_channels + c) * hw) + i
-                result_data[dst_idx] = t1_data[src_idx]
+                result_data[unsafe_offset=dst_idx] = t1_data[unsafe_offset=src_idx]
 
         # Copy t2 channels (offset by c1)
         for c in range(c2):
             for i in range(hw):
                 var src_idx = ((b * c2 + c) * hw) + i
                 var dst_idx = ((b * total_channels + (c1 + c)) * hw) + i
-                result_data[dst_idx] = t2_data[src_idx]
+                result_data[unsafe_offset=dst_idx] = t2_data[unsafe_offset=src_idx]
 
         # Copy t3 channels (offset by c1+c2)
         for c in range(c3):
             for i in range(hw):
                 var src_idx = ((b * c3 + c) * hw) + i
                 var dst_idx = ((b * total_channels + (c1 + c2 + c)) * hw) + i
-                result_data[dst_idx] = t3_data[src_idx]
+                result_data[unsafe_offset=dst_idx] = t3_data[unsafe_offset=src_idx]
 
         # Copy t4 channels (offset by c1+c2+c3)
         for c in range(c4):
@@ -228,7 +228,7 @@ def concatenate_depthwise(
                 var dst_idx = (
                     (b * total_channels + (c1 + c2 + c3 + c)) * hw
                 ) + i
-                result_data[dst_idx] = t4_data[src_idx]
+                result_data[unsafe_offset=dst_idx] = t4_data[unsafe_offset=src_idx]
 
     return result
 
@@ -327,7 +327,7 @@ def test_inception_module_forward_values() raises:
     )
     var input_data = input._data.unsafe_bitcast[Float32]()
     for i in range(input.numel()):
-        input_data[i] = 0.5
+        input_data[unsafe_offset=i] = 0.5
 
     # Create Inception module
     var inception = InceptionModule(
@@ -354,7 +354,7 @@ def test_inception_module_forward_values() raises:
     var output_data = output._data.unsafe_bitcast[Float32]()
     var sum_val = Float32(0.0)
     for i in range(output.numel()):
-        sum_val += output_data[i]
+        sum_val += output_data[unsafe_offset=i]
 
     assert_true(sum_val > 0.0, "Output should contain non-zero values")
 
@@ -537,13 +537,13 @@ def test_concatenate_depthwise_4_tensors() raises:
     var t4_data = t4._data.unsafe_bitcast[Float32]()
 
     for i in range(t1.numel()):
-        t1_data[i] = 1.0
+        t1_data[unsafe_offset=i] = 1.0
     for i in range(t2.numel()):
-        t2_data[i] = 2.0
+        t2_data[unsafe_offset=i] = 2.0
     for i in range(t3.numel()):
-        t3_data[i] = 3.0
+        t3_data[unsafe_offset=i] = 3.0
     for i in range(t4.numel()):
-        t4_data[i] = 4.0
+        t4_data[unsafe_offset=i] = 4.0
 
     # Concatenate
     var result = concatenate_depthwise(t1, t2, t3, t4)
@@ -591,19 +591,19 @@ def test_concatenate_depthwise_values() raises:
 
     # Check first channel value (from t1) is 1.0
     var idx_t1 = 0
-    assert_close_float(Float64(result_data[idx_t1]), 1.0)
+    assert_close_float(Float64(result_data[unsafe_offset=idx_t1]), 1.0)
 
     # Check third channel value (from t2) is 2.0
     var idx_t2 = 2 * height * width
-    assert_close_float(Float64(result_data[idx_t2]), 2.0)
+    assert_close_float(Float64(result_data[unsafe_offset=idx_t2]), 2.0)
 
     # Check fifth channel value (from t3) is 3.0
     var idx_t3 = 4 * height * width
-    assert_close_float(Float64(result_data[idx_t3]), 3.0)
+    assert_close_float(Float64(result_data[unsafe_offset=idx_t3]), 3.0)
 
     # Check seventh channel value (from t4) is 4.0
     var idx_t4 = 6 * height * width
-    assert_close_float(Float64(result_data[idx_t4]), 4.0)
+    assert_close_float(Float64(result_data[unsafe_offset=idx_t4]), 4.0)
 
 
 def test_initial_conv_block() raises:
@@ -657,7 +657,7 @@ def test_global_avgpool() raises:
     var input = ones([batch_size, channels, height, width], DType.float32)
     var input_data = input._data.unsafe_bitcast[Float32]()
     for i in range(input.numel()):
-        input_data[i] = 2.0
+        input_data[unsafe_offset=i] = 2.0
 
     # Apply global average pooling
     var output = global_avgpool2d(input)
@@ -669,7 +669,7 @@ def test_global_avgpool() raises:
     # Verify output values (should be 2.0 since input was all 2.0)
     var output_data = output._data.unsafe_bitcast[Float32]()
     for i in range(output.numel()):
-        assert_close_float(Float64(output_data[i]), 2.0)
+        assert_close_float(Float64(output_data[unsafe_offset=i]), 2.0)
 
 
 def test_global_avgpool_larger_spatial() raises:
@@ -696,7 +696,7 @@ def test_global_avgpool_larger_spatial() raises:
     # Verify averaging: all values should be 4.0
     var output_data = output._data.unsafe_bitcast[Float32]()
     for i in range(output.numel()):
-        assert_close_float(Float64(output_data[i]), 4.0)
+        assert_close_float(Float64(output_data[unsafe_offset=i]), 4.0)
 
 
 def test_fc_layer() raises:
@@ -931,8 +931,8 @@ def _channel_split_4(
         for b in range(batch):
             for c in range(cc):
                 for i in range(hw):
-                    pd[((b * cc + c) * hw) + i] = td[
-                        ((b * total + (off + c)) * hw) + i
+                    pd[unsafe_offset=((b * cc + c) * hw) + i] = td[
+                        unsafe_offset=((b * total + (off + c)) * hw) + i
                     ]
         out.append(p)
     return out^
@@ -962,13 +962,13 @@ def test_split_with_indices_inverse_of_concatenate_depthwise() raises:
     var t4_data = t4._data.unsafe_bitcast[Float32]()
 
     for i in range(t1.numel()):
-        t1_data[i] = Float32(1.0)
+        t1_data[unsafe_offset=i] = Float32(1.0)
     for i in range(t2.numel()):
-        t2_data[i] = Float32(2.0)
+        t2_data[unsafe_offset=i] = Float32(2.0)
     for i in range(t3.numel()):
-        t3_data[i] = Float32(3.0)
+        t3_data[unsafe_offset=i] = Float32(3.0)
     for i in range(t4.numel()):
-        t4_data[i] = Float32(4.0)
+        t4_data[unsafe_offset=i] = Float32(4.0)
 
     # Forward pass: concatenate
     var concatenated = concatenate_depthwise(t1, t2, t3, t4)
@@ -1001,26 +1001,26 @@ def test_split_with_indices_inverse_of_concatenate_depthwise() raises:
 
     for i in range(t1.numel()):
         assert_close_float(
-            Float64(parts_0_data[i]),
-            Float64(t1_data[i]),
+            Float64(parts_0_data[unsafe_offset=i]),
+            Float64(t1_data[unsafe_offset=i]),
             message="parts[0] mismatch",
         )
     for i in range(t2.numel()):
         assert_close_float(
-            Float64(parts_1_data[i]),
-            Float64(t2_data[i]),
+            Float64(parts_1_data[unsafe_offset=i]),
+            Float64(t2_data[unsafe_offset=i]),
             message="parts[1] mismatch",
         )
     for i in range(t3.numel()):
         assert_close_float(
-            Float64(parts_2_data[i]),
-            Float64(t3_data[i]),
+            Float64(parts_2_data[unsafe_offset=i]),
+            Float64(t3_data[unsafe_offset=i]),
             message="parts[2] mismatch",
         )
     for i in range(t4.numel()):
         assert_close_float(
-            Float64(parts_3_data[i]),
-            Float64(t4_data[i]),
+            Float64(parts_3_data[unsafe_offset=i]),
+            Float64(t4_data[unsafe_offset=i]),
             message="parts[3] mismatch",
         )
 

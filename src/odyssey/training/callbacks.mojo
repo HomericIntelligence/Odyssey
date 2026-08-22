@@ -442,7 +442,11 @@ struct ModelCheckpoint(Callback, Copyable, Movable):
             var epoch_str = String(state.epoch)
             if "{epoch}" in checkpoint_path:
                 var parts = checkpoint_path.split("{epoch}")
-                checkpoint_path = parts[0] + epoch_str + parts[1]
+                # Mojo 1.0.0: parts are slices of checkpoint_path; copy them
+                # before reassigning (aliasing check on String.__add__).
+                var head = String(parts[0])
+                var tail = String(parts[1])
+                checkpoint_path = head + epoch_str + tail
 
             # Log checkpoint save action
             print(

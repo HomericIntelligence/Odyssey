@@ -265,19 +265,19 @@ def concatenate_depthwise(
             for i in range(hw):
                 var src_idx = ((b * c1 + c) * hw) + i
                 var dst_idx = ((b * total_channels + c) * hw) + i
-                result_data[dst_idx] = t1_data[src_idx]
+                result_data[unsafe_offset=dst_idx] = t1_data[unsafe_offset=src_idx]
 
         for c in range(c2):
             for i in range(hw):
                 var src_idx = ((b * c2 + c) * hw) + i
                 var dst_idx = ((b * total_channels + (c1 + c)) * hw) + i
-                result_data[dst_idx] = t2_data[src_idx]
+                result_data[unsafe_offset=dst_idx] = t2_data[unsafe_offset=src_idx]
 
         for c in range(c3):
             for i in range(hw):
                 var src_idx = ((b * c3 + c) * hw) + i
                 var dst_idx = ((b * total_channels + (c1 + c2 + c)) * hw) + i
-                result_data[dst_idx] = t3_data[src_idx]
+                result_data[unsafe_offset=dst_idx] = t3_data[unsafe_offset=src_idx]
 
         for c in range(c4):
             for i in range(hw):
@@ -285,7 +285,7 @@ def concatenate_depthwise(
                 var dst_idx = (
                     (b * total_channels + (c1 + c2 + c3 + c)) * hw
                 ) + i
-                result_data[dst_idx] = t4_data[src_idx]
+                result_data[unsafe_offset=dst_idx] = t4_data[unsafe_offset=src_idx]
 
     return result
 
@@ -554,7 +554,7 @@ def test_googlenet_no_nan_output() raises:
     var input = ones([batch_size, 3, 8, 8], DType.float32)
     var input_data = input._data.unsafe_bitcast[Float32]()
     for i in range(input.numel()):
-        input_data[i] = 0.1
+        input_data[unsafe_offset=i] = 0.1
 
     # Forward pass
     var output = model.forward(input, training=False)
@@ -562,7 +562,7 @@ def test_googlenet_no_nan_output() raises:
     # Verify no NaN values
     var output_data = output._data.unsafe_bitcast[Float32]()
     for i in range(output.numel()):
-        var val = output_data[i]
+        var val = output_data[unsafe_offset=i]
         # Simple NaN check: NaN != NaN
         assert_true(val == val, "Output contains NaN")
 
@@ -584,7 +584,7 @@ def test_googlenet_no_inf_output() raises:
     # Verify no infinite values by checking if finite
     var output_data = output._data.unsafe_bitcast[Float32]()
     for i in range(output.numel()):
-        var val = output_data[i]
+        var val = output_data[unsafe_offset=i]
         # Simple finiteness check
         assert_true(val == val, "Output contains Inf or NaN")
         assert_true(val > -1e10, "Output contains -Inf")
@@ -624,7 +624,7 @@ def test_googlenet_reproducible_output() raises:
     var input = ones([batch_size, 3, 8, 8], DType.float32)
     var input_data = input._data.unsafe_bitcast[Float32]()
     for i in range(input.numel()):
-        input_data[i] = 0.5
+        input_data[unsafe_offset=i] = 0.5
 
     # Forward pass 1
     var model1 = GoogLeNetSmall(num_classes=10)
@@ -675,7 +675,7 @@ def test_googlenet_inception_module_contribution() raises:
     var input = ones([batch_size, 3, 8, 8], DType.float32)
     var input_data = input._data.unsafe_bitcast[Float32]()
     for i in range(input.numel()):
-        input_data[i] = 0.2
+        input_data[unsafe_offset=i] = 0.2
 
     # Forward pass
     var output = model.forward(input, training=True)
@@ -684,7 +684,7 @@ def test_googlenet_inception_module_contribution() raises:
     var output_data = output._data.unsafe_bitcast[Float32]()
     var sum_val = Float32(0.0)
     for i in range(output.numel()):
-        sum_val += Float32(output_data[i] * output_data[i])
+        sum_val += Float32(output_data[unsafe_offset=i] * output_data[unsafe_offset=i])
 
     assert_true(
         sum_val > 0.0,

@@ -95,10 +95,10 @@ def _relu_simd_float32(tensor: AnyTensor, mut result: AnyTensor):
 
     @always_inline
     def vectorized_relu[width: Int](idx: Int) {var in_ptr, var out_ptr}:
-        var vec = in_ptr.load[width=width](idx)
+        var vec = in_ptr.unsafe_load[width=width](idx)
         # SIMD max with zero vector
         var zero_vec = SIMD[DType.float32, width](0)
-        out_ptr.store[width=width](idx, max(zero_vec, vec))
+        out_ptr.unsafe_store[width=width](idx, max(zero_vec, vec))
 
     vectorize[simd_width](size, vectorized_relu)
 
@@ -114,9 +114,9 @@ def _relu_simd_float64(tensor: AnyTensor, mut result: AnyTensor):
 
     @always_inline
     def vectorized_relu[width: Int](idx: Int) {var in_ptr, var out_ptr}:
-        var vec = in_ptr.load[width=width](idx)
+        var vec = in_ptr.unsafe_load[width=width](idx)
         var zero_vec = SIMD[DType.float64, width](0)
-        out_ptr.store[width=width](idx, max(zero_vec, vec))
+        out_ptr.unsafe_store[width=width](idx, max(zero_vec, vec))
 
     vectorize[simd_width](size, vectorized_relu)
 
@@ -181,11 +181,11 @@ def _leaky_relu_simd_float32(
     def vectorized_leaky_relu[
         width: Int
     ](idx: Int) {var in_ptr, var out_ptr, var alpha}:
-        var vec = in_ptr.load[width=width](idx)
+        var vec = in_ptr.unsafe_load[width=width](idx)
         var alpha_vec = SIMD[DType.float32, width](alpha)
         var scaled = alpha_vec * vec
         # max(alpha*x, x): if x > 0, x > alpha*x (for 0 < alpha < 1)
-        out_ptr.store[width=width](idx, max(scaled, vec))
+        out_ptr.unsafe_store[width=width](idx, max(scaled, vec))
 
     vectorize[simd_width](size, vectorized_leaky_relu)
 
@@ -205,10 +205,10 @@ def _leaky_relu_simd_float64(
     def vectorized_leaky_relu[
         width: Int
     ](idx: Int) {var in_ptr, var out_ptr, var alpha}:
-        var vec = in_ptr.load[width=width](idx)
+        var vec = in_ptr.unsafe_load[width=width](idx)
         var alpha_vec = SIMD[DType.float64, width](alpha)
         var scaled = alpha_vec * vec
-        out_ptr.store[width=width](idx, max(scaled, vec))
+        out_ptr.unsafe_store[width=width](idx, max(scaled, vec))
 
     vectorize[simd_width](size, vectorized_leaky_relu)
 
@@ -265,11 +265,11 @@ def _relu6_simd_float32(tensor: AnyTensor, mut result: AnyTensor):
 
     @always_inline
     def vectorized_relu6[width: Int](idx: Int) {var in_ptr, var out_ptr}:
-        var vec = in_ptr.load[width=width](idx)
+        var vec = in_ptr.unsafe_load[width=width](idx)
         var zero_vec = SIMD[DType.float32, width](0)
         var six_vec = SIMD[DType.float32, width](6)
         # min(max(0, x), 6)
-        out_ptr.store[width=width](idx, min(max(zero_vec, vec), six_vec))
+        out_ptr.unsafe_store[width=width](idx, min(max(zero_vec, vec), six_vec))
 
     vectorize[simd_width](size, vectorized_relu6)
 
@@ -285,10 +285,10 @@ def _relu6_simd_float64(tensor: AnyTensor, mut result: AnyTensor):
 
     @always_inline
     def vectorized_relu6[width: Int](idx: Int) {var in_ptr, var out_ptr}:
-        var vec = in_ptr.load[width=width](idx)
+        var vec = in_ptr.unsafe_load[width=width](idx)
         var zero_vec = SIMD[DType.float64, width](0)
         var six_vec = SIMD[DType.float64, width](6)
-        out_ptr.store[width=width](idx, min(max(zero_vec, vec), six_vec))
+        out_ptr.unsafe_store[width=width](idx, min(max(zero_vec, vec), six_vec))
 
     vectorize[simd_width](size, vectorized_relu6)
 
@@ -352,7 +352,7 @@ def _elu_simd_float32(tensor: AnyTensor, mut result: AnyTensor, alpha: Float32):
     def vectorized_elu[
         width: Int
     ](idx: Int) {var in_ptr, var out_ptr, var alpha}:
-        var vec = in_ptr.load[width=width](idx)
+        var vec = in_ptr.unsafe_load[width=width](idx)
         var zero_vec = SIMD[DType.float32, width](0)
         var one_vec = SIMD[DType.float32, width](1)
         var alpha_vec = SIMD[DType.float32, width](alpha)
@@ -371,7 +371,7 @@ def _elu_simd_float32(tensor: AnyTensor, mut result: AnyTensor, alpha: Float32):
         # Select based on condition: x > 0
         var mask = vec.gt(zero_vec)
         # SIMD conditional selection: mask.select(true_value, false_value)
-        out_ptr.store[width=width](idx, mask.select(pos_result, neg_result))
+        out_ptr.unsafe_store[width=width](idx, mask.select(pos_result, neg_result))
 
     vectorize[simd_width](size, vectorized_elu)
 
@@ -391,7 +391,7 @@ def _elu_simd_float64(tensor: AnyTensor, mut result: AnyTensor, alpha: Float64):
     def vectorized_elu[
         width: Int
     ](idx: Int) {var in_ptr, var out_ptr, var alpha}:
-        var vec = in_ptr.load[width=width](idx)
+        var vec = in_ptr.unsafe_load[width=width](idx)
         var zero_vec = SIMD[DType.float64, width](0)
         var one_vec = SIMD[DType.float64, width](1)
         var alpha_vec = SIMD[DType.float64, width](alpha)
@@ -403,7 +403,7 @@ def _elu_simd_float64(tensor: AnyTensor, mut result: AnyTensor, alpha: Float64):
 
         var mask = vec.gt(zero_vec)
         # SIMD conditional selection: mask.select(true_value, false_value)
-        out_ptr.store[width=width](idx, mask.select(pos_result, neg_result))
+        out_ptr.unsafe_store[width=width](idx, mask.select(pos_result, neg_result))
 
     vectorize[simd_width](size, vectorized_elu)
 
@@ -471,7 +471,7 @@ def _selu_simd_float32(
     def vectorized_selu[
         width: Int
     ](idx: Int) {var in_ptr, var out_ptr, var alpha, var lambda_}:
-        var vec = in_ptr.load[width=width](idx)
+        var vec = in_ptr.unsafe_load[width=width](idx)
         var zero_vec = SIMD[DType.float32, width](0)
         var one_vec = SIMD[DType.float32, width](1)
         var alpha_vec = SIMD[DType.float32, width](alpha)
@@ -484,7 +484,7 @@ def _selu_simd_float32(
 
         var mask = vec.gt(zero_vec)
         # SIMD conditional selection: mask.select(true_value, false_value)
-        out_ptr.store[width=width](idx, mask.select(pos_result, neg_result))
+        out_ptr.unsafe_store[width=width](idx, mask.select(pos_result, neg_result))
 
     vectorize[simd_width](size, vectorized_selu)
 
@@ -504,7 +504,7 @@ def _selu_simd_float64(
     def vectorized_selu[
         width: Int
     ](idx: Int) {var in_ptr, var out_ptr, var alpha, var lambda_}:
-        var vec = in_ptr.load[width=width](idx)
+        var vec = in_ptr.unsafe_load[width=width](idx)
         var zero_vec = SIMD[DType.float64, width](0)
         var one_vec = SIMD[DType.float64, width](1)
         var alpha_vec = SIMD[DType.float64, width](alpha)
@@ -517,7 +517,7 @@ def _selu_simd_float64(
 
         var mask = vec.gt(zero_vec)
         # SIMD conditional selection: mask.select(true_value, false_value)
-        out_ptr.store[width=width](idx, mask.select(pos_result, neg_result))
+        out_ptr.unsafe_store[width=width](idx, mask.select(pos_result, neg_result))
 
     vectorize[simd_width](size, vectorized_selu)
 
@@ -575,7 +575,7 @@ def _swish_simd_float32(tensor: AnyTensor, mut result: AnyTensor):
 
     @always_inline
     def vectorized_swish[width: Int](idx: Int) {var in_ptr, var out_ptr}:
-        var vec = in_ptr.load[width=width](idx)
+        var vec = in_ptr.unsafe_load[width=width](idx)
 
         # Compute sigmoid(x) with numerical stability
         # sigmoid(x) = 1 / (1 + exp(-x))
@@ -591,7 +591,7 @@ def _swish_simd_float32(tensor: AnyTensor, mut result: AnyTensor):
 
         # swish(x) = x * sigmoid(x)
         var swish_result = vec * sigmoid
-        out_ptr.store[width=width](idx, swish_result)
+        out_ptr.unsafe_store[width=width](idx, swish_result)
 
     vectorize[simd_width](size, vectorized_swish)
 
@@ -607,7 +607,7 @@ def _swish_simd_float64(tensor: AnyTensor, mut result: AnyTensor):
 
     @always_inline
     def vectorized_swish[width: Int](idx: Int) {var in_ptr, var out_ptr}:
-        var vec = in_ptr.load[width=width](idx)
+        var vec = in_ptr.unsafe_load[width=width](idx)
 
         var neg_vec = -vec
         var neg_clipped = max(neg_vec, SIMD[DType.float64, width](-20.0))
@@ -616,6 +616,6 @@ def _swish_simd_float64(tensor: AnyTensor, mut result: AnyTensor):
         var sigmoid = one_vec / (one_vec + exp_neg)
 
         var swish_result = vec * sigmoid
-        out_ptr.store[width=width](idx, swish_result)
+        out_ptr.unsafe_store[width=width](idx, swish_result)
 
     vectorize[simd_width](size, vectorized_swish)

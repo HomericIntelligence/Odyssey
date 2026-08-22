@@ -521,8 +521,8 @@ def _convert_fp32_to_fp32_simd(src: AnyTensor, mut dst: AnyTensor) raises:
 
     @always_inline
     def vectorized_copy[width: Int](idx: Int) {var src_ptr, var dst_ptr}:
-        var vec = src_ptr.load[width=width](idx)
-        dst_ptr.store[width=width](idx, vec)
+        var vec = src_ptr.unsafe_load[width=width](idx)
+        dst_ptr.unsafe_store[width=width](idx, vec)
 
     vectorize[simd_width](size, vectorized_copy)
 
@@ -542,8 +542,8 @@ def _update_fp32_from_fp32_simd(src: AnyTensor, mut dst: AnyTensor) raises:
 
     @always_inline
     def vectorized_copy[width: Int](idx: Int) {var src_ptr, var dst_ptr}:
-        var vec = src_ptr.load[width=width](idx)
-        dst_ptr.store[width=width](idx, vec)
+        var vec = src_ptr.unsafe_load[width=width](idx)
+        dst_ptr.unsafe_store[width=width](idx, vec)
 
     vectorize[simd_width](size, vectorized_copy)
 
@@ -567,11 +567,11 @@ def _clip_by_value_simd_float32(
     def vectorized_clamp[
         width: Int
     ](idx: Int) {var src_ptr, var dst_ptr, var min_val, var max_val}:
-        var vec = src_ptr.load[width=width](idx)
+        var vec = src_ptr.unsafe_load[width=width](idx)
         var min_vec = SIMD[DType.float32, width](min_val)
         var max_vec = SIMD[DType.float32, width](max_val)
         # min(max(x, min_val), max_val)
-        dst_ptr.store[width=width](idx, min(max(vec, min_vec), max_vec))
+        dst_ptr.unsafe_store[width=width](idx, min(max(vec, min_vec), max_vec))
 
     vectorize[simd_width](size, vectorized_clamp)
 
@@ -597,11 +597,11 @@ def _clip_by_value_simd_float64(
     def vectorized_clamp[
         width: Int
     ](idx: Int) {var src_ptr, var dst_ptr, var min_f64, var max_f64}:
-        var vec = src_ptr.load[width=width](idx)
+        var vec = src_ptr.unsafe_load[width=width](idx)
         var min_vec = SIMD[DType.float64, width](min_f64)
         var max_vec = SIMD[DType.float64, width](max_f64)
         # min(max(x, min_val), max_val)
-        dst_ptr.store[width=width](idx, min(max(vec, min_vec), max_vec))
+        dst_ptr.unsafe_store[width=width](idx, min(max(vec, min_vec), max_vec))
 
     vectorize[simd_width](size, vectorized_clamp)
 
@@ -621,8 +621,8 @@ def _convert_fp16_to_fp32_simd(src: AnyTensor, mut dst: AnyTensor) raises:
 
     @always_inline
     def vectorized_convert[width: Int](idx: Int) {var src_ptr, var dst_ptr}:
-        var fp16_vec = src_ptr.load[width=width](idx)
-        dst_ptr.store[width=width](idx, fp16_vec.cast[DType.float32]())
+        var fp16_vec = src_ptr.unsafe_load[width=width](idx)
+        dst_ptr.unsafe_store[width=width](idx, fp16_vec.cast[DType.float32]())
 
     vectorize[simd_width](size, vectorized_convert)
 
@@ -642,7 +642,7 @@ def _convert_fp32_to_fp16_simd(src: AnyTensor, mut dst: AnyTensor) raises:
 
     @always_inline
     def vectorized_convert[width: Int](idx: Int) {var src_ptr, var dst_ptr}:
-        var fp32_vec = src_ptr.load[width=width](idx)
-        dst_ptr.store[width=width](idx, fp32_vec.cast[DType.float16]())
+        var fp32_vec = src_ptr.unsafe_load[width=width](idx)
+        dst_ptr.unsafe_store[width=width](idx, fp32_vec.cast[DType.float16]())
 
     vectorize[simd_width](size, vectorized_convert)

@@ -330,7 +330,7 @@ def test_pointwise_conv2d_forward() raises:
 
     # Check output values: 1x1 conv with all ones should produce 32.0
     var output_data = output._data.unsafe_bitcast[Float32]()
-    assert_almost_equal(output_data[0], Float32(in_channels), tolerance=1e-5)
+    assert_almost_equal(output_data[unsafe_offset=0], Float32(in_channels), tolerance=1e-5)
 
 
 def test_pointwise_conv2d_backward() raises:
@@ -548,11 +548,11 @@ def test_batchnorm2d_initialization() raises:
 
     # Verify gamma is initialized to 1.0
     var gamma_data = bn.gamma._data.unsafe_bitcast[Float32]()
-    assert_almost_equal(gamma_data[0], 1.0, tolerance=1e-5)
+    assert_almost_equal(gamma_data[unsafe_offset=0], 1.0, tolerance=1e-5)
 
     # Verify beta is initialized to 0.0
     var beta_data = bn.beta._data.unsafe_bitcast[Float32]()
-    assert_almost_equal(beta_data[0], 0.0, tolerance=1e-5)
+    assert_almost_equal(beta_data[unsafe_offset=0], 0.0, tolerance=1e-5)
 
 
 def test_batchnorm2d_forward_training() raises:
@@ -642,10 +642,10 @@ def test_relu_activation_basic() raises:
 
     # Set some values to negative
     var input_data = input._data.unsafe_bitcast[Float32]()
-    input_data[0] = -1.0
-    input_data[1] = 0.5
-    input_data[2] = -0.5
-    input_data[3] = 2.0
+    input_data[unsafe_offset=0] = -1.0
+    input_data[unsafe_offset=1] = 0.5
+    input_data[unsafe_offset=2] = -0.5
+    input_data[unsafe_offset=3] = 2.0
 
     # Apply ReLU
     var output = relu(input)
@@ -657,10 +657,10 @@ def test_relu_activation_basic() raises:
 
     # Verify values: negatives become 0, positives stay same
     var output_data = output._data.unsafe_bitcast[Float32]()
-    assert_almost_equal(output_data[0], 0.0, tolerance=1e-5)  # -1.0 -> 0.0
-    assert_almost_equal(output_data[1], 0.5, tolerance=1e-5)  # 0.5 -> 0.5
-    assert_almost_equal(output_data[2], 0.0, tolerance=1e-5)  # -0.5 -> 0.0
-    assert_almost_equal(output_data[3], 2.0, tolerance=1e-5)  # 2.0 -> 2.0
+    assert_almost_equal(output_data[unsafe_offset=0], 0.0, tolerance=1e-5)  # -1.0 -> 0.0
+    assert_almost_equal(output_data[unsafe_offset=1], 0.5, tolerance=1e-5)  # 0.5 -> 0.5
+    assert_almost_equal(output_data[unsafe_offset=2], 0.0, tolerance=1e-5)  # -0.5 -> 0.0
+    assert_almost_equal(output_data[unsafe_offset=3], 2.0, tolerance=1e-5)  # 2.0 -> 2.0
 
 
 def test_relu_multiple_applications() raises:
@@ -683,10 +683,10 @@ def test_relu_multiple_applications() raises:
 
     # Set some values negative
     var input_data = input._data.unsafe_bitcast[Float32]()
-    input_data[0] = -1.0
-    input_data[1] = 0.5
-    input_data[2] = 2.0
-    input_data[3] = -0.5
+    input_data[unsafe_offset=0] = -1.0
+    input_data[unsafe_offset=1] = 0.5
+    input_data[unsafe_offset=2] = 2.0
+    input_data[unsafe_offset=3] = -0.5
 
     # First ReLU
     var output1 = relu(input)
@@ -702,10 +702,10 @@ def test_relu_multiple_applications() raises:
 
     # After ReLU, all negative values should be 0
     var out_data = output2._data.unsafe_bitcast[Float32]()
-    assert_almost_equal(out_data[0], 0.0, tolerance=1e-5)  # -1.0 -> 0.0
-    assert_almost_equal(out_data[1], 0.5, tolerance=1e-5)  # 0.5 -> 0.5
-    assert_almost_equal(out_data[2], 2.0, tolerance=1e-5)  # 2.0 -> 2.0
-    assert_almost_equal(out_data[3], 0.0, tolerance=1e-5)  # -0.5 -> 0.0
+    assert_almost_equal(out_data[unsafe_offset=0], 0.0, tolerance=1e-5)  # -1.0 -> 0.0
+    assert_almost_equal(out_data[unsafe_offset=1], 0.5, tolerance=1e-5)  # 0.5 -> 0.5
+    assert_almost_equal(out_data[unsafe_offset=2], 2.0, tolerance=1e-5)  # 2.0 -> 2.0
+    assert_almost_equal(out_data[unsafe_offset=3], 0.0, tolerance=1e-5)  # -0.5 -> 0.0
 
 
 def test_global_avgpool2d_forward() raises:
@@ -742,7 +742,7 @@ def test_global_avgpool2d_forward() raises:
 
     # Verify output values: average of all ones is 1.0
     var output_data = output._data.unsafe_bitcast[Float32]()
-    assert_almost_equal(output_data[0], 1.0, tolerance=1e-5)
+    assert_almost_equal(output_data[unsafe_offset=0], 1.0, tolerance=1e-5)
 
 
 def test_global_avgpool2d_backward() raises:
@@ -782,7 +782,7 @@ def test_global_avgpool2d_backward() raises:
     # Verify gradient distribution: each spatial position gets 1/(H*W)
     var grad_data = grad_input._data.unsafe_bitcast[Float32]()
     var expected_grad = 1.0 / Float32(height * width)
-    assert_almost_equal(grad_data[0], expected_grad, tolerance=1e-5)
+    assert_almost_equal(grad_data[unsafe_offset=0], expected_grad, tolerance=1e-5)
 
 
 def test_mobilenetv1_block1_32to64() raises:

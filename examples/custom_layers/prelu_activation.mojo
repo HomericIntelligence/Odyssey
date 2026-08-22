@@ -31,8 +31,8 @@ def prelu_simple(input: AnyTensor, alpha: Float32) raises -> AnyTensor:
 
     # For negative part: min(0, x) = -max(0, -x)
     var result = zeros(input.shape(), input.dtype())
-    var input_ptr = input._data.bitcast[Float32]()
-    var result_ptr = result._data.bitcast[Float32]()
+    var input_ptr = input._data.unsafe_bitcast[Float32]()
+    var result_ptr = result._data.unsafe_bitcast[Float32]()
 
     for i in range(input.numel()):
         var x = input_ptr[i]
@@ -59,7 +59,7 @@ def main() raises:
     var input = AnyTensor(input_data^)
 
     print("Input values:")
-    var input_ptr = input._data.bitcast[Float32]()
+    var input_ptr = input._data.unsafe_bitcast[Float32]()
     for i in range(input.numel()):
         print("  ", input_ptr[i])
 
@@ -72,7 +72,7 @@ def main() raises:
     var output = prelu_simple(input, alpha)
 
     print("\nOutput values:")
-    var output_ptr = output._data.bitcast[Float32]()
+    var output_ptr = output._data.unsafe_bitcast[Float32]()
     for i in range(output.numel()):
         print("  ", output_ptr[i])
 

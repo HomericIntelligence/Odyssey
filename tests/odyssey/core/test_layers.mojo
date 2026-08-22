@@ -426,7 +426,7 @@ def test_layer_property_batch_independence() raises:
     for i in range(in_features):
         batch_input.set(i, Float32(1.0))  # First batch element
         batch_input._data.unsafe_bitcast[Float32]()[
-            in_features + i
+            unsafe_offset=in_features + i
         ] = 2.0  # Second batch element
 
     # Process as batch

@@ -37,7 +37,7 @@ def test_simple_mlp2_initialization() raises:
 def test_simple_mlp2_forward_shape_zeros() raises:
     """Test SimpleMLP2 forward produces correct output shape with zero input."""
     var mlp = SimpleMLP2(10, 20, 5)
-    var input_shape = [10]
+    var input_shape: List[Int] = [10]
     var input = zeros(input_shape, DType.float32)
 
     var output = mlp.forward(input)
@@ -49,7 +49,7 @@ def test_simple_mlp2_forward_shape_zeros() raises:
 def test_simple_mlp2_forward_shape_ones() raises:
     """Test SimpleMLP2 forward produces correct output shape with ones input."""
     var mlp = SimpleMLP2(10, 20, 5)
-    var input_shape = [10]
+    var input_shape: List[Int] = [10]
     var input = ones(input_shape, DType.float32)
 
     var output = mlp.forward(input)
@@ -61,7 +61,7 @@ def test_simple_mlp2_forward_shape_ones() raises:
 def test_simple_mlp2_forward_dtype_preserved() raises:
     """Test SimpleMLP2 forward preserves float32 dtype."""
     var mlp = SimpleMLP2(4, 8, 2)
-    var input_shape = [4]
+    var input_shape: List[Int] = [4]
     var input = zeros(input_shape, DType.float32)
 
     var output = mlp.forward(input)
@@ -74,7 +74,7 @@ def test_simple_mlp2_forward_dtype_preserved() raises:
 def test_simple_mlp2_forward_small_model() raises:
     """Test SimpleMLP2 forward with minimal dimensions."""
     var mlp = SimpleMLP2(2, 4, 1)
-    var input_shape = [2]
+    var input_shape: List[Int] = [2]
     var input = ones(input_shape, DType.float32)
 
     var output = mlp.forward(input)
@@ -123,7 +123,7 @@ def test_simple_mlp2_parameters_shapes() raises:
 def test_simple_mlp2_mode_switching() raises:
     """Test SimpleMLP2 train/inference mode switching, forward still works."""
     var mlp = SimpleMLP2(4, 8, 2)
-    var input_shape = [4]
+    var input_shape: List[Int] = [4]
     var input = zeros(input_shape, DType.float32)
 
     # Switch to training mode and verify forward works

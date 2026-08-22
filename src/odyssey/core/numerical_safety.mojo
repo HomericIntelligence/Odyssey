@@ -586,7 +586,7 @@ def _clip_norm_sq_simd_f32(tensor: AnyTensor) -> Float64:
     var acc = Float64(0.0)
 
     def vectorized_norm[width: Int](idx: Int) {var ptr, mut acc}:
-        var vec = ptr.load[width=width](idx)
+        var vec = ptr.unsafe_load[width=width](idx)
         var sq = vec * vec
         acc += sq.reduce_add().cast[DType.float64]()
 
@@ -603,7 +603,7 @@ def _clip_norm_sq_simd_f64(tensor: AnyTensor) -> Float64:
     var acc = Float64(0.0)
 
     def vectorized_norm[width: Int](idx: Int) {var ptr, mut acc}:
-        var vec = ptr.load[width=width](idx)
+        var vec = ptr.unsafe_load[width=width](idx)
         var sq = vec * vec
         acc += sq.reduce_add()
 
@@ -619,9 +619,9 @@ def _clip_scale_simd_f32(tensor: AnyTensor, scale: Float32):
     var ptr = tensor._data.unsafe_bitcast[Float32]()
 
     def vectorized_scale[width: Int](idx: Int) {var ptr, var scale}:
-        var vec = ptr.load[width=width](idx)
+        var vec = ptr.unsafe_load[width=width](idx)
         var scale_vec = SIMD[DType.float32, width](scale)
-        ptr.store[width=width](idx, vec * scale_vec)
+        ptr.unsafe_store[width=width](idx, vec * scale_vec)
 
     vectorize[simd_width](size, vectorized_scale)
 
@@ -634,9 +634,9 @@ def _clip_scale_simd_f64(tensor: AnyTensor, scale: Float64):
     var ptr = tensor._data.unsafe_bitcast[Float64]()
 
     def vectorized_scale[width: Int](idx: Int) {var ptr, var scale}:
-        var vec = ptr.load[width=width](idx)
+        var vec = ptr.unsafe_load[width=width](idx)
         var scale_vec = SIMD[DType.float64, width](scale)
-        ptr.store[width=width](idx, vec * scale_vec)
+        ptr.unsafe_store[width=width](idx, vec * scale_vec)
 
     vectorize[simd_width](size, vectorized_scale)
 
@@ -651,10 +651,10 @@ def _clip_clamp_simd_f32(tensor: AnyTensor, min_val: Float32, max_val: Float32):
     def vectorized_clamp[
         width: Int
     ](idx: Int) {var ptr, var min_val, var max_val}:
-        var vec = ptr.load[width=width](idx)
+        var vec = ptr.unsafe_load[width=width](idx)
         var min_vec = SIMD[DType.float32, width](min_val)
         var max_vec = SIMD[DType.float32, width](max_val)
-        ptr.store[width=width](idx, max(min_vec, min(max_vec, vec)))
+        ptr.unsafe_store[width=width](idx, max(min_vec, min(max_vec, vec)))
 
     vectorize[simd_width](size, vectorized_clamp)
 
@@ -669,10 +669,10 @@ def _clip_clamp_simd_f64(tensor: AnyTensor, min_val: Float64, max_val: Float64):
     def vectorized_clamp[
         width: Int
     ](idx: Int) {var ptr, var min_val, var max_val}:
-        var vec = ptr.load[width=width](idx)
+        var vec = ptr.unsafe_load[width=width](idx)
         var min_vec = SIMD[DType.float64, width](min_val)
         var max_vec = SIMD[DType.float64, width](max_val)
-        ptr.store[width=width](idx, max(min_vec, min(max_vec, vec)))
+        ptr.unsafe_store[width=width](idx, max(min_vec, min(max_vec, vec)))
 
     vectorize[simd_width](size, vectorized_clamp)
 

@@ -84,16 +84,16 @@ def test_relu_forward_zeroes_negatives() raises:
     var input = zeros([4], DType.float32)
     # Set test values: 1.0, -0.5, 0.25, -1.0
     var data = input._data.unsafe_bitcast[Float32]()
-    data[0] = 1.0
-    data[1] = -0.5
-    data[2] = 0.25
-    data[3] = -1.0
+    data[unsafe_offset=0] = 1.0
+    data[unsafe_offset=1] = -0.5
+    data[unsafe_offset=2] = 0.25
+    data[unsafe_offset=3] = -1.0
     var output = layer.forward(input)
     var out_data = output._data.unsafe_bitcast[Float32]()
-    assert_almost_equal(out_data[0], Float32(1.0), atol=1e-6)
-    assert_almost_equal(out_data[1], Float32(0.0), atol=1e-6)
-    assert_almost_equal(out_data[2], Float32(0.25), atol=1e-6)
-    assert_almost_equal(out_data[3], Float32(0.0), atol=1e-6)
+    assert_almost_equal(out_data[unsafe_offset=0], Float32(1.0), atol=1e-6)
+    assert_almost_equal(out_data[unsafe_offset=1], Float32(0.0), atol=1e-6)
+    assert_almost_equal(out_data[unsafe_offset=2], Float32(0.25), atol=1e-6)
+    assert_almost_equal(out_data[unsafe_offset=3], Float32(0.0), atol=1e-6)
     print("PASS: test_relu_forward_zeroes_negatives")
 
 

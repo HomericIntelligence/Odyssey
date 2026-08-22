@@ -1074,7 +1074,7 @@ def depthwise_conv2d(
 
                                 var in_val = x_cont._data.unsafe_bitcast[
                                     Float32
-                                ]()[in_idx]
+                                ]()[unsafe_offset=in_idx]
                                 var k_val = kernel_cont._data.unsafe_bitcast[
                                     Float32
                                 ]()[unsafe_offset=k_idx]
@@ -1229,7 +1229,7 @@ def depthwise_conv2d_backward(
                                 var grad_out_val = (
                                     grad_output_cont._data.unsafe_bitcast[
                                         Float32
-                                    ]()[grad_out_idx]
+                                    ]()[unsafe_offset=grad_out_idx]
                                 )
 
                                 # Get kernel value (shape: [channels, 1, kH, kW])
@@ -1278,7 +1278,7 @@ def depthwise_conv2d_backward(
                                 )
                                 var in_val = x_cont._data.unsafe_bitcast[
                                     Float32
-                                ]()[in_idx]
+                                ]()[unsafe_offset=in_idx]
 
                                 # Get grad_output value
                                 var grad_out_idx = (
@@ -1290,7 +1290,7 @@ def depthwise_conv2d_backward(
                                 var grad_out_val = (
                                     grad_output_cont._data.unsafe_bitcast[
                                         Float32
-                                    ]()[grad_out_idx]
+                                    ]()[unsafe_offset=grad_out_idx]
                                 )
 
                                 grad_sum += in_val * grad_out_val

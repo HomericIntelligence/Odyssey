@@ -200,6 +200,7 @@ All failure modes have been filed upstream (2026-08-20/21):
 - **Failure Mode 2 (compile)**: <https://github.com/modular/modular/issues/6940>
 - **Failure Mode 3 (virtual-memory limit aborts instead of degrading gracefully)**:
   <https://github.com/modular/modular/issues/6941>
+- **Failure Mode 4 (KGEN JIT runtime crash)**: <https://github.com/modular/modular/issues/6958>
 
 Each issue embeds the full reproducer and the b2-vs-stable evidence. Labels are added by
 maintainers during triage (repo restricts label permissions).
@@ -217,10 +218,71 @@ placement), built binary ≥~1.5 GB. Reproducer:
 
 ---
 
+## Cross-version validation (full suite)
+
+Complete cross-version test run performed 2026-08-22, comparing **Mojo 1.0.0 stable
+(ed45d567)** against **Mojo 1.0.0b2 (2cf4d08a)** on the identical test suite
+(437 test/example files).
+
+### Compilation
+
+| Scope | Result |
+| --- | --- |
+| `mojo precompile src/odyssey --Werror` | ✅ 0 errors (src compiles clean) |
+| Eager build all tests (`mojo build --Werror`) | ✅ 380 PASS / 0 FAIL (tests only) |
+| Eager build all examples (`mojo build --Werror`) | ❌ 57 FAIL (all deprecated syntax in examples/) |
+
+### Runtime (JIT)
+
+| Compiler | Pass | Fail | Total |
+| --- | --- | --- | --- |
+| **Mojo 1.0.0 stable** | 320 | 117 | 437 |
+| **Mojo 1.0.0b2** | 391 | 45 | 436 |
+
+### Cross-version regressions (pass on b2, fail on stable)
+
+67 tests fail on stable but pass on b2. Each was individually diagnosed with full
+stdout/stderr capture. Classification:
+
+| Failure mode | Count | Upstream issue | Root cause |
+| --- | --- | --- | --- |
+| **FM-A: Memory corruption** | 49 tests | [#6939](https://github.com/modular/modular/issues/6939) | Return-move `__deinit__` UAF — garbage values (`~1.75`, `~4e-41`, `0.0`) or NaN in forward/backward passes |
+| **FM-B: KGEN JIT crash** | 4 tests | [#6958](https://github.com/modular/modular/issues/6958) | Runtime segfault in `libKGENCompilerRTShared.so` after successful compilation |
+| **FM-C: Atomic regression** | 1 test | [#6959](https://github.com/modular/modular/issues/6959) | `Atomic[Int].fetch_add` returns -1 instead of 0 in sequence |
+| **FM-D: Timeout/OOM** | 4 tests | N/A (resource limit) | Heavy model tests (AlexNet/VGG16 224×224, MobileNet train) timeout on 4-core container |
+| **FM-E: Non-deterministic** | 6 tests | (same as FM-A) | Pass on re-run; failed in full suite due to FM-A non-determinism |
+| **FM-F: Pre-existing** | 1 test | N/A (already disabled) | `DISABLED_test_batchnorm` — SIMD type constraint, not a regression |
+| **Unclassified** | 2 tests | N/A (timeout on re-run) | `googlenet_e2e`, `gradient_checking_batch_norm` — intermittent timeout or downstream corruption |
+
+### Non-deterministic behavior
+
+FM-A failures are non-deterministic — the same test sometimes passes and sometimes fails,
+with different garbage values each run (`~1.75`, `~4e-41`, `0.0`). This is consistent
+with use-after-free where the freed block may or may not be reused before the read.
+
+6 tests that failed in the full suite passed on individual re-run (FM-E), confirming
+the non-deterministic nature of FM-A.
+
+---
+
 ## Reproducer inventory
 
 | File | Failure mode | Passes b2 | Fails stable |
 | --- | --- | --- | --- |
-| `docs/dev/reproducers/repro_uaf_return_move.mojo` | 1 (UAF) | ✅ | ❌ (ASAN-confirmed) |
-| `docs/dev/reproducers/repro_min.mojo` | 1 (UAF, minimal) | ✅ | ❌ (ASAN-confirmed) |
-| `docs/dev/reproducers/repro_scalar_pow.mojo` | 2 (compile) | ✅ | ❌ |
+| `docs/dev/reproducers/repro_uaf_return_move.mojo` | FM-A (UAF) | ✅ | ❌ (ASAN-confirmed) |
+| `docs/dev/reproducers/repro_min.mojo` | FM-A (UAF, minimal) | ✅ | ❌ (ASAN-confirmed) |
+| `docs/dev/reproducers/repro_scalar_pow.mojo` | FM-2 (compile) | ✅ | ❌ |
+| `repro/fmd_kgen_jit_crash_min.mojo` | FM-B (KGEN JIT) | ✅ | ❌ |
+| `tests/odyssey/tensor/test_typed_batchnorm.mojo` | FM-B (KGEN JIT) | ✅ | ❌ |
+| `tests/models/test_mobilenetv1_e2e.mojo` | FM-B (KGEN JIT) | ✅ | ❌ |
+| `repro/fmd_kgen_jit_crash_min.mojo` (atomic stdlib) | FM-C (Atomic) | ✅ | ❌ |
+
+## Complete issue tracker
+
+| Issue | Failure mode | Status | URL |
+| --- | --- | --- | --- |
+| FM-1 / FM-A | Return-move UAF | OPEN | [#6939](https://github.com/modular/modular/issues/6939) |
+| FM-2 | Scalar pow compile | OPEN | [#6940](https://github.com/modular/modular/issues/6940) |
+| FM-3 | VM limit abort | OPEN | [#6941](https://github.com/modular/modular/issues/6941) |
+| FM-B | KGEN JIT runtime crash | OPEN | [#6958](https://github.com/modular/modular/issues/6958) |
+| FM-C | Atomic fetch_add regression | OPEN | [#6959](https://github.com/modular/modular/issues/6959) |

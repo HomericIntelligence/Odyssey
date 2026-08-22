@@ -26,9 +26,9 @@ def _add_simd_typed[
         def vectorized_add[
             width: Int
         ](idx: Int) {var a_ptr, var b_ptr, var result_ptr}:
-            var a_vec = a_ptr.load[width=width](idx)
-            var b_vec = b_ptr.load[width=width](idx)
-            result_ptr.store[width=width](idx, a_vec + b_vec)
+            var a_vec = a_ptr.unsafe_load[width=width](idx)
+            var b_vec = b_ptr.unsafe_load[width=width](idx)
+            result_ptr.unsafe_store[width=width](idx, a_vec + b_vec)
 
         vectorize[simd_width](size, vectorized_add)
     else:
@@ -57,9 +57,9 @@ def _subtract_simd_typed[
         def vectorized_subtract[
             width: Int
         ](idx: Int) {var a_ptr, var b_ptr, var result_ptr}:
-            var a_vec = a_ptr.load[width=width](idx)
-            var b_vec = b_ptr.load[width=width](idx)
-            result_ptr.store[width=width](idx, a_vec - b_vec)
+            var a_vec = a_ptr.unsafe_load[width=width](idx)
+            var b_vec = b_ptr.unsafe_load[width=width](idx)
+            result_ptr.unsafe_store[width=width](idx, a_vec - b_vec)
 
         vectorize[simd_width](size, vectorized_subtract)
     else:
@@ -88,9 +88,9 @@ def _multiply_simd_typed[
         def vectorized_multiply[
             width: Int
         ](idx: Int) {var a_ptr, var b_ptr, var result_ptr}:
-            var a_vec = a_ptr.load[width=width](idx)
-            var b_vec = b_ptr.load[width=width](idx)
-            result_ptr.store[width=width](idx, a_vec * b_vec)
+            var a_vec = a_ptr.unsafe_load[width=width](idx)
+            var b_vec = b_ptr.unsafe_load[width=width](idx)
+            result_ptr.unsafe_store[width=width](idx, a_vec * b_vec)
 
         vectorize[simd_width](size, vectorized_multiply)
     else:
@@ -119,9 +119,9 @@ def _divide_simd_typed[
         def vectorized_divide[
             width: Int
         ](idx: Int) {var a_ptr, var b_ptr, var result_ptr}:
-            var a_vec = a_ptr.load[width=width](idx)
-            var b_vec = b_ptr.load[width=width](idx)
-            result_ptr.store[width=width](idx, a_vec / b_vec)
+            var a_vec = a_ptr.unsafe_load[width=width](idx)
+            var b_vec = b_ptr.unsafe_load[width=width](idx)
+            result_ptr.unsafe_store[width=width](idx, a_vec / b_vec)
 
         vectorize[simd_width](size, vectorized_divide)
     else:

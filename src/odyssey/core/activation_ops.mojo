@@ -25,11 +25,14 @@ Example:
 # ============================================================================
 
 
+from std.math import exp
+
+
 @always_inline
 def exp_scalar_f32(x: Float32) -> Float32:
     """Compute exp of a scalar float32.
 
-    Uses the power operator (2.718281828459045 ** x) to compute exponential.
+    Computes exp(x) via std.math.exp.
     This is a stable implementation suitable for activation function computation.
 
     Args:
@@ -52,14 +55,14 @@ def exp_scalar_f32(x: Float32) -> Float32:
         ```
     """
     # Using power operator for exponential
-    return Float32(2.718281828459045) ** x
+    return exp(x)
 
 
 @always_inline
 def exp_scalar_f64(x: Float64) -> Float64:
     """Compute exp of a scalar float64.
 
-    Uses the power operator (2.718281828459045 ** x) to compute exponential.
+    Computes exp(x) via std.math.exp.
     This is a stable implementation suitable for activation function computation
     with higher precision than float32.
 
@@ -82,4 +85,4 @@ def exp_scalar_f64(x: Float64) -> Float64:
         var small = exp_scalar_f64(-10.0)  # ≈ 4.54e-5
         ```
     """
-    return 2.718281828459045**x
+    return exp(x)

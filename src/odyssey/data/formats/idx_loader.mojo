@@ -83,7 +83,7 @@ def load_idx_labels(filepath: String) raises -> AnyTensor:
     # Copy label data
     var labels_data = labels._data
     for i in range(num_items):
-        labels_data[i] = data_bytes[unsafe_offset=8 + i]
+        labels_data[unsafe_offset=i] = data_bytes[unsafe_offset=8 + i]
 
     return labels^
 
@@ -140,7 +140,7 @@ def load_idx_images(filepath: String) raises -> AnyTensor:
     var images_data = images._data
     var total_pixels = num_images * num_rows * num_cols
     for i in range(total_pixels):
-        images_data[i] = data_bytes[unsafe_offset=16 + i]
+        images_data[unsafe_offset=i] = data_bytes[unsafe_offset=16 + i]
 
     return images^
 
@@ -210,7 +210,7 @@ def load_idx_images_rgb(filepath: String) raises -> AnyTensor:
     var images_data = images._data
     var total_pixels = num_images * num_channels * num_rows * num_cols
     for i in range(total_pixels):
-        images_data[i] = data_bytes[unsafe_offset=20 + i]
+        images_data[unsafe_offset=i] = data_bytes[unsafe_offset=20 + i]
 
     return images^
 
@@ -238,7 +238,7 @@ def normalize_images(mut images: AnyTensor) raises -> AnyTensor:
     var dst_data = normalized._data.unsafe_bitcast[Float32]()
 
     for i in range(num_elements):
-        dst_data[i] = Float32(src_data[unsafe_offset=i]) / 255.0
+        dst_data[unsafe_offset=i] = Float32(src_data[unsafe_offset=i]) / 255.0
 
     return normalized^
 

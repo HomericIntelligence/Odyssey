@@ -909,6 +909,7 @@ def softplus(tensor: AnyTensor, beta: Float64 = 1.0) raises -> AnyTensor:
     var size = tensor.numel()
 
     if tensor.dtype() == DType.float32:
+        var out_ptr = result_ptr.unsafe_bitcast[Float32]()
         for i in range(size):
             var x = data_ptr.unsafe_bitcast[Float32]()[unsafe_offset=i]
             # Numerically stable: max(0, x) + log(1 + exp(-|x|))
@@ -916,23 +917,25 @@ def softplus(tensor: AnyTensor, beta: Float64 = 1.0) raises -> AnyTensor:
             var x_abs = abs(x)
             var exp_neg_abs = exp_scalar_f32(-x_abs)
             var log_term = math_log(Float64(1.0 + exp_neg_abs))
-            result[i] = Float32(x_pos + Float32(log_term))
+            out_ptr[unsafe_offset=i] = Float32(x_pos + Float32(log_term))
     elif tensor.dtype() == DType.float64:
+        var out_ptr = result_ptr.unsafe_bitcast[Float64]()
         for i in range(size):
             var x = data_ptr.unsafe_bitcast[Float64]()[unsafe_offset=i]
             var x_pos = max(x, Float64(0.0))
             var x_abs = abs(x)
             var exp_neg_abs = exp_scalar_f64(-x_abs)
             var log_term = math_log(Float64(1.0) + exp_neg_abs)
-            result[i] = Float32(x_pos + log_term)
+            out_ptr[unsafe_offset=i] = Float64(x_pos + log_term)
     elif tensor.dtype() == DType.float16:
+        var out_ptr = result_ptr.unsafe_bitcast[Float16]()
         for i in range(size):
             var x = Float32(data_ptr.unsafe_bitcast[Float16]()[unsafe_offset=i])
             var x_pos = max(x, Float32(0.0))
             var x_abs = abs(x)
             var exp_neg_abs = exp_scalar_f32(-x_abs)
             var log_term = math_log(Float64(1.0 + exp_neg_abs))
-            result[i] = Float32(x_pos + Float32(log_term))
+            out_ptr[unsafe_offset=i] = Float16(x_pos + Float32(log_term))
     else:
         raise Error(
             "softplus only supports float16, float32, float64, got: "
@@ -1067,7 +1070,6 @@ def selu_backward(
     var result = zeros_like(x)
     var x_ptr = x._data
     var grad_ptr = grad_output._data
-    var result_ptr = result._data
     var size = x.numel()
 
     if x.dtype() == DType.float32:
@@ -1215,28 +1217,31 @@ def elu_backward(
     var size = x.numel()
 
     if x.dtype() == DType.float32:
+        var out_ptr = result_ptr.unsafe_bitcast[Float32]()
         for i in range(size):
             var val = x_ptr.unsafe_bitcast[Float32]()[unsafe_offset=i]
             var grad_val = grad_ptr.unsafe_bitcast[Float32]()[unsafe_offset=i]
 
             if val > 0:
-                result[i] = Float32(grad_val)
+                out_ptr[unsafe_offset=i] = Float32(grad_val)
             else:
                 var val_clipped = max(val, Float32(-20.0))
                 var exp_val = exp_scalar_f32(val_clipped)
-                result[i] = grad_val * Float32(alpha) * exp_val
+                out_ptr[unsafe_offset=i] = grad_val * Float32(alpha) * exp_val
     elif x.dtype() == DType.float64:
+        var out_ptr = result_ptr.unsafe_bitcast[Float64]()
         for i in range(size):
             var val = x_ptr.unsafe_bitcast[Float64]()[unsafe_offset=i]
             var grad_val = grad_ptr.unsafe_bitcast[Float64]()[unsafe_offset=i]
 
             if val > 0:
-                result[i] = Float32(grad_val)
+                out_ptr[unsafe_offset=i] = Float64(grad_val)
             else:
                 var val_clipped = max(val, Float64(-20.0))
                 var exp_val = exp_scalar_f64(val_clipped)
-                result[i] = Float32(grad_val * alpha * exp_val)
+                out_ptr[unsafe_offset=i] = grad_val * alpha * exp_val
     elif x.dtype() == DType.float16:
+        var out_ptr = result_ptr.unsafe_bitcast[Float16]()
         for i in range(size):
             var val = Float32(x_ptr.unsafe_bitcast[Float16]()[unsafe_offset=i])
             var grad_val = Float32(
@@ -1244,11 +1249,11 @@ def elu_backward(
             )
 
             if val > 0:
-                result.set(i, Float16(grad_val))
+                out_ptr[unsafe_offset=i] = Float16(grad_val)
             else:
                 var val_clipped = max(val, Float32(-20.0))
                 var exp_val = exp_scalar_f32(val_clipped)
-                result.set(i, Float16(grad_val * Float32(alpha) * exp_val))
+                out_ptr[unsafe_offset=i] = Float16(grad_val * Float32(alpha) * exp_val)
     else:
         raise Error("elu_backward: only float16/32/64 dtypes supported")
 

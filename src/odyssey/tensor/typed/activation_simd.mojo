@@ -24,8 +24,8 @@ def _relu_simd_typed[dt: DType](input: Tensor[dt], mut result: Tensor[dt]):
 
     @always_inline
     def vectorized_relu[width: Int](idx: Int) {var in_ptr, var out_ptr}:
-        var vec = in_ptr.load[width=width](idx)
+        var vec = in_ptr.unsafe_load[width=width](idx)
         var zero_vec = SIMD[dt, width](0)
-        out_ptr.store[width=width](idx, max(zero_vec, vec))
+        out_ptr.unsafe_store[width=width](idx, max(zero_vec, vec))
 
     vectorize[simd_width](size, vectorized_relu)

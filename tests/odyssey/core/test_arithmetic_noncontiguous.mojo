@@ -357,7 +357,7 @@ def test_noncontiguous_add_matches_contiguous_baseline() raises:
     var bp = baseline._data.unsafe_bitcast[Float32]()
     var rp = result._data.unsafe_bitcast[Float32]()
     for i in range(6):
-        assert_almost_equal(rp[i], bp[unsafe_offset=i], tolerance=1e-5)
+        assert_almost_equal(rp[unsafe_offset=i], bp[unsafe_offset=i], tolerance=1e-5)
 
 
 def test_multiply_broadcast_noncontiguous_lhs() raises:

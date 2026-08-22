@@ -199,7 +199,7 @@ def test_sigmoid_symmetry() raises:
     var sig_x_data = sig_x._data.unsafe_bitcast[Float32]()
     var sig_neg_x_data = sig_neg_x._data.unsafe_bitcast[Float32]()
 
-    var sum_val = sig_x_data[0] + sig_neg_x_data[unsafe_offset=0]
+    var sum_val = sig_x_data[unsafe_offset=0] + sig_neg_x_data[unsafe_offset=0]
     assert_almost_equal(sum_val, 1.0, tolerance=1e-4)
 
 
@@ -278,7 +278,7 @@ def test_tanh_antisymmetry() raises:
     var tanh_neg_x_data = tanh_neg_x._data.unsafe_bitcast[Float32]()
 
     assert_almost_equal(
-        tanh_x_data[0], -tanh_neg_x_data[unsafe_offset=0], tolerance=1e-4
+        tanh_x_data[unsafe_offset=0], -tanh_neg_x_data[unsafe_offset=0], tolerance=1e-4
     )
 
 
@@ -316,7 +316,7 @@ def test_softmax_output_sum() raises:
     var output = softmax(input, axis=-1)
 
     var output_data = output._data.unsafe_bitcast[Float32]()
-    var sum_val = output_data[0] + output_data[1] + output_data[unsafe_offset=2]
+    var sum_val = output_data[unsafe_offset=0] + output_data[unsafe_offset=1] + output_data[unsafe_offset=2]
     assert_almost_equal(sum_val, 1.0, tolerance=1e-5)
 
 
@@ -409,10 +409,10 @@ def test_softmax_axis_0() raises:
     # Column 0: softmax([1, 3, 5])
     # Column 1: softmax([2, 4, 6])
     var col0_sum = (
-        output_data[0] + output_data[2] + output_data[unsafe_offset=4]
+        output_data[unsafe_offset=0] + output_data[unsafe_offset=2] + output_data[unsafe_offset=4]
     )
     var col1_sum = (
-        output_data[1] + output_data[3] + output_data[unsafe_offset=5]
+        output_data[unsafe_offset=1] + output_data[unsafe_offset=3] + output_data[unsafe_offset=5]
     )
     assert_almost_equal(col0_sum, 1.0, tolerance=1e-5)
     assert_almost_equal(col1_sum, 1.0, tolerance=1e-5)
@@ -441,10 +441,10 @@ def test_softmax_axis_1() raises:
     var output_data = output._data.unsafe_bitcast[Float32]()
     # For each row, softmax should sum to 1
     var row0_sum = (
-        output_data[0] + output_data[1] + output_data[unsafe_offset=2]
+        output_data[unsafe_offset=0] + output_data[unsafe_offset=1] + output_data[unsafe_offset=2]
     )
     var row1_sum = (
-        output_data[3] + output_data[4] + output_data[unsafe_offset=5]
+        output_data[unsafe_offset=3] + output_data[unsafe_offset=4] + output_data[unsafe_offset=5]
     )
     assert_almost_equal(row0_sum, 1.0, tolerance=1e-5)
     assert_almost_equal(row1_sum, 1.0, tolerance=1e-5)

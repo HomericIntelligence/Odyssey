@@ -88,7 +88,7 @@ def test_conv2d_noncontiguous_input_ones() raises:
     var bp = baseline._data.unsafe_bitcast[Float32]()
     var rp = result._data.unsafe_bitcast[Float32]()
     for i in range(baseline.numel()):
-        assert_almost_equal(rp[i], bp[unsafe_offset=i], tolerance=1e-4)
+        assert_almost_equal(rp[unsafe_offset=i], bp[unsafe_offset=i], tolerance=1e-4)
 
 
 def test_conv2d_noncontiguous_kernel() raises:
@@ -109,7 +109,7 @@ def test_conv2d_noncontiguous_kernel() raises:
     var bp = baseline._data.unsafe_bitcast[Float32]()
     var rp = result._data.unsafe_bitcast[Float32]()
     for i in range(baseline.numel()):
-        assert_almost_equal(rp[i], bp[unsafe_offset=i], tolerance=1e-4)
+        assert_almost_equal(rp[unsafe_offset=i], bp[unsafe_offset=i], tolerance=1e-4)
 
 
 def test_conv2d_result_shape_correct() raises:
@@ -158,7 +158,7 @@ def test_conv2d_noncontiguous_both_input_and_kernel() raises:
     var bp = baseline._data.unsafe_bitcast[Float32]()
     var rp = result._data.unsafe_bitcast[Float32]()
     for i in range(baseline.numel()):
-        assert_almost_equal(rp[i], bp[unsafe_offset=i], tolerance=1e-4)
+        assert_almost_equal(rp[unsafe_offset=i], bp[unsafe_offset=i], tolerance=1e-4)
 
 
 def test_conv2d_no_bias_noncontiguous_input() raises:
@@ -173,7 +173,7 @@ def test_conv2d_no_bias_noncontiguous_input() raises:
     var bp = baseline._data.unsafe_bitcast[Float32]()
     var rp = result._data.unsafe_bitcast[Float32]()
     for i in range(baseline.numel()):
-        assert_almost_equal(rp[i], bp[unsafe_offset=i], tolerance=1e-4)
+        assert_almost_equal(rp[unsafe_offset=i], bp[unsafe_offset=i], tolerance=1e-4)
 
 
 def test_conv2d_noncontiguous_with_stride() raises:
@@ -194,7 +194,7 @@ def test_conv2d_noncontiguous_with_stride() raises:
     var bp = baseline._data.unsafe_bitcast[Float32]()
     var rp = result._data.unsafe_bitcast[Float32]()
     for i in range(baseline.numel()):
-        assert_almost_equal(rp[i], bp[unsafe_offset=i], tolerance=1e-4)
+        assert_almost_equal(rp[unsafe_offset=i], bp[unsafe_offset=i], tolerance=1e-4)
 
 
 def test_conv2d_noncontiguous_with_padding() raises:
@@ -211,7 +211,7 @@ def test_conv2d_noncontiguous_with_padding() raises:
     var bp = baseline._data.unsafe_bitcast[Float32]()
     var rp = result._data.unsafe_bitcast[Float32]()
     for i in range(baseline.numel()):
-        assert_almost_equal(rp[i], bp[unsafe_offset=i], tolerance=1e-4)
+        assert_almost_equal(rp[unsafe_offset=i], bp[unsafe_offset=i], tolerance=1e-4)
 
 
 def test_conv2d_nc_output_shape_with_multichannel() raises:
@@ -261,7 +261,7 @@ def test_conv2d_backward_noncontiguous_grad_output() raises:
     var bip = bi._data.unsafe_bitcast[Float32]()
     var rip = ri._data.unsafe_bitcast[Float32]()
     for i in range(bi.numel()):
-        assert_almost_equal(rip[i], bip[unsafe_offset=i], tolerance=1e-4)
+        assert_almost_equal(rip[unsafe_offset=i], bip[unsafe_offset=i], tolerance=1e-4)
 
 
 def test_conv2d_backward_noncontiguous_input() raises:
@@ -280,7 +280,7 @@ def test_conv2d_backward_noncontiguous_input() raises:
     var bkp = bk._data.unsafe_bitcast[Float32]()
     var rkp = rk._data.unsafe_bitcast[Float32]()
     for i in range(bk.numel()):
-        assert_almost_equal(rkp[i], bkp[unsafe_offset=i], tolerance=1e-4)
+        assert_almost_equal(rkp[unsafe_offset=i], bkp[unsafe_offset=i], tolerance=1e-4)
 
 
 def test_conv2d_backward_noncontiguous_kernel() raises:
@@ -349,7 +349,7 @@ def test_conv2d_backward_grad_bias_noncontiguous() raises:
     var bbp = bb._data.unsafe_bitcast[Float32]()
     var rbp = rb._data.unsafe_bitcast[Float32]()
     for i in range(bb.numel()):
-        assert_almost_equal(rbp[i], bbp[unsafe_offset=i], tolerance=1e-4)
+        assert_almost_equal(rbp[unsafe_offset=i], bbp[unsafe_offset=i], tolerance=1e-4)
 
 
 def test_conv2d_no_bias_backward_noncontiguous() raises:
@@ -375,7 +375,7 @@ def test_conv2d_no_bias_backward_noncontiguous() raises:
     var bip = bi._data.unsafe_bitcast[Float32]()
     var rip = ri._data.unsafe_bitcast[Float32]()
     for i in range(bi.numel()):
-        assert_almost_equal(rip[i], bip[unsafe_offset=i], tolerance=1e-4)
+        assert_almost_equal(rip[unsafe_offset=i], bip[unsafe_offset=i], tolerance=1e-4)
 
 
 def test_conv2d_backward_all_noncontiguous() raises:
@@ -401,7 +401,7 @@ def test_conv2d_backward_all_noncontiguous() raises:
     var bip = bi._data.unsafe_bitcast[Float32]()
     var rip = ri._data.unsafe_bitcast[Float32]()
     for i in range(bi.numel()):
-        assert_almost_equal(rip[i], bip[unsafe_offset=i], tolerance=1e-4)
+        assert_almost_equal(rip[unsafe_offset=i], bip[unsafe_offset=i], tolerance=1e-4)
 
 
 def test_conv2d_backward_grad_weights_shape() raises:

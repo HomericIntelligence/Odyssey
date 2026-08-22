@@ -75,11 +75,11 @@ struct WallClockTimer:
         start_ns: Nanoseconds since start of timer.
     """
 
-    var start_ns: UInt
+    var start_ns: Int
 
     def __init__(out self):
         """Initialize timer to current time."""
-        self.start_ns = perf_counter_ns()
+        self.start_ns = Int(perf_counter_ns())
 
     def elapsed_seconds(self) -> Float32:
         """Get elapsed time in seconds since timer start.
@@ -87,7 +87,7 @@ struct WallClockTimer:
         Returns:
             Elapsed seconds as float.
         """
-        var now_ns = perf_counter_ns()
+        var now_ns = Int(perf_counter_ns())
         var elapsed_ns = now_ns - self.start_ns
         return Float32(Int(elapsed_ns)) / 1_000_000_000.0
 

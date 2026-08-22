@@ -345,7 +345,6 @@ def load_tensor_from_checkpoint(
     if len(lines) < 3:
         raise Error("Invalid weight file format: " + filepath)
 
-    var file_name = String(lines[0])
     var metadata = String(lines[1])
     var hex_data = String(lines[2])
 
@@ -716,7 +715,8 @@ def join_path(base: String, path: String) raises -> String:
     # Strip trailing separator from base
     var clean_base = base
     if clean_base.endswith("/"):
-        clean_base = String(clean_base[byte = 0 : clean_base.byte_length() - 1])
+        var trimmed = String(clean_base[byte = 0 : clean_base.byte_length() - 1])
+        clean_base = trimmed
 
     # Strip leading separator from path (should not happen after validation)
     var clean_path = path

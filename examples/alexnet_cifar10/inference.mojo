@@ -163,7 +163,7 @@ def _top_k_indices(tensor: AnyTensor, k: Int) raises -> List[Int]:
 
     # Create a copy of tensor values for modification
     var values = List[Float32]()
-    var tensor_data = tensor._data.bitcast[Float32]()
+    var tensor_data = tensor._data.unsafe_bitcast[Float32]()
     for i in range(num_classes):
         values.append(tensor_data[i])
 

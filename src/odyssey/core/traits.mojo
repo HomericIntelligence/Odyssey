@@ -275,13 +275,13 @@ trait Composable(Differentiable):
         ```
     """
 
-    def compose[T: Differentiable & Copyable & Movable](self, other: T) raises:
+    def compose[T: Differentiable & Copyable](self, other: T) raises:
         """Compose this component with another.
 
         NOTE: The compose method signature is intentionally incomplete because Mojo's
         current type system limitations prevent returning ComposedOp[Self, T]. The trait
         `Self` type does not automatically satisfy the required trait constraints
-        (Differentiable & Copyable & Movable) needed by ComposedOp.
+        (Differentiable & Copyable) needed by ComposedOp.
 
         However, ComposedOp itself is fully implemented and can be used directly:
         ```
@@ -305,8 +305,8 @@ trait Composable(Differentiable):
 
 
 struct ComposedOp[
-    F: Differentiable & Copyable & Movable,
-    S: Differentiable & Copyable & Movable,
+    F: Differentiable & Copyable,
+    S: Differentiable & Copyable,
 ](Composable, Differentiable):
     """Composition of two differentiable operations.
 

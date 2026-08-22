@@ -85,26 +85,26 @@ def test_linear_struct_forward_single_sample() raises:
 
     # Set weights to identity-like pattern
     var weight_data = layer.weight._data.unsafe_bitcast[Float32]()
-    weight_data[0] = 1.0  # weight[0, 0]
-    weight_data[1] = 0.0  # weight[0, 1]
-    weight_data[2] = 0.0  # weight[1, 0]
-    weight_data[3] = 1.0  # weight[1, 1]
-    weight_data[4] = 0.0  # weight[2, 0]
-    weight_data[5] = 0.0  # weight[2, 1]
+    weight_data[unsafe_offset=0] = 1.0  # weight[0, 0]
+    weight_data[unsafe_offset=1] = 0.0  # weight[0, 1]
+    weight_data[unsafe_offset=2] = 0.0  # weight[1, 0]
+    weight_data[unsafe_offset=3] = 1.0  # weight[1, 1]
+    weight_data[unsafe_offset=4] = 0.0  # weight[2, 0]
+    weight_data[unsafe_offset=5] = 0.0  # weight[2, 1]
 
     # Set bias to zeros
     var bias_data = layer.bias._data.unsafe_bitcast[Float32]()
-    bias_data[0] = 0.0
-    bias_data[1] = 0.0
+    bias_data[unsafe_offset=0] = 0.0
+    bias_data[unsafe_offset=1] = 0.0
 
     # Create input: [[1, 2, 3]] (2D: batch=1, features=3)
     # AnyTensor.__matmul__ requires 2D inputs
     var input_shape: List[Int] = [1, 3]
     var input_val = ones(input_shape, DType.float32)
     var input_data = input_val._data.unsafe_bitcast[Float32]()
-    input_data[0] = 1.0
-    input_data[1] = 2.0
-    input_data[2] = 3.0
+    input_data[unsafe_offset=0] = 1.0
+    input_data[unsafe_offset=1] = 2.0
+    input_data[unsafe_offset=2] = 3.0
 
     # Forward pass
     var output = input_val @ layer.weight + layer.bias
@@ -116,8 +116,8 @@ def test_linear_struct_forward_single_sample() raises:
 
     # Check values: [1*1 + 2*0 + 3*0, 1*0 + 2*1 + 3*0] = [1, 2]
     var output_data = output._data.unsafe_bitcast[Float32]()
-    assert_almost_equal(output_data[0], 1.0, tolerance=1e-5)
-    assert_almost_equal(output_data[1], 2.0, tolerance=1e-5)
+    assert_almost_equal(output_data[unsafe_offset=0], 1.0, tolerance=1e-5)
+    assert_almost_equal(output_data[unsafe_offset=1], 2.0, tolerance=1e-5)
 
 
 def test_linear_struct_with_bias() raises:
@@ -132,15 +132,15 @@ def test_linear_struct_with_bias() raises:
 
     # Set weight to identity
     var weight_data = layer.weight._data.unsafe_bitcast[Float32]()
-    weight_data[0] = 1.0  # weight[0, 0]
-    weight_data[1] = 0.0  # weight[0, 1]
-    weight_data[2] = 0.0  # weight[1, 0]
-    weight_data[3] = 1.0  # weight[1, 1]
+    weight_data[unsafe_offset=0] = 1.0  # weight[0, 0]
+    weight_data[unsafe_offset=1] = 0.0  # weight[0, 1]
+    weight_data[unsafe_offset=2] = 0.0  # weight[1, 0]
+    weight_data[unsafe_offset=3] = 1.0  # weight[1, 1]
 
     # Set bias to [5, 10]
     var bias_data = layer.bias._data.unsafe_bitcast[Float32]()
-    bias_data[0] = 5.0
-    bias_data[1] = 10.0
+    bias_data[unsafe_offset=0] = 5.0
+    bias_data[unsafe_offset=1] = 10.0
 
     # Create input [1, 1]
     var input = ones([1, 2], DType.float32)
@@ -150,8 +150,8 @@ def test_linear_struct_with_bias() raises:
 
     # Check values
     var output_data = output._data.unsafe_bitcast[Float32]()
-    assert_almost_equal(output_data[0], 6.0, tolerance=1e-5)
-    assert_almost_equal(output_data[1], 11.0, tolerance=1e-5)
+    assert_almost_equal(output_data[unsafe_offset=0], 6.0, tolerance=1e-5)
+    assert_almost_equal(output_data[unsafe_offset=1], 11.0, tolerance=1e-5)
 
 
 def test_linear_struct_parameters() raises:

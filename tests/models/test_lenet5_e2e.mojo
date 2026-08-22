@@ -204,7 +204,7 @@ def _sgd_update(mut param: AnyTensor, grad: AnyTensor, lr: Float32) raises:
     var grad_data = grad._data.unsafe_bitcast[Float32]()
 
     for i in range(numel):
-        param_data[i] -= lr * grad_data[i]
+        param_data[unsafe_offset=i] -= lr * grad_data[unsafe_offset=i]
 
 
 def compute_flattened_size() -> Int:

@@ -14,7 +14,7 @@ from tests.odyssey.conftest import assert_true, assert_equal_int
 def _copy_and_check_refcount(tensor1: AnyTensor) -> Int:
     """Helper: copy tensor in inner scope and return inner refcount."""
     var tensor2 = tensor1
-    return tensor1._refcount[]
+    return tensor2._refcount[]
 
 
 def _modify_through_copy(tensor1: AnyTensor) raises:
@@ -102,6 +102,9 @@ def test_multiple_copies_refcount() raises:
     assert_equal_int(
         tensor1._refcount[], 4, "Refcount should be 4 after 3 copies"
     )
+    _ = tensor2._data
+    _ = tensor3._data
+    _ = tensor4._data
 
 
 def test_scope_exit_decrements_refcount() raises:
@@ -181,6 +184,8 @@ def test_no_memory_leak_with_copies() raises:
         var tensor3 = tensor2
         var tensor4 = tensor1
         assert_equal_int(tensor1._refcount[], 4, "Should have 4 refs")
+        _ = tensor3._data
+        _ = tensor4._data
 
     assert_true(True, "Copy stress test completed without OOM")
 

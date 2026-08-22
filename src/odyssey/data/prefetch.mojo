@@ -112,7 +112,7 @@ struct PrefetchBuffer(Copyable, Movable):
 
 
 struct PrefetchDataLoader[
-    D: Dataset & Copyable & Movable, S: Sampler & Copyable & Movable
+    D: Dataset & Copyable, S: Sampler & Copyable
 ](Copyable, Movable):
     """Data loader with batch prefetching.
 

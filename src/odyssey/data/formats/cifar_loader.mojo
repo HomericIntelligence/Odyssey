@@ -153,7 +153,7 @@ struct CIFARLoader(Copyable, Movable):
             var labels_data = labels._data
             for i in range(num_images):
                 var offset = i * self.bytes_per_image
-                labels_data[i] = data_bytes[unsafe_offset=offset]
+                labels_data[unsafe_offset=i] = data_bytes[unsafe_offset=offset]
 
             return labels^
         else:
@@ -167,9 +167,9 @@ struct CIFARLoader(Copyable, Movable):
             for i in range(num_images):
                 var offset = i * self.bytes_per_image
                 # Coarse label at offset
-                labels_data[i * 2] = data_bytes[unsafe_offset=offset]
+                labels_data[unsafe_offset=i * 2] = data_bytes[unsafe_offset=offset]
                 # Fine label at offset + 1
-                labels_data[i * 2 + 1] = data_bytes[unsafe_offset=offset + 1]
+                labels_data[unsafe_offset=i * 2 + 1] = data_bytes[unsafe_offset=offset + 1]
 
             return labels^
 
@@ -221,7 +221,7 @@ struct CIFARLoader(Copyable, Movable):
             for pixel_idx in range(pixels_per_image * self.channels):
                 images_data[
                     unsafe_offset=tensor_offset + pixel_idx
-                ] = data_bytes[file_offset + pixel_idx]
+                ] = data_bytes[unsafe_offset=file_offset + pixel_idx]
 
         return images^
 

@@ -285,7 +285,6 @@ def _softmax_backward(
 
     var grad_ptr = grad_output._data
     var softmax_ptr = softmax_output._data
-    var result_ptr = result._data
 
     # Get dimensions for the last axis (softmax is applied along last axis)
     var ndim = len(shape)
@@ -617,7 +616,6 @@ def _reshape_for_heads(
 
     var result = zeros(out_shape, x.dtype())
     var x_ptr = x._data
-    var result_ptr = result._data
 
     if x.dtype() == DType.float32:
         for b in range(batch):
@@ -685,7 +683,6 @@ def _reshape_from_heads(
 
     var result = zeros(out_shape, x.dtype())
     var x_ptr = x._data
-    var result_ptr = result._data
 
     if x.dtype() == DType.float32:
         for b in range(batch):

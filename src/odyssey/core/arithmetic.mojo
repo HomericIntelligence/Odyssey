@@ -6,7 +6,7 @@ This file provides the AnyTensor public API only.
 """
 
 from std.collections import List
-from std.math import nan
+from std.math import nan, pow
 from odyssey.tensor.any_tensor import AnyTensor
 from odyssey.tensor.tensor_creation import full
 from odyssey.core.gradient_types import GradientPair
@@ -340,8 +340,19 @@ def power(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
 
     @always_inline
     def _pow_op[T: DType](x: Scalar[T], y: Scalar[T]) -> Scalar[T]:
-        # Use Mojo's built-in ** operator (handles all cases correctly)
-        return x**y
+        # NOTE (modular/modular#6940): `x**y` fails to compile on Mojo 1.0.0
+        # stable for Scalar[float*] (SIMD width=1 pow constraint failure);
+        # std.math.pow works for every float dtype. Integer `**` (repeated
+        # squaring) is unaffected, so it stays on the builtin.
+        comptime if (
+            T == DType.float16
+            or T == DType.bfloat16
+            or T == DType.float32
+            or T == DType.float64
+        ):
+            return pow(x, y)
+        else:
+            return x**y
 
     return _dispatch_broadcast_binary[_pow_op](a, b)
 

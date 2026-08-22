@@ -430,7 +430,7 @@ def test_mse_symmetric() raises:
 
     for i in range(3):
         assert_almost_equal(
-            loss_ab_data[i], loss_ba_data[unsafe_offset=i], tolerance=1e-5
+            loss_ab_data[unsafe_offset=i], loss_ba_data[unsafe_offset=i], tolerance=1e-5
         )
 
 

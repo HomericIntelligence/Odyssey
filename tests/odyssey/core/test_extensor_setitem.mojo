@@ -90,7 +90,7 @@ def test_setitem_multidim_2d() raises:
     """Test multi-dim __setitem__ on a 2D tensor."""
     var t = zeros([3, 4], DType.float32)
     # Row 1, col 2 → flat index = 1*4 + 2 = 6
-    t[[1, 2]] = 5.0
+    t[List[Int]([1, 2])] = 5.0
     assert_almost_equal(t._get_float64(6), 5.0, tolerance=1e-6)
 
 
@@ -98,14 +98,14 @@ def test_setitem_multidim_3d() raises:
     """Test multi-dim __setitem__ on a 3D tensor."""
     var t = zeros([2, 3, 4], DType.float32)
     # [1, 2, 3] → flat = 1*12 + 2*4 + 3 = 23
-    t[[1, 2, 3]] = 9.0
+    t[List[Int]([1, 2, 3])] = 9.0
     assert_almost_equal(t._get_float64(23), 9.0, tolerance=1e-6)
 
 
 def test_setitem_multidim_first_element() raises:
     """Test multi-dim __setitem__ at [0, 0] → flat index 0."""
     var t = ones([4, 5], DType.float32)
-    t[[0, 0]] = 99.0
+    t[List[Int]([0, 0])] = 99.0
     assert_almost_equal(t._get_float64(0), 99.0, tolerance=1e-6)
 
 
@@ -113,14 +113,14 @@ def test_setitem_multidim_last_element() raises:
     """Test multi-dim __setitem__ at last element of 2D tensor."""
     var t = zeros([3, 4], DType.float32)
     # [2, 3] → flat = 2*4 + 3 = 11
-    t[[2, 3]] = 77.0
+    t[List[Int]([2, 3])] = 77.0
     assert_almost_equal(t._get_float64(11), 77.0, tolerance=1e-6)
 
 
 def test_setitem_multidim_float64_dtype() raises:
     """Test multi-dim __setitem__ on a float64 tensor."""
     var t = zeros([2, 3], DType.float64)
-    t[[1, 1]] = 3.14159
+    t[List[Int]([1, 1])] = 3.14159
     # flat = 1*3 + 1 = 4
     # Note: __getitem__ returns Float32 lvalue, so 3.14159 is stored at
     # Float32 precision even on a float64 tensor. Use Float32 tolerance.
@@ -131,7 +131,7 @@ def test_setitem_multidim_float64_dtype() raises:
 def test_setitem_multidim_int_dtype() raises:
     """Test multi-dim __setitem__ on an int32 tensor."""
     var t = zeros([2, 4], DType.int32)
-    t[[0, 3]] = 42.0
+    t[List[Int]([0, 3])] = 42.0
     # flat = 0*4 + 3 = 3
     assert_almost_equal(t._get_float64(3), 42.0, tolerance=1e-6)
 
@@ -146,7 +146,7 @@ def test_setitem_multidim_rank_mismatch_raises() raises:
     var t = zeros([3, 4], DType.float32)
     var raised = False
     try:
-        t[[1]] = 5.0
+        t[List[Int]([1])] = 5.0
     except:
         raised = True
     assert_true(raised, "Expected Error for rank mismatch")
@@ -157,7 +157,7 @@ def test_setitem_multidim_too_many_indices_raises() raises:
     var t = zeros([3, 4], DType.float32)
     var raised = False
     try:
-        t[[0, 1, 2]] = 5.0
+        t[List[Int]([0, 1, 2])] = 5.0
     except:
         raised = True
     assert_true(raised, "Expected Error for too many indices")
@@ -168,7 +168,7 @@ def test_setitem_multidim_dim_out_of_bounds_raises() raises:
     var t = zeros([3, 4], DType.float32)
     var raised = False
     try:
-        t[[1, 4]] = 5.0  # col 4 is out of bounds for shape[1]=4
+        t[List[Int]([1, 4])] = 5.0  # col 4 is out of bounds for shape[1]=4
     except:
         raised = True
     assert_true(raised, "Expected Error for per-dimension out-of-bounds")
@@ -179,7 +179,7 @@ def test_setitem_multidim_negative_dim_raises() raises:
     var t = zeros([3, 4], DType.float32)
     var raised = False
     try:
-        t[[-1, 0]] = 5.0
+        t[List[Int]([-1, 0])] = 5.0
     except:
         raised = True
     assert_true(raised, "Expected Error for negative dimension index")
@@ -201,7 +201,7 @@ def test_setitem_getitem_roundtrip_flat() raises:
 def test_setitem_getitem_roundtrip_multidim() raises:
     """Test write via multi-dim __setitem__ and verify via flat __getitem__."""
     var t = zeros([4, 5], DType.float32)
-    t[[2, 3]] = 1.5
+    t[List[Int]([2, 3])] = 1.5
     # flat = 2*5 + 3 = 13
     var val = t[13]
     assert_almost_equal(Float64(val), 1.5, tolerance=1e-6)
@@ -210,7 +210,7 @@ def test_setitem_getitem_roundtrip_multidim() raises:
 def test_setitem_multidim_does_not_affect_others() raises:
     """Test that writing one element doesn't corrupt neighbors."""
     var t = zeros([3, 3], DType.float32)
-    t[[1, 1]] = 42.0
+    t[List[Int]([1, 1])] = 42.0
     # All other elements should remain 0.0
     for flat in range(9):
         var expected = 42.0 if flat == 4 else 0.0  # [1,1] → 1*3+1=4

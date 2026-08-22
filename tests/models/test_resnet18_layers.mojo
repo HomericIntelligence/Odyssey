@@ -168,7 +168,7 @@ def test_residual_block_64_channels_forward() raises:
     var total_elements = batch_size * out_channels * height * width
     var non_zero_count = 0
     for i in range(total_elements):
-        if out_data[i] > 0.0:
+        if out_data[unsafe_offset=i] > 0.0:
             non_zero_count += 1
 
     assert_true(non_zero_count > 0, "Output should have non-zero values")
@@ -454,7 +454,7 @@ def test_skip_connection_addition() raises:
     var result_data = result._data.unsafe_bitcast[Float32]()
     var total_elements = batch_size * channels * height * width
     for i in range(min(10, total_elements)):
-        assert_almost_equal(result_data[i], 2.0, tolerance=1e-5)
+        assert_almost_equal(result_data[unsafe_offset=i], 2.0, tolerance=1e-5)
 
 
 def test_skip_connection_identity() raises:
@@ -480,7 +480,7 @@ def test_skip_connection_identity() raises:
     var original_values = List[Float32]()
     var total_elements = batch_size * channels * height * width
     for i in range(min(10, total_elements)):
-        original_values.append(x_data[i])
+        original_values.append(x_data[unsafe_offset=i])
 
     # Identity skip: addition with zero
     var zeros_tensor = zeros(shape, DType.float32)
@@ -489,7 +489,7 @@ def test_skip_connection_identity() raises:
     # Result should equal x
     var result_data = result._data.unsafe_bitcast[Float32]()
     for i in range(min(10, total_elements)):
-        assert_almost_equal(result_data[i], original_values[i], tolerance=1e-5)
+        assert_almost_equal(result_data[unsafe_offset=i], original_values[i], tolerance=1e-5)
 
 
 def test_batchnorm2d_training_mode() raises:
@@ -596,10 +596,10 @@ def test_batchnorm2d_inference_mode() raises:
 
     for i in range(channels):
         assert_almost_equal(
-            new_mean_data[i], running_mean_data[i], tolerance=1e-5
+            new_mean_data[unsafe_offset=i], running_mean_data[unsafe_offset=i], tolerance=1e-5
         )
         assert_almost_equal(
-            new_var_data[i], running_var_data[i], tolerance=1e-5
+            new_var_data[unsafe_offset=i], running_var_data[unsafe_offset=i], tolerance=1e-5
         )
 
 
@@ -643,7 +643,7 @@ def test_batchnorm2d_gamma_beta_effects() raises:
     var total_elements = batch_size * channels * height * width
     for i in range(min(10, total_elements)):
         # Expected: 3.0 (gamma * normalized + beta = 2 * 1 + 1)
-        assert_almost_equal(out_data[i], 3.0, tolerance=1e-4)
+        assert_almost_equal(out_data[unsafe_offset=i], 3.0, tolerance=1e-4)
 
 
 def test_relu_in_residual_block() raises:
@@ -678,7 +678,7 @@ def test_relu_in_residual_block() raises:
     var total_elements = batch_size * channels * height * width
     for i in range(min(100, total_elements)):
         assert_true(
-            out_data[i] >= 0.0, "ReLU should produce non-negative values"
+            out_data[unsafe_offset=i] >= 0.0, "ReLU should produce non-negative values"
         )
 
 

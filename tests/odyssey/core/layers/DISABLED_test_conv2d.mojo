@@ -104,10 +104,10 @@ def test_conv2d_weight_initialization_scale() raises:
     var sum_abs = Float32(0.0)
     for i in range(num_weights):
         var abs_val = Float32(0.0)
-        if weight_data[i] > 0.0:
-            abs_val = weight_data[i]
+        if weight_data[unsafe_offset=i] > 0.0:
+            abs_val = weight_data[unsafe_offset=i]
         else:
-            abs_val = -weight_data[i]
+            abs_val = -weight_data[unsafe_offset=i]
         sum_abs += abs_val
 
     var mean_abs = sum_abs / Float32(num_weights)
@@ -123,7 +123,7 @@ def test_conv2d_bias_initialized_to_zero() raises:
 
     var bias_data = layer.bias._data.unsafe_bitcast[Float32]()
     for i in range(layer.bias.numel()):
-        assert_almost_equal(bias_data[i], 0.0, tolerance=1e-6)
+        assert_almost_equal(bias_data[unsafe_offset=i], 0.0, tolerance=1e-6)
 
 
 # ============================================================================
@@ -275,7 +275,7 @@ def test_conv2d_forward_batch_independence() raises:
             for w in range(16):  # width
                 var idx = c * 16 * 16 + h * 16 + w
                 var src_idx = 0 * (3 * 16 * 16) + idx  # batch 0
-                single_input._data[idx] = batch_input._data[src_idx]
+                single_input._data[unsafe_offset=idx] = batch_input._data[unsafe_offset=src_idx]
 
     var single_output = layer.forward(single_input)
 
@@ -283,8 +283,8 @@ def test_conv2d_forward_batch_independence() raises:
     var batch_out_spatial = 16 * 16 * 16  # out_channels * height * width
     for i in range(batch_out_spatial):
         assert_almost_equal(
-            batch_output._data.unsafe_bitcast[Float32]()[i],
-            single_output._data.unsafe_bitcast[Float32]()[i],
+            batch_output._data.unsafe_bitcast[Float32]()[unsafe_offset=i],
+            single_output._data.unsafe_bitcast[Float32]()[unsafe_offset=i],
             tolerance=1e-4,
         )
 

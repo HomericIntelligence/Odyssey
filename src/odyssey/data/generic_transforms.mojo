@@ -181,7 +181,7 @@ struct LambdaTransform[F: def(Float32) thin -> Float32](
 
 struct ConditionalTransform[
     Pred: def(AnyTensor) raises thin -> Bool,
-    T: Transform & Copyable & Movable,
+    T: Transform,
 ](Copyable, Movable, Transform):
     """Apply transform only if a compile-time thin predicate is true.
 
@@ -590,6 +590,17 @@ struct SequentialTransform(Copyable, Movable, Transform):
 
     var transforms: List[AnyTransform]
     """List of transforms to apply in sequence."""
+
+    def __deinit__(deinit self):
+        """Release the wrapped transforms.
+
+        Explicit deinit is required in Mojo 1.0: the auto-generated one
+        cannot be proven Deinitable because AnyTransform holds an
+        `Optional[SequentialTransform]` (circular reference), which breaks
+        trait conformance inference for `List[AnyTransform]`. Fields are
+        destroyed automatically after this body runs.
+        """
+        pass
 
     def __init__(out self):
         """Create empty sequential transform."""

@@ -142,7 +142,7 @@ fn extract_batch(
                                    c * (height * width) + h * width + w
                     var dst_offset = i * (channels * height * width) +
                                    c * (height * width) + h * width + w
-                    batch._data[dst_offset] = data._data[src_offset]
+                    batch._data[unsafe_offset=dst_offset] = data._data[unsafe_offset=src_offset]
 
     return batch
 ```text

@@ -20,7 +20,7 @@ from odyssey.data.transforms import Transform
 
 
 struct TransformedDataset[
-    D: Dataset & Copyable & Movable, T: Transform & Copyable & Movable
+    D: Dataset & Copyable, T: Transform
 ](Copyable, Dataset, Movable):
     """Dataset wrapper that applies transforms to data.
 

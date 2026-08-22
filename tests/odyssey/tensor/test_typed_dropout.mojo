@@ -27,7 +27,7 @@ def test_dropout_forward_preserves_dtype_f32() raises:
     var input = AnyTensor([2, 4], DType.float32)
     var data = input._data.unsafe_bitcast[Float32]()
     for i in range(input.numel()):
-        data[i] = Float32(1.0)
+        data[unsafe_offset=i] = Float32(1.0)
     var output = layer.forward(input)
     assert_true(
         output.dtype() == DType.float32, "output dtype should be float32"
@@ -56,16 +56,16 @@ def test_dropout_inference_passthrough() raises:
     layer.set_training(False)
     var input = AnyTensor([4], DType.float32)
     var data = input._data.unsafe_bitcast[Float32]()
-    data[0] = 0.5
-    data[1] = 1.0
-    data[2] = 1.5
-    data[3] = 0.25
+    data[unsafe_offset=0] = 0.5
+    data[unsafe_offset=1] = 1.0
+    data[unsafe_offset=2] = 1.5
+    data[unsafe_offset=3] = 0.25
     var output = layer.forward(input)
     var out = output._data.unsafe_bitcast[Float32]()
-    assert_almost_equal(out[0], Float32(0.5), atol=1e-6)
-    assert_almost_equal(out[1], Float32(1.0), atol=1e-6)
-    assert_almost_equal(out[2], Float32(1.5), atol=1e-6)
-    assert_almost_equal(out[3], Float32(0.25), atol=1e-6)
+    assert_almost_equal(out[unsafe_offset=0], Float32(0.5), atol=1e-6)
+    assert_almost_equal(out[unsafe_offset=1], Float32(1.0), atol=1e-6)
+    assert_almost_equal(out[unsafe_offset=2], Float32(1.5), atol=1e-6)
+    assert_almost_equal(out[unsafe_offset=3], Float32(0.25), atol=1e-6)
     print("PASS: test_dropout_inference_passthrough")
 
 
@@ -77,13 +77,13 @@ def test_dropout_training_zeros_elements() raises:
     var input = AnyTensor([100], DType.float32)
     var data = input._data.unsafe_bitcast[Float32]()
     for i in range(100):
-        data[i] = Float32(1.0)
+        data[unsafe_offset=i] = Float32(1.0)
     var output = layer.forward(input)
     var out = output._data.unsafe_bitcast[Float32]()
     var zero_count = 0
     var nonzero_count = 0
     for i in range(100):
-        if out[i] == Float32(0.0):
+        if out[unsafe_offset=i] == Float32(0.0):
             zero_count += 1
         else:
             nonzero_count += 1
@@ -101,13 +101,13 @@ def test_dropout_training_scale_factor() raises:
     var input = AnyTensor([100], DType.float32)
     var data = input._data.unsafe_bitcast[Float32]()
     for i in range(100):
-        data[i] = Float32(1.0)
+        data[unsafe_offset=i] = Float32(1.0)
     var output = layer.forward(input)
     var out = output._data.unsafe_bitcast[Float32]()
     # Non-zero elements should be scaled by 1/(1-0.5) = 2.0
     var scale = Float32(1.0) / (Float32(1.0) - Float32(0.5))
     for i in range(100):
-        var val = out[i]
+        var val = out[unsafe_offset=i]
         if val != Float32(0.0):
             assert_almost_equal(val, scale, atol=1e-6)
     print("PASS: test_dropout_training_scale_factor")
@@ -119,17 +119,17 @@ def test_dropout_zero_rate() raises:
     layer.set_training(True)
     var input = AnyTensor([4], DType.float32)
     var data = input._data.unsafe_bitcast[Float32]()
-    data[0] = 0.5
-    data[1] = 1.0
-    data[2] = 1.5
-    data[3] = 0.25
+    data[unsafe_offset=0] = 0.5
+    data[unsafe_offset=1] = 1.0
+    data[unsafe_offset=2] = 1.5
+    data[unsafe_offset=3] = 0.25
     var output = layer.forward(input)
     var out = output._data.unsafe_bitcast[Float32]()
     # With rate=0, scale = 1/(1-0) = 1.0, all elements kept
-    assert_almost_equal(out[0], Float32(0.5), atol=1e-6)
-    assert_almost_equal(out[1], Float32(1.0), atol=1e-6)
-    assert_almost_equal(out[2], Float32(1.5), atol=1e-6)
-    assert_almost_equal(out[3], Float32(0.25), atol=1e-6)
+    assert_almost_equal(out[unsafe_offset=0], Float32(0.5), atol=1e-6)
+    assert_almost_equal(out[unsafe_offset=1], Float32(1.0), atol=1e-6)
+    assert_almost_equal(out[unsafe_offset=2], Float32(1.5), atol=1e-6)
+    assert_almost_equal(out[unsafe_offset=3], Float32(0.25), atol=1e-6)
     print("PASS: test_dropout_zero_rate")
 
 
@@ -140,13 +140,13 @@ def test_dropout_backward_typed() raises:
     var input = AnyTensor([10], DType.float32)
     var data = input._data.unsafe_bitcast[Float32]()
     for i in range(10):
-        data[i] = Float32(1.0)
+        data[unsafe_offset=i] = Float32(1.0)
     # Forward to generate mask
     _ = layer.forward(input)
     var grad_output = AnyTensor([10], DType.float32)
     var gdata = grad_output._data.unsafe_bitcast[Float32]()
     for i in range(10):
-        gdata[i] = Float32(1.0)
+        gdata[unsafe_offset=i] = Float32(1.0)
     var grad_input = layer.backward(grad_output, layer.last_mask)
     assert_true(grad_input.dtype() == DType.float32, "grad_input dtype")
     assert_true(grad_input.numel() == 10, "grad_input numel")

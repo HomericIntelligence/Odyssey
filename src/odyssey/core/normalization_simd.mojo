@@ -175,11 +175,11 @@ def _batch_norm2d_fused_inference_float32(
             ](idx: Int) {
                 var x_ptr, var out_ptr, var base_offset, var scale, var bias
             }:
-                var x_vec = x_ptr.load[width=width](base_offset + idx)
+                var x_vec = x_ptr.unsafe_load[width=width](base_offset + idx)
                 var scale_vec = SIMD[DType.float32, width](scale)
                 var bias_vec = SIMD[DType.float32, width](bias)
                 var out_vec = x_vec * scale_vec + bias_vec
-                out_ptr.store[width=width](base_offset + idx, out_vec)
+                out_ptr.unsafe_store[width=width](base_offset + idx, out_vec)
 
             vectorize[simd_width](spatial_size, normalize_kernel)
 
@@ -229,11 +229,11 @@ def _batch_norm2d_fused_inference_float64(
             ](idx: Int) {
                 var x_ptr, var out_ptr, var base_offset, var scale, var bias
             }:
-                var x_vec = x_ptr.load[width=width](base_offset + idx)
+                var x_vec = x_ptr.unsafe_load[width=width](base_offset + idx)
                 var scale_vec = SIMD[DType.float64, width](scale)
                 var bias_vec = SIMD[DType.float64, width](bias)
                 var out_vec = x_vec * scale_vec + bias_vec
-                out_ptr.store[width=width](base_offset + idx, out_vec)
+                out_ptr.unsafe_store[width=width](base_offset + idx, out_vec)
 
             vectorize[simd_width](spatial_size, normalize_kernel)
 
@@ -378,7 +378,6 @@ def _batch_norm2d_fused_training_float32(
 
     var eps = Float32(epsilon)
     var momentum_f32 = Float32(momentum)
-    var one_minus_momentum = 1.0 - momentum_f32
 
     # Pass 1: Compute batch mean and variance using scalar loops
     # (SIMD for reading vectors but scalar reduction to avoid capture issues)
@@ -441,11 +440,11 @@ def _batch_norm2d_fused_training_float32(
             ](idx: Int) {
                 var x_ptr, var out_ptr, var base_offset, var scale, var bias
             }:
-                var x_vec = x_ptr.load[width=width](base_offset + idx)
+                var x_vec = x_ptr.unsafe_load[width=width](base_offset + idx)
                 var scale_vec = SIMD[DType.float32, width](scale)
                 var bias_vec = SIMD[DType.float32, width](bias)
                 var out_vec = x_vec * scale_vec + bias_vec
-                out_ptr.store[width=width](base_offset + idx, out_vec)
+                out_ptr.unsafe_store[width=width](base_offset + idx, out_vec)
 
             vectorize[simd_width](spatial_size, normalize_kernel)
 
@@ -562,11 +561,11 @@ def _batch_norm2d_fused_training_float64(
             ](idx: Int) {
                 var x_ptr, var out_ptr, var base_offset, var scale, var bias
             }:
-                var x_vec = x_ptr.load[width=width](base_offset + idx)
+                var x_vec = x_ptr.unsafe_load[width=width](base_offset + idx)
                 var scale_vec = SIMD[DType.float64, width](scale)
                 var bias_vec = SIMD[DType.float64, width](bias)
                 var out_vec = x_vec * scale_vec + bias_vec
-                out_ptr.store[width=width](base_offset + idx, out_vec)
+                out_ptr.unsafe_store[width=width](base_offset + idx, out_vec)
 
             vectorize[simd_width](spatial_size, normalize_kernel)
 

@@ -65,7 +65,7 @@ def test_batchnorm_gamma_initialized_to_one() raises:
 
     var gamma_data = layer.gamma._data.unsafe_bitcast[Float32]()
     for i in range(layer.gamma.numel()):
-        assert_almost_equal(gamma_data[i], 1.0, tolerance=1e-6)
+        assert_almost_equal(gamma_data[unsafe_offset=i], 1.0, tolerance=1e-6)
 
 
 def test_batchnorm_beta_initialized_to_zero() raises:
@@ -77,7 +77,7 @@ def test_batchnorm_beta_initialized_to_zero() raises:
 
     var beta_data = layer.beta._data.unsafe_bitcast[Float32]()
     for i in range(layer.beta.numel()):
-        assert_almost_equal(beta_data[i], 0.0, tolerance=1e-6)
+        assert_almost_equal(beta_data[unsafe_offset=i], 0.0, tolerance=1e-6)
 
 
 def test_batchnorm_running_mean_initialized_to_zero() raises:
@@ -86,7 +86,7 @@ def test_batchnorm_running_mean_initialized_to_zero() raises:
 
     var mean_data = layer.running_mean._data.unsafe_bitcast[Float32]()
     for i in range(layer.running_mean.numel()):
-        assert_almost_equal(mean_data[i], 0.0, tolerance=1e-6)
+        assert_almost_equal(mean_data[unsafe_offset=i], 0.0, tolerance=1e-6)
 
 
 def test_batchnorm_running_var_initialized_to_one() raises:
@@ -95,7 +95,7 @@ def test_batchnorm_running_var_initialized_to_one() raises:
 
     var var_data = layer.running_var._data.unsafe_bitcast[Float32]()
     for i in range(layer.running_var.numel()):
-        assert_almost_equal(var_data[i], 1.0, tolerance=1e-6)
+        assert_almost_equal(var_data[unsafe_offset=i], 1.0, tolerance=1e-6)
 
 
 def test_batchnorm_initialization_with_momentum_eps() raises:
@@ -185,7 +185,7 @@ def test_batchnorm_forward_training_mode() raises:
     # Check that running stats changed (not still initial values)
     var mean_changed = Float32(0.0)
     for i in range(4):
-        if running_mean_data[i] != 0.0:
+        if running_mean_data[unsafe_offset=i] != 0.0:
             mean_changed = 1.0
 
     assert_true(mean_changed > 0.5, "Running mean not updated in training mode")
@@ -204,8 +204,8 @@ def test_batchnorm_forward_inference_mode() raises:
     var mean_data = layer.running_mean._data.unsafe_bitcast[Float32]()
     var var_data = layer.running_var._data.unsafe_bitcast[Float32]()
     for i in range(4):
-        mean_data[i] = 0.5
-        var_data[i] = 2.0
+        mean_data[unsafe_offset=i] = 0.5
+        var_data[unsafe_offset=i] = 2.0
 
     # Create input
     var input_shape: List[Int] = [2, 4, 2, 2]
@@ -223,8 +223,8 @@ def test_batchnorm_forward_inference_mode() raises:
 
     # Running statistics should NOT have changed
     for i in range(4):
-        assert_almost_equal(mean_data[i], 0.5, tolerance=1e-6)
-        assert_almost_equal(var_data[i], 2.0, tolerance=1e-6)
+        assert_almost_equal(mean_data[unsafe_offset=i], 0.5, tolerance=1e-6)
+        assert_almost_equal(var_data[unsafe_offset=i], 2.0, tolerance=1e-6)
 
 
 def test_batchnorm_forward_without_gamma_beta() raises:
@@ -255,7 +255,7 @@ def test_batchnorm_forward_without_gamma_beta() raises:
     # Check that values are roughly normalized (mean ≈ 0)
     var sum = Float32(0.0)
     for i in range(4):
-        sum += output_data[i]
+        sum += output_data[unsafe_offset=i]
 
     var mean = sum / 4.0
     assert_true(
@@ -313,8 +313,8 @@ def test_batchnorm_get_running_stats() raises:
     var variance_data = variance._data.unsafe_bitcast[Float32]()
 
     for i in range(16):
-        assert_almost_equal(mean_data[i], 0.0, tolerance=1e-6)
-        assert_almost_equal(variance_data[i], 1.0, tolerance=1e-6)
+        assert_almost_equal(mean_data[unsafe_offset=i], 0.0, tolerance=1e-6)
+        assert_almost_equal(variance_data[unsafe_offset=i], 1.0, tolerance=1e-6)
 
 
 def test_batchnorm_set_running_stats() raises:
@@ -340,8 +340,8 @@ def test_batchnorm_set_running_stats() raises:
     var var_data = layer.running_var._data.unsafe_bitcast[Float32]()
 
     for i in range(16):
-        assert_almost_equal(mean_data[i], 1.0, tolerance=1e-6)
-        assert_almost_equal(var_data[i], 2.0, tolerance=1e-6)
+        assert_almost_equal(mean_data[unsafe_offset=i], 1.0, tolerance=1e-6)
+        assert_almost_equal(var_data[unsafe_offset=i], 2.0, tolerance=1e-6)
 
 
 def test_batchnorm_running_stats_update_over_batches() raises:

@@ -1342,9 +1342,9 @@ def tensordot(a: AnyTensor, b: AnyTensor, axes: Int) raises -> AnyTensor:
 
         # Direct copy since we're just reshaping
         for i in range(a_reshaped.numel()):
-            a_dst[i] = a_src[unsafe_offset=i]
+            a_dst[unsafe_offset=i] = a_src[unsafe_offset=i]
         for i in range(b_reshaped.numel()):
-            b_dst[i] = b_src[unsafe_offset=i]
+            b_dst[unsafe_offset=i] = b_src[unsafe_offset=i]
 
         _dispatch_matmul_2d_2d(
             result, a_reshaped, b_reshaped, a_rows, a_contract_size, b_cols

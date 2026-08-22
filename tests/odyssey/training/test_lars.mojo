@@ -143,12 +143,12 @@ def test_lars_trust_ratio_scaling() raises:
     # With zero learning rate, params should be unchanged
     var new_params = result[0]
     assert_almost_equal(
-        Float64(new_params._data.unsafe_bitcast[Float32]()[0]),
+        Float64(new_params._data.unsafe_bitcast[Float32]()[unsafe_offset=0]),
         3.0,
         tolerance=1e-6,
     )
     assert_almost_equal(
-        Float64(new_params._data.unsafe_bitcast[Float32]()[1]),
+        Float64(new_params._data.unsafe_bitcast[Float32]()[unsafe_offset=1]),
         4.0,
         tolerance=1e-6,
     )
@@ -185,10 +185,10 @@ def test_lars_basic_update() raises:
     var new_params = result[0]
 
     # Parameter should decrease (gradient descent)
-    assert_less(Float64(new_params._data.unsafe_bitcast[Float32]()[0]), 1.0)
+    assert_less(Float64(new_params._data.unsafe_bitcast[Float32]()[unsafe_offset=0]), 1.0)
 
     # With trust ratio scaling, update should be small but measurable
-    var param_val = Float64(new_params._data.unsafe_bitcast[Float32]()[0])
+    var param_val = Float64(new_params._data.unsafe_bitcast[Float32]()[unsafe_offset=0])
     assert_almost_equal(param_val, 0.999, tolerance=1e-3)
 
 
@@ -227,7 +227,7 @@ def test_lars_momentum_accumulation() raises:
     var params1 = result1[0]
     var velocity1 = result1[1]
 
-    var param_val1 = Float64(params1._data.unsafe_bitcast[Float32]()[0])
+    var param_val1 = Float64(params1._data.unsafe_bitcast[Float32]()[unsafe_offset=0])
     assert_less(param_val1, 1.0)  # Should decrease
 
     # Step 2: momentum continues to accumulate
@@ -247,7 +247,7 @@ def test_lars_momentum_accumulation() raises:
     )
 
     var params2 = result2[0]
-    var param_val2 = Float64(params2._data.unsafe_bitcast[Float32]()[0])
+    var param_val2 = Float64(params2._data.unsafe_bitcast[Float32]()[unsafe_offset=0])
 
     # Parameter should continue to decrease
     assert_less(param_val2, param_val1)
@@ -323,10 +323,10 @@ def test_lars_weight_decay() raises:
     # With weight decay, the first component (params[0]=1.0) should decrease more
     # because effective_gradient[0] = 0.0 + 0.1 * 1.0 = 0.1 (vs 0.0 without wd)
     var val_with_wd_0 = Float64(
-        new_params_with_wd._data.unsafe_bitcast[Float32]()[0]
+        new_params_with_wd._data.unsafe_bitcast[Float32]()[unsafe_offset=0]
     )
     var val_without_wd_0 = Float64(
-        new_params_without_wd._data.unsafe_bitcast[Float32]()[0]
+        new_params_without_wd._data.unsafe_bitcast[Float32]()[unsafe_offset=0]
     )
 
     # First component should be smaller with weight decay
@@ -380,8 +380,8 @@ def test_lars_step_simple() raises:
 
     for i in range(params_zi.numel()):
         var diff_p = _lars_abs_diff(
-            Float64(full_p1[0]._data.unsafe_bitcast[Float32]()[i]),
-            Float64(simple_p1[0]._data.unsafe_bitcast[Float32]()[i]),
+            Float64(full_p1[0]._data.unsafe_bitcast[Float32]()[unsafe_offset=i]),
+            Float64(simple_p1[0]._data.unsafe_bitcast[Float32]()[unsafe_offset=i]),
         )
         if diff_p > 1e-12:
             raise Error(
@@ -391,8 +391,8 @@ def test_lars_step_simple() raises:
                 + String(diff_p)
             )
         var diff_v = _lars_abs_diff(
-            Float64(full_p1[1]._data.unsafe_bitcast[Float32]()[i]),
-            Float64(simple_p1[1]._data.unsafe_bitcast[Float32]()[i]),
+            Float64(full_p1[1]._data.unsafe_bitcast[Float32]()[unsafe_offset=i]),
+            Float64(simple_p1[1]._data.unsafe_bitcast[Float32]()[unsafe_offset=i]),
         )
         if diff_v > 1e-12:
             raise Error(
@@ -405,7 +405,7 @@ def test_lars_step_simple() raises:
     # Positive no-op: zero-grad + weight_decay must shrink params from 1.0
     # (params *= (1 - lr*wd) = (1 - 1.0*0.0001) = 0.9999). A broken delegation
     # that returned params unchanged would still score 1.0 here.
-    var params_after_zi = Float64(full_p1[0]._data.unsafe_bitcast[Float32]()[0])
+    var params_after_zi = Float64(full_p1[0]._data.unsafe_bitcast[Float32]()[unsafe_offset=0])
     if params_after_zi >= 1.0:
         raise Error(
             "lars weight decay must shrink params from 1.0; got "
@@ -436,8 +436,8 @@ def test_lars_step_simple() raises:
 
     for i in range(params.numel()):
         var diff_p = _lars_abs_diff(
-            Float64(full_p2[0]._data.unsafe_bitcast[Float32]()[i]),
-            Float64(simple_p2[0]._data.unsafe_bitcast[Float32]()[i]),
+            Float64(full_p2[0]._data.unsafe_bitcast[Float32]()[unsafe_offset=i]),
+            Float64(simple_p2[0]._data.unsafe_bitcast[Float32]()[unsafe_offset=i]),
         )
         if diff_p > 1e-12:
             raise Error(
@@ -447,8 +447,8 @@ def test_lars_step_simple() raises:
                 + String(diff_p)
             )
         var diff_v = _lars_abs_diff(
-            Float64(full_p2[1]._data.unsafe_bitcast[Float32]()[i]),
-            Float64(simple_p2[1]._data.unsafe_bitcast[Float32]()[i]),
+            Float64(full_p2[1]._data.unsafe_bitcast[Float32]()[unsafe_offset=i]),
+            Float64(simple_p2[1]._data.unsafe_bitcast[Float32]()[unsafe_offset=i]),
         )
         if diff_v > 1e-12:
             raise Error(
@@ -496,7 +496,7 @@ def test_lars_adaptive_scaling_small_gradients() raises:
 
     # Should still make progress despite small gradient
     assert_not_equal(
-        Float64(new_params._data.unsafe_bitcast[Float32]()[0]), 10.0
+        Float64(new_params._data.unsafe_bitcast[Float32]()[unsafe_offset=0]), 10.0
     )
 
 
@@ -531,7 +531,7 @@ def test_lars_adaptive_scaling_large_gradients() raises:
     var new_params = result[0]
 
     # Even with large gradient, update should be controlled
-    var param_val = Float64(new_params._data.unsafe_bitcast[Float32]()[0])
+    var param_val = Float64(new_params._data.unsafe_bitcast[Float32]()[unsafe_offset=0])
     assert_greater(param_val, 0.99)  # Should not change drastically
 
 

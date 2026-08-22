@@ -77,10 +77,10 @@ def depthwise_conv2d(
     var output = zeros(output_shape, x.dtype())
 
     # Process each channel independently
-    var x_data = x._data.bitcast[Float32]()
-    var weights_data = weights._data.bitcast[Float32]()
-    var bias_data = bias._data.bitcast[Float32]()
-    var output_data = output._data.bitcast[Float32]()
+    var x_data = x._data.unsafe_bitcast[Float32]()
+    var weights_data = weights._data.unsafe_bitcast[Float32]()
+    var bias_data = bias._data.unsafe_bitcast[Float32]()
+    var output_data = output._data.unsafe_bitcast[Float32]()
 
     # For each batch and channel, apply the depthwise filter
     for b in range(batch_size):
@@ -88,7 +88,7 @@ def depthwise_conv2d(
             # Extract single channel
             var channel_input_shape: List[Int] = [1, 1, height, width]
             var channel_input = zeros(channel_input_shape, x.dtype())
-            var channel_input_data = channel_input._data.bitcast[Float32]()
+            var channel_input_data = channel_input._data.unsafe_bitcast[Float32]()
 
             # Copy channel data
             for h in range(height):
@@ -100,7 +100,7 @@ def depthwise_conv2d(
             # Extract single filter for this channel
             var channel_filter_shape: List[Int] = [1, 1, kernel_h, kernel_w]
             var channel_filter = zeros(channel_filter_shape, weights.dtype())
-            var channel_filter_data = channel_filter._data.bitcast[Float32]()
+            var channel_filter_data = channel_filter._data.unsafe_bitcast[Float32]()
 
             for kh in range(kernel_h):
                 for kw in range(kernel_w):
@@ -113,7 +113,7 @@ def depthwise_conv2d(
             # Create single-element bias
             var channel_bias_shape: List[Int] = [1]
             var channel_bias = zeros(channel_bias_shape, bias.dtype())
-            var channel_bias_data = channel_bias._data.bitcast[Float32]()
+            var channel_bias_data = channel_bias._data.unsafe_bitcast[Float32]()
             channel_bias_data[0] = bias_data[c]
 
             # Apply 2D convolution for this channel
@@ -122,7 +122,7 @@ def depthwise_conv2d(
             )
 
             # Copy result back to output
-            var channel_output_data = channel_output._data.bitcast[Float32]()
+            var channel_output_data = channel_output._data.unsafe_bitcast[Float32]()
             for h in range(out_h):
                 for w in range(out_w):
                     var src_idx = h * out_w + w
@@ -413,14 +413,12 @@ struct MobileNetV1:
         var channels = out.shape()[1]
         var flattened_shape: List[Int] = [batch_size, channels]
         var flattened = zeros(flattened_shape, out.dtype())
-        var flattened_data = flattened._data.bitcast[Float32]()
-        var out_data = out._data.bitcast[Float32]()
+        var flattened_data = flattened._data.unsafe_bitcast[Float32]()
+        var out_data = out._data.unsafe_bitcast[Float32]()
 
         for b in range(batch_size):
             for c in range(channels):
-                flattened_data[b * channels + c] = out_data[
-                    ((b * channels + c) * 1) + 0
-                ]
+                flattened_data[b * channels + c] = out_data.unsafe_offset((b * channels + c))[]
 
         # Final FC layer
         var logits = linear(flattened, self.fc_weights, self.fc_bias)

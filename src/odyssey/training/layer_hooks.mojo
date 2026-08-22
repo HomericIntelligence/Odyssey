@@ -34,7 +34,7 @@ from odyssey.tensor.any_tensor import AnyTensor
 from odyssey.training.base import CallbackSignal, CONTINUE
 
 
-trait LayerHook(Copyable, ImplicitlyDeletable, Movable):
+trait LayerHook(Copyable, Deinitable, Movable):
     """Per-layer pre/post-forward hook with read-write tensor access.
 
     Implementations run around an individual layer's `forward()` call.

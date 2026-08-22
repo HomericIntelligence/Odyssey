@@ -41,9 +41,10 @@ def _idx4d(
 def _sqrt_typed[dtype: DType](x: Scalar[dtype]) -> Scalar[dtype]:
     """Compute square root for any float dtype using Scalar[dtype].
 
-    NOTE (Mojo 1.0.0): `x**0.5` fails to instantiate for some dtype
-    combinations (unsupported SIMD type combination in the power op), so
-    use `std.math.sqrt` which handles every float dtype natively.
+    NOTE (Mojo 1.0.0 regression, modular/modular#6940): `x**0.5` fails to
+    instantiate for float16/bfloat16/float32 (unsupported SIMD type
+    combination in the power op; float64 works). `std.math.sqrt` handles
+    every float dtype natively — keep using it, do not revert to `** 0.5`.
     """
     return sqrt(x)
 
@@ -1301,7 +1302,7 @@ def _group_norm_impl[
                 for h in range(height):
                     for w in range(width):
                         sum_val += xp[
-                            _idx4d(b, c, h, w, channels, height, width)
+                            unsafe_offset=_idx4d(b, c, h, w, channels, height, width)
                         ]
             var mean_val = sum_val / N
 
@@ -1461,7 +1462,7 @@ def _group_norm_backward_impl[
                 for h in range(height):
                     for w in range(width):
                         sum_val += xp[
-                            _idx4d(b, c, h, w, channels, height, width)
+                            unsafe_offset=_idx4d(b, c, h, w, channels, height, width)
                         ]
             var mean_val = sum_val / N
 
@@ -1504,7 +1505,7 @@ def _group_norm_backward_impl[
                 for h in range(height):
                     for w in range(width):
                         sum_val += xp[
-                            _idx4d(b, c, h, w, channels, height, width)
+                            unsafe_offset=_idx4d(b, c, h, w, channels, height, width)
                         ]
             var mean_val = sum_val / N
 

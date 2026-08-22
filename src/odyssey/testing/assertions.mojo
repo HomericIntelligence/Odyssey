@@ -127,7 +127,7 @@ def assert_not_equal[T: Comparable](a: T, b: T, message: String = "") raises:
 
 
 def assert_not_none[
-    T: Copyable & Movable
+    T: Copyable
 ](value: Optional[T], message: String = "") raises:
     """Assert that an Optional value is not None.
 

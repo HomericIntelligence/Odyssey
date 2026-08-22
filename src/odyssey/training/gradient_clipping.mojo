@@ -58,7 +58,7 @@ def _norm_sq_simd_f32(tensor: AnyTensor) -> Float64:
 
     @always_inline
     def vectorized_norm[width: Int](idx: Int) {var ptr, mut acc}:
-        var vec = ptr.load[width=width](idx)
+        var vec = ptr.unsafe_load[width=width](idx)
         var sq = vec * vec
         acc += sq.reduce_add().cast[DType.float64]()
 
@@ -76,7 +76,7 @@ def _norm_sq_simd_f64(tensor: AnyTensor) -> Float64:
 
     @always_inline
     def vectorized_norm[width: Int](idx: Int) {var ptr, mut acc}:
-        var vec = ptr.load[width=width](idx)
+        var vec = ptr.unsafe_load[width=width](idx)
         var sq = vec * vec
         acc += sq.reduce_add()
 
@@ -93,9 +93,9 @@ def _scale_simd_f32(tensor: AnyTensor, scale: Float32):
 
     @always_inline
     def vectorized_scale[width: Int](idx: Int) {var ptr, var scale}:
-        var vec = ptr.load[width=width](idx)
+        var vec = ptr.unsafe_load[width=width](idx)
         var scale_vec = SIMD[DType.float32, width](scale)
-        ptr.store[width=width](idx, vec * scale_vec)
+        ptr.unsafe_store[width=width](idx, vec * scale_vec)
 
     vectorize[simd_width](size, vectorized_scale)
 
@@ -109,9 +109,9 @@ def _scale_simd_f64(tensor: AnyTensor, scale: Float64):
 
     @always_inline
     def vectorized_scale[width: Int](idx: Int) {var ptr, var scale}:
-        var vec = ptr.load[width=width](idx)
+        var vec = ptr.unsafe_load[width=width](idx)
         var scale_vec = SIMD[DType.float64, width](scale)
-        ptr.store[width=width](idx, vec * scale_vec)
+        ptr.unsafe_store[width=width](idx, vec * scale_vec)
 
     vectorize[simd_width](size, vectorized_scale)
 
@@ -127,10 +127,10 @@ def _clamp_simd_f32(tensor: AnyTensor, min_val: Float32, max_val: Float32):
     def vectorized_clamp[
         width: Int
     ](idx: Int) {var ptr, var min_val, var max_val}:
-        var vec = ptr.load[width=width](idx)
+        var vec = ptr.unsafe_load[width=width](idx)
         var min_vec = SIMD[DType.float32, width](min_val)
         var max_vec = SIMD[DType.float32, width](max_val)
-        ptr.store[width=width](idx, max(min_vec, min(max_vec, vec)))
+        ptr.unsafe_store[width=width](idx, max(min_vec, min(max_vec, vec)))
 
     vectorize[simd_width](size, vectorized_clamp)
 
@@ -146,10 +146,10 @@ def _clamp_simd_f64(tensor: AnyTensor, min_val: Float64, max_val: Float64):
     def vectorized_clamp[
         width: Int
     ](idx: Int) {var ptr, var min_val, var max_val}:
-        var vec = ptr.load[width=width](idx)
+        var vec = ptr.unsafe_load[width=width](idx)
         var min_vec = SIMD[DType.float64, width](min_val)
         var max_vec = SIMD[DType.float64, width](max_val)
-        ptr.store[width=width](idx, max(min_vec, min(max_vec, vec)))
+        ptr.unsafe_store[width=width](idx, max(min_vec, min(max_vec, vec)))
 
     vectorize[simd_width](size, vectorized_clamp)
 
@@ -164,7 +164,7 @@ def _abs_sum_simd_f32(tensor: AnyTensor) -> Float64:
 
     @always_inline
     def vectorized_abs_sum[width: Int](idx: Int) {var ptr, mut acc}:
-        var vec = ptr.load[width=width](idx)
+        var vec = ptr.unsafe_load[width=width](idx)
         var abs_vec = abs(vec)
         acc += abs_vec.reduce_add().cast[DType.float64]()
 
@@ -182,7 +182,7 @@ def _abs_sum_simd_f64(tensor: AnyTensor) -> Float64:
 
     @always_inline
     def vectorized_abs_sum[width: Int](idx: Int) {var ptr, mut acc}:
-        var vec = ptr.load[width=width](idx)
+        var vec = ptr.unsafe_load[width=width](idx)
         var abs_vec = abs(vec)
         acc += abs_vec.reduce_add()
 
@@ -200,7 +200,7 @@ def _abs_max_simd_f32(tensor: AnyTensor) -> Float32:
 
     @always_inline
     def vectorized_abs_max[width: Int](idx: Int) {var ptr, mut max_acc}:
-        var vec = ptr.load[width=width](idx)
+        var vec = ptr.unsafe_load[width=width](idx)
         var abs_vec = abs(vec)
         var chunk_max = abs_vec.reduce_max()
         if chunk_max > max_acc:
@@ -220,7 +220,7 @@ def _abs_max_simd_f64(tensor: AnyTensor) -> Float64:
 
     @always_inline
     def vectorized_abs_max[width: Int](idx: Int) {var ptr, mut max_acc}:
-        var vec = ptr.load[width=width](idx)
+        var vec = ptr.unsafe_load[width=width](idx)
         var abs_vec = abs(vec)
         var chunk_max = abs_vec.reduce_max()
         if chunk_max > max_acc:
@@ -240,7 +240,7 @@ def _abs_min_simd_f32(tensor: AnyTensor) -> Float32:
 
     @always_inline
     def vectorized_abs_min[width: Int](idx: Int) {var ptr, mut min_acc}:
-        var vec = ptr.load[width=width](idx)
+        var vec = ptr.unsafe_load[width=width](idx)
         var abs_vec = abs(vec)
         var chunk_min = abs_vec.reduce_min()
         if chunk_min < min_acc:
@@ -260,7 +260,7 @@ def _abs_min_simd_f64(tensor: AnyTensor) -> Float64:
 
     @always_inline
     def vectorized_abs_min[width: Int](idx: Int) {var ptr, mut min_acc}:
-        var vec = ptr.load[width=width](idx)
+        var vec = ptr.unsafe_load[width=width](idx)
         var abs_vec = abs(vec)
         var chunk_min = abs_vec.reduce_min()
         if chunk_min < min_acc:

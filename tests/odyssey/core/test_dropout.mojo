@@ -99,7 +99,7 @@ def test_dropout_probability() raises:
 
     var p = 0.5
     var result3 = dropout(x, p=p, training=True, seed=42)
-    var output = result3[0]
+    _ = result3[0]
     var mask = result3[1]
 
     # Count dropped elements (where mask is 0)
@@ -155,10 +155,10 @@ def test_dropout_reproducibility() raises:
 
     # Same seed should produce same mask
     var result5 = dropout(x, p=0.5, training=True, seed=42)
-    var output1 = result5[0]
+    _ = result5[0]
     var mask1 = result5[1]
     var result6 = dropout(x, p=0.5, training=True, seed=42)
-    var output2 = result6[0]
+    _ = result6[0]
     var mask2 = result6[1]
 
     # Masks should be identical
@@ -200,7 +200,7 @@ def test_dropout_backward_gradient_flow() raises:
 
     # Forward pass
     var result8 = dropout(x, p=0.5, training=True, seed=42)
-    var output = result8[0]
+    _ = result8[0]
     var mask = result8[1]
 
     # Backward pass with all-ones gradient
@@ -308,7 +308,7 @@ def test_dropout2d_channel_level() raises:
     var x = ones(shape, DType.float32)
 
     var result11 = dropout2d(x, p=0.5, training=True, seed=42)
-    var output = result11[0]
+    _ = result11[0]
     var mask = result11[1]
 
     # Check that entire channels are either all kept or all dropped
@@ -346,7 +346,7 @@ def test_dropout2d_inference_mode() raises:
     # Inference mode
     var result12 = dropout2d(x, p=0.5, training=False)
     var output = result12[0]
-    var mask = result12[1]
+    _ = result12[1]
 
     # Output should be unchanged
     var size = x.numel()

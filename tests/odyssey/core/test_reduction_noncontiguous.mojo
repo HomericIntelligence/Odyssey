@@ -142,7 +142,7 @@ def test_sum_noncontiguous_matches_contiguous_baseline() raises:
     var bp = baseline._data.unsafe_bitcast[Float32]()
     var rp = result._data.unsafe_bitcast[Float32]()
     for i in range(2):
-        assert_almost_equal(rp[i], bp[unsafe_offset=i], tolerance=1e-4)
+        assert_almost_equal(rp[unsafe_offset=i], bp[unsafe_offset=i], tolerance=1e-4)
 
 
 def test_mean_noncontiguous_matches_contiguous_baseline() raises:
@@ -162,7 +162,7 @@ def test_mean_noncontiguous_matches_contiguous_baseline() raises:
 
     var bp = baseline._data.unsafe_bitcast[Float32]()
     var rp = result._data.unsafe_bitcast[Float32]()
-    assert_almost_equal(rp[0], bp[unsafe_offset=0], tolerance=1e-4)
+    assert_almost_equal(rp[unsafe_offset=0], bp[unsafe_offset=0], tolerance=1e-4)
 
 
 def test_sum_keepdims_noncontiguous() raises:
@@ -275,7 +275,7 @@ def test_max_noncontiguous_matches_contiguous_baseline() raises:
     var bp = baseline._data.unsafe_bitcast[Float32]()
     var rp = result._data.unsafe_bitcast[Float32]()
     for i in range(3):
-        assert_almost_equal(rp[i], bp[unsafe_offset=i], tolerance=1e-5)
+        assert_almost_equal(rp[unsafe_offset=i], bp[unsafe_offset=i], tolerance=1e-5)
 
 
 def test_min_noncontiguous_matches_contiguous_baseline() raises:
@@ -296,7 +296,7 @@ def test_min_noncontiguous_matches_contiguous_baseline() raises:
     var bp = baseline._data.unsafe_bitcast[Float32]()
     var rp = result._data.unsafe_bitcast[Float32]()
     for i in range(2):
-        assert_almost_equal(rp[i], bp[unsafe_offset=i], tolerance=1e-5)
+        assert_almost_equal(rp[unsafe_offset=i], bp[unsafe_offset=i], tolerance=1e-5)
 
 
 def test_max_larger_noncontiguous() raises:

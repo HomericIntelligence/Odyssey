@@ -226,14 +226,14 @@ def evaluate_accuracy(
     if predictions.dtype() == DType.int32 and labels.dtype() == DType.int32:
         for i in range(n):
             if (
-                pred_ptr.unsafe_bitcast[Int32]()[i]
+                pred_ptr.unsafe_bitcast[Int32]()[unsafe_offset=i]
                 == label_ptr.unsafe_bitcast[Int32]()[unsafe_offset=i]
             ):
                 correct += 1
     elif predictions.dtype() == DType.int64 and labels.dtype() == DType.int64:
         for i in range(n):
             if (
-                pred_ptr.unsafe_bitcast[Int64]()[i]
+                pred_ptr.unsafe_bitcast[Int64]()[unsafe_offset=i]
                 == label_ptr.unsafe_bitcast[Int64]()[unsafe_offset=i]
             ):
                 correct += 1
@@ -317,14 +317,14 @@ def count_correct(predictions: AnyTensor, labels: AnyTensor) raises -> Int:
     if predictions.dtype() == DType.int32 and labels.dtype() == DType.int32:
         for i in range(n):
             if (
-                pred_ptr.unsafe_bitcast[Int32]()[i]
+                pred_ptr.unsafe_bitcast[Int32]()[unsafe_offset=i]
                 == label_ptr.unsafe_bitcast[Int32]()[unsafe_offset=i]
             ):
                 correct += 1
     elif predictions.dtype() == DType.int64 and labels.dtype() == DType.int64:
         for i in range(n):
             if (
-                pred_ptr.unsafe_bitcast[Int64]()[i]
+                pred_ptr.unsafe_bitcast[Int64]()[unsafe_offset=i]
                 == label_ptr.unsafe_bitcast[Int64]()[unsafe_offset=i]
             ):
                 correct += 1

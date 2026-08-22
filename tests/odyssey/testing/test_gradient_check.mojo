@@ -71,7 +71,7 @@ def test_relative_error_large_difference() raises:
 def test_assert_gradients_close_identical() raises:
     """Test assert_gradients_close with identical gradients."""
     print("Testing assert_gradients_close with identical gradients...")
-    var shape = [3, 4]
+    var shape: List[Int] = [3, 4]
     var grad1 = full(shape, 1.5, DType.float32)
     var grad2 = full(shape, 1.5, DType.float32)
 
@@ -83,7 +83,7 @@ def test_assert_gradients_close_identical() raises:
 def test_assert_gradients_close_within_tolerance() raises:
     """Test assert_gradients_close with close gradients."""
     print("Testing assert_gradients_close within tolerance...")
-    var shape = [3, 4]
+    var shape: List[Int] = [3, 4]
     var grad1 = full(shape, 1.0, DType.float32)
     var grad2 = full(shape, 1.001, DType.float32)
 
@@ -95,8 +95,8 @@ def test_assert_gradients_close_within_tolerance() raises:
 def test_assert_gradients_close_mismatched_shape() raises:
     """Test assert_gradients_close with mismatched shapes."""
     print("Testing assert_gradients_close with mismatched shapes...")
-    var shape1 = [3, 4]
-    var shape2 = [4, 5]
+    var shape1: List[Int] = [3, 4]
+    var shape2: List[Int] = [4, 5]
     var grad1 = full(shape1, 1.0, DType.float32)
     var grad2 = full(shape2, 1.0, DType.float32)
 
@@ -113,7 +113,7 @@ def test_assert_gradients_close_mismatched_shape() raises:
 def test_assert_gradients_close_mismatched_dtype() raises:
     """Test assert_gradients_close with mismatched dtypes."""
     print("Testing assert_gradients_close with mismatched dtypes...")
-    var shape = [3, 4]
+    var shape: List[Int] = [3, 4]
     var grad1 = full(shape, 1.0, DType.float32)
     var grad2 = full(shape, 1.0, DType.float64)
 
@@ -130,7 +130,7 @@ def test_assert_gradients_close_mismatched_dtype() raises:
 def test_assert_gradients_close_zero_gradients() raises:
     """Test assert_gradients_close with zero gradients."""
     print("Testing assert_gradients_close with zero gradients...")
-    var shape = [2, 3]
+    var shape: List[Int] = [2, 3]
     var grad1 = zeros(shape, DType.float32)
     var grad2 = zeros(shape, DType.float32)
 
