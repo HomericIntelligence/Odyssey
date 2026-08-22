@@ -341,6 +341,25 @@ autograd, and training evaluation suites pass. Remaining failures in the sweep
 (`test_typed_*`, `test_activations`/`arithmetic_backward`/`elementwise`, FP16 SIMD test)
 are pre-existing FM-A/FM-B failures, identical on the unpatched baseline.
 
+### Overlap analysis: FM-A (return-move) vs this escape UAF
+
+**Verdict: same compiler-lifetime root-cause family, DIFFERENT triggers — the escape WAR
+does not fix FM-A and vice versa.**
+
+| | FM-A (#6939) | Escape UAF (#6963/#6959) |
+| --- | --- | --- |
+| Trigger | Struct **returned by value** (`return Pair(a^, b^)`) — the moved-from source's `__deinit__` also runs, over-decrementing the shared refcount → buffer freed | Raw pointer **escapes into a local** — the owner's `__deinit__` is hoisted to the last syntactic use → buffer freed early |
+| Shape | No pointer escape needed | No return-move needed |
+| Example | `subtract_backward` → `return GradientPair(grad_a^, grad_b^)` (the `test_subtract_scalar_backward` failure: `grad_b` reads 0.0 instead of -6.0) | `evaluation.mojo` → `var logits_data = logits.data_ptr()` |
+| Evidence of non-overlap | FM-A repro `docs/dev/reproducers/repro_uaf_return_move.mojo` still fails `0 1 0 1` **after** the escape WAR; FM-A tests fail with the same garbage class with and without the WAR; failing shapes contain no escape | Escape probe passes 3/3 **only** with the WAR; failing shapes contain no return-move |
+
+Both are the 1.0.0 compiler's lifetime analysis misplacing `__deinit__` (one extra, one early) —
+which is why #6939 was closed DUPLICATE and the issues cross-reference each other — but they are
+independent code shapes. FM-A remains OPEN upstream (#6939, closed as DUPLICATE without a fix;
+see the `tensor.mojo` move-constructor note not to reintroduce the refcount-sentinel WAR). Note
+FM-A garbage values are non-deterministic run-to-run (e.g. `4.096e-41` vs `-1.75` for the same
+test), consistent with freed-block reuse timing.
+
 **Filed upstream**: [#6963](https://github.com/modular/modular/issues/6963) — self-contained
 stdlib-only repro (`repro/repro_tensor_inline.mojo`, fails 3/3 stable / passes 3/3 b2
 mirror `repro/repro_tensor_inline_b2.mojo`, control `repro/repro_tensor_inline_control.mojo`
