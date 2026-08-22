@@ -88,19 +88,25 @@ def depthwise_conv2d(
             # Extract single channel
             var channel_input_shape: List[Int] = [1, 1, height, width]
             var channel_input = zeros(channel_input_shape, x.dtype())
-            var channel_input_data = channel_input._data.unsafe_bitcast[Float32]()
+            var channel_input_data = channel_input._data.unsafe_bitcast[
+                Float32
+            ]()
 
             # Copy channel data
             for h in range(height):
                 for w in range(width):
                     var src_idx = ((b * channels + c) * height + h) * width + w
                     var dst_idx = h * width + w
-                    channel_input_data[dst_idx] = x_data[src_idx]
+                    channel_input_data[unsafe_offset=dst_idx] = x_data[
+                        unsafe_offset=src_idx
+                    ]
 
             # Extract single filter for this channel
             var channel_filter_shape: List[Int] = [1, 1, kernel_h, kernel_w]
             var channel_filter = zeros(channel_filter_shape, weights.dtype())
-            var channel_filter_data = channel_filter._data.unsafe_bitcast[Float32]()
+            var channel_filter_data = channel_filter._data.unsafe_bitcast[
+                Float32
+            ]()
 
             for kh in range(kernel_h):
                 for kw in range(kernel_w):
@@ -108,13 +114,15 @@ def depthwise_conv2d(
                         (c * 1 + 0) * kernel_h + kh
                     ) * kernel_w + kw
                     var dst_idx = kh * kernel_w + kw
-                    channel_filter_data[dst_idx] = weights_data[filter_idx]
+                    channel_filter_data[unsafe_offset=dst_idx] = weights_data[
+                        unsafe_offset=filter_idx
+                    ]
 
             # Create single-element bias
             var channel_bias_shape: List[Int] = [1]
             var channel_bias = zeros(channel_bias_shape, bias.dtype())
             var channel_bias_data = channel_bias._data.unsafe_bitcast[Float32]()
-            channel_bias_data[0] = bias_data[c]
+            channel_bias_data[unsafe_offset=0] = bias_data[unsafe_offset=c]
 
             # Apply 2D convolution for this channel
             var channel_output = conv2d(
@@ -122,12 +130,16 @@ def depthwise_conv2d(
             )
 
             # Copy result back to output
-            var channel_output_data = channel_output._data.unsafe_bitcast[Float32]()
+            var channel_output_data = channel_output._data.unsafe_bitcast[
+                Float32
+            ]()
             for h in range(out_h):
                 for w in range(out_w):
                     var src_idx = h * out_w + w
                     var dst_idx = ((b * channels + c) * out_h + h) * out_w + w
-                    output_data[dst_idx] = channel_output_data[src_idx]
+                    output_data[unsafe_offset=dst_idx] = channel_output_data[
+                        unsafe_offset=src_idx
+                    ]
 
     return output
 
@@ -418,7 +430,9 @@ struct MobileNetV1:
 
         for b in range(batch_size):
             for c in range(channels):
-                flattened_data[b * channels + c] = out_data.unsafe_offset((b * channels + c))[]
+                flattened_data[
+                    unsafe_offset=b * channels + c
+                ] = out_data.unsafe_offset((b * channels + c))[]
 
         # Final FC layer
         var logits = linear(flattened, self.fc_weights, self.fc_bias)

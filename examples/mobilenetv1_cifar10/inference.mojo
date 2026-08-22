@@ -73,10 +73,10 @@ def evaluate_model(
         var logits_data = logits._data.unsafe_bitcast[Float32]()
         for i in range(current_batch_size):
             var pred_class = 0
-            var max_logit = logits_data[i * 10]
+            var max_logit = logits_data[unsafe_offset=i * 10]
             for j in range(1, 10):
-                if logits_data[i * 10 + j] > max_logit:
-                    max_logit = logits_data[i * 10 + j]
+                if logits_data[unsafe_offset=i * 10 + j] > max_logit:
+                    max_logit = logits_data[unsafe_offset=i * 10 + j]
                     pred_class = j
 
             var true_class = Int(batch_labels[i])

@@ -2319,10 +2319,10 @@ def validate(
         for i in range(current_batch_size):
             var logits_data = logits.data_ptr[DType.float32]()
             var pred_class = 0
-            var max_logit = logits_data[i * 10]
+            var max_logit = logits_data[unsafe_offset=i * 10]
             for j in range(1, 10):
-                if logits_data[i * 10 + j] > max_logit:
-                    max_logit = logits_data[i * 10 + j]
+                if logits_data[unsafe_offset=i * 10 + j] > max_logit:
+                    max_logit = logits_data[unsafe_offset=i * 10 + j]
                     pred_class = j
 
             var true_class = Int(batch_labels[i])
@@ -2391,13 +2391,13 @@ def main() raises:
         for s in range(n_smoke):
             var cls = s % 10
             for i in range(3 * 32 * 32):
-                img_d[s * (3 * 32 * 32) + i] = (
+                img_d[unsafe_offset=s * (3 * 32 * 32) + i] = (
                     Float32(cls) * 0.05 + Float32(i % 5) * 0.01
                 )
         train_labels = zeros([n_smoke], DType.uint8)
         var lbl_d = train_labels._data.unsafe_bitcast[UInt8]()
         for s in range(n_smoke):
-            lbl_d[s] = UInt8(s % 10)
+            lbl_d[unsafe_offset=s] = UInt8(s % 10)
     else:
         print("Loading CIFAR-10 training set...")
         var dataset = CIFAR10Dataset(data_dir)

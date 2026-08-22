@@ -115,10 +115,10 @@ def evaluate_model(
         for i in range(current_batch_size):
             # Find argmax (predicted class)
             var pred_class = 0
-            var max_logit = logits_data[i * 10]
+            var max_logit = logits_data[unsafe_offset=i * 10]
             for j in range(1, 10):
-                if logits_data[i * 10 + j] > max_logit:
-                    max_logit = logits_data[i * 10 + j]
+                if logits_data[unsafe_offset=i * 10 + j] > max_logit:
+                    max_logit = logits_data[unsafe_offset=i * 10 + j]
                     pred_class = j
 
             # Get true label
