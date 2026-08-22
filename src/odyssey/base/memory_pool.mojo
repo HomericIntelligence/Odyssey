@@ -111,12 +111,6 @@ struct SpinLock(Copyable, Movable):
         for i in range(8):
             self._state[unsafe_offset=i] = 0
 
-    def _as_atomic(
-        self,
-    ) -> Pointer[Atomic[DType.int64], MutUntrackedOrigin]:
-        """Reinterpret backing store as an atomic int64."""
-        return self._state.unsafe_bitcast[Atomic[DType.int64]]()
-
     def _lock_word(self) -> Pointer[Int64, MutUntrackedOrigin]:
         """Return the lock word as a plain Int64 pointer for static Atomic ops.
         """
@@ -166,6 +160,35 @@ struct SpinLock(Copyable, Movable):
         counter from exactly 1 to 0.
         """
         _ = Atomic[DType.int64].fetch_add(self._lock_word(), Int64(-1))
+
+    def peek_counter(mut self) -> Int64:
+        """Atomically read the lock counter (0 = unlocked, 1 = locked).
+
+        WAR for modular/modular#6959 (see also #6707): exposing the raw
+        atomic pointer via `_as_atomic()` lets the raw pointer escape the
+        struct, and the 1.0.0 compiler then hoists `__deinit__` (the
+        `unsafe_free` of `_state`) to right after the last syntactic use of
+        the SpinLock — callers operate on freed memory.  These methods keep
+        all atomic access inside the struct so no pointer ever escapes.
+        """
+        return self._state.unsafe_bitcast[Atomic[DType.int64]]()[].load()
+
+    def fetch_add_counter(mut self, rhs: Int) -> Int64:
+        """Atomically add rhs to the lock counter; returns the previous value.
+
+        Same WAR rationale as `peek_counter` (no pointer escapes).
+        """
+        return self._state.unsafe_bitcast[Atomic[DType.int64]]()[].fetch_add(
+            Int64(rhs)
+        )
+
+    def fetch_sub_counter(mut self, rhs: Int) -> Int64:
+        """Atomically subtract rhs from the lock counter; returns the previous
+        value.  Same WAR rationale as `peek_counter` (no pointer escapes).
+        """
+        return self._state.unsafe_bitcast[Atomic[DType.int64]]()[].fetch_sub(
+            Int64(rhs)
+        )
 
     def __deinit__(deinit self):
         """Free the backing store."""
