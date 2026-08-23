@@ -46,9 +46,7 @@ struct Box:
         return self.data[unsafe_offset=i]
 
 
-def call_inline[
-    func: def(Int) capturing -> None
-](n: Int):
+def call_inline[func: def(Int) capturing -> None](n: Int):
     for i in range(n):
         func(i)
 

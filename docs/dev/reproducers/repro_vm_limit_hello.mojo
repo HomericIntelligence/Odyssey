@@ -13,5 +13,7 @@ Run (measuring the crash threshold):
         (ulimit -v $limit_kb; mojo run repro_vm_limit_hello.mojo >/dev/null 2>&1 && echo PASS || echo CRASH)
     done
 """
+
+
 def main():
     print("hello")

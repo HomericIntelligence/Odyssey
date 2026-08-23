@@ -31,9 +31,7 @@ struct Box:
         return self.payload * 100 + i
 
 
-def call_inline[
-    func: def(Int) capturing -> None
-](n: Int):
+def call_inline[func: def(Int) capturing -> None](n: Int):
     for i in range(n):
         func(i)
 

@@ -1253,7 +1253,9 @@ def elu_backward(
             else:
                 var val_clipped = max(val, Float32(-20.0))
                 var exp_val = exp_scalar_f32(val_clipped)
-                out_ptr[unsafe_offset=i] = Float16(grad_val * Float32(alpha) * exp_val)
+                out_ptr[unsafe_offset=i] = Float16(
+                    grad_val * Float32(alpha) * exp_val
+                )
     else:
         raise Error("elu_backward: only float16/32/64 dtypes supported")
 

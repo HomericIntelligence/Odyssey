@@ -19,9 +19,9 @@ from odyssey.data._datasets_core import Dataset
 from odyssey.data.transforms import Transform
 
 
-struct TransformedDataset[
-    D: Dataset & Copyable, T: Transform
-](Copyable, Dataset, Movable):
+struct TransformedDataset[D: Dataset & Copyable, T: Transform](
+    Copyable, Dataset, Movable
+):
     """Dataset wrapper that applies transforms to data.
 
     Applies a transform to the data component of samples while leaving

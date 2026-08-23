@@ -49,11 +49,13 @@ struct SpinLock(Copyable, Movable):
         return self._state.unsafe_bitcast[Atomic[DType.int64]]()
 
     def _lock_word(self) -> Pointer[Int64, MutUntrackedOrigin]:
-        """Return the lock word as a plain Int64 pointer for static Atomic ops."""
+        """Return the lock word as a plain Int64 pointer for static Atomic ops.
+        """
         return self._state.unsafe_bitcast[Int64]()
 
     def lock(self):
-        """Acquire the lock via the static Atomic API (fetch_add on Int64 word)."""
+        """Acquire the lock via the static Atomic API (fetch_add on Int64 word).
+        """
         var word = self._lock_word()
         while True:
             # Wait until lock looks free before attempting (reduces bus traffic)

@@ -16,7 +16,9 @@ def maxpool_like(x: AnyTensor) raises -> AnyTensor:
     var kernel_size = 2
     var actual_stride = 2
     var padding = 0
-    var out_height = (in_height + 2 * padding - kernel_size) // actual_stride + 1
+    var out_height = (
+        in_height + 2 * padding - kernel_size
+    ) // actual_stride + 1
     var out_width = (in_width + 2 * padding - kernel_size) // actual_stride + 1
 
     var out_shape = List[Int](capacity=4)
@@ -27,6 +29,7 @@ def maxpool_like(x: AnyTensor) raises -> AnyTensor:
     var output = zeros(out_shape, x.dtype())
 
     if should_parallelize(batch):
+
         @parameter
         def maxpool_batch(b: Int) capturing:
             for c in range(channels):

@@ -167,9 +167,13 @@ struct CIFARLoader(Copyable, Movable):
             for i in range(num_images):
                 var offset = i * self.bytes_per_image
                 # Coarse label at offset
-                labels_data[unsafe_offset=i * 2] = data_bytes[unsafe_offset=offset]
+                labels_data[unsafe_offset=i * 2] = data_bytes[
+                    unsafe_offset=offset
+                ]
                 # Fine label at offset + 1
-                labels_data[unsafe_offset=i * 2 + 1] = data_bytes[unsafe_offset=offset + 1]
+                labels_data[unsafe_offset=i * 2 + 1] = data_bytes[
+                    unsafe_offset=offset + 1
+                ]
 
             return labels^
 

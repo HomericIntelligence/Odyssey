@@ -371,7 +371,9 @@ def _elu_simd_float32(tensor: AnyTensor, mut result: AnyTensor, alpha: Float32):
         # Select based on condition: x > 0
         var mask = vec.gt(zero_vec)
         # SIMD conditional selection: mask.select(true_value, false_value)
-        out_ptr.unsafe_store[width=width](idx, mask.select(pos_result, neg_result))
+        out_ptr.unsafe_store[width=width](
+            idx, mask.select(pos_result, neg_result)
+        )
 
     vectorize[simd_width](size, vectorized_elu)
 
@@ -403,7 +405,9 @@ def _elu_simd_float64(tensor: AnyTensor, mut result: AnyTensor, alpha: Float64):
 
         var mask = vec.gt(zero_vec)
         # SIMD conditional selection: mask.select(true_value, false_value)
-        out_ptr.unsafe_store[width=width](idx, mask.select(pos_result, neg_result))
+        out_ptr.unsafe_store[width=width](
+            idx, mask.select(pos_result, neg_result)
+        )
 
     vectorize[simd_width](size, vectorized_elu)
 
@@ -484,7 +488,9 @@ def _selu_simd_float32(
 
         var mask = vec.gt(zero_vec)
         # SIMD conditional selection: mask.select(true_value, false_value)
-        out_ptr.unsafe_store[width=width](idx, mask.select(pos_result, neg_result))
+        out_ptr.unsafe_store[width=width](
+            idx, mask.select(pos_result, neg_result)
+        )
 
     vectorize[simd_width](size, vectorized_selu)
 
@@ -517,7 +523,9 @@ def _selu_simd_float64(
 
         var mask = vec.gt(zero_vec)
         # SIMD conditional selection: mask.select(true_value, false_value)
-        out_ptr.unsafe_store[width=width](idx, mask.select(pos_result, neg_result))
+        out_ptr.unsafe_store[width=width](
+            idx, mask.select(pos_result, neg_result)
+        )
 
     vectorize[simd_width](size, vectorized_selu)
 

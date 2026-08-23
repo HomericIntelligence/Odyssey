@@ -9,8 +9,11 @@ float64 works on both.
 Run:
     mojo repro_scalar_pow.mojo
 """
+
+
 def f[dt: DType](x: Scalar[dt]) -> Scalar[dt]:
     return x**0.5
+
 
 def main():
     var v1 = Scalar[DType.float16](4.0)

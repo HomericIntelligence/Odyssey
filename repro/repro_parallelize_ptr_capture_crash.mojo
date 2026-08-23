@@ -37,5 +37,7 @@ def main() raises:
     var x = ones([4, 1, 28, 28], DType.float32)
     print("v6 (raw ptr capture of borrowed x, many scalars):")
     var r6 = maxpool_like_v6(x)
-    print("  v6 output[0]:", Float64(r6.load[DType.float32](0)), "(expect 196.0)")
+    print(
+        "  v6 output[0]:", Float64(r6.load[DType.float32](0)), "(expect 196.0)"
+    )
     print("done")

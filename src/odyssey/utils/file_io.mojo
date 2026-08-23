@@ -715,7 +715,9 @@ def join_path(base: String, path: String) raises -> String:
     # Strip trailing separator from base
     var clean_base = base
     if clean_base.endswith("/"):
-        var trimmed = String(clean_base[byte = 0 : clean_base.byte_length() - 1])
+        var trimmed = String(
+            clean_base[byte = 0 : clean_base.byte_length() - 1]
+        )
         clean_base = trimmed
 
     # Strip leading separator from path (should not happen after validation)

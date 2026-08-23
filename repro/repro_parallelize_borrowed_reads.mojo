@@ -57,9 +57,15 @@ def main() raises:
     var x = ones([4, 1, 28, 28], DType.float32)
     print("v4 (no keep-alive):")
     var r4 = maxpool_like_v4(x)
-    print("  v4 output[0]:", Float64(r4.load[DType.float32](0)), "(expect 196.0)")
+    print(
+        "  v4 output[0]:", Float64(r4.load[DType.float32](0)), "(expect 196.0)"
+    )
 
     print("v4-keep (keep-alive after pass):")
     var rk = maxpool_like_v4_keep(x)
-    print("  v4-keep output[0]:", Float64(rk.load[DType.float32](0)), "(expect 196.0)")
+    print(
+        "  v4-keep output[0]:",
+        Float64(rk.load[DType.float32](0)),
+        "(expect 196.0)",
+    )
     print("done")

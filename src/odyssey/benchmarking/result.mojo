@@ -258,7 +258,9 @@ struct BenchmarkResult(Copyable, Movable, Writable):
 
         var out = String("BenchmarkResult: " + self.name + "\n")
         out += "  Iterations: " + String(self.iterations) + "\n"
-        out += "  Mean: " + String(mean_us) + " us (" + String(mean_ns) + " ns)\n"
+        out += (
+            "  Mean: " + String(mean_us) + " us (" + String(mean_ns) + " ns)\n"
+        )
         out += "  Std Dev: " + String(std_us) + " us\n"
         out += "  Min: " + String(min_us) + " us\n"
         out += "  Max: " + String(max_us) + " us"
