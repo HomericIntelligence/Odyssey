@@ -9,6 +9,7 @@ trigger the JIT crash path.
 
 from collections import List
 
+
 struct BatchNorm:
     var gamma: List[Float32]
     var beta: List[Float32]
@@ -32,33 +33,39 @@ struct BatchNorm:
             ).__sqrt__()
             out[i] = self.gamma[idx] * normalized + self.beta[idx]
             if training:
-                self.running_mean[idx] = 0.9 * self.running_mean[idx] + 0.1 * inp[i]
-                self.running_var[idx] = 0.9 * self.running_var[idx] + 0.1 * (inp[i] - self.running_mean[idx]) ** 2
+                self.running_mean[idx] = (
+                    0.9 * self.running_mean[idx] + 0.1 * inp[i]
+                )
+                self.running_var[idx] = (
+                    0.9 * self.running_var[idx]
+                    + 0.1 * (inp[i] - self.running_mean[idx]) ** 2
+                )
         return out^
+
 
 def main() raises:
     print("=== FM-D: KGEN JIT Crash Reproducer ===")
     var bn = BatchNorm(4)
-    
+
     var inp1 = List[Float32](8, 1.0)
     for i in range(8):
         inp1[i] = Float32(i) * 0.5
-    
+
     print("Forward pass 1...")
     var out1 = bn.forward(inp1, True)
     print("  out1[0] =", out1[0])
-    
+
     var inp2 = List[Float32](8, 2.0)
     for i in range(8):
         inp2[i] = Float32(i) * 0.3
-    
+
     print("Forward pass 2...")
     var out2 = bn.forward(inp2, True)
     print("  out2[0] =", out2[0])
-    
+
     var inp3 = List[Float32](8, 0.5)
     print("Forward pass 3...")
     var out3 = bn.forward(inp3, True)
     print("  out3[0] =", out3[0])
-    
+
     print("All passes completed - no crash!")

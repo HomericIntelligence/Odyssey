@@ -28,7 +28,7 @@ def _running_var_sig(t: AnyTensor) raises -> Float32:
     var d = t._data.unsafe_bitcast[Float32]()
     var s = Float32(0.0)
     for i in range(t._numel):
-        s += d[i]
+        s += d[unsafe_offset=i]
     return s
 
 
@@ -37,7 +37,7 @@ def _running_mean_sig(t: AnyTensor) raises -> Float32:
     var d = t._data.unsafe_bitcast[Float32]()
     var s = Float32(0.0)
     for i in range(t._numel):
-        s += d[i]
+        s += d[unsafe_offset=i]
     return s
 
 
@@ -49,7 +49,7 @@ def test_bn_running_stats_persist_after_training() raises:
     var x = zeros([2, 3, 32, 32], DType.float32)
     var xd = x._data.unsafe_bitcast[Float32]()
     for i in range(2 * 3 * 32 * 32):
-        xd[i] = Float32(i % 7) * 0.1 - 0.3
+        xd[unsafe_offset=i] = Float32(i % 7) * 0.1 - 0.3
 
     # Snapshot the initial-conv BN stats (init: mean sum = 0, var sum = C).
     var mean_before = _running_mean_sig(model.initial_bn_running_mean)
@@ -86,7 +86,7 @@ def test_bn_stats_persist_in_depthwise_blocks() raises:
     var x = zeros([2, 3, 32, 32], DType.float32)
     var xd = x._data.unsafe_bitcast[Float32]()
     for i in range(2 * 3 * 32 * 32):
-        xd[i] = Float32(i % 5) * 0.2 - 0.4
+        xd[unsafe_offset=i] = Float32(i % 5) * 0.2 - 0.4
 
     var dw1_before = _running_mean_sig(model.ds_block_1.dw_bn_running_mean)
     var pw1_before = _running_mean_sig(model.ds_block_1.pw_bn_running_mean)
@@ -117,7 +117,7 @@ def test_inference_forward_leaves_stats_unchanged() raises:
     var x = zeros([2, 3, 32, 32], DType.float32)
     var xd = x._data.unsafe_bitcast[Float32]()
     for i in range(2 * 3 * 32 * 32):
-        xd[i] = Float32(i % 3) * 0.3
+        xd[unsafe_offset=i] = Float32(i % 3) * 0.3
 
     var mean_before = _running_mean_sig(model.initial_bn_running_mean)
     _ = model.forward(x, training=False)

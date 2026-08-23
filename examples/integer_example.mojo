@@ -94,12 +94,12 @@ def example_tensor_conversions() raises:
     print("\nAfter conversion to Int8 (truncated):")
     print(
         " ",
-        i8_tensor._data.unsafe_bitcast[Int8]()[0],
-        i8_tensor._data.unsafe_bitcast[Int8]()[1],
-        i8_tensor._data.unsafe_bitcast[Int8]()[2],
-        i8_tensor._data.unsafe_bitcast[Int8]()[3],
-        i8_tensor._data.unsafe_bitcast[Int8]()[4],
-        i8_tensor._data.unsafe_bitcast[Int8]()[5],
+        i8_tensor._data.unsafe_bitcast[Int8]()[unsafe_offset=0],
+        i8_tensor._data.unsafe_bitcast[Int8]()[unsafe_offset=1],
+        i8_tensor._data.unsafe_bitcast[Int8]()[unsafe_offset=2],
+        i8_tensor._data.unsafe_bitcast[Int8]()[unsafe_offset=3],
+        i8_tensor._data.unsafe_bitcast[Int8]()[unsafe_offset=4],
+        i8_tensor._data.unsafe_bitcast[Int8]()[unsafe_offset=5],
     )
 
     # Convert to UInt8
@@ -107,12 +107,12 @@ def example_tensor_conversions() raises:
     print("\nAfter conversion to UInt8 (clamped to 0-255):")
     print(
         " ",
-        u8_tensor._data.unsafe_bitcast[UInt8]()[0],
-        u8_tensor._data.unsafe_bitcast[UInt8]()[1],
-        u8_tensor._data.unsafe_bitcast[UInt8]()[2],
-        u8_tensor._data.unsafe_bitcast[UInt8]()[3],
-        u8_tensor._data.unsafe_bitcast[UInt8]()[4],
-        u8_tensor._data.unsafe_bitcast[UInt8]()[5],
+        u8_tensor._data.unsafe_bitcast[UInt8]()[unsafe_offset=0],
+        u8_tensor._data.unsafe_bitcast[UInt8]()[unsafe_offset=1],
+        u8_tensor._data.unsafe_bitcast[UInt8]()[unsafe_offset=2],
+        u8_tensor._data.unsafe_bitcast[UInt8]()[unsafe_offset=3],
+        u8_tensor._data.unsafe_bitcast[UInt8]()[unsafe_offset=4],
+        u8_tensor._data.unsafe_bitcast[UInt8]()[unsafe_offset=5],
     )
 
 
@@ -196,7 +196,13 @@ def example_practical_use_case() raises:
     # Scale to 0-255 range
     var scaled = zeros([5], DType.float32)
     for i in range(5):
-        scaled.set(i, Float32(normalized._data.unsafe_bitcast[Float32]()[i] * 255.0))
+        scaled.set(
+            i,
+            Float32(
+                normalized._data.unsafe_bitcast[Float32]()[unsafe_offset=i]
+                * 255.0
+            ),
+        )
 
     print("\nScaled to 0-255 range:")
     print("  [0.0, 63.75, 127.5, 191.25, 255.0]")
@@ -207,26 +213,30 @@ def example_practical_use_case() raises:
     print("\nQuantized to UInt8 (truncated):")
     print(
         " ",
-        quantized._data.unsafe_bitcast[UInt8]()[0],
-        quantized._data.unsafe_bitcast[UInt8]()[1],
-        quantized._data.unsafe_bitcast[UInt8]()[2],
-        quantized._data.unsafe_bitcast[UInt8]()[3],
-        quantized._data.unsafe_bitcast[UInt8]()[4],
+        quantized._data.unsafe_bitcast[UInt8]()[unsafe_offset=0],
+        quantized._data.unsafe_bitcast[UInt8]()[unsafe_offset=1],
+        quantized._data.unsafe_bitcast[UInt8]()[unsafe_offset=2],
+        quantized._data.unsafe_bitcast[UInt8]()[unsafe_offset=3],
+        quantized._data.unsafe_bitcast[UInt8]()[unsafe_offset=4],
     )
 
     # Dequantize back to float
     var dequantized = zeros([5], DType.float32)
     for i in range(5):
-        dequantized.set(i, Float32(quantized._data.unsafe_bitcast[UInt8]()[i]) / 255.0)
+        dequantized.set(
+            i,
+            Float32(quantized._data.unsafe_bitcast[UInt8]()[unsafe_offset=i])
+            / 255.0,
+        )
 
     print("\nDequantized back to 0.0-1.0 range:")
     print(
         " ",
-        dequantized._data.unsafe_bitcast[Float32]()[0],
-        dequantized._data.unsafe_bitcast[Float32]()[1],
-        dequantized._data.unsafe_bitcast[Float32]()[2],
-        dequantized._data.unsafe_bitcast[Float32]()[3],
-        dequantized._data.unsafe_bitcast[Float32]()[4],
+        dequantized._data.unsafe_bitcast[Float32]()[unsafe_offset=0],
+        dequantized._data.unsafe_bitcast[Float32]()[unsafe_offset=1],
+        dequantized._data.unsafe_bitcast[Float32]()[unsafe_offset=2],
+        dequantized._data.unsafe_bitcast[Float32]()[unsafe_offset=3],
+        dequantized._data.unsafe_bitcast[Float32]()[unsafe_offset=4],
     )
 
     print(

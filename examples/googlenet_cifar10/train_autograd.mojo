@@ -543,7 +543,7 @@ def train_batch[
     loss.backward(tape)
 
     # Extract the scalar loss before the Variables are moved below.
-    var loss_value = loss.data._data.unsafe_bitcast[Float32]()[0]
+    var loss_value = loss.data._data.unsafe_bitcast[Float32]()[unsafe_offset=0]
 
     # Append FC head params (field order, after all inception modules).
     parameters.append(fc_weights^)
@@ -716,14 +716,14 @@ def main() raises:
         for s in range(n_smoke):
             var cls = s % 10
             for i in range(3 * 32 * 32):
-                img_d[s * (3 * 32 * 32) + i] = (
+                img_d[unsafe_offset=s * (3 * 32 * 32) + i] = (
                     Float32(cls) * 0.05 + Float32(i % 5) * 0.01
                 )
         # RAW uint8 class indices [N] — train_epoch one-hot-encodes per batch.
         train_labels = zeros([n_smoke], DType.uint8)
         var lbl_d = train_labels._data.unsafe_bitcast[UInt8]()
         for s in range(n_smoke):
-            lbl_d[s] = UInt8(s % 10)
+            lbl_d[unsafe_offset=s] = UInt8(s % 10)
     else:
         print("Loading CIFAR-10 dataset...")
         var cifar_dataset = CIFAR10Dataset(data_dir)

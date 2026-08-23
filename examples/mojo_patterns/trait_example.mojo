@@ -8,7 +8,8 @@ Usage:
 See documentation: docs/core/mojo-patterns.md
 """
 
-from std.memory import Pointer, unsafe_alloc
+from std.memory import Pointer
+from std.memory.alloc import unsafe_alloc
 
 # Note: This is a conceptual example demonstrating trait patterns.
 # It uses a simplified Tensor stub for illustration purposes.
@@ -24,7 +25,7 @@ struct Tensor(Copyable, ImplicitlyCopyable):
 
     var size: Int
     var _grad_ptr: Pointer[
-        Int, origin=MutAnyOrigin
+        Int, origin=MutUntrackedOrigin
     ]  # Points to grad size
 
     def __init__(out self, size: Int):

@@ -17,11 +17,17 @@ def assert_true(cond: Bool, msg: String) raises:
 
 
 def _make_non_uniform_batch() raises -> Tuple[AnyTensor, AnyTensor]:
-    var img_shape = [4, 3, 32, 32]
+    var img_shape = List[Int]()
+    img_shape.append(4)
+    img_shape.append(3)
+    img_shape.append(32)
+    img_shape.append(32)
     var images = randn(img_shape, DType.float32, seed=42)
     # One-hot encoded labels: cross_entropy requires targets to have the
     # same shape as logits (batch=4, num_classes=10) — see loss.mojo:309.
-    var lbl_shape = [4, 10]
+    var lbl_shape = List[Int]()
+    lbl_shape.append(4)
+    lbl_shape.append(10)
     var labels = zeros(lbl_shape, DType.float32)
     labels.set(0 * 10 + 3, Float32(1.0))  # class 3 for sample 0
     labels.set(1 * 10 + 7, Float32(1.0))  # class 7 for sample 1

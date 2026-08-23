@@ -1197,13 +1197,13 @@ def main() raises:
         for s in range(n_smoke):
             var cls = s % 10
             for i in range(3 * 32 * 32):
-                img_d[s * (3 * 32 * 32) + i] = (
+                img_d[unsafe_offset=s * (3 * 32 * 32) + i] = (
                     Float32(cls) * 0.05 + Float32(i % 5) * 0.01
                 )
         train_labels_raw = zeros([n_smoke], DType.uint8)
         var lbl_d = train_labels_raw._data.unsafe_bitcast[UInt8]()
         for s in range(n_smoke):
-            lbl_d[s] = UInt8(s % 10)
+            lbl_d[unsafe_offset=s] = UInt8(s % 10)
         # Reuse the same synthetic batch for "test" (eval is not asserted here).
         test_images = train_images
         test_labels_raw = train_labels_raw

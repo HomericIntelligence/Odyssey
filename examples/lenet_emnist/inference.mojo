@@ -160,10 +160,10 @@ def infer_single(
     var num_classes = logits.shape()[1]
     var max_idx = 0
     var max_val_data = logits._data.unsafe_bitcast[Float32]()
-    var max_val = max_val_data[0]
+    var max_val = max_val_data[unsafe_offset=0]
 
     for i in range(1, num_classes):
-        var val = max_val_data[i]
+        var val = max_val_data[unsafe_offset=i]
         if val > max_val:
             max_val = val
             max_idx = i
@@ -171,7 +171,7 @@ def infer_single(
     # Compute softmax for confidence (simplified - just exp(max) / sum(exp))
     var exp_sum = Float32(0.0)
     for i in range(num_classes):
-        exp_sum += exp(max_val_data[i])
+        exp_sum += exp(max_val_data[unsafe_offset=i])
 
     var confidence = exp(max_val) / exp_sum
 

@@ -198,7 +198,7 @@ def compute_gradients(
 
     # Compute loss
     var loss_tensor = cross_entropy(logits, labels)
-    var loss = loss_tensor._data.unsafe_bitcast[Float32]()[0]
+    var loss = loss_tensor._data.unsafe_bitcast[Float32]()[unsafe_offset=0]
 
     # ========== Backward Pass ==========
 
@@ -509,12 +509,16 @@ def train_epoch(
                             + h * train_images.shape()[3]
                             + w
                         )
-                        (batch_images._data + dst_idx).unsafe_store(
-                            (train_images._data + src_idx).unsafe_load()
+                        (
+                            batch_images._data.unsafe_offset(dst_idx)
+                        ).unsafe_store(
+                            (
+                                train_images._data.unsafe_offset(src_idx)
+                            ).unsafe_load()
                         )
             # Copy label
-            (batch_labels_int._data + i).unsafe_store(
-                (train_labels._data + sample_idx).unsafe_load()
+            (batch_labels_int._data.unsafe_offset(i)).unsafe_store(
+                (train_labels._data.unsafe_offset(sample_idx)).unsafe_load()
             )
 
         # Convert batch labels to one-hot encoding

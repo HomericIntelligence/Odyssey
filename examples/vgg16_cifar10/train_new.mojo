@@ -322,7 +322,7 @@ def compute_gradients(
 
     # Compute loss
     var loss_tensor = cross_entropy(logits, labels)
-    var loss = loss_tensor._data.unsafe_bitcast[Float32]()[0]
+    var loss = loss_tensor._data.unsafe_bitcast[Float32]()[unsafe_offset=0]
 
     # ========== Backward Pass (through all 16 layers) ==========
 

@@ -54,7 +54,7 @@ def _make_sentinel(
         for ch in range(c):
             for i in range(hw):
                 var idx = ((b * c + ch) * hw) + i
-                d[idx] = (
+                d[unsafe_offset=idx] = (
                     base + Float32(b) * 1000.0 + Float32(ch) * 10.0 + Float32(i)
                 )
     return t^
@@ -101,15 +101,15 @@ def _assert_tensor_equal(a: AnyTensor, b: AnyTensor, msg: String) raises:
     var ad = a._data.unsafe_bitcast[Float32]()
     var bd = b._data.unsafe_bitcast[Float32]()
     for i in range(a._numel):
-        if ad[i] != bd[i]:
+        if ad[unsafe_offset=i] != bd[unsafe_offset=i]:
             raise Error(
                 msg
                 + " at index "
                 + String(i)
                 + ": "
-                + String(ad[i])
+                + String(ad[unsafe_offset=i])
                 + " != "
-                + String(bd[i])
+                + String(bd[unsafe_offset=i])
             )
 
 
@@ -167,14 +167,14 @@ def test_backward_converges() raises:
     for s in range(batch):
         var cls = s  # sample s has class s -> every batch sees all classes
         for i in range(3 * 32 * 32):
-            img_d[s * (3 * 32 * 32) + i] = (
+            img_d[unsafe_offset=s * (3 * 32 * 32) + i] = (
                 Float32(cls) * 0.05 + Float32(i % 5) * 0.01
             )
 
     var labels_raw = zeros([batch], DType.uint8)
     var lbl_d = labels_raw._data.unsafe_bitcast[UInt8]()
     for s in range(batch):
-        lbl_d[s] = UInt8(s)
+        lbl_d[unsafe_offset=s] = UInt8(s)
     var labels = one_hot_encode(labels_raw, num_classes)
 
     var lr = Float32(0.01)

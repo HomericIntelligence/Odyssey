@@ -39,9 +39,9 @@ def simple_simd_add(tensor1: AnyTensor, tensor2: AnyTensor) raises -> AnyTensor:
         def vectorized_add[
             width: Int
         ](idx: Int) {var ptr1, var ptr2, var out_ptr}:
-            var a = ptr1.load[width=width](idx)
-            var b = ptr2.load[width=width](idx)
-            out_ptr.store[width=width](idx, a + b)
+            var a = ptr1.unsafe_load[width=width](idx)
+            var b = ptr2.unsafe_load[width=width](idx)
+            out_ptr.unsafe_store[width=width](idx, a + b)
 
         vectorize[simd_width](size, vectorized_add)
 

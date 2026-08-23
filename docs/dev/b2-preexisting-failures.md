@@ -33,7 +33,7 @@ These files are **import-only modules** (conftest, fixtures, utils, model defini
 that the test runner incorrectly tries to execute as standalone programs. They have
 no `def main()` because they're libraries, not executables.
 
-### Test files (7):
+### Test files (7)
 
 1. `tests/conftest.mojo` — shared test assertions
 2. `tests/helpers/fixtures.mojo` — test fixture utilities
@@ -43,12 +43,12 @@ no `def main()` because they're libraries, not executables.
 6. `tests/odyssey/fixtures/mock_data.mojo` — mock data generators
 7. `tests/odyssey/fixtures/mock_tensors.mojo` — mock tensor factories
 
-### Example files (4):
+### Example files (4)
 
-8. `examples/grok/lenet_emnist/model.mojo` — model definition (no main)
-9. `examples/mnist/model.mojo` — model definition (no main)
-10. `examples/mobilenetv1_cifar10/model.mojo` — model definition (no main)
-11. `examples/resnet18_cifar10/model.mojo` — model definition (no main)
+1. `examples/grok/lenet_emnist/model.mojo` — model definition (no main)
+2. `examples/mnist/model.mojo` — model definition (no main)
+3. `examples/mobilenetv1_cifar10/model.mojo` — model definition (no main)
+4. `examples/resnet18_cifar10/model.mojo` — model definition (no main)
 
 **Action needed**: Exclude these from the test runner's direct execution. They should
 only be compiled as libraries, not run as executables.
@@ -60,14 +60,14 @@ only be compiled as libraries, not run as executables.
 These examples crash with `libKGENCompilerRTShared.so` / `libAsyncRTRuntimeGlobals.so`
 stack traces on b2 — the same crash pattern documented in #6958/#6413/#6445.
 
-### Affected files:
+### Affected files
 
 1. `examples/autograd/linear_regression.mojo` — JIT crash
 2. `examples/autograd/simple_example.mojo` — JIT crash
 3. `examples/custom_layers/attention_layer.mojo` — JIT crash
 4. `examples/data_pipeline_demo.mojo` — JIT crash
 
-### Stack trace (identical for all 4):
+### Stack trace (identical for all 4)
 
 ```text
 #0 libKGENCompilerRTShared.so+0xfbf8e
@@ -89,11 +89,11 @@ computation) which exercises complex JIT code paths.
 
 ## Category C: Pre-existing disabled test — 1 file (KNOWN BUG)
 
-### Affected file:
+### Affected file
 
 1. `tests/odyssey/core/layers/DISABLED_test_conv2d.mojo`
 
-### Error:
+### Error
 
 ```text
 Unhandled exception caught during execution: -0.12866569 !≈ -0.17696491 (diff: 0.048299223)
@@ -115,7 +115,7 @@ These examples use APIs deprecated in earlier Mojo versions (pre-b2 or during b2
 development). On b2 they fail with compile errors or runtime crashes because the
 deprecated APIs were removed or changed.
 
-### Sub-categories:
+### Sub-categories
 
 #### D1. Deprecated `bitcast` (not `unsafe_bitcast`) — 3 files
 
@@ -161,7 +161,7 @@ were already removed by the time b2 was released.
 
 ## Category E: Timeout / OOM on heavy tests — 4 files (RESOURCE LIMIT)
 
-### Affected files:
+### Affected files
 
 1. `tests/models/test_alexnet_layers.mojo` — 224×224 forward pass, heavy
 2. `tests/models/test_mobilenetv1_e2e.mojo` — full model E2E
@@ -181,7 +181,7 @@ tests into separate CI jobs or increasing container resources.
 
 ## Category F: Non-deterministic (passes on re-run) — 5 files (FALSE POSITIVE)
 
-### Affected files:
+### Affected files
 
 1. `tests/models/test_alexnet_layers.mojo` — passes on re-run
 2. `tests/odyssey/core/test_backward_conv_padding.mojo` — passes on re-run

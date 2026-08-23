@@ -206,9 +206,9 @@ def measure_benchmark[
         except:
             pass  # Ignore errors during warmup
 
-    var total_duration_us: UInt = 0
-    var min_duration_us: UInt = UInt(MAX_INT64)
-    var max_duration_us: UInt = 0
+    var total_duration_us = 0
+    var min_duration_us = Int(MAX_INT64)
+    var max_duration_us = 0
 
     # Run multiple times to get stable measurements
     for _ in range(iterations):
@@ -230,7 +230,7 @@ def measure_benchmark[
             max_duration_us = duration_us
 
     # Convert microseconds to milliseconds
-    var mean_duration_us = total_duration_us / UInt(iterations)
+    var mean_duration_us = total_duration_us / iterations
     var duration_ms = Float64(mean_duration_us) / 1000.0
     var min_ms = Float64(min_duration_us) / 1000.0
     var max_ms = Float64(max_duration_us) / 1000.0
@@ -273,10 +273,10 @@ def format_timestamp() -> String:
     # January 1, 1970 00:00:00 UTC is Unix epoch
 
     # Calculate components (simplified - doesn't handle leap years perfectly)
-    var SECONDS_PER_MINUTE: UInt = 60
-    var SECONDS_PER_HOUR: UInt = 3600
-    var SECONDS_PER_DAY: UInt = 86400
-    var DAYS_PER_YEAR: UInt = 365
+    var SECONDS_PER_MINUTE = 60
+    var SECONDS_PER_HOUR = 3600
+    var SECONDS_PER_DAY = 86400
+    var DAYS_PER_YEAR = 365
 
     # Approximate year (will be off for leap years, but close enough for benchmarks)
     var years_since_epoch = timestamp_s // (DAYS_PER_YEAR * SECONDS_PER_DAY)

@@ -19,7 +19,7 @@ def main() raises:
     var input = zeros([2, 3, 32, 32], DType.float32)
     var input_data = input._data.unsafe_bitcast[Float32]()
     for i in range(2 * 3 * 32 * 32):
-        input_data[i] = Float32(0.1)
+        input_data[unsafe_offset=i] = Float32(0.1)
     print("✓ Input created")
 
     print("\nTesting inference mode...")

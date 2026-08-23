@@ -211,7 +211,7 @@ def train_batch(
     loss.backward(tape)
 
     # Extract loss value for logging before consuming `loss` below.
-    var loss_value = loss.data._data.unsafe_bitcast[Float32]()[0]
+    var loss_value = loss.data._data.unsafe_bitcast[Float32]()[unsafe_offset=0]
 
     # ========== Parameter Update (SGD) ==========
     # Move all trainable Variables into the parameters list (Variable is not
