@@ -48,7 +48,7 @@ def test_has_nan_first_element() raises:
     """Detect NaN at index 0 (first SIMD chunk, early exit)."""
     print("Testing has_nan with NaN at first element...")
     var tensor = full(_shape1(32), 1.0, DType.float32)
-    var ptr = tensor._data.unsafe_bitcast[Float32]()
+    var ptr = tensor.data_ptr[DType.float32]()
     ptr[unsafe_offset=0] = nan[DType.float32]()
     if not has_nan(tensor):
         raise Error("has_nan should detect NaN at index 0")
@@ -61,7 +61,7 @@ def test_has_nan_tail_element() raises:
     print("Testing has_nan with NaN in scalar tail...")
     # Size 19: with SIMD width 8, tail is elements 16..18
     var tensor = full(_shape1(19), 1.0, DType.float32)
-    var ptr = tensor._data.unsafe_bitcast[Float32]()
+    var ptr = tensor.data_ptr[DType.float32]()
     ptr[unsafe_offset=18] = nan[DType.float32]()
     if not has_nan(tensor):
         raise Error("has_nan should detect NaN in scalar tail")
@@ -72,7 +72,7 @@ def test_has_nan_small_tensor() raises:
     """Detect NaN in tensor smaller than SIMD width (pure scalar path)."""
     print("Testing has_nan with small tensor (< SIMD width)...")
     var tensor = full(_shape1(3), 0.5, DType.float32)
-    var ptr = tensor._data.unsafe_bitcast[Float32]()
+    var ptr = tensor.data_ptr[DType.float32]()
     ptr[unsafe_offset=1] = nan[DType.float32]()
     if not has_nan(tensor):
         raise Error("has_nan should detect NaN in small tensor")
@@ -85,14 +85,14 @@ def test_has_inf_positive_and_negative() raises:
 
     # Test +Inf
     var t1 = full(_shape1(16), 1.0, DType.float32)
-    var p1 = t1._data.unsafe_bitcast[Float32]()
+    var p1 = t1.data_ptr[DType.float32]()
     p1[unsafe_offset=7] = inf[DType.float32]()
     if not has_inf(t1):
         raise Error("has_inf should detect +Inf")
 
     # Test -Inf
     var t2 = full(_shape1(16), 1.0, DType.float32)
-    var p2 = t2._data.unsafe_bitcast[Float32]()
+    var p2 = t2.data_ptr[DType.float32]()
     p2[unsafe_offset=15] = -inf[DType.float32]()
     if not has_inf(t2):
         raise Error("has_inf should detect -Inf")
@@ -108,7 +108,7 @@ def test_count_nan_mixed() raises:
     """Count NaNs scattered across SIMD chunks and scalar tail."""
     print("Testing count_nan with scattered NaNs...")
     var tensor = full(_shape1(20), 1.0, DType.float32)
-    var ptr = tensor._data.unsafe_bitcast[Float32]()
+    var ptr = tensor.data_ptr[DType.float32]()
     # Place NaNs at indices 0, 5, 10, 19 (across SIMD chunks + tail)
     ptr[unsafe_offset=0] = nan[DType.float32]()
     ptr[unsafe_offset=5] = nan[DType.float32]()
@@ -124,7 +124,7 @@ def test_count_inf_mixed() raises:
     """Count both +Inf and -Inf correctly."""
     print("Testing count_inf with mixed Inf values...")
     var tensor = full(_shape1(20), 0.5, DType.float32)
-    var ptr = tensor._data.unsafe_bitcast[Float32]()
+    var ptr = tensor.data_ptr[DType.float32]()
     ptr[unsafe_offset=3] = inf[DType.float32]()
     ptr[unsafe_offset=9] = -inf[DType.float32]()
     ptr[unsafe_offset=17] = inf[DType.float32]()
@@ -138,7 +138,7 @@ def test_has_nan_float64() raises:
     """Verify NaN detection works with float64 dtype."""
     print("Testing has_nan with float64...")
     var tensor = full(_shape1(10), 1.0, DType.float64)
-    var ptr = tensor._data.unsafe_bitcast[Float64]()
+    var ptr = tensor.data_ptr[DType.float64]()
     ptr[unsafe_offset=7] = nan[DType.float64]()
     if not has_nan(tensor):
         raise Error("has_nan should detect NaN in float64 tensor")
@@ -154,7 +154,7 @@ def test_count_nan_large_tensor() raises:
     """Validate count_nan on large tensor exercising full SIMD path."""
     print("Testing count_nan with large tensor (1024 elements)...")
     var tensor = full(_shape1(1024), 1.0, DType.float32)
-    var ptr = tensor._data.unsafe_bitcast[Float32]()
+    var ptr = tensor.data_ptr[DType.float32]()
     # Place 5 NaNs at various positions
     ptr[unsafe_offset=0] = nan[DType.float32]()
     ptr[unsafe_offset=100] = nan[DType.float32]()
@@ -182,7 +182,7 @@ def test_has_nan_float16_small_tensor() raises:
     """
     print("Testing has_nan with float16 small tensor (size 3)...")
     var tensor = full(_shape1(3), 1.0, DType.float16)
-    var ptr = tensor._data.unsafe_bitcast[Float16]()
+    var ptr = tensor.data_ptr[DType.float16]()
     ptr[unsafe_offset=1] = nan[DType.float16]()
     if not has_nan(tensor):
         raise Error("has_nan should detect NaN in float16 small tensor")
@@ -204,7 +204,7 @@ def test_has_nan_float16_tail_region() raises:
     """
     print("Testing has_nan with float16 NaN in tail region (size 19)...")
     var tensor = full(_shape1(19), 1.0, DType.float16)
-    var ptr = tensor._data.unsafe_bitcast[Float16]()
+    var ptr = tensor.data_ptr[DType.float16]()
     ptr[unsafe_offset=18] = nan[DType.float16]()
     if not has_nan(tensor):
         raise Error("has_nan should detect NaN in float16 tail region")
@@ -228,7 +228,7 @@ def test_has_inf_float16_near_overflow() raises:
 
     # Tensor with explicit +Inf
     var inf_tensor = full(_shape1(8), 1.0, DType.float16)
-    var ptr = inf_tensor._data.unsafe_bitcast[Float16]()
+    var ptr = inf_tensor.data_ptr[DType.float16]()
     ptr[unsafe_offset=4] = inf[DType.float16]()
     if not has_inf(inf_tensor):
         raise Error("has_inf should detect +Inf in float16 tensor")
@@ -239,7 +239,7 @@ def test_count_nan_float16_mixed() raises:
     """Count NaNs scattered across float16 SIMD chunks and scalar tail."""
     print("Testing count_nan with float16 scattered NaNs (size 20)...")
     var tensor = full(_shape1(20), 1.0, DType.float16)
-    var ptr = tensor._data.unsafe_bitcast[Float16]()
+    var ptr = tensor.data_ptr[DType.float16]()
     # Place NaNs across SIMD chunks and tail region
     ptr[unsafe_offset=0] = nan[DType.float16]()
     ptr[unsafe_offset=7] = nan[DType.float16]()

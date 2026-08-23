@@ -1618,6 +1618,22 @@ struct AnyTensor(
             origin_of(self)
         ]()
 
+    @always_inline
+    def refcount(mut self) -> Int:
+        """Get the current shared reference count, tied to this tensor's lifetime.
+
+        WAR for modular/modular#6963 (premature `__deinit__` UAF, same class
+        as #6959/#6707): reading `_refcount` directly on an owned local can
+        hoist this tensor's `__deinit__` to right after the field access,
+        freeing the refcount pointer before it is dereferenced. Taking `mut
+        self` (a `MutOrigin`) keeps the tensor alive for the duration of the
+        read, exactly like `data_ptr`.
+
+        Returns:
+            The current reference count (1 for a freshly-created tensor).
+        """
+        return self._refcount[]
+
     def _fill_zero(mut self):
         """Internal: Fill tensor with zeros (works for all dtypes)."""
         var dtype_size = self._get_dtype_size()

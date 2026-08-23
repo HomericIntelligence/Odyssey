@@ -65,17 +65,17 @@ def test_add_values() raises:
     var result = add(a, b)
 
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=0],
+        result.load[DType.float32](0),
         Float32(5.0),
         tolerance=1e-5,
     )
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=1],
+        result.load[DType.float32](1),
         Float32(7.0),
         tolerance=1e-5,
     )
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=2],
+        result.load[DType.float32](2),
         Float32(9.0),
         tolerance=1e-5,
     )
@@ -147,12 +147,12 @@ def test_add_backward() raises:
     # Gradient of add is just pass-through
     for i in range(6):
         assert_almost_equal(
-            grad_a._data.unsafe_bitcast[Float32]()[unsafe_offset=i],
+            grad_a.load[DType.float32](i),
             Float32(1.0),
             tolerance=1e-5,
         )
         assert_almost_equal(
-            grad_b._data.unsafe_bitcast[Float32]()[unsafe_offset=i],
+            grad_b.load[DType.float32](i),
             Float32(1.0),
             tolerance=1e-5,
         )
@@ -190,17 +190,17 @@ def test_subtract_values() raises:
     var result = subtract(a, b)
 
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=0],
+        result.load[DType.float32](0),
         Float32(3.0),
         tolerance=1e-5,
     )
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=1],
+        result.load[DType.float32](1),
         Float32(4.0),
         tolerance=1e-5,
     )
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=2],
+        result.load[DType.float32](2),
         Float32(5.0),
         tolerance=1e-5,
     )
@@ -272,12 +272,12 @@ def test_subtract_backward() raises:
     # Gradient of subtract: d/da = +1, d/db = -1
     for i in range(6):
         assert_almost_equal(
-            grad_a._data.unsafe_bitcast[Float32]()[unsafe_offset=i],
+            grad_a.load[DType.float32](i),
             Float32(1.0),
             tolerance=1e-5,
         )
         assert_almost_equal(
-            grad_b._data.unsafe_bitcast[Float32]()[unsafe_offset=i],
+            grad_b.load[DType.float32](i),
             Float32(-1.0),
             tolerance=1e-5,
         )
@@ -315,17 +315,17 @@ def test_multiply_values() raises:
     var result = multiply(a, b)
 
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=0],
+        result.load[DType.float32](0),
         Float32(10.0),
         tolerance=1e-5,
     )
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=1],
+        result.load[DType.float32](1),
         Float32(18.0),
         tolerance=1e-5,
     )
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=2],
+        result.load[DType.float32](2),
         Float32(28.0),
         tolerance=1e-5,
     )
@@ -411,22 +411,22 @@ def test_multiply_backward() raises:
 
     # Gradient of multiply: d/da = b, d/db = a
     assert_almost_equal(
-        grad_a._data.unsafe_bitcast[Float32]()[unsafe_offset=0],
+        grad_a.load[DType.float32](0),
         Float32(4.0),
         tolerance=1e-5,
     )
     assert_almost_equal(
-        grad_a._data.unsafe_bitcast[Float32]()[unsafe_offset=1],
+        grad_a.load[DType.float32](1),
         Float32(5.0),
         tolerance=1e-5,
     )
     assert_almost_equal(
-        grad_b._data.unsafe_bitcast[Float32]()[unsafe_offset=0],
+        grad_b.load[DType.float32](0),
         Float32(2.0),
         tolerance=1e-5,
     )
     assert_almost_equal(
-        grad_b._data.unsafe_bitcast[Float32]()[unsafe_offset=1],
+        grad_b.load[DType.float32](1),
         Float32(3.0),
         tolerance=1e-5,
     )
@@ -464,17 +464,17 @@ def test_divide_values() raises:
     var result = divide(a, b)
 
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=0],
+        result.load[DType.float32](0),
         Float32(5.0),
         tolerance=1e-5,
     )
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=1],
+        result.load[DType.float32](1),
         Float32(5.0),
         tolerance=1e-5,
     )
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=2],
+        result.load[DType.float32](2),
         Float32(6.0),
         tolerance=1e-5,
     )
@@ -552,22 +552,22 @@ def test_divide_backward() raises:
     # d/db[1] = -20/16 = -1.25
 
     assert_almost_equal(
-        grad_a._data.unsafe_bitcast[Float32]()[unsafe_offset=0],
+        grad_a.load[DType.float32](0),
         Float32(0.5),
         tolerance=1e-5,
     )
     assert_almost_equal(
-        grad_a._data.unsafe_bitcast[Float32]()[unsafe_offset=1],
+        grad_a.load[DType.float32](1),
         Float32(0.25),
         tolerance=1e-5,
     )
     assert_almost_equal(
-        grad_b._data.unsafe_bitcast[Float32]()[unsafe_offset=0],
+        grad_b.load[DType.float32](0),
         Float32(-2.5),
         tolerance=1e-4,
     )
     assert_almost_equal(
-        grad_b._data.unsafe_bitcast[Float32]()[unsafe_offset=1],
+        grad_b.load[DType.float32](1),
         Float32(-1.25),
         tolerance=1e-4,
     )
@@ -606,17 +606,17 @@ def test_floor_divide_values() raises:
 
     # 7 // 2 = 3, 8 // 3 = 2, 9 // 4 = 2
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=0],
+        result.load[DType.float32](0),
         Float32(3.0),
         tolerance=1e-5,
     )
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=1],
+        result.load[DType.float32](1),
         Float32(2.0),
         tolerance=1e-5,
     )
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=2],
+        result.load[DType.float32](2),
         Float32(2.0),
         tolerance=1e-5,
     )
@@ -688,17 +688,17 @@ def test_modulo_values() raises:
 
     # 7 % 3 = 1, 8 % 5 = 3, 9 % 4 = 1
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=0],
+        result.load[DType.float32](0),
         Float32(1.0),
         tolerance=1e-5,
     )
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=1],
+        result.load[DType.float32](1),
         Float32(3.0),
         tolerance=1e-5,
     )
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=2],
+        result.load[DType.float32](2),
         Float32(1.0),
         tolerance=1e-5,
     )
@@ -773,17 +773,17 @@ def test_power_values() raises:
 
     # 2^3 = 8, 3^2 = 9, 4^0.5 = 2
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=0],
+        result.load[DType.float32](0),
         Float32(8.0),
         tolerance=1e-5,
     )
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=1],
+        result.load[DType.float32](1),
         Float32(9.0),
         tolerance=1e-5,
     )
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=2],
+        result.load[DType.float32](2),
         Float32(2.0),
         tolerance=1e-5,
     )

@@ -54,7 +54,7 @@ def _make_batch() raises -> Tuple[AnyTensor, AnyTensor]:
     # AnyTensor.store[dtype](index, value) writes to
     # self._data.unsafe_bitcast[Scalar[dtype]]()[index] (see any_tensor.mojo), the
     # same flat-index bitcast pattern production code uses for element access
-    # (e.g. loss_t._data.unsafe_bitcast[Float32]()[unsafe_offset=0] in train.mojo). Tensors are
+    # (e.g. loss_t.load[DType.float32](0) in train.mojo). Tensors are
     # stored contiguously in row-major order, so `row * num_classes + col`
     # is the correct flat index for element (row, col) of a (rows, cols)
     # tensor.

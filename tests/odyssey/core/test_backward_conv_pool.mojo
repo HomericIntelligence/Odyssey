@@ -267,22 +267,22 @@ def test_maxpool2d_backward_gradient_routing() raises:
     )
 
     assert_almost_equal(
-        grad_input._data.unsafe_bitcast[Float32]()[unsafe_offset=0],
+        grad_input.load[DType.float32](0),
         Float32(0.0),
         tolerance=1e-5,
     )
     assert_almost_equal(
-        grad_input._data.unsafe_bitcast[Float32]()[unsafe_offset=1],
+        grad_input.load[DType.float32](1),
         Float32(0.0),
         tolerance=1e-5,
     )
     assert_almost_equal(
-        grad_input._data.unsafe_bitcast[Float32]()[unsafe_offset=2],
+        grad_input.load[DType.float32](2),
         Float32(0.0),
         tolerance=1e-5,
     )
     assert_almost_equal(
-        grad_input._data.unsafe_bitcast[Float32]()[unsafe_offset=3],
+        grad_input.load[DType.float32](3),
         Float32(1.0),
         tolerance=1e-5,
     )
@@ -326,22 +326,22 @@ def test_avgpool2d_backward_gradient_distribution() raises:
     )
 
     assert_almost_equal(
-        grad_input._data.unsafe_bitcast[Float32]()[unsafe_offset=0],
+        grad_input.load[DType.float32](0),
         Float32(0.25),
         tolerance=1e-5,
     )
     assert_almost_equal(
-        grad_input._data.unsafe_bitcast[Float32]()[unsafe_offset=1],
+        grad_input.load[DType.float32](1),
         Float32(0.25),
         tolerance=1e-5,
     )
     assert_almost_equal(
-        grad_input._data.unsafe_bitcast[Float32]()[unsafe_offset=2],
+        grad_input.load[DType.float32](2),
         Float32(0.25),
         tolerance=1e-5,
     )
     assert_almost_equal(
-        grad_input._data.unsafe_bitcast[Float32]()[unsafe_offset=3],
+        grad_input.load[DType.float32](3),
         Float32(0.25),
         tolerance=1e-5,
     )

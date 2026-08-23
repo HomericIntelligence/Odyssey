@@ -4,7 +4,7 @@ This module provides pure functional implementations of pooling operations.
 All operations are stateless - caller provides all inputs.
 """
 
-from odyssey.core.parallel_utils import parallelize
+from std.runtime.asyncrt import TaskGroup, parallelism_level
 from std.collections import List
 
 from odyssey.tensor.any_tensor import AnyTensor
@@ -165,7 +165,31 @@ def maxpool2d(
                         )
                         output._set_float64(out_idx, max_val)
 
-        parallelize[maxpool_batch](batch)
+        # FM-G WAR (modular/modular#6965): on Mojo 1.0.0 a capturing closure
+        # passed as a function-value parameter has its captures destroyed at
+        # closure-construction (premature __deinit__ -> UAF). Dispatch inline
+        # via TaskGroup so the closure never crosses a function-value boundary.
+        var num_workers = parallelism_level()
+        if num_workers > batch:
+            num_workers = batch
+        if num_workers <= 1:
+            for b in range(batch):
+                maxpool_batch(b)
+        else:
+            var chunk_size, extra_items = divmod(batch, num_workers)
+
+            @parameter
+            async def maxpool_worker(thread_idx: Int):
+                var start_idx = thread_idx * chunk_size + min(
+                    thread_idx, extra_items
+                )
+                for i in range(chunk_size + Int(thread_idx < extra_items)):
+                    maxpool_batch(start_idx + i)
+
+            var tg = TaskGroup()
+            for t in range(num_workers):
+                tg.create_task(maxpool_worker(t))
+            tg.wait()
     else:
         # Sequential maxpool for small batches
         for b in range(batch):

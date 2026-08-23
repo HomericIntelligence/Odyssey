@@ -243,7 +243,7 @@ def test_sequential2_forward_identity_chain() raises:
     var n = output.numel()
     for i in range(n):
         assert_almost_equal(
-            output._data.unsafe_bitcast[Float32]()[unsafe_offset=i],
+            output.load[DType.float32](i),
             Float32(1.0),
             tolerance=1e-6,
         )
@@ -266,7 +266,7 @@ def test_sequential2_forward_values() raises:
     var n = output.numel()
     for i in range(n):
         assert_almost_equal(
-            output._data.unsafe_bitcast[Float32]()[unsafe_offset=i],
+            output.load[DType.float32](i),
             Float32(0.25),
             tolerance=1e-6,
         )
@@ -292,7 +292,7 @@ def test_sequential2_forward_order() raises:
     var n = output.numel()
     for i in range(n):
         assert_almost_equal(
-            output._data.unsafe_bitcast[Float32]()[unsafe_offset=i],
+            output.load[DType.float32](i),
             Float32(1.0),
             tolerance=1e-6,
         )
@@ -364,7 +364,7 @@ def test_sequential2_zero_input() raises:
     var n = output.numel()
     for i in range(n):
         assert_almost_equal(
-            output._data.unsafe_bitcast[Float32]()[unsafe_offset=i],
+            output.load[DType.float32](i),
             Float32(0.0),
             tolerance=1e-6,
         )
@@ -390,7 +390,7 @@ def test_sequential3_forward_chain() raises:
     var n = output.numel()
     for i in range(n):
         assert_almost_equal(
-            output._data.unsafe_bitcast[Float32]()[unsafe_offset=i],
+            output.load[DType.float32](i),
             Float32(0.125),
             tolerance=1e-6,
         )

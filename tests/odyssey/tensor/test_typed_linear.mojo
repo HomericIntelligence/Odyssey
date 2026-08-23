@@ -81,25 +81,25 @@ def test_linear_identity_weight_correctness() raises:
     var layer = Linear(2, 2)
 
     # Set weight to identity
-    var weight_data = layer.weight._data.unsafe_bitcast[Float32]()
+    var weight_data = layer.weight.data_ptr[DType.float32]()
     weight_data[unsafe_offset=0] = 1.0
     weight_data[unsafe_offset=1] = 0.0
     weight_data[unsafe_offset=2] = 0.0
     weight_data[unsafe_offset=3] = 1.0
 
     # Set bias to [0.25, 0.5]
-    var bias_data = layer.bias._data.unsafe_bitcast[Float32]()
+    var bias_data = layer.bias.data_ptr[DType.float32]()
     bias_data[unsafe_offset=0] = 0.25
     bias_data[unsafe_offset=1] = 0.5
 
     # Create input [1.0, 0.5]
     var input = ones([1, 2], DType.float32)
-    var in_data = input._data.unsafe_bitcast[Float32]()
+    var in_data = input.data_ptr[DType.float32]()
     in_data[unsafe_offset=0] = 1.0
     in_data[unsafe_offset=1] = 0.5
 
     var output = layer.forward(input)
-    var out_data = output._data.unsafe_bitcast[Float32]()
+    var out_data = output.data_ptr[DType.float32]()
     # Expected: [1.0*1 + 0.5*0 + 0.25, 1.0*0 + 0.5*1 + 0.5] = [1.25, 1.0]
     assert_almost_equal(out_data[unsafe_offset=0], Float32(1.25), atol=1e-5)
     assert_almost_equal(out_data[unsafe_offset=1], Float32(1.0), atol=1e-5)
@@ -111,12 +111,12 @@ def test_linear_zero_bias() raises:
     var layer = Linear(3, 2)
 
     # Zero out bias
-    var bias_data = layer.bias._data.unsafe_bitcast[Float32]()
+    var bias_data = layer.bias.data_ptr[DType.float32]()
     bias_data[unsafe_offset=0] = 0.0
     bias_data[unsafe_offset=1] = 0.0
 
     # Set weight to known values: [[1, 0], [0, 1], [1, 1]]
-    var weight_data = layer.weight._data.unsafe_bitcast[Float32]()
+    var weight_data = layer.weight.data_ptr[DType.float32]()
     weight_data[unsafe_offset=0] = 1.0
     weight_data[unsafe_offset=1] = 0.0
     weight_data[unsafe_offset=2] = 0.0
@@ -126,13 +126,13 @@ def test_linear_zero_bias() raises:
 
     # Input: [1.0, 0.5, 0.25]
     var input = zeros([1, 3], DType.float32)
-    var in_data = input._data.unsafe_bitcast[Float32]()
+    var in_data = input.data_ptr[DType.float32]()
     in_data[unsafe_offset=0] = 1.0
     in_data[unsafe_offset=1] = 0.5
     in_data[unsafe_offset=2] = 0.25
 
     var output = layer.forward(input)
-    var out_data = output._data.unsafe_bitcast[Float32]()
+    var out_data = output.data_ptr[DType.float32]()
     # Expected: [1*1 + 0.5*0 + 0.25*1, 1*0 + 0.5*1 + 0.25*1] = [1.25, 0.75]
     assert_almost_equal(out_data[unsafe_offset=0], Float32(1.25), atol=1e-5)
     assert_almost_equal(out_data[unsafe_offset=1], Float32(0.75), atol=1e-5)

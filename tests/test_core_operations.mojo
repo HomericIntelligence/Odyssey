@@ -62,7 +62,7 @@ def test_initializers_with_activations() raises:
 
     # Verify output is in valid range [0, 1]
     for i in range(100):
-        var val = sigmoid_output._data.unsafe_bitcast[Float32]()[unsafe_offset=i]
+        var val = sigmoid_output.load[DType.float32](i)
         assert_true(val >= 0.0 and val <= 1.0, "Sigmoid output in [0,1]")
 
     # Kaiming initialization (for ReLU)
@@ -74,7 +74,7 @@ def test_initializers_with_activations() raises:
     # Verify ReLU zeroed negative values
     var has_positive = False
     for i in range(100):
-        var val = relu_output._data.unsafe_bitcast[Float32]()[unsafe_offset=i]
+        var val = relu_output.load[DType.float32](i)
         assert_true(val >= 0.0, "ReLU output non-negative")
         if val > 0.0:
             has_positive = True
@@ -264,10 +264,7 @@ def test_seed_reproducibility_across_components() raises:
     # Verify identical
     var identical = True
     for i in range(100):  # Check first 100 elements
-        if (
-            init1._data.unsafe_bitcast[Float32]()[unsafe_offset=i]
-            != init2._data.unsafe_bitcast[Float32]()[unsafe_offset=i]
-        ):
+        if init1.load[DType.float32](i) != init2.load[DType.float32](i):
             identical = False
             break
 
@@ -278,10 +275,7 @@ def test_seed_reproducibility_across_components() raises:
 
     var different = False
     for i in range(100):
-        if (
-            init1._data.unsafe_bitcast[Float32]()[unsafe_offset=i]
-            != init3._data.unsafe_bitcast[Float32]()[unsafe_offset=i]
-        ):
+        if init1.load[DType.float32](i) != init3.load[DType.float32](i):
             different = True
             break
 
@@ -345,8 +339,8 @@ def test_batch_processing_pipeline() raises:
     assert_true(final_acc >= 0.0 and final_acc <= 1.0, "Accuracy in [0,1]")
 
     for i in range(num_classes):
-        var p = precision._data.unsafe_bitcast[Float64]()[unsafe_offset=i]
-        var r = recall._data.unsafe_bitcast[Float64]()[unsafe_offset=i]
+        var p = precision.load[DType.float64](i)
+        var r = recall.load[DType.float64](i)
         assert_true(p >= 0.0 and p <= 1.0, "Precision in [0,1]")
         assert_true(r >= 0.0 and r <= 1.0, "Recall in [0,1]")
 

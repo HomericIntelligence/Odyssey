@@ -148,22 +148,22 @@ def test_matmul_values() raises:
     # Result = [[1*5+2*7, 1*6+2*8], [3*5+4*7, 3*6+4*8]]
     #        = [[19, 22], [43, 50]]
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=0],
+        result.load[DType.float32](0),
         Float32(19.0),
         tolerance=1e-5,
     )
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=1],
+        result.load[DType.float32](1),
         Float32(22.0),
         tolerance=1e-5,
     )
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=2],
+        result.load[DType.float32](2),
         Float32(43.0),
         tolerance=1e-5,
     )
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=3],
+        result.load[DType.float32](3),
         Float32(50.0),
         tolerance=1e-5,
     )
@@ -192,8 +192,8 @@ def test_matmul_identity() raises:
     # A @ I = A
     for i in range(9):
         assert_almost_equal(
-            result._data.unsafe_bitcast[Float32]()[unsafe_offset=i],
-            a._data.unsafe_bitcast[Float32]()[unsafe_offset=i],
+            result.load[DType.float32](i),
+            a.load[DType.float32](i),
             tolerance=1e-5,
         )
 
@@ -666,32 +666,32 @@ def test_transpose_values() raises:
 
     # A^T = [[1, 4], [2, 5], [3, 6]]
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=0],
+        result.load[DType.float32](0),
         Float32(1.0),
         tolerance=1e-5,
     )
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=1],
+        result.load[DType.float32](1),
         Float32(4.0),
         tolerance=1e-5,
     )
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=2],
+        result.load[DType.float32](2),
         Float32(2.0),
         tolerance=1e-5,
     )
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=3],
+        result.load[DType.float32](3),
         Float32(5.0),
         tolerance=1e-5,
     )
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=4],
+        result.load[DType.float32](4),
         Float32(3.0),
         tolerance=1e-5,
     )
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=5],
+        result.load[DType.float32](5),
         Float32(6.0),
         tolerance=1e-5,
     )
@@ -714,8 +714,8 @@ def test_transpose_double() raises:
     # Should get back original
     for i in range(12):
         assert_almost_equal(
-            result._data.unsafe_bitcast[Float32]()[unsafe_offset=i],
-            a._data.unsafe_bitcast[Float32]()[unsafe_offset=i],
+            result.load[DType.float32](i),
+            a.load[DType.float32](i),
             tolerance=1e-5,
         )
 
@@ -938,17 +938,17 @@ def test_transpose_axes_2d_simple() raises:
     # Check actual values: result[i,j] = input[j,i]
     # result[0,0] = input[0,0] = 0, result[0,1] = input[1,0] = 4, result[0,2] = input[2,0] = 8
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=0],
+        result.load[DType.float32](0),
         Float32(0.0),
         tolerance=1e-5,
     )
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=1],
+        result.load[DType.float32](1),
         Float32(4.0),
         tolerance=1e-5,
     )
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=2],
+        result.load[DType.float32](2),
         Float32(8.0),
         tolerance=1e-5,
     )
@@ -1244,8 +1244,8 @@ def test_transpose_axes_double_permutation() raises:
     # Check values are recovered
     for i in range(24):
         assert_almost_equal(
-            t_recovered._data.unsafe_bitcast[Float32]()[unsafe_offset=i],
-            t._data.unsafe_bitcast[Float32]()[unsafe_offset=i],
+            t_recovered.load[DType.float32](i),
+            t.load[DType.float32](i),
             tolerance=1e-5,
         )
 
@@ -1285,7 +1285,7 @@ def test_dot_values() raises:
 
     # 1*4 + 2*5 + 3*6 = 4 + 10 + 18 = 32
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=0],
+        result.load[DType.float32](0),
         Float32(32.0),
         tolerance=1e-5,
     )
@@ -1310,7 +1310,7 @@ def test_dot_orthogonal() raises:
 
     # Orthogonal vectors have dot product = 0
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=0],
+        result.load[DType.float32](0),
         Float32(0.0),
         tolerance=1e-5,
     )
@@ -1439,32 +1439,32 @@ def test_outer_values() raises:
     # Outer product = [[2*4, 2*5, 2*6], [3*4, 3*5, 3*6]]
     #                = [[8, 10, 12], [12, 15, 18]]
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=0],
+        result.load[DType.float32](0),
         Float32(8.0),
         tolerance=1e-5,
     )
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=1],
+        result.load[DType.float32](1),
         Float32(10.0),
         tolerance=1e-5,
     )
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=2],
+        result.load[DType.float32](2),
         Float32(12.0),
         tolerance=1e-5,
     )
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=3],
+        result.load[DType.float32](3),
         Float32(12.0),
         tolerance=1e-5,
     )
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=4],
+        result.load[DType.float32](4),
         Float32(15.0),
         tolerance=1e-5,
     )
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=5],
+        result.load[DType.float32](5),
         Float32(18.0),
         tolerance=1e-5,
     )

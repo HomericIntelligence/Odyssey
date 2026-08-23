@@ -10,6 +10,16 @@ with the `mojo` PyPI wheel. This module re-implements the same contract on
 top of the stdlib's async runtime (`std.runtime.asyncrt.TaskGroup`): work
 items are distributed across the runtime's worker threads and executed in
 parallel, matching the semantics of the removed `std.algorithm.parallelize`.
+
+FM-G caveat (modular/modular#6965): on Mojo 1.0.0, passing a capturing
+closure whose captures own heap memory as a function-value parameter
+destroys those captures at closure-construction time (premature
+`__deinit__` -> use-after-free). `parallelize` is therefore only safe when
+the closure captures scalars, or when every owned capture is used again in
+the enclosing frame after the call (keep-alive). Heap-owning captures that
+are not re-used afterwards (e.g. tensors) must dispatch inline via
+`TaskGroup` instead — see the batched paths in `pooling.mojo`, `conv.mojo`,
+and `normalization.mojo` for the canonical inline pattern.
 """
 
 from std.runtime.asyncrt import TaskGroup, parallelism_level
@@ -52,6 +62,11 @@ def parallelize[
     Args:
         num_work_items: Number of work items.
         num_workers: Number of worker threads (0 = runtime decides).
+
+    Note:
+        See the module docstring for the FM-G caveat (modular/modular#6965):
+        do not pass closures that capture heap-owning locals unless they are
+        kept alive afterwards.
     """
     if num_work_items <= 0:
         return

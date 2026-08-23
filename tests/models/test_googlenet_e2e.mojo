@@ -252,7 +252,7 @@ def concatenate_depthwise(
     var total_channels = c1 + c2 + c3 + c4
     var result = zeros([batch_size, total_channels, height, width], t1.dtype())
 
-    var result_data = result._data.unsafe_bitcast[Float32]()
+    var result_data = result.data_ptr[DType.float32]()
     var t1_data = t1._data.unsafe_bitcast[Float32]()
     var t2_data = t2._data.unsafe_bitcast[Float32]()
     var t3_data = t3._data.unsafe_bitcast[Float32]()
@@ -265,19 +265,25 @@ def concatenate_depthwise(
             for i in range(hw):
                 var src_idx = ((b * c1 + c) * hw) + i
                 var dst_idx = ((b * total_channels + c) * hw) + i
-                result_data[unsafe_offset=dst_idx] = t1_data[unsafe_offset=src_idx]
+                result_data[unsafe_offset=dst_idx] = t1_data[
+                    unsafe_offset=src_idx
+                ]
 
         for c in range(c2):
             for i in range(hw):
                 var src_idx = ((b * c2 + c) * hw) + i
                 var dst_idx = ((b * total_channels + (c1 + c)) * hw) + i
-                result_data[unsafe_offset=dst_idx] = t2_data[unsafe_offset=src_idx]
+                result_data[unsafe_offset=dst_idx] = t2_data[
+                    unsafe_offset=src_idx
+                ]
 
         for c in range(c3):
             for i in range(hw):
                 var src_idx = ((b * c3 + c) * hw) + i
                 var dst_idx = ((b * total_channels + (c1 + c2 + c)) * hw) + i
-                result_data[unsafe_offset=dst_idx] = t3_data[unsafe_offset=src_idx]
+                result_data[unsafe_offset=dst_idx] = t3_data[
+                    unsafe_offset=src_idx
+                ]
 
         for c in range(c4):
             for i in range(hw):
@@ -285,7 +291,9 @@ def concatenate_depthwise(
                 var dst_idx = (
                     (b * total_channels + (c1 + c2 + c3 + c)) * hw
                 ) + i
-                result_data[unsafe_offset=dst_idx] = t4_data[unsafe_offset=src_idx]
+                result_data[unsafe_offset=dst_idx] = t4_data[
+                    unsafe_offset=src_idx
+                ]
 
     return result
 
@@ -552,7 +560,7 @@ def test_googlenet_no_nan_output() raises:
 
     # Create input
     var input = ones([batch_size, 3, 8, 8], DType.float32)
-    var input_data = input._data.unsafe_bitcast[Float32]()
+    var input_data = input.data_ptr[DType.float32]()
     for i in range(input.numel()):
         input_data[unsafe_offset=i] = 0.1
 
@@ -560,7 +568,7 @@ def test_googlenet_no_nan_output() raises:
     var output = model.forward(input, training=False)
 
     # Verify no NaN values
-    var output_data = output._data.unsafe_bitcast[Float32]()
+    var output_data = output.data_ptr[DType.float32]()
     for i in range(output.numel()):
         var val = output_data[unsafe_offset=i]
         # Simple NaN check: NaN != NaN
@@ -582,7 +590,7 @@ def test_googlenet_no_inf_output() raises:
     var output = model.forward(input, training=False)
 
     # Verify no infinite values by checking if finite
-    var output_data = output._data.unsafe_bitcast[Float32]()
+    var output_data = output.data_ptr[DType.float32]()
     for i in range(output.numel()):
         var val = output_data[unsafe_offset=i]
         # Simple finiteness check
@@ -622,7 +630,7 @@ def test_googlenet_reproducible_output() raises:
     """
     var batch_size = 2
     var input = ones([batch_size, 3, 8, 8], DType.float32)
-    var input_data = input._data.unsafe_bitcast[Float32]()
+    var input_data = input.data_ptr[DType.float32]()
     for i in range(input.numel()):
         input_data[unsafe_offset=i] = 0.5
 
@@ -673,7 +681,7 @@ def test_googlenet_inception_module_contribution() raises:
 
     # Create input with known values
     var input = ones([batch_size, 3, 8, 8], DType.float32)
-    var input_data = input._data.unsafe_bitcast[Float32]()
+    var input_data = input.data_ptr[DType.float32]()
     for i in range(input.numel()):
         input_data[unsafe_offset=i] = 0.2
 
@@ -681,10 +689,12 @@ def test_googlenet_inception_module_contribution() raises:
     var output = model.forward(input, training=True)
 
     # Verify output contains values (not all zeros)
-    var output_data = output._data.unsafe_bitcast[Float32]()
+    var output_data = output.data_ptr[DType.float32]()
     var sum_val = Float32(0.0)
     for i in range(output.numel()):
-        sum_val += Float32(output_data[unsafe_offset=i] * output_data[unsafe_offset=i])
+        sum_val += Float32(
+            output_data[unsafe_offset=i] * output_data[unsafe_offset=i]
+        )
 
     assert_true(
         sum_val > 0.0,

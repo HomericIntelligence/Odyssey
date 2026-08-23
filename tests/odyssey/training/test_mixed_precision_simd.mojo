@@ -19,7 +19,7 @@ def test_convert_fp16_to_fp32_small() raises:
 
     # Create small FP16 tensor with known values
     var fp16_params = AnyTensor([8], DType.float16)
-    var fp16_ptr = fp16_params._data.unsafe_bitcast[Float16]()
+    var fp16_ptr = fp16_params.data_ptr[DType.float16]()
 
     # Fill with test values
     for i in range(8):
@@ -32,7 +32,7 @@ def test_convert_fp16_to_fp32_small() raises:
     assert_equal(fp32_result.dtype(), DType.float32, "Result should be float32")
 
     # Verify values are preserved
-    var fp32_ptr = fp32_result._data.unsafe_bitcast[Float32]()
+    var fp32_ptr = fp32_result.data_ptr[DType.float32]()
     for i in range(8):
         var expected = Float32(i + 1)
         var actual = fp32_ptr[unsafe_offset=i]
@@ -51,7 +51,7 @@ def test_convert_fp16_to_fp32_medium() raises:
 
     # Create medium FP16 tensor (256 elements)
     var fp16_params = AnyTensor([16, 16], DType.float16)
-    var fp16_ptr = fp16_params._data.unsafe_bitcast[Float16]()
+    var fp16_ptr = fp16_params.data_ptr[DType.float16]()
 
     # Fill with special values
     var test_values = [
@@ -71,7 +71,7 @@ def test_convert_fp16_to_fp32_medium() raises:
     var fp32_result = convert_to_fp32_master(fp16_params)
 
     # Verify values
-    var fp32_ptr = fp32_result._data.unsafe_bitcast[Float32]()
+    var fp32_ptr = fp32_result.data_ptr[DType.float32]()
     for i in range(256):
         var expected = Float32(test_values[i % 7])
         var actual = fp32_ptr[unsafe_offset=i]
@@ -89,7 +89,7 @@ def test_convert_fp16_to_fp32_large() raises:
 
     # Create large FP16 tensor (1024x1024 = 1M elements)
     var fp16_params = AnyTensor([1024, 1024], DType.float16)
-    var fp16_ptr = fp16_params._data.unsafe_bitcast[Float16]()
+    var fp16_ptr = fp16_params.data_ptr[DType.float16]()
 
     # Fill with incrementing values
     for i in range(1024 * 1024):
@@ -99,7 +99,7 @@ def test_convert_fp16_to_fp32_large() raises:
     var fp32_result = convert_to_fp32_master(fp16_params)
 
     # Spot check values
-    var fp32_ptr = fp32_result._data.unsafe_bitcast[Float32]()
+    var fp32_ptr = fp32_result.data_ptr[DType.float32]()
     for i in [0, 100, 1000, 10000, 100000, 1000000 - 1]:
         var expected = Float32(Float64(i % 100) / 100.0)
         var actual = fp32_ptr[unsafe_offset=i]
@@ -117,7 +117,7 @@ def test_convert_fp32_to_fp16_small() raises:
 
     # Create small FP32 tensor with known values
     var fp32_master = AnyTensor([8], DType.float32)
-    var fp32_ptr = fp32_master._data.unsafe_bitcast[Float32]()
+    var fp32_ptr = fp32_master.data_ptr[DType.float32]()
 
     # Fill with test values
     for i in range(8):
@@ -130,7 +130,7 @@ def test_convert_fp32_to_fp16_small() raises:
     update_model_from_master(fp16_model, fp32_master)
 
     # Verify values
-    var fp16_ptr = fp16_model._data.unsafe_bitcast[Float16]()
+    var fp16_ptr = fp16_model.data_ptr[DType.float16]()
     for i in range(8):
         var expected = Float16(Float32(i + 1))
         var actual = fp16_ptr[unsafe_offset=i]
@@ -148,7 +148,7 @@ def test_convert_fp32_to_fp16_medium() raises:
 
     # Create medium FP32 tensor
     var fp32_master = AnyTensor([16, 16], DType.float32)
-    var fp32_ptr = fp32_master._data.unsafe_bitcast[Float32]()
+    var fp32_ptr = fp32_master.data_ptr[DType.float32]()
 
     # Fill with special values
     var test_values = [
@@ -171,7 +171,7 @@ def test_convert_fp32_to_fp16_medium() raises:
     update_model_from_master(fp16_model, fp32_master)
 
     # Verify values
-    var fp16_ptr = fp16_model._data.unsafe_bitcast[Float16]()
+    var fp16_ptr = fp16_model.data_ptr[DType.float16]()
     for i in range(256):
         var expected = Float16(test_values[i % 7])
         var actual = fp16_ptr[unsafe_offset=i]
@@ -189,7 +189,7 @@ def test_convert_fp32_to_fp16_large() raises:
 
     # Create large FP32 tensor
     var fp32_master = AnyTensor([1024, 1024], DType.float32)
-    var fp32_ptr = fp32_master._data.unsafe_bitcast[Float32]()
+    var fp32_ptr = fp32_master.data_ptr[DType.float32]()
 
     # Fill with incrementing values
     for i in range(1024 * 1024):
@@ -202,7 +202,7 @@ def test_convert_fp32_to_fp16_large() raises:
     update_model_from_master(fp16_model, fp32_master)
 
     # Spot check values
-    var fp16_ptr = fp16_model._data.unsafe_bitcast[Float16]()
+    var fp16_ptr = fp16_model.data_ptr[DType.float16]()
     for i in [0, 100, 1000, 10000, 100000, 1000000 - 1]:
         var expected = Float16(Float32(Float64(i % 100) / 100.0))
         var actual = fp16_ptr[unsafe_offset=i]
@@ -220,7 +220,7 @@ def test_roundtrip_fp16_fp32_fp16() raises:
 
     # Create initial FP16 tensor
     var fp16_original = AnyTensor([64], DType.float16)
-    var fp16_ptr = fp16_original._data.unsafe_bitcast[Float16]()
+    var fp16_ptr = fp16_original.data_ptr[DType.float16]()
 
     for i in range(64):
         fp16_ptr[unsafe_offset=i] = Float16(Float32(Float64(i % 10) / 10.0))
@@ -233,7 +233,7 @@ def test_roundtrip_fp16_fp32_fp16() raises:
     update_model_from_master(fp16_roundtrip, fp32_intermediate)
 
     # Verify roundtrip preserves values (with FP16 precision limits)
-    var fp16_result_ptr = fp16_roundtrip._data.unsafe_bitcast[Float16]()
+    var fp16_result_ptr = fp16_roundtrip.data_ptr[DType.float16]()
     for i in range(64):
         var original = fp16_ptr[unsafe_offset=i]
         var result = fp16_result_ptr[unsafe_offset=i]
@@ -251,7 +251,7 @@ def test_convert_fp32_to_fp32() raises:
 
     # Create FP32 tensor
     var fp32_params = AnyTensor([64], DType.float32)
-    var fp32_ptr = fp32_params._data.unsafe_bitcast[Float32]()
+    var fp32_ptr = fp32_params.data_ptr[DType.float32]()
 
     for i in range(64):
         fp32_ptr[unsafe_offset=i] = Float32(i + 1)
@@ -262,7 +262,7 @@ def test_convert_fp32_to_fp32() raises:
     # Verify dtype and values
     assert_equal(fp32_master.dtype(), DType.float32, "Result should be float32")
 
-    var master_ptr = fp32_master._data.unsafe_bitcast[Float32]()
+    var master_ptr = fp32_master.data_ptr[DType.float32]()
     for i in range(64):
         var expected = Float32(i + 1)
         var actual = master_ptr[unsafe_offset=i]
@@ -285,13 +285,13 @@ def test_non_power_of_2_sizes() raises:
     for size in test_sizes:
         # Test FP16→FP32
         var fp16_tensor = AnyTensor([size], DType.float16)
-        var fp16_ptr = fp16_tensor._data.unsafe_bitcast[Float16]()
+        var fp16_ptr = fp16_tensor.data_ptr[DType.float16]()
 
         for i in range(size):
             fp16_ptr[unsafe_offset=i] = Float16(Float32(i % 10))
 
         var fp32_result = convert_to_fp32_master(fp16_tensor)
-        var fp32_ptr = fp32_result._data.unsafe_bitcast[Float32]()
+        var fp32_ptr = fp32_result.data_ptr[DType.float32]()
 
         for i in range(size):
             var expected = Float32(i % 10)
@@ -303,18 +303,18 @@ def test_non_power_of_2_sizes() raises:
 
         # Test FP32→FP16
         var fp32_tensor = AnyTensor([size], DType.float32)
-        fp32_ptr = fp32_tensor._data.unsafe_bitcast[Float32]()
+        var fp32_ptr2 = fp32_tensor.data_ptr[DType.float32]()
 
         for i in range(size):
-            fp32_ptr[unsafe_offset=i] = Float32(i % 10)
+            fp32_ptr2[unsafe_offset=i] = Float32(i % 10)
 
         var fp16_result = AnyTensor([size], DType.float16)
         update_model_from_master(fp16_result, fp32_tensor)
-        fp16_ptr = fp16_result._data.unsafe_bitcast[Float16]()
+        var fp16_ptr2 = fp16_result.data_ptr[DType.float16]()
 
         for i in range(size):
             var expected = Float16(Float32(i % 10))
-            var actual = fp16_ptr[unsafe_offset=i]
+            var actual = fp16_ptr2[unsafe_offset=i]
             assert_true(
                 abs(Float32(actual) - Float32(expected)) < 0.01,
                 "FP32→FP16 size " + String(size) + " mismatch at " + String(i),

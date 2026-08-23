@@ -195,8 +195,8 @@ def test_xavier_uniform_reproducibility() raises:
 
     # Should be identical
     for i in range(w1.numel()):
-        var val1 = w1._data.unsafe_bitcast[Float32]()[unsafe_offset=i]
-        var val2 = w2._data.unsafe_bitcast[Float32]()[unsafe_offset=i]
+        var val1 = w1.load[DType.float32](i)
+        var val2 = w2.load[DType.float32](i)
         assert_equal(val1, val2)
 
 
@@ -213,8 +213,8 @@ def test_xavier_uniform_different_seeds() raises:
     # Should be different (at least some values)
     var differences = 0
     for i in range(w1.numel()):
-        var val1 = w1._data.unsafe_bitcast[Float32]()[unsafe_offset=i]
-        var val2 = w2._data.unsafe_bitcast[Float32]()[unsafe_offset=i]
+        var val1 = w1.load[DType.float32](i)
+        var val2 = w2.load[DType.float32](i)
         if val1 != val2:
             differences += 1
 
@@ -278,8 +278,8 @@ def test_xavier_normal_reproducibility() raises:
 
     # Should be identical
     for i in range(w1.numel()):
-        var val1 = w1._data.unsafe_bitcast[Float32]()[unsafe_offset=i]
-        var val2 = w2._data.unsafe_bitcast[Float32]()[unsafe_offset=i]
+        var val1 = w1.load[DType.float32](i)
+        var val2 = w2.load[DType.float32](i)
         assert_equal(val1, val2)
 
 
@@ -306,9 +306,7 @@ def test_xavier_configurations() raises:
 
         # Check bounds
         for i in range(w_uniform.numel()):
-            var val = Float64(
-                w_uniform._data.unsafe_bitcast[Float32]()[unsafe_offset=i]
-            )
+            var val = Float64(w_uniform.load[DType.float32](i))
             assert_true(val >= -bound and val <= bound)
 
         # Test normal
@@ -424,8 +422,8 @@ def test_kaiming_uniform_reproducibility() raises:
 
     # Should be identical
     for i in range(w1.numel()):
-        var val1 = w1._data.unsafe_bitcast[Float32]()[unsafe_offset=i]
-        var val2 = w2._data.unsafe_bitcast[Float32]()[unsafe_offset=i]
+        var val1 = w1.load[DType.float32](i)
+        var val2 = w2.load[DType.float32](i)
         assert_equal(val1, val2)
 
 
@@ -489,8 +487,8 @@ def test_kaiming_normal_reproducibility() raises:
 
     # Should be identical
     for i in range(w1.numel()):
-        var val1 = w1._data.unsafe_bitcast[Float32]()[unsafe_offset=i]
-        var val2 = w2._data.unsafe_bitcast[Float32]()[unsafe_offset=i]
+        var val1 = w1.load[DType.float32](i)
+        var val2 = w2.load[DType.float32](i)
         assert_equal(val1, val2)
 
 
@@ -549,8 +547,8 @@ def test_uniform_reproducibility() raises:
 
     # Should be identical
     for i in range(w1.numel()):
-        var val1 = w1._data.unsafe_bitcast[Float32]()[unsafe_offset=i]
-        var val2 = w2._data.unsafe_bitcast[Float32]()[unsafe_offset=i]
+        var val1 = w1.load[DType.float32](i)
+        var val2 = w2.load[DType.float32](i)
         assert_equal(val1, val2)
 
 
@@ -612,8 +610,8 @@ def test_normal_reproducibility() raises:
 
     # Should be identical
     for i in range(w1.numel()):
-        var val1 = w1._data.unsafe_bitcast[Float32]()[unsafe_offset=i]
-        var val2 = w2._data.unsafe_bitcast[Float32]()[unsafe_offset=i]
+        var val1 = w1.load[DType.float32](i)
+        var val2 = w2.load[DType.float32](i)
         assert_equal(val1, val2)
 
 
@@ -639,7 +637,7 @@ def test_constant_value() raises:
     # Check all values are exactly the constant
     for i in range(100):
         assert_almost_equal(
-            W._data.unsafe_bitcast[Float32]()[unsafe_offset=i],
+            W.load[DType.float32](i),
             Float32(value),
             tolerance=1e-5,
         )
@@ -654,7 +652,7 @@ def test_constant_zero() raises:
 
     for i in range(25):
         assert_almost_equal(
-            W._data.unsafe_bitcast[Float32]()[unsafe_offset=i],
+            W.load[DType.float32](i),
             Float32(0.0),
             tolerance=1e-10,
         )
@@ -670,7 +668,7 @@ def test_constant_negative() raises:
 
     for i in range(25):
         assert_almost_equal(
-            W._data.unsafe_bitcast[Float32]()[unsafe_offset=i],
+            W.load[DType.float32](i),
             Float32(value),
             tolerance=1e-5,
         )
@@ -683,17 +681,13 @@ def test_constant_ones_and_zeros() raises:
     # Test ones
     var ones_tensor = constant(shape, 1.0, DType.float32)
     for i in range(ones_tensor.numel()):
-        var val = Float64(
-            ones_tensor._data.unsafe_bitcast[Float32]()[unsafe_offset=i]
-        )
+        var val = Float64(ones_tensor.load[DType.float32](i))
         assert_equal(val, 1.0)
 
     # Test zeros
     var zeros_tensor = constant(shape, 0.0, DType.float32)
     for i in range(zeros_tensor.numel()):
-        var val = Float64(
-            zeros_tensor._data.unsafe_bitcast[Float32]()[unsafe_offset=i]
-        )
+        var val = Float64(zeros_tensor.load[DType.float32](i))
         assert_equal(val, 0.0)
 
 
@@ -769,7 +763,7 @@ def test_uniform_float64() raises:
 
     # Check bounds
     for i in range(weights.numel()):
-        var val = weights._data.unsafe_bitcast[Float64]()[unsafe_offset=i]
+        var val = weights.load[DType.float64](i)
         assert_true(val >= -1.0 and val <= 1.0)
 
 
@@ -794,7 +788,7 @@ def test_constant_float64() raises:
 
     for i in range(100):
         assert_almost_equal(
-            Float32(W._data.unsafe_bitcast[Float64]()[unsafe_offset=i]),
+            Float32(W.load[DType.float64](i)),
             Float32(1.5),
             tolerance=1e-5,
         )

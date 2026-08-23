@@ -49,7 +49,7 @@ def test_has_nan_or_inf_with_nan() raises:
     var tensor = full(shape, 1.0, DType.float64)
 
     # Insert a NaN value
-    var ptr = tensor._data.unsafe_bitcast[Float64]()
+    var ptr = tensor.data_ptr[DType.float64]()
     ptr[unsafe_offset=0] = nan[DType.float64]()
 
     var result = has_nan_or_inf(tensor)
@@ -71,7 +71,7 @@ def test_has_nan_or_inf_with_inf() raises:
     var tensor = full(shape, 1.0, DType.float64)
 
     # Insert an Inf value
-    var ptr = tensor._data.unsafe_bitcast[Float64]()
+    var ptr = tensor.data_ptr[DType.float64]()
     ptr[unsafe_offset=1] = inf[DType.float64]()
 
     var result = has_nan_or_inf(tensor)
@@ -91,7 +91,7 @@ def test_compute_gradient_norm_l2() raises:
     shape.append(2)
 
     var tensor = full(shape, 0.0, DType.float64)
-    var ptr = tensor._data.unsafe_bitcast[Float64]()
+    var ptr = tensor.data_ptr[DType.float64]()
     ptr[unsafe_offset=0] = 3.0
     ptr[unsafe_offset=1] = 4.0
 
@@ -117,7 +117,7 @@ def test_compute_gradient_norm_l1() raises:
     shape.append(3)
 
     var tensor = full(shape, 0.0, DType.float64)
-    var ptr = tensor._data.unsafe_bitcast[Float64]()
+    var ptr = tensor.data_ptr[DType.float64]()
     ptr[unsafe_offset=0] = 1.0
     ptr[unsafe_offset=1] = 2.0
     ptr[unsafe_offset=2] = 3.0
@@ -144,7 +144,7 @@ def test_compute_gradient_norm_multiple_tensors() raises:
     shape1.append(2)
 
     var tensor1 = full(shape1, 0.0, DType.float64)
-    var ptr1 = tensor1._data.unsafe_bitcast[Float64]()
+    var ptr1 = tensor1.data_ptr[DType.float64]()
     ptr1[unsafe_offset=0] = 3.0
     ptr1[unsafe_offset=1] = 4.0
 

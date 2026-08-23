@@ -100,7 +100,7 @@ def test_binary_cross_entropy_backward_edge_cases() raises:
     )
 
     for i in range(4):
-        var grad = grad_pred._data.unsafe_bitcast[Float32]()[unsafe_offset=i]
+        var grad = grad_pred.load[DType.float32](i)
         assert_true(grad == grad, "Gradient should not be NaN")
         assert_true(grad > -1e10 and grad < 1e10, "Gradient should not be Inf")
 
@@ -150,7 +150,7 @@ def test_mean_squared_error_backward_zero_diff() raises:
 
     for i in range(5):
         assert_almost_equal(
-            grad_pred._data.unsafe_bitcast[Float32]()[unsafe_offset=i],
+            grad_pred.load[DType.float32](i),
             Float32(0.0),
             tolerance=1e-6,
         )

@@ -318,9 +318,9 @@ def test_per_class_accuracy() raises:
 
     var per_class_acc = per_class_accuracy(logits, labels, num_classes)
 
-    var acc_class0 = per_class_acc._data.unsafe_bitcast[Float64]()[unsafe_offset=0]
-    var acc_class1 = per_class_acc._data.unsafe_bitcast[Float64]()[unsafe_offset=1]
-    var acc_class2 = per_class_acc._data.unsafe_bitcast[Float64]()[unsafe_offset=2]
+    var acc_class0 = per_class_acc.load[DType.float64](0)
+    var acc_class1 = per_class_acc.load[DType.float64](1)
+    var acc_class2 = per_class_acc.load[DType.float64](2)
 
     print("  Class 0 accuracy:", acc_class0)
     print("  Class 1 accuracy:", acc_class1)

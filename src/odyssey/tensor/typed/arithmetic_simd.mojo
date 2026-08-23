@@ -18,7 +18,7 @@ def _add_simd_typed[
     var size = a.numel()
     var a_ptr = a._data
     var b_ptr = b._data
-    var result_ptr = result._data
+    var result_ptr = result.data_ptr()
     comptime if dtype == DType.float32 or dtype == DType.float64:
         comptime simd_width = simd_width_of[dtype]()
 
@@ -49,7 +49,7 @@ def _subtract_simd_typed[
     var size = a.numel()
     var a_ptr = a._data
     var b_ptr = b._data
-    var result_ptr = result._data
+    var result_ptr = result.data_ptr()
     comptime if dtype == DType.float32 or dtype == DType.float64:
         comptime simd_width = simd_width_of[dtype]()
 
@@ -80,7 +80,7 @@ def _multiply_simd_typed[
     var size = a.numel()
     var a_ptr = a._data
     var b_ptr = b._data
-    var result_ptr = result._data
+    var result_ptr = result.data_ptr()
     comptime if dtype == DType.float32 or dtype == DType.float64:
         comptime simd_width = simd_width_of[dtype]()
 
@@ -111,7 +111,7 @@ def _divide_simd_typed[
     var size = a.numel()
     var a_ptr = a._data
     var b_ptr = b._data
-    var result_ptr = result._data
+    var result_ptr = result.data_ptr()
     comptime if dtype == DType.float32 or dtype == DType.float64:
         comptime simd_width = simd_width_of[dtype]()
 

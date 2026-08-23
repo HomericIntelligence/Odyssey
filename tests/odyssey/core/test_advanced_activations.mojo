@@ -69,27 +69,27 @@ def test_swish_values() raises:
     # swish(2) = 2 * sigmoid(2) = 2 * 0.881 ≈ 1.762
 
     assert_almost_equal(
-        output._data.unsafe_bitcast[Float32]()[unsafe_offset=0],
+        output.load[DType.float32](0),
         Float32(-0.238),
         tolerance=0.01,
     )
     assert_almost_equal(
-        output._data.unsafe_bitcast[Float32]()[unsafe_offset=1],
+        output.load[DType.float32](1),
         Float32(-0.269),
         tolerance=0.01,
     )
     assert_almost_equal(
-        output._data.unsafe_bitcast[Float32]()[unsafe_offset=2],
+        output.load[DType.float32](2),
         Float32(0.0),
         tolerance=1e-5,
     )
     assert_almost_equal(
-        output._data.unsafe_bitcast[Float32]()[unsafe_offset=3],
+        output.load[DType.float32](3),
         Float32(0.731),
         tolerance=0.01,
     )
     assert_almost_equal(
-        output._data.unsafe_bitcast[Float32]()[unsafe_offset=4],
+        output.load[DType.float32](4),
         Float32(1.762),
         tolerance=0.01,
     )
@@ -124,7 +124,7 @@ def test_swish_backward_zero() raises:
     # d/dx[x * sigmoid(x)] = sigmoid(x) + x * sigmoid(x) * (1 - sigmoid(x))
     # = 0.5 + 0 * 0.5 * 0.5 = 0.5
     assert_almost_equal(
-        grad_input._data.unsafe_bitcast[Float32]()[unsafe_offset=0],
+        grad_input.load[DType.float32](0),
         Float32(0.5),
         tolerance=1e-5,
     )
@@ -163,17 +163,17 @@ def test_mish_values() raises:
     # mish(1) = 1 * tanh(ln(1 + exp(1))) = 1 * tanh(1.313) ≈ 1 * 0.866 ≈ 0.866
 
     assert_almost_equal(
-        output._data.unsafe_bitcast[Float32]()[unsafe_offset=0],
+        output.load[DType.float32](0),
         Float32(-0.303),
         tolerance=0.01,
     )
     assert_almost_equal(
-        output._data.unsafe_bitcast[Float32]()[unsafe_offset=1],
+        output.load[DType.float32](1),
         Float32(0.0),
         tolerance=1e-5,
     )
     assert_almost_equal(
-        output._data.unsafe_bitcast[Float32]()[unsafe_offset=2],
+        output.load[DType.float32](2),
         Float32(0.866),
         tolerance=0.01,
     )
@@ -206,9 +206,7 @@ def test_mish_backward_positive() raises:
     var grad_input = mish_backward(grad_output, x)
 
     # For positive x, mish gradient should be positive
-    assert_true(
-        grad_input._data.unsafe_bitcast[Float32]()[unsafe_offset=0] > 0.0
-    )
+    assert_true(grad_input.load[DType.float32](0) > 0.0)
 
 
 def test_elu_shapes() raises:
@@ -240,17 +238,17 @@ def test_elu_positive_values() raises:
 
     # For x > 0: elu(x) = x
     assert_almost_equal(
-        output._data.unsafe_bitcast[Float32]()[unsafe_offset=0],
+        output.load[DType.float32](0),
         Float32(0.5),
         tolerance=1e-5,
     )
     assert_almost_equal(
-        output._data.unsafe_bitcast[Float32]()[unsafe_offset=1],
+        output.load[DType.float32](1),
         Float32(1.0),
         tolerance=1e-5,
     )
     assert_almost_equal(
-        output._data.unsafe_bitcast[Float32]()[unsafe_offset=2],
+        output.load[DType.float32](2),
         Float32(2.0),
         tolerance=1e-5,
     )
@@ -275,17 +273,17 @@ def test_elu_negative_values() raises:
     # elu(-2) = 1.0 * (exp(-2) - 1) = 0.135 - 1 = -0.865
 
     assert_almost_equal(
-        output._data.unsafe_bitcast[Float32]()[unsafe_offset=0],
+        output.load[DType.float32](0),
         Float32(-0.632),
         tolerance=0.01,
     )
     assert_almost_equal(
-        output._data.unsafe_bitcast[Float32]()[unsafe_offset=1],
+        output.load[DType.float32](1),
         Float32(-0.393),
         tolerance=0.01,
     )
     assert_almost_equal(
-        output._data.unsafe_bitcast[Float32]()[unsafe_offset=2],
+        output.load[DType.float32](2),
         Float32(-0.865),
         tolerance=0.01,
     )
@@ -303,7 +301,7 @@ def test_elu_alpha_parameter() raises:
 
     # elu(-1, alpha=2.0) = 2.0 * (exp(-1) - 1) = 2.0 * -0.632 = -1.264
     assert_almost_equal(
-        output._data.unsafe_bitcast[Float32]()[unsafe_offset=0],
+        output.load[DType.float32](0),
         Float32(-1.264),
         tolerance=0.01,
     )
@@ -320,7 +318,7 @@ def test_elu_at_zero() raises:
 
     # At x=0: elu(0) = 0
     assert_almost_equal(
-        output._data.unsafe_bitcast[Float32]()[unsafe_offset=0],
+        output.load[DType.float32](0),
         Float32(0.0),
         tolerance=1e-5,
     )
@@ -354,7 +352,7 @@ def test_elu_backward_positive() raises:
 
     # For x > 0: d/dx[elu(x)] = 1
     assert_almost_equal(
-        grad_input._data.unsafe_bitcast[Float32]()[unsafe_offset=0],
+        grad_input.load[DType.float32](0),
         Float32(1.0),
         tolerance=1e-5,
     )
@@ -373,7 +371,7 @@ def test_elu_backward_negative() raises:
     # For x < 0: d/dx[elu(x)] = alpha * exp(x)
     # d/dx[elu(-1)] = 1.0 * exp(-1) = 0.368
     assert_almost_equal(
-        grad_input._data.unsafe_bitcast[Float32]()[unsafe_offset=0],
+        grad_input.load[DType.float32](0),
         Float32(0.368),
         tolerance=0.01,
     )
@@ -391,7 +389,7 @@ def test_elu_backward_at_zero() raises:
 
     # At x=0: d/dx[elu(x)] = 1
     assert_almost_equal(
-        grad_input._data.unsafe_bitcast[Float32]()[unsafe_offset=0],
+        grad_input.load[DType.float32](0),
         Float32(1.0),
         tolerance=1e-5,
     )

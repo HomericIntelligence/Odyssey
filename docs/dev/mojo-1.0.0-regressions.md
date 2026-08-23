@@ -252,6 +252,7 @@ stdout/stderr capture. Classification:
 | **FM-D: Timeout/OOM** | 4 tests | N/A (resource limit) | Heavy model tests (AlexNet/VGG16 224×224, MobileNet train) timeout on 4-core container |
 | **FM-E: Non-deterministic** | 6 tests | (same as FM-A) | Pass on re-run; failed in full suite due to FM-A non-determinism |
 | **FM-F: Pre-existing** | 1 test | N/A (already disabled) | `DISABLED_test_batchnorm` — SIMD type constraint, not a regression |
+| **FM-G: Closure-capture premature deinit** | ~3 src paths | Filed [#6965](https://github.com/modular/modular/issues/6965); WAR applied (inline TaskGroup dispatch) | A `@parameter` capturing closure passed as a function-value parameter has its captured locals destroyed at closure-construction time — freed-memory reads in every `parallelize` batch path (pooling/conv/normalization batch ≥ 4). Passes on b2 |
 | **Unclassified** | 2 tests | N/A (timeout on re-run) | `googlenet_e2e`, `gradient_checking_batch_norm` — intermittent timeout or downstream corruption |
 
 ### Non-deterministic behavior
@@ -275,9 +276,13 @@ the non-deterministic nature of FM-A.
 | `repro/fmd_kgen_jit_crash_min.mojo` | FM-B (KGEN JIT) | ✅ | ❌ |
 | `tests/odyssey/tensor/test_typed_batchnorm.mojo` | FM-B (KGEN JIT) | ✅ | ❌ |
 | `tests/models/test_mobilenetv1_e2e.mojo` | FM-B (KGEN JIT) | ✅ | ❌ |
+| `tests/models/test_mobilenetv1_layers.mojo` | FM-B (KGEN JIT) | ✅ | ❌ (crashes right after `test_batchnorm2d_initialization`; identical output + crash at baseline, verified 2026-08-22) |
+| `tests/examples/test_mobilenetv1_train_step.mojo` | FM-B (KGEN JIT, flaky) | ✅ | ❌ intermittent — crashes during JIT compile (zero output) on one run; passes on rerun and at baseline (verified 2026-08-22) |
 | `repro/fmd_kgen_jit_crash_min.mojo` (atomic stdlib) | FM-C (Atomic) | ✅ | ❌ |
 | `repro/repro_6959_inline.mojo` | FM-C (Atomic UAF) | n/a (1.0.0 APIs) | ❌ (5/5) |
 | `repro/repro_6959_inline_b2.mojo` | FM-C (b2-flavored mirror) | ✅ (5/5) | n/a |
+| `docs/dev/reproducers/repro_closure_capture_identical.mojo` | FM-G (closure-capture premature deinit) | ✅ (capture kept alive) | ❌ (deinit at closure-construction) |
+| `docs/dev/reproducers/repro_closure_capture_uaf.mojo` | FM-G (UAF consequence, pointer payload) | n/a (1.0.0 syntax) | ❌ (0.0 reads at elements 0-1) |
 
 ## Complete issue tracker
 
@@ -288,6 +293,7 @@ the non-deterministic nature of FM-A.
 | FM-3 | VM limit abort | OPEN | [#6941](https://github.com/modular/modular/issues/6941) |
 | FM-B | KGEN JIT runtime crash | OPEN | [#6958](https://github.com/modular/modular/issues/6958) |
 | FM-C | Premature `__deinit__` UAF from escaping `Atomic` pointers (`SpinLock._as_atomic`, `AtomicStats._counter`) | OPEN — WAR applied (no-escape API on both) | [#6959](https://github.com/modular/modular/issues/6959) |
+| FM-G | Premature `__deinit__` of closure captures when a `@parameter` capturing closure is passed as a function-value parameter (breaks `parallelize` batch paths in pooling/conv/normalization) | **Filed [#6965](https://github.com/modular/modular/issues/6965)** — WAR applied: inline TaskGroup dispatch at all 3 call sites (closure never crosses a function-value boundary); `parallelize` retained for scalar/keep-alive captures only | 2026-08-22 |
 
 ---
 
@@ -365,3 +371,114 @@ stdlib-only repro (`repro/repro_tensor_inline.mojo`, fails 3/3 stable / passes 3
 mirror `repro/repro_tensor_inline_b2.mojo`, control `repro/repro_tensor_inline_control.mojo`
 passes 3/3) with cross-version evidence and the `mut self` origin-tie workaround.
 Related closed issues: #6959 (COMPLETED), #6707 (NOT_PLANNED), #6939 (DUPLICATE).
+
+---
+
+## Failure Mode G: Premature `__deinit__` of closure captures at the function-value boundary
+
+**Severity**: High (silent use-after-free — garbage reads / segfaults in every
+`parallelize`-driven parallel batch path: pooling, conv, normalization).
+
+**Status**: Root-caused + documented; **filed as
+[modular/modular#6965](https://github.com/modular/modular/issues/6965)** (2026-08-22).
+WAR applied: the three impacted call sites (`pooling.mojo`, `conv.mojo`,
+`normalization.mojo`) now dispatch inline via `TaskGroup` so the capturing
+closure never crosses a function-value parameter boundary; `parallelize`
+remains only for scalar / keep-alive captures (e.g. the memory-pool
+thread-safety tests).
+
+### Symptom
+
+A `@parameter` capturing closure (`def worker(i: Int) capturing:`) that captures a local
+heap-owning struct, when **passed as a function-value parameter**
+(`func: def(Int) capturing -> None`), causes the captured local's `__deinit__` to fire at
+closure-construction time — **before any call through the closure** — freeing the
+captured buffer while the closure body still reads/writes it. Direct calls to the same
+closure (no function-value boundary) keep the capture alive correctly.
+
+The corruption is data-buffer-correlated, not call-order-correlated: the freed block's
+head is reused by the closure context (reads as 0.0 / garbage), the tail still holds
+stale values — e.g. `ones([8], float32)` reads as `0.0 0.0 1.0 1.0 1.0 1.0 1.0 1.0`.
+
+### Cross-version evidence (identical file `docs/dev/reproducers/repro_closure_capture_identical.mojo`)
+
+```text
+$ mojo run repro_closure_capture_identical.mojo    # 1.0.0b2
+creating box
+calling closure via function-value param:           # ✅ NO deinit print before reads
+  param[ 0 ]: 700                                     #    capture kept alive
+  ...
+
+$ mojo run repro_closure_capture_identical.mojo    # 1.0.0 stable
+creating box
+    >>> Box.__deinit__ firing (payload= 7 )        # ❌ PREMATURE — fires at closure
+calling closure via function-value param:            #    construction, before any call
+  param[ 0 ]: 700                                    #    (reads correct here only because
+  ...                                                #    an Int payload frees nothing)
+```
+
+With a heap-owning payload (`docs/dev/reproducers/repro_closure_capture_uaf.mojo`, 1.0.0
+only):
+
+```text
+$ mojo run repro_closure_capture_uaf.mojo          # 1.0.0 stable
+    >>> Box.__deinit__ firing (freeing buffer)     # buffer freed before closure runs
+  param[ 0 ]: 0.0        # UAF read — expected 0.25
+  param[ 1 ]: 0.0        # UAF read — expected 0.75
+  param[ 2 ]: 1.25       # stale value from freed-but-unreused tail
+  ...
+```
+
+### Root cause
+
+In 1.0.0 the lifetime/use analysis treats a captured local as NOT live inside a
+`@parameter` capturing closure once that closure is **passed as a function-value
+parameter** (`def(Int) capturing -> None`):
+
+- **Owned captured locals**: `__deinit__` is hoisted to closure-construction time (the
+  compiler considers the closure-pass the last use), freeing the buffer the closure body
+  still reads → use-after-free.
+- **Pointer/scalar captures**: the closure's uses are not registered — the compiler
+  warns `assignment to 'xd' was never used` for a pointer the closure body reads, and the
+  closure reads garbage or crashes.
+
+Direct calls to the same closure (no function-value boundary) are correct, and a *later
+use of the captured variable in the enclosing frame* keeps owned captures alive — but
+only for the owned-local case; borrowed-param and raw-pointer captures stay broken
+(probe `repro_war15`: `var xd = x._data` captured → compiler reports `xd` unused →
+crash). This is a FOURTH trigger in the premature-`__deinit__` family — distinct from
+FM-A's return-move and FM-C/#6963's raw-pointer-escape (the pure repro has neither a
+return-move nor an escaping pointer).
+
+### Impact on Odyssey
+
+Every `parallelize` call site passes a capturing closure as a function-value param:
+
+- `src/odyssey/core/pooling.mojo:168` — `maxpool_batch` captures `x`, `output` → batch ≥ 4
+  max-pooling returns all zeros / segfaults; this is the deterministic
+  `test_autograd_convergence` LeNet-shape crash (verified: standalone copy of the real
+  closure body crashes identically; batch 1-3 sequential pass, batch 4+ parallel dies)
+- `src/odyssey/core/conv.mojo:216` — `conv_batch` captures `x`, `output` → batch ≥ 4 conv
+  corrupted
+- `src/odyssey/core/normalization.mojo:147` — `normalize_batch` captures `typed_x`,
+  `out_ptr` etc. → batch ≥ 4 normalization corrupted
+- `src/odyssey/core/parallel_utils.mojo:95` — generic `parallel_for_batch` wrapper
+
+All of these pass on 1.0.0b2 (which keeps captures alive).
+
+### Reproducers
+
+- `docs/dev/reproducers/repro_closure_capture_identical.mojo` — identical file, both
+  versions (deinit-timing proof).
+- `docs/dev/reproducers/repro_closure_capture_uaf.mojo` — 1.0.0 pointer payload showing
+  the UAF reads.
+
+### WAR (proposed, pending approval)
+
+Keep-alive (a later use of the captured variable after the pass) fixes ONLY the
+owned-local capture shape and is fragile. The reliable WAR is to stop passing
+tensor-capturing closures to `parallelize` on 1.0.0: restructure the pooling/conv/
+normalization closures to take the tensors as **arguments** (borrowed params are safe —
+Class C) instead of capturing them, or disable the parallel path (fall back to the
+sequential loop) until upstream fixes the capture liveness bug. Approval pending
+alongside the upstream filing decision.

@@ -46,22 +46,22 @@ def test_logical_xor_values() raises:
 
     # XOR truth table: [0, 1, 1, 0]
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=0],
+        result.load[DType.float32](0),
         Float32(0.0),
         tolerance=1e-5,
     )
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=1],
+        result.load[DType.float32](1),
         Float32(1.0),
         tolerance=1e-5,
     )
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=2],
+        result.load[DType.float32](2),
         Float32(1.0),
         tolerance=1e-5,
     )
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=3],
+        result.load[DType.float32](3),
         Float32(0.0),
         tolerance=1e-5,
     )
@@ -87,7 +87,7 @@ def test_logical_xor_all_false() raises:
     var result = logical_xor(a, b)
     for i in range(3):
         assert_almost_equal(
-            result._data.unsafe_bitcast[Float32]()[unsafe_offset=i],
+            result.load[DType.float32](i),
             Float32(0.0),
             tolerance=1e-5,
         )
@@ -105,7 +105,7 @@ def test_logical_xor_all_true() raises:
     var result = logical_xor(a, b)
     for i in range(3):
         assert_almost_equal(
-            result._data.unsafe_bitcast[Float32]()[unsafe_offset=i],
+            result.load[DType.float32](i),
             Float32(0.0),
             tolerance=1e-5,
         )
@@ -122,17 +122,17 @@ def test_logical_xor_identity() raises:
     a.set(2, Float32(1.0))
     var result = logical_xor(a, b)
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=0],
+        result.load[DType.float32](0),
         Float32(0.0),
         tolerance=1e-5,
     )
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=1],
+        result.load[DType.float32](1),
         Float32(1.0),
         tolerance=1e-5,
     )
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=2],
+        result.load[DType.float32](2),
         Float32(1.0),
         tolerance=1e-5,
     )

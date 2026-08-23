@@ -118,7 +118,7 @@ def elementwise_unary[
     var size = tensor._numel
 
     var in_ptr = tensor._data.unsafe_bitcast[Scalar[dtype]]()
-    var out_ptr = result._data.unsafe_bitcast[Scalar[dtype]]()
+    var out_ptr = result.data_ptr[dtype]()
 
     for i in range(size):
         out_ptr[unsafe_offset=i] = op[dtype](in_ptr[unsafe_offset=i])
@@ -242,7 +242,7 @@ def elementwise_binary[
 
     var lhs_ptr = lhs._data.unsafe_bitcast[Scalar[dtype]]()
     var rhs_ptr = rhs._data.unsafe_bitcast[Scalar[dtype]]()
-    var out_ptr = result._data.unsafe_bitcast[Scalar[dtype]]()
+    var out_ptr = result.data_ptr[dtype]()
 
     for i in range(size):
         out_ptr[unsafe_offset=i] = op[dtype](
@@ -373,7 +373,7 @@ def elementwise_scalar[
     var size = tensor._numel
 
     var in_ptr = tensor._data.unsafe_bitcast[Scalar[dtype]]()
-    var out_ptr = result._data.unsafe_bitcast[Scalar[dtype]]()
+    var out_ptr = result.data_ptr[dtype]()
     var scalar_val = Scalar[dtype](scalar)
 
     for i in range(size):

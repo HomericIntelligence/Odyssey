@@ -45,7 +45,7 @@ def test_zeros_creation() raises:
     # Check all values are zero
     for i in range(12):
         assert_close_float(
-            Float64(t._data.unsafe_bitcast[Float32]()[unsafe_offset=i]),
+            Float64(t.load[DType.float32](i)),
             Float64(0.0),
             atol=1e-5,
         )
@@ -65,7 +65,7 @@ def test_ones_creation() raises:
     # Check all values are one
     for i in range(6):
         assert_almost_equal(
-            t._data.unsafe_bitcast[Float32]()[unsafe_offset=i],
+            t.load[DType.float32](i),
             Float32(1.0),
             tolerance=1e-5,
         )
@@ -85,7 +85,7 @@ def test_full_creation() raises:
     # Check all values are 3.14
     for i in range(4):
         assert_almost_equal(
-            t._data.unsafe_bitcast[Float32]()[unsafe_offset=i],
+            t.load[DType.float32](i),
             Float32(3.14),
             tolerance=1e-5,
         )
@@ -112,7 +112,7 @@ def test_arange_creation() raises:
     assert_equal(t.numel(), 10)
     for i in range(10):
         assert_almost_equal(
-            t._data.unsafe_bitcast[Float32]()[unsafe_offset=i],
+            t.load[DType.float32](i),
             Float32(i),
             tolerance=1e-5,
         )
@@ -125,27 +125,27 @@ def test_arange_with_step() raises:
     # Check values: [0, 2, 4, 6, 8]
     assert_equal(t.numel(), 5)
     assert_almost_equal(
-        t._data.unsafe_bitcast[Float32]()[unsafe_offset=0],
+        t.load[DType.float32](0),
         Float32(0.0),
         tolerance=1e-5,
     )
     assert_almost_equal(
-        t._data.unsafe_bitcast[Float32]()[unsafe_offset=1],
+        t.load[DType.float32](1),
         Float32(2.0),
         tolerance=1e-5,
     )
     assert_almost_equal(
-        t._data.unsafe_bitcast[Float32]()[unsafe_offset=2],
+        t.load[DType.float32](2),
         Float32(4.0),
         tolerance=1e-5,
     )
     assert_almost_equal(
-        t._data.unsafe_bitcast[Float32]()[unsafe_offset=3],
+        t.load[DType.float32](3),
         Float32(6.0),
         tolerance=1e-5,
     )
     assert_almost_equal(
-        t._data.unsafe_bitcast[Float32]()[unsafe_offset=4],
+        t.load[DType.float32](4),
         Float32(8.0),
         tolerance=1e-5,
     )
@@ -163,7 +163,7 @@ def test_eye_creation() raises:
     for i in range(3):
         for j in range(3):
             var idx = i * 3 + j
-            var val = t._data.unsafe_bitcast[Float32]()[unsafe_offset=idx]
+            var val = t.load[DType.float32](idx)
             if i == j:
                 assert_almost_equal(val, Float32(1.0), tolerance=1e-5)
             else:
@@ -177,27 +177,27 @@ def test_linspace_creation() raises:
     # Check values: [0.0, 0.25, 0.5, 0.75, 1.0]
     assert_equal(t.numel(), 5)
     assert_almost_equal(
-        t._data.unsafe_bitcast[Float32]()[unsafe_offset=0],
+        t.load[DType.float32](0),
         Float32(0.0),
         tolerance=1e-5,
     )
     assert_almost_equal(
-        t._data.unsafe_bitcast[Float32]()[unsafe_offset=1],
+        t.load[DType.float32](1),
         Float32(0.25),
         tolerance=1e-5,
     )
     assert_almost_equal(
-        t._data.unsafe_bitcast[Float32]()[unsafe_offset=2],
+        t.load[DType.float32](2),
         Float32(0.5),
         tolerance=1e-5,
     )
     assert_almost_equal(
-        t._data.unsafe_bitcast[Float32]()[unsafe_offset=3],
+        t.load[DType.float32](3),
         Float32(0.75),
         tolerance=1e-5,
     )
     assert_almost_equal(
-        t._data.unsafe_bitcast[Float32]()[unsafe_offset=4],
+        t.load[DType.float32](4),
         Float32(1.0),
         tolerance=1e-5,
     )
@@ -221,7 +221,7 @@ def test_zeros_like() raises:
     # Check all values are zero
     for i in range(6):
         assert_almost_equal(
-            y._data.unsafe_bitcast[Float32]()[unsafe_offset=i],
+            y.load[DType.float32](i),
             Float32(0.0),
             tolerance=1e-5,
         )
@@ -247,7 +247,7 @@ def test_ones_like() raises:
     # Check all values are one
     for i in range(8):
         assert_almost_equal(
-            y._data.unsafe_bitcast[Float64]()[unsafe_offset=i],
+            y.load[DType.float64](i),
             1.0,
             tolerance=1e-10,
         )
@@ -271,7 +271,7 @@ def test_full_like() raises:
     # Check all values are 7.5
     for i in range(6):
         assert_almost_equal(
-            y._data.unsafe_bitcast[Float32]()[unsafe_offset=i],
+            y.load[DType.float32](i),
             Float32(7.5),
             tolerance=1e-5,
         )
@@ -432,7 +432,7 @@ def test_scalar_tensor() raises:
     assert_equal(t.numel(), 1)
     assert_equal(t.dim(), 1)
     assert_almost_equal(
-        t._data.unsafe_bitcast[Float32]()[unsafe_offset=0],
+        t.load[DType.float32](0),
         Float32(42.0),
         tolerance=1e-5,
     )

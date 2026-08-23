@@ -179,7 +179,7 @@ def _evaluate_at_index[
         var source_idx = _compute_source_idx(
             flat_idx, result_shape, tensor_shape, broadcast_strides
         )
-        var tensor_ptr = tensor._data.unsafe_bitcast[Scalar[dtype]]()
+        var tensor_ptr = tensor.data_ptr[dtype]()
         return tensor_ptr[unsafe_offset=source_idx]
 
     elif node.op == OP_ADD:
@@ -333,7 +333,7 @@ def _evaluate_typed[dtype: DType](expr: TensorExpr) raises -> AnyTensor:
     """
     # Create result tensor with zero fill
     var result = full(expr._result_shape, 0.0, expr._dtype)
-    var result_ptr = result._data.unsafe_bitcast[Scalar[dtype]]()
+    var result_ptr = result.data_ptr()
 
     var total_elems = expr.numel()
     var root_idx = expr._root_idx

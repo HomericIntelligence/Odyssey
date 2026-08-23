@@ -49,7 +49,7 @@ def _equal_typed[
 
     var a_ptr = a._data
     var b_ptr = b._data
-    var out_ptr = result._data
+    var out_ptr = result.data_ptr()
 
     for result_idx in range(total_elems):
         var remaining = result_idx
@@ -86,7 +86,7 @@ def _not_equal_typed[
 
     var a_ptr = a._data
     var b_ptr = b._data
-    var out_ptr = result._data
+    var out_ptr = result.data_ptr()
 
     for result_idx in range(total_elems):
         var remaining = result_idx
@@ -123,7 +123,7 @@ def _less_typed[
 
     var a_ptr = a._data
     var b_ptr = b._data
-    var out_ptr = result._data
+    var out_ptr = result.data_ptr()
 
     for result_idx in range(total_elems):
         var remaining = result_idx
@@ -160,7 +160,7 @@ def _less_equal_typed[
 
     var a_ptr = a._data
     var b_ptr = b._data
-    var out_ptr = result._data
+    var out_ptr = result.data_ptr()
 
     for result_idx in range(total_elems):
         var remaining = result_idx
@@ -197,7 +197,7 @@ def _greater_typed[
 
     var a_ptr = a._data
     var b_ptr = b._data
-    var out_ptr = result._data
+    var out_ptr = result.data_ptr()
 
     for result_idx in range(total_elems):
         var remaining = result_idx
@@ -234,7 +234,7 @@ def _greater_equal_typed[
 
     var a_ptr = a._data
     var b_ptr = b._data
-    var out_ptr = result._data
+    var out_ptr = result.data_ptr()
 
     for result_idx in range(total_elems):
         var remaining = result_idx

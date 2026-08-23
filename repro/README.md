@@ -61,6 +61,26 @@ fixed. The local result is being posted as a comment on
 with a CI-validation caveat; the maintainer can decide whether to close
 based on the in-flight CI workflow.
 
+## #6965 (closure-capture premature deinit) — OPEN
+
+Filed 2026-08-22. On Mojo 1.0.0 stable a `@parameter` capturing closure passed
+as a function-value parameter (`def(Int) capturing -> None`) has its captured
+locals destroyed at closure-construction time — premature `__deinit__` →
+use-after-free on heap-owning captures. Passes on 1.0.0b2 with the identical
+file. Evidence files (see also `docs/dev/reproducers/` for the canonical
+minimal reproducers):
+
+| Reproducer | Shows |
+| --- | --- |
+| `repro_parallelize_maxpool_crash.mojo` | Standalone copy of the real `maxpool_batch` closure (pooling.mojo) — batch ≥ 4 crashes/returns zeros through `parallelize` |
+| `repro_parallelize_borrowed_reads.mojo` | Borrowed-param captures read corrupted values (0.0) through the closure boundary |
+| `repro_parallelize_ptr_capture_crash.mojo` | Raw-pointer captures reported "never used" by the compiler and crash at runtime |
+
+WAR applied in-repo: the three impacted call sites (`pooling.mojo`,
+`conv.mojo`, `normalization.mojo`) now dispatch inline via `TaskGroup` so the
+capturing closure never crosses a function-value parameter boundary.
+`parallelize` remains only for scalar / keep-alive captures.
+
 ## Triage protocol used
 
 ```bash

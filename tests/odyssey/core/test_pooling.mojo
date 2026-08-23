@@ -61,13 +61,13 @@ def test_maxpool2d_basic_4x4() raises:
     input_shape.append(4)
     var input = zeros(input_shape, DType.float32)
 
-    var input_data = input._data.unsafe_bitcast[Float32]()
+    var input_data = input.data_ptr[DType.float32]()
     for i in range(16):
         input_data[unsafe_offset=i] = Float32(i + 1)
 
     var output = maxpool2d(input, kernel_size=2, stride=2, padding=0)
 
-    var output_data = output._data.unsafe_bitcast[Float32]()
+    var output_data = output.data_ptr[DType.float32]()
     assert_almost_equal(output_data[unsafe_offset=0], 6.0, tolerance=1e-5)
     assert_almost_equal(output_data[unsafe_offset=1], 8.0, tolerance=1e-5)
     assert_almost_equal(output_data[unsafe_offset=2], 14.0, tolerance=1e-5)
@@ -83,7 +83,7 @@ def test_maxpool2d_stride_1() raises:
     input_shape.append(3)
     var input = zeros(input_shape, DType.float32)
 
-    var input_data = input._data.unsafe_bitcast[Float32]()
+    var input_data = input.data_ptr[DType.float32]()
     for i in range(9):
         input_data[unsafe_offset=i] = Float32(i + 1)
 
@@ -93,7 +93,7 @@ def test_maxpool2d_stride_1() raises:
     assert_equal(out_shape[2], 2, "Output height should be 2")
     assert_equal(out_shape[3], 2, "Output width should be 2")
 
-    var output_data = output._data.unsafe_bitcast[Float32]()
+    var output_data = output.data_ptr[DType.float32]()
     assert_almost_equal(output_data[unsafe_offset=0], 5.0, tolerance=1e-5)
     assert_almost_equal(output_data[unsafe_offset=1], 6.0, tolerance=1e-5)
     assert_almost_equal(output_data[unsafe_offset=2], 8.0, tolerance=1e-5)
@@ -109,7 +109,7 @@ def test_maxpool2d_batch_processing() raises:
     input_shape.append(4)  # width
     var input = ones(input_shape, DType.float32)
 
-    var input_data = input._data.unsafe_bitcast[Float32]()
+    var input_data = input.data_ptr[DType.float32]()
     for i in range(16):
         input_data[unsafe_offset=i] = 1.0
 
@@ -123,7 +123,7 @@ def test_maxpool2d_batch_processing() raises:
     assert_equal(out_shape[2], 2, "Output height should be 2")
     assert_equal(out_shape[3], 2, "Output width should be 2")
 
-    var output_data = output._data.unsafe_bitcast[Float32]()
+    var output_data = output.data_ptr[DType.float32]()
     assert_almost_equal(output_data[unsafe_offset=0], 1.0, tolerance=1e-5)
     assert_almost_equal(output_data[unsafe_offset=4], 2.0, tolerance=1e-5)
 
@@ -184,13 +184,13 @@ def test_avgpool2d_basic_4x4() raises:
     input_shape.append(4)
     var input = zeros(input_shape, DType.float32)
 
-    var input_data = input._data.unsafe_bitcast[Float32]()
+    var input_data = input.data_ptr[DType.float32]()
     for i in range(16):
         input_data[unsafe_offset=i] = Float32(i + 1)
 
     var output = avgpool2d(input, kernel_size=2, stride=2, padding=0)
 
-    var output_data = output._data.unsafe_bitcast[Float32]()
+    var output_data = output.data_ptr[DType.float32]()
     assert_almost_equal(output_data[unsafe_offset=0], 3.5, tolerance=1e-5)
     assert_almost_equal(output_data[unsafe_offset=1], 5.5, tolerance=1e-5)
     assert_almost_equal(output_data[unsafe_offset=2], 11.5, tolerance=1e-5)
@@ -208,7 +208,7 @@ def test_avgpool2d_all_ones() raises:
 
     var output = avgpool2d(input, kernel_size=2, stride=2, padding=0)
 
-    var output_data = output._data.unsafe_bitcast[Float32]()
+    var output_data = output.data_ptr[DType.float32]()
     for i in range(4):
         assert_almost_equal(output_data[unsafe_offset=i], 1.0, tolerance=1e-5)
 
@@ -222,7 +222,7 @@ def test_avgpool2d_stride_1() raises:
     input_shape.append(3)
     var input = zeros(input_shape, DType.float32)
 
-    var input_data = input._data.unsafe_bitcast[Float32]()
+    var input_data = input.data_ptr[DType.float32]()
     for i in range(9):
         input_data[unsafe_offset=i] = Float32(i + 1)
 
@@ -232,7 +232,7 @@ def test_avgpool2d_stride_1() raises:
     assert_equal(out_shape[2], 2)
     assert_equal(out_shape[3], 2)
 
-    var output_data = output._data.unsafe_bitcast[Float32]()
+    var output_data = output.data_ptr[DType.float32]()
     assert_almost_equal(output_data[unsafe_offset=0], 3.0, tolerance=1e-5)
     assert_almost_equal(output_data[unsafe_offset=1], 4.0, tolerance=1e-5)
     assert_almost_equal(output_data[unsafe_offset=2], 6.0, tolerance=1e-5)
@@ -248,7 +248,7 @@ def test_avgpool2d_batch_processing() raises:
     input_shape.append(4)
     var input = ones(input_shape, DType.float32)
 
-    var input_data = input._data.unsafe_bitcast[Float32]()
+    var input_data = input.data_ptr[DType.float32]()
     for i in range(16):
         input_data[unsafe_offset=i] = 2.0
 
@@ -260,7 +260,7 @@ def test_avgpool2d_batch_processing() raises:
     var out_shape = output.shape()
     assert_equal(out_shape[0], 2)
 
-    var output_data = output._data.unsafe_bitcast[Float32]()
+    var output_data = output.data_ptr[DType.float32]()
     assert_almost_equal(output_data[unsafe_offset=0], 2.0, tolerance=1e-5)
     assert_almost_equal(output_data[unsafe_offset=4], 4.0, tolerance=1e-5)
 
@@ -346,7 +346,7 @@ def test_global_avgpool2d_backward_uniform_distribution() raises:
 
     var grad_input = global_avgpool2d_backward(grad_output, input)
 
-    var grad_data = grad_input._data.unsafe_bitcast[Float32]()
+    var grad_data = grad_input.data_ptr[DType.float32]()
     var expected_value = Float32(1.0 / 16.0)
 
     for i in range(16):
@@ -375,13 +375,13 @@ def test_global_avgpool2d_backward_batch_independence() raises:
     grad_output_shape.append(1)
     var grad_output = zeros(grad_output_shape, DType.float32)
 
-    var grad_out_data = grad_output._data.unsafe_bitcast[Float32]()
+    var grad_out_data = grad_output.data_ptr[DType.float32]()
     grad_out_data[unsafe_offset=0] = 2.0  # First batch
     grad_out_data[unsafe_offset=1] = 3.0  # Second batch
 
     var grad_input = global_avgpool2d_backward(grad_output, input)
 
-    var grad_data = grad_input._data.unsafe_bitcast[Float32]()
+    var grad_data = grad_input.data_ptr[DType.float32]()
     var spatial_size = 4  # 2 * 2
 
     # First batch: 2.0 / 4 = 0.5
@@ -419,13 +419,13 @@ def test_global_avgpool2d_backward_channel_independence() raises:
     grad_output_shape.append(1)
     var grad_output = zeros(grad_output_shape, DType.float32)
 
-    var grad_out_data = grad_output._data.unsafe_bitcast[Float32]()
+    var grad_out_data = grad_output.data_ptr[DType.float32]()
     grad_out_data[unsafe_offset=0] = 2.0  # Channel 0
     grad_out_data[unsafe_offset=1] = 4.0  # Channel 1
 
     var grad_input = global_avgpool2d_backward(grad_output, input)
 
-    var grad_data = grad_input._data.unsafe_bitcast[Float32]()
+    var grad_data = grad_input.data_ptr[DType.float32]()
     var spatial_size = 4  # 2 * 2
 
     # Channel 0: 2.0 / 4 = 0.5
@@ -461,7 +461,7 @@ def test_global_avgpool2d_backward_zero_gradient() raises:
 
     var grad_input = global_avgpool2d_backward(grad_output, input)
 
-    var grad_data = grad_input._data.unsafe_bitcast[Float32]()
+    var grad_data = grad_input.data_ptr[DType.float32]()
     for i in range(9):
         assert_almost_equal(grad_data[unsafe_offset=i], 0.0, tolerance=1e-6)
 
@@ -488,7 +488,7 @@ def test_global_avgpool2d_backward_forward_backward_consistency() raises:
 
     var grad_input = global_avgpool2d_backward(grad_output, input)
 
-    var grad_data = grad_input._data.unsafe_bitcast[Float32]()
+    var grad_data = grad_input.data_ptr[DType.float32]()
 
     # Each spatial position should get 1.0 / (2*2) = 0.25
     var expected_per_position = Float32(1.0 / 4.0)

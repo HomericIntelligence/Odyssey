@@ -43,17 +43,13 @@ def compute_mean(tensor: AnyTensor) -> Float64:
 
     if tensor.dtype() == DType.float32:
         for i in range(size):
-            sum += Float64(
-                tensor._data.unsafe_bitcast[Float32]()[unsafe_offset=i]
-            )
+            sum += Float64(tensor.load[DType.float32](i))
     elif tensor.dtype() == DType.float64:
         for i in range(size):
-            sum += tensor._data.unsafe_bitcast[Float64]()[unsafe_offset=i]
+            sum += tensor.load[DType.float64](i)
     elif tensor.dtype() == DType.float16:
         for i in range(size):
-            sum += Float64(
-                tensor._data.unsafe_bitcast[Float16]()[unsafe_offset=i]
-            )
+            sum += Float64(tensor.load[DType.float16](i))
 
     return sum / Float64(size)
 
@@ -65,21 +61,17 @@ def compute_variance(tensor: AnyTensor, mean: Float64) -> Float64:
 
     if tensor.dtype() == DType.float32:
         for i in range(size):
-            var val = Float64(
-                tensor._data.unsafe_bitcast[Float32]()[unsafe_offset=i]
-            )
+            var val = Float64(tensor.load[DType.float32](i))
             var diff = val - mean
             sum_sq += diff * diff
     elif tensor.dtype() == DType.float64:
         for i in range(size):
-            var val = tensor._data.unsafe_bitcast[Float64]()[unsafe_offset=i]
+            var val = tensor.load[DType.float64](i)
             var diff = val - mean
             sum_sq += diff * diff
     elif tensor.dtype() == DType.float16:
         for i in range(size):
-            var val = Float64(
-                tensor._data.unsafe_bitcast[Float16]()[unsafe_offset=i]
-            )
+            var val = Float64(tensor.load[DType.float16](i))
             var diff = val - mean
             sum_sq += diff * diff
 
@@ -137,9 +129,9 @@ def test_all_initializers_respect_seed() raises:
     var xu_match = True
     var xu_differ = False
     for i in range(100):  # Check first 100 elements
-        var v1 = xu1._data.unsafe_bitcast[Float32]()[unsafe_offset=i]
-        var v2 = xu2._data.unsafe_bitcast[Float32]()[unsafe_offset=i]
-        var v3 = xu3._data.unsafe_bitcast[Float32]()[unsafe_offset=i]
+        var v1 = xu1.load[DType.float32](i)
+        var v2 = xu2.load[DType.float32](i)
+        var v3 = xu3.load[DType.float32](i)
         if v1 != v2:
             xu_match = False
         if v1 != v3:
@@ -158,9 +150,9 @@ def test_all_initializers_respect_seed() raises:
     var kn_match = True
     var kn_differ = False
     for i in range(100):
-        var v1 = kn1._data.unsafe_bitcast[Float32]()[unsafe_offset=i]
-        var v2 = kn2._data.unsafe_bitcast[Float32]()[unsafe_offset=i]
-        var v3 = kn3._data.unsafe_bitcast[Float32]()[unsafe_offset=i]
+        var v1 = kn1.load[DType.float32](i)
+        var v2 = kn2.load[DType.float32](i)
+        var v3 = kn3.load[DType.float32](i)
         if v1 != v2:
             kn_match = False
         if v1 != v3:
@@ -179,9 +171,9 @@ def test_all_initializers_respect_seed() raises:
     var u_match = True
     var u_differ = False
     for i in range(100):
-        var v1 = u1._data.unsafe_bitcast[Float32]()[unsafe_offset=i]
-        var v2 = u2._data.unsafe_bitcast[Float32]()[unsafe_offset=i]
-        var v3 = u3._data.unsafe_bitcast[Float32]()[unsafe_offset=i]
+        var v1 = u1.load[DType.float32](i)
+        var v2 = u2.load[DType.float32](i)
+        var v3 = u3.load[DType.float32](i)
         if v1 != v2:
             u_match = False
         if v1 != v3:

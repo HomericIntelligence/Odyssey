@@ -9,7 +9,7 @@ Tensor[dtype] typed wrappers provide type-safe access.
 AnyTensor versions dispatch to typed implementations via ordinal-based table.
 """
 
-from odyssey.core.parallel_utils import parallelize
+from std.runtime.asyncrt import TaskGroup, parallelism_level
 from std.collections import List
 
 from odyssey.tensor.any_tensor import AnyTensor
@@ -213,7 +213,31 @@ def _conv2d_kernel[
                             )
                             output._set_float64(out_idx, Float64(sum_val))
 
-        parallelize[conv_batch](batch)
+        # FM-G WAR (modular/modular#6965): on Mojo 1.0.0 a capturing closure
+        # passed as a function-value parameter has its captures destroyed at
+        # closure-construction (premature __deinit__ -> UAF). Dispatch inline
+        # via TaskGroup so the closure never crosses a function-value boundary.
+        var num_workers = parallelism_level()
+        if num_workers > batch:
+            num_workers = batch
+        if num_workers <= 1:
+            for b in range(batch):
+                conv_batch(b)
+        else:
+            var chunk_size, extra_items = divmod(batch, num_workers)
+
+            @parameter
+            async def conv_worker(thread_idx: Int):
+                var start_idx = thread_idx * chunk_size + min(
+                    thread_idx, extra_items
+                )
+                for i in range(chunk_size + Int(thread_idx < extra_items)):
+                    conv_batch(start_idx + i)
+
+            var tg = TaskGroup()
+            for t in range(num_workers):
+                tg.create_task(conv_worker(t))
+            tg.wait()
     else:
         # Sequential convolution for small batches
         for b in range(batch):

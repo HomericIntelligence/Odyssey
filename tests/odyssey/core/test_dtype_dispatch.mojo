@@ -54,17 +54,17 @@ def test_dispatch_unary_float32_identity() raises:
 
     assert_equal_int(result._numel, 3)
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=0],
+        result.load[DType.float32](0),
         Float32(5.0),
         tolerance=1e-6,
     )
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=1],
+        result.load[DType.float32](1),
         Float32(5.0),
         tolerance=1e-6,
     )
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=2],
+        result.load[DType.float32](2),
         Float32(5.0),
         tolerance=1e-6,
     )
@@ -80,17 +80,17 @@ def test_dispatch_unary_float32_double() raises:
 
     assert_equal_int(result._numel, 3)
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=0],
+        result.load[DType.float32](0),
         Float32(6.0),
         tolerance=1e-6,
     )
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=1],
+        result.load[DType.float32](1),
         Float32(6.0),
         tolerance=1e-6,
     )
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=2],
+        result.load[DType.float32](2),
         Float32(6.0),
         tolerance=1e-6,
     )
@@ -106,7 +106,7 @@ def test_dispatch_unary_float64() raises:
 
     assert_equal_int(result._numel, 2)
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float64]()[unsafe_offset=0],
+        result.load[DType.float64](0),
         Float64(7.0),
         tolerance=1e-6,
     )
@@ -125,15 +125,9 @@ def test_dispatch_unary_int32() raises:
     var result = dispatch_unary[identity_op](x)
 
     assert_equal_int(result._numel, 3)
-    assert_equal_int(
-        Int(result._data.unsafe_bitcast[Int32]()[unsafe_offset=0]), 1
-    )
-    assert_equal_int(
-        Int(result._data.unsafe_bitcast[Int32]()[unsafe_offset=1]), 2
-    )
-    assert_equal_int(
-        Int(result._data.unsafe_bitcast[Int32]()[unsafe_offset=2]), 3
-    )
+    assert_equal_int(Int(result.load[DType.int32](0)), 1)
+    assert_equal_int(Int(result.load[DType.int32](1)), 2)
+    assert_equal_int(Int(result.load[DType.int32](2)), 3)
 
 
 def test_dispatch_unary_uint8() raises:
@@ -148,12 +142,8 @@ def test_dispatch_unary_uint8() raises:
     var result = dispatch_unary[identity_op](x)
 
     assert_equal_int(result._numel, 2)
-    assert_equal_int(
-        Int(result._data.unsafe_bitcast[UInt8]()[unsafe_offset=0]), 42
-    )
-    assert_equal_int(
-        Int(result._data.unsafe_bitcast[UInt8]()[unsafe_offset=1]), 84
-    )
+    assert_equal_int(Int(result.load[DType.uint8](0)), 42)
+    assert_equal_int(Int(result.load[DType.uint8](1)), 84)
 
 
 def test_dispatch_binary_float32_add() raises:
@@ -167,17 +157,17 @@ def test_dispatch_binary_float32_add() raises:
 
     assert_equal_int(result._numel, 3)
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=0],
+        result.load[DType.float32](0),
         Float32(5.0),
         tolerance=1e-6,
     )
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=1],
+        result.load[DType.float32](1),
         Float32(5.0),
         tolerance=1e-6,
     )
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=2],
+        result.load[DType.float32](2),
         Float32(5.0),
         tolerance=1e-6,
     )
@@ -194,12 +184,12 @@ def test_dispatch_binary_float32_mul() raises:
 
     assert_equal_int(result._numel, 2)
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=0],
+        result.load[DType.float32](0),
         Float32(20.0),
         tolerance=1e-6,
     )
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=1],
+        result.load[DType.float32](1),
         Float32(20.0),
         tolerance=1e-6,
     )
@@ -216,7 +206,7 @@ def test_dispatch_binary_float64() raises:
 
     assert_equal_int(result._numel, 2)
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float64]()[unsafe_offset=0],
+        result.load[DType.float64](0),
         Float64(4.0),
         tolerance=1e-6,
     )
@@ -237,12 +227,8 @@ def test_dispatch_binary_int32() raises:
     var result = dispatch_binary[add_op](a, b)
 
     assert_equal_int(result._numel, 2)
-    assert_equal_int(
-        Int(result._data.unsafe_bitcast[Int32]()[unsafe_offset=0]), 15
-    )
-    assert_equal_int(
-        Int(result._data.unsafe_bitcast[Int32]()[unsafe_offset=1]), 30
-    )
+    assert_equal_int(Int(result.load[DType.int32](0)), 15)
+    assert_equal_int(Int(result.load[DType.int32](1)), 30)
 
 
 def test_dispatch_binary_dtype_mismatch() raises:
@@ -271,17 +257,17 @@ def test_dispatch_scalar_float32_add() raises:
 
     assert_equal_int(result._numel, 3)
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=0],
+        result.load[DType.float32](0),
         Float32(15.0),
         tolerance=1e-6,
     )
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=1],
+        result.load[DType.float32](1),
         Float32(15.0),
         tolerance=1e-6,
     )
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=2],
+        result.load[DType.float32](2),
         Float32(15.0),
         tolerance=1e-6,
     )
@@ -297,12 +283,12 @@ def test_dispatch_scalar_float32_mul() raises:
 
     assert_equal_int(result._numel, 2)
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=0],
+        result.load[DType.float32](0),
         Float32(12.0),
         tolerance=1e-6,
     )
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=1],
+        result.load[DType.float32](1),
         Float32(12.0),
         tolerance=1e-6,
     )
@@ -320,12 +306,8 @@ def test_dispatch_scalar_int32() raises:
     var result = dispatch_scalar[add_op](x, 3.0)
 
     assert_equal_int(result._numel, 2)
-    assert_equal_int(
-        Int(result._data.unsafe_bitcast[Int32]()[unsafe_offset=0]), 8
-    )
-    assert_equal_int(
-        Int(result._data.unsafe_bitcast[Int32]()[unsafe_offset=1]), 13
-    )
+    assert_equal_int(Int(result.load[DType.int32](0)), 8)
+    assert_equal_int(Int(result.load[DType.int32](1)), 13)
 
 
 def test_dispatch_float_unary_float32() raises:
@@ -338,7 +320,7 @@ def test_dispatch_float_unary_float32() raises:
 
     assert_equal_int(result._numel, 2)
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=0],
+        result.load[DType.float32](0),
         Float32(2.0),
         tolerance=1e-6,
     )
@@ -354,7 +336,7 @@ def test_dispatch_float_unary_float64() raises:
 
     assert_equal_int(result._numel, 2)
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float64]()[unsafe_offset=0],
+        result.load[DType.float64](0),
         Float64(3.5),
         tolerance=1e-6,
     )
@@ -386,7 +368,7 @@ def test_dispatch_float_binary_float32() raises:
 
     assert_equal_int(result._numel, 2)
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=0],
+        result.load[DType.float32](0),
         Float32(4.0),
         tolerance=1e-6,
     )
@@ -418,7 +400,7 @@ def test_dispatch_float_scalar_float32() raises:
 
     assert_equal_int(result._numel, 2)
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=0],
+        result.load[DType.float32](0),
         Float32(10.0),
         tolerance=1e-6,
     )
@@ -450,12 +432,12 @@ def test_dispatch_unary_2d_tensor() raises:
 
     assert_equal_int(result._numel, 6)
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=0],
+        result.load[DType.float32](0),
         Float32(8.0),
         tolerance=1e-6,
     )
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=5],
+        result.load[DType.float32](5),
         Float32(8.0),
         tolerance=1e-6,
     )
@@ -473,12 +455,12 @@ def test_dispatch_binary_2d_tensor() raises:
 
     assert_equal_int(result._numel, 4)
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=0],
+        result.load[DType.float32](0),
         Float32(6.0),
         tolerance=1e-6,
     )
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=3],
+        result.load[DType.float32](3),
         Float32(6.0),
         tolerance=1e-6,
     )

@@ -97,7 +97,7 @@ def test_sequential2_relu_clips_negatives() raises:
     var input = ones([1, 4], DType.float32)
     var output = model.forward(input)
     var n = output.numel()
-    var out_data = output._data.unsafe_bitcast[Float32]()
+    var out_data = output.data_ptr[DType.float32]()
     for i in range(n):
         assert_true(
             out_data[unsafe_offset=i] >= 0.0,

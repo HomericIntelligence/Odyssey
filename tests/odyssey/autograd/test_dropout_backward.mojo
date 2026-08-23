@@ -85,7 +85,7 @@ def test_dropout_backward_p_zero() raises:
     # With p=0, all gradients should pass through unchanged
     for i in range(x.numel()):
         assert_almost_equal(
-            grad_input._data.unsafe_bitcast[Float32]()[unsafe_offset=i],
+            grad_input.load[DType.float32](i),
             Float32(1.0),
             tolerance=1e-5,
         )
@@ -115,8 +115,8 @@ def test_dropout_backward_p_high() raises:
     var scale = Float32(1.0 / (1.0 - p))
 
     for i in range(x.numel()):
-        var mask_val = mask._data.unsafe_bitcast[Float32]()[unsafe_offset=i]
-        var grad_val = grad_input._data.unsafe_bitcast[Float32]()[unsafe_offset=i]
+        var mask_val = mask.load[DType.float32](i)
+        var grad_val = grad_input.load[DType.float32](i)
 
         if mask_val > 0:
             # Gradient should be scaled by 1/(1-p) = 10
@@ -144,7 +144,7 @@ def test_dropout_backward_mask_application() raises:
 
     # Create gradient tensor with all 5s
     var grad_output = ones(shape, DType.float32)
-    var grad_output_ptr = grad_output._data.unsafe_bitcast[Float32]()
+    var grad_output_ptr = grad_output.data_ptr[DType.float32]()
     for i in range(grad_output.numel()):
         grad_output_ptr[unsafe_offset=i] = 5.0
 
@@ -154,8 +154,8 @@ def test_dropout_backward_mask_application() raises:
     var scale = Float32(1.0 / (1.0 - p))
 
     for i in range(x.numel()):
-        var mask_val = mask._data.unsafe_bitcast[Float32]()[unsafe_offset=i]
-        var grad_val = grad_input._data.unsafe_bitcast[Float32]()[unsafe_offset=i]
+        var mask_val = mask.load[DType.float32](i)
+        var grad_val = grad_input.load[DType.float32](i)
 
         if mask_val > 0:
             # Gradient should be 5.0 * scale
@@ -190,8 +190,8 @@ def test_dropout_backward_consistency() raises:
     # Results should be identical
     for i in range(x.numel()):
         assert_almost_equal(
-            grad1._data.unsafe_bitcast[Float32]()[unsafe_offset=i],
-            grad2._data.unsafe_bitcast[Float32]()[unsafe_offset=i],
+            grad1.load[DType.float32](i),
+            grad2.load[DType.float32](i),
             tolerance=1e-6,
         )
 
@@ -256,8 +256,8 @@ def test_dropout2d_backward_scaling() raises:
         if num_checks >= max_checks:
             break
 
-        var mask_val = mask._data.unsafe_bitcast[Float32]()[unsafe_offset=i]
-        var grad_val = grad_input._data.unsafe_bitcast[Float32]()[unsafe_offset=i]
+        var mask_val = mask.load[DType.float32](i)
+        var grad_val = grad_input.load[DType.float32](i)
 
         if mask_val > 0:
             assert_almost_equal(grad_val, scale, tolerance=1e-4)
@@ -295,13 +295,13 @@ def test_dropout2d_backward_channel_consistency() raises:
     for c in range(channels):
         # Get mask value for first pixel of channel
         var first_idx = c * spatial_size
-        var channel_mask_val = mask._data.unsafe_bitcast[Float32]()[unsafe_offset=first_idx]
+        var channel_mask_val = mask.load[DType.float32](first_idx)
 
         # All gradients in this channel should have same pattern
         for h in range(height):
             for w in range(width):
                 var idx = c * spatial_size + h * width + w
-                var grad_val = grad_input._data.unsafe_bitcast[Float32]()[unsafe_offset=idx]
+                var grad_val = grad_input.load[DType.float32](idx)
 
                 if channel_mask_val > 0:
                     # Channel is kept - all should have same gradient

@@ -4,7 +4,7 @@ This module provides pure functional implementations of normalization operations
 All operations are stateless - caller manages running statistics and parameters.
 """
 
-from odyssey.core.parallel_utils import parallelize
+from std.runtime.asyncrt import TaskGroup, parallelism_level
 from std.math import sqrt
 
 from odyssey.tensor.any_tensor import AnyTensor
@@ -144,7 +144,31 @@ def _batch_norm2d_normalize[
                             gamma_val * x_norm + beta_val
                         )
 
-        parallelize[normalize_batch](batch)
+        # FM-G WAR (modular/modular#6965): on Mojo 1.0.0 a capturing closure
+        # passed as a function-value parameter has its captures destroyed at
+        # closure-construction (premature __deinit__ -> UAF). Dispatch inline
+        # via TaskGroup so the closure never crosses a function-value boundary.
+        var num_workers = parallelism_level()
+        if num_workers > batch:
+            num_workers = batch
+        if num_workers <= 1:
+            for b in range(batch):
+                normalize_batch(b)
+        else:
+            var chunk_size, extra_items = divmod(batch, num_workers)
+
+            @parameter
+            async def normalize_worker(thread_idx: Int):
+                var start_idx = thread_idx * chunk_size + min(
+                    thread_idx, extra_items
+                )
+                for i in range(chunk_size + Int(thread_idx < extra_items)):
+                    normalize_batch(start_idx + i)
+
+            var tg = TaskGroup()
+            for t in range(num_workers):
+                tg.create_task(normalize_worker(t))
+            tg.wait()
     else:
         for b in range(batch):
             for c in range(channels):
@@ -1302,7 +1326,9 @@ def _group_norm_impl[
                 for h in range(height):
                     for w in range(width):
                         sum_val += xp[
-                            unsafe_offset=_idx4d(b, c, h, w, channels, height, width)
+                            unsafe_offset=_idx4d(
+                                b, c, h, w, channels, height, width
+                            )
                         ]
             var mean_val = sum_val / N
 
@@ -1462,7 +1488,9 @@ def _group_norm_backward_impl[
                 for h in range(height):
                     for w in range(width):
                         sum_val += xp[
-                            unsafe_offset=_idx4d(b, c, h, w, channels, height, width)
+                            unsafe_offset=_idx4d(
+                                b, c, h, w, channels, height, width
+                            )
                         ]
             var mean_val = sum_val / N
 
@@ -1505,7 +1533,9 @@ def _group_norm_backward_impl[
                 for h in range(height):
                     for w in range(width):
                         sum_val += xp[
-                            unsafe_offset=_idx4d(b, c, h, w, channels, height, width)
+                            unsafe_offset=_idx4d(
+                                b, c, h, w, channels, height, width
+                            )
                         ]
             var mean_val = sum_val / N
 

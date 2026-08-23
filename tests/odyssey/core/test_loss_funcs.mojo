@@ -54,7 +54,7 @@ def test_cross_entropy_basic() raises:
     logits_shape.append(2)
     var logits = zeros(logits_shape, DType.float32)
 
-    var logits_data = logits._data.unsafe_bitcast[Float32]()
+    var logits_data = logits.data_ptr[DType.float32]()
     logits_data[unsafe_offset=0] = 1.0
     logits_data[unsafe_offset=1] = 0.0
 
@@ -63,13 +63,13 @@ def test_cross_entropy_basic() raises:
     targets_shape.append(2)
     var targets = zeros(targets_shape, DType.float32)
 
-    var targets_data = targets._data.unsafe_bitcast[Float32]()
+    var targets_data = targets.data_ptr[DType.float32]()
     targets_data[unsafe_offset=0] = 1.0  # Target class 0
     targets_data[unsafe_offset=1] = 0.0
 
     var loss = cross_entropy(logits, targets)
 
-    var loss_data = loss._data.unsafe_bitcast[Float32]()
+    var loss_data = loss.data_ptr[DType.float32]()
     assert_greater_or_equal(
         loss_data[unsafe_offset=0], 0.0, "Loss should be non-negative"
     )
@@ -82,7 +82,7 @@ def test_cross_entropy_correct_prediction() raises:
     logits_shape.append(3)
     var logits = zeros(logits_shape, DType.float32)
 
-    var logits_data = logits._data.unsafe_bitcast[Float32]()
+    var logits_data = logits.data_ptr[DType.float32]()
     logits_data[unsafe_offset=0] = 5.0  # High score for correct class
     logits_data[unsafe_offset=1] = 0.0
     logits_data[unsafe_offset=2] = 0.0
@@ -92,14 +92,14 @@ def test_cross_entropy_correct_prediction() raises:
     targets_shape.append(3)
     var targets = zeros(targets_shape, DType.float32)
 
-    var targets_data = targets._data.unsafe_bitcast[Float32]()
+    var targets_data = targets.data_ptr[DType.float32]()
     targets_data[unsafe_offset=0] = 1.0  # Target is class 0
     targets_data[unsafe_offset=1] = 0.0
     targets_data[unsafe_offset=2] = 0.0
 
     var loss = cross_entropy(logits, targets)
 
-    var loss_data = loss._data.unsafe_bitcast[Float32]()
+    var loss_data = loss.data_ptr[DType.float32]()
     assert_greater_or_equal(
         loss_data[unsafe_offset=0], 0.0, "Loss should be non-negative"
     )
@@ -140,7 +140,7 @@ def test_mean_squared_error_zero_error() raises:
 
     var loss = mean_squared_error(predictions, targets)
 
-    var loss_data = loss._data.unsafe_bitcast[Float32]()
+    var loss_data = loss.data_ptr[DType.float32]()
     for i in range(4):
         assert_almost_equal(loss_data[unsafe_offset=i], 0.0, tolerance=1e-5)
 
@@ -151,7 +151,7 @@ def test_mean_squared_error_simple() raises:
     pred_shape.append(4)
     var predictions = zeros(pred_shape, DType.float32)
 
-    var pred_data = predictions._data.unsafe_bitcast[Float32]()
+    var pred_data = predictions.data_ptr[DType.float32]()
     pred_data[unsafe_offset=0] = 1.0
     pred_data[unsafe_offset=1] = 2.0
     pred_data[unsafe_offset=2] = 3.0
@@ -161,7 +161,7 @@ def test_mean_squared_error_simple() raises:
     targets_shape.append(4)
     var targets = zeros(targets_shape, DType.float32)
 
-    var targets_data = targets._data.unsafe_bitcast[Float32]()
+    var targets_data = targets.data_ptr[DType.float32]()
     targets_data[unsafe_offset=0] = 0.0
     targets_data[unsafe_offset=1] = 0.0
     targets_data[unsafe_offset=2] = 0.0
@@ -169,7 +169,7 @@ def test_mean_squared_error_simple() raises:
 
     var loss = mean_squared_error(predictions, targets)
 
-    var loss_data = loss._data.unsafe_bitcast[Float32]()
+    var loss_data = loss.data_ptr[DType.float32]()
     assert_almost_equal(
         loss_data[unsafe_offset=0], 1.0, tolerance=1e-5
     )  # (1-0)^2 = 1
@@ -209,7 +209,7 @@ def test_mean_squared_error_backward() raises:
     pred_shape.append(2)
     var predictions = zeros(pred_shape, DType.float32)
 
-    var pred_data = predictions._data.unsafe_bitcast[Float32]()
+    var pred_data = predictions.data_ptr[DType.float32]()
     pred_data[unsafe_offset=0] = 2.0
     pred_data[unsafe_offset=1] = 4.0
 
@@ -217,7 +217,7 @@ def test_mean_squared_error_backward() raises:
     targets_shape.append(2)
     var targets = zeros(targets_shape, DType.float32)
 
-    var targets_data = targets._data.unsafe_bitcast[Float32]()
+    var targets_data = targets.data_ptr[DType.float32]()
     targets_data[unsafe_offset=0] = 1.0
     targets_data[unsafe_offset=1] = 2.0
 
@@ -229,7 +229,7 @@ def test_mean_squared_error_backward() raises:
         grad_output, predictions, targets
     )
 
-    var grad_data = grad_pred._data.unsafe_bitcast[Float32]()
+    var grad_data = grad_pred.data_ptr[DType.float32]()
     # Gradient: 2 * (predictions - targets)
     # grad[0] = 2 * (2 - 1) = 2
     # grad[1] = 2 * (4 - 2) = 4
@@ -285,7 +285,7 @@ def test_binary_cross_entropy_basic() raises:
     pred_shape.append(2)
     var predictions = zeros(pred_shape, DType.float32)
 
-    var pred_data = predictions._data.unsafe_bitcast[Float32]()
+    var pred_data = predictions.data_ptr[DType.float32]()
     pred_data[unsafe_offset=0] = 0.9  # High confidence in class 1
     pred_data[unsafe_offset=1] = 0.1  # Low confidence in class 1
 
@@ -293,13 +293,13 @@ def test_binary_cross_entropy_basic() raises:
     targets_shape.append(2)
     var targets = zeros(targets_shape, DType.float32)
 
-    var targets_data = targets._data.unsafe_bitcast[Float32]()
+    var targets_data = targets.data_ptr[DType.float32]()
     targets_data[unsafe_offset=0] = 1.0  # True label 1
     targets_data[unsafe_offset=1] = 0.0  # True label 0
 
     var loss = binary_cross_entropy(predictions, targets)
 
-    var loss_data = loss._data.unsafe_bitcast[Float32]()
+    var loss_data = loss.data_ptr[DType.float32]()
     for i in range(2):
         assert_greater_or_equal(
             loss_data[unsafe_offset=i], 0.0, "BCE loss non-negative"
@@ -312,7 +312,7 @@ def test_binary_cross_entropy_perfect_prediction() raises:
     pred_shape.append(1)
     var predictions = zeros(pred_shape, DType.float32)
 
-    var pred_data = predictions._data.unsafe_bitcast[Float32]()
+    var pred_data = predictions.data_ptr[DType.float32]()
     pred_data[unsafe_offset=0] = 0.99  # Near 1.0
 
     var targets_shape = List[Int]()
@@ -321,7 +321,7 @@ def test_binary_cross_entropy_perfect_prediction() raises:
 
     var loss = binary_cross_entropy(predictions, targets)
 
-    var loss_data = loss._data.unsafe_bitcast[Float32]()
+    var loss_data = loss.data_ptr[DType.float32]()
     assert_less_or_equal(
         loss_data[unsafe_offset=0], 0.1, "Small loss for good prediction"
     )
@@ -333,7 +333,7 @@ def test_binary_cross_entropy_backward() raises:
     pred_shape.append(2)
     var predictions = zeros(pred_shape, DType.float32)
 
-    var pred_data = predictions._data.unsafe_bitcast[Float32]()
+    var pred_data = predictions.data_ptr[DType.float32]()
     pred_data[unsafe_offset=0] = 0.7
     pred_data[unsafe_offset=1] = 0.3
 
@@ -341,7 +341,7 @@ def test_binary_cross_entropy_backward() raises:
     targets_shape.append(2)
     var targets = zeros(targets_shape, DType.float32)
 
-    var targets_data = targets._data.unsafe_bitcast[Float32]()
+    var targets_data = targets.data_ptr[DType.float32]()
     targets_data[unsafe_offset=0] = 1.0
     targets_data[unsafe_offset=1] = 0.0
 
@@ -370,8 +370,8 @@ def test_loss_non_negative() raises:
     var mse_loss = mean_squared_error(predictions, targets)
     var bce_loss = binary_cross_entropy(predictions, targets)
 
-    var mse_data = mse_loss._data.unsafe_bitcast[Float32]()
-    var bce_data = bce_loss._data.unsafe_bitcast[Float32]()
+    var mse_data = mse_loss.data_ptr[DType.float32]()
+    var bce_data = bce_loss.data_ptr[DType.float32]()
 
     for i in range(4):
         assert_greater_or_equal(
@@ -415,8 +415,8 @@ def test_mse_symmetric() raises:
     var a = zeros(shape, DType.float32)
     var b = zeros(shape, DType.float32)
 
-    var a_data = a._data.unsafe_bitcast[Float32]()
-    var b_data = b._data.unsafe_bitcast[Float32]()
+    var a_data = a.data_ptr[DType.float32]()
+    var b_data = b.data_ptr[DType.float32]()
 
     for i in range(3):
         a_data[unsafe_offset=i] = Float32(i)
@@ -425,12 +425,14 @@ def test_mse_symmetric() raises:
     var loss_ab = mean_squared_error(a, b)
     var loss_ba = mean_squared_error(b, a)
 
-    var loss_ab_data = loss_ab._data.unsafe_bitcast[Float32]()
-    var loss_ba_data = loss_ba._data.unsafe_bitcast[Float32]()
+    var loss_ab_data = loss_ab.data_ptr[DType.float32]()
+    var loss_ba_data = loss_ba.data_ptr[DType.float32]()
 
     for i in range(3):
         assert_almost_equal(
-            loss_ab_data[unsafe_offset=i], loss_ba_data[unsafe_offset=i], tolerance=1e-5
+            loss_ab_data[unsafe_offset=i],
+            loss_ba_data[unsafe_offset=i],
+            tolerance=1e-5,
         )
 
 

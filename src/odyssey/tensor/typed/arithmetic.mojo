@@ -90,11 +90,14 @@ def _broadcast_binary_typed[
         result_strides_final.append(result_strides[i])
 
     # Get typed pointers -- Tensor[dtype]._data is already typed, but
-    # a_cont/b_cont are AnyTensor (from contiguity check), so bitcast from
-    # their UInt8 storage. Result uses native typed pointer directly.
-    var a_ptr = a_cont._data.unsafe_bitcast[Scalar[dtype]]()
-    var b_ptr = b_cont._data.unsafe_bitcast[Scalar[dtype]]()
-    var result_ptr = result._data
+    # a_cont/b_cont are AnyTensor (from contiguity check), so use the
+    # origin-tied data_ptr (WAR for modular/modular#6963: direct `_data`
+    # access from an owned local hoists the owner's `__deinit__` before
+    # the pointer is used, freeing the buffer mid-loop). Result uses the
+    # native typed pointer directly.
+    var a_ptr = a_cont.data_ptr[dtype]()
+    var b_ptr = b_cont.data_ptr[dtype]()
+    var result_ptr = result.data_ptr()
 
     # Iterate over all result elements
     for result_idx in range(total_elems):
@@ -234,7 +237,7 @@ def _multiply_scalar_typed[
     var numel = result.numel()
 
     var input_ptr = t_cont._data.unsafe_bitcast[Scalar[dt]]()
-    var result_ptr = result._data
+    var result_ptr = result.data_ptr()
     var scalar_cast = Scalar[dt](scalar)
     for i in range(numel):
         result_ptr[unsafe_offset=i] = input_ptr[unsafe_offset=i] * scalar_cast

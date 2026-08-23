@@ -198,27 +198,27 @@ def test_abs_values() raises:
     var result = abs(x)
 
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=0],
+        result.load[DType.float32](0),
         Float32(5.0),
         tolerance=1e-5,
     )
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=1],
+        result.load[DType.float32](1),
         Float32(2.0),
         tolerance=1e-5,
     )
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=2],
+        result.load[DType.float32](2),
         Float32(0.0),
         tolerance=1e-5,
     )
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=3],
+        result.load[DType.float32](3),
         Float32(3.0),
         tolerance=1e-5,
     )
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=4],
+        result.load[DType.float32](4),
         Float32(7.0),
         tolerance=1e-5,
     )
@@ -239,17 +239,17 @@ def test_abs_backward() raises:
 
     # Gradient: -1 for x < 0, +1 for x > 0, 0 for x == 0
     assert_almost_equal(
-        grad_input._data.unsafe_bitcast[Float32]()[unsafe_offset=0],
+        grad_input.load[DType.float32](0),
         Float32(-1.0),
         tolerance=1e-5,
     )
     assert_almost_equal(
-        grad_input._data.unsafe_bitcast[Float32]()[unsafe_offset=1],
+        grad_input.load[DType.float32](1),
         Float32(0.0),
         tolerance=1e-5,
     )
     assert_almost_equal(
-        grad_input._data.unsafe_bitcast[Float32]()[unsafe_offset=2],
+        grad_input.load[DType.float32](2),
         Float32(1.0),
         tolerance=1e-5,
     )
@@ -288,27 +288,27 @@ def test_sign_values() raises:
     var result = sign(x)
 
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=0],
+        result.load[DType.float32](0),
         Float32(-1.0),
         tolerance=1e-5,
     )
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=1],
+        result.load[DType.float32](1),
         Float32(-1.0),
         tolerance=1e-5,
     )
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=2],
+        result.load[DType.float32](2),
         Float32(0.0),
         tolerance=1e-5,
     )
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=3],
+        result.load[DType.float32](3),
         Float32(1.0),
         tolerance=1e-5,
     )
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=4],
+        result.load[DType.float32](4),
         Float32(1.0),
         tolerance=1e-5,
     )
@@ -331,22 +331,22 @@ def test_logical_xor_basic() raises:
 
     # XOR: [0^0=0, 1^0=1, 0^1=1, 1^1=0]
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=0],
+        result.load[DType.float32](0),
         Float32(0.0),
         tolerance=1e-5,
     )
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=1],
+        result.load[DType.float32](1),
         Float32(1.0),
         tolerance=1e-5,
     )
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=2],
+        result.load[DType.float32](2),
         Float32(1.0),
         tolerance=1e-5,
     )
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=3],
+        result.load[DType.float32](3),
         Float32(0.0),
         tolerance=1e-5,
     )
@@ -364,7 +364,7 @@ def test_logical_xor_same_inputs() raises:
     # XOR of identical inputs should be all 0
     for i in range(3):
         assert_almost_equal(
-            result._data.unsafe_bitcast[Float32]()[unsafe_offset=i],
+            result.load[DType.float32](i),
             Float32(0.0),
             tolerance=1e-5,
         )
@@ -397,17 +397,17 @@ def test_exp_values() raises:
 
     # exp(0) = 1, exp(1) ≈ 2.718, exp(2) ≈ 7.389
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=0],
+        result.load[DType.float32](0),
         Float32(1.0),
         tolerance=1e-5,
     )
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=1],
+        result.load[DType.float32](1),
         Float32(2.718),
         tolerance=0.01,
     )
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=2],
+        result.load[DType.float32](2),
         Float32(7.389),
         tolerance=0.01,
     )
@@ -427,12 +427,12 @@ def test_exp_backward() raises:
 
     # d/dx[exp(x)] = exp(x)
     assert_almost_equal(
-        grad_input._data.unsafe_bitcast[Float32]()[unsafe_offset=0],
+        grad_input.load[DType.float32](0),
         Float32(1.0),
         tolerance=1e-5,
     )
     assert_almost_equal(
-        grad_input._data.unsafe_bitcast[Float32]()[unsafe_offset=1],
+        grad_input.load[DType.float32](1),
         Float32(2.718),
         tolerance=0.01,
     )
@@ -483,17 +483,17 @@ def test_log_values() raises:
 
     # log(1) = 0, log(e) ≈ 1, log(e^2) ≈ 2
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=0],
+        result.load[DType.float32](0),
         Float32(0.0),
         tolerance=1e-5,
     )
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=1],
+        result.load[DType.float32](1),
         Float32(1.0),
         tolerance=0.01,
     )
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=2],
+        result.load[DType.float32](2),
         Float32(2.0),
         tolerance=0.01,
     )
@@ -513,12 +513,12 @@ def test_log_backward() raises:
 
     # d/dx[log(x)] = 1/x
     assert_almost_equal(
-        grad_input._data.unsafe_bitcast[Float32]()[unsafe_offset=0],
+        grad_input.load[DType.float32](0),
         Float32(1.0),
         tolerance=1e-5,
     )
     assert_almost_equal(
-        grad_input._data.unsafe_bitcast[Float32]()[unsafe_offset=1],
+        grad_input.load[DType.float32](1),
         Float32(0.5),
         tolerance=1e-5,
     )
@@ -556,17 +556,17 @@ def test_log10_values() raises:
 
     # log10(1) = 0, log10(10) = 1, log10(100) = 2
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=0],
+        result.load[DType.float32](0),
         Float32(0.0),
         tolerance=1e-5,
     )
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=1],
+        result.load[DType.float32](1),
         Float32(1.0),
         tolerance=1e-5,
     )
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=2],
+        result.load[DType.float32](2),
         Float32(2.0),
         tolerance=1e-5,
     )
@@ -604,17 +604,17 @@ def test_log2_values() raises:
 
     # log2(1) = 0, log2(2) = 1, log2(8) = 3
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=0],
+        result.load[DType.float32](0),
         Float32(0.0),
         tolerance=1e-5,
     )
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=1],
+        result.load[DType.float32](1),
         Float32(1.0),
         tolerance=1e-5,
     )
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=2],
+        result.load[DType.float32](2),
         Float32(3.0),
         tolerance=1e-5,
     )
@@ -665,22 +665,22 @@ def test_sqrt_values() raises:
     var result = sqrt(x)
 
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=0],
+        result.load[DType.float32](0),
         Float32(0.0),
         tolerance=1e-5,
     )
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=1],
+        result.load[DType.float32](1),
         Float32(1.0),
         tolerance=1e-5,
     )
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=2],
+        result.load[DType.float32](2),
         Float32(2.0),
         tolerance=1e-5,
     )
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=3],
+        result.load[DType.float32](3),
         Float32(3.0),
         tolerance=1e-5,
     )
@@ -702,12 +702,12 @@ def test_sqrt_backward() raises:
     # x=1: 1/(2*1) = 0.5
     # x=4: 1/(2*2) = 0.25
     assert_almost_equal(
-        grad_input._data.unsafe_bitcast[Float32]()[unsafe_offset=0],
+        grad_input.load[DType.float32](0),
         Float32(0.5),
         tolerance=1e-5,
     )
     assert_almost_equal(
-        grad_input._data.unsafe_bitcast[Float32]()[unsafe_offset=1],
+        grad_input.load[DType.float32](1),
         Float32(0.25),
         tolerance=1e-5,
     )
@@ -745,17 +745,17 @@ def test_sin_values() raises:
 
     # sin(0) = 0, sin(π/2) = 1, sin(π) = 0
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=0],
+        result.load[DType.float32](0),
         Float32(0.0),
         tolerance=1e-5,
     )
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=1],
+        result.load[DType.float32](1),
         Float32(1.0),
         tolerance=1e-5,
     )
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=2],
+        result.load[DType.float32](2),
         Float32(0.0),
         tolerance=1e-5,
     )
@@ -775,17 +775,17 @@ def test_cos_values() raises:
 
     # cos(0) = 1, cos(π/2) = 0, cos(π) = -1
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=0],
+        result.load[DType.float32](0),
         Float32(1.0),
         tolerance=1e-5,
     )
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=1],
+        result.load[DType.float32](1),
         Float32(0.0),
         tolerance=1e-5,
     )
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=2],
+        result.load[DType.float32](2),
         Float32(-1.0),
         tolerance=1e-5,
     )
@@ -807,17 +807,17 @@ def test_sin_backward() raises:
     # d/dx[sin(x)] = cos(x)
     # cos(0) = 1, cos(π/2) = 0, cos(π) = -1
     assert_almost_equal(
-        grad_input._data.unsafe_bitcast[Float32]()[unsafe_offset=0],
+        grad_input.load[DType.float32](0),
         Float32(1.0),
         tolerance=1e-5,
     )
     assert_almost_equal(
-        grad_input._data.unsafe_bitcast[Float32]()[unsafe_offset=1],
+        grad_input.load[DType.float32](1),
         Float32(0.0),
         tolerance=1e-5,
     )
     assert_almost_equal(
-        grad_input._data.unsafe_bitcast[Float32]()[unsafe_offset=2],
+        grad_input.load[DType.float32](2),
         Float32(-1.0),
         tolerance=1e-5,
     )
@@ -857,17 +857,17 @@ def test_cos_backward() raises:
     # d/dx[cos(x)] = -sin(x)
     # -sin(0) = 0, -sin(π/2) = -1, -sin(π) = 0
     assert_almost_equal(
-        grad_input._data.unsafe_bitcast[Float32]()[unsafe_offset=0],
+        grad_input.load[DType.float32](0),
         Float32(0.0),
         tolerance=1e-5,
     )
     assert_almost_equal(
-        grad_input._data.unsafe_bitcast[Float32]()[unsafe_offset=1],
+        grad_input.load[DType.float32](1),
         Float32(-1.0),
         tolerance=1e-5,
     )
     assert_almost_equal(
-        grad_input._data.unsafe_bitcast[Float32]()[unsafe_offset=2],
+        grad_input.load[DType.float32](2),
         Float32(0.0),
         tolerance=1e-5,
     )
@@ -920,27 +920,27 @@ def test_clip_values() raises:
 
     # Clip to [-2, 2]
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=0],
+        result.load[DType.float32](0),
         Float32(-2.0),
         tolerance=1e-5,
     )
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=1],
+        result.load[DType.float32](1),
         Float32(-1.0),
         tolerance=1e-5,
     )
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=2],
+        result.load[DType.float32](2),
         Float32(0.0),
         tolerance=1e-5,
     )
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=3],
+        result.load[DType.float32](3),
         Float32(1.0),
         tolerance=1e-5,
     )
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=4],
+        result.load[DType.float32](4),
         Float32(2.0),
         tolerance=1e-5,
     )
@@ -963,27 +963,27 @@ def test_clip_backward() raises:
 
     # Gradient is 0 outside range, 1 inside range
     assert_almost_equal(
-        grad_input._data.unsafe_bitcast[Float32]()[unsafe_offset=0],
+        grad_input.load[DType.float32](0),
         Float32(0.0),
         tolerance=1e-5,
     )
     assert_almost_equal(
-        grad_input._data.unsafe_bitcast[Float32]()[unsafe_offset=1],
+        grad_input.load[DType.float32](1),
         Float32(1.0),
         tolerance=1e-5,
     )
     assert_almost_equal(
-        grad_input._data.unsafe_bitcast[Float32]()[unsafe_offset=2],
+        grad_input.load[DType.float32](2),
         Float32(1.0),
         tolerance=1e-5,
     )
     assert_almost_equal(
-        grad_input._data.unsafe_bitcast[Float32]()[unsafe_offset=3],
+        grad_input.load[DType.float32](3),
         Float32(1.0),
         tolerance=1e-5,
     )
     assert_almost_equal(
-        grad_input._data.unsafe_bitcast[Float32]()[unsafe_offset=4],
+        grad_input.load[DType.float32](4),
         Float32(0.0),
         tolerance=1e-5,
     )
@@ -1022,27 +1022,27 @@ def test_ceil_values() raises:
     var result = ceil(x)
 
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=0],
+        result.load[DType.float32](0),
         Float32(-2.0),
         tolerance=1e-5,
     )
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=1],
+        result.load[DType.float32](1),
         Float32(-1.0),
         tolerance=1e-5,
     )
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=2],
+        result.load[DType.float32](2),
         Float32(0.0),
         tolerance=1e-5,
     )
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=3],
+        result.load[DType.float32](3),
         Float32(2.0),
         tolerance=1e-5,
     )
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=4],
+        result.load[DType.float32](4),
         Float32(3.0),
         tolerance=1e-5,
     )
@@ -1063,27 +1063,27 @@ def test_floor_values() raises:
     var result = floor(x)
 
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=0],
+        result.load[DType.float32](0),
         Float32(-3.0),
         tolerance=1e-5,
     )
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=1],
+        result.load[DType.float32](1),
         Float32(-2.0),
         tolerance=1e-5,
     )
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=2],
+        result.load[DType.float32](2),
         Float32(0.0),
         tolerance=1e-5,
     )
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=3],
+        result.load[DType.float32](3),
         Float32(1.0),
         tolerance=1e-5,
     )
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=4],
+        result.load[DType.float32](4),
         Float32(2.0),
         tolerance=1e-5,
     )
@@ -1105,27 +1105,27 @@ def test_round_values() raises:
 
     # Round to nearest even (banker's rounding)
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=0],
+        result.load[DType.float32](0),
         Float32(-2.0),
         tolerance=1e-5,
     )
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=1],
+        result.load[DType.float32](1),
         Float32(-1.0),
         tolerance=1e-5,
     )
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=2],
+        result.load[DType.float32](2),
         Float32(0.0),
         tolerance=1e-5,
     )
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=3],
+        result.load[DType.float32](3),
         Float32(1.0),
         tolerance=1e-5,
     )
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=4],
+        result.load[DType.float32](4),
         Float32(2.0),
         tolerance=1e-5,
     )
@@ -1153,22 +1153,22 @@ def test_logical_and_values() raises:
 
     # AND truth table: 0, 0, 0, 1
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=0],
+        result.load[DType.float32](0),
         Float32(0.0),
         tolerance=1e-5,
     )
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=1],
+        result.load[DType.float32](1),
         Float32(0.0),
         tolerance=1e-5,
     )
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=2],
+        result.load[DType.float32](2),
         Float32(0.0),
         tolerance=1e-5,
     )
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=3],
+        result.load[DType.float32](3),
         Float32(1.0),
         tolerance=1e-5,
     )
@@ -1195,22 +1195,22 @@ def test_logical_or_values() raises:
 
     # OR truth table: 0, 1, 1, 1
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=0],
+        result.load[DType.float32](0),
         Float32(0.0),
         tolerance=1e-5,
     )
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=1],
+        result.load[DType.float32](1),
         Float32(1.0),
         tolerance=1e-5,
     )
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=2],
+        result.load[DType.float32](2),
         Float32(1.0),
         tolerance=1e-5,
     )
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=3],
+        result.load[DType.float32](3),
         Float32(1.0),
         tolerance=1e-5,
     )
@@ -1229,12 +1229,12 @@ def test_logical_not_values() raises:
 
     # NOT truth table: 1, 0
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=0],
+        result.load[DType.float32](0),
         Float32(1.0),
         tolerance=1e-5,
     )
     assert_almost_equal(
-        result._data.unsafe_bitcast[Float32]()[unsafe_offset=1],
+        result.load[DType.float32](1),
         Float32(0.0),
         tolerance=1e-5,
     )

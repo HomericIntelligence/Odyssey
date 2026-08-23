@@ -50,8 +50,13 @@ def _as_contiguous_typed[
     var shape = tensor.shape()
     var numel = tensor.numel()
     var result = Tensor[dtype](shape)
+    # Origin-tied pointers (WAR for modular/modular#6963: direct `_data`
+    # capture from an owned local hoists the owner's `__deinit__` before
+    # the pointer is used, freeing the buffer mid-copy). `tensor` is a
+    # borrowed param (owner is the caller — safe); `result` is an owned
+    # local returned by move, so its pointer must be origin-tied.
     var src_ptr = tensor._data
-    var dst_ptr = result._data
+    var dst_ptr = result.data_ptr()
 
     if tensor.is_contiguous():
         # Fast path: direct typed copy
@@ -122,7 +127,7 @@ def _reshape_typed[
     if tensor.is_contiguous():
         # Fast path: direct typed copy
         var src_ptr = tensor._data
-        var dst_ptr = result._data
+        var dst_ptr = result.data_ptr()
         for i in range(total_elements):
             dst_ptr[unsafe_offset=i] = src_ptr[unsafe_offset=i]
     else:
@@ -130,7 +135,7 @@ def _reshape_typed[
         var src_shape = tensor.shape()
         var ndim = len(src_shape)
         var src_ptr = tensor._data
-        var dst_ptr = result._data
+        var dst_ptr = result.data_ptr()
         for i in range(total_elements):
             var remaining = i
             var src_elem_offset = 0
@@ -191,7 +196,7 @@ def _broadcast_to_typed[
     var result_numel = result.numel()
 
     var src_ptr = tensor._data
-    var dst_ptr = result._data
+    var dst_ptr = result.data_ptr()
 
     for i in range(result_numel):
         var coords = List[Int]()
@@ -304,7 +309,7 @@ def _permute_typed[
     var result_numel = result.numel()
 
     var src_ptr = tensor._data
-    var dst_ptr = result._data
+    var dst_ptr = result.data_ptr()
 
     # Fill result by permuting coordinates
     for i in range(result_numel):
