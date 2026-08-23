@@ -23,7 +23,7 @@ from odyssey.tensor.any_tensor import AnyTensor
 from odyssey.tensor.tensor_creation import zeros
 from odyssey.core import (
     conv2d,
-    batch_norm2d,
+    batch_norm2d_inplace,
     relu,
     global_avgpool2d,
     kaiming_normal,
@@ -76,11 +76,16 @@ def depthwise_conv2d(
     var output_shape: List[Int] = [batch_size, channels, out_h, out_w]
     var output = zeros(output_shape, x.dtype())
 
-    # Process each channel independently
+    # Process each channel independently. Borrowed params (x/weights/bias)
+    # cannot be freed by the callee (Class C-safe), but owned locals MUST use
+    # origin-tied data_ptr: Mojo 1.0.0 (modular/modular#6963) hoists an owned
+    # local's __deinit__ to its last syntactic use, so a raw `._data` pointer
+    # held in a local reads FREED memory afterward (the BN-persistence test
+    # failed here with NaN/0.0 stats — #5537 gate).
     var x_data = x._data.unsafe_bitcast[Float32]()
     var weights_data = weights._data.unsafe_bitcast[Float32]()
     var bias_data = bias._data.unsafe_bitcast[Float32]()
-    var output_data = output._data.unsafe_bitcast[Float32]()
+    var output_data = output.data_ptr[DType.float32]()
 
     # For each batch and channel, apply the depthwise filter
     for b in range(batch_size):
@@ -88,9 +93,7 @@ def depthwise_conv2d(
             # Extract single channel
             var channel_input_shape: List[Int] = [1, 1, height, width]
             var channel_input = zeros(channel_input_shape, x.dtype())
-            var channel_input_data = channel_input._data.unsafe_bitcast[
-                Float32
-            ]()
+            var channel_input_data = channel_input.data_ptr[DType.float32]()
 
             # Copy channel data
             for h in range(height):
@@ -104,9 +107,7 @@ def depthwise_conv2d(
             # Extract single filter for this channel
             var channel_filter_shape: List[Int] = [1, 1, kernel_h, kernel_w]
             var channel_filter = zeros(channel_filter_shape, weights.dtype())
-            var channel_filter_data = channel_filter._data.unsafe_bitcast[
-                Float32
-            ]()
+            var channel_filter_data = channel_filter.data_ptr[DType.float32]()
 
             for kh in range(kernel_h):
                 for kw in range(kernel_w):
@@ -121,7 +122,7 @@ def depthwise_conv2d(
             # Create single-element bias
             var channel_bias_shape: List[Int] = [1]
             var channel_bias = zeros(channel_bias_shape, bias.dtype())
-            var channel_bias_data = channel_bias._data.unsafe_bitcast[Float32]()
+            var channel_bias_data = channel_bias.data_ptr[DType.float32]()
             channel_bias_data[unsafe_offset=0] = bias_data[unsafe_offset=c]
 
             # Apply 2D convolution for this channel
@@ -130,9 +131,7 @@ def depthwise_conv2d(
             )
 
             # Copy result back to output
-            var channel_output_data = channel_output._data.unsafe_bitcast[
-                Float32
-            ]()
+            var channel_output_data = channel_output.data_ptr[DType.float32]()
             for h in range(out_h):
                 for w in range(out_w):
                     var src_idx = h * out_w + w
@@ -227,11 +226,14 @@ struct DepthwiseSeparableBlock:
         var out = depthwise_conv2d(
             x, self.dw_weights, self.dw_bias, stride=stride, padding=1
         )
-        # Persist the updated running stats back onto the block (#5537): under
-        # training=True batch_norm2d returns EMA-updated running_mean/var; if
-        # discarded, forward(training=False) inference uses the stale init
-        # (0, 1) values and produces wrong results.
-        var dw_bn = batch_norm2d(
+        # Persist the updated running stats back onto the block (#5537):
+        # batch_norm2d_inplace writes EMA-updated running_mean/var directly
+        # into the model's fields (mut), so forward(training=False) inference
+        # never sees stale init (0, 1) values. Using the in-place variant also
+        # avoids batch_norm2d's Tuple[AnyTensor, ...] return, which hits the
+        # Mojo 1.0.0 return-move UAF (modular/modular#6939) — reading the
+        # returned stats fields reads freed memory non-deterministically.
+        out = batch_norm2d_inplace(
             out,
             self.dw_bn_gamma,
             self.dw_bn_beta,
@@ -239,14 +241,11 @@ struct DepthwiseSeparableBlock:
             self.dw_bn_running_var,
             training,
         )
-        out = dw_bn[0]
-        self.dw_bn_running_mean = dw_bn[1]
-        self.dw_bn_running_var = dw_bn[2]
         out = relu(out)
 
         # Pointwise convolution (channel mixing, 1×1)
         out = conv2d(out, self.pw_weights, self.pw_bias, stride=1, padding=0)
-        var pw_bn = batch_norm2d(
+        out = batch_norm2d_inplace(
             out,
             self.pw_bn_gamma,
             self.pw_bn_beta,
@@ -254,9 +253,6 @@ struct DepthwiseSeparableBlock:
             self.pw_bn_running_var,
             training,
         )
-        out = pw_bn[0]
-        self.pw_bn_running_mean = pw_bn[1]
-        self.pw_bn_running_var = pw_bn[2]
         out = relu(out)
 
         return out
@@ -370,7 +366,7 @@ struct MobileNetV1:
             padding=1,
         )
         # Persist EMA-updated running stats (#5537) — see block forward above.
-        var initial_bn = batch_norm2d(
+        out = batch_norm2d_inplace(
             out,
             self.initial_bn_gamma,
             self.initial_bn_beta,
@@ -378,9 +374,6 @@ struct MobileNetV1:
             self.initial_bn_running_var,
             training,
         )
-        out = initial_bn[0]
-        self.initial_bn_running_mean = initial_bn[1]
-        self.initial_bn_running_var = initial_bn[2]
         out = relu(out)
         # Shape: (batch, 32, 16, 16)
 
@@ -425,8 +418,8 @@ struct MobileNetV1:
         var channels = out.shape()[1]
         var flattened_shape: List[Int] = [batch_size, channels]
         var flattened = zeros(flattened_shape, out.dtype())
-        var flattened_data = flattened._data.unsafe_bitcast[Float32]()
-        var out_data = out._data.unsafe_bitcast[Float32]()
+        var flattened_data = flattened.data_ptr[DType.float32]()
+        var out_data = out.data_ptr[DType.float32]()
 
         for b in range(batch_size):
             for c in range(channels):

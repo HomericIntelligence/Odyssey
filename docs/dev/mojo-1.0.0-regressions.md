@@ -288,7 +288,7 @@ the non-deterministic nature of FM-A.
 
 | Issue | Failure mode | Status | URL |
 | --- | --- | --- | --- |
-| FM-1 / FM-A | Return-move UAF | OPEN | [#6939](https://github.com/modular/modular/issues/6939) |
+| FM-1 / FM-A | Return-move UAF | OPEN (closed DUPLICATE of #6707, no fix) — code-level WAR added 2026-08-23: `batch_norm2d_inplace` (in-place running-stat update, single-tensor return) for BN hot paths that previously extracted `Tuple[AnyTensor, AnyTensor, AnyTensor]` | [#6939](https://github.com/modular/modular/issues/6939) |
 | FM-2 | Scalar pow compile | OPEN | [#6940](https://github.com/modular/modular/issues/6940) |
 | FM-3 | VM limit abort | OPEN | [#6941](https://github.com/modular/modular/issues/6941) |
 | FM-B | KGEN JIT runtime crash | OPEN | [#6958](https://github.com/modular/modular/issues/6958) |
@@ -349,7 +349,7 @@ proving the write path is correct and the mismatch is the escaped pointer.
 | Class | Pattern | Sites | Risk |
 | --- | --- | --- | --- |
 | **A — WAR'd** | no-escape API, no pointer leaves the struct | `SpinLock`, `AtomicStats` (`memory_pool.mojo`) | ✅ fixed |
-| **B — latent, owned-local escape** | owned local tensor → `data_ptr`/`_data` into a local → loop | `evaluation.mojo` (`logits_data`), `gradient_checker.mojo` (`f_plus_ptr`/`out_plus_ptr` etc.), model e2e tests (`test_vgg16_e2e.mojo`), `examples/mobilenetv1_cifar10/train.mojo`, and any user code | ⚠️ **UAF — passes today only by heap/codegen luck** (probe proves the class is live) |
+| **B — latent, owned-local escape** | owned local tensor → `data_ptr`/`_data` into a local → loop | `evaluation.mojo` (`logits_data`), `gradient_checker.mojo` (`f_plus_ptr`/`out_plus_ptr`), model e2e tests (`test_vgg16_e2e.mojo`), and any user code. **Found live in CI 2026-08-23**: `examples/mobilenetv1_cifar10/model.mojo` `depthwise_conv2d` (per-channel `channel_input`/`channel_filter`/`channel_bias`/`channel_output` + classifier `flattened`/`out`) — root cause of the `test_bn_persistence` flake (`NaN`/`0.0` running stats → "not persisted (#5537)"); `examples/mobilenetv1_cifar10/{inference,train,train_autograd}.mojo`, `examples/alexnet_cifar10/{run_train,run_train_autograd}.mojo`, `examples/vgg16_cifar10/{train,train_autograd,train_new}.mojo` (smoke-dataset builders + `loss_tensor` scalar extraction) — root cause of the CI `training-smoke` NaN failures. **All migrated to origin-tied `data_ptr`** | ⚠️ **UAF — visible as NaN/garbage in CI when heap reuse lands** (probe proves the class is live) |
 | **C — borrowed params (safe)** | kernel funcs taking `tensor: AnyTensor`/`Tensor[dtype]` params, escaping `_data` into locals (~221 `._data` sites across `tensor_ops`, `typed/*`, `dtype_conv`, `gradient_clipping`, `inference_utils`, …) | owner lives in the caller frame, callee cannot destroy → deinit cannot be hoisted *in the callee* | ✅ safe from this bug (owner's own frame is the caller's responsibility) |
 | **D — by-design (low risk)** | pool APIs returning blocks (`FreeList.pop`, `TensorMemoryPool.allocate`), `examples/mojo_patterns/trait_example.mojo` (no pointer returns from storage) | the returned pointer is the *object itself*, not a view into the struct's persistent storage; owner kept alive by caller | ✅ low |
 

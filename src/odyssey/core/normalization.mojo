@@ -220,6 +220,189 @@ def _batch_norm2d_update_running_stats[
         )
 
 
+def _batch_norm2d_update_running_stats_inplace[
+    dtype: DType
+](
+    running_mean: AnyTensor,
+    running_var: AnyTensor,
+    batch_mean: AnyTensor,
+    batch_var: AnyTensor,
+    channels: Int,
+    momentum: Float64,
+) raises:
+    """EMA-update the caller's running stats IN PLACE (no new tensors).
+
+    Equivalent to `_batch_norm2d_update_running_stats` but writes the EMA
+    result back into the passed running_mean/running_var buffers instead of
+    fresh ones. Used by `batch_norm2d_inplace` so training updates never cross
+    a Tuple[AnyTensor, ...] return boundary.
+    """
+    var rm_ptr = running_mean._data.unsafe_bitcast[Scalar[dtype]]()
+    var rv_ptr = running_var._data.unsafe_bitcast[Scalar[dtype]]()
+    var bm_ptr = batch_mean._data.unsafe_bitcast[Scalar[dtype]]()
+    var bv_ptr = batch_var._data.unsafe_bitcast[Scalar[dtype]]()
+    var mom = Scalar[dtype](momentum)
+    var one_minus_mom = Scalar[dtype](1.0 - momentum)
+
+    for c in range(channels):
+        rm_ptr[unsafe_offset=c] = (
+            one_minus_mom * rm_ptr[unsafe_offset=c]
+            + mom * bm_ptr[unsafe_offset=c]
+        )
+        rv_ptr[unsafe_offset=c] = (
+            one_minus_mom * rv_ptr[unsafe_offset=c]
+            + mom * bv_ptr[unsafe_offset=c]
+        )
+
+
+def batch_norm2d_inplace(
+    x: AnyTensor,
+    gamma: AnyTensor,
+    beta: AnyTensor,
+    running_mean: AnyTensor,
+    running_var: AnyTensor,
+    training: Bool,
+    momentum: Float64 = 0.1,
+    epsilon: Float64 = 1e-5,
+) raises -> AnyTensor:
+    """2D batch normalization with IN-PLACE running-stat updates.
+
+    Semantically identical to `batch_norm2d` (same normalization math, same
+    EMA running-stat update, same inference behavior), but the EMA-updated
+    running mean/var are written back into the caller's `running_mean` and
+    `running_var` tensors instead of being returned, and only the normalized
+    output tensor is returned.
+
+    Mojo 1.0.0 regression note (modular/modular#6939, FM-A): `batch_norm2d`
+    returns Tuple[AnyTensor, AnyTensor, AnyTensor] by value; the return-move
+    runs the moved-from source's `__deinit__`, over-decrementing AnyTensor's
+    shared refcount -> premature free -> reads of the returned stats fields
+    hit freed memory non-deterministically ("BN stats not persisted" flakes).
+    This variant returns a single tensor (the same reliable shape as
+    conv/linear/cross_entropy on stable), so running stat persistence is
+    guaranteed by in-place mutation instead of by tuple extraction.
+
+    Args:
+        x: Input tensor of shape (batch, channels, height, width).
+        gamma: Scale parameter of shape (channels,).
+        beta: Shift parameter of shape (channels,).
+        running_mean: Running mean of shape (channels,) — the underlying
+            buffer is UPDATED in place when training=True (AnyTensor is
+            shared-refcount, so the caller's tensor observes the new values).
+        running_var: Running variance of shape (channels,) — UPDATED in place
+            when training=True (see running_mean).
+        training: If True, use batch statistics and update running stats.
+                 If False, use running statistics.
+        momentum: Momentum for running statistics update (default: 0.1).
+        epsilon: Small constant for numerical stability (default: 1e-5).
+
+    Returns:
+        Normalized output tensor, shape (batch, channels, height, width).
+
+    Raises:
+            Error: If operation fails.
+    """
+    var x_shape = x.shape()
+    if len(x_shape) != 4:
+        raise Error(
+            "batch_norm2d requires 4D input (batch, channels, height, width)"
+        )
+
+    if (
+        x.dtype() != gamma.dtype()
+        or x.dtype() != beta.dtype()
+        or x.dtype() != running_mean.dtype()
+        or x.dtype() != running_var.dtype()
+    ):
+        raise Error(
+            "batch_norm2d: all tensors must have the same dtype. Got x: "
+            + String(x.dtype())
+            + ", gamma: "
+            + String(gamma.dtype())
+            + ", beta: "
+            + String(beta.dtype())
+        )
+
+    var batch = x_shape[0]
+    var channels = x_shape[1]
+    var height = x_shape[2]
+    var width = x_shape[3]
+
+    var output = zeros_like(x)
+
+    if training:
+        var spatial_size = batch * height * width
+        var batch_mean = zeros([channels], x.dtype())
+        var batch_var = zeros([channels], x.dtype())
+
+        @parameter
+        def _run_compute_stats[T: DType]() raises:
+            _batch_norm2d_compute_stats[T](
+                x._data,
+                batch_mean,
+                batch_var,
+                batch,
+                channels,
+                height,
+                width,
+                spatial_size,
+            )
+
+        dispatch_float3[_run_compute_stats](x.dtype())
+
+        @parameter
+        def _run_normalize_train[T: DType]() raises:
+            _batch_norm2d_normalize[T](
+                x._data,
+                output,
+                batch_mean._data,
+                batch_var._data,
+                gamma._data,
+                beta._data,
+                batch,
+                channels,
+                height,
+                width,
+                epsilon,
+            )
+
+        dispatch_float3[_run_normalize_train](x.dtype())
+
+        @parameter
+        def _run_update_stats[T: DType]() raises:
+            _batch_norm2d_update_running_stats_inplace[T](
+                running_mean,
+                running_var,
+                batch_mean,
+                batch_var,
+                channels,
+                momentum,
+            )
+
+        dispatch_float3[_run_update_stats](x.dtype())
+    else:
+        # Inference mode: use running statistics
+        @parameter
+        def _run_normalize_infer[T: DType]() raises:
+            _batch_norm2d_normalize[T](
+                x._data,
+                output,
+                running_mean._data,
+                running_var._data,
+                gamma._data,
+                beta._data,
+                batch,
+                channels,
+                height,
+                width,
+                epsilon,
+            )
+
+        dispatch_float3[_run_normalize_infer](x.dtype())
+
+    return output
+
+
 def batch_norm2d(
     x: AnyTensor,
     gamma: AnyTensor,

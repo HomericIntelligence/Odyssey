@@ -407,7 +407,9 @@ def train_batch[
     loss.backward(tape)
 
     # Extract the scalar loss before the Variables are moved below.
-    var loss_value = loss.data._data.unsafe_bitcast[Float32]()[unsafe_offset=0]
+    var loss_value = loss.data.data_ptr[DType.float32]()[
+        unsafe_offset=0
+    ]  # origin-tied (#6963)
 
     # ========== Parameter Update ==========
     # Move the 32 trainable Variables into the parameters list in field order;
@@ -616,7 +618,9 @@ def main() raises:
         var wanted_batches = max_batches if max_batches > 0 else 3
         var n_smoke = wanted_batches * Int(batch_size)
         train_images = zeros([n_smoke, 3, 32, 32], DType.float32)
-        var img_d = train_images._data.unsafe_bitcast[Float32]()
+        var img_d = train_images.data_ptr[
+            DType.float32
+        ]()  # origin-tied (#6963)
         for s in range(n_smoke):
             var cls = s % 10
             for i in range(3 * 32 * 32):
@@ -627,7 +631,7 @@ def main() raises:
         # (unlike the manual train.mojo, which builds one-hot labels because it
         # feeds cross_entropy directly).
         train_labels = zeros([n_smoke], DType.uint8)
-        var lbl_d = train_labels._data.unsafe_bitcast[UInt8]()
+        var lbl_d = train_labels.data_ptr[DType.uint8]()  # origin-tied (#6963)
         for s in range(n_smoke):
             lbl_d[unsafe_offset=s] = UInt8(s % 10)
     else:

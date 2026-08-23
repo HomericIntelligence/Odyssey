@@ -70,7 +70,9 @@ def evaluate_model(
         total_correct += batch_correct
 
         # Update per-class counters
-        var logits_data = logits._data.unsafe_bitcast[Float32]()
+        var logits_data = logits.data_ptr[
+            DType.float32
+        ]()  # origin-tied (#6963)
         for i in range(current_batch_size):
             var pred_class = 0
             var max_logit = logits_data[unsafe_offset=i * 10]

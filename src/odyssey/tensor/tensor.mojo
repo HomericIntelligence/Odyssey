@@ -227,8 +227,11 @@ struct Tensor[dtype: DType = DType.float32](
         decremented once for the destination and once for the moved-from
         source -> premature free -> use-after-free on the returned value.
         See docs/dev/reproducers/repro_uaf_return_move.mojo and
-        modular/modular#6939 for the minimal reproducer. Fixed upstream;
-        do NOT reintroduce the refcount-sentinel workaround here.
+        modular/modular#6939 for the minimal reproducer. As of 2026-08-23
+        #6939 is closed DUPLICATE of #6707 with NO upstream fix, so avoid
+        Tuple[AnyTensor, ...] returns in hot paths (see
+        `batch_norm2d_inplace` in normalization.mojo); do NOT reintroduce
+        the refcount-sentinel workaround here.
         """
         self._data = move._data
         self._shape = move._shape^

@@ -361,6 +361,7 @@ from odyssey.core.dropout import (
 
 from odyssey.core.normalization import (
     batch_norm2d,
+    batch_norm2d_inplace,
     batch_norm2d_backward,
     layer_norm,
     layer_norm_backward,
