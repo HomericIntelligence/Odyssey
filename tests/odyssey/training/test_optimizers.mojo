@@ -157,6 +157,10 @@ def test_sgd_momentum_accumulation() raises:
         0.971,
         tolerance=1e-5,
     )
+    # velocity = 0.9 * 0.1 + 0.1 = 0.19 (see docstring)
+    assert_almost_equal(
+        Float64(velocity.load[DType.float32](0)), 0.19, tolerance=1e-5
+    )
 
 
 def test_sgd_weight_decay() raises:
@@ -570,6 +574,10 @@ def test_sgd_matches_pytorch() raises:
     assert_almost_equal(params.load[DType.float32](0), 0.9710, tolerance=1e-6)
     assert_almost_equal(params.load[DType.float32](1), 1.9420, tolerance=1e-6)
     assert_almost_equal(params.load[DType.float32](2), 2.9130, tolerance=1e-6)
+    # velocity = 0.9 * [0.1, 0.2, 0.3] + [0.1, 0.2, 0.3] = [0.19, 0.38, 0.57]
+    assert_almost_equal(velocity.load[DType.float32](0), 0.19, tolerance=1e-6)
+    assert_almost_equal(velocity.load[DType.float32](1), 0.38, tolerance=1e-6)
+    assert_almost_equal(velocity.load[DType.float32](2), 0.57, tolerance=1e-6)
 
 
 def test_adam_matches_pytorch() raises:
@@ -659,6 +667,9 @@ def test_adam_matches_pytorch() raises:
     v = result[2]
 
     # Validate against PyTorch (step 2)
+    # m = 0.9 * m1 + 0.1 * g = 0.019; v = 0.999 * v1 + 0.001 * g^2 = 1.999e-5
+    assert_almost_equal(m.load[DType.float32](0), 0.019, tolerance=1e-5)
+    assert_almost_equal(v.load[DType.float32](0), 1.999e-5, tolerance=1e-7)
     assert_almost_equal(params.load[DType.float32](0), 0.9980, tolerance=1e-4)
     assert_almost_equal(params.load[DType.float32](1), 1.9980, tolerance=1e-4)
     assert_almost_equal(params.load[DType.float32](2), 2.9980, tolerance=1e-4)
