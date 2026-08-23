@@ -124,10 +124,11 @@ jobs:
   mojo-compilation:
     needs: [mojo-syntax-check]
     runs-on: ubuntu-latest
-    # 30 min: `just ci-build` now actually compiles 46 example/benchmark
-    # binaries in addition to the src/odyssey package (#5389). Previously this
-    # was a 1-file no-op, so 10 min was sufficient.
-    timeout-minutes: 30
+    # 60 min: `just ci-build` actually compiles 46 example/benchmark binaries
+    # in addition to the src/odyssey package (#5389), and the mojo 1.0.0
+    # stable compiler is slower than 1.0.0b2, so the prior 30-min cap was
+    # exceeded on the 1.0.0 port branch (same bump as build-validation.yml).
+    timeout-minutes: 60
     name: "Mojo Package Compilation"
 
     steps:
