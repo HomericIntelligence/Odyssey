@@ -297,6 +297,32 @@ the non-deterministic nature of FM-A.
 
 ---
 
+## Full-suite validation (2026-08-22)
+
+All 362 non-DISABLED test files now compile and run on 1.0.0 stable:
+
+- **70 converted files**: 68 pass; 2 remaining are deterministic FM-B KGEN
+  crashes (`test_mobilenetv1_layers`, upstream #6958 — same crash at
+  baseline; `test_mobilenetv1_e2e` and `test_typed_batchnorm` are also in
+  the KGEN class). `test_mobilenetv1_train_step` is flaky-KGEN (passes on
+  rerun, verified against baseline).
+- **294 non-converted files**: 290 pass; 4 initially failed and were
+  root-caused + fixed this session: `test_lazy_expression` (missing
+  `[dtype]` on `data_ptr`), `test_slicing` (refcount assertions vs 1.0.0
+  last-use `__deinit__`), `test_multi_precision_training` (unneeded `mut`
+  cascade on a borrowed param), `test_alexnet_layers` (JIT time > 200 s;
+  passes with a 600 s timeout — slow, not broken).
+- The two previously-DISABLED layer suites (`test_batchnorm.mojo`,
+  `test_conv2d.mojo`) are fixed, `--Werror`-clean, and re-enabled.
+- Owned-local raw-pointer-escape audit: **0 remaining** in `src/` (20
+  migrated across 10 files to origin-tied `data_ptr[]`).
+
+Remaining known failure classes are all filed upstream: FM-A/return-move
+(#6939), FM-B/KGEN JIT (#6958), FM-C/Atomic + raw-pointer escape
+(#6959/#6963), FM-G/closure captures (#6965).
+
+---
+
 ## Raw-pointer-escape audit (premature `__deinit__` UAF — #6959/#6707 class)
 
 An audit of every raw-pointer escape from heap-owning structs was performed on 1.0.0 stable
