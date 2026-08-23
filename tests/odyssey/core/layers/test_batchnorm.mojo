@@ -170,7 +170,7 @@ def test_batchnorm_forward_training_mode() raises:
             for h in range(2):  # height
                 for w in range(2):  # width
                     var idx = i * (4 * 2 * 2) + c * (2 * 2) + h * 2 + w
-                    input.set(idx, Float32(Float32(2.0 + i * 2.0)))
+                    input.set(idx, 2.0 + Float64(i) * 2.0)
 
     # Forward in training mode
     var output = layer.forward(input, training=True)
@@ -180,7 +180,6 @@ def test_batchnorm_forward_training_mode() raises:
     # running_mean = 0.9 * 0 + 0.1 * batch_mean = 0.1 * 3.0 = 0.3
     # (batch_mean = (2.0 * 8 + 4.0 * 8) / 16 = 3.0)
     var running_mean_data = layer.running_mean.data_ptr[DType.float32]()
-    var running_var_data = layer.running_var.data_ptr[DType.float32]()
 
     # Check that running stats changed (not still initial values)
     var mean_changed = Float32(0.0)
@@ -240,10 +239,10 @@ def test_batchnorm_forward_without_gamma_beta() raises:
 
     # Fill channel 0 with [1, 2, 3, 4]
     var data = input.data_ptr[DType.float32]()
-    data[0] = 1.0
-    data[1] = 2.0
-    data[2] = 3.0
-    data[3] = 4.0
+    data[unsafe_offset=0] = 1.0
+    data[unsafe_offset=1] = 2.0
+    data[unsafe_offset=2] = 3.0
+    data[unsafe_offset=3] = 4.0
 
     # Forward pass
     var output = layer.forward(input, training=True)
@@ -361,21 +360,21 @@ def test_batchnorm_running_stats_update_over_batches() raises:
 
     var output1 = layer.forward(input1, training=True)
 
-    var (mean1, var1) = layer.get_running_stats()
+    var (mean1, _) = layer.get_running_stats()
     var mean_data1 = mean1.data_ptr[DType.float32]()
-    var mean_after_first = mean_data1[0]
+    var mean_after_first = mean_data1[unsafe_offset=0]
 
     # Second batch: all 3.0
     var input2 = zeros(input1_shape, DType.float32)
     var data2 = input2.data_ptr[DType.float32]()
     for i in range(4):
-        data2[i] = 3.0
+        data2[unsafe_offset=i] = 3.0
 
     var output2 = layer.forward(input2, training=True)
 
-    var (mean2, var2) = layer.get_running_stats()
+    var (mean2, _) = layer.get_running_stats()
     var mean_data2 = mean2.data_ptr[DType.float32]()
-    var mean_after_second = mean_data2[0]
+    var mean_after_second = mean_data2[unsafe_offset=0]
 
     # Running mean should have changed (0.9 * 0.1 + 0.1 * 3 ≈ 0.309)
     # But not as much as batch mean (which would be 3.0)

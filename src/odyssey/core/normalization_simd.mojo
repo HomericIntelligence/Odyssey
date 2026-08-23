@@ -149,7 +149,10 @@ def _batch_norm2d_fused_inference_float32(
     var beta_ptr = beta._data.unsafe_bitcast[Float32]()
     var running_mean_ptr = running_mean._data.unsafe_bitcast[Float32]()
     var running_var_ptr = running_var._data.unsafe_bitcast[Float32]()
-    var out_ptr = result._data.unsafe_bitcast[Float32]()
+    # Origin-tied pointer (WAR for modular/modular#6963): `result` is an
+    # owned local; a raw `_data` escape can hoist its __deinit__ and free
+    # the buffer while the loop still writes it.
+    var out_ptr = result.data_ptr[DType.float32]()
 
     var eps = Float32(epsilon)
 
@@ -208,7 +211,10 @@ def _batch_norm2d_fused_inference_float64(
     var beta_ptr = beta._data.unsafe_bitcast[Float64]()
     var running_mean_ptr = running_mean._data.unsafe_bitcast[Float64]()
     var running_var_ptr = running_var._data.unsafe_bitcast[Float64]()
-    var out_ptr = result._data.unsafe_bitcast[Float64]()
+    # Origin-tied pointer (WAR for modular/modular#6963): `result` is an
+    # owned local; a raw `_data` escape can hoist its __deinit__ and free
+    # the buffer while the loop still writes it.
+    var out_ptr = result.data_ptr[DType.float64]()
 
     for b in range(batch):
         for c in range(channels):
@@ -369,12 +375,15 @@ def _batch_norm2d_fused_training_float32(
     var running_var_ptr = running_var._data.unsafe_bitcast[Float32]()
 
     var output = AnyTensor(x.shape(), x._dtype)
-    var out_ptr = output._data.unsafe_bitcast[Float32]()
+    # Origin-tied pointers (WAR for modular/modular#6963): `output`,
+    # `new_running_mean/var` are owned locals; raw `_data` escapes can hoist
+    # their __deinit__ and free the buffers while the kernels still write.
+    var out_ptr = output.data_ptr[DType.float32]()
 
     var new_running_mean = zeros_like(running_mean)
     var new_running_var = zeros_like(running_var)
-    var new_mean_ptr = new_running_mean._data.unsafe_bitcast[Float32]()
-    var new_var_ptr = new_running_var._data.unsafe_bitcast[Float32]()
+    var new_mean_ptr = new_running_mean.data_ptr[DType.float32]()
+    var new_var_ptr = new_running_var.data_ptr[DType.float32]()
 
     var eps = Float32(epsilon)
     var momentum_f32 = Float32(momentum)
@@ -383,8 +392,8 @@ def _batch_norm2d_fused_training_float32(
     # (SIMD for reading vectors but scalar reduction to avoid capture issues)
     var batch_mean = zeros([channels], DType.float32)
     var batch_var = zeros([channels], DType.float32)
-    var batch_mean_ptr = batch_mean._data.unsafe_bitcast[Float32]()
-    var batch_var_ptr = batch_var._data.unsafe_bitcast[Float32]()
+    var batch_mean_ptr = batch_mean.data_ptr[DType.float32]()
+    var batch_var_ptr = batch_var.data_ptr[DType.float32]()
 
     # Compute mean: sum all values per channel, then divide by batch size
     for c in range(channels):
@@ -494,18 +503,19 @@ def _batch_norm2d_fused_training_float64(
     var running_var_ptr = running_var._data.unsafe_bitcast[Float64]()
 
     var output = AnyTensor(x.shape(), x._dtype)
-    var out_ptr = output._data.unsafe_bitcast[Float64]()
+    # Origin-tied pointers (WAR for modular/modular#6963): owned locals.
+    var out_ptr = output.data_ptr[DType.float64]()
 
     var new_running_mean = zeros_like(running_mean)
     var new_running_var = zeros_like(running_var)
-    var new_mean_ptr = new_running_mean._data.unsafe_bitcast[Float64]()
-    var new_var_ptr = new_running_var._data.unsafe_bitcast[Float64]()
+    var new_mean_ptr = new_running_mean.data_ptr[DType.float64]()
+    var new_var_ptr = new_running_var.data_ptr[DType.float64]()
 
     # Pass 1: Compute batch mean
     var batch_mean = zeros([channels], DType.float64)
     var batch_var = zeros([channels], DType.float64)
-    var batch_mean_ptr = batch_mean._data.unsafe_bitcast[Float64]()
-    var batch_var_ptr = batch_var._data.unsafe_bitcast[Float64]()
+    var batch_mean_ptr = batch_mean.data_ptr[DType.float64]()
+    var batch_var_ptr = batch_var.data_ptr[DType.float64]()
 
     # Compute mean: sum all values per channel, then divide by batch size
     for c in range(channels):

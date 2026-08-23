@@ -103,11 +103,9 @@ def test_conv2d_weight_initialization_scale() raises:
 
     var sum_abs = Float32(0.0)
     for i in range(num_weights):
-        var abs_val = Float32(0.0)
-        if weight_data[unsafe_offset=i] > 0.0:
-            abs_val = weight_data[unsafe_offset=i]
-        else:
-            abs_val = -weight_data[unsafe_offset=i]
+        var abs_val = weight_data[unsafe_offset=i]
+        if abs_val < 0.0:
+            abs_val = -abs_val
         sum_abs += abs_val
 
     var mean_abs = sum_abs / Float32(num_weights)
@@ -275,9 +273,7 @@ def test_conv2d_forward_batch_independence() raises:
             for w in range(16):  # width
                 var idx = c * 16 * 16 + h * 16 + w
                 var src_idx = 0 * (3 * 16 * 16) + idx  # batch 0
-                single_input._data[unsafe_offset=idx] = batch_input._data[
-                    unsafe_offset=src_idx
-                ]
+                single_input.set(idx, batch_input.load[DType.float32](src_idx))
 
     var single_output = layer.forward(single_input)
 
