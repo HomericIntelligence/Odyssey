@@ -111,7 +111,7 @@ def evaluate_model(
         total_correct += batch_correct
 
         # Update per-class counters
-        var logits_data = logits._data.unsafe_bitcast[Float32]()
+        var logits_data = logits.data_ptr[DType.float32]()
         for i in range(current_batch_size):
             # Find argmax (predicted class)
             var pred_class = 0

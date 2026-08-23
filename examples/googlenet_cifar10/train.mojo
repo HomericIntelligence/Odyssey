@@ -479,12 +479,12 @@ def compute_gradients(
             + String(logits.dtype())
         )
     var loss_tensor = cross_entropy(logits, labels)
-    var loss = loss_tensor._data.unsafe_bitcast[Float32]()[unsafe_offset=0]
+    var loss = loss_tensor.data_ptr[DType.float32]()[unsafe_offset=0]
 
     # ================= BACKWARD =================
     # Head backward: CE -> linear -> dropout -> unflatten -> GAP
     var grad_ones = zeros([1], logits.dtype())
-    grad_ones._data.unsafe_bitcast[Float32]()[unsafe_offset=0] = Float32(1.0)
+    grad_ones.data_ptr[DType.float32]()[unsafe_offset=0] = Float32(1.0)
     var d_logits = cross_entropy_backward(grad_ones, logits, labels)
     var fc = linear_backward(d_logits, drop_out, model.fc_weights)
     var d_drop = dropout_backward(fc.grad_input, drop_mask, Float64(0.4))
@@ -637,7 +637,7 @@ def validate(
 
         # Compute accuracy
         for i in range(current_batch_size):
-            var logits_data = logits._data.unsafe_bitcast[Float32]()
+            var logits_data = logits.data_ptr[DType.float32]()
             var pred_class = 0
             var max_logit = logits_data[unsafe_offset=i * 10]
             for j in range(1, 10):
@@ -645,7 +645,7 @@ def validate(
                     max_logit = logits_data[unsafe_offset=i * 10 + j]
                     pred_class = j
 
-            var labels_data = batch_labels._data.unsafe_bitcast[UInt8]()
+            var labels_data = batch_labels.data_ptr[DType.uint8]()
             var true_class = Int(labels_data[unsafe_offset=i])
             if pred_class == true_class:
                 total_correct += 1
@@ -712,7 +712,7 @@ def main() raises:
         var wanted_batches = max_batches if max_batches > 0 else 3
         var n_smoke = wanted_batches * Int(batch_size)
         train_images = zeros([n_smoke, 3, 32, 32], DType.float32)
-        var img_d = train_images._data.unsafe_bitcast[Float32]()
+        var img_d = train_images.data_ptr[DType.float32]()
         for s in range(n_smoke):
             var cls = s % 10
             for i in range(3 * 32 * 32):
@@ -720,7 +720,7 @@ def main() raises:
                     Float32(cls) * 0.05 + Float32(i % 5) * 0.01
                 )
         train_labels = zeros([n_smoke], DType.uint8)
-        var lbl_d = train_labels._data.unsafe_bitcast[UInt8]()
+        var lbl_d = train_labels.data_ptr[DType.uint8]()
         for s in range(n_smoke):
             lbl_d[unsafe_offset=s] = UInt8(s % 10)
         # Reuse the same synthetic batch for "test" (eval is not asserted here).

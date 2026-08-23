@@ -50,7 +50,7 @@ def test_bn_running_stats_persist_after_training() raises:
 
     # Non-trivial, non-uniform input so batch statistics differ from init.
     var x = zeros([2, 3, 32, 32], DType.float32)
-    var xd = x._data.unsafe_bitcast[Float32]()
+    var xd = x.data_ptr[DType.float32]()
     for i in range(2 * 3 * 32 * 32):
         xd[unsafe_offset=i] = Float32(i % 7) * 0.1 - 0.3
 
@@ -92,7 +92,7 @@ def test_bn_stats_persist_in_inception_modules() raises:
     """
     var model = GoogLeNet(num_classes=10)
     var x = zeros([2, 3, 32, 32], DType.float32)
-    var xd = x._data.unsafe_bitcast[Float32]()
+    var xd = x.data_ptr[DType.float32]()
     for i in range(2 * 3 * 32 * 32):
         xd[unsafe_offset=i] = Float32(i % 5) * 0.2 - 0.4
 
@@ -118,7 +118,7 @@ def test_inference_forward_leaves_stats_unchanged() raises:
     """
     var model = GoogLeNet(num_classes=10)
     var x = zeros([2, 3, 32, 32], DType.float32)
-    var xd = x._data.unsafe_bitcast[Float32]()
+    var xd = x.data_ptr[DType.float32]()
     for i in range(2 * 3 * 32 * 32):
         xd[unsafe_offset=i] = Float32(i % 3) * 0.3
 
