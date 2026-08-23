@@ -235,7 +235,9 @@ def normalize_images(mut images: AnyTensor) raises -> AnyTensor:
 
     var num_elements = images.numel()
     var src_data = images._data
-    var dst_data = normalized._data.unsafe_bitcast[Float32]()
+    # Origin-tied pointer (WAR for modular/modular#6963): `normalized` is an
+    # owned local; a raw `_data` escape can hoist its __deinit__ mid-loop.
+    var dst_data = normalized.data_ptr[DType.float32]()
 
     for i in range(num_elements):
         dst_data[unsafe_offset=i] = Float32(src_data[unsafe_offset=i]) / 255.0
@@ -276,7 +278,9 @@ def one_hot_encode(labels: AnyTensor, num_classes: Int) raises -> AnyTensor:
 
     # Fill one-hot encoding
     var labels_data = labels._data
-    var one_hot_data = one_hot._data.unsafe_bitcast[Float32]()
+    # Origin-tied pointer (WAR for modular/modular#6963): `one_hot` is an
+    # owned local; a raw `_data` escape can hoist its __deinit__ mid-loop.
+    var one_hot_data = one_hot.data_ptr[DType.float32]()
 
     for i in range(num_samples):
         var label_idx = Int(labels_data[unsafe_offset=i])
@@ -326,7 +330,9 @@ def normalize_images_rgb(mut images: AnyTensor) raises -> AnyTensor:
     var width = shape[3]
 
     var src_data = images._data
-    var dst_data = normalized._data.unsafe_bitcast[Float32]()
+    # Origin-tied pointer (WAR for modular/modular#6963): `normalized` is an
+    # owned local; a raw `_data` escape can hoist its __deinit__ mid-loop.
+    var dst_data = normalized.data_ptr[DType.float32]()
 
     for n in range(batch_size):
         for c in range(channels):

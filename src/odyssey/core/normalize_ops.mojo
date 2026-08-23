@@ -84,7 +84,9 @@ def normalize_rgb(
     var normalized = zeros(shape, DType.float32)
 
     var src_data = images._data
-    var dst_data = normalized._data.unsafe_bitcast[Float32]()
+    # Origin-tied pointer (WAR for modular/modular#6963): `normalized` is an
+    # owned local; a raw `_data` escape can hoist its __deinit__ mid-loop.
+    var dst_data = normalized.data_ptr[DType.float32]()
 
     # Extract mean and std values
     var mean_r = mean[0]

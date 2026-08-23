@@ -1337,8 +1337,10 @@ def tensordot(a: AnyTensor, b: AnyTensor, axes: Int) raises -> AnyTensor:
         # Copy data from original tensors
         var a_src = a._data.unsafe_bitcast[Scalar[DType.float32]]()
         var b_src = b._data.unsafe_bitcast[Scalar[DType.float32]]()
-        var a_dst = a_reshaped._data.unsafe_bitcast[Scalar[DType.float32]]()
-        var b_dst = b_reshaped._data.unsafe_bitcast[Scalar[DType.float32]]()
+        # Origin-tied pointers (WAR for modular/modular#6963): the reshaped
+        # locals are owned; raw `_data` escapes can hoist their __deinit__.
+        var a_dst = a_reshaped.data_ptr[DType.float32]()
+        var b_dst = b_reshaped.data_ptr[DType.float32]()
 
         # Direct copy since we're just reshaping
         for i in range(a_reshaped.numel()):

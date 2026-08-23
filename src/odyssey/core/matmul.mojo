@@ -138,7 +138,9 @@ def _matmul_typed_float32(
         for j in range(N):
             var sum_val: Float32 = 0.0
             for k in range(K):
-                sum_val += a_ptr.unsafe_load(i * K + k) * b_ptr.unsafe_load(k * N + j)
+                sum_val += a_ptr.unsafe_load(i * K + k) * b_ptr.unsafe_load(
+                    k * N + j
+                )
             c_ptr.unsafe_store(i * N + j, sum_val)
 
 
@@ -159,7 +161,9 @@ def _matmul_typed_float64(
         for j in range(N):
             var sum_val: Float64 = 0.0
             for k in range(K):
-                sum_val += a_ptr.unsafe_load(i * K + k) * b_ptr.unsafe_load(k * N + j)
+                sum_val += a_ptr.unsafe_load(i * K + k) * b_ptr.unsafe_load(
+                    k * N + j
+                )
             c_ptr.unsafe_store(i * N + j, sum_val)
 
 
@@ -381,10 +385,14 @@ def _matmul_tiled_float32(
                         var k1,
                     }:
                         var j = j0 + j_off
-                        var c_vec = c_ptr.unsafe_load[width=width](row_i * N + j)
+                        var c_vec = c_ptr.unsafe_load[width=width](
+                            row_i * N + j
+                        )
                         for k in range(k0, k1):
                             var a_val = a_ptr.unsafe_load(row_i * K + k)
-                            var b_vec = b_ptr.unsafe_load[width=width](k * N + j)
+                            var b_vec = b_ptr.unsafe_load[width=width](
+                                k * N + j
+                            )
                             c_vec += a_val * b_vec
                         c_ptr.unsafe_store[width=width](row_i * N + j, c_vec)
 
@@ -432,10 +440,14 @@ def _matmul_tiled_float64(
                         var k1,
                     }:
                         var j = j0 + j_off
-                        var c_vec = c_ptr.unsafe_load[width=width](row_i * N + j)
+                        var c_vec = c_ptr.unsafe_load[width=width](
+                            row_i * N + j
+                        )
                         for k in range(k0, k1):
                             var a_val = a_ptr.unsafe_load(row_i * K + k)
-                            var b_vec = b_ptr.unsafe_load[width=width](k * N + j)
+                            var b_vec = b_ptr.unsafe_load[width=width](
+                                k * N + j
+                            )
                             c_vec += a_val * b_vec
                         c_ptr.unsafe_store[width=width](row_i * N + j, c_vec)
 
@@ -527,7 +539,9 @@ def _transpose_matrix_float32(b: AnyTensor, K: Int, N: Int) raises -> AnyTensor:
     var b_t = AnyTensor(b_t_shape, DType.float32)
 
     var b_ptr = b._data.unsafe_bitcast[Float32]()
-    var bt_ptr = b_t._data.unsafe_bitcast[Float32]()
+    # Origin-tied pointer (WAR for modular/modular#6963): `b_t` is an owned
+    # local; a raw `_data` escape can hoist its __deinit__ mid-transpose.
+    var bt_ptr = b_t.data_ptr[DType.float32]()
 
     # Transpose with blocking for cache efficiency
     comptime TILE = 32
@@ -551,7 +565,9 @@ def _transpose_matrix_float64(b: AnyTensor, K: Int, N: Int) raises -> AnyTensor:
     var b_t = AnyTensor(b_t_shape, DType.float64)
 
     var b_ptr = b._data.unsafe_bitcast[Float64]()
-    var bt_ptr = b_t._data.unsafe_bitcast[Float64]()
+    # Origin-tied pointer (WAR for modular/modular#6963): `b_t` is an owned
+    # local; a raw `_data` escape can hoist its __deinit__ mid-transpose.
+    var bt_ptr = b_t.data_ptr[DType.float64]()
 
     # Transpose with blocking for cache efficiency
     comptime TILE = 32
@@ -617,12 +633,22 @@ def _matmul_float32(
                         mut c2,
                         mut c3,
                     }:
-                        var bt_vec = bt_ptr.unsafe_load[width=width](col_j * K + k)
+                        var bt_vec = bt_ptr.unsafe_load[width=width](
+                            col_j * K + k
+                        )
 
-                        var a0_vec = a_ptr.unsafe_load[width=width]((i + 0) * K + k)
-                        var a1_vec = a_ptr.unsafe_load[width=width]((i + 1) * K + k)
-                        var a2_vec = a_ptr.unsafe_load[width=width]((i + 2) * K + k)
-                        var a3_vec = a_ptr.unsafe_load[width=width]((i + 3) * K + k)
+                        var a0_vec = a_ptr.unsafe_load[width=width](
+                            (i + 0) * K + k
+                        )
+                        var a1_vec = a_ptr.unsafe_load[width=width](
+                            (i + 1) * K + k
+                        )
+                        var a2_vec = a_ptr.unsafe_load[width=width](
+                            (i + 2) * K + k
+                        )
+                        var a3_vec = a_ptr.unsafe_load[width=width](
+                            (i + 3) * K + k
+                        )
 
                         c0 += (a0_vec * bt_vec).reduce_add()
                         c1 += (a1_vec * bt_vec).reduce_add()
@@ -669,7 +695,9 @@ def _matmul_float32(
                         mut c_val,
                     }:
                         var a_vec = a_ptr.unsafe_load[width=width](i * K + k)
-                        var bt_vec = bt_ptr.unsafe_load[width=width](col_j * K + k)
+                        var bt_vec = bt_ptr.unsafe_load[width=width](
+                            col_j * K + k
+                        )
                         c_val += (a_vec * bt_vec).reduce_add()
 
                     vectorize[simd_width](K, vec_k_rem)
@@ -727,12 +755,22 @@ def _matmul_float64(
                         mut c2,
                         mut c3,
                     }:
-                        var bt_vec = bt_ptr.unsafe_load[width=width](col_j * K + k)
+                        var bt_vec = bt_ptr.unsafe_load[width=width](
+                            col_j * K + k
+                        )
 
-                        var a0_vec = a_ptr.unsafe_load[width=width]((i + 0) * K + k)
-                        var a1_vec = a_ptr.unsafe_load[width=width]((i + 1) * K + k)
-                        var a2_vec = a_ptr.unsafe_load[width=width]((i + 2) * K + k)
-                        var a3_vec = a_ptr.unsafe_load[width=width]((i + 3) * K + k)
+                        var a0_vec = a_ptr.unsafe_load[width=width](
+                            (i + 0) * K + k
+                        )
+                        var a1_vec = a_ptr.unsafe_load[width=width](
+                            (i + 1) * K + k
+                        )
+                        var a2_vec = a_ptr.unsafe_load[width=width](
+                            (i + 2) * K + k
+                        )
+                        var a3_vec = a_ptr.unsafe_load[width=width](
+                            (i + 3) * K + k
+                        )
 
                         c0 += (a0_vec * bt_vec).reduce_add()
                         c1 += (a1_vec * bt_vec).reduce_add()
@@ -778,7 +816,9 @@ def _matmul_float64(
                         mut c_val,
                     }:
                         var a_vec = a_ptr.unsafe_load[width=width](i * K + k)
-                        var bt_vec = bt_ptr.unsafe_load[width=width](col_j * K + k)
+                        var bt_vec = bt_ptr.unsafe_load[width=width](
+                            col_j * K + k
+                        )
                         c_val += (a_vec * bt_vec).reduce_add()
 
                     vectorize[simd_width](K, vec_k_rem)
@@ -958,8 +998,10 @@ def verify_matmul_correctness(M: Int, K: Int, N: Int) raises -> Bool:
     var b = AnyTensor(b_shape, DType.float32)
 
     # Initialize with simple values for reproducibility
-    var a_ptr = a._data.unsafe_bitcast[Float32]()
-    var b_ptr = b._data.unsafe_bitcast[Float32]()
+    # Origin-tied pointers (WAR for modular/modular#6963): `a`/`b` are owned
+    # locals; raw `_data` escapes can hoist their __deinit__ mid-fill.
+    var a_ptr = a.data_ptr[DType.float32]()
+    var b_ptr = b.data_ptr[DType.float32]()
 
     for i in range(M * K):
         a_ptr.unsafe_store(i, Float32(i % 10) * 0.1)

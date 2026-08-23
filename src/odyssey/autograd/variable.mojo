@@ -582,8 +582,11 @@ def variable_neg(
     # Create negated tensor
     var result_data = zeros_like(x.data)
     var size = x.data.numel()
+    # Origin-tied pointer (WAR for modular/modular#6963): `result_data` is an
+    # owned local; a raw `_data` escape can hoist its __deinit__ mid-loop.
+    var rd_ptr = result_data.data_ptr[DType.uint8]()
     for i in range(size):
-        result_data._data[unsafe_offset=i] = -x.data._data[unsafe_offset=i]
+        rd_ptr[unsafe_offset=i] = -x.data._data[unsafe_offset=i]
 
     var result_id = tape.register_variable(x.requires_grad)
 

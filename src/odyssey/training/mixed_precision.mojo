@@ -237,7 +237,7 @@ struct GradientScaler(Copyable, Movable):
         return self._num_steps
 
 
-def convert_to_fp32_master(mut params: AnyTensor) raises -> AnyTensor:
+def convert_to_fp32_master(params: AnyTensor) raises -> AnyTensor:
     """Convert model parameters to FP32 master weights with SIMD optimization.
 
     Creates FP32 copy of parameters for optimizer state management.
@@ -507,7 +507,7 @@ def clip_gradients_by_value(
 
 
 @always_inline
-def _convert_fp32_to_fp32_simd(mut src: AnyTensor, mut dst: AnyTensor) raises:
+def _convert_fp32_to_fp32_simd(src: AnyTensor, mut dst: AnyTensor) raises:
     """SIMD copy for FP32 to FP32 conversion.
 
     Uses vectorized load/store for maximum throughput.
@@ -516,7 +516,9 @@ def _convert_fp32_to_fp32_simd(mut src: AnyTensor, mut dst: AnyTensor) raises:
     comptime simd_width = simd_width_of[DType.float32]()
     var size = src._numel
 
-    var src_ptr = src.data_ptr[DType.float32]()
+    # `src` is borrowed (caller keeps it alive — Class C safe); `dst` is an
+    # owned local, so its pointer keeps the origin tie (modular/modular#6963).
+    var src_ptr = src._data.unsafe_bitcast[Float32]()
     var dst_ptr = dst.data_ptr[DType.float32]()
 
     @always_inline
@@ -607,7 +609,7 @@ def _clip_by_value_simd_float64(
 
 
 @always_inline
-def _convert_fp16_to_fp32_simd(mut src: AnyTensor, mut dst: AnyTensor) raises:
+def _convert_fp16_to_fp32_simd(src: AnyTensor, mut dst: AnyTensor) raises:
     """SIMD conversion from FP16 to FP32 with vectorization.
 
     Uses SIMD load + cast for true vectorized FP16→FP32 conversion.
@@ -616,7 +618,9 @@ def _convert_fp16_to_fp32_simd(mut src: AnyTensor, mut dst: AnyTensor) raises:
     comptime simd_width = simd_width_of[DType.float32]()
     var size = src._numel
 
-    var src_ptr = src.data_ptr[DType.float16]()
+    # `src` is borrowed (caller keeps it alive — Class C safe); `dst` is an
+    # owned local, so its pointer keeps the origin tie (modular/modular#6963).
+    var src_ptr = src._data.unsafe_bitcast[Float16]()
     var dst_ptr = dst.data_ptr[DType.float32]()
 
     @always_inline

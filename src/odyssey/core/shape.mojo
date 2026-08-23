@@ -479,9 +479,9 @@ def concatenate(tensors: List[AnyTensor], axis: Int = 0) raises -> AnyTensor:
 
             if is_contiguous(t):
                 unsafe_memcpy(
-                    dest=result._data.unsafe_offset(
+                    dest=result.data_ptr[DType.uint8]().unsafe_offset(
                         offset_bytes
-                    ).unsafe_bitcast[UInt8](),
+                    ),
                     src=t._data,
                     count=t_bytes,
                 )
@@ -499,7 +499,7 @@ def concatenate(tensors: List[AnyTensor], axis: Int = 0) raises -> AnyTensor:
                     var src_byte_offset = src_elem_offset * dtype_size
                     var dst_byte_offset = (result_elem_offset + i) * dtype_size
                     var src_ptr = t._data.unsafe_bitcast[UInt8]()
-                    var dst_ptr = result._data.unsafe_bitcast[UInt8]()
+                    var dst_ptr = result.data_ptr[DType.uint8]()
                     for b in range(dtype_size):
                         dst_ptr[unsafe_offset=dst_byte_offset + b] = src_ptr[
                             unsafe_offset=src_byte_offset + b
@@ -542,9 +542,9 @@ def concatenate(tensors: List[AnyTensor], axis: Int = 0) raises -> AnyTensor:
 
                 var chunk_bytes = t_row_width * dtype_size
                 unsafe_memcpy(
-                    dest=result._data.unsafe_offset(dst_offset).unsafe_bitcast[
-                        UInt8
-                    ](),
+                    dest=result.data_ptr[DType.uint8]().unsafe_offset(
+                        dst_offset
+                    ),
                     src=t._data.unsafe_offset(src_offset).unsafe_bitcast[
                         UInt8
                     ](),

@@ -333,7 +333,7 @@ def _evaluate_typed[dtype: DType](expr: TensorExpr) raises -> AnyTensor:
     """
     # Create result tensor with zero fill
     var result = full(expr._result_shape, 0.0, expr._dtype)
-    var result_ptr = result.data_ptr()
+    var result_ptr = result.data_ptr[dtype]()
 
     var total_elems = expr.numel()
     var root_idx = expr._root_idx
