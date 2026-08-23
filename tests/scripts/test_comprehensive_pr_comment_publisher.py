@@ -743,13 +743,13 @@ def test_resolver_schedules_a_red_writer_when_dispatch_monitoring_times_out() ->
     in_progress["status"] = "in_progress"
     in_progress["conclusion"] = None
     fixture["runs"] = [in_progress]
-    fixture["fresh_runs"] = [deepcopy(in_progress) for _ in range(120)]
+    fixture["fresh_runs"] = [deepcopy(in_progress) for _ in range(200)]
 
     state = _execute_resolver(fixture)
 
     assert state["failed"] == []
     assert state["outputs"]["source_ready"] == "false"
-    assert "did not complete within 120 minutes" in state["outputs"]["source_error"]
+    assert "did not complete within 145 minutes" in state["outputs"]["source_error"]
     assert state["outputs"]["writer_ready"] == "true"
 
 
