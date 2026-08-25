@@ -31,14 +31,26 @@ def test_slice_2d_single_dim() raises:
     # Verify values: sliced should start at row 1, elements 4-7
     # Original 5x4 tensor (row-major): [0,1,2,3, 4,5,6,7, 8,9,10,11, 12,13,14,15, 16,17,18,19]
     # sliced[0,:] = original[1,:] = [4,5,6,7]
-    var data_ptr = sliced._data.bitcast[Float32]()
-    assert_almost_equal(Float64(data_ptr[0]), Float64(4.0), Float64(1e-5))
-    assert_almost_equal(Float64(data_ptr[1]), Float64(5.0), Float64(1e-5))
-    assert_almost_equal(Float64(data_ptr[2]), Float64(6.0), Float64(1e-5))
-    assert_almost_equal(Float64(data_ptr[3]), Float64(7.0), Float64(1e-5))
+    var data_ptr = sliced.data_ptr[DType.float32]()
+    assert_almost_equal(
+        Float64(data_ptr[unsafe_offset=0]), Float64(4.0), Float64(1e-5)
+    )
+    assert_almost_equal(
+        Float64(data_ptr[unsafe_offset=1]), Float64(5.0), Float64(1e-5)
+    )
+    assert_almost_equal(
+        Float64(data_ptr[unsafe_offset=2]), Float64(6.0), Float64(1e-5)
+    )
+    assert_almost_equal(
+        Float64(data_ptr[unsafe_offset=3]), Float64(7.0), Float64(1e-5)
+    )
     # sliced[1,:] = original[2,:] = [8,9,10,11]
-    assert_almost_equal(Float64(data_ptr[4]), Float64(8.0), Float64(1e-5))
-    assert_almost_equal(Float64(data_ptr[5]), Float64(9.0), Float64(1e-5))
+    assert_almost_equal(
+        Float64(data_ptr[unsafe_offset=4]), Float64(8.0), Float64(1e-5)
+    )
+    assert_almost_equal(
+        Float64(data_ptr[unsafe_offset=5]), Float64(9.0), Float64(1e-5)
+    )
 
 
 def test_slice_2d_both_dims() raises:
@@ -60,13 +72,25 @@ def test_slice_2d_both_dims() raises:
     # sliced[0,:] = original[1,1:3] = [5,6]
     # sliced[1,:] = original[2,1:3] = [9,10]
     # sliced[2,:] = original[3,1:3] = [13,14]
-    var data_ptr = sliced._data.bitcast[Float32]()
-    assert_almost_equal(Float64(data_ptr[0]), Float64(5.0), Float64(1e-5))
-    assert_almost_equal(Float64(data_ptr[1]), Float64(6.0), Float64(1e-5))
-    assert_almost_equal(Float64(data_ptr[2]), Float64(9.0), Float64(1e-5))
-    assert_almost_equal(Float64(data_ptr[3]), Float64(10.0), Float64(1e-5))
-    assert_almost_equal(Float64(data_ptr[4]), Float64(13.0), Float64(1e-5))
-    assert_almost_equal(Float64(data_ptr[5]), Float64(14.0), Float64(1e-5))
+    var data_ptr = sliced.data_ptr[DType.float32]()
+    assert_almost_equal(
+        Float64(data_ptr[unsafe_offset=0]), Float64(5.0), Float64(1e-5)
+    )
+    assert_almost_equal(
+        Float64(data_ptr[unsafe_offset=1]), Float64(6.0), Float64(1e-5)
+    )
+    assert_almost_equal(
+        Float64(data_ptr[unsafe_offset=2]), Float64(9.0), Float64(1e-5)
+    )
+    assert_almost_equal(
+        Float64(data_ptr[unsafe_offset=3]), Float64(10.0), Float64(1e-5)
+    )
+    assert_almost_equal(
+        Float64(data_ptr[unsafe_offset=4]), Float64(13.0), Float64(1e-5)
+    )
+    assert_almost_equal(
+        Float64(data_ptr[unsafe_offset=5]), Float64(14.0), Float64(1e-5)
+    )
 
 
 def test_slice_3d_partial() raises:
@@ -88,13 +112,25 @@ def test_slice_3d_partial() raises:
     # Original 4x3x2 tensor (row-major): [0,1, 2,3, 4,5, 6,7, 8,9, 10,11, 12,13, 14,15, 16,17, 18,19, 20,21, 22,23]
     # sliced[0,:,:] = original[1,:,:] starts at index 6: [6,7, 8,9, 10,11]
     # sliced[1,:,:] = original[2,:,:] starts at index 12: [12,13, 14,15, 16,17]
-    var data_ptr = sliced._data.bitcast[Float32]()
-    assert_almost_equal(Float64(data_ptr[0]), Float64(6.0), Float64(1e-5))
-    assert_almost_equal(Float64(data_ptr[1]), Float64(7.0), Float64(1e-5))
-    assert_almost_equal(Float64(data_ptr[2]), Float64(8.0), Float64(1e-5))
-    assert_almost_equal(Float64(data_ptr[3]), Float64(9.0), Float64(1e-5))
-    assert_almost_equal(Float64(data_ptr[6]), Float64(12.0), Float64(1e-5))
-    assert_almost_equal(Float64(data_ptr[7]), Float64(13.0), Float64(1e-5))
+    var data_ptr = sliced.data_ptr[DType.float32]()
+    assert_almost_equal(
+        Float64(data_ptr[unsafe_offset=0]), Float64(6.0), Float64(1e-5)
+    )
+    assert_almost_equal(
+        Float64(data_ptr[unsafe_offset=1]), Float64(7.0), Float64(1e-5)
+    )
+    assert_almost_equal(
+        Float64(data_ptr[unsafe_offset=2]), Float64(8.0), Float64(1e-5)
+    )
+    assert_almost_equal(
+        Float64(data_ptr[unsafe_offset=3]), Float64(9.0), Float64(1e-5)
+    )
+    assert_almost_equal(
+        Float64(data_ptr[unsafe_offset=6]), Float64(12.0), Float64(1e-5)
+    )
+    assert_almost_equal(
+        Float64(data_ptr[unsafe_offset=7]), Float64(13.0), Float64(1e-5)
+    )
 
 
 # ============================================================================
@@ -173,11 +209,19 @@ def test_slice_2d_negative_start() raises:
     # Verify values: sliced should be rows [3:5,:] of original
     # Original 5x4 tensor: [0,1,2,3, 4,5,6,7, 8,9,10,11, 12,13,14,15, 16,17,18,19]
     # sliced[0,:] = original[3,:] = [12,13,14,15]
-    var data_ptr = sliced._data.bitcast[Float32]()
-    assert_almost_equal(Float64(data_ptr[0]), Float64(12.0), Float64(1e-5))
-    assert_almost_equal(Float64(data_ptr[1]), Float64(13.0), Float64(1e-5))
-    assert_almost_equal(Float64(data_ptr[2]), Float64(14.0), Float64(1e-5))
-    assert_almost_equal(Float64(data_ptr[3]), Float64(15.0), Float64(1e-5))
+    var data_ptr = sliced.data_ptr[DType.float32]()
+    assert_almost_equal(
+        Float64(data_ptr[unsafe_offset=0]), Float64(12.0), Float64(1e-5)
+    )
+    assert_almost_equal(
+        Float64(data_ptr[unsafe_offset=1]), Float64(13.0), Float64(1e-5)
+    )
+    assert_almost_equal(
+        Float64(data_ptr[unsafe_offset=2]), Float64(14.0), Float64(1e-5)
+    )
+    assert_almost_equal(
+        Float64(data_ptr[unsafe_offset=3]), Float64(15.0), Float64(1e-5)
+    )
 
 
 def test_slice_2d_negative_end() raises:
@@ -196,9 +240,13 @@ def test_slice_2d_negative_end() raises:
 
     # Verify values: sliced should be columns [2:4,:] of original
     # sliced[0,:] = original[0,2:4] = [2,3]
-    var data_ptr = sliced._data.bitcast[Float32]()
-    assert_almost_equal(Float64(data_ptr[0]), Float64(2.0), Float64(1e-5))
-    assert_almost_equal(Float64(data_ptr[1]), Float64(3.0), Float64(1e-5))
+    var data_ptr = sliced.data_ptr[DType.float32]()
+    assert_almost_equal(
+        Float64(data_ptr[unsafe_offset=0]), Float64(2.0), Float64(1e-5)
+    )
+    assert_almost_equal(
+        Float64(data_ptr[unsafe_offset=1]), Float64(3.0), Float64(1e-5)
+    )
 
 
 def test_slice_2d_negative_both_dims() raises:
@@ -219,11 +267,19 @@ def test_slice_2d_negative_both_dims() raises:
     # Original 5x4 tensor: [0,1,2,3, 4,5,6,7, 8,9,10,11, 12,13,14,15, 16,17,18,19]
     # sliced[0,:] = original[3,2:4] = [14,15]
     # sliced[1,:] = original[4,2:4] = [18,19]
-    var data_ptr = sliced._data.bitcast[Float32]()
-    assert_almost_equal(Float64(data_ptr[0]), Float64(14.0), Float64(1e-5))
-    assert_almost_equal(Float64(data_ptr[1]), Float64(15.0), Float64(1e-5))
-    assert_almost_equal(Float64(data_ptr[2]), Float64(18.0), Float64(1e-5))
-    assert_almost_equal(Float64(data_ptr[3]), Float64(19.0), Float64(1e-5))
+    var data_ptr = sliced.data_ptr[DType.float32]()
+    assert_almost_equal(
+        Float64(data_ptr[unsafe_offset=0]), Float64(14.0), Float64(1e-5)
+    )
+    assert_almost_equal(
+        Float64(data_ptr[unsafe_offset=1]), Float64(15.0), Float64(1e-5)
+    )
+    assert_almost_equal(
+        Float64(data_ptr[unsafe_offset=2]), Float64(18.0), Float64(1e-5)
+    )
+    assert_almost_equal(
+        Float64(data_ptr[unsafe_offset=3]), Float64(19.0), Float64(1e-5)
+    )
 
 
 def main() raises:

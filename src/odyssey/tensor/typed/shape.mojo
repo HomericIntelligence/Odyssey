@@ -50,13 +50,18 @@ def _as_contiguous_typed[
     var shape = tensor.shape()
     var numel = tensor.numel()
     var result = Tensor[dtype](shape)
+    # Origin-tied pointers (WAR for modular/modular#6963: direct `_data`
+    # capture from an owned local hoists the owner's `__deinit__` before
+    # the pointer is used, freeing the buffer mid-copy). `tensor` is a
+    # borrowed param (owner is the caller — safe); `result` is an owned
+    # local returned by move, so its pointer must be origin-tied.
     var src_ptr = tensor._data
-    var dst_ptr = result._data
+    var dst_ptr = result.data_ptr()
 
     if tensor.is_contiguous():
         # Fast path: direct typed copy
         for i in range(numel):
-            dst_ptr[i] = src_ptr[i]
+            dst_ptr[unsafe_offset=i] = src_ptr[unsafe_offset=i]
     else:
         # Slow path: stride-based indexing
         var ndim = len(shape)
@@ -67,7 +72,7 @@ def _as_contiguous_typed[
                 var coord = remaining % shape[d]
                 remaining //= shape[d]
                 src_elem_offset += coord * tensor._strides[d]
-            dst_ptr[i] = src_ptr[src_elem_offset]
+            dst_ptr[unsafe_offset=i] = src_ptr[unsafe_offset=src_elem_offset]
 
     return result^
 
@@ -95,7 +100,7 @@ def _reshape_typed[
     """Reshape tensor to new shape (native Tensor[dtype] core).
 
     This is the core implementation -- zero dtype branches, zero bitcasts.
-    Tensor[dtype]._data is already typed as UnsafePointer[Scalar[dtype], MutAnyOrigin].
+    Tensor[dtype]._data is already typed as Pointer[Scalar[dtype], MutUntrackedOrigin].
 
     Parameters:
         dtype: Compile-time dtype parameter.
@@ -122,15 +127,15 @@ def _reshape_typed[
     if tensor.is_contiguous():
         # Fast path: direct typed copy
         var src_ptr = tensor._data
-        var dst_ptr = result._data
+        var dst_ptr = result.data_ptr()
         for i in range(total_elements):
-            dst_ptr[i] = src_ptr[i]
+            dst_ptr[unsafe_offset=i] = src_ptr[unsafe_offset=i]
     else:
         # Slow path: compute stride-based offset for each element
         var src_shape = tensor.shape()
         var ndim = len(src_shape)
         var src_ptr = tensor._data
-        var dst_ptr = result._data
+        var dst_ptr = result.data_ptr()
         for i in range(total_elements):
             var remaining = i
             var src_elem_offset = 0
@@ -138,7 +143,7 @@ def _reshape_typed[
                 var coord = remaining % src_shape[d]
                 remaining //= src_shape[d]
                 src_elem_offset += coord * tensor._strides[d]
-            dst_ptr[i] = src_ptr[src_elem_offset]
+            dst_ptr[unsafe_offset=i] = src_ptr[unsafe_offset=src_elem_offset]
 
     return result^
 
@@ -191,7 +196,7 @@ def _broadcast_to_typed[
     var result_numel = result.numel()
 
     var src_ptr = tensor._data
-    var dst_ptr = result._data
+    var dst_ptr = result.data_ptr()
 
     for i in range(result_numel):
         var coords = List[Int]()
@@ -209,7 +214,7 @@ def _broadcast_to_typed[
             src_idx += coords[j] * broadcast_strides[j]
 
         # Copy value using typed pointer -- zero bitcasts
-        dst_ptr[i] = src_ptr[src_idx]
+        dst_ptr[unsafe_offset=i] = src_ptr[unsafe_offset=src_idx]
 
     return result^
 
@@ -304,7 +309,7 @@ def _permute_typed[
     var result_numel = result.numel()
 
     var src_ptr = tensor._data
-    var dst_ptr = result._data
+    var dst_ptr = result.data_ptr()
 
     # Fill result by permuting coordinates
     for i in range(result_numel):
@@ -336,7 +341,7 @@ def _permute_typed[
             src_idx += src_coords[j] * tensor._strides[j]
 
         # Copy value using typed pointer -- zero bitcasts
-        dst_ptr[i] = src_ptr[src_idx]
+        dst_ptr[unsafe_offset=i] = src_ptr[unsafe_offset=src_idx]
 
     return result^
 

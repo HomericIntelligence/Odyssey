@@ -3,8 +3,8 @@
 Provides a tensor type parametric on DType, enabling typed element access via
 `__getitem__` that returns `Scalar[Self.dtype]` (no runtime dtype branching).
 
-Uses typed `UnsafePointer[Scalar[dtype], MutAnyOrigin]` storage instead of type-erased
-`UnsafePointer[UInt8, MutAnyOrigin]`. Pointer arithmetic auto-scales by element size (H1),
+Uses typed `Pointer[Scalar[dtype], MutUntrackedOrigin]` storage instead of type-erased
+`Pointer[UInt8, MutUntrackedOrigin]`. Pointer arithmetic auto-scales by element size (H1),
 so no manual `* dtype_size` is needed for element offsets.
 
 Zero-copy conversion to AnyTensor via `as_any()` with shared
@@ -20,7 +20,8 @@ Example:
 """
 
 from std.collections import List
-from std.memory import UnsafePointer, memset_zero, alloc
+from std.memory import Pointer, unsafe_memset_zero
+from std.memory.alloc import unsafe_alloc
 from std.io import Writer
 from odyssey.base.memory_pool import pooled_alloc, pooled_free
 from odyssey.tensor.tensor_traits import TensorLike
@@ -47,7 +48,7 @@ struct Tensor[dtype: DType = DType.float32](
     """Compile-time typed tensor with SIMD-like element access.
 
     Parametric on DType, enabling `__getitem__` to return `Scalar[Self.dtype]`
-    without runtime dtype branching. Uses typed `UnsafePointer[Scalar[dtype], MutAnyOrigin]`
+    without runtime dtype branching. Uses typed `Pointer[Scalar[dtype], MutUntrackedOrigin]`
     storage where pointer arithmetic auto-scales by element size.
 
     Memory Safety: Implements reference counting for safe shared ownership.
@@ -69,7 +70,7 @@ struct Tensor[dtype: DType = DType.float32](
         _original_numel_quantized: For quantized tensors, original size before padding.
     """
 
-    var _data: UnsafePointer[Scalar[Self.dtype], origin=MutAnyOrigin]
+    var _data: Pointer[Scalar[Self.dtype], origin=MutUntrackedOrigin]
     """Typed pointer to element storage."""
     var _shape: List[Int]
     """List of dimension sizes."""
@@ -79,7 +80,7 @@ struct Tensor[dtype: DType = DType.float32](
     """Total number of elements."""
     var _is_view: Bool
     """Whether this tensor shares data with another."""
-    var _refcount: UnsafePointer[Int, origin=MutAnyOrigin]
+    var _refcount: Pointer[Int, origin=MutUntrackedOrigin]
     """Reference count for shared memory management."""
     var _allocated_size: Int
     """Actual allocated size in bytes."""
@@ -143,22 +144,24 @@ struct Tensor[dtype: DType = DType.float32](
 
         # Allocate through memory pool (returns UInt8 pointer), then bitcast
         # to typed pointer. _allocated_size is in BYTES.
-        self._data = pooled_alloc(total_bytes).bitcast[Scalar[Self.dtype]]()
+        self._data = pooled_alloc(total_bytes).unsafe_bitcast[
+            Scalar[Self.dtype]
+        ]()
         self._allocated_size = total_bytes
 
         # Zero-initialize the memory
-        memset_zero(self._data.bitcast[UInt8](), total_bytes)
+        unsafe_memset_zero(self._data.unsafe_bitcast[UInt8](), total_bytes)
 
         # Allocate and initialize reference count
-        self._refcount = alloc[Int](1)
+        self._refcount = unsafe_alloc[Int](1)
         self._refcount[] = 1
 
     def __init__(
         out self,
-        data: UnsafePointer[Scalar[Self.dtype], origin=MutAnyOrigin],
+        data: Pointer[Scalar[Self.dtype], origin=MutUntrackedOrigin],
         shape: List[Int],
         strides: List[Int],
-        refcount: UnsafePointer[Int, origin=MutAnyOrigin],
+        refcount: Pointer[Int, origin=MutUntrackedOrigin],
         numel: Int,
         is_view: Bool,
         allocated_size: Int,
@@ -211,19 +214,33 @@ struct Tensor[dtype: DType = DType.float32](
         self._allocated_size = copy._allocated_size
         # _refcount is always allocated by every initializing constructor;
         # the previous null-check was a defensive holdover from pre-1.0 when
-        # UnsafePointer was nullable by default.
+        # Pointer was nullable by default.
         self._refcount[] += 1
 
-    def __init__(out self, *, deinit take: Self):
-        """Move constructor - transfers ownership without refcount change."""
-        self._data = take._data
-        self._shape = take._shape^
-        self._strides = take._strides^
-        self._numel = take._numel
-        self._is_view = take._is_view
-        self._refcount = take._refcount
-        self._original_numel_quantized = take._original_numel_quantized
-        self._allocated_size = take._allocated_size
+    def __init__(out self, *, deinit move: Self):
+        """Move constructor - transfers ownership without refcount change.
+
+        NOTE (Mojo 1.0.0 regression, modular/modular#6939): whether the
+        moved-from source's `__deinit__` runs is code-shape-dependent. Simple
+        shapes (param moves, `var x = src`) correctly skip it; RETURN moves
+        (`return r^`, `return Pair()`) run it, so the shared refcount cell is
+        decremented once for the destination and once for the moved-from
+        source -> premature free -> use-after-free on the returned value.
+        See docs/dev/reproducers/repro_uaf_return_move.mojo and
+        modular/modular#6939 for the minimal reproducer. As of 2026-08-23
+        #6939 is closed DUPLICATE of #6707 with NO upstream fix, so avoid
+        Tuple[AnyTensor, ...] returns in hot paths (see
+        `batch_norm2d_inplace` in normalization.mojo); do NOT reintroduce
+        the refcount-sentinel workaround here.
+        """
+        self._data = move._data
+        self._shape = move._shape^
+        self._strides = move._strides^
+        self._numel = move._numel
+        self._is_view = move._is_view
+        self._refcount = move._refcount
+        self._original_numel_quantized = move._original_numel_quantized
+        self._allocated_size = move._allocated_size
 
     def copy(self) -> Self:
         """Copy constructor — shared ownership with reference counting.
@@ -231,21 +248,23 @@ struct Tensor[dtype: DType = DType.float32](
         Creates a new reference to the same underlying data. Increments
         the reference count to track shared ownership.
         """
-        from std.memory import alloc as mem_alloc
+        from std.memory.alloc import unsafe_alloc as mem_alloc
 
         var ptr = mem_alloc[Tensor[Self.dtype]](1)
-        ptr[0]._data = self._data
-        ptr[0]._shape = self._shape.copy()
-        ptr[0]._strides = self._strides.copy()
-        ptr[0]._numel = self._numel
-        ptr[0]._is_view = self._is_view
-        ptr[0]._refcount = self._refcount
-        ptr[0]._original_numel_quantized = self._original_numel_quantized
-        ptr[0]._allocated_size = self._allocated_size
+        ptr[unsafe_offset=0]._data = self._data
+        ptr[unsafe_offset=0]._shape = self._shape.copy()
+        ptr[unsafe_offset=0]._strides = self._strides.copy()
+        ptr[unsafe_offset=0]._numel = self._numel
+        ptr[unsafe_offset=0]._is_view = self._is_view
+        ptr[unsafe_offset=0]._refcount = self._refcount
+        ptr[
+            unsafe_offset=0
+        ]._original_numel_quantized = self._original_numel_quantized
+        ptr[unsafe_offset=0]._allocated_size = self._allocated_size
         self._refcount[] += 1
-        return ptr.take_pointee()
+        return ptr.unsafe_take_pointee()
 
-    def __del__(deinit self):
+    def __deinit__(deinit self):
         """Destructor — decrements refcount, frees if last reference.
 
         Uses reference counting to safely manage shared ownership. Only
@@ -256,12 +275,31 @@ struct Tensor[dtype: DType = DType.float32](
         if self._refcount[] == 0:
             # Free data via pool — bitcast back to UInt8 since pool
             # works with byte pointers
-            pooled_free(self._data.bitcast[UInt8](), self._allocated_size)
-            self._refcount.free()
+            pooled_free(
+                self._data.unsafe_bitcast[UInt8](), self._allocated_size
+            )
+            self._refcount.unsafe_free()
 
     # ------------------------------------------------------------------
     # Element access
     # ------------------------------------------------------------------
+
+    @always_inline
+    def data_ptr(mut self) -> Pointer[Scalar[Self.dtype], origin_of(self)]:
+        """Get typed pointer to element data, tied to this tensor's lifetime.
+
+        WAR for modular/modular#6963 (premature `__deinit__` UAF, same class
+        as #6959/#6707): the returned pointer is origin-tied to `self` so
+        the compiler keeps this tensor alive for the whole lifetime of the
+        pointer instead of hoisting `__deinit__` to right after this call.
+        Requires `mut self` (a `MutOrigin` pointer) so callers must have a
+        mutable tensor; this is fine for the bulk-copy/loop kernels that
+        use it.
+
+        Returns:
+            Typed Pointer to element data, tied to this tensor's lifetime.
+        """
+        return self._data.unsafe_origin_cast[origin_of(self)]()
 
     def __getitem__(self, index: Int) raises -> Scalar[Self.dtype]:
         """Get element at flat index — returns typed Scalar[Self.dtype].
@@ -299,10 +337,10 @@ struct Tensor[dtype: DType = DType.float32](
                 remaining = remaining % dim_size
                 mem_offset += coord * self._strides[i]
             # Typed pointer — auto-scales by element size (H1)
-            return self._data[mem_offset]
+            return self._data[unsafe_offset=mem_offset]
 
         # Contiguous — direct indexed access (auto-scales, no * dtype_size)
-        return self._data[index]
+        return self._data[unsafe_offset=index]
 
     def __setitem__(mut self, index: Int, value: Scalar[Self.dtype]) raises:
         """Set element at flat index — accepts typed Scalar[Self.dtype].
@@ -327,10 +365,10 @@ struct Tensor[dtype: DType = DType.float32](
                 var coord = remaining // dim_size
                 remaining = remaining % dim_size
                 mem_offset += coord * self._strides[i]
-            self._data[mem_offset] = value
+            self._data[unsafe_offset=mem_offset] = value
             return
 
-        self._data[index] = value
+        self._data[unsafe_offset=index] = value
 
     # ------------------------------------------------------------------
     # TensorLike conformance
@@ -395,7 +433,7 @@ struct Tensor[dtype: DType = DType.float32](
                 + String(self._numel)
                 + " elements"
             )
-        return self._data[0]
+        return self._data[unsafe_offset=0]
 
     def __bool__(self) raises -> Bool:
         """Return the boolean value of a single-element tensor.
@@ -487,7 +525,7 @@ struct Tensor[dtype: DType = DType.float32](
         # type-erased AnyTensor; `base_data == shared_data` because a Tensor
         # never offsets its `_data`. The constructor increments the shared
         # refcount for shared ownership (B4 critical).
-        var byte_ptr = self._data.bitcast[UInt8]()
+        var byte_ptr = self._data.unsafe_bitcast[UInt8]()
         return AnyTensor(
             shared_data=byte_ptr,
             base_data=byte_ptr,
@@ -557,7 +595,9 @@ struct Tensor[dtype: DType = DType.float32](
         Returns:
             String in the format: ``Tensor([v0, v1, ...], dtype=<dtype>)``.
         """
-        return String.write(self)
+        var s = String()
+        self.write_to(s)
+        return s
 
     def write_repr_to[W: Writer](self, mut writer: W):
         """Write the repr representation to a Writer (required for Writable trait).

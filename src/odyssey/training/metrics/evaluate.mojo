@@ -69,7 +69,7 @@ def evaluate_with_predict(
 
 
 def evaluate_logits_batch(
-    logits: AnyTensor, labels: AnyTensor
+    mut logits: AnyTensor, labels: AnyTensor
 ) raises -> Float32:
     """Evaluate using logits (2D) by computing argmax per sample.
 
@@ -110,12 +110,12 @@ def evaluate_logits_batch(
     for i in range(batch_size):
         # Find argmax for this sample
         var max_idx = 0
-        var max_val = logits_data[i * num_classes]
+        var max_val = logits_data[unsafe_offset=i * num_classes]
 
         for c in range(1, num_classes):
             var idx = i * num_classes + c
-            if logits_data[idx] > max_val:
-                max_val = logits_data[idx]
+            if logits_data[unsafe_offset=idx] > max_val:
+                max_val = logits_data[unsafe_offset=idx]
                 max_idx = c
 
         # Compare with true label
@@ -127,7 +127,7 @@ def evaluate_logits_batch(
 
 
 def compute_accuracy_on_batch(
-    predictions: AnyTensor, labels: AnyTensor
+    mut predictions: AnyTensor, labels: AnyTensor
 ) raises -> Float32:
     """Compute accuracy for a single batch (simple utility).
 
@@ -180,12 +180,12 @@ def compute_accuracy_on_batch(
         for i in range(batch_size):
             # Find argmax for this sample
             var max_idx = 0
-            var max_val = pred_data[i * num_classes]
+            var max_val = pred_data[unsafe_offset=i * num_classes]
 
             for c in range(1, num_classes):
                 var idx = i * num_classes + c
-                if pred_data[idx] > max_val:
-                    max_val = pred_data[idx]
+                if pred_data[unsafe_offset=idx] > max_val:
+                    max_val = pred_data[unsafe_offset=idx]
                     max_idx = c
 
             # Compare with true label

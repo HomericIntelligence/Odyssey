@@ -114,7 +114,9 @@ struct PrecisionMode(Copyable, ImplicitlyCopyable, Movable, Writable):
             writer.write("unknown")
 
     def __str__(self) -> String:
-        return String.write(self)
+        var s = String()
+        self.write_to(s)
+        return s
 
     def write_repr_to[W: Writer](self, mut writer: W):
         """Write the repr representation to a Writer (required for Writable trait).

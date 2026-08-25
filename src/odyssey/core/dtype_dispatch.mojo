@@ -24,7 +24,7 @@ Example usage:
     # Before (40+ lines):
     if tensor.dtype() == DType.float32:
         for i in range(size):
-            result[i] = Float64(op(tensor._data.bitcast[Float32]()[i]))
+            result[i] = Float64(op(tensor._data.unsafe_bitcast[Float32]()[unsafe_offset=i]))
     elif tensor.dtype() == DType.float64:
         # ... repeat for all dtypes.
 
@@ -117,11 +117,11 @@ def elementwise_unary[
     var result = AnyTensor(tensor.shape(), dtype)
     var size = tensor._numel
 
-    var in_ptr = tensor._data.bitcast[Scalar[dtype]]()
-    var out_ptr = result._data.bitcast[Scalar[dtype]]()
+    var in_ptr = tensor._data.unsafe_bitcast[Scalar[dtype]]()
+    var out_ptr = result.data_ptr[dtype]()
 
     for i in range(size):
-        out_ptr[i] = op[dtype](in_ptr[i])
+        out_ptr[unsafe_offset=i] = op[dtype](in_ptr[unsafe_offset=i])
 
     return result^
 
@@ -240,12 +240,14 @@ def elementwise_binary[
     var result = AnyTensor(lhs.shape(), dtype)
     var size = lhs._numel
 
-    var lhs_ptr = lhs._data.bitcast[Scalar[dtype]]()
-    var rhs_ptr = rhs._data.bitcast[Scalar[dtype]]()
-    var out_ptr = result._data.bitcast[Scalar[dtype]]()
+    var lhs_ptr = lhs._data.unsafe_bitcast[Scalar[dtype]]()
+    var rhs_ptr = rhs._data.unsafe_bitcast[Scalar[dtype]]()
+    var out_ptr = result.data_ptr[dtype]()
 
     for i in range(size):
-        out_ptr[i] = op[dtype](lhs_ptr[i], rhs_ptr[i])
+        out_ptr[unsafe_offset=i] = op[dtype](
+            lhs_ptr[unsafe_offset=i], rhs_ptr[unsafe_offset=i]
+        )
 
     return result^
 
@@ -370,12 +372,14 @@ def elementwise_scalar[
     var result = AnyTensor(tensor.shape(), dtype)
     var size = tensor._numel
 
-    var in_ptr = tensor._data.bitcast[Scalar[dtype]]()
-    var out_ptr = result._data.bitcast[Scalar[dtype]]()
+    var in_ptr = tensor._data.unsafe_bitcast[Scalar[dtype]]()
+    var out_ptr = result.data_ptr[dtype]()
     var scalar_val = Scalar[dtype](scalar)
 
     for i in range(size):
-        out_ptr[i] = op[dtype](in_ptr[i], scalar_val)
+        out_ptr[unsafe_offset=i] = op[dtype](
+            in_ptr[unsafe_offset=i], scalar_val
+        )
 
     return result^
 
@@ -645,8 +649,8 @@ def _softmax_impl[
     """
     from std.math import exp
 
-    var in_ptr = tensor._data.bitcast[Scalar[dtype]]()
-    var out_ptr = result._data.bitcast[Scalar[dtype]]()
+    var in_ptr = tensor._data.unsafe_bitcast[Scalar[dtype]]()
+    var out_ptr = result._data.unsafe_bitcast[Scalar[dtype]]()
 
     # For float16, use float32 intermediate precision
     comptime if dtype == DType.float16:
@@ -655,14 +659,15 @@ def _softmax_impl[
                 # Find max along axis
                 var max_val = Float32(
                     in_ptr[
-                        (outer_idx * axis_size + 0) * axis_stride + inner_idx
+                        unsafe_offset=(outer_idx * axis_size + 0) * axis_stride
+                        + inner_idx
                     ]
                 )
                 for k in range(1, axis_size):
                     var idx = (
                         outer_idx * axis_size + k
                     ) * axis_stride + inner_idx
-                    var val = Float32(in_ptr[idx])
+                    var val = Float32(in_ptr[unsafe_offset=idx])
                     if val > max_val:
                         max_val = val
 
@@ -672,9 +677,9 @@ def _softmax_impl[
                     var idx = (
                         outer_idx * axis_size + k
                     ) * axis_stride + inner_idx
-                    var val = Float32(in_ptr[idx])
+                    var val = Float32(in_ptr[unsafe_offset=idx])
                     var exp_val = exp(val - max_val)
-                    out_ptr[idx] = Scalar[dtype](exp_val)
+                    out_ptr[unsafe_offset=idx] = Scalar[dtype](exp_val)
                     sum_exp += exp_val
 
                 # Normalize
@@ -682,22 +687,25 @@ def _softmax_impl[
                     var idx = (
                         outer_idx * axis_size + k
                     ) * axis_stride + inner_idx
-                    var current = Float32(out_ptr[idx])
-                    out_ptr[idx] = Scalar[dtype](current / sum_exp)
+                    var current = Float32(out_ptr[unsafe_offset=idx])
+                    out_ptr[unsafe_offset=idx] = Scalar[dtype](
+                        current / sum_exp
+                    )
     elif dtype == DType.float32 or dtype == DType.float64:
         for outer_idx in range(outer_size):
             for inner_idx in range(axis_stride):
                 # Find max along axis
                 var max_val = Float64(
                     in_ptr[
-                        (outer_idx * axis_size + 0) * axis_stride + inner_idx
+                        unsafe_offset=(outer_idx * axis_size + 0) * axis_stride
+                        + inner_idx
                     ]
                 )
                 for k in range(1, axis_size):
                     var idx = (
                         outer_idx * axis_size + k
                     ) * axis_stride + inner_idx
-                    var val = Float64(in_ptr[idx])
+                    var val = Float64(in_ptr[unsafe_offset=idx])
                     if val > max_val:
                         max_val = val
 
@@ -707,9 +715,9 @@ def _softmax_impl[
                     var idx = (
                         outer_idx * axis_size + k
                     ) * axis_stride + inner_idx
-                    var val = Float64(in_ptr[idx])
+                    var val = Float64(in_ptr[unsafe_offset=idx])
                     var exp_val = exp(val - max_val)
-                    out_ptr[idx] = Scalar[dtype](exp_val)
+                    out_ptr[unsafe_offset=idx] = Scalar[dtype](exp_val)
                     sum_exp += exp_val
 
                 # Normalize
@@ -717,8 +725,10 @@ def _softmax_impl[
                     var idx = (
                         outer_idx * axis_size + k
                     ) * axis_stride + inner_idx
-                    var current = Float64(out_ptr[idx])
-                    out_ptr[idx] = Scalar[dtype](current / sum_exp)
+                    var current = Float64(out_ptr[unsafe_offset=idx])
+                    out_ptr[unsafe_offset=idx] = Scalar[dtype](
+                        current / sum_exp
+                    )
 
 
 def dispatch_softmax(
@@ -785,9 +795,9 @@ def _softmax_backward_impl[
         axis_size: Size of softmax axis.
         axis_stride: Product of dimensions after axis.
     """
-    var grad_ptr = grad_output._data.bitcast[Scalar[dtype]]()
-    var out_ptr = output._data.bitcast[Scalar[dtype]]()
-    var result_ptr = result._data.bitcast[Scalar[dtype]]()
+    var grad_ptr = grad_output._data.unsafe_bitcast[Scalar[dtype]]()
+    var out_ptr = output._data.unsafe_bitcast[Scalar[dtype]]()
+    var result_ptr = result._data.unsafe_bitcast[Scalar[dtype]]()
     comptime if dtype == DType.float16:
         for outer in range(outer_size):
             for inner in range(axis_stride):
@@ -795,16 +805,16 @@ def _softmax_backward_impl[
                 var dot_sum: Float32 = 0.0
                 for k in range(axis_size):
                     var idx = (outer * axis_size + k) * axis_stride + inner
-                    var grad_val = Float32(grad_ptr[idx])
-                    var out_val = Float32(out_ptr[idx])
+                    var grad_val = Float32(grad_ptr[unsafe_offset=idx])
+                    var out_val = Float32(out_ptr[unsafe_offset=idx])
                     dot_sum += grad_val * out_val
 
                 # Compute gradient: output * (grad - dot_sum)
                 for k in range(axis_size):
                     var idx = (outer * axis_size + k) * axis_stride + inner
-                    var grad_val = Float32(grad_ptr[idx])
-                    var out_val = Float32(out_ptr[idx])
-                    result_ptr[idx] = Scalar[dtype](
+                    var grad_val = Float32(grad_ptr[unsafe_offset=idx])
+                    var out_val = Float32(out_ptr[unsafe_offset=idx])
+                    result_ptr[unsafe_offset=idx] = Scalar[dtype](
                         out_val * (grad_val - dot_sum)
                     )
     else:
@@ -814,12 +824,16 @@ def _softmax_backward_impl[
                 var dot_sum = Scalar[dtype](0.0)
                 for k in range(axis_size):
                     var idx = (outer * axis_size + k) * axis_stride + inner
-                    dot_sum += grad_ptr[idx] * out_ptr[idx]
+                    dot_sum += (
+                        grad_ptr[unsafe_offset=idx] * out_ptr[unsafe_offset=idx]
+                    )
 
                 # Compute gradient: output * (grad - dot_sum)
                 for k in range(axis_size):
                     var idx = (outer * axis_size + k) * axis_stride + inner
-                    result_ptr[idx] = out_ptr[idx] * (grad_ptr[idx] - dot_sum)
+                    result_ptr[unsafe_offset=idx] = out_ptr[
+                        unsafe_offset=idx
+                    ] * (grad_ptr[unsafe_offset=idx] - dot_sum)
 
 
 def dispatch_softmax_backward(
@@ -890,53 +904,65 @@ def _gelu_impl[
     comptime GELU_COEFF = 0.044715
     comptime SQRT_2 = 1.4142135623730951
 
-    var in_ptr = tensor._data.bitcast[Scalar[dtype]]()
-    var out_ptr = result._data.bitcast[Scalar[dtype]]()
+    var in_ptr = tensor._data.unsafe_bitcast[Scalar[dtype]]()
+    var out_ptr = result._data.unsafe_bitcast[Scalar[dtype]]()
     comptime if dtype == DType.float16:
         if approximate:
             for i in range(tensor._numel):
-                var x = Float32(in_ptr[i])
+                var x = Float32(in_ptr[unsafe_offset=i])
                 var x_cubed = x * x * x
                 var inner = Float32(SQRT_2_OVER_PI) * (
                     x + Float32(GELU_COEFF) * x_cubed
                 )
                 var tanh_val = math_tanh(inner)
-                out_ptr[i] = Scalar[dtype](0.5 * x * (1.0 + tanh_val))
+                out_ptr[unsafe_offset=i] = Scalar[dtype](
+                    0.5 * x * (1.0 + tanh_val)
+                )
         else:
             for i in range(tensor._numel):
-                var x = Float32(in_ptr[i])
+                var x = Float32(in_ptr[unsafe_offset=i])
                 var erf_val = erf(x / Float32(SQRT_2))
-                out_ptr[i] = Scalar[dtype](x * 0.5 * (1.0 + erf_val))
+                out_ptr[unsafe_offset=i] = Scalar[dtype](
+                    x * 0.5 * (1.0 + erf_val)
+                )
     elif dtype == DType.float32:
         if approximate:
             for i in range(tensor._numel):
-                var x = Float32(in_ptr[i])
+                var x = Float32(in_ptr[unsafe_offset=i])
                 var x_cubed = x * x * x
                 var inner = Float32(SQRT_2_OVER_PI) * (
                     x + Float32(GELU_COEFF) * x_cubed
                 )
                 var tanh_val = math_tanh(inner)
-                out_ptr[i] = Scalar[dtype](0.5 * x * (1.0 + tanh_val))
+                out_ptr[unsafe_offset=i] = Scalar[dtype](
+                    0.5 * x * (1.0 + tanh_val)
+                )
         else:
             for i in range(tensor._numel):
-                var x = Float32(in_ptr[i])
+                var x = Float32(in_ptr[unsafe_offset=i])
                 var erf_val = erf(x / Float32(SQRT_2))
-                out_ptr[i] = Scalar[dtype](x * 0.5 * (1.0 + erf_val))
+                out_ptr[unsafe_offset=i] = Scalar[dtype](
+                    x * 0.5 * (1.0 + erf_val)
+                )
     else:  # float64
         if approximate:
             for i in range(tensor._numel):
-                var x = Float64(in_ptr[i])
+                var x = Float64(in_ptr[unsafe_offset=i])
                 var x_cubed = x * x * x
                 var inner = Float64(SQRT_2_OVER_PI) * (
                     x + Float64(GELU_COEFF) * x_cubed
                 )
                 var tanh_val = math_tanh(inner)
-                out_ptr[i] = Scalar[dtype](0.5 * x * (1.0 + tanh_val))
+                out_ptr[unsafe_offset=i] = Scalar[dtype](
+                    0.5 * x * (1.0 + tanh_val)
+                )
         else:
             for i in range(tensor._numel):
-                var x = Float64(in_ptr[i])
+                var x = Float64(in_ptr[unsafe_offset=i])
                 var erf_val = erf(x / Float64(SQRT_2))
-                out_ptr[i] = Scalar[dtype](x * 0.5 * (1.0 + erf_val))
+                out_ptr[unsafe_offset=i] = Scalar[dtype](
+                    x * 0.5 * (1.0 + erf_val)
+                )
 
 
 def dispatch_gelu(tensor: AnyTensor, approximate: Bool) raises -> AnyTensor:
@@ -991,14 +1017,14 @@ def _gelu_backward_impl[
     comptime GELU_COEFF = 0.044715
     comptime INV_SQRT_2PI = 0.3989422804014327
 
-    var grad_ptr = grad_output._data.bitcast[Scalar[dtype]]()
-    var x_ptr = x._data.bitcast[Scalar[dtype]]()
-    var result_ptr = result._data.bitcast[Scalar[dtype]]()
+    var grad_ptr = grad_output._data.unsafe_bitcast[Scalar[dtype]]()
+    var x_ptr = x._data.unsafe_bitcast[Scalar[dtype]]()
+    var result_ptr = result._data.unsafe_bitcast[Scalar[dtype]]()
     comptime if dtype == DType.float16:
         if approximate:
             for i in range(x._numel):
-                var x_val = Float32(x_ptr[i])
-                var grad = Float32(grad_ptr[i])
+                var x_val = Float32(x_ptr[unsafe_offset=i])
+                var grad = Float32(grad_ptr[unsafe_offset=i])
                 var x_cubed = x_val * x_val * x_val
                 var inner = Float32(SQRT_2_OVER_PI) * (
                     x_val + Float32(GELU_COEFF) * x_cubed
@@ -1009,20 +1035,20 @@ def _gelu_backward_impl[
                     1.0 + 3.0 * Float32(GELU_COEFF) * x_val * x_val
                 )
                 var dgelu = 0.5 * (1.0 + tanh_val) + 0.5 * x_val * sech2 * dtanh
-                result_ptr[i] = Scalar[dtype](grad * dgelu)
+                result_ptr[unsafe_offset=i] = Scalar[dtype](grad * dgelu)
         else:
             for i in range(x._numel):
-                var x_val = Float32(x_ptr[i])
-                var grad = Float32(grad_ptr[i])
+                var x_val = Float32(x_ptr[unsafe_offset=i])
+                var grad = Float32(grad_ptr[unsafe_offset=i])
                 var erf_val = erf(x_val / Float32(SQRT_2))
                 var pdf = Float32(INV_SQRT_2PI) * exp(-0.5 * x_val * x_val)
                 var dgelu = 0.5 * (1.0 + erf_val) + x_val * pdf
-                result_ptr[i] = Scalar[dtype](grad * dgelu)
+                result_ptr[unsafe_offset=i] = Scalar[dtype](grad * dgelu)
     elif dtype == DType.float32:
         if approximate:
             for i in range(x._numel):
-                var x_val = Float32(x_ptr[i])
-                var grad = Float32(grad_ptr[i])
+                var x_val = Float32(x_ptr[unsafe_offset=i])
+                var grad = Float32(grad_ptr[unsafe_offset=i])
                 var x_cubed = x_val * x_val * x_val
                 var inner = Float32(SQRT_2_OVER_PI) * (
                     x_val + Float32(GELU_COEFF) * x_cubed
@@ -1033,20 +1059,20 @@ def _gelu_backward_impl[
                     1.0 + 3.0 * Float32(GELU_COEFF) * x_val * x_val
                 )
                 var dgelu = 0.5 * (1.0 + tanh_val) + 0.5 * x_val * sech2 * dtanh
-                result_ptr[i] = Scalar[dtype](grad * dgelu)
+                result_ptr[unsafe_offset=i] = Scalar[dtype](grad * dgelu)
         else:
             for i in range(x._numel):
-                var x_val = Float32(x_ptr[i])
-                var grad = Float32(grad_ptr[i])
+                var x_val = Float32(x_ptr[unsafe_offset=i])
+                var grad = Float32(grad_ptr[unsafe_offset=i])
                 var erf_val = erf(x_val / Float32(SQRT_2))
                 var pdf = Float32(INV_SQRT_2PI) * exp(-0.5 * x_val * x_val)
                 var dgelu = 0.5 * (1.0 + erf_val) + x_val * pdf
-                result_ptr[i] = Scalar[dtype](grad * dgelu)
+                result_ptr[unsafe_offset=i] = Scalar[dtype](grad * dgelu)
     else:  # float64
         if approximate:
             for i in range(x._numel):
-                var x_val = Float64(x_ptr[i])
-                var grad = Float64(grad_ptr[i])
+                var x_val = Float64(x_ptr[unsafe_offset=i])
+                var grad = Float64(grad_ptr[unsafe_offset=i])
                 var x_cubed = x_val * x_val * x_val
                 var inner = Float64(SQRT_2_OVER_PI) * (
                     x_val + Float64(GELU_COEFF) * x_cubed
@@ -1057,15 +1083,15 @@ def _gelu_backward_impl[
                     1.0 + 3.0 * Float64(GELU_COEFF) * x_val * x_val
                 )
                 var dgelu = 0.5 * (1.0 + tanh_val) + 0.5 * x_val * sech2 * dtanh
-                result_ptr[i] = Scalar[dtype](grad * dgelu)
+                result_ptr[unsafe_offset=i] = Scalar[dtype](grad * dgelu)
         else:
             for i in range(x._numel):
-                var x_val = Float64(x_ptr[i])
-                var grad = Float64(grad_ptr[i])
+                var x_val = Float64(x_ptr[unsafe_offset=i])
+                var grad = Float64(grad_ptr[unsafe_offset=i])
                 var erf_val = erf(x_val / Float64(SQRT_2))
                 var pdf = Float64(INV_SQRT_2PI) * exp(-0.5 * x_val * x_val)
                 var dgelu = 0.5 * (1.0 + erf_val) + x_val * pdf
-                result_ptr[i] = Scalar[dtype](grad * dgelu)
+                result_ptr[unsafe_offset=i] = Scalar[dtype](grad * dgelu)
 
 
 def dispatch_gelu_backward(
@@ -1115,23 +1141,23 @@ def _hard_sigmoid_impl[
         result: Output tensor (pre-allocated).
         tensor: Input tensor.
     """
-    var in_ptr = tensor._data.bitcast[Scalar[dtype]]()
-    var out_ptr = result._data.bitcast[Scalar[dtype]]()
+    var in_ptr = tensor._data.unsafe_bitcast[Scalar[dtype]]()
+    var out_ptr = result._data.unsafe_bitcast[Scalar[dtype]]()
     comptime if dtype == DType.float16:
         for i in range(tensor._numel):
-            var x = Float32(in_ptr[i])
+            var x = Float32(in_ptr[unsafe_offset=i])
             var val = (x + 3.0) / 6.0
             val = max(Float32(0.0), min(Float32(1.0), val))
-            out_ptr[i] = Scalar[dtype](val)
+            out_ptr[unsafe_offset=i] = Scalar[dtype](val)
     else:
         var zero = Scalar[dtype](0.0)
         var one = Scalar[dtype](1.0)
         var three = Scalar[dtype](3.0)
         var six = Scalar[dtype](6.0)
         for i in range(tensor._numel):
-            var x = in_ptr[i]
+            var x = in_ptr[unsafe_offset=i]
             var val = (x + three) / six
-            out_ptr[i] = max(zero, min(one, val))
+            out_ptr[unsafe_offset=i] = max(zero, min(one, val))
 
 
 def dispatch_hard_sigmoid(tensor: AnyTensor) raises -> AnyTensor:
@@ -1178,29 +1204,29 @@ def _hard_sigmoid_backward_impl[
         grad_output: Upstream gradient.
         x: Input from forward pass.
     """
-    var grad_ptr = grad_output._data.bitcast[Scalar[dtype]]()
-    var x_ptr = x._data.bitcast[Scalar[dtype]]()
-    var result_ptr = result._data.bitcast[Scalar[dtype]]()
+    var grad_ptr = grad_output._data.unsafe_bitcast[Scalar[dtype]]()
+    var x_ptr = x._data.unsafe_bitcast[Scalar[dtype]]()
+    var result_ptr = result._data.unsafe_bitcast[Scalar[dtype]]()
     comptime if dtype == DType.float16:
         for i in range(x._numel):
-            var x_val = Float32(x_ptr[i])
-            var grad = Float32(grad_ptr[i])
+            var x_val = Float32(x_ptr[unsafe_offset=i])
+            var grad = Float32(grad_ptr[unsafe_offset=i])
             if x_val > -3.0 and x_val < 3.0:
-                result_ptr[i] = Scalar[dtype](grad / 6.0)
+                result_ptr[unsafe_offset=i] = Scalar[dtype](grad / 6.0)
             else:
-                result_ptr[i] = Scalar[dtype](0.0)
+                result_ptr[unsafe_offset=i] = Scalar[dtype](0.0)
     else:
         var zero = Scalar[dtype](0.0)
         var neg_three = Scalar[dtype](-3.0)
         var three = Scalar[dtype](3.0)
         var six = Scalar[dtype](6.0)
         for i in range(x._numel):
-            var x_val = x_ptr[i]
-            var grad = grad_ptr[i]
+            var x_val = x_ptr[unsafe_offset=i]
+            var grad = grad_ptr[unsafe_offset=i]
             if x_val > neg_three and x_val < three:
-                result_ptr[i] = grad / six
+                result_ptr[unsafe_offset=i] = grad / six
             else:
-                result_ptr[i] = zero
+                result_ptr[unsafe_offset=i] = zero
 
 
 def dispatch_hard_sigmoid_backward(
@@ -1250,30 +1276,30 @@ def _hard_swish_impl[dtype: DType](result: AnyTensor, tensor: AnyTensor) raises:
         result: Output tensor (pre-allocated).
         tensor: Input tensor.
     """
-    var in_ptr = tensor._data.bitcast[Scalar[dtype]]()
-    var out_ptr = result._data.bitcast[Scalar[dtype]]()
+    var in_ptr = tensor._data.unsafe_bitcast[Scalar[dtype]]()
+    var out_ptr = result._data.unsafe_bitcast[Scalar[dtype]]()
     comptime if dtype == DType.float16:
         for i in range(tensor._numel):
-            var x = Float32(in_ptr[i])
+            var x = Float32(in_ptr[unsafe_offset=i])
             if x <= -3.0:
-                out_ptr[i] = Scalar[dtype](0.0)
+                out_ptr[unsafe_offset=i] = Scalar[dtype](0.0)
             elif x >= 3.0:
-                out_ptr[i] = Scalar[dtype](x)
+                out_ptr[unsafe_offset=i] = Scalar[dtype](x)
             else:
-                out_ptr[i] = Scalar[dtype](x * (x + 3.0) / 6.0)
+                out_ptr[unsafe_offset=i] = Scalar[dtype](x * (x + 3.0) / 6.0)
     else:
         var zero = Scalar[dtype](0.0)
         var neg_three = Scalar[dtype](-3.0)
         var three = Scalar[dtype](3.0)
         var six = Scalar[dtype](6.0)
         for i in range(tensor._numel):
-            var x = in_ptr[i]
+            var x = in_ptr[unsafe_offset=i]
             if x <= neg_three:
-                out_ptr[i] = zero
+                out_ptr[unsafe_offset=i] = zero
             elif x >= three:
-                out_ptr[i] = x
+                out_ptr[unsafe_offset=i] = x
             else:
-                out_ptr[i] = x * (x + three) / six
+                out_ptr[unsafe_offset=i] = x * (x + three) / six
 
 
 def dispatch_hard_swish(tensor: AnyTensor) raises -> AnyTensor:
@@ -1320,19 +1346,21 @@ def _hard_swish_backward_impl[
         grad_output: Upstream gradient.
         x: Input from forward pass.
     """
-    var grad_ptr = grad_output._data.bitcast[Scalar[dtype]]()
-    var x_ptr = x._data.bitcast[Scalar[dtype]]()
-    var result_ptr = result._data.bitcast[Scalar[dtype]]()
+    var grad_ptr = grad_output._data.unsafe_bitcast[Scalar[dtype]]()
+    var x_ptr = x._data.unsafe_bitcast[Scalar[dtype]]()
+    var result_ptr = result._data.unsafe_bitcast[Scalar[dtype]]()
     comptime if dtype == DType.float16:
         for i in range(x._numel):
-            var x_val = Float32(x_ptr[i])
-            var grad = Float32(grad_ptr[i])
+            var x_val = Float32(x_ptr[unsafe_offset=i])
+            var grad = Float32(grad_ptr[unsafe_offset=i])
             if x_val <= -3.0:
-                result_ptr[i] = Scalar[dtype](0.0)
+                result_ptr[unsafe_offset=i] = Scalar[dtype](0.0)
             elif x_val >= 3.0:
-                result_ptr[i] = Scalar[dtype](grad)
+                result_ptr[unsafe_offset=i] = Scalar[dtype](grad)
             else:
-                result_ptr[i] = Scalar[dtype](grad * (2.0 * x_val + 3.0) / 6.0)
+                result_ptr[unsafe_offset=i] = Scalar[dtype](
+                    grad * (2.0 * x_val + 3.0) / 6.0
+                )
     else:
         var zero = Scalar[dtype](0.0)
         var neg_three = Scalar[dtype](-3.0)
@@ -1340,14 +1368,14 @@ def _hard_swish_backward_impl[
         var two = Scalar[dtype](2.0)
         var six = Scalar[dtype](6.0)
         for i in range(x._numel):
-            var x_val = x_ptr[i]
-            var grad = grad_ptr[i]
+            var x_val = x_ptr[unsafe_offset=i]
+            var grad = grad_ptr[unsafe_offset=i]
             if x_val <= neg_three:
-                result_ptr[i] = zero
+                result_ptr[unsafe_offset=i] = zero
             elif x_val >= three:
-                result_ptr[i] = grad
+                result_ptr[unsafe_offset=i] = grad
             else:
-                result_ptr[i] = grad * (two * x_val + three) / six
+                result_ptr[unsafe_offset=i] = grad * (two * x_val + three) / six
 
 
 def dispatch_hard_swish_backward(
@@ -1400,14 +1428,14 @@ def _hard_tanh_impl[
         min_val: Minimum output value.
         max_val: Maximum output value.
     """
-    var in_ptr = tensor._data.bitcast[Scalar[dtype]]()
-    var out_ptr = result._data.bitcast[Scalar[dtype]]()
+    var in_ptr = tensor._data.unsafe_bitcast[Scalar[dtype]]()
+    var out_ptr = result._data.unsafe_bitcast[Scalar[dtype]]()
     var min_typed = Scalar[dtype](min_val)
     var max_typed = Scalar[dtype](max_val)
 
     for i in range(tensor._numel):
-        var x = in_ptr[i]
-        out_ptr[i] = max(min_typed, min(max_typed, x))
+        var x = in_ptr[unsafe_offset=i]
+        out_ptr[unsafe_offset=i] = max(min_typed, min(max_typed, x))
 
 
 def dispatch_hard_tanh(
@@ -1465,20 +1493,20 @@ def _hard_tanh_backward_impl[
         min_val: Minimum value used in forward pass.
         max_val: Maximum value used in forward pass.
     """
-    var grad_ptr = grad_output._data.bitcast[Scalar[dtype]]()
-    var x_ptr = x._data.bitcast[Scalar[dtype]]()
-    var result_ptr = result._data.bitcast[Scalar[dtype]]()
+    var grad_ptr = grad_output._data.unsafe_bitcast[Scalar[dtype]]()
+    var x_ptr = x._data.unsafe_bitcast[Scalar[dtype]]()
+    var result_ptr = result._data.unsafe_bitcast[Scalar[dtype]]()
     var min_typed = Scalar[dtype](min_val)
     var max_typed = Scalar[dtype](max_val)
     var zero = Scalar[dtype](0.0)
 
     for i in range(x._numel):
-        var x_val = x_ptr[i]
-        var grad = grad_ptr[i]
+        var x_val = x_ptr[unsafe_offset=i]
+        var grad = grad_ptr[unsafe_offset=i]
         if x_val > min_typed and x_val < max_typed:
-            result_ptr[i] = grad
+            result_ptr[unsafe_offset=i] = grad
         else:
-            result_ptr[i] = zero
+            result_ptr[unsafe_offset=i] = zero
 
 
 def dispatch_hard_tanh_backward(
@@ -1710,7 +1738,7 @@ def dispatch_kernel_3t3i[
 # ============================================================================
 #
 # Some kernels (the normalization family) take wildly varied argument lists —
-# mixes of UnsafePointer, AnyTensor, Int, and Float64 with arities from 7 to
+# mixes of Pointer, AnyTensor, Int, and Float64 with arities from 7 to
 # 12. A fixed-signature dispatcher cannot cover them. `dispatch_float3` instead
 # takes a parametric capturing closure: the caller writes a `@parameter` body
 # that closes over its locals, and this helper supplies the runtime->comptime

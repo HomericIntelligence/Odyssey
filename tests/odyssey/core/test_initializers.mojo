@@ -36,17 +36,17 @@ def compute_mean(tensor: AnyTensor) -> Float64:
     var size = tensor.numel()
 
     if tensor.dtype() == DType.float32:
-        var ptr = tensor._data.bitcast[Float32]()
+        var ptr = tensor._data.unsafe_bitcast[Float32]()
         for i in range(size):
-            sum += Float64(ptr[i])
+            sum += Float64(ptr[unsafe_offset=i])
     elif tensor.dtype() == DType.float64:
-        var ptr = tensor._data.bitcast[Float64]()
+        var ptr = tensor._data.unsafe_bitcast[Float64]()
         for i in range(size):
-            sum += ptr[i]
+            sum += ptr[unsafe_offset=i]
     elif tensor.dtype() == DType.float16:
-        var ptr = tensor._data.bitcast[Float16]()
+        var ptr = tensor._data.unsafe_bitcast[Float16]()
         for i in range(size):
-            sum += Float64(ptr[i])
+            sum += Float64(ptr[unsafe_offset=i])
 
     return sum / Float64(size)
 
@@ -57,19 +57,19 @@ def compute_variance(tensor: AnyTensor, mean: Float64) -> Float64:
     var size = tensor.numel()
 
     if tensor.dtype() == DType.float32:
-        var ptr = tensor._data.bitcast[Float32]()
+        var ptr = tensor._data.unsafe_bitcast[Float32]()
         for i in range(size):
-            var diff = Float64(ptr[i]) - mean
+            var diff = Float64(ptr[unsafe_offset=i]) - mean
             sum_sq_diff += diff * diff
     elif tensor.dtype() == DType.float64:
-        var ptr = tensor._data.bitcast[Float64]()
+        var ptr = tensor._data.unsafe_bitcast[Float64]()
         for i in range(size):
-            var diff = ptr[i] - mean
+            var diff = ptr[unsafe_offset=i] - mean
             sum_sq_diff += diff * diff
     elif tensor.dtype() == DType.float16:
-        var ptr = tensor._data.bitcast[Float16]()
+        var ptr = tensor._data.unsafe_bitcast[Float16]()
         for i in range(size):
-            var diff = Float64(ptr[i]) - mean
+            var diff = Float64(ptr[unsafe_offset=i]) - mean
             sum_sq_diff += diff * diff
 
     return sum_sq_diff / Float64(size)
@@ -87,25 +87,25 @@ def compute_min_max(tensor: AnyTensor) -> Tuple[Float64, Float64]:
     var max_val = Float64(-1e308)
 
     if tensor.dtype() == DType.float32:
-        var ptr = tensor._data.bitcast[Float32]()
+        var ptr = tensor._data.unsafe_bitcast[Float32]()
         for i in range(size):
-            var val = Float64(ptr[i])
+            var val = Float64(ptr[unsafe_offset=i])
             if val < min_val:
                 min_val = val
             if val > max_val:
                 max_val = val
     elif tensor.dtype() == DType.float64:
-        var ptr = tensor._data.bitcast[Float64]()
+        var ptr = tensor._data.unsafe_bitcast[Float64]()
         for i in range(size):
-            var val = ptr[i]
+            var val = ptr[unsafe_offset=i]
             if val < min_val:
                 min_val = val
             if val > max_val:
                 max_val = val
     elif tensor.dtype() == DType.float16:
-        var ptr = tensor._data.bitcast[Float16]()
+        var ptr = tensor._data.unsafe_bitcast[Float16]()
         for i in range(size):
-            var val = Float64(ptr[i])
+            var val = Float64(ptr[unsafe_offset=i])
             if val < min_val:
                 min_val = val
             if val > max_val:
@@ -195,8 +195,8 @@ def test_xavier_uniform_reproducibility() raises:
 
     # Should be identical
     for i in range(w1.numel()):
-        var val1 = w1._data.bitcast[Float32]()[i]
-        var val2 = w2._data.bitcast[Float32]()[i]
+        var val1 = w1.load[DType.float32](i)
+        var val2 = w2.load[DType.float32](i)
         assert_equal(val1, val2)
 
 
@@ -213,8 +213,8 @@ def test_xavier_uniform_different_seeds() raises:
     # Should be different (at least some values)
     var differences = 0
     for i in range(w1.numel()):
-        var val1 = w1._data.bitcast[Float32]()[i]
-        var val2 = w2._data.bitcast[Float32]()[i]
+        var val1 = w1.load[DType.float32](i)
+        var val2 = w2.load[DType.float32](i)
         if val1 != val2:
             differences += 1
 
@@ -278,8 +278,8 @@ def test_xavier_normal_reproducibility() raises:
 
     # Should be identical
     for i in range(w1.numel()):
-        var val1 = w1._data.bitcast[Float32]()[i]
-        var val2 = w2._data.bitcast[Float32]()[i]
+        var val1 = w1.load[DType.float32](i)
+        var val2 = w2.load[DType.float32](i)
         assert_equal(val1, val2)
 
 
@@ -306,7 +306,7 @@ def test_xavier_configurations() raises:
 
         # Check bounds
         for i in range(w_uniform.numel()):
-            var val = Float64(w_uniform._data.bitcast[Float32]()[i])
+            var val = Float64(w_uniform.load[DType.float32](i))
             assert_true(val >= -bound and val <= bound)
 
         # Test normal
@@ -422,8 +422,8 @@ def test_kaiming_uniform_reproducibility() raises:
 
     # Should be identical
     for i in range(w1.numel()):
-        var val1 = w1._data.bitcast[Float32]()[i]
-        var val2 = w2._data.bitcast[Float32]()[i]
+        var val1 = w1.load[DType.float32](i)
+        var val2 = w2.load[DType.float32](i)
         assert_equal(val1, val2)
 
 
@@ -487,8 +487,8 @@ def test_kaiming_normal_reproducibility() raises:
 
     # Should be identical
     for i in range(w1.numel()):
-        var val1 = w1._data.bitcast[Float32]()[i]
-        var val2 = w2._data.bitcast[Float32]()[i]
+        var val1 = w1.load[DType.float32](i)
+        var val2 = w2.load[DType.float32](i)
         assert_equal(val1, val2)
 
 
@@ -547,8 +547,8 @@ def test_uniform_reproducibility() raises:
 
     # Should be identical
     for i in range(w1.numel()):
-        var val1 = w1._data.bitcast[Float32]()[i]
-        var val2 = w2._data.bitcast[Float32]()[i]
+        var val1 = w1.load[DType.float32](i)
+        var val2 = w2.load[DType.float32](i)
         assert_equal(val1, val2)
 
 
@@ -610,8 +610,8 @@ def test_normal_reproducibility() raises:
 
     # Should be identical
     for i in range(w1.numel()):
-        var val1 = w1._data.bitcast[Float32]()[i]
-        var val2 = w2._data.bitcast[Float32]()[i]
+        var val1 = w1.load[DType.float32](i)
+        var val2 = w2.load[DType.float32](i)
         assert_equal(val1, val2)
 
 
@@ -637,7 +637,9 @@ def test_constant_value() raises:
     # Check all values are exactly the constant
     for i in range(100):
         assert_almost_equal(
-            W._data.bitcast[Float32]()[i], Float32(value), tolerance=1e-5
+            W.load[DType.float32](i),
+            Float32(value),
+            tolerance=1e-5,
         )
 
 
@@ -650,7 +652,9 @@ def test_constant_zero() raises:
 
     for i in range(25):
         assert_almost_equal(
-            W._data.bitcast[Float32]()[i], Float32(0.0), tolerance=1e-10
+            W.load[DType.float32](i),
+            Float32(0.0),
+            tolerance=1e-10,
         )
 
 
@@ -664,7 +668,9 @@ def test_constant_negative() raises:
 
     for i in range(25):
         assert_almost_equal(
-            W._data.bitcast[Float32]()[i], Float32(value), tolerance=1e-5
+            W.load[DType.float32](i),
+            Float32(value),
+            tolerance=1e-5,
         )
 
 
@@ -675,13 +681,13 @@ def test_constant_ones_and_zeros() raises:
     # Test ones
     var ones_tensor = constant(shape, 1.0, DType.float32)
     for i in range(ones_tensor.numel()):
-        var val = Float64(ones_tensor._data.bitcast[Float32]()[i])
+        var val = Float64(ones_tensor.load[DType.float32](i))
         assert_equal(val, 1.0)
 
     # Test zeros
     var zeros_tensor = constant(shape, 0.0, DType.float32)
     for i in range(zeros_tensor.numel()):
-        var val = Float64(zeros_tensor._data.bitcast[Float32]()[i])
+        var val = Float64(zeros_tensor.load[DType.float32](i))
         assert_equal(val, 0.0)
 
 
@@ -757,7 +763,7 @@ def test_uniform_float64() raises:
 
     # Check bounds
     for i in range(weights.numel()):
-        var val = weights._data.bitcast[Float64]()[i]
+        var val = weights.load[DType.float64](i)
         assert_true(val >= -1.0 and val <= 1.0)
 
 
@@ -782,7 +788,9 @@ def test_constant_float64() raises:
 
     for i in range(100):
         assert_almost_equal(
-            Float32(W._data.bitcast[Float64]()[i]), Float32(1.5), tolerance=1e-5
+            Float32(W.load[DType.float64](i)),
+            Float32(1.5),
+            tolerance=1e-5,
         )
 
 

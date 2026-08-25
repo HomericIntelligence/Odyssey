@@ -177,7 +177,7 @@ def get_top_k_predictions(
     # Extract all scores
     var scores = List[Tuple[Int, Float32]]()
     for i in range(num_classes):
-        var score = logits._data.bitcast[Float32]()[i]
+        var score = logits._data.unsafe_bitcast[Float32]()[unsafe_offset=i]
         scores.append((i, score))
 
     # Simple bubble sort for top-k (sufficient for 47 classes)

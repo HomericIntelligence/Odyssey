@@ -52,9 +52,9 @@ def _make_batch() raises -> Tuple[AnyTensor, AnyTensor]:
     var labels_onehot = zeros(labels_shape, DType.float32)
     # Sample 0 -> class 0, sample 1 -> class 1 (rows sum to 1 for cross-entropy).
     # AnyTensor.store[dtype](index, value) writes to
-    # self._data.bitcast[Scalar[dtype]]()[index] (see any_tensor.mojo), the
+    # self._data.unsafe_bitcast[Scalar[dtype]]()[index] (see any_tensor.mojo), the
     # same flat-index bitcast pattern production code uses for element access
-    # (e.g. loss_t._data.bitcast[Float32]()[0] in train.mojo). Tensors are
+    # (e.g. loss_t.load[DType.float32](0) in train.mojo). Tensors are
     # stored contiguously in row-major order, so `row * num_classes + col`
     # is the correct flat index for element (row, col) of a (rows, cols)
     # tensor.

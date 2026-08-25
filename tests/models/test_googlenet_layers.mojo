@@ -190,12 +190,15 @@ def concatenate_depthwise(
     var total_channels = c1 + c2 + c3 + c4
     var result = zeros([batch_size, total_channels, height, width], t1.dtype())
 
-    # Copy data from each tensor
-    var result_data = result._data.bitcast[Float32]()
-    var t1_data = t1._data.bitcast[Float32]()
-    var t2_data = t2._data.bitcast[Float32]()
-    var t3_data = t3._data.bitcast[Float32]()
-    var t4_data = t4._data.bitcast[Float32]()
+    # Copy data from each tensor. `result` is an owned local returned by
+    # move — its pointer must be origin-tied (WAR for #6963) or the
+    # compiler hoists its `__deinit__` before the writes below.
+    # t1..t4 are borrowed params (owner in caller) — direct access is safe.
+    var result_data = result.data_ptr[DType.float32]()
+    var t1_data = t1._data.unsafe_bitcast[Float32]()
+    var t2_data = t2._data.unsafe_bitcast[Float32]()
+    var t3_data = t3._data.unsafe_bitcast[Float32]()
+    var t4_data = t4._data.unsafe_bitcast[Float32]()
 
     var hw = height * width
 
@@ -205,21 +208,27 @@ def concatenate_depthwise(
             for i in range(hw):
                 var src_idx = ((b * c1 + c) * hw) + i
                 var dst_idx = ((b * total_channels + c) * hw) + i
-                result_data[dst_idx] = t1_data[src_idx]
+                result_data[unsafe_offset=dst_idx] = t1_data[
+                    unsafe_offset=src_idx
+                ]
 
         # Copy t2 channels (offset by c1)
         for c in range(c2):
             for i in range(hw):
                 var src_idx = ((b * c2 + c) * hw) + i
                 var dst_idx = ((b * total_channels + (c1 + c)) * hw) + i
-                result_data[dst_idx] = t2_data[src_idx]
+                result_data[unsafe_offset=dst_idx] = t2_data[
+                    unsafe_offset=src_idx
+                ]
 
         # Copy t3 channels (offset by c1+c2)
         for c in range(c3):
             for i in range(hw):
                 var src_idx = ((b * c3 + c) * hw) + i
                 var dst_idx = ((b * total_channels + (c1 + c2 + c)) * hw) + i
-                result_data[dst_idx] = t3_data[src_idx]
+                result_data[unsafe_offset=dst_idx] = t3_data[
+                    unsafe_offset=src_idx
+                ]
 
         # Copy t4 channels (offset by c1+c2+c3)
         for c in range(c4):
@@ -228,9 +237,11 @@ def concatenate_depthwise(
                 var dst_idx = (
                     (b * total_channels + (c1 + c2 + c3 + c)) * hw
                 ) + i
-                result_data[dst_idx] = t4_data[src_idx]
+                result_data[unsafe_offset=dst_idx] = t4_data[
+                    unsafe_offset=src_idx
+                ]
 
-    return result
+    return result^
 
 
 def test_inception_module_initialization() raises:
@@ -325,9 +336,9 @@ def test_inception_module_forward_values() raises:
     var input = ones(
         [batch_size, in_channels, in_height, in_width], DType.float32
     )
-    var input_data = input._data.bitcast[Float32]()
+    var input_data = input.data_ptr[DType.float32]()
     for i in range(input.numel()):
-        input_data[i] = 0.5
+        input_data[unsafe_offset=i] = 0.5
 
     # Create Inception module
     var inception = InceptionModule(
@@ -351,10 +362,10 @@ def test_inception_module_forward_values() raises:
     assert_equal(output.shape()[3], in_width)
 
     # Verify output contains non-zero values (from ReLU on non-zero input)
-    var output_data = output._data.bitcast[Float32]()
+    var output_data = output.data_ptr[DType.float32]()
     var sum_val = Float32(0.0)
     for i in range(output.numel()):
-        sum_val += output_data[i]
+        sum_val += output_data[unsafe_offset=i]
 
     assert_true(sum_val > 0.0, "Output should contain non-zero values")
 
@@ -531,19 +542,19 @@ def test_concatenate_depthwise_4_tensors() raises:
     var t4 = ones([batch_size, 4, height, width], DType.float32)
 
     # Set different values to verify correct concatenation
-    var t1_data = t1._data.bitcast[Float32]()
-    var t2_data = t2._data.bitcast[Float32]()
-    var t3_data = t3._data.bitcast[Float32]()
-    var t4_data = t4._data.bitcast[Float32]()
+    var t1_data = t1.data_ptr[DType.float32]()
+    var t2_data = t2.data_ptr[DType.float32]()
+    var t3_data = t3.data_ptr[DType.float32]()
+    var t4_data = t4.data_ptr[DType.float32]()
 
     for i in range(t1.numel()):
-        t1_data[i] = 1.0
+        t1_data[unsafe_offset=i] = 1.0
     for i in range(t2.numel()):
-        t2_data[i] = 2.0
+        t2_data[unsafe_offset=i] = 2.0
     for i in range(t3.numel()):
-        t3_data[i] = 3.0
+        t3_data[unsafe_offset=i] = 3.0
     for i in range(t4.numel()):
-        t4_data[i] = 4.0
+        t4_data[unsafe_offset=i] = 4.0
 
     # Concatenate
     var result = concatenate_depthwise(t1, t2, t3, t4)
@@ -583,27 +594,29 @@ def test_concatenate_depthwise_values() raises:
     assert_equal(result.shape()[2], height)
     assert_equal(result.shape()[3], width)
 
-    # Sample values to verify correct concatenation
-    var result_data = result._data.bitcast[Float32]()
+    # Sample values to verify correct concatenation. `result` is an owned
+    # local — origin-tied pointer (WAR for #6963) so its `__deinit__` is not
+    # hoisted before these reads.
+    var result_data = result.data_ptr[DType.float32]()
 
     # Result structure: [t1_c0, t1_c1, t2_c0, t2_c1, t3_c0, t3_c1, t4_c0, t4_c1] along channels
     # Each channel has height*width values
 
     # Check first channel value (from t1) is 1.0
     var idx_t1 = 0
-    assert_close_float(Float64(result_data[idx_t1]), 1.0)
+    assert_close_float(Float64(result_data[unsafe_offset=idx_t1]), 1.0)
 
     # Check third channel value (from t2) is 2.0
     var idx_t2 = 2 * height * width
-    assert_close_float(Float64(result_data[idx_t2]), 2.0)
+    assert_close_float(Float64(result_data[unsafe_offset=idx_t2]), 2.0)
 
     # Check fifth channel value (from t3) is 3.0
     var idx_t3 = 4 * height * width
-    assert_close_float(Float64(result_data[idx_t3]), 3.0)
+    assert_close_float(Float64(result_data[unsafe_offset=idx_t3]), 3.0)
 
     # Check seventh channel value (from t4) is 4.0
     var idx_t4 = 6 * height * width
-    assert_close_float(Float64(result_data[idx_t4]), 4.0)
+    assert_close_float(Float64(result_data[unsafe_offset=idx_t4]), 4.0)
 
 
 def test_initial_conv_block() raises:
@@ -655,9 +668,9 @@ def test_global_avgpool() raises:
 
     # Create input
     var input = ones([batch_size, channels, height, width], DType.float32)
-    var input_data = input._data.bitcast[Float32]()
+    var input_data = input.data_ptr[DType.float32]()
     for i in range(input.numel()):
-        input_data[i] = 2.0
+        input_data[unsafe_offset=i] = 2.0
 
     # Apply global average pooling
     var output = global_avgpool2d(input)
@@ -667,9 +680,9 @@ def test_global_avgpool() raises:
     assert_equal(output.shape()[1], channels)
 
     # Verify output values (should be 2.0 since input was all 2.0)
-    var output_data = output._data.bitcast[Float32]()
+    var output_data = output.data_ptr[DType.float32]()
     for i in range(output.numel()):
-        assert_close_float(Float64(output_data[i]), 2.0)
+        assert_close_float(Float64(output_data[unsafe_offset=i]), 2.0)
 
 
 def test_global_avgpool_larger_spatial() raises:
@@ -694,9 +707,9 @@ def test_global_avgpool_larger_spatial() raises:
     assert_equal(output.shape()[1], channels)
 
     # Verify averaging: all values should be 4.0
-    var output_data = output._data.bitcast[Float32]()
+    var output_data = output.data_ptr[DType.float32]()
     for i in range(output.numel()):
-        assert_close_float(Float64(output_data[i]), 4.0)
+        assert_close_float(Float64(output_data[unsafe_offset=i]), 4.0)
 
 
 def test_fc_layer() raises:
@@ -911,7 +924,8 @@ def _channel_split_4(
     var batch = t.shape()[0]
     var total = t.shape()[1]
     var hw = t.shape()[2] * t.shape()[3]
-    var td = t._data.bitcast[Float32]()
+    # `t` is a borrowed param (owner in caller — safe direct access).
+    var td = t._data.unsafe_bitcast[Float32]()
     var out = List[AnyTensor]()
     var offsets = List[Int]()
     offsets.append(0)
@@ -927,12 +941,15 @@ def _channel_split_4(
         var cc = counts[part]
         var off = offsets[part]
         var p = zeros([batch, cc, t.shape()[2], t.shape()[3]], DType.float32)
-        var pd = p._data.bitcast[Float32]()
+        # Origin-tied pointer (WAR for #6963): `p` is an owned local
+        # returned in a list; direct `_data` capture would hoist its
+        # `__deinit__` before the writes below, freeing the buffer.
+        var pd = p.data_ptr[DType.float32]()
         for b in range(batch):
             for c in range(cc):
                 for i in range(hw):
-                    pd[((b * cc + c) * hw) + i] = td[
-                        ((b * total + (off + c)) * hw) + i
+                    pd[unsafe_offset=((b * cc + c) * hw) + i] = td[
+                        unsafe_offset=((b * total + (off + c)) * hw) + i
                     ]
         out.append(p)
     return out^
@@ -956,19 +973,19 @@ def test_split_with_indices_inverse_of_concatenate_depthwise() raises:
     var t4 = ones([batch_size, 4, height, width], DType.float32)
 
     # Fill tensors with unique values for verification
-    var t1_data = t1._data.bitcast[Float32]()
-    var t2_data = t2._data.bitcast[Float32]()
-    var t3_data = t3._data.bitcast[Float32]()
-    var t4_data = t4._data.bitcast[Float32]()
+    var t1_data = t1.data_ptr[DType.float32]()
+    var t2_data = t2.data_ptr[DType.float32]()
+    var t3_data = t3.data_ptr[DType.float32]()
+    var t4_data = t4.data_ptr[DType.float32]()
 
     for i in range(t1.numel()):
-        t1_data[i] = Float32(1.0)
+        t1_data[unsafe_offset=i] = Float32(1.0)
     for i in range(t2.numel()):
-        t2_data[i] = Float32(2.0)
+        t2_data[unsafe_offset=i] = Float32(2.0)
     for i in range(t3.numel()):
-        t3_data[i] = Float32(3.0)
+        t3_data[unsafe_offset=i] = Float32(3.0)
     for i in range(t4.numel()):
-        t4_data[i] = Float32(4.0)
+        t4_data[unsafe_offset=i] = Float32(4.0)
 
     # Forward pass: concatenate
     var concatenated = concatenate_depthwise(t1, t2, t3, t4)
@@ -994,33 +1011,33 @@ def test_split_with_indices_inverse_of_concatenate_depthwise() raises:
     assert_shape(parts[3], t4.shape())
 
     # Verify values match (element-wise comparison)
-    var parts_0_data = parts[0]._data.bitcast[Float32]()
-    var parts_1_data = parts[1]._data.bitcast[Float32]()
-    var parts_2_data = parts[2]._data.bitcast[Float32]()
-    var parts_3_data = parts[3]._data.bitcast[Float32]()
+    var parts_0_data = parts[0].data_ptr[DType.float32]()
+    var parts_1_data = parts[1].data_ptr[DType.float32]()
+    var parts_2_data = parts[2].data_ptr[DType.float32]()
+    var parts_3_data = parts[3].data_ptr[DType.float32]()
 
     for i in range(t1.numel()):
         assert_close_float(
-            Float64(parts_0_data[i]),
-            Float64(t1_data[i]),
+            Float64(parts_0_data[unsafe_offset=i]),
+            Float64(t1_data[unsafe_offset=i]),
             message="parts[0] mismatch",
         )
     for i in range(t2.numel()):
         assert_close_float(
-            Float64(parts_1_data[i]),
-            Float64(t2_data[i]),
+            Float64(parts_1_data[unsafe_offset=i]),
+            Float64(t2_data[unsafe_offset=i]),
             message="parts[1] mismatch",
         )
     for i in range(t3.numel()):
         assert_close_float(
-            Float64(parts_2_data[i]),
-            Float64(t3_data[i]),
+            Float64(parts_2_data[unsafe_offset=i]),
+            Float64(t3_data[unsafe_offset=i]),
             message="parts[2] mismatch",
         )
     for i in range(t4.numel()):
         assert_close_float(
-            Float64(parts_3_data[i]),
-            Float64(t4_data[i]),
+            Float64(parts_3_data[unsafe_offset=i]),
+            Float64(t4_data[unsafe_offset=i]),
             message="parts[3] mismatch",
         )
 

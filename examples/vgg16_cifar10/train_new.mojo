@@ -322,7 +322,9 @@ def compute_gradients(
 
     # Compute loss
     var loss_tensor = cross_entropy(logits, labels)
-    var loss = loss_tensor._data.bitcast[Float32]()[0]
+    var loss = loss_tensor.data_ptr[DType.float32]()[
+        unsafe_offset=0
+    ]  # origin-tied (#6963)
 
     # ========== Backward Pass (through all 16 layers) ==========
 

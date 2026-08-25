@@ -631,7 +631,9 @@ struct MXFP4(Copyable, Movable, Writable):
         Returns:
             String representation.
         """
-        return String.write(self)
+        var s = String()
+        self.write_to(s)
+        return s
 
     def write_repr_to(self, mut writer: Some[Writer]):
         """Write the repr representation to a Writer (required for Writable trait).
@@ -868,7 +870,9 @@ struct MXFP4Block(Copyable, Movable, Writable):
         Returns:
             String representation.
         """
-        return String.write(self)
+        var s = String()
+        self.write_to(s)
+        return s
 
     def write_repr_to(self, mut writer: Some[Writer]):
         """Write the repr representation to a Writer (required for Writable trait).

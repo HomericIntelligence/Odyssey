@@ -5,7 +5,7 @@ different NaN payloads) all produce the same hash, ensuring deterministic hash
 behavior for tensors containing NaN values.
 """
 
-from std.memory import UnsafePointer
+from std.memory import Pointer
 from odyssey.tensor.any_tensor import AnyTensor
 from odyssey.tensor.tensor_creation import (
     zeros,

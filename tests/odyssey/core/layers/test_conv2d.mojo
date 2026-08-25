@@ -98,16 +98,14 @@ def test_conv2d_weight_initialization_scale() raises:
 
     # He scale should be sqrt(2 / (3 * 3 * 3)) ≈ 0.264
     # We check that weights are roughly in this scale (not zeros, not too large)
-    var weight_data = layer.weight._data.bitcast[Float32]()
+    var weight_data = layer.weight.data_ptr[DType.float32]()
     var num_weights = layer.weight.numel()
 
     var sum_abs = Float32(0.0)
     for i in range(num_weights):
-        var abs_val = Float32(0.0)
-        if weight_data[i] > 0.0:
-            abs_val = weight_data[i]
-        else:
-            abs_val = -weight_data[i]
+        var abs_val = weight_data[unsafe_offset=i]
+        if abs_val < 0.0:
+            abs_val = -abs_val
         sum_abs += abs_val
 
     var mean_abs = sum_abs / Float32(num_weights)
@@ -121,9 +119,9 @@ def test_conv2d_bias_initialized_to_zero() raises:
     """Test that bias is initialized to zero."""
     var layer = Conv2dLayer(3, 16, 3, 3)
 
-    var bias_data = layer.bias._data.bitcast[Float32]()
+    var bias_data = layer.bias.data_ptr[DType.float32]()
     for i in range(layer.bias.numel()):
-        assert_almost_equal(bias_data[i], 0.0, tolerance=1e-6)
+        assert_almost_equal(bias_data[unsafe_offset=i], 0.0, tolerance=1e-6)
 
 
 # ============================================================================
@@ -275,7 +273,7 @@ def test_conv2d_forward_batch_independence() raises:
             for w in range(16):  # width
                 var idx = c * 16 * 16 + h * 16 + w
                 var src_idx = 0 * (3 * 16 * 16) + idx  # batch 0
-                single_input._data[idx] = batch_input._data[src_idx]
+                single_input.set(idx, batch_input.load[DType.float32](src_idx))
 
     var single_output = layer.forward(single_input)
 
@@ -283,8 +281,8 @@ def test_conv2d_forward_batch_independence() raises:
     var batch_out_spatial = 16 * 16 * 16  # out_channels * height * width
     for i in range(batch_out_spatial):
         assert_almost_equal(
-            batch_output._data.bitcast[Float32]()[i],
-            single_output._data.bitcast[Float32]()[i],
+            batch_output.load[DType.float32](i),
+            single_output.load[DType.float32](i),
             tolerance=1e-4,
         )
 

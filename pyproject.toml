@@ -27,9 +27,9 @@ authors = [
 # CVE floors (#5386) that force the resolver past known vulnerabilities.
 dependencies = [
     # Language runtime — the Mojo compiler, from the Modular PyPI index.
-    # Tagged beta 1.0.0b2 (identical build id to the former conda pin
-    # `mojo == 1.0.0b2`). Proven to compile + run Odyssey's Mojo code (ADR-018).
-    "mojo==1.0.0b2",
+    # Stable 1.0.0 (MAX 26.5, released 2026-08-11; manylinux_2_34 wheels).
+    # Proven to compile + run Odyssey's Mojo code (ADR-018).
+    "mojo==1.0.0",
 
     # Core libraries
     "numpy>=2.3.5,<3",

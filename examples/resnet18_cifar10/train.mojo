@@ -1193,17 +1193,17 @@ def main() raises:
         var wanted_batches = max_batches if max_batches > 0 else 3
         var n_smoke = wanted_batches * Int(batch_size)
         train_images = zeros([n_smoke, 3, 32, 32], DType.float32)
-        var img_d = train_images._data.bitcast[Float32]()
+        var img_d = train_images._data.unsafe_bitcast[Float32]()
         for s in range(n_smoke):
             var cls = s % 10
             for i in range(3 * 32 * 32):
-                img_d[s * (3 * 32 * 32) + i] = (
+                img_d[unsafe_offset=s * (3 * 32 * 32) + i] = (
                     Float32(cls) * 0.05 + Float32(i % 5) * 0.01
                 )
         train_labels_raw = zeros([n_smoke], DType.uint8)
-        var lbl_d = train_labels_raw._data.bitcast[UInt8]()
+        var lbl_d = train_labels_raw._data.unsafe_bitcast[UInt8]()
         for s in range(n_smoke):
-            lbl_d[s] = UInt8(s % 10)
+            lbl_d[unsafe_offset=s] = UInt8(s % 10)
         # Reuse the same synthetic batch for "test" (eval is not asserted here).
         test_images = train_images
         test_labels_raw = train_labels_raw

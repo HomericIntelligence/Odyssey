@@ -175,14 +175,16 @@ def _prelu_impl[
     Note:
             This is an internal helper - use prelu() for the public API.
     """
-    var data_ptr = tensor._data.bitcast[Scalar[dtype]]()
-    var alpha_ptr = alpha._data.bitcast[Scalar[dtype]]()
-    var result_ptr = result._data.bitcast[Scalar[dtype]]()
+    var data_ptr = tensor._data.unsafe_bitcast[Scalar[dtype]]()
+    var alpha_ptr = alpha._data.unsafe_bitcast[Scalar[dtype]]()
+    var result_ptr = result._data.unsafe_bitcast[Scalar[dtype]]()
 
     for i in range(tensor._numel):
-        var val = data_ptr[i]
-        var a = alpha_ptr[0] if is_scalar else alpha_ptr[i]
-        result_ptr[i] = max(a * val, val)
+        var val = data_ptr[unsafe_offset=i]
+        var a = alpha_ptr[unsafe_offset=0] if is_scalar else alpha_ptr[
+            unsafe_offset=i
+        ]
+        result_ptr[unsafe_offset=i] = max(a * val, val)
 
 
 def prelu(tensor: AnyTensor, alpha: AnyTensor) raises -> AnyTensor:
@@ -517,14 +519,16 @@ def _leaky_relu_backward_impl[
 ) raises:
     """Dtype-generic implementation of leaky ReLU backward pass."""
     var alpha_typed = Scalar[dtype](alpha)
-    var result_ptr = result._data.bitcast[Scalar[dtype]]()
-    var grad_ptr = grad_output._data.bitcast[Scalar[dtype]]()
-    var x_ptr = x._data.bitcast[Scalar[dtype]]()
+    var result_ptr = result._data.unsafe_bitcast[Scalar[dtype]]()
+    var grad_ptr = grad_output._data.unsafe_bitcast[Scalar[dtype]]()
+    var x_ptr = x._data.unsafe_bitcast[Scalar[dtype]]()
 
     for i in range(x._numel):
-        var x_val = x_ptr[i]
-        var grad = grad_ptr[i]
-        result_ptr[i] = grad if x_val > Scalar[dtype](0) else grad * alpha_typed
+        var x_val = x_ptr[unsafe_offset=i]
+        var grad = grad_ptr[unsafe_offset=i]
+        result_ptr[unsafe_offset=i] = (
+            grad if x_val > Scalar[dtype](0) else grad * alpha_typed
+        )
 
 
 def leaky_relu_backward(
@@ -580,29 +584,31 @@ def _prelu_backward_impl[
     is_scalar: Bool,
 ) raises:
     """Dtype-generic implementation of PReLU backward pass."""
-    var grad_input_ptr = grad_input._data.bitcast[Scalar[dtype]]()
-    var grad_alpha_ptr = grad_alpha._data.bitcast[Scalar[dtype]]()
-    var grad_ptr = grad_output._data.bitcast[Scalar[dtype]]()
-    var x_ptr = x._data.bitcast[Scalar[dtype]]()
-    var alpha_ptr = alpha._data.bitcast[Scalar[dtype]]()
+    var grad_input_ptr = grad_input._data.unsafe_bitcast[Scalar[dtype]]()
+    var grad_alpha_ptr = grad_alpha._data.unsafe_bitcast[Scalar[dtype]]()
+    var grad_ptr = grad_output._data.unsafe_bitcast[Scalar[dtype]]()
+    var x_ptr = x._data.unsafe_bitcast[Scalar[dtype]]()
+    var alpha_ptr = alpha._data.unsafe_bitcast[Scalar[dtype]]()
     var zero = Scalar[dtype](0)
 
     # Initialize grad_alpha to zero
     for i in range(grad_alpha._numel):
-        grad_alpha_ptr[i] = zero
+        grad_alpha_ptr[unsafe_offset=i] = zero
 
     # Compute gradients
     for i in range(x._numel):
-        var x_val = x_ptr[i]
-        var grad = grad_ptr[i]
-        var a = alpha_ptr[0] if is_scalar else alpha_ptr[i]
+        var x_val = x_ptr[unsafe_offset=i]
+        var grad = grad_ptr[unsafe_offset=i]
+        var a = alpha_ptr[unsafe_offset=0] if is_scalar else alpha_ptr[
+            unsafe_offset=i
+        ]
 
         if x_val > zero:
-            grad_input_ptr[i] = grad
+            grad_input_ptr[unsafe_offset=i] = grad
         else:
-            grad_input_ptr[i] = grad * a
+            grad_input_ptr[unsafe_offset=i] = grad * a
             var alpha_idx = 0 if is_scalar else i
-            grad_alpha_ptr[alpha_idx] += grad * x_val
+            grad_alpha_ptr[unsafe_offset=alpha_idx] += grad * x_val
 
 
 def prelu_backward(
@@ -903,30 +909,33 @@ def softplus(tensor: AnyTensor, beta: Float64 = 1.0) raises -> AnyTensor:
     var size = tensor.numel()
 
     if tensor.dtype() == DType.float32:
+        var out_ptr = result_ptr.unsafe_bitcast[Float32]()
         for i in range(size):
-            var x = data_ptr.bitcast[Float32]()[i]
+            var x = data_ptr.unsafe_bitcast[Float32]()[unsafe_offset=i]
             # Numerically stable: max(0, x) + log(1 + exp(-|x|))
             var x_pos = max(x, Float32(0.0))
             var x_abs = abs(x)
             var exp_neg_abs = exp_scalar_f32(-x_abs)
             var log_term = math_log(Float64(1.0 + exp_neg_abs))
-            result[i] = Float32(x_pos + Float32(log_term))
+            out_ptr[unsafe_offset=i] = Float32(x_pos + Float32(log_term))
     elif tensor.dtype() == DType.float64:
+        var out_ptr = result_ptr.unsafe_bitcast[Float64]()
         for i in range(size):
-            var x = data_ptr.bitcast[Float64]()[i]
+            var x = data_ptr.unsafe_bitcast[Float64]()[unsafe_offset=i]
             var x_pos = max(x, Float64(0.0))
             var x_abs = abs(x)
             var exp_neg_abs = exp_scalar_f64(-x_abs)
             var log_term = math_log(Float64(1.0) + exp_neg_abs)
-            result[i] = Float32(x_pos + log_term)
+            out_ptr[unsafe_offset=i] = Float64(x_pos + log_term)
     elif tensor.dtype() == DType.float16:
+        var out_ptr = result_ptr.unsafe_bitcast[Float16]()
         for i in range(size):
-            var x = Float32(data_ptr.bitcast[Float16]()[i])
+            var x = Float32(data_ptr.unsafe_bitcast[Float16]()[unsafe_offset=i])
             var x_pos = max(x, Float32(0.0))
             var x_abs = abs(x)
             var exp_neg_abs = exp_scalar_f32(-x_abs)
             var log_term = math_log(Float64(1.0 + exp_neg_abs))
-            result[i] = Float32(x_pos + Float32(log_term))
+            out_ptr[unsafe_offset=i] = Float16(x_pos + Float32(log_term))
     else:
         raise Error(
             "softplus only supports float16, float32, float64, got: "
@@ -1061,13 +1070,12 @@ def selu_backward(
     var result = zeros_like(x)
     var x_ptr = x._data
     var grad_ptr = grad_output._data
-    var result_ptr = result._data
     var size = x.numel()
 
     if x.dtype() == DType.float32:
         for i in range(size):
-            var val = x_ptr.bitcast[Float32]()[i]
-            var grad_val = grad_ptr.bitcast[Float32]()[i]
+            var val = x_ptr.unsafe_bitcast[Float32]()[unsafe_offset=i]
+            var grad_val = grad_ptr.unsafe_bitcast[Float32]()[unsafe_offset=i]
 
             if val > 0:
                 result[i] = grad_val * Float32(lambda_)
@@ -1079,8 +1087,8 @@ def selu_backward(
                 )
     elif x.dtype() == DType.float64:
         for i in range(size):
-            var val = x_ptr.bitcast[Float64]()[i]
-            var grad_val = grad_ptr.bitcast[Float64]()[i]
+            var val = x_ptr.unsafe_bitcast[Float64]()[unsafe_offset=i]
+            var grad_val = grad_ptr.unsafe_bitcast[Float64]()[unsafe_offset=i]
 
             if val > 0:
                 result.set(i, grad_val * lambda_)
@@ -1090,8 +1098,10 @@ def selu_backward(
                 result.set(i, (grad_val * lambda_ * alpha * exp_val))
     elif x.dtype() == DType.float16:
         for i in range(size):
-            var val = Float32(x_ptr.bitcast[Float16]()[i])
-            var grad_val = Float32(grad_ptr.bitcast[Float16]()[i])
+            var val = Float32(x_ptr.unsafe_bitcast[Float16]()[unsafe_offset=i])
+            var grad_val = Float32(
+                grad_ptr.unsafe_bitcast[Float16]()[unsafe_offset=i]
+            )
 
             if val > 0:
                 result.set(i, Float16(grad_val * Float32(lambda_)))
@@ -1207,38 +1217,45 @@ def elu_backward(
     var size = x.numel()
 
     if x.dtype() == DType.float32:
+        var out_ptr = result_ptr.unsafe_bitcast[Float32]()
         for i in range(size):
-            var val = x_ptr.bitcast[Float32]()[i]
-            var grad_val = grad_ptr.bitcast[Float32]()[i]
+            var val = x_ptr.unsafe_bitcast[Float32]()[unsafe_offset=i]
+            var grad_val = grad_ptr.unsafe_bitcast[Float32]()[unsafe_offset=i]
 
             if val > 0:
-                result[i] = Float32(grad_val)
+                out_ptr[unsafe_offset=i] = Float32(grad_val)
             else:
                 var val_clipped = max(val, Float32(-20.0))
                 var exp_val = exp_scalar_f32(val_clipped)
-                result[i] = grad_val * Float32(alpha) * exp_val
+                out_ptr[unsafe_offset=i] = grad_val * Float32(alpha) * exp_val
     elif x.dtype() == DType.float64:
+        var out_ptr = result_ptr.unsafe_bitcast[Float64]()
         for i in range(size):
-            var val = x_ptr.bitcast[Float64]()[i]
-            var grad_val = grad_ptr.bitcast[Float64]()[i]
+            var val = x_ptr.unsafe_bitcast[Float64]()[unsafe_offset=i]
+            var grad_val = grad_ptr.unsafe_bitcast[Float64]()[unsafe_offset=i]
 
             if val > 0:
-                result[i] = Float32(grad_val)
+                out_ptr[unsafe_offset=i] = Float64(grad_val)
             else:
                 var val_clipped = max(val, Float64(-20.0))
                 var exp_val = exp_scalar_f64(val_clipped)
-                result[i] = Float32(grad_val * alpha * exp_val)
+                out_ptr[unsafe_offset=i] = grad_val * alpha * exp_val
     elif x.dtype() == DType.float16:
+        var out_ptr = result_ptr.unsafe_bitcast[Float16]()
         for i in range(size):
-            var val = Float32(x_ptr.bitcast[Float16]()[i])
-            var grad_val = Float32(grad_ptr.bitcast[Float16]()[i])
+            var val = Float32(x_ptr.unsafe_bitcast[Float16]()[unsafe_offset=i])
+            var grad_val = Float32(
+                grad_ptr.unsafe_bitcast[Float16]()[unsafe_offset=i]
+            )
 
             if val > 0:
-                result.set(i, Float16(grad_val))
+                out_ptr[unsafe_offset=i] = Float16(grad_val)
             else:
                 var val_clipped = max(val, Float32(-20.0))
                 var exp_val = exp_scalar_f32(val_clipped)
-                result.set(i, Float16(grad_val * Float32(alpha) * exp_val))
+                out_ptr[unsafe_offset=i] = Float16(
+                    grad_val * Float32(alpha) * exp_val
+                )
     else:
         raise Error("elu_backward: only float16/32/64 dtypes supported")
 

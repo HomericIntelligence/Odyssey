@@ -244,5 +244,24 @@ struct BenchmarkResult(Copyable, Movable, Writable):
                 Min: 1000.00 us
                 Max: 2000.00 us
         ```
+
+        NOTE (Mojo 1.0.0): `String.write(self)` (the old Writable
+        delegation) no longer exists as a static method; build the string
+        directly to mirror `write_to`.
         """
-        return String.write(self)
+        var mean_ns = self.mean()
+        var mean_us = mean_ns / 1000.0
+        var std_ns = self.std()
+        var std_us = std_ns / 1000.0
+        var min_us = self.min_time() / 1000.0
+        var max_us = self.max_time() / 1000.0
+
+        var out = String("BenchmarkResult: " + self.name + "\n")
+        out += "  Iterations: " + String(self.iterations) + "\n"
+        out += (
+            "  Mean: " + String(mean_us) + " us (" + String(mean_ns) + " ns)\n"
+        )
+        out += "  Std Dev: " + String(std_us) + " us\n"
+        out += "  Min: " + String(min_us) + " us\n"
+        out += "  Max: " + String(max_us) + " us"
+        return out

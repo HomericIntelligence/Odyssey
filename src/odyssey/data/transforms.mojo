@@ -71,7 +71,7 @@ def infer_image_dimensions(
 # ============================================================================
 
 
-trait Transform(Copyable, ImplicitlyDestructible, Movable):
+trait Transform(Copyable, Deinitable, Movable):
     """Base interface for all transforms.
 
     Transforms modify data in-place or return transformed copies.
@@ -97,7 +97,7 @@ trait Transform(Copyable, ImplicitlyDestructible, Movable):
 # ============================================================================
 
 
-struct Compose[T: Transform & Copyable & Movable](Copyable, Movable, Transform):
+struct Compose[T: Transform](Copyable, Movable, Transform):
     """Compose multiple transforms sequentially.
 
     Applies transforms in order, passing output of each to the next.
@@ -152,7 +152,7 @@ struct Compose[T: Transform & Copyable & Movable](Copyable, Movable, Transform):
 
 
 # Type comptime for Pipeline as Compose
-comptime Pipeline[T: Transform & Copyable & Movable] = Compose[T]
+comptime Pipeline[T: Transform] = Compose[T]
 
 
 # ============================================================================

@@ -14,7 +14,7 @@ from tests.odyssey.conftest import assert_true, assert_equal_int
 def _copy_and_check_refcount(tensor1: AnyTensor) -> Int:
     """Helper: copy tensor in inner scope and return inner refcount."""
     var tensor2 = tensor1
-    return tensor1._refcount[]
+    return tensor2.refcount()
 
 
 def _modify_through_copy(tensor1: AnyTensor) raises:
@@ -33,13 +33,13 @@ def _alloc_and_use_tensor() raises:
 def _check_shared_deallocation() raises:
     """Helper: verify refcount during nested sharing in inner scope."""
     var tensor1 = zeros([10, 10], DType.float32)
-    var initial_refcount = tensor1._refcount[]
+    var initial_refcount = tensor1.refcount()
     assert_equal_int(initial_refcount, 1, "Should start with refcount 1")
 
     var inner_refcount = _copy_and_check_refcount(tensor1)
     assert_equal_int(inner_refcount, 2, "Should have 2 refs in inner scope")
 
-    var outer_refcount = tensor1._refcount[]
+    var outer_refcount = tensor1.refcount()
     assert_equal_int(outer_refcount, 1, "Should have 1 ref after inner scope")
 
 
@@ -62,8 +62,12 @@ def _check_view_refcount(
     shape.append(4)
     var view = original.reshape(shape)
     assert_true(view._is_view, "Should be view")
-    # reshape calls copy() which increments refcount
+    # reshape calls copy() which increments refcount. Read the refcount
+    # while `view` is still alive, then keep `view` alive until after the
+    # read (1.0.0 fires `__deinit__` at a local's last syntactic use, which
+    # would decrement the refcount before the read -- see #6963 family).
     var inner_refcount = original._refcount[]
+    _ = view.numel()
     assert_equal_int(
         inner_refcount,
         initial_refcount + 1,
@@ -76,18 +80,18 @@ def test_single_tensor_refcount() raises:
     """Test single tensor starts with refcount = 1."""
     var tensor = zeros([10, 10], DType.float32)
     assert_equal_int(
-        tensor._refcount[], 1, "Single tensor should have refcount 1"
+        tensor.refcount(), 1, "Single tensor should have refcount 1"
     )
 
 
 def test_copy_increments_refcount() raises:
     """Test copying tensor increments reference count."""
     var tensor1 = zeros([10, 10], DType.float32)
-    var initial_refcount = tensor1._refcount[]
+    var initial_refcount = tensor1.refcount()
     assert_equal_int(initial_refcount, 1, "Initial refcount should be 1")
 
     var tensor2 = tensor1
-    assert_equal_int(tensor1._refcount[], 2, "Refcount should be 2 after copy")
+    assert_equal_int(tensor1.refcount(), 2, "Refcount should be 2 after copy")
     assert_true(
         tensor1._data == tensor2._data, "Copied tensors should share data"
     )
@@ -99,21 +103,27 @@ def test_multiple_copies_refcount() raises:
     var tensor2 = tensor1
     var tensor3 = tensor1
     var tensor4 = tensor2
-    assert_equal_int(
-        tensor1._refcount[], 4, "Refcount should be 4 after 3 copies"
-    )
+    # Read refcount while all copies are alive, then keep every tensor alive
+    # until after the read (1.0.0 fires `__deinit__` at each local's last
+    # syntactic use, decrementing the shared refcount early -- see #6963
+    # family).
+    var rc = tensor1.refcount()
+    _ = tensor2.numel()
+    _ = tensor3.numel()
+    _ = tensor4.numel()
+    assert_equal_int(rc, 4, "Refcount should be 4 after 3 copies")
 
 
 def test_scope_exit_decrements_refcount() raises:
     """Test refcount decrements when copy goes out of scope."""
     var tensor1 = zeros([10, 10], DType.float32)
-    var initial_refcount = tensor1._refcount[]
+    var initial_refcount = tensor1.refcount()
     assert_equal_int(initial_refcount, 1, "Initial refcount should be 1")
 
     var inner_refcount = _copy_and_check_refcount(tensor1)
     assert_equal_int(inner_refcount, 2, "Refcount should be 2 in inner scope")
 
-    var outer_refcount = tensor1._refcount[]
+    var outer_refcount = tensor1.refcount()
     assert_equal_int(outer_refcount, 1, "Refcount should be 1 after scope exit")
 
 
@@ -126,7 +136,7 @@ def test_original_survives_copy_destruction() raises:
     _modify_through_copy(tensor1)
 
     # Verify modification persists through original
-    var value = tensor1._data.bitcast[Float32]()[0]
+    var value = tensor1.load[DType.float32](0)
     assert_true(value == 99.0, "Original should reflect modification")
 
 
@@ -180,7 +190,22 @@ def test_no_memory_leak_with_copies() raises:
         var tensor2 = tensor1
         var tensor3 = tensor2
         var tensor4 = tensor1
-        assert_equal_int(tensor1._refcount[], 4, "Should have 4 refs")
+        # Read all refcounts while all copies are alive, then keep every
+        # tensor alive until after the reads (1.0.0 fires `__deinit__` at
+        # each local's last syntactic use, which would otherwise decrement
+        # the shared refcount between reads -- see #6963 family).
+        var r1 = tensor1.refcount()
+        var r2 = tensor2.refcount()
+        var r3 = tensor3.refcount()
+        var r4 = tensor4.refcount()
+        _ = tensor1.numel()
+        _ = tensor2.numel()
+        _ = tensor3.numel()
+        _ = tensor4.numel()
+        assert_equal_int(r1, 4, "Should have 4 refs (t1)")
+        assert_equal_int(r2, 4, "Should have 4 refs (t2)")
+        assert_equal_int(r3, 4, "Should have 4 refs (t3)")
+        assert_equal_int(r4, 4, "Should have 4 refs (t4)")
 
     assert_true(True, "Copy stress test completed without OOM")
 
@@ -214,7 +239,7 @@ def test_view_does_not_free_data() raises:
 
     _create_and_drop_view(original)
 
-    var value = original._data.bitcast[Float32]()[0]
+    var value = original.load[DType.float32](0)
     assert_true(value == 42.0, "Original data should be intact")
 
 
@@ -226,7 +251,7 @@ def test_view_modification_affects_original() raises:
     shape.append(4)
     var view = original.reshape(shape)
     view.set(0, Float32(99.0))
-    var value = original._data.bitcast[Float32]()[0]
+    var value = original.load[DType.float32](0)
     assert_true(
         value == 99.0, "Modification through view should affect original"
     )
@@ -237,7 +262,7 @@ def test_empty_tensor_lifecycle() raises:
     for _ in range(1000):
         var empty = zeros(List[Int](), DType.float32)
         assert_equal_int(
-            empty._refcount[], 1, "Empty tensor should have refcount 1"
+            empty.refcount(), 1, "Empty tensor should have refcount 1"
         )
 
     assert_true(True, "Empty tensor lifecycle test completed")
@@ -249,7 +274,7 @@ def test_1d_tensor_lifecycle() raises:
         var shape = List[Int]()
         shape.append(100)
         var tensor = zeros(shape, DType.float32)
-        assert_equal_int(tensor._refcount[], 1, "Should have refcount 1")
+        assert_equal_int(tensor.refcount(), 1, "Should have refcount 1")
 
     assert_true(True, "1D tensor lifecycle test completed")
 
@@ -268,7 +293,7 @@ def test_different_dtypes_lifecycle() raises:
             shape.append(50)
             shape.append(50)
             var tensor = zeros(shape, dtypes[i])
-            assert_equal_int(tensor._refcount[], 1, "Should have refcount 1")
+            assert_equal_int(tensor.refcount(), 1, "Should have refcount 1")
 
     assert_true(True, "Different dtypes lifecycle test completed")
 
@@ -277,7 +302,7 @@ def test_destructor_with_valid_refcount() raises:
     """Test destructor handles normal case correctly."""
     var tensor = zeros([10], DType.float32)
     # Verify refcount pointer is valid (non-null)
-    var refcount_value = tensor._refcount[]
+    var refcount_value = tensor.refcount()
     assert_equal_int(refcount_value, 1, "Should have valid refcount")
     assert_true(True, "Destructor edge case test completed")
 
@@ -285,12 +310,12 @@ def test_destructor_with_valid_refcount() raises:
 def test_view_destructor_does_not_decrement_refcount() raises:
     """Test view destructor doesn't decrement refcount incorrectly."""
     var original = zeros([12], DType.float32)
-    var initial_refcount = original._refcount[]
+    var initial_refcount = original.refcount()
 
     _ = _check_view_refcount(original, initial_refcount)
 
     # After view destruction, refcount should return to initial
-    var final_refcount = original._refcount[]
+    var final_refcount = original.refcount()
     assert_equal_int(
         final_refcount,
         initial_refcount,

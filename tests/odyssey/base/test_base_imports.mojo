@@ -30,8 +30,8 @@ def test_broadcasting_imports() raises:
     )
 
     # Test basic broadcasting: [3, 1] and [1, 4] -> [3, 4]
-    var a = [3, 1]
-    var b = [1, 4]
+    var a: List[Int] = [3, 1]
+    var b: List[Int] = [1, 4]
     var result = broadcast_shapes(a, b)
     assert_true(result[0] == 3, "broadcast dim 0 should be 3")
     assert_true(result[1] == 4, "broadcast dim 1 should be 4")

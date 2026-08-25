@@ -76,7 +76,7 @@ def test_variable_backward_scalar_loss() raises:
     assert_equal_int(grad_x.numel(), 1)
 
     # For loss = (x*x).sum() where x=2, grad_x = 2*x*2 = 8
-    var grad_val = grad_x._data.bitcast[Float32]()[0]
+    var grad_val = grad_x.load[DType.float32](0)
     assert_almost_equal(grad_val, 4.0, tolerance=1e-5)
 
 
@@ -115,8 +115,8 @@ def test_variable_backward_multiple_variables() raises:
     assert_equal_int(grad_y.numel(), 2)
 
     # Check first element
-    var grad_x_0 = grad_x._data.bitcast[Float32]()[0]
-    var grad_y_0 = grad_y._data.bitcast[Float32]()[0]
+    var grad_x_0 = grad_x.load[DType.float32](0)
+    var grad_y_0 = grad_y.load[DType.float32](0)
     assert_almost_equal(grad_x_0, 1.0, tolerance=1e-5)
     assert_almost_equal(grad_y_0, 1.0, tolerance=1e-5)
 
@@ -147,7 +147,7 @@ def test_variable_backward_chain_rule() raises:
     assert_equal_int(grad_x.numel(), 1)
 
     # loss = ((x*x)^2) = x^4, so d(loss)/dx = 4*x^3 = 4*27 = 108
-    var grad_val = grad_x._data.bitcast[Float32]()[0]
+    var grad_val = grad_x.load[DType.float32](0)
     assert_almost_equal(grad_val, 108.0, tolerance=1e-3)
 
 
@@ -191,8 +191,8 @@ def test_variable_backward_independent_tapes() raises:
     # Both should have same values
     assert_equal_int(grad1_x1.numel(), grad2_x2.numel())
 
-    var grad1_0 = grad1_x1._data.bitcast[Float32]()[0]
-    var grad2_0 = grad2_x2._data.bitcast[Float32]()[0]
+    var grad1_0 = grad1_x1.load[DType.float32](0)
+    var grad2_0 = grad2_x2.load[DType.float32](0)
 
     assert_almost_equal(grad1_0, grad2_0, tolerance=1e-5)
 
@@ -227,7 +227,7 @@ def test_variable_backward_no_gradients_required() raises:
     assert_equal_int(grad_x.numel(), 1)
 
     # Gradient should be c = 5
-    var grad_val = grad_x._data.bitcast[Float32]()[0]
+    var grad_val = grad_x.load[DType.float32](0)
     assert_almost_equal(grad_val, 5.0, tolerance=1e-5)
 
 

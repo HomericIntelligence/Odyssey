@@ -156,7 +156,9 @@ def forward_backward_step(
 
     # Loss
     var loss_tensor = cross_entropy(logits, labels)
-    var loss = loss_tensor._data.bitcast[Float32]()[0]
+    var loss = loss_tensor.data_ptr[DType.float32]()[
+        unsafe_offset=0
+    ]  # origin-tied (#6963)
 
     # Backward
     var grad_output_shape: List[Int] = [1]
@@ -252,7 +254,9 @@ def compute_test_loss(
 
         var logits = model.forward(batch_images)
         var loss_tensor = cross_entropy(logits, batch_labels)
-        total += loss_tensor._data.bitcast[Float32]()[0]
+        total += loss_tensor.data_ptr[DType.float32]()[
+            unsafe_offset=0
+        ]  # origin-tied (#6963)
         count += 1
 
     if count == 0:

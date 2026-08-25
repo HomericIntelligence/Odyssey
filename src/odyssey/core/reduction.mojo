@@ -58,17 +58,17 @@ def _reduce_all_impl[
     large tensors.  The final result is cast back to `dtype` before being
     stored, so callers observe the same dtype as the input.
     """
-    var in_ptr = tensor._data.bitcast[Scalar[dtype]]()
-    var out_ptr = result._data.bitcast[Scalar[dtype]]()
+    var in_ptr = tensor._data.unsafe_bitcast[Scalar[dtype]]()
+    var out_ptr = result._data.unsafe_bitcast[Scalar[dtype]]()
     var op = Op()
     var acc: Scalar[dtype] = Scalar[dtype](op.init_value())
     for i in range(numel):
-        var val = Float64(in_ptr[i])
+        var val = Float64(in_ptr[unsafe_offset=i])
         var acc_float = Float64(acc)
         var result_float = op.apply(acc_float, val)
         acc = Scalar[dtype](result_float)
     var final_val = op.finalize(Float64(acc), numel)
-    out_ptr[0] = Scalar[dtype](final_val)
+    out_ptr[unsafe_offset=0] = Scalar[dtype](final_val)
 
 
 def _dispatch_reduce_all[
@@ -110,8 +110,8 @@ def _reduce_axis_impl[
     per-slice result is cast back to `dtype` for storage.  This applies to
     all supported dtypes (float16, float32, float64, int32, int64).
     """
-    var in_ptr = tensor._data.bitcast[Scalar[dtype]]()
-    var out_ptr = result._data.bitcast[Scalar[dtype]]()
+    var in_ptr = tensor._data.unsafe_bitcast[Scalar[dtype]]()
+    var out_ptr = result._data.unsafe_bitcast[Scalar[dtype]]()
     var op = Op()
 
     for outer in range(outer_size):
@@ -121,13 +121,13 @@ def _reduce_axis_impl[
                 var input_idx = (
                     outer * axis_size * inner_size + k * inner_size + inner
                 )
-                var val = Float64(in_ptr[input_idx])
+                var val = Float64(in_ptr[unsafe_offset=input_idx])
                 var acc_float = Float64(acc)
                 var result_float = op.apply(acc_float, val)
                 acc = Scalar[dtype](result_float)
             var result_idx = outer * inner_size + inner
             var final_val = op.finalize(Float64(acc), axis_size)
-            out_ptr[result_idx] = Scalar[dtype](final_val)
+            out_ptr[unsafe_offset=result_idx] = Scalar[dtype](final_val)
 
 
 def _dispatch_reduce_axis[

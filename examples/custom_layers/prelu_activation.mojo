@@ -31,15 +31,15 @@ def prelu_simple(input: AnyTensor, alpha: Float32) raises -> AnyTensor:
 
     # For negative part: min(0, x) = -max(0, -x)
     var result = zeros(input.shape(), input.dtype())
-    var input_ptr = input._data.bitcast[Float32]()
-    var result_ptr = result._data.bitcast[Float32]()
+    var input_ptr = input._data.unsafe_bitcast[Float32]()
+    var result_ptr = result._data.unsafe_bitcast[Float32]()
 
     for i in range(input.numel()):
-        var x = input_ptr[i]
+        var x = input_ptr[unsafe_offset=i]
         if x > 0:
-            result_ptr[i] = x
+            result_ptr[unsafe_offset=i] = x
         else:
-            result_ptr[i] = alpha * x
+            result_ptr[unsafe_offset=i] = alpha * x
 
     return result^
 
@@ -59,9 +59,9 @@ def main() raises:
     var input = AnyTensor(input_data^)
 
     print("Input values:")
-    var input_ptr = input._data.bitcast[Float32]()
+    var input_ptr = input._data.unsafe_bitcast[Float32]()
     for i in range(input.numel()):
-        print("  ", input_ptr[i])
+        print("  ", input_ptr[unsafe_offset=i])
 
     # Create learnable alpha parameter (slope for negative values)
     # Using alpha = 0.25 for this demonstration
@@ -72,9 +72,9 @@ def main() raises:
     var output = prelu_simple(input, alpha)
 
     print("\nOutput values:")
-    var output_ptr = output._data.bitcast[Float32]()
+    var output_ptr = output._data.unsafe_bitcast[Float32]()
     for i in range(output.numel()):
-        print("  ", output_ptr[i])
+        print("  ", output_ptr[unsafe_offset=i])
 
     print("\nExpected: [-0.5, -0.25, 0.0, 1.0, 2.0]")
     print("  (Positive values unchanged, negative values scaled by alpha)")

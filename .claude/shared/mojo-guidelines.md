@@ -2,12 +2,12 @@
 
 Shared Mojo language guidelines for all agents. Reference this file instead of duplicating.
 
-**Mojo Version**: 1.0.0b2 (pinned as `mojo==1.0.0b2` in pyproject.toml).
+**Mojo Version**: 1.0.0 (pinned as `mojo==1.0.0` in pyproject.toml).
 Official docs: <https://mojolang.org/docs/>
 
 ## ⚠️ Mojo 1.0 migration (in progress)
 
-This repo is migrating from 0.26.3 to 1.0.0b2 on branch `mojo-bump-1.0.0b2-2026050805`.
+This repo is migrating from 0.26.3 to 1.0.0 on branch `mojo-bump-1.0.0b2-2026050805`.
 Until that merges, the codebase is in a mixed state. **For agents writing NEW code, follow
 the 1.0 conventions below.** For agents fixing 0.26 code that hasn't compiled yet, see
 [`docs/dev/mojo-1.0-migration-recipe.md`](../../docs/dev/mojo-1.0-migration-recipe.md).

@@ -39,14 +39,14 @@ def _has_nan_core[dtype: DType](tensor: Tensor[dtype]) -> Bool:
     # SIMD loop with early exit
     var i = 0
     while i + simd_w <= size:
-        var vec = ptr.load[width=simd_w](i)
+        var vec = ptr.unsafe_load[width=simd_w](i)
         if isnan(vec).reduce_or():
             return True
         i += simd_w
 
     # Scalar tail
     while i < size:
-        if isnan(ptr[i]):
+        if isnan(ptr[unsafe_offset=i]):
             return True
         i += 1
     return False
@@ -77,14 +77,14 @@ def _has_inf_core[dtype: DType](tensor: Tensor[dtype]) -> Bool:
     # SIMD loop with early exit
     var i = 0
     while i + simd_w <= size:
-        var vec = ptr.load[width=simd_w](i)
+        var vec = ptr.unsafe_load[width=simd_w](i)
         if isinf(vec).reduce_or():
             return True
         i += simd_w
 
     # Scalar tail
     while i < size:
-        if isinf(ptr[i]):
+        if isinf(ptr[unsafe_offset=i]):
             return True
         i += 1
     return False
@@ -114,7 +114,7 @@ def _count_nan_core[dtype: DType](tensor: Tensor[dtype]) -> Int:
 
     @always_inline
     def _count[width: Int](idx: Int) {var ptr, mut count}:
-        var vec = ptr.load[width=width](idx)
+        var vec = ptr.unsafe_load[width=width](idx)
         count += Int(isnan(vec).cast[DType.uint8]().reduce_add())
 
     vectorize[simd_w](size, _count)
@@ -145,7 +145,7 @@ def _count_inf_core[dtype: DType](tensor: Tensor[dtype]) -> Int:
 
     @always_inline
     def _count[width: Int](idx: Int) {var ptr, mut count}:
-        var vec = ptr.load[width=width](idx)
+        var vec = ptr.unsafe_load[width=width](idx)
         count += Int(isinf(vec).cast[DType.uint8]().reduce_add())
 
     vectorize[simd_w](size, _count)
@@ -178,7 +178,7 @@ def _tensor_min_core[dtype: DType](tensor: Tensor[dtype]) -> Float64:
     # SIMD loop
     var i = 0
     while i + simd_w <= size:
-        var vec = ptr.load[width=simd_w](i)
+        var vec = ptr.unsafe_load[width=simd_w](i)
         var vec_min = Float64(vec.reduce_min())
         if vec_min < min_val:
             min_val = vec_min
@@ -186,7 +186,7 @@ def _tensor_min_core[dtype: DType](tensor: Tensor[dtype]) -> Float64:
 
     # Scalar tail
     while i < size:
-        var val = Float64(ptr[i])
+        var val = Float64(ptr[unsafe_offset=i])
         if val < min_val:
             min_val = val
         i += 1
@@ -219,7 +219,7 @@ def _tensor_max_core[dtype: DType](tensor: Tensor[dtype]) -> Float64:
     # SIMD loop
     var i = 0
     while i + simd_w <= size:
-        var vec = ptr.load[width=simd_w](i)
+        var vec = ptr.unsafe_load[width=simd_w](i)
         var vec_max = Float64(vec.reduce_max())
         if vec_max > max_val:
             max_val = vec_max
@@ -227,7 +227,7 @@ def _tensor_max_core[dtype: DType](tensor: Tensor[dtype]) -> Float64:
 
     # Scalar tail
     while i < size:
-        var val = Float64(ptr[i])
+        var val = Float64(ptr[unsafe_offset=i])
         if val > max_val:
             max_val = val
         i += 1
@@ -257,14 +257,14 @@ def _compute_l2_norm_core[dtype: DType](tensor: Tensor[dtype]) -> Float64:
     # SIMD loop
     var i = 0
     while i + simd_w <= size:
-        var vec = ptr.load[width=simd_w](i)
+        var vec = ptr.unsafe_load[width=simd_w](i)
         var squared = vec * vec
         sum_sq += Float64(squared.reduce_add())
         i += simd_w
 
     # Scalar tail
     while i < size:
-        var val = Float64(ptr[i])
+        var val = Float64(ptr[unsafe_offset=i])
         sum_sq += val * val
         i += 1
     return sqrt(sum_sq)

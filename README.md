@@ -5,9 +5,9 @@ implementations. ML Odyssey provides a shared library of SIMD-optimized tensor o
 an autograd engine, and a full training infrastructure — all implemented in Mojo for
 maximum performance and type safety.
 
-[![Mojo](https://img.shields.io/badge/Mojo-1.0.0b2-orange.svg)](https://mojolang.org/)
+[![Mojo](https://img.shields.io/badge/Mojo-1.0.0-orange.svg)](https://mojolang.org/)
 [![License](https://img.shields.io/badge/License-BSD_3--Clause-blue.svg)](LICENSE)
-[![Tests](https://img.shields.io/badge/tests-332%2B-brightgreen.svg)](tests/)
+[![Tests](https://img.shields.io/badge/tests-371%2B-brightgreen.svg)](tests/)
 [![Coverage](https://img.shields.io/badge/coverage-pending-lightgrey.svg)](#coverage-status)
 [![CI](https://github.com/HomericIntelligence/Odyssey/actions/workflows/comprehensive-tests.yml/badge.svg)](https://github.com/HomericIntelligence/Odyssey/actions/workflows/comprehensive-tests.yml)
 [![Build](https://github.com/HomericIntelligence/Odyssey/actions/workflows/build-validation.yml/badge.svg)](https://github.com/HomericIntelligence/Odyssey/actions/workflows/build-validation.yml)
@@ -29,7 +29,7 @@ research papers with production-quality implementations. It has two goals:
 2. **Provide a reusable shared library** of ML components that paper implementations build on
 
 The project currently has ~198K lines of Mojo code, 7 fully-implemented neural network
-architectures, and 332+ tests across layerwise unit tests and end-to-end integration tests.
+architectures, and 371+ tests across layerwise unit tests and end-to-end integration tests.
 
 > **Note on project identity:** The GitHub repo description says "Training framework written
 > in Mojo." This repo is sometimes described elsewhere as an "experimental agent research

@@ -26,9 +26,7 @@ from odyssey.tensor.any_tensor import AnyTensor
 from odyssey.data._datasets_core import Dataset
 
 
-struct CachedDataset[D: Dataset & Copyable & Movable](
-    Copyable, Dataset, Movable
-):
+struct CachedDataset[D: Dataset & Copyable](Copyable, Dataset, Movable):
     """Dataset wrapper with sample caching.
 
     Caches loaded samples to avoid repeated I/O. Cache is populated

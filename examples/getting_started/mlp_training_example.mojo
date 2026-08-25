@@ -45,8 +45,12 @@ def create_synthetic_data() raises -> Tuple[AnyTensor, AnyTensor]:
             targets: (4, 1) - Binary labels (0 or 1).
     """
     # Create 4 samples with 2 features each
-    var input_shape = [4, 2]
-    var target_shape = [4, 1]
+    var input_shape = List[Int]()
+    input_shape.append(4)
+    input_shape.append(2)
+    var target_shape = List[Int]()
+    target_shape.append(4)
+    target_shape.append(1)
 
     var inputs = AnyTensor(input_shape, DType.float32)
     var targets = AnyTensor(target_shape, DType.float32)
@@ -117,14 +121,20 @@ def train_mlp() raises:
     comptime output_size = 1
 
     # Layer 1: (2, 4) - Input to Hidden
-    var W1_shape = [hidden_size, input_size]
-    var b1_shape = [hidden_size]
+    var W1_shape = List[Int]()
+    W1_shape.append(hidden_size)
+    W1_shape.append(input_size)
+    var b1_shape = List[Int]()
+    b1_shape.append(hidden_size)
     var W1 = xavier_uniform(input_size, hidden_size, W1_shape, DType.float32)
     var b1 = zeros(b1_shape, DType.float32)
 
     # Layer 2: (4, 1) - Hidden to Output
-    var W2_shape = [output_size, hidden_size]
-    var b2_shape = [output_size]
+    var W2_shape = List[Int]()
+    W2_shape.append(output_size)
+    W2_shape.append(hidden_size)
+    var b2_shape = List[Int]()
+    b2_shape.append(output_size)
     var W2 = xavier_uniform(hidden_size, output_size, W2_shape, DType.float32)
     var b2 = zeros(b2_shape, DType.float32)
 
@@ -144,7 +154,8 @@ def train_mlp() raises:
         # For batch processing, we'll process each sample separately
 
         # For simplicity, process first sample
-        var x_sample_shape = [input_size]
+        var x_sample_shape = List[Int]()
+        x_sample_shape.append(input_size)
         var x_sample = AnyTensor(x_sample_shape, DType.float32)
         x_sample._set_float64(0, X._get_float64(0))  # First feature
         x_sample._set_float64(1, X._get_float64(1))  # Second feature
@@ -158,7 +169,8 @@ def train_mlp() raises:
         var pred = sigmoid(z2)  # (1, 1)
 
         # Get target for this sample
-        var y_sample_shape = [output_size]
+        var y_sample_shape = List[Int]()
+        y_sample_shape.append(output_size)
         var y_sample = AnyTensor(y_sample_shape, DType.float32)
         y_sample._set_float64(0, y_true._get_float64(0))
 
@@ -246,7 +258,8 @@ def train_mlp() raises:
 
     for i in range(4):
         # Get sample
-        var x_test_shape = [input_size]
+        var x_test_shape = List[Int]()
+        x_test_shape.append(input_size)
         var x_test = AnyTensor(x_test_shape, DType.float32)
         x_test._set_float64(0, X._get_float64(i * 2))
         x_test._set_float64(1, X._get_float64(i * 2 + 1))

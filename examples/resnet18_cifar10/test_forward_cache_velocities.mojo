@@ -110,11 +110,11 @@ def test_initialize_velocities_returns_expected_fields() raises:
         raise Error("fc_weights shape mismatch")
 
     # Verify zero-fill contract: at least one velocity field has zero values
-    var fc_weights_data = velocities.fc_weights._data.bitcast[Float32]()
-    if fc_weights_data[0] != Float32(0.0):
+    var fc_weights_data = velocities.fc_weights._data.unsafe_bitcast[Float32]()
+    if fc_weights_data[unsafe_offset=0] != Float32(0.0):
         raise Error(
             "fc_weights velocity not zero-filled: expected 0.0 at [0], got "
-            + String(fc_weights_data[0])
+            + String(fc_weights_data[unsafe_offset=0])
         )
 
     print("✓ test_initialize_velocities_returns_expected_fields passed")
@@ -131,9 +131,9 @@ def test_forward_with_cache_matches_forward_logits() raises:
 
     # Create input tensor with small test values
     var input_tensor = zeros(input_shape, DType.float32)
-    var input_data = input_tensor._data.bitcast[Float32]()
+    var input_data = input_tensor._data.unsafe_bitcast[Float32]()
     for i in range(batch_size * 3 * 32 * 32):
-        input_data[i] = Float32(0.1)
+        input_data[unsafe_offset=i] = Float32(0.1)
 
     # Test approach: single-model self-consistency check.
     #
@@ -177,19 +177,22 @@ def test_forward_with_cache_matches_forward_logits() raises:
 
     # Compare logit values element-wise: forward_with_cache must produce
     # bit-equal float32 logits to forward (40 logits = 4 batch x 10 classes).
-    var cache_logits_data = cache_logits._data.bitcast[Float32]()
-    var forward_logits_data = forward_logits._data.bitcast[Float32]()
+    var cache_logits_data = cache_logits._data.unsafe_bitcast[Float32]()
+    var forward_logits_data = forward_logits._data.unsafe_bitcast[Float32]()
     var num_logits = cache_logits_shape[0] * cache_logits_shape[1]
     for i in range(num_logits):
-        if cache_logits_data[i] != forward_logits_data[i]:
+        if (
+            cache_logits_data[unsafe_offset=i]
+            != forward_logits_data[unsafe_offset=i]
+        ):
             raise Error(
                 "Logit value mismatch between forward_with_cache and"
                 " forward at index "
                 + String(i)
                 + ": "
-                + String(cache_logits_data[i])
+                + String(cache_logits_data[unsafe_offset=i])
                 + " != "
-                + String(forward_logits_data[i])
+                + String(forward_logits_data[unsafe_offset=i])
             )
 
     print("✓ test_forward_with_cache_matches_forward_logits passed")
@@ -205,9 +208,9 @@ def test_forward_with_cache_populates_all_activations() raises:
     input_shape.append(32)
 
     var input_tensor = zeros(input_shape, DType.float32)
-    var input_data = input_tensor._data.bitcast[Float32]()
+    var input_data = input_tensor._data.unsafe_bitcast[Float32]()
     for i in range(batch_size * 3 * 32 * 32):
-        input_data[i] = Float32(0.05)
+        input_data[unsafe_offset=i] = Float32(0.05)
 
     var model = ResNet18(num_classes=10)
     var cache = model.forward_with_cache(input_tensor, training=False)

@@ -54,10 +54,10 @@ def test_conv2d_backward_batched_grad_bias() raises:
     var grad_bias = result.grad_bias
 
     # grad_bias[oc] = batch * out_H * out_W = 2.0 for all oc
-    var grad_bias_data = grad_bias._data.bitcast[Float32]()
+    var grad_bias_data = grad_bias.data_ptr[DType.float32]()
     for oc in range(out_channels):
         assert_almost_equal(
-            grad_bias_data[oc],
+            grad_bias_data[unsafe_offset=oc],
             Float32(2.0),
             tolerance=1e-4,
         )
@@ -109,10 +109,10 @@ def test_conv2d_backward_batched_grad_weights() raises:
 
     # grad_weights[oc, ic, kh, kw] = 2.0 for all indices (sum over batch=2)
     var n_weights = out_channels * in_channels * kH * kW
-    var grad_weights_data = grad_weights._data.bitcast[Float32]()
+    var grad_weights_data = grad_weights.data_ptr[DType.float32]()
     for i in range(n_weights):
         assert_almost_equal(
-            grad_weights_data[i],
+            grad_weights_data[unsafe_offset=i],
             Float32(2.0),
             tolerance=1e-4,
         )
@@ -120,10 +120,10 @@ def test_conv2d_backward_batched_grad_weights() raises:
     # grad_input[b, ic, ih, iw] = out_channels * kernel(1.0) * grad_output(1.0)
     # = 8.0 for all positions and both batch items
     var n_inputs = batch * in_channels * 3 * 3
-    var grad_input_data = grad_input._data.bitcast[Float32]()
+    var grad_input_data = grad_input.data_ptr[DType.float32]()
     for i in range(n_inputs):
         assert_almost_equal(
-            grad_input_data[i],
+            grad_input_data[unsafe_offset=i],
             Float32(out_channels),
             tolerance=1e-4,
         )

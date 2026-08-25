@@ -99,10 +99,10 @@ def test_batchnorm_forward_typed() raises:
     var bn = BatchNorm2dLayer[DType.float32](num_channels=2)
     var input = Tensor[DType.float32]([1, 2, 3, 3])  # NCHW
     # Set some values to avoid all-zeros (batch_norm needs variance != 0)
-    input._data[0] = Scalar[DType.float32](0.5)
-    input._data[1] = Scalar[DType.float32](1.0)
-    input._data[9] = Scalar[DType.float32](1.5)
-    input._data[10] = Scalar[DType.float32](0.25)
+    input._data[unsafe_offset=0] = Scalar[DType.float32](0.5)
+    input._data[unsafe_offset=1] = Scalar[DType.float32](1.0)
+    input._data[unsafe_offset=9] = Scalar[DType.float32](1.5)
+    input._data[unsafe_offset=10] = Scalar[DType.float32](0.25)
     var output = bn.forward(input.as_any())
     assert_true(
         output.get_dtype() == DType.float32, "output dtype should be float32"
@@ -122,7 +122,7 @@ def test_batchnorm_forward_inference() raises:
     var input = Tensor[DType.float32]([1, 2, 3, 3])
     # Set input to all 1.0 for predictable output
     for i in range(input.numel()):
-        input._data[i] = Scalar[DType.float32](1.0)
+        input._data[unsafe_offset=i] = Scalar[DType.float32](1.0)
     # In inference mode with running_mean=0, running_var=1, gamma=1, beta=0:
     # output = gamma * (input - running_mean) / sqrt(running_var + eps) + beta
     # output = 1 * (1 - 0) / sqrt(1 + 1e-5) + 0 ~ 1.0

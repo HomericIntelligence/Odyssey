@@ -195,7 +195,7 @@ def compute_gradients(
 
     # Compute loss
     var loss_tensor = cross_entropy(logits, labels)
-    var loss = loss_tensor._data.bitcast[Float32]()[0]
+    var loss = loss_tensor.data_ptr[DType.float32]()[unsafe_offset=0]
 
     # ========== Backward Pass ==========
 
@@ -358,12 +358,16 @@ def train_epoch(
                             + h * train_images.shape()[3]
                             + w
                         )
-                        (batch_images._data + dst_idx).store(
-                            (train_images._data + src_idx).load()
+                        (
+                            batch_images._data.unsafe_offset(dst_idx)
+                        ).unsafe_store(
+                            (
+                                train_images._data.unsafe_offset(src_idx)
+                            ).unsafe_load()
                         )
             # Copy label
-            (batch_labels_int._data + i).store(
-                (train_labels._data + sample_idx).load()
+            (batch_labels_int._data.unsafe_offset(i)).unsafe_store(
+                (train_labels._data.unsafe_offset(sample_idx)).unsafe_load()
             )
 
         # Convert batch labels to one-hot encoding
@@ -443,17 +447,17 @@ def main() raises:
         var wanted_batches = max_batches if max_batches > 0 else 3
         var n_smoke = wanted_batches * Int(batch_size)
         train_images = zeros([n_smoke, 1, 28, 28], DType.float32)
-        var img_d = train_images._data.bitcast[Float32]()
+        var img_d = train_images._data.unsafe_bitcast[Float32]()
         for s in range(n_smoke):
             var cls = s % DEFAULT_NUM_CLASSES
             for i in range(1 * 28 * 28):
-                img_d[s * (1 * 28 * 28) + i] = (
+                img_d[unsafe_offset=s * (1 * 28 * 28) + i] = (
                     Float32(cls) * 0.05 + Float32(i % 5) * 0.01
                 )
         train_labels = zeros([n_smoke], DType.uint8)
-        var lbl_d = train_labels._data.bitcast[UInt8]()
+        var lbl_d = train_labels._data.unsafe_bitcast[UInt8]()
         for s in range(n_smoke):
-            lbl_d[s] = UInt8(s % DEFAULT_NUM_CLASSES)
+            lbl_d[unsafe_offset=s] = UInt8(s % DEFAULT_NUM_CLASSES)
         # Reuse the same synthetic batch for "test" (eval is not asserted here).
         test_images = train_images
         test_labels = train_labels

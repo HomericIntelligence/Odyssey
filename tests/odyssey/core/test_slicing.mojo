@@ -147,17 +147,23 @@ def test_slice_refcount_increments() raises:
     """Verify that creating a slice increments the reference count."""
     var tensor = zeros([5], DType.float32)
 
-    # Get initial refcount (should be 1 for new tensor)
-    var initial_refcount = tensor._refcount[]
+    # Get initial refcount (should be 1 for new tensor). Use the
+    # origin-tied accessor: a raw `_refcount[]` field read on an owned local
+    # is the escape-UAF class (modular/modular#6963).
+    var initial_refcount = tensor.refcount()
 
     # Create slice - should increment refcount
     var slice_result = tensor.slice(1, 4, axis=0)
 
-    # Refcount should have incremented
-    var new_refcount = tensor._refcount[]
+    # Refcount should have incremented. Note (Mojo 1.0.0): __deinit__ fires
+    # at each local's last syntactic use, so slice_result would be destroyed
+    # right after creation and decrement the refcount before the assertion;
+    # the observable use below (assert) keeps it alive through the check.
+    var new_refcount = tensor.refcount()
     assert_equal(
         new_refcount, initial_refcount + 1, "Refcount incremented by slice"
     )
+    assert_equal(slice_result.shape()[0], 3, "slice has 3 elements")
 
     print("PASS: test_slice_refcount_increments")
 
@@ -167,17 +173,26 @@ def test_multiple_slices_share_refcount() raises:
     var tensor = zeros([5], DType.float32)
     for i in range(5):
         tensor._set_float32(i, Float32(i))
+    var initial_refcount = tensor.refcount()
 
     # Create two slices
     var slice1 = tensor.slice(0, 2, axis=0)
     var slice2 = tensor.slice(2, 4, axis=0)
 
-    # Both slices should share the same refcount pointer
+    # Both slices should share the same refcount pointer: while both are
+    # alive the shared counter reads initial + 2. Note (Mojo 1.0.0):
+    # __deinit__ fires at each local's last syntactic use, so the refcount
+    # must be read BEFORE the slices' final uses below.
+    var shared_refcount = tensor.refcount()
     assert_equal(
-        slice1._refcount[], slice2._refcount[], "Slices share refcount value"
+        shared_refcount,
+        initial_refcount + 2,
+        "Slices share refcount value",
     )
 
-    # Modify original and check both slices see it
+    # Remaining uses keep both slices alive and verify view semantics
+    assert_equal(slice1.shape()[0], 2, "slice1 has 2 elements")
+    assert_equal(slice2.shape()[0], 2, "slice2 has 2 elements")
     tensor._set_float32(0, 99.0)
     assert_almost_equal(Float64(slice1._get_float32(0)), 99.0, tolerance=1e-6)
 

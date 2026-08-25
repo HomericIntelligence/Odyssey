@@ -54,9 +54,9 @@ def test_model_forward[
         var input = zeros(shape, DType.float32)
 
         # Fill with some non-zero values to avoid all-zero gradients
-        var input_data = input._data.bitcast[Float32]()
+        var input_data = input.data_ptr[DType.float32]()
         for i in range(batch_size * 3 * 32 * 32):
-            input_data[i] = Float32(0.1)  # Small non-zero value
+            input_data[unsafe_offset=i] = Float32(0.1)  # Small non-zero value
 
         print("✓ Input created successfully")
 
@@ -125,11 +125,14 @@ def test_model_forward[
         print("\nChecking mode differences...")
         var same_count = 0
         var total_count = batch_size * 10
-        var logits_inf_data = logits_inference._data.bitcast[Float32]()
-        var logits_train_data = logits_training._data.bitcast[Float32]()
+        var logits_inf_data = logits_inference.data_ptr[DType.float32]()
+        var logits_train_data = logits_training.data_ptr[DType.float32]()
 
         for i in range(total_count):
-            if logits_inf_data[i] == logits_train_data[i]:
+            if (
+                logits_inf_data[unsafe_offset=i]
+                == logits_train_data[unsafe_offset=i]
+            ):
                 same_count += 1
 
         # Note: For some models without dropout, outputs might be same
@@ -149,7 +152,7 @@ def test_model_forward[
         print("\nChecking for NaN/Inf...")
         var has_nan_inf = False
         for i in range(total_count):
-            var val = logits_train_data[i]
+            var val = logits_train_data[unsafe_offset=i]
             # Simple check: if value is too large, might be inf
             if val > 1e10 or val < -1e10 or val != val:  # NaN check: val != val
                 has_nan_inf = True

@@ -201,8 +201,8 @@ def dropout2d(
     if x.dtype() == DType.float32:
         for b in range(batch):
             for c in range(channels):
-                var mask_val = channel_mask._data.bitcast[Float32]()[
-                    b * channels + c
+                var mask_val = channel_mask.data_ptr[DType.float32]()[
+                    unsafe_offset=b * channels + c
                 ]
                 for h in range(height):
                     for w in range(width):
@@ -216,8 +216,8 @@ def dropout2d(
     elif x.dtype() == DType.float64:
         for b in range(batch):
             for c in range(channels):
-                var mask_val = channel_mask._data.bitcast[Float64]()[
-                    b * channels + c
+                var mask_val = channel_mask.data_ptr[DType.float64]()[
+                    unsafe_offset=b * channels + c
                 ]
                 for h in range(height):
                     for w in range(width):
@@ -231,8 +231,8 @@ def dropout2d(
     elif x.dtype() == DType.float16:
         for b in range(batch):
             for c in range(channels):
-                var mask_val = channel_mask._data.bitcast[Float16]()[
-                    b * channels + c
+                var mask_val = channel_mask.data_ptr[DType.float16]()[
+                    unsafe_offset=b * channels + c
                 ]
                 for h in range(height):
                     for w in range(width):

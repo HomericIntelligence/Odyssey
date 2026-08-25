@@ -18,7 +18,7 @@ from odyssey.tensor.tensor_creation import zeros
 def test_refcount_shared_on_as_any() raises:
     """As_any() shares refcount -- both tensors access same data."""
     var t = Tensor[DType.float32]([4])
-    t._data[0] = Scalar[DType.float32](1.5)
+    t._data[unsafe_offset=0] = Scalar[DType.float32](1.5)
 
     var any_t = t.as_any()
 
@@ -62,7 +62,7 @@ def _make_anytensor_from_tensor() raises -> AnyTensor:
     """Helper: create Tensor, convert to AnyTensor, return AnyTensor (Tensor destroyed on return).
     """
     var t = Tensor[DType.float32]([4])
-    t._data[0] = Scalar[DType.float32](0.125)
+    t._data[unsafe_offset=0] = Scalar[DType.float32](0.125)
     return t.as_any()
     # t is destroyed here — ASAP destruction
 
@@ -77,7 +77,7 @@ def test_refcount_survives_tensor_destruction() raises:
 def test_tensor_copy_increments_refcount() raises:
     """Copying a Tensor[dtype] increments shared refcount."""
     var t1 = Tensor[DType.float32]([4])
-    t1._data[0] = Scalar[DType.float32](1.0)
+    t1._data[unsafe_offset=0] = Scalar[DType.float32](1.0)
 
     var t2 = t1  # __copyinit__
     assert_almost_equal(Float32(t2[0]), Float32(1.0), atol=1e-6)

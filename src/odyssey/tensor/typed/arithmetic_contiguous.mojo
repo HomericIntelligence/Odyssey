@@ -18,7 +18,7 @@ def _add_contiguous_typed[
     var size = a.numel()
     var a_ptr = a._data
     var b_ptr = b._data
-    var result_ptr = result._data
+    var result_ptr = result.data_ptr()
     comptime if dtype == DType.float32 or dtype == DType.float64:
         comptime simd_width = simd_width_of[dtype]()
 
@@ -26,14 +26,16 @@ def _add_contiguous_typed[
         def vectorized_add[
             width: Int
         ](idx: Int) {var a_ptr, var b_ptr, var result_ptr}:
-            var a_vec = a_ptr.load[width=width](idx)
-            var b_vec = b_ptr.load[width=width](idx)
-            result_ptr.store[width=width](idx, a_vec + b_vec)
+            var a_vec = a_ptr.unsafe_load[width=width](idx)
+            var b_vec = b_ptr.unsafe_load[width=width](idx)
+            result_ptr.unsafe_store[width=width](idx, a_vec + b_vec)
 
         vectorize[simd_width](size, vectorized_add)
     else:
         for i in range(size):
-            result_ptr[i] = a_ptr[i] + b_ptr[i]
+            result_ptr[unsafe_offset=i] = (
+                a_ptr[unsafe_offset=i] + b_ptr[unsafe_offset=i]
+            )
 
     return result^
 
@@ -47,7 +49,7 @@ def _subtract_contiguous_typed[
     var size = a.numel()
     var a_ptr = a._data
     var b_ptr = b._data
-    var result_ptr = result._data
+    var result_ptr = result.data_ptr()
     comptime if dtype == DType.float32 or dtype == DType.float64:
         comptime simd_width = simd_width_of[dtype]()
 
@@ -55,14 +57,16 @@ def _subtract_contiguous_typed[
         def vectorized_sub[
             width: Int
         ](idx: Int) {var a_ptr, var b_ptr, var result_ptr}:
-            var a_vec = a_ptr.load[width=width](idx)
-            var b_vec = b_ptr.load[width=width](idx)
-            result_ptr.store[width=width](idx, a_vec - b_vec)
+            var a_vec = a_ptr.unsafe_load[width=width](idx)
+            var b_vec = b_ptr.unsafe_load[width=width](idx)
+            result_ptr.unsafe_store[width=width](idx, a_vec - b_vec)
 
         vectorize[simd_width](size, vectorized_sub)
     else:
         for i in range(size):
-            result_ptr[i] = a_ptr[i] - b_ptr[i]
+            result_ptr[unsafe_offset=i] = (
+                a_ptr[unsafe_offset=i] - b_ptr[unsafe_offset=i]
+            )
 
     return result^
 
@@ -76,7 +80,7 @@ def _multiply_contiguous_typed[
     var size = a.numel()
     var a_ptr = a._data
     var b_ptr = b._data
-    var result_ptr = result._data
+    var result_ptr = result.data_ptr()
     comptime if dtype == DType.float32 or dtype == DType.float64:
         comptime simd_width = simd_width_of[dtype]()
 
@@ -84,14 +88,16 @@ def _multiply_contiguous_typed[
         def vectorized_mul[
             width: Int
         ](idx: Int) {var a_ptr, var b_ptr, var result_ptr}:
-            var a_vec = a_ptr.load[width=width](idx)
-            var b_vec = b_ptr.load[width=width](idx)
-            result_ptr.store[width=width](idx, a_vec * b_vec)
+            var a_vec = a_ptr.unsafe_load[width=width](idx)
+            var b_vec = b_ptr.unsafe_load[width=width](idx)
+            result_ptr.unsafe_store[width=width](idx, a_vec * b_vec)
 
         vectorize[simd_width](size, vectorized_mul)
     else:
         for i in range(size):
-            result_ptr[i] = a_ptr[i] * b_ptr[i]
+            result_ptr[unsafe_offset=i] = (
+                a_ptr[unsafe_offset=i] * b_ptr[unsafe_offset=i]
+            )
 
     return result^
 
@@ -105,7 +111,7 @@ def _divide_contiguous_typed[
     var size = a.numel()
     var a_ptr = a._data
     var b_ptr = b._data
-    var result_ptr = result._data
+    var result_ptr = result.data_ptr()
     comptime if dtype == DType.float32 or dtype == DType.float64:
         comptime simd_width = simd_width_of[dtype]()
 
@@ -113,13 +119,15 @@ def _divide_contiguous_typed[
         def vectorized_div[
             width: Int
         ](idx: Int) {var a_ptr, var b_ptr, var result_ptr}:
-            var a_vec = a_ptr.load[width=width](idx)
-            var b_vec = b_ptr.load[width=width](idx)
-            result_ptr.store[width=width](idx, a_vec / b_vec)
+            var a_vec = a_ptr.unsafe_load[width=width](idx)
+            var b_vec = b_ptr.unsafe_load[width=width](idx)
+            result_ptr.unsafe_store[width=width](idx, a_vec / b_vec)
 
         vectorize[simd_width](size, vectorized_div)
     else:
         for i in range(size):
-            result_ptr[i] = a_ptr[i] / b_ptr[i]
+            result_ptr[unsafe_offset=i] = (
+                a_ptr[unsafe_offset=i] / b_ptr[unsafe_offset=i]
+            )
 
     return result^

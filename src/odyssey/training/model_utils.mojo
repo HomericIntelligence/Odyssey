@@ -175,6 +175,18 @@ def get_model_parameter_names(model_type: String) raises -> List[String]:
         names.append("fc3_bias")
         return names^
 
+    elif model_type == "simplecnn":
+        var names = List[String]()
+        names.append("conv1_kernel")
+        names.append("conv1_bias")
+        names.append("conv2_kernel")
+        names.append("conv2_bias")
+        names.append("fc1_weights")
+        names.append("fc1_bias")
+        names.append("fc2_weights")
+        names.append("fc2_bias")
+        return names^
+
     elif model_type == "alexnet":
         var names = List[String]()
         # Conv layers

@@ -400,12 +400,12 @@ def test_depthwise_conv2d_backward_grad_bias_value() raises:
     # grad_bias[c] = sum of grad_output over batch and spatial dims for channel c
     # Since output is 1x1 per channel: grad_bias[c] = grad_output[0, c, 0, 0]
     assert_almost_equal(
-        grads.grad_bias._data.bitcast[Float32]()[0],
+        grads.grad_bias.load[DType.float32](0),
         Float32(0.5),
         tolerance=1e-5,
     )
     assert_almost_equal(
-        grads.grad_bias._data.bitcast[Float32]()[1],
+        grads.grad_bias.load[DType.float32](1),
         Float32(-0.3),
         tolerance=1e-5,
     )
@@ -523,21 +523,21 @@ def test_depthwise_conv2d_backward_full_gradient_pipeline() raises:
     # Verify all three gradient fields contain non-zero values
     var gi_nonzero = False
     for i in range(channels * in_h * in_w):
-        if grads.grad_input._data.bitcast[Float32]()[i] != Float32(0.0):
+        if grads.grad_input.load[DType.float32](i) != Float32(0.0):
             gi_nonzero = True
             break
     assert_equal(gi_nonzero, True)
 
     var gk_nonzero = False
     for i in range(channels * kh * kw):
-        if grads.grad_weights._data.bitcast[Float32]()[i] != Float32(0.0):
+        if grads.grad_weights.load[DType.float32](i) != Float32(0.0):
             gk_nonzero = True
             break
     assert_equal(gk_nonzero, True)
 
     var gb_nonzero = False
     for i in range(channels):
-        if grads.grad_bias._data.bitcast[Float32]()[i] != Float32(0.0):
+        if grads.grad_bias.load[DType.float32](i) != Float32(0.0):
             gb_nonzero = True
             break
     assert_equal(gb_nonzero, True)

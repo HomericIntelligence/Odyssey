@@ -177,10 +177,10 @@ def evaluate_model[
         for i in range(current_batch_size):
             # Find argmax (predicted class)
             var pred_class = 0
-            var max_logit = logits_data[i * num_classes]
+            var max_logit = logits_data[unsafe_offset=i * num_classes]
 
             for j in range(1, num_classes):
-                var logit_val = logits_data[i * num_classes + j]
+                var logit_val = logits_data[unsafe_offset=i * num_classes + j]
                 if logit_val > max_logit:
                     max_logit = logit_val
                     pred_class = j
@@ -296,10 +296,10 @@ def evaluate_model_simple[
         for i in range(current_batch_size):
             # Find argmax (predicted class)
             var pred_class = 0
-            var max_logit = logits_data[i * num_classes]
+            var max_logit = logits_data[unsafe_offset=i * num_classes]
 
             for j in range(1, num_classes):
-                var logit_val = logits_data[i * num_classes + j]
+                var logit_val = logits_data[unsafe_offset=i * num_classes + j]
                 if logit_val > max_logit:
                     max_logit = logit_val
                     pred_class = j
@@ -409,7 +409,9 @@ def evaluate_topk[
             # Get logits for this sample
             var sample_logits = List[Float32]()
             for j in range(num_classes):
-                sample_logits.append(logits_data[i * num_classes + j])
+                sample_logits.append(
+                    logits_data[unsafe_offset=i * num_classes + j]
+                )
 
             # Find indices of top-k values
             var topk_found = False

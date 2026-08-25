@@ -169,6 +169,7 @@ def test_depthwise_conv2d_grad_check() raises:
         )
 
     # ---- grad_x: finite-difference check ----
+    var x_tensor = _make_tensor(x_shape, x_vals)
     var num_grad_x = compute_numerical_gradient(
         _DWInputForward(
             _make_tensor(k_shape, k_vals),
@@ -177,7 +178,7 @@ def test_depthwise_conv2d_grad_check() raises:
             stride,
             padding,
         ),
-        _make_tensor(x_shape, x_vals),
+        x_tensor,
         epsilon=1e-3,
     )
     assert_gradients_close(
@@ -189,6 +190,7 @@ def test_depthwise_conv2d_grad_check() raises:
     )
 
     # ---- grad_weights: finite-difference check ----
+    var k_tensor = _make_tensor(k_shape, k_vals)
     var num_grad_k = compute_numerical_gradient(
         _DWKernelForward(
             _make_tensor(x_shape, x_vals),
@@ -197,7 +199,7 @@ def test_depthwise_conv2d_grad_check() raises:
             stride,
             padding,
         ),
-        _make_tensor(k_shape, k_vals),
+        k_tensor,
         epsilon=1e-3,
     )
     assert_gradients_close(

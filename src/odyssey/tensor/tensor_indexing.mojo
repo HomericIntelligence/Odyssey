@@ -227,7 +227,9 @@ def _getitem_slice_impl(tensor: AnyTensor, slice: Slice) raises -> AnyTensor:
             var src_offset = src_idx * dtype_size
             var dst_offset = i * dtype_size
             for b in range(dtype_size):
-                dst_ptr[dst_offset + b] = src_ptr[src_offset + b]
+                dst_ptr[unsafe_offset=dst_offset + b] = src_ptr[
+                    unsafe_offset=src_offset + b
+                ]
 
         return result^
     else:
@@ -255,6 +257,8 @@ def _getitem_slice_impl(tensor: AnyTensor, slice: Slice) raises -> AnyTensor:
 
         # Copy element (byte-wise)
         for b in range(dtype_size):
-            dst_ptr[dst_offset + b] = src_ptr[src_offset + b]
+            dst_ptr[unsafe_offset=dst_offset + b] = src_ptr[
+                unsafe_offset=src_offset + b
+            ]
 
     return result^

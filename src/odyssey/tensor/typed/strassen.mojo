@@ -27,19 +27,23 @@ def _extract_quadrants_typed[
     var q22 = Tensor[dtype](q_shape)
 
     var src_ptr = src._data
-    var q11_ptr = q11._data
-    var q12_ptr = q12._data
-    var q21_ptr = q21._data
-    var q22_ptr = q22._data
+    var q11_ptr = q11.data_ptr()
+    var q12_ptr = q12.data_ptr()
+    var q21_ptr = q21.data_ptr()
+    var q22_ptr = q22.data_ptr()
 
     for i in range(n_half):
         for j in range(n_half):
-            q11_ptr.store(i * n_half + j, src_ptr.load(i * n + j))
-            q12_ptr.store(i * n_half + j, src_ptr.load(i * n + (j + n_half)))
-            q21_ptr.store(i * n_half + j, src_ptr.load((i + n_half) * n + j))
-            q22_ptr.store(
+            q11_ptr.unsafe_store(i * n_half + j, src_ptr.unsafe_load(i * n + j))
+            q12_ptr.unsafe_store(
+                i * n_half + j, src_ptr.unsafe_load(i * n + (j + n_half))
+            )
+            q21_ptr.unsafe_store(
+                i * n_half + j, src_ptr.unsafe_load((i + n_half) * n + j)
+            )
+            q22_ptr.unsafe_store(
                 i * n_half + j,
-                src_ptr.load((i + n_half) * n + (j + n_half)),
+                src_ptr.unsafe_load((i + n_half) * n + (j + n_half)),
             )
 
     return (q11^, q12^, q21^, q22^)
@@ -61,7 +65,7 @@ def _combine_quadrants_typed[
     c_shape.append(n)
     var result = Tensor[dtype](c_shape)
 
-    var c_ptr = result._data
+    var c_ptr = result.data_ptr()
     var c11_ptr = c11._data
     var c12_ptr = c12._data
     var c21_ptr = c21._data
@@ -69,12 +73,16 @@ def _combine_quadrants_typed[
 
     for i in range(n_half):
         for j in range(n_half):
-            c_ptr.store(i * n + j, c11_ptr.load(i * n_half + j))
-            c_ptr.store(i * n + (j + n_half), c12_ptr.load(i * n_half + j))
-            c_ptr.store((i + n_half) * n + j, c21_ptr.load(i * n_half + j))
-            c_ptr.store(
+            c_ptr.unsafe_store(i * n + j, c11_ptr.unsafe_load(i * n_half + j))
+            c_ptr.unsafe_store(
+                i * n + (j + n_half), c12_ptr.unsafe_load(i * n_half + j)
+            )
+            c_ptr.unsafe_store(
+                (i + n_half) * n + j, c21_ptr.unsafe_load(i * n_half + j)
+            )
+            c_ptr.unsafe_store(
                 (i + n_half) * n + (j + n_half),
-                c22_ptr.load(i * n_half + j),
+                c22_ptr.unsafe_load(i * n_half + j),
             )
 
     return result^
@@ -86,9 +94,9 @@ def _matmul_strassen_copy_result[
     """Copy Strassen result using typed pointers (zero bitcasts)."""
     var src_typed = src.as_tensor[dtype]()
     var dst_typed = dst.as_tensor[dtype]()
-    var src_ptr = src_typed._data
-    var dst_ptr = dst_typed._data
+    var src_ptr = src_typed.data_ptr()
+    var dst_ptr = dst_typed.data_ptr()
     for i in range(m):
         for j in range(n):
             var idx = i * n + j
-            dst_ptr.store(idx, src_ptr.load(idx))
+            dst_ptr.unsafe_store(idx, src_ptr.unsafe_load(idx))

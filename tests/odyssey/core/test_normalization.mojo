@@ -206,7 +206,7 @@ def _check_grad_input_batch_size(batch_size: Int) raises:
         # The denominator collapses to sqrt(eps), making exact gradient matching
         # unreliable. Assert finiteness and non-NaN only.
         for i in range(n_elems):
-            var val = grad_input._data.bitcast[Float32]()[i]
+            var val = grad_input.data_ptr[DType.float32]()[unsafe_offset=i]
             assert_true(
                 val == val, "grad_input should not be NaN (batch_size=1)"
             )
@@ -283,7 +283,7 @@ def _check_grad_gamma_batch_size(batch_size: Int) raises:
     if batch_size == 1:
         # batch_size=1: variance=0 degenerate case — assert finiteness only.
         for i in range(2):
-            var val = grad_gamma._data.bitcast[Float32]()[i]
+            var val = grad_gamma.data_ptr[DType.float32]()[unsafe_offset=i]
             assert_true(
                 val == val, "grad_gamma should not be NaN (batch_size=1)"
             )
@@ -363,7 +363,7 @@ def _check_grad_beta_batch_size(batch_size: Int) raises:
     if batch_size == 1:
         # batch_size=1: variance=0 degenerate case — assert finiteness only.
         for i in range(2):
-            var val = grad_beta._data.bitcast[Float32]()[i]
+            var val = grad_beta.load[DType.float32](i)
             assert_true(
                 val == val, "grad_beta should not be NaN (batch_size=1)"
             )
@@ -464,15 +464,15 @@ def test_batch_norm2d_training_mode() raises:
         momentum=0.1,
         epsilon=1e-5,
     )
-    var output = result2[0]
     var new_mean = result2[1]
-    var new_var = result2[2]
 
     # In training mode, running stats should be updated
     # new_running_mean = (1 - momentum) * old + momentum * batch_mean
     # = 0.9 * 0.0 + 0.1 * 3.5 = 0.35
     assert_almost_equal(
-        new_mean._data.bitcast[Float32]()[0], Float32(0.35), tolerance=1e-4
+        new_mean.load[DType.float32](0),
+        Float32(0.35),
+        tolerance=1e-4,
     )
 
 
@@ -514,10 +514,14 @@ def test_batch_norm2d_inference_mode() raises:
 
     # Running statistics should be unchanged in inference mode
     assert_almost_equal(
-        new_mean._data.bitcast[Float32]()[0], Float32(0.5), tolerance=1e-5
+        new_mean.load[DType.float32](0),
+        Float32(0.5),
+        tolerance=1e-5,
     )
     assert_almost_equal(
-        new_var._data.bitcast[Float32]()[0], Float32(0.25), tolerance=1e-5
+        new_var.load[DType.float32](0),
+        Float32(0.25),
+        tolerance=1e-5,
     )
 
     # Output should use running statistics for normalization
@@ -526,7 +530,9 @@ def test_batch_norm2d_inference_mode() raises:
     # output = gamma * normalized + beta = 1.0 * 1.0 + 0.0 = 1.0
     for i in range(8):
         assert_almost_equal(
-            output._data.bitcast[Float32]()[i], Float32(1.0), tolerance=1e-3
+            output.load[DType.float32](i),
+            Float32(1.0),
+            tolerance=1e-3,
         )
 
 
@@ -575,13 +581,17 @@ def test_batch_norm2d_scale_shift() raises:
     # Check channel 0 values (indices 0-3)
     for i in range(4):
         assert_almost_equal(
-            output._data.bitcast[Float32]()[i], Float32(1.0), tolerance=1e-4
+            output.load[DType.float32](i),
+            Float32(1.0),
+            tolerance=1e-4,
         )
 
     # Check channel 1 values (indices 4-7)
     for i in range(4, 8):
         assert_almost_equal(
-            output._data.bitcast[Float32]()[i], Float32(-1.0), tolerance=1e-4
+            output.load[DType.float32](i),
+            Float32(-1.0),
+            tolerance=1e-4,
         )
 
 
@@ -616,7 +626,7 @@ def test_batch_norm2d_zero_variance() raises:
 
     # All outputs should be finite
     for i in range(2):
-        var val = output._data.bitcast[Float32]()[i]
+        var val = output.load[DType.float32](i)
         assert_true(val == val)  # Not NaN
         assert_true(val > -1e10 and val < 1e10)  # Not infinite
 
@@ -971,8 +981,6 @@ def test_batch_norm2d_backward_training_vs_inference() raises:
     var result9 = batch_norm2d(
         x, gamma, beta, running_mean, running_var, training=False
     )
-    var out_infer = result9[0]
-
     var grad_output = ones_like(out_train)
 
     # Backward passes
@@ -989,8 +997,8 @@ def test_batch_norm2d_backward_training_vs_inference() raises:
     var diff_found = False
     for i in range(8):
         var diff = abs(
-            grad_train._data.bitcast[Float32]()[i]
-            - grad_infer._data.bitcast[Float32]()[i]
+            grad_train.load[DType.float32](i)
+            - grad_infer.load[DType.float32](i)
         )
         if diff > 1e-5:
             diff_found = True
@@ -1125,14 +1133,14 @@ def test_layer_norm_normalization_2d() raises:
     # Check that first sample has approximately zero mean
     var sum1 = Float32(0.0)
     for i in range(4):
-        sum1 += output._data.bitcast[Float32]()[i]
+        sum1 += output.load[DType.float32](i)
     var mean1 = sum1 / 4.0
     assert_almost_equal(mean1, Float32(0.0), tolerance=1e-5)
 
     # Check that second sample has approximately zero mean
     var sum2 = Float32(0.0)
     for i in range(4, 8):
-        sum2 += output._data.bitcast[Float32]()[i]
+        sum2 += output.load[DType.float32](i)
     var mean2 = sum2 / 4.0
     assert_almost_equal(mean2, Float32(0.0), tolerance=1e-5)
 
@@ -1163,13 +1171,19 @@ def test_layer_norm_scale_shift() raises:
     # For zero input with zero mean: normalized = 0
     # output = gamma * 0 + beta = beta
     assert_almost_equal(
-        output._data.bitcast[Float32]()[0], Float32(1.0), tolerance=1e-4
+        output.load[DType.float32](0),
+        Float32(1.0),
+        tolerance=1e-4,
     )
     assert_almost_equal(
-        output._data.bitcast[Float32]()[1], Float32(0.0), tolerance=1e-4
+        output.load[DType.float32](1),
+        Float32(0.0),
+        tolerance=1e-4,
     )
     assert_almost_equal(
-        output._data.bitcast[Float32]()[2], Float32(-1.0), tolerance=1e-4
+        output.load[DType.float32](2),
+        Float32(-1.0),
+        tolerance=1e-4,
     )
 
 
@@ -1190,7 +1204,7 @@ def test_layer_norm_zero_variance() raises:
 
     # All outputs should be finite
     for i in range(6):
-        var val = output._data.bitcast[Float32]()[i]
+        var val = output.load[DType.float32](i)
         assert_true(val == val)  # Not NaN
         assert_true(val > -1e10 and val < 1e10)  # Not infinite
 
@@ -1298,7 +1312,9 @@ def test_layer_norm_backward_grad_beta() raises:
         for b in range(3):
             expected_sum += Float32(b + 1) * Float32(f + 1) * 0.1
         assert_almost_equal(
-            grad_beta._data.bitcast[Float32]()[f], expected_sum, tolerance=1e-4
+            grad_beta.load[DType.float32](f),
+            expected_sum,
+            tolerance=1e-4,
         )
 
 
@@ -1322,13 +1338,13 @@ def test_layer_norm_backward_zero_input() raises:
 
     # All gradients should be finite
     for i in range(8):
-        var val = grad_input._data.bitcast[Float32]()[i]
+        var val = grad_input.load[DType.float32](i)
         assert_true(val == val, "grad_input should not be NaN")
         assert_true(val > -1e10 and val < 1e10, "grad_input should be finite")
 
     for i in range(4):
-        var val_gamma = grad_gamma._data.bitcast[Float32]()[i]
-        var val_beta = grad_beta._data.bitcast[Float32]()[i]
+        var val_gamma = grad_gamma.data_ptr[DType.float32]()[unsafe_offset=i]
+        var val_beta = grad_beta.data_ptr[DType.float32]()[unsafe_offset=i]
         assert_true(val_gamma == val_gamma, "grad_gamma should not be NaN")
         assert_true(val_beta == val_beta, "grad_beta should not be NaN")
 
@@ -1545,15 +1561,19 @@ def test_batch_norm2d_backward_gamma_beta_nonzero() raises:
 
     # grad_beta should be sum of grad_output over (N,H,W) = 2*2*2 = 8 per channel
     assert_almost_equal(
-        grad_beta._data.bitcast[Float32]()[0], Float32(8.0), tolerance=1e-3
+        grad_beta.load[DType.float32](0),
+        Float32(8.0),
+        tolerance=1e-3,
     )
     assert_almost_equal(
-        grad_beta._data.bitcast[Float32]()[1], Float32(8.0), tolerance=1e-3
+        grad_beta.load[DType.float32](1),
+        Float32(8.0),
+        tolerance=1e-3,
     )
 
     # grad_gamma should be non-zero (sum of grad_output * x_hat over N,H,W)
-    var gg0 = grad_gamma._data.bitcast[Float32]()[0]
-    var gg1 = grad_gamma._data.bitcast[Float32]()[1]
+    var gg0 = grad_gamma.load[DType.float32](0)
+    var gg1 = grad_gamma.load[DType.float32](1)
     assert_true(gg0 == gg0, "grad_gamma[0] should not be NaN")
     assert_true(gg1 == gg1, "grad_gamma[1] should not be NaN")
 
@@ -1593,7 +1613,7 @@ def test_batch_norm2d_backward_inference_mode() raises:
 
     # grad_input should be finite and non-zero in inference mode
     for i in range(16):
-        var val = grad_input._data.bitcast[Float32]()[i]
+        var val = grad_input.load[DType.float32](i)
         assert_true(val == val, "Inference mode grad should not be NaN")
 
     print("✓ batch_norm2d_backward inference mode test passed")

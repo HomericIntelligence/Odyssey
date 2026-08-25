@@ -194,7 +194,9 @@ def compute_gradients(
 
     # Compute loss
     var loss_tensor = cross_entropy(logits, labels)
-    var loss = loss_tensor._data.bitcast[Float32]()[0]
+    var loss = loss_tensor.data_ptr[DType.float32]()[
+        unsafe_offset=0
+    ]  # origin-tied (#6963)
 
     # ========== Backward Pass (through all 16 layers) ==========
 
@@ -868,26 +870,32 @@ def main() raises:
         var wanted_batches = max_batches if max_batches > 0 else 3
         var n_smoke = wanted_batches * Int(batch_size)
         train_images = zeros([n_smoke, 3, 32, 32], DType.float32)
-        var img_d = train_images._data.bitcast[Float32]()
+        var img_d = train_images.data_ptr[
+            DType.float32
+        ]()  # origin-tied (#6963)
         for s in range(n_smoke):
             var cls = s % 10
             for i in range(3 * 32 * 32):
-                img_d[s * (3 * 32 * 32) + i] = (
+                img_d[unsafe_offset=s * (3 * 32 * 32) + i] = (
                     Float32(cls) * 0.05 + Float32(i % 5) * 0.01
                 )
         train_labels = zeros([n_smoke, 10], DType.float32)
-        var lbl_d = train_labels._data.bitcast[Float32]()
+        var lbl_d = train_labels.data_ptr[
+            DType.float32
+        ]()  # origin-tied (#6963)
         for s in range(n_smoke):
-            lbl_d[s * 10 + (s % 10)] = Float32(1.0)
+            lbl_d[unsafe_offset=s * 10 + (s % 10)] = Float32(1.0)
         # Reuse the same images for "test" (eval is not asserted here). evaluate()
         # calls evaluate_with_predict, which compares argmax predictions against
         # RAW class-index labels [N] — so test labels are uint8 indices, not the
         # one-hot form the training loss consumes.
         test_images = train_images
         test_labels = zeros([n_smoke], DType.uint8)
-        var test_lbl_d = test_labels._data.bitcast[UInt8]()
+        var test_lbl_d = test_labels.data_ptr[
+            DType.uint8
+        ]()  # origin-tied (#6963)
         for s in range(n_smoke):
-            test_lbl_d[s] = UInt8(s % 10)
+            test_lbl_d[unsafe_offset=s] = UInt8(s % 10)
     else:
         print("Loading CIFAR-10 dataset...")
         var cifar_dataset = CIFAR10Dataset(data_dir)

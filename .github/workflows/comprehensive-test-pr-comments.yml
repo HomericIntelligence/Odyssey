@@ -19,7 +19,7 @@ jobs:
       github.event.workflow_run.event == 'pull_request' ||
       github.event.workflow_run.event == 'workflow_dispatch'
     runs-on: ubuntu-latest
-    timeout-minutes: 130
+    timeout-minutes: 155
     name: "Resolve Comprehensive PR Context"
     permissions:
       actions: read
@@ -454,7 +454,7 @@ jobs:
             try {
               for (
                 let attempt = 0;
-                attempt < 120 && run.status !== 'completed';
+                attempt < 145 && run.status !== 'completed';
                 attempt += 1
               ) {
                 await new Promise(resolve => setTimeout(resolve, 60000));
@@ -489,7 +489,7 @@ jobs:
             }
             if (run.status !== 'completed') {
               await setCurrentSourceFailure(
-                'Comprehensive run did not complete within 120 minutes.',
+                'Comprehensive run did not complete within 145 minutes.',
               );
               return;
             }

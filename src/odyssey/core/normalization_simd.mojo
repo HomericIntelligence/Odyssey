@@ -144,12 +144,15 @@ def _batch_norm2d_fused_inference_float32(
     var width = x._shape[3]
     var spatial_size = height * width
 
-    var x_ptr = x._data.bitcast[Float32]()
-    var gamma_ptr = gamma._data.bitcast[Float32]()
-    var beta_ptr = beta._data.bitcast[Float32]()
-    var running_mean_ptr = running_mean._data.bitcast[Float32]()
-    var running_var_ptr = running_var._data.bitcast[Float32]()
-    var out_ptr = result._data.bitcast[Float32]()
+    var x_ptr = x._data.unsafe_bitcast[Float32]()
+    var gamma_ptr = gamma._data.unsafe_bitcast[Float32]()
+    var beta_ptr = beta._data.unsafe_bitcast[Float32]()
+    var running_mean_ptr = running_mean._data.unsafe_bitcast[Float32]()
+    var running_var_ptr = running_var._data.unsafe_bitcast[Float32]()
+    # Origin-tied pointer (WAR for modular/modular#6963): `result` is an
+    # owned local; a raw `_data` escape can hoist its __deinit__ and free
+    # the buffer while the loop still writes it.
+    var out_ptr = result.data_ptr[DType.float32]()
 
     var eps = Float32(epsilon)
 
@@ -157,10 +160,10 @@ def _batch_norm2d_fused_inference_float32(
     for b in range(batch):
         for c in range(channels):
             # Precompute scale and bias for this channel
-            var mean_val = running_mean_ptr[c]
-            var var_val = running_var_ptr[c]
-            var gamma_val = gamma_ptr[c]
-            var beta_val = beta_ptr[c]
+            var mean_val = running_mean_ptr[unsafe_offset=c]
+            var var_val = running_var_ptr[unsafe_offset=c]
+            var gamma_val = gamma_ptr[unsafe_offset=c]
+            var beta_val = beta_ptr[unsafe_offset=c]
 
             var inv_std = 1.0 / sqrt_scalar_f32(var_val + eps)
             var scale = gamma_val * inv_std
@@ -175,11 +178,11 @@ def _batch_norm2d_fused_inference_float32(
             ](idx: Int) {
                 var x_ptr, var out_ptr, var base_offset, var scale, var bias
             }:
-                var x_vec = x_ptr.load[width=width](base_offset + idx)
+                var x_vec = x_ptr.unsafe_load[width=width](base_offset + idx)
                 var scale_vec = SIMD[DType.float32, width](scale)
                 var bias_vec = SIMD[DType.float32, width](bias)
                 var out_vec = x_vec * scale_vec + bias_vec
-                out_ptr.store[width=width](base_offset + idx, out_vec)
+                out_ptr.unsafe_store[width=width](base_offset + idx, out_vec)
 
             vectorize[simd_width](spatial_size, normalize_kernel)
 
@@ -203,19 +206,22 @@ def _batch_norm2d_fused_inference_float64(
     var width = x._shape[3]
     var spatial_size = height * width
 
-    var x_ptr = x._data.bitcast[Float64]()
-    var gamma_ptr = gamma._data.bitcast[Float64]()
-    var beta_ptr = beta._data.bitcast[Float64]()
-    var running_mean_ptr = running_mean._data.bitcast[Float64]()
-    var running_var_ptr = running_var._data.bitcast[Float64]()
-    var out_ptr = result._data.bitcast[Float64]()
+    var x_ptr = x._data.unsafe_bitcast[Float64]()
+    var gamma_ptr = gamma._data.unsafe_bitcast[Float64]()
+    var beta_ptr = beta._data.unsafe_bitcast[Float64]()
+    var running_mean_ptr = running_mean._data.unsafe_bitcast[Float64]()
+    var running_var_ptr = running_var._data.unsafe_bitcast[Float64]()
+    # Origin-tied pointer (WAR for modular/modular#6963): `result` is an
+    # owned local; a raw `_data` escape can hoist its __deinit__ and free
+    # the buffer while the loop still writes it.
+    var out_ptr = result.data_ptr[DType.float64]()
 
     for b in range(batch):
         for c in range(channels):
-            var mean_val = running_mean_ptr[c]
-            var var_val = running_var_ptr[c]
-            var gamma_val = gamma_ptr[c]
-            var beta_val = beta_ptr[c]
+            var mean_val = running_mean_ptr[unsafe_offset=c]
+            var var_val = running_var_ptr[unsafe_offset=c]
+            var gamma_val = gamma_ptr[unsafe_offset=c]
+            var beta_val = beta_ptr[unsafe_offset=c]
 
             var inv_std = 1.0 / sqrt_scalar_f64(var_val + epsilon)
             var scale = gamma_val * inv_std
@@ -229,11 +235,11 @@ def _batch_norm2d_fused_inference_float64(
             ](idx: Int) {
                 var x_ptr, var out_ptr, var base_offset, var scale, var bias
             }:
-                var x_vec = x_ptr.load[width=width](base_offset + idx)
+                var x_vec = x_ptr.unsafe_load[width=width](base_offset + idx)
                 var scale_vec = SIMD[DType.float64, width](scale)
                 var bias_vec = SIMD[DType.float64, width](bias)
                 var out_vec = x_vec * scale_vec + bias_vec
-                out_ptr.store[width=width](base_offset + idx, out_vec)
+                out_ptr.unsafe_store[width=width](base_offset + idx, out_vec)
 
             vectorize[simd_width](spatial_size, normalize_kernel)
 
@@ -362,30 +368,32 @@ def _batch_norm2d_fused_training_float32(
     var spatial_size = height * width
     var batch_size_f32 = Float32(batch * spatial_size)
 
-    var x_ptr = x._data.bitcast[Float32]()
-    var gamma_ptr = gamma._data.bitcast[Float32]()
-    var beta_ptr = beta._data.bitcast[Float32]()
-    var running_mean_ptr = running_mean._data.bitcast[Float32]()
-    var running_var_ptr = running_var._data.bitcast[Float32]()
+    var x_ptr = x._data.unsafe_bitcast[Float32]()
+    var gamma_ptr = gamma._data.unsafe_bitcast[Float32]()
+    var beta_ptr = beta._data.unsafe_bitcast[Float32]()
+    var running_mean_ptr = running_mean._data.unsafe_bitcast[Float32]()
+    var running_var_ptr = running_var._data.unsafe_bitcast[Float32]()
 
     var output = AnyTensor(x.shape(), x._dtype)
-    var out_ptr = output._data.bitcast[Float32]()
+    # Origin-tied pointers (WAR for modular/modular#6963): `output`,
+    # `new_running_mean/var` are owned locals; raw `_data` escapes can hoist
+    # their __deinit__ and free the buffers while the kernels still write.
+    var out_ptr = output.data_ptr[DType.float32]()
 
     var new_running_mean = zeros_like(running_mean)
     var new_running_var = zeros_like(running_var)
-    var new_mean_ptr = new_running_mean._data.bitcast[Float32]()
-    var new_var_ptr = new_running_var._data.bitcast[Float32]()
+    var new_mean_ptr = new_running_mean.data_ptr[DType.float32]()
+    var new_var_ptr = new_running_var.data_ptr[DType.float32]()
 
     var eps = Float32(epsilon)
     var momentum_f32 = Float32(momentum)
-    var one_minus_momentum = 1.0 - momentum_f32
 
     # Pass 1: Compute batch mean and variance using scalar loops
     # (SIMD for reading vectors but scalar reduction to avoid capture issues)
     var batch_mean = zeros([channels], DType.float32)
     var batch_var = zeros([channels], DType.float32)
-    var batch_mean_ptr = batch_mean._data.bitcast[Float32]()
-    var batch_var_ptr = batch_var._data.bitcast[Float32]()
+    var batch_mean_ptr = batch_mean.data_ptr[DType.float32]()
+    var batch_var_ptr = batch_var.data_ptr[DType.float32]()
 
     # Compute mean: sum all values per channel, then divide by batch size
     for c in range(channels):
@@ -396,33 +404,38 @@ def _batch_norm2d_fused_training_float32(
             for h_idx in range(height):
                 for w_idx in range(width):
                     channel_sum = (
-                        channel_sum + x_ptr[base_offset + h_idx * width + w_idx]
+                        channel_sum
+                        + x_ptr[
+                            unsafe_offset=base_offset + h_idx * width + w_idx
+                        ]
                     )
 
-        batch_mean_ptr[c] = channel_sum / batch_size_f32
+        batch_mean_ptr[unsafe_offset=c] = channel_sum / batch_size_f32
 
     # Compute variance: sum squared differences from mean
     for c in range(channels):
-        var mean_val = batch_mean_ptr[c]
+        var mean_val = batch_mean_ptr[unsafe_offset=c]
         var channel_sq_diff_sum = Float32(0.0)
 
         for b in range(batch):
             var base_offset = b * (channels * spatial_size) + c * spatial_size
             for h_idx in range(height):
                 for w_idx in range(width):
-                    var x_val = x_ptr[base_offset + h_idx * width + w_idx]
+                    var x_val = x_ptr[
+                        unsafe_offset=base_offset + h_idx * width + w_idx
+                    ]
                     var diff = x_val - mean_val
                     channel_sq_diff_sum = channel_sq_diff_sum + diff * diff
 
-        batch_var_ptr[c] = channel_sq_diff_sum / batch_size_f32
+        batch_var_ptr[unsafe_offset=c] = channel_sq_diff_sum / batch_size_f32
 
     # Pass 2: Normalize, apply gamma/beta, update running stats
     for b in range(batch):
         for c in range(channels):
-            var mean_val = batch_mean_ptr[c]
-            var var_val = batch_var_ptr[c]
-            var gamma_val = gamma_ptr[c]
-            var beta_val = beta_ptr[c]
+            var mean_val = batch_mean_ptr[unsafe_offset=c]
+            var var_val = batch_var_ptr[unsafe_offset=c]
+            var gamma_val = gamma_ptr[unsafe_offset=c]
+            var beta_val = beta_ptr[unsafe_offset=c]
 
             var inv_std = 1.0 / sqrt_scalar_f32(var_val + eps)
             var scale = gamma_val * inv_std
@@ -436,25 +449,25 @@ def _batch_norm2d_fused_training_float32(
             ](idx: Int) {
                 var x_ptr, var out_ptr, var base_offset, var scale, var bias
             }:
-                var x_vec = x_ptr.load[width=width](base_offset + idx)
+                var x_vec = x_ptr.unsafe_load[width=width](base_offset + idx)
                 var scale_vec = SIMD[DType.float32, width](scale)
                 var bias_vec = SIMD[DType.float32, width](bias)
                 var out_vec = x_vec * scale_vec + bias_vec
-                out_ptr.store[width=width](base_offset + idx, out_vec)
+                out_ptr.unsafe_store[width=width](base_offset + idx, out_vec)
 
             vectorize[simd_width](spatial_size, normalize_kernel)
 
     # Update running statistics (happens once per channel)
     for c in range(channels):
-        var old_mean = running_mean_ptr[c]
-        var old_var = running_var_ptr[c]
-        var batch_mean_val = batch_mean_ptr[c]
-        var batch_var_val = batch_var_ptr[c]
+        var old_mean = running_mean_ptr[unsafe_offset=c]
+        var old_var = running_var_ptr[unsafe_offset=c]
+        var batch_mean_val = batch_mean_ptr[unsafe_offset=c]
+        var batch_var_val = batch_var_ptr[unsafe_offset=c]
 
-        new_mean_ptr[c] = (
+        new_mean_ptr[unsafe_offset=c] = (
             1.0 - momentum_f32
         ) * old_mean + momentum_f32 * batch_mean_val
-        new_var_ptr[c] = (
+        new_var_ptr[unsafe_offset=c] = (
             1.0 - momentum_f32
         ) * old_var + momentum_f32 * batch_var_val
 
@@ -483,25 +496,26 @@ def _batch_norm2d_fused_training_float64(
     var spatial_size = height * width
     var batch_size_f64 = Float64(batch * spatial_size)
 
-    var x_ptr = x._data.bitcast[Float64]()
-    var gamma_ptr = gamma._data.bitcast[Float64]()
-    var beta_ptr = beta._data.bitcast[Float64]()
-    var running_mean_ptr = running_mean._data.bitcast[Float64]()
-    var running_var_ptr = running_var._data.bitcast[Float64]()
+    var x_ptr = x._data.unsafe_bitcast[Float64]()
+    var gamma_ptr = gamma._data.unsafe_bitcast[Float64]()
+    var beta_ptr = beta._data.unsafe_bitcast[Float64]()
+    var running_mean_ptr = running_mean._data.unsafe_bitcast[Float64]()
+    var running_var_ptr = running_var._data.unsafe_bitcast[Float64]()
 
     var output = AnyTensor(x.shape(), x._dtype)
-    var out_ptr = output._data.bitcast[Float64]()
+    # Origin-tied pointers (WAR for modular/modular#6963): owned locals.
+    var out_ptr = output.data_ptr[DType.float64]()
 
     var new_running_mean = zeros_like(running_mean)
     var new_running_var = zeros_like(running_var)
-    var new_mean_ptr = new_running_mean._data.bitcast[Float64]()
-    var new_var_ptr = new_running_var._data.bitcast[Float64]()
+    var new_mean_ptr = new_running_mean.data_ptr[DType.float64]()
+    var new_var_ptr = new_running_var.data_ptr[DType.float64]()
 
     # Pass 1: Compute batch mean
     var batch_mean = zeros([channels], DType.float64)
     var batch_var = zeros([channels], DType.float64)
-    var batch_mean_ptr = batch_mean._data.bitcast[Float64]()
-    var batch_var_ptr = batch_var._data.bitcast[Float64]()
+    var batch_mean_ptr = batch_mean.data_ptr[DType.float64]()
+    var batch_var_ptr = batch_var.data_ptr[DType.float64]()
 
     # Compute mean: sum all values per channel, then divide by batch size
     for c in range(channels):
@@ -512,33 +526,38 @@ def _batch_norm2d_fused_training_float64(
             for h_idx in range(height):
                 for w_idx in range(width):
                     channel_sum = (
-                        channel_sum + x_ptr[base_offset + h_idx * width + w_idx]
+                        channel_sum
+                        + x_ptr[
+                            unsafe_offset=base_offset + h_idx * width + w_idx
+                        ]
                     )
 
-        batch_mean_ptr[c] = channel_sum / batch_size_f64
+        batch_mean_ptr[unsafe_offset=c] = channel_sum / batch_size_f64
 
     # Pass 1b: Compute batch variance
     for c in range(channels):
-        var mean_val = batch_mean_ptr[c]
+        var mean_val = batch_mean_ptr[unsafe_offset=c]
         var channel_sq_diff_sum = Float64(0.0)
 
         for b in range(batch):
             var base_offset = b * (channels * spatial_size) + c * spatial_size
             for h_idx in range(height):
                 for w_idx in range(width):
-                    var x_val = x_ptr[base_offset + h_idx * width + w_idx]
+                    var x_val = x_ptr[
+                        unsafe_offset=base_offset + h_idx * width + w_idx
+                    ]
                     var diff = x_val - mean_val
                     channel_sq_diff_sum = channel_sq_diff_sum + diff * diff
 
-        batch_var_ptr[c] = channel_sq_diff_sum / batch_size_f64
+        batch_var_ptr[unsafe_offset=c] = channel_sq_diff_sum / batch_size_f64
 
     # Pass 2: Normalize and update running stats
     for b in range(batch):
         for c in range(channels):
-            var mean_val = batch_mean_ptr[c]
-            var var_val = batch_var_ptr[c]
-            var gamma_val = gamma_ptr[c]
-            var beta_val = beta_ptr[c]
+            var mean_val = batch_mean_ptr[unsafe_offset=c]
+            var var_val = batch_var_ptr[unsafe_offset=c]
+            var gamma_val = gamma_ptr[unsafe_offset=c]
+            var beta_val = beta_ptr[unsafe_offset=c]
 
             var inv_std = 1.0 / sqrt_scalar_f64(var_val + epsilon)
             var scale = gamma_val * inv_std
@@ -552,25 +571,27 @@ def _batch_norm2d_fused_training_float64(
             ](idx: Int) {
                 var x_ptr, var out_ptr, var base_offset, var scale, var bias
             }:
-                var x_vec = x_ptr.load[width=width](base_offset + idx)
+                var x_vec = x_ptr.unsafe_load[width=width](base_offset + idx)
                 var scale_vec = SIMD[DType.float64, width](scale)
                 var bias_vec = SIMD[DType.float64, width](bias)
                 var out_vec = x_vec * scale_vec + bias_vec
-                out_ptr.store[width=width](base_offset + idx, out_vec)
+                out_ptr.unsafe_store[width=width](base_offset + idx, out_vec)
 
             vectorize[simd_width](spatial_size, normalize_kernel)
 
     # Update running statistics
     for c in range(channels):
-        var old_mean = running_mean_ptr[c]
-        var old_var = running_var_ptr[c]
-        var batch_mean_val = batch_mean_ptr[c]
-        var batch_var_val = batch_var_ptr[c]
+        var old_mean = running_mean_ptr[unsafe_offset=c]
+        var old_var = running_var_ptr[unsafe_offset=c]
+        var batch_mean_val = batch_mean_ptr[unsafe_offset=c]
+        var batch_var_val = batch_var_ptr[unsafe_offset=c]
 
-        new_mean_ptr[c] = (
+        new_mean_ptr[unsafe_offset=c] = (
             1.0 - momentum
         ) * old_mean + momentum * batch_mean_val
-        new_var_ptr[c] = (1.0 - momentum) * old_var + momentum * batch_var_val
+        new_var_ptr[unsafe_offset=c] = (
+            1.0 - momentum
+        ) * old_var + momentum * batch_var_val
 
     return Tuple[AnyTensor, AnyTensor, AnyTensor](
         output^, new_running_mean^, new_running_var^

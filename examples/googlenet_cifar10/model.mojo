@@ -569,11 +569,11 @@ def concatenate_depthwise(
     var result = zeros(result_shape, t1.dtype())
 
     # Copy data from each tensor
-    var result_data = result._data.bitcast[Float32]()
-    var t1_data = t1._data.bitcast[Float32]()
-    var t2_data = t2._data.bitcast[Float32]()
-    var t3_data = t3._data.bitcast[Float32]()
-    var t4_data = t4._data.bitcast[Float32]()
+    var result_data = result.data_ptr[DType.float32]()
+    var t1_data = t1._data.unsafe_bitcast[Float32]()
+    var t2_data = t2._data.unsafe_bitcast[Float32]()
+    var t3_data = t3._data.unsafe_bitcast[Float32]()
+    var t4_data = t4._data.unsafe_bitcast[Float32]()
 
     var hw = height * width
 
@@ -583,21 +583,27 @@ def concatenate_depthwise(
             for i in range(hw):
                 var src_idx = ((b * c1 + c) * hw) + i
                 var dst_idx = ((b * total_channels + c) * hw) + i
-                result_data[dst_idx] = t1_data[src_idx]
+                result_data[unsafe_offset=dst_idx] = t1_data[
+                    unsafe_offset=src_idx
+                ]
 
         # Copy t2 channels (offset by c1)
         for c in range(c2):
             for i in range(hw):
                 var src_idx = ((b * c2 + c) * hw) + i
                 var dst_idx = ((b * total_channels + (c1 + c)) * hw) + i
-                result_data[dst_idx] = t2_data[src_idx]
+                result_data[unsafe_offset=dst_idx] = t2_data[
+                    unsafe_offset=src_idx
+                ]
 
         # Copy t3 channels (offset by c1+c2)
         for c in range(c3):
             for i in range(hw):
                 var src_idx = ((b * c3 + c) * hw) + i
                 var dst_idx = ((b * total_channels + (c1 + c2 + c)) * hw) + i
-                result_data[dst_idx] = t3_data[src_idx]
+                result_data[unsafe_offset=dst_idx] = t3_data[
+                    unsafe_offset=src_idx
+                ]
 
         # Copy t4 channels (offset by c1+c2+c3)
         for c in range(c4):
@@ -606,7 +612,9 @@ def concatenate_depthwise(
                 var dst_idx = (
                     (b * total_channels + (c1 + c2 + c3 + c)) * hw
                 ) + i
-                result_data[dst_idx] = t4_data[src_idx]
+                result_data[unsafe_offset=dst_idx] = t4_data[
+                    unsafe_offset=src_idx
+                ]
 
     return result
 
@@ -653,11 +661,11 @@ def concatenate_depthwise_backward(
     var g3 = zeros([batch_size, c3, height, width], grad_output.dtype())
     var g4 = zeros([batch_size, c4, height, width], grad_output.dtype())
 
-    var go_data = grad_output._data.bitcast[Float32]()
-    var g1_data = g1._data.bitcast[Float32]()
-    var g2_data = g2._data.bitcast[Float32]()
-    var g3_data = g3._data.bitcast[Float32]()
-    var g4_data = g4._data.bitcast[Float32]()
+    var go_data = grad_output._data.unsafe_bitcast[Float32]()
+    var g1_data = g1.data_ptr[DType.float32]()
+    var g2_data = g2.data_ptr[DType.float32]()
+    var g3_data = g3.data_ptr[DType.float32]()
+    var g4_data = g4.data_ptr[DType.float32]()
 
     for b in range(batch_size):
         # Branch 1 channels: [0, c1)
@@ -665,21 +673,21 @@ def concatenate_depthwise_backward(
             for i in range(hw):
                 var src_idx = ((b * total_channels + c) * hw) + i
                 var dst_idx = ((b * c1 + c) * hw) + i
-                g1_data[dst_idx] = go_data[src_idx]
+                g1_data[unsafe_offset=dst_idx] = go_data[unsafe_offset=src_idx]
 
         # Branch 2 channels: [c1, c1+c2)
         for c in range(c2):
             for i in range(hw):
                 var src_idx = ((b * total_channels + (c1 + c)) * hw) + i
                 var dst_idx = ((b * c2 + c) * hw) + i
-                g2_data[dst_idx] = go_data[src_idx]
+                g2_data[unsafe_offset=dst_idx] = go_data[unsafe_offset=src_idx]
 
         # Branch 3 channels: [c1+c2, c1+c2+c3)
         for c in range(c3):
             for i in range(hw):
                 var src_idx = ((b * total_channels + (c1 + c2 + c)) * hw) + i
                 var dst_idx = ((b * c3 + c) * hw) + i
-                g3_data[dst_idx] = go_data[src_idx]
+                g3_data[unsafe_offset=dst_idx] = go_data[unsafe_offset=src_idx]
 
         # Branch 4 channels: [c1+c2+c3, total)
         for c in range(c4):
@@ -688,7 +696,7 @@ def concatenate_depthwise_backward(
                     (b * total_channels + (c1 + c2 + c3 + c)) * hw
                 ) + i
                 var dst_idx = ((b * c4 + c) * hw) + i
-                g4_data[dst_idx] = go_data[src_idx]
+                g4_data[unsafe_offset=dst_idx] = go_data[unsafe_offset=src_idx]
 
     return (g1^, g2^, g3^, g4^)
 
@@ -1351,13 +1359,13 @@ struct GoogLeNet:
         var channels = out.shape()[1]
         var flattened_shape: List[Int] = [batch_size, channels]
         var flattened = zeros(flattened_shape, out.dtype())
-        var flattened_data = flattened._data.bitcast[Float32]()
-        var out_data = out._data.bitcast[Float32]()
+        var flattened_data = flattened.data_ptr[DType.float32]()
+        var out_data = out.data_ptr[DType.float32]()
 
         for b in range(batch_size):
             for c in range(channels):
-                flattened_data[b * channels + c] = out_data[
-                    ((b * channels + c) * 1) + 0
+                flattened_data[unsafe_offset=b * channels + c] = out_data[
+                    unsafe_offset=((b * channels + c) * 1) + 0
                 ]
 
         # Dropout (p=0.4)

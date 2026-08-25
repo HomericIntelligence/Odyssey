@@ -9,7 +9,7 @@ Tensor[dtype] typed wrappers provide type-safe access.
 AnyTensor versions dispatch to typed implementations via ordinal-based table.
 """
 
-from std.algorithm import parallelize
+from std.runtime.asyncrt import TaskGroup, parallelism_level
 from std.collections import List
 
 from odyssey.tensor.any_tensor import AnyTensor
@@ -119,19 +119,23 @@ def _conv2d_kernel[
                                                 + kw
                                             )
 
-                                            var in_val = x._data.bitcast[
+                                            var in_val = x._data.unsafe_bitcast[
                                                 Scalar[dtype]
-                                            ]()[in_idx]
-                                            var k_val = kernel._data.bitcast[
-                                                Scalar[dtype]
-                                            ]()[k_idx]
+                                            ]()[unsafe_offset=in_idx]
+                                            var k_val = (
+                                                kernel._data.unsafe_bitcast[
+                                                    Scalar[dtype]
+                                                ]()[unsafe_offset=k_idx]
+                                            )
 
                                             sum_val += Float32(
                                                 in_val
                                             ) * Float32(k_val)
 
                             # Add bias
-                            var b_val = bias._data.bitcast[Scalar[dtype]]()[oc]
+                            var b_val = bias._data.unsafe_bitcast[
+                                Scalar[dtype]
+                            ]()[unsafe_offset=oc]
                             sum_val += Float32(b_val)
 
                             # Write to output
@@ -183,17 +187,21 @@ def _conv2d_kernel[
                                                 + kw
                                             )
 
-                                            var in_val = x._data.bitcast[
+                                            var in_val = x._data.unsafe_bitcast[
                                                 Scalar[dtype]
-                                            ]()[in_idx]
-                                            var k_val = kernel._data.bitcast[
-                                                Scalar[dtype]
-                                            ]()[k_idx]
+                                            ]()[unsafe_offset=in_idx]
+                                            var k_val = (
+                                                kernel._data.unsafe_bitcast[
+                                                    Scalar[dtype]
+                                                ]()[unsafe_offset=k_idx]
+                                            )
 
                                             sum_val += in_val * k_val
 
                             # Add bias
-                            var b_val = bias._data.bitcast[Scalar[dtype]]()[oc]
+                            var b_val = bias._data.unsafe_bitcast[
+                                Scalar[dtype]
+                            ]()[unsafe_offset=oc]
                             sum_val += b_val
 
                             # Write to output
@@ -205,7 +213,31 @@ def _conv2d_kernel[
                             )
                             output._set_float64(out_idx, Float64(sum_val))
 
-        parallelize[conv_batch](batch)
+        # FM-G WAR (modular/modular#6965): on Mojo 1.0.0 a capturing closure
+        # passed as a function-value parameter has its captures destroyed at
+        # closure-construction (premature __deinit__ -> UAF). Dispatch inline
+        # via TaskGroup so the closure never crosses a function-value boundary.
+        var num_workers = parallelism_level()
+        if num_workers > batch:
+            num_workers = batch
+        if num_workers <= 1:
+            for b in range(batch):
+                conv_batch(b)
+        else:
+            var chunk_size, extra_items = divmod(batch, num_workers)
+
+            @parameter
+            async def conv_worker(thread_idx: Int):
+                var start_idx = thread_idx * chunk_size + min(
+                    thread_idx, extra_items
+                )
+                for i in range(chunk_size + Int(thread_idx < extra_items)):
+                    conv_batch(start_idx + i)
+
+            var tg = TaskGroup()
+            for t in range(num_workers):
+                tg.create_task(conv_worker(t))
+            tg.wait()
     else:
         # Sequential convolution for small batches
         for b in range(batch):
@@ -256,19 +288,23 @@ def _conv2d_kernel[
                                                 + kw
                                             )
 
-                                            var in_val = x._data.bitcast[
+                                            var in_val = x._data.unsafe_bitcast[
                                                 Scalar[dtype]
-                                            ]()[in_idx]
-                                            var k_val = kernel._data.bitcast[
-                                                Scalar[dtype]
-                                            ]()[k_idx]
+                                            ]()[unsafe_offset=in_idx]
+                                            var k_val = (
+                                                kernel._data.unsafe_bitcast[
+                                                    Scalar[dtype]
+                                                ]()[unsafe_offset=k_idx]
+                                            )
 
                                             sum_val += Float32(
                                                 in_val
                                             ) * Float32(k_val)
 
                             # Add bias
-                            var b_val = bias._data.bitcast[Scalar[dtype]]()[oc]
+                            var b_val = bias._data.unsafe_bitcast[
+                                Scalar[dtype]
+                            ]()[unsafe_offset=oc]
                             sum_val += Float32(b_val)
 
                             # Write to output
@@ -320,17 +356,21 @@ def _conv2d_kernel[
                                                 + kw
                                             )
 
-                                            var in_val = x._data.bitcast[
+                                            var in_val = x._data.unsafe_bitcast[
                                                 Scalar[dtype]
-                                            ]()[in_idx]
-                                            var k_val = kernel._data.bitcast[
-                                                Scalar[dtype]
-                                            ]()[k_idx]
+                                            ]()[unsafe_offset=in_idx]
+                                            var k_val = (
+                                                kernel._data.unsafe_bitcast[
+                                                    Scalar[dtype]
+                                                ]()[unsafe_offset=k_idx]
+                                            )
 
                                             sum_val += in_val * k_val
 
                             # Add bias
-                            var b_val = bias._data.bitcast[Scalar[dtype]]()[oc]
+                            var b_val = bias._data.unsafe_bitcast[
+                                Scalar[dtype]
+                            ]()[unsafe_offset=oc]
                             sum_val += b_val
 
                             # Write to output
@@ -579,9 +619,9 @@ def _conv2d_grad_input[
                                         + ow
                                     )
                                     var grad_out_val = (
-                                        grad_output._data.bitcast[
+                                        grad_output._data.unsafe_bitcast[
                                             Scalar[dtype]
-                                        ]()[grad_out_idx]
+                                        ]()[unsafe_offset=grad_out_idx]
                                     )
                                     var k_idx = (
                                         oc * (in_channels * kH * kW)
@@ -589,9 +629,9 @@ def _conv2d_grad_input[
                                         + kh * kW
                                         + kw
                                     )
-                                    var k_val = kernel._data.bitcast[
+                                    var k_val = kernel._data.unsafe_bitcast[
                                         Scalar[dtype]
-                                    ]()[k_idx]
+                                    ]()[unsafe_offset=k_idx]
                                     grad_sum += grad_out_val * k_val
                     var grad_in_idx = (
                         b * (in_channels * in_height * in_width)
@@ -686,9 +726,9 @@ def _conv2d_backward_kernel[
                                         + in_h * in_width
                                         + in_w
                                     )
-                                    var in_val = x._data.bitcast[
+                                    var in_val = x._data.unsafe_bitcast[
                                         Scalar[dtype]
-                                    ]()[in_idx]
+                                    ]()[unsafe_offset=in_idx]
 
                                     # Get grad_output value
                                     var grad_out_idx = (
@@ -703,9 +743,9 @@ def _conv2d_backward_kernel[
                                         + ow
                                     )
                                     var grad_out_val = (
-                                        grad_output._data.bitcast[
+                                        grad_output._data.unsafe_bitcast[
                                             Scalar[dtype]
-                                        ]()[grad_out_idx]
+                                        ]()[unsafe_offset=grad_out_idx]
                                     )
 
                                     grad_sum += in_val * grad_out_val
@@ -736,9 +776,9 @@ def _conv2d_backward_kernel[
                         + oh * out_width
                         + ow
                     )
-                    var grad_out_val = grad_output._data.bitcast[
+                    var grad_out_val = grad_output._data.unsafe_bitcast[
                         Scalar[dtype]
-                    ]()[grad_out_idx]
+                    ]()[unsafe_offset=grad_out_idx]
                     bias_grad_sum += grad_out_val
 
         grad_bias._set_float64(oc, Float64(bias_grad_sum))
@@ -1056,17 +1096,19 @@ def depthwise_conv2d(
                                 # Get kernel value (kernel shape is [channels, 1, kH, kW])
                                 var k_idx = c * (1 * kH * kW) + kh * kW + kw
 
-                                var in_val = x_cont._data.bitcast[Float32]()[
-                                    in_idx
-                                ]
-                                var k_val = kernel_cont._data.bitcast[
+                                var in_val = x_cont._data.unsafe_bitcast[
                                     Float32
-                                ]()[k_idx]
+                                ]()[unsafe_offset=in_idx]
+                                var k_val = kernel_cont._data.unsafe_bitcast[
+                                    Float32
+                                ]()[unsafe_offset=k_idx]
 
                                 sum_val += in_val * k_val
 
                     # Add bias
-                    var b_val = bias_cont._data.bitcast[Float32]()[c]
+                    var b_val = bias_cont._data.unsafe_bitcast[Float32]()[
+                        unsafe_offset=c
+                    ]
                     sum_val += b_val
 
                     # Write to output
@@ -1209,16 +1251,16 @@ def depthwise_conv2d_backward(
                                     + ow
                                 )
                                 var grad_out_val = (
-                                    grad_output_cont._data.bitcast[Float32]()[
-                                        grad_out_idx
-                                    ]
+                                    grad_output_cont._data.unsafe_bitcast[
+                                        Float32
+                                    ]()[unsafe_offset=grad_out_idx]
                                 )
 
                                 # Get kernel value (shape: [channels, 1, kH, kW])
                                 var k_idx = c * (1 * kH * kW) + kh * kW + kw
-                                var k_val = kernel_cont._data.bitcast[
+                                var k_val = kernel_cont._data.unsafe_bitcast[
                                     Float32
-                                ]()[k_idx]
+                                ]()[unsafe_offset=k_idx]
 
                                 grad_sum += grad_out_val * k_val
 
@@ -1258,9 +1300,9 @@ def depthwise_conv2d_backward(
                                     + in_h * in_width
                                     + in_w
                                 )
-                                var in_val = x_cont._data.bitcast[Float32]()[
-                                    in_idx
-                                ]
+                                var in_val = x_cont._data.unsafe_bitcast[
+                                    Float32
+                                ]()[unsafe_offset=in_idx]
 
                                 # Get grad_output value
                                 var grad_out_idx = (
@@ -1270,9 +1312,9 @@ def depthwise_conv2d_backward(
                                     + ow
                                 )
                                 var grad_out_val = (
-                                    grad_output_cont._data.bitcast[Float32]()[
-                                        grad_out_idx
-                                    ]
+                                    grad_output_cont._data.unsafe_bitcast[
+                                        Float32
+                                    ]()[unsafe_offset=grad_out_idx]
                                 )
 
                                 grad_sum += in_val * grad_out_val
@@ -1298,9 +1340,9 @@ def depthwise_conv2d_backward(
                         + oh * out_width
                         + ow
                     )
-                    var grad_out_val = grad_output_cont._data.bitcast[
+                    var grad_out_val = grad_output_cont._data.unsafe_bitcast[
                         Float32
-                    ]()[grad_out_idx]
+                    ]()[unsafe_offset=grad_out_idx]
                     bias_grad_sum += grad_out_val
 
         grad_bias[c] = Float32(bias_grad_sum)

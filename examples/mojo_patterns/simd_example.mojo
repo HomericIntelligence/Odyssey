@@ -31,17 +31,17 @@ def simple_simd_add(tensor1: AnyTensor, tensor2: AnyTensor) raises -> AnyTensor:
     if tensor1._dtype == DType.float32:
         comptime simd_width = simd_width_of[DType.float32]()
         var size = tensor1.numel()
-        var ptr1 = tensor1._data.bitcast[Float32]()
-        var ptr2 = tensor2._data.bitcast[Float32]()
-        var out_ptr = result._data.bitcast[Float32]()
+        var ptr1 = tensor1._data.unsafe_bitcast[Float32]()
+        var ptr2 = tensor2._data.unsafe_bitcast[Float32]()
+        var out_ptr = result._data.unsafe_bitcast[Float32]()
 
         @always_inline
         def vectorized_add[
             width: Int
         ](idx: Int) {var ptr1, var ptr2, var out_ptr}:
-            var a = ptr1.load[width=width](idx)
-            var b = ptr2.load[width=width](idx)
-            out_ptr.store[width=width](idx, a + b)
+            var a = ptr1.unsafe_load[width=width](idx)
+            var b = ptr2.unsafe_load[width=width](idx)
+            out_ptr.unsafe_store[width=width](idx, a + b)
 
         vectorize[simd_width](size, vectorized_add)
 

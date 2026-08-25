@@ -33,7 +33,7 @@ Example:
 from odyssey.tensor.any_tensor import AnyTensor
 
 
-trait Differentiable(ImplicitlyDestructible):
+trait Differentiable(Deinitable):
     """Components that support automatic differentiation.
 
     Implement this trait for all neural network layers and operations
@@ -275,13 +275,13 @@ trait Composable(Differentiable):
         ```
     """
 
-    def compose[T: Differentiable & Copyable & Movable](self, other: T) raises:
+    def compose[T: Differentiable & Copyable](self, other: T) raises:
         """Compose this component with another.
 
         NOTE: The compose method signature is intentionally incomplete because Mojo's
         current type system limitations prevent returning ComposedOp[Self, T]. The trait
         `Self` type does not automatically satisfy the required trait constraints
-        (Differentiable & Copyable & Movable) needed by ComposedOp.
+        (Differentiable & Copyable) needed by ComposedOp.
 
         However, ComposedOp itself is fully implemented and can be used directly:
         ```
@@ -305,8 +305,8 @@ trait Composable(Differentiable):
 
 
 struct ComposedOp[
-    F: Differentiable & Copyable & Movable,
-    S: Differentiable & Copyable & Movable,
+    F: Differentiable & Copyable,
+    S: Differentiable & Copyable,
 ](Composable, Differentiable):
     """Composition of two differentiable operations.
 
@@ -501,7 +501,7 @@ trait Trainable:
 # ============================================================================
 
 
-trait Model(ImplicitlyDestructible):
+trait Model(Deinitable):
     """Neural network model interface for generic TrainingLoop.
 
     Defines the contract for models that can be trained using TrainingLoop.
@@ -567,7 +567,7 @@ trait Model(ImplicitlyDestructible):
         ...
 
 
-trait Loss(ImplicitlyDestructible):
+trait Loss(Deinitable):
     """Loss function interface for generic TrainingLoop.
 
     Defines the contract for loss functions that measure prediction error.
@@ -600,7 +600,7 @@ trait Loss(ImplicitlyDestructible):
         ...
 
 
-trait Optimizer(ImplicitlyDestructible):
+trait Optimizer(Deinitable):
     """Optimizer interface for generic TrainingLoop.
 
     Defines the contract for optimization algorithms that update parameters.

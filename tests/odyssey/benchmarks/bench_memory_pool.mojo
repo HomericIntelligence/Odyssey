@@ -16,7 +16,7 @@ def bench_pool_small_allocations() raises:
     """Benchmark pool vs malloc for small allocations (64-1024 bytes)."""
     print("Benchmark: Small allocations (64-1024 bytes)")
 
-    var sizes = [64, 128, 256, 512, 1024]
+    var sizes: List[Int] = [64, 128, 256, 512, 1024]
     var iterations = 1000
 
     for size in sizes:
@@ -51,7 +51,7 @@ def bench_pool_medium_allocations() raises:
     print("")
     print("Benchmark: Medium allocations (2KB-16KB)")
 
-    var sizes = [2048, 4096, 8192, 16384]
+    var sizes: List[Int] = [2048, 4096, 8192, 16384]
     var iterations = 500
 
     for size in sizes:

@@ -225,27 +225,41 @@ def evaluate_accuracy(
     # Handle int32 labels (most common)
     if predictions.dtype() == DType.int32 and labels.dtype() == DType.int32:
         for i in range(n):
-            if pred_ptr.bitcast[Int32]()[i] == label_ptr.bitcast[Int32]()[i]:
+            if (
+                pred_ptr.unsafe_bitcast[Int32]()[unsafe_offset=i]
+                == label_ptr.unsafe_bitcast[Int32]()[unsafe_offset=i]
+            ):
                 correct += 1
     elif predictions.dtype() == DType.int64 and labels.dtype() == DType.int64:
         for i in range(n):
-            if pred_ptr.bitcast[Int64]()[i] == label_ptr.bitcast[Int64]()[i]:
+            if (
+                pred_ptr.unsafe_bitcast[Int64]()[unsafe_offset=i]
+                == label_ptr.unsafe_bitcast[Int64]()[unsafe_offset=i]
+            ):
                 correct += 1
     elif (
         predictions.dtype() == DType.float32 and labels.dtype() == DType.float32
     ):
         # Sometimes predictions are stored as float (argmax returns int as float)
         for i in range(n):
-            var pred_val = Int(pred_ptr.bitcast[Float32]()[i])
-            var label_val = Int(label_ptr.bitcast[Float32]()[i])
+            var pred_val = Int(
+                pred_ptr.unsafe_bitcast[Float32]()[unsafe_offset=i]
+            )
+            var label_val = Int(
+                label_ptr.unsafe_bitcast[Float32]()[unsafe_offset=i]
+            )
             if pred_val == label_val:
                 correct += 1
     elif (
         predictions.dtype() == DType.float64 and labels.dtype() == DType.float64
     ):
         for i in range(n):
-            var pred_val = Int(pred_ptr.bitcast[Float64]()[i])
-            var label_val = Int(label_ptr.bitcast[Float64]()[i])
+            var pred_val = Int(
+                pred_ptr.unsafe_bitcast[Float64]()[unsafe_offset=i]
+            )
+            var label_val = Int(
+                label_ptr.unsafe_bitcast[Float64]()[unsafe_offset=i]
+            )
             if pred_val == label_val:
                 correct += 1
     else:
@@ -302,26 +316,40 @@ def count_correct(predictions: AnyTensor, labels: AnyTensor) raises -> Int:
 
     if predictions.dtype() == DType.int32 and labels.dtype() == DType.int32:
         for i in range(n):
-            if pred_ptr.bitcast[Int32]()[i] == label_ptr.bitcast[Int32]()[i]:
+            if (
+                pred_ptr.unsafe_bitcast[Int32]()[unsafe_offset=i]
+                == label_ptr.unsafe_bitcast[Int32]()[unsafe_offset=i]
+            ):
                 correct += 1
     elif predictions.dtype() == DType.int64 and labels.dtype() == DType.int64:
         for i in range(n):
-            if pred_ptr.bitcast[Int64]()[i] == label_ptr.bitcast[Int64]()[i]:
+            if (
+                pred_ptr.unsafe_bitcast[Int64]()[unsafe_offset=i]
+                == label_ptr.unsafe_bitcast[Int64]()[unsafe_offset=i]
+            ):
                 correct += 1
     elif (
         predictions.dtype() == DType.float32 and labels.dtype() == DType.float32
     ):
         for i in range(n):
-            var pred_val = Int(pred_ptr.bitcast[Float32]()[i])
-            var label_val = Int(label_ptr.bitcast[Float32]()[i])
+            var pred_val = Int(
+                pred_ptr.unsafe_bitcast[Float32]()[unsafe_offset=i]
+            )
+            var label_val = Int(
+                label_ptr.unsafe_bitcast[Float32]()[unsafe_offset=i]
+            )
             if pred_val == label_val:
                 correct += 1
     elif (
         predictions.dtype() == DType.float64 and labels.dtype() == DType.float64
     ):
         for i in range(n):
-            var pred_val = Int(pred_ptr.bitcast[Float64]()[i])
-            var label_val = Int(label_ptr.bitcast[Float64]()[i])
+            var pred_val = Int(
+                pred_ptr.unsafe_bitcast[Float64]()[unsafe_offset=i]
+            )
+            var label_val = Int(
+                label_ptr.unsafe_bitcast[Float64]()[unsafe_offset=i]
+            )
             if pred_val == label_val:
                 correct += 1
     else:

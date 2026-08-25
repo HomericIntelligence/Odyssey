@@ -53,13 +53,19 @@ def test_fast_path_values_3d() raises:
     assert_equal(shape[2], 4)
 
     # Row 2 starts at flat index 2*3*4 = 24 in the original tensor
-    var data_ptr = sliced._data.bitcast[Float32]()
-    assert_almost_equal(Float64(data_ptr[0]), 24.0, Float64(1e-5))
-    assert_almost_equal(Float64(data_ptr[1]), 25.0, Float64(1e-5))
-    assert_almost_equal(Float64(data_ptr[11]), 35.0, Float64(1e-5))
+    var data_ptr = sliced.data_ptr[DType.float32]()
+    assert_almost_equal(Float64(data_ptr[unsafe_offset=0]), 24.0, Float64(1e-5))
+    assert_almost_equal(Float64(data_ptr[unsafe_offset=1]), 25.0, Float64(1e-5))
+    assert_almost_equal(
+        Float64(data_ptr[unsafe_offset=11]), 35.0, Float64(1e-5)
+    )
     # Row 3 (second row of slice) starts at 3*3*4 = 36
-    assert_almost_equal(Float64(data_ptr[12]), 36.0, Float64(1e-5))
-    assert_almost_equal(Float64(data_ptr[23]), 47.0, Float64(1e-5))
+    assert_almost_equal(
+        Float64(data_ptr[unsafe_offset=12]), 36.0, Float64(1e-5)
+    )
+    assert_almost_equal(
+        Float64(data_ptr[unsafe_offset=23]), 47.0, Float64(1e-5)
+    )
 
 
 def test_fast_path_matches_element_wise() raises:
@@ -77,14 +83,14 @@ def test_fast_path_matches_element_wise() raises:
     var fast = t[1:5, :, :]
 
     # Manually verify every element equals t[row+1, col, ch]
-    var fast_ptr = fast._data.bitcast[Float32]()
+    var fast_ptr = fast.data_ptr[DType.float32]()
     for row in range(4):
         for col in range(4):
             for ch in range(3):
                 var fast_idx = row * 4 * 3 + col * 3 + ch
                 var src_idx = (row + 1) * 4 * 3 + col * 3 + ch
                 assert_almost_equal(
-                    Float64(fast_ptr[fast_idx]),
+                    Float64(fast_ptr[unsafe_offset=fast_idx]),
                     Float64(src_idx),
                     Float64(1e-5),
                 )
@@ -106,14 +112,14 @@ def test_slow_path_inner_dim_slice() raises:
     assert_equal(shape[2], 3)
 
     # sliced[0, 0, :] = t3d[0, 1, :] = [3, 4, 5]
-    var data_ptr = sliced._data.bitcast[Float32]()
-    assert_almost_equal(Float64(data_ptr[0]), 3.0, Float64(1e-5))
-    assert_almost_equal(Float64(data_ptr[1]), 4.0, Float64(1e-5))
-    assert_almost_equal(Float64(data_ptr[2]), 5.0, Float64(1e-5))
+    var data_ptr = sliced.data_ptr[DType.float32]()
+    assert_almost_equal(Float64(data_ptr[unsafe_offset=0]), 3.0, Float64(1e-5))
+    assert_almost_equal(Float64(data_ptr[unsafe_offset=1]), 4.0, Float64(1e-5))
+    assert_almost_equal(Float64(data_ptr[unsafe_offset=2]), 5.0, Float64(1e-5))
     # sliced[0, 1, :] = t3d[0, 2, :] = [6, 7, 8]
-    assert_almost_equal(Float64(data_ptr[3]), 6.0, Float64(1e-5))
-    assert_almost_equal(Float64(data_ptr[4]), 7.0, Float64(1e-5))
-    assert_almost_equal(Float64(data_ptr[5]), 8.0, Float64(1e-5))
+    assert_almost_equal(Float64(data_ptr[unsafe_offset=3]), 6.0, Float64(1e-5))
+    assert_almost_equal(Float64(data_ptr[unsafe_offset=4]), 7.0, Float64(1e-5))
+    assert_almost_equal(Float64(data_ptr[unsafe_offset=5]), 8.0, Float64(1e-5))
 
 
 def test_fast_path_dtype_float64() raises:
@@ -131,9 +137,11 @@ def test_fast_path_dtype_float64() raises:
     assert_equal(shape[2], 2)
 
     # First element is 0.0, last element of slice is index 11
-    var data_ptr = sliced._data.bitcast[Float64]()
-    assert_almost_equal(Float64(data_ptr[0]), 0.0, Float64(1e-10))
-    assert_almost_equal(Float64(data_ptr[11]), 11.0, Float64(1e-10))
+    var data_ptr = sliced.data_ptr[DType.float64]()
+    assert_almost_equal(Float64(data_ptr[unsafe_offset=0]), 0.0, Float64(1e-10))
+    assert_almost_equal(
+        Float64(data_ptr[unsafe_offset=11]), 11.0, Float64(1e-10)
+    )
 
 
 def main() raises:

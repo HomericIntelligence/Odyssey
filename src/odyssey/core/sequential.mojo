@@ -42,7 +42,7 @@ from odyssey.core.module import Module
 
 
 struct Sequential2[T0: Module & Movable, T1: Module & Movable](
-    ImplicitlyDestructible, Movable
+    Deinitable, Movable
 ):
     """Two-layer sequential module container.
 
@@ -124,7 +124,7 @@ struct Sequential2[T0: Module & Movable, T1: Module & Movable](
 
 struct Sequential3[
     T0: Module & Movable, T1: Module & Movable, T2: Module & Movable
-](ImplicitlyDestructible, Movable):
+](Deinitable, Movable):
     """Three-layer sequential module container.
 
     Chains three Module-conforming layers in order: 0 -> 1 -> 2.
@@ -226,7 +226,7 @@ struct Sequential4[
     T1: Module & Movable,
     T2: Module & Movable,
     T3: Module & Movable,
-](ImplicitlyDestructible, Movable):
+](Deinitable, Movable):
     """Four-layer sequential module container.
 
     Chains four Module-conforming layers in order: 0 -> 1 -> 2 -> 3.
@@ -341,7 +341,7 @@ struct Sequential5[
     T2: Module & Movable,
     T3: Module & Movable,
     T4: Module & Movable,
-](ImplicitlyDestructible, Movable):
+](Deinitable, Movable):
     """Five-layer sequential module container.
 
     Chains five Module-conforming layers in order: 0 -> 1 -> 2 -> 3 -> 4.

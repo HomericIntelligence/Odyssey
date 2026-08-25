@@ -65,9 +65,11 @@ def create_demo_dataset(
     var labels = zeros(label_shape, DType.float32)
 
     # Fill labels with one-hot encoding (sample 0 -> class 0, sample 1 -> class 1, etc.)
-    var labels_ptr = labels._data.bitcast[Float32]()
+    var labels_ptr = labels._data.unsafe_bitcast[Float32]()
     for i in range(num_samples):
-        labels_ptr[i * num_classes + (i % num_classes)] = Float32(1.0)
+        labels_ptr[unsafe_offset=i * num_classes + (i % num_classes)] = Float32(
+            1.0
+        )
 
     print(
         "Creating synthetic dataset: "

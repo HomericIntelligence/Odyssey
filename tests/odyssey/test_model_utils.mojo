@@ -132,6 +132,18 @@ def test_get_vgg16_parameter_names() raises:
     assert_equal(names[31], "fc3_bias", "Last param should be fc3_bias")
 
 
+def test_get_simplecnn_parameter_names() raises:
+    """Test parameter naming for the MNIST SimpleCNN."""
+    var names = get_model_parameter_names("simplecnn")
+
+    assert_equal(len(names), 8, "SimpleCNN should have 8 parameters")
+
+    assert_equal(names[0], "conv1_kernel", "First param should be conv1_kernel")
+    assert_equal(names[3], "conv2_bias", "Fourth param should be conv2_bias")
+    assert_equal(names[4], "fc1_weights", "Fifth param should be fc1_weights")
+    assert_equal(names[7], "fc2_bias", "Last param should be fc2_bias")
+
+
 def test_validate_shapes_matching() raises:
     """Test shape validation with matching tensors."""
     # Create matching tensors
@@ -245,6 +257,7 @@ def main() raises:
     test_get_lenet5_parameter_names()
     test_get_alexnet_parameter_names()
     test_get_vgg16_parameter_names()
+    test_get_simplecnn_parameter_names()
     test_validate_shapes_matching()
     test_validate_shapes_rank_mismatch()
     test_validate_shapes_dimension_mismatch()

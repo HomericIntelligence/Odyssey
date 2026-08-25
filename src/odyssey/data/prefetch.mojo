@@ -111,9 +111,9 @@ struct PrefetchBuffer(Copyable, Movable):
         self.batches = List[Batch]()
 
 
-struct PrefetchDataLoader[
-    D: Dataset & Copyable & Movable, S: Sampler & Copyable & Movable
-](Copyable, Movable):
+struct PrefetchDataLoader[D: Dataset & Copyable, S: Sampler & Copyable](
+    Copyable, Movable
+):
     """Data loader with batch prefetching.
 
     Wraps a BatchLoader and pre-computes batches ahead of consumption.

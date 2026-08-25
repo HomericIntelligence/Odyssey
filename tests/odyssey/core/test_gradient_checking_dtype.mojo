@@ -153,9 +153,8 @@ def test_composite_relu_multiply() raises:
     var input_a = full(shape, 2.0, DType.float32)
     var input_b = full(shape, 3.0, DType.float32)
     var fwd = _CompositeReluMulFwd(input_b)
-    check_gradient(
-        fwd, _CompositeReluMulBwd(input_b), input_a, _ones_grad(fwd(input_a))
-    )
+    var g_out = _ones_grad(fwd(input_a))
+    check_gradient(fwd, _CompositeReluMulBwd(input_b), input_a, g_out)
 
 
 def test_linear_gradient_fp32() raises:

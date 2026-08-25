@@ -22,6 +22,8 @@ Example:
    ```
 """
 
+from std.math import pow, sqrt
+
 
 # ============================================================================
 # Scalar Helper Functions
@@ -45,7 +47,10 @@ def sqrt_scalar_f32(x: Float32) -> Float32:
        var result = sqrt_scalar_f32(Float32(4.0))  # 2.0
        ```
     """
-    return x**0.5
+    # NOTE (modular/modular#6940): `x**0.5` fails to compile on Mojo 1.0.0
+    # stable (SIMD width=1 pow constraint failure); std.math.sqrt works for
+    # every float dtype.
+    return sqrt(x)
 
 
 @always_inline
@@ -65,7 +70,7 @@ def sqrt_scalar_f64(x: Float64) -> Float64:
        var result = sqrt_scalar_f64(4.0)  # 2.0
        ```
     """
-    return x**0.5
+    return sqrt(x)
 
 
 @always_inline
@@ -86,7 +91,9 @@ def pow_scalar_f32(x: Float32, y: Float32) -> Float32:
        var result = pow_scalar_f32(Float32(2.0), Float32(3.0))  # 8.0
        ```
     """
-    return x**y
+    # NOTE (modular/modular#6940): `x**y` fails to compile on Mojo 1.0.0
+    # stable for Scalar[float*]; std.math.pow works for every float dtype.
+    return pow(x, y)
 
 
 @always_inline
@@ -107,4 +114,4 @@ def pow_scalar_f64(x: Float64, y: Float64) -> Float64:
        var result = pow_scalar_f64(2.0, 3.0)  # 8.0
        ```
     """
-    return x**y
+    return pow(x, y)

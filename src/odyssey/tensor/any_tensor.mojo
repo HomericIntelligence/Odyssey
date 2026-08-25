@@ -11,7 +11,7 @@ Compliance:
 
 Architecture:
 - Dynamic shapes: 0D scalars to N-D tensors with runtime-determined dimensions
-- Type-erased storage: UnsafePointer enables dtype flexibility
+- Type-erased storage: Pointer enables dtype flexibility
 - Row-major memory layout (C-order) for efficient access patterns
 - Memory-safe via Mojo's ownership and borrow checking
 
@@ -44,7 +44,8 @@ Reference: https://data-apis.org/array-api/latest/API_specification/index.html
 """
 
 from std.collections import List
-from std.memory import UnsafePointer, memset_zero, alloc, bitcast
+from std.memory import Pointer, unsafe_memset_zero, bitcast
+from std.memory.alloc import unsafe_alloc
 from std.math import ceildiv
 from std.hashlib.hasher import Hasher
 from std.io import Writer
@@ -98,7 +99,7 @@ struct AnyTensor(
         to safely share data. Memory is freed only when the last reference is destroyed.
 
         Attributes:
-            _data: UnsafePointer to raw byte storage (type-erased).
+            _data: Pointer to raw byte storage (type-erased).
             _shape: List storing the shape dimensions.
             _strides: List storing the stride for each dimension (in elements).
             _dtype: The data type of tensor elements.
@@ -118,10 +119,10 @@ struct AnyTensor(
             print(a.numel())  # 12.
     """
 
-    var _data: UnsafePointer[UInt8, origin=MutAnyOrigin]
+    var _data: Pointer[UInt8, origin=MutUntrackedOrigin]
     """Raw byte storage for tensor elements. For a slice view this is offset
     into the parent's buffer, so it must NOT be passed to `free()`."""
-    var _base_data: UnsafePointer[UInt8, origin=MutAnyOrigin]
+    var _base_data: Pointer[UInt8, origin=MutUntrackedOrigin]
     """The original allocation pointer returned by `pooled_alloc`. Always the
     address to free at refcount 0, regardless of `_is_view`. For owners this
     equals `_data`; for views it points at the parent's base allocation."""
@@ -135,7 +136,7 @@ struct AnyTensor(
     """Total number of elements."""
     var _is_view: Bool
     """Whether this tensor shares data with another."""
-    var _refcount: UnsafePointer[Int, origin=MutAnyOrigin]
+    var _refcount: Pointer[Int, origin=MutUntrackedOrigin]
     """Reference count for shared memory management."""
     var _original_numel_quantized: Int
     """Original element count before quantization padding."""
@@ -412,14 +413,14 @@ struct AnyTensor(
     def __init__(
         out self,
         *,
-        shared_data: UnsafePointer[UInt8, origin=MutAnyOrigin],
-        base_data: UnsafePointer[UInt8, origin=MutAnyOrigin],
+        shared_data: Pointer[UInt8, origin=MutUntrackedOrigin],
+        base_data: Pointer[UInt8, origin=MutUntrackedOrigin],
         shape: List[Int],
         strides: List[Int],
         dtype: DType,
         numel: Int,
         is_view: Bool,
-        refcount: UnsafePointer[Int, origin=MutAnyOrigin],
+        refcount: Pointer[Int, origin=MutUntrackedOrigin],
         original_numel_quantized: Int,
         allocated_size: Int,
     ):
@@ -484,23 +485,34 @@ struct AnyTensor(
         # Increment reference count (shared ownership).
         # _refcount is always allocated by every initializing constructor;
         # the previous null-check was a defensive holdover from pre-1.0 when
-        # UnsafePointer was nullable by default.
+        # Pointer was nullable by default.
         self._refcount[] += 1
 
-    def __init__(out self, *, deinit take: Self):
-        """Move constructor - transfers ownership without refcount change."""
-        self._data = take._data
-        self._base_data = take._base_data
-        self._shape = take._shape^
-        self._strides = take._strides^
-        self._dtype = take._dtype
-        self._numel = take._numel
-        self._is_view = take._is_view
-        self._refcount = take._refcount
-        self._original_numel_quantized = take._original_numel_quantized
-        self._allocated_size = take._allocated_size
+    def __init__(out self, *, deinit move: Self):
+        """Move constructor - transfers ownership without refcount change.
 
-    def __del__(deinit self):
+        NOTE (Mojo 1.0.0 regression, modular/modular#6939): whether the
+        moved-from source's `__deinit__` runs is code-shape-dependent. Simple
+        shapes (param moves, `var x = src`) correctly skip it; RETURN moves
+        (`return r^`, `return Pair()`) run it, so the shared refcount cell is
+        decremented once for the destination and once for the moved-from
+        source -> premature free -> use-after-free on the returned value.
+        See docs/dev/reproducers/repro_uaf_return_move.mojo and
+        modular/modular#6939 for the minimal reproducer. Fixed upstream;
+        do NOT reintroduce the refcount-sentinel workaround here.
+        """
+        self._data = move._data
+        self._base_data = move._base_data
+        self._shape = move._shape^
+        self._strides = move._strides^
+        self._dtype = move._dtype
+        self._numel = move._numel
+        self._is_view = move._is_view
+        self._refcount = move._refcount
+        self._original_numel_quantized = move._original_numel_quantized
+        self._allocated_size = move._allocated_size
+
+    def __deinit__(deinit self):
         """Destructor - decrements ref count, frees if last reference.
 
         Uses reference counting to safely manage shared ownership.
@@ -519,7 +531,7 @@ struct AnyTensor(
             # whichever reference is last (owner OR view) must release the
             # shared allocation — a view can outlive the owner that created it.
             pooled_free(self._base_data, self._allocated_size)
-            self._refcount.free()
+            self._refcount.unsafe_free()
 
     def copy(self) -> Self:
         """Create a shared-ownership copy with reference counting.
@@ -528,23 +540,25 @@ struct AnyTensor(
         Increments the reference count to track shared ownership.
         This prevents double-free and enables safe view semantics.
         """
-        from std.memory import alloc as mem_alloc
+        from std.memory.alloc import unsafe_alloc as mem_alloc
 
         var ptr = mem_alloc[AnyTensor](1)
-        ptr[0]._data = self._data
-        ptr[0]._base_data = self._base_data
-        ptr[0]._shape = self._shape.copy()
-        ptr[0]._strides = self._strides.copy()
-        ptr[0]._dtype = self._dtype
-        ptr[0]._numel = self._numel
-        ptr[0]._is_view = self._is_view
-        ptr[0]._refcount = self._refcount
-        ptr[0]._original_numel_quantized = self._original_numel_quantized
-        ptr[0]._allocated_size = self._allocated_size
+        ptr[unsafe_offset=0]._data = self._data
+        ptr[unsafe_offset=0]._base_data = self._base_data
+        ptr[unsafe_offset=0]._shape = self._shape.copy()
+        ptr[unsafe_offset=0]._strides = self._strides.copy()
+        ptr[unsafe_offset=0]._dtype = self._dtype
+        ptr[unsafe_offset=0]._numel = self._numel
+        ptr[unsafe_offset=0]._is_view = self._is_view
+        ptr[unsafe_offset=0]._refcount = self._refcount
+        ptr[
+            unsafe_offset=0
+        ]._original_numel_quantized = self._original_numel_quantized
+        ptr[unsafe_offset=0]._allocated_size = self._allocated_size
         # Increment reference count (shared ownership).
         self._refcount[] += 1
-        var result = ptr.take_pointee()
-        ptr.free()
+        var result = ptr.unsafe_take_pointee()
+        ptr.unsafe_free()
         return result
 
     def _get_dtype_size(self) -> Int:
@@ -578,13 +592,13 @@ struct AnyTensor(
     def _alloc_storage(
         total_bytes: Int,
     ) raises -> Tuple[
-        UnsafePointer[UInt8, origin=MutAnyOrigin],
-        UnsafePointer[Int, origin=MutAnyOrigin],
+        Pointer[UInt8, origin=MutUntrackedOrigin],
+        Pointer[Int, origin=MutUntrackedOrigin],
         Int,
     ]:
         """Allocate raw byte storage + refcount cell for an AnyTensor.
 
-        Centralizes the `pooled_alloc` + `alloc[Int](1)` + `refcount[] = 1`
+        Centralizes the `pooled_alloc` + `unsafe_alloc[Int](1)` + `refcount[] = 1`
         pattern shared by every initializing constructor. Also enforces the
         MAX_TENSOR_BYTES guard so no constructor can skip it.
 
@@ -606,7 +620,7 @@ struct AnyTensor(
                 + " bytes"
             )
         var data = pooled_alloc(total_bytes)
-        var refcount = alloc[Int](1)
+        var refcount = unsafe_alloc[Int](1)
         refcount[] = 1
         return (data, refcount, total_bytes)
 
@@ -978,7 +992,7 @@ struct AnyTensor(
         if self._dtype == DType.float16:
             var dtype_size = self._get_dtype_size()
             var offset = idx * dtype_size
-            var ptr = (self._data + offset).bitcast[UInt16]()
+            var ptr = self._data.unsafe_offset(offset).unsafe_bitcast[UInt16]()
             ptr[] = value
         else:
             self._set_int64(idx, Int64(Int(value)))
@@ -994,7 +1008,7 @@ struct AnyTensor(
         if self._dtype == DType.float32:
             var dtype_size = self._get_dtype_size()
             var offset = idx * dtype_size
-            var ptr = (self._data + offset).bitcast[UInt32]()
+            var ptr = self._data.unsafe_offset(offset).unsafe_bitcast[UInt32]()
             ptr[] = value
         else:
             self._set_int64(idx, Int64(Int(value)))
@@ -1010,7 +1024,7 @@ struct AnyTensor(
         if self._dtype == DType.float64:
             var dtype_size = self._get_dtype_size()
             var offset = idx * dtype_size
-            var ptr = (self._data + offset).bitcast[UInt64]()
+            var ptr = self._data.unsafe_offset(offset).unsafe_bitcast[UInt64]()
             ptr[] = value
         else:
             self._set_int64(idx, Int64(Int(value)))
@@ -1260,7 +1274,7 @@ struct AnyTensor(
                     break
 
         if can_use_memcpy and result_numel > 0:
-            # Fast-path: use memcpy for contiguous first-axis slice
+            # Fast-path: use unsafe_memcpy for contiguous first-axis slice
             var dtype_size = self._get_dtype_size()
             var src_ptr = self._data
             var dst_ptr = result._data
@@ -1271,15 +1285,15 @@ struct AnyTensor(
             # Copy each row contiguously
             var src_offset = starts[0] * stride_numel * dtype_size
             for i in range(result_shape[0]):
-                var src_addr = (
-                    src_ptr
-                    + src_offset
-                    + i * steps[0] * stride_numel * dtype_size
+                var src_addr = src_ptr.unsafe_offset(
+                    src_offset + i * steps[0] * stride_numel * dtype_size
                 )
-                var dst_addr = dst_ptr + i * stride_numel * dtype_size
-                # memcpy semantics: copy stride_numel elements
+                var dst_addr = dst_ptr.unsafe_offset(
+                    i * stride_numel * dtype_size
+                )
+                # unsafe_memcpy semantics: copy stride_numel elements
                 for b in range(stride_numel * dtype_size):
-                    dst_addr[b] = src_addr[b]
+                    dst_addr[unsafe_offset=b] = src_addr[unsafe_offset=b]
         else:
             # Slow-path: copy each element individually (stride-aware)
             var dtype_size = self._get_dtype_size()
@@ -1300,7 +1314,9 @@ struct AnyTensor(
                 var src_offset = src_flat * dtype_size
                 var dst_offset = out_flat * dtype_size
                 for b in range(dtype_size):
-                    dst_ptr[dst_offset + b] = src_ptr[src_offset + b]
+                    dst_ptr[unsafe_offset=dst_offset + b] = src_ptr[
+                        unsafe_offset=src_offset + b
+                    ]
 
         return result^
 
@@ -1317,24 +1333,24 @@ struct AnyTensor(
         var offset = index * dtype_size
 
         if self._dtype == DType.float16:
-            var ptr = (self._data + offset).bitcast[Float16]()
+            var ptr = self._data.unsafe_offset(offset).unsafe_bitcast[Float16]()
             return ptr[].cast[DType.float64]()
         elif self._dtype == DType.bfloat16:
             # BF16 occupies the upper 16 bits of Float32 (same sign + exponent layout).
             # Read raw UInt16 bits and reconstruct Float32 via bitcast to preserve all
             # NaN mantissa bits — numeric cast via Float32(BFloat16) may canonicalize NaN.
-            var raw_ptr = (self._data + offset).bitcast[UInt16]()
+            var raw_ptr = self._data.unsafe_offset(offset).unsafe_bitcast[
+                UInt16
+            ]()
             var raw: UInt16 = raw_ptr[]
             var f32_bits: UInt32 = UInt32(raw) << 16
-            var f32_val = UnsafePointer[UInt32, MutAnyOrigin](
-                to=f32_bits
-            ).bitcast[Float32]()[]
+            var f32_val = Pointer(to=f32_bits).unsafe_bitcast[Float32]()[]
             return Float64(f32_val)
         elif self._dtype == DType.float32:
-            var ptr = (self._data + offset).bitcast[Float32]()
+            var ptr = self._data.unsafe_offset(offset).unsafe_bitcast[Float32]()
             return ptr[].cast[DType.float64]()
         elif self._dtype == DType.float64:
-            var ptr = (self._data + offset).bitcast[Float64]()
+            var ptr = self._data.unsafe_offset(offset).unsafe_bitcast[Float64]()
             return ptr[]
         else:
             # For integer types, cast to float64
@@ -1351,16 +1367,18 @@ struct AnyTensor(
         var offset = index * dtype_size
 
         if self._dtype == DType.float16:
-            var ptr = (self._data + offset).bitcast[Float16]()
+            var ptr = self._data.unsafe_offset(offset).unsafe_bitcast[Float16]()
             ptr[] = value.cast[DType.float16]()
         elif self._dtype == DType.bfloat16:
-            var ptr = (self._data + offset).bitcast[BFloat16]()
+            var ptr = self._data.unsafe_offset(offset).unsafe_bitcast[
+                BFloat16
+            ]()
             ptr[] = BFloat16(Float32(value))
         elif self._dtype == DType.float32:
-            var ptr = (self._data + offset).bitcast[Float32]()
+            var ptr = self._data.unsafe_offset(offset).unsafe_bitcast[Float32]()
             ptr[] = value.cast[DType.float32]()
         elif self._dtype == DType.float64:
-            var ptr = (self._data + offset).bitcast[Float64]()
+            var ptr = self._data.unsafe_offset(offset).unsafe_bitcast[Float64]()
             ptr[] = value
         else:
             # For integer types, truncate Float64 to Int64 and delegate
@@ -1383,16 +1401,18 @@ struct AnyTensor(
         var offset = index * dtype_size
 
         if self._dtype == DType.float16:
-            var ptr = (self._data + offset).bitcast[Float16]()
+            var ptr = self._data.unsafe_offset(offset).unsafe_bitcast[Float16]()
             return ptr[].cast[DType.float32]()
         elif self._dtype == DType.float32:
-            var ptr = (self._data + offset).bitcast[Float32]()
+            var ptr = self._data.unsafe_offset(offset).unsafe_bitcast[Float32]()
             return ptr[]
         elif self._dtype == DType.float64:
-            var ptr = (self._data + offset).bitcast[Float64]()
+            var ptr = self._data.unsafe_offset(offset).unsafe_bitcast[Float64]()
             return ptr[].cast[DType.float32]()
         elif self._dtype == DType.bfloat16:
-            var ptr = (self._data + offset).bitcast[BFloat16]()
+            var ptr = self._data.unsafe_offset(offset).unsafe_bitcast[
+                BFloat16
+            ]()
             return ptr[].cast[DType.float32]()
         else:
             # For integer types, cast to float32
@@ -1414,16 +1434,18 @@ struct AnyTensor(
         var offset = index * dtype_size
 
         if self._dtype == DType.float16:
-            var ptr = (self._data + offset).bitcast[Float16]()
+            var ptr = self._data.unsafe_offset(offset).unsafe_bitcast[Float16]()
             ptr[] = value.cast[DType.float16]()
         elif self._dtype == DType.float32:
-            var ptr = (self._data + offset).bitcast[Float32]()
+            var ptr = self._data.unsafe_offset(offset).unsafe_bitcast[Float32]()
             ptr[] = value
         elif self._dtype == DType.float64:
-            var ptr = (self._data + offset).bitcast[Float64]()
+            var ptr = self._data.unsafe_offset(offset).unsafe_bitcast[Float64]()
             ptr[] = value.cast[DType.float64]()
         elif self._dtype == DType.bfloat16:
-            var ptr = (self._data + offset).bitcast[BFloat16]()
+            var ptr = self._data.unsafe_offset(offset).unsafe_bitcast[
+                BFloat16
+            ]()
             ptr[] = value.cast[DType.bfloat16]()
         else:
             # For integer types, truncate Float32 to Int64 and delegate
@@ -1442,31 +1464,33 @@ struct AnyTensor(
         var offset = index * dtype_size
 
         if self._dtype == DType.int8:
-            var ptr = (self._data + offset).bitcast[Int8]()
+            var ptr = self._data.unsafe_offset(offset).unsafe_bitcast[Int8]()
             return ptr[].cast[DType.int64]()
         elif self._dtype == DType.int16:
-            var ptr = (self._data + offset).bitcast[Int16]()
+            var ptr = self._data.unsafe_offset(offset).unsafe_bitcast[Int16]()
             return ptr[].cast[DType.int64]()
         elif self._dtype == DType.int32:
-            var ptr = (self._data + offset).bitcast[Int32]()
+            var ptr = self._data.unsafe_offset(offset).unsafe_bitcast[Int32]()
             return ptr[].cast[DType.int64]()
         elif self._dtype == DType.int64:
-            var ptr = (self._data + offset).bitcast[Int64]()
+            var ptr = self._data.unsafe_offset(offset).unsafe_bitcast[Int64]()
             return ptr[]
         elif self._dtype == DType.uint8:
-            var ptr = (self._data + offset).bitcast[UInt8]()
+            var ptr = self._data.unsafe_offset(offset).unsafe_bitcast[UInt8]()
             return ptr[].cast[DType.int64]()
         elif self._dtype == DType.uint16:
-            var ptr = (self._data + offset).bitcast[UInt16]()
+            var ptr = self._data.unsafe_offset(offset).unsafe_bitcast[UInt16]()
             return ptr[].cast[DType.int64]()
         elif self._dtype == DType.uint32:
-            var ptr = (self._data + offset).bitcast[UInt32]()
+            var ptr = self._data.unsafe_offset(offset).unsafe_bitcast[UInt32]()
             return ptr[].cast[DType.int64]()
         elif self._dtype == DType.uint64:
-            var ptr = (self._data + offset).bitcast[UInt64]()
+            var ptr = self._data.unsafe_offset(offset).unsafe_bitcast[UInt64]()
             return ptr[].cast[DType.int64]()
         elif self._dtype == DType.bool:
-            var ptr = (self._data + offset).bitcast[Scalar[DType.bool]]()
+            var ptr = self._data.unsafe_offset(offset).unsafe_bitcast[
+                Scalar[DType.bool]
+            ]()
             return Int64(1) if ptr[].__bool__() else Int64(0)
         else:
             return 0  # Default fallback
@@ -1482,31 +1506,33 @@ struct AnyTensor(
         var offset = index * dtype_size
 
         if self._dtype == DType.int8:
-            var ptr = (self._data + offset).bitcast[Int8]()
+            var ptr = self._data.unsafe_offset(offset).unsafe_bitcast[Int8]()
             ptr[] = value.cast[DType.int8]()
         elif self._dtype == DType.int16:
-            var ptr = (self._data + offset).bitcast[Int16]()
+            var ptr = self._data.unsafe_offset(offset).unsafe_bitcast[Int16]()
             ptr[] = value.cast[DType.int16]()
         elif self._dtype == DType.int32:
-            var ptr = (self._data + offset).bitcast[Int32]()
+            var ptr = self._data.unsafe_offset(offset).unsafe_bitcast[Int32]()
             ptr[] = value.cast[DType.int32]()
         elif self._dtype == DType.int64:
-            var ptr = (self._data + offset).bitcast[Int64]()
+            var ptr = self._data.unsafe_offset(offset).unsafe_bitcast[Int64]()
             ptr[] = value
         elif self._dtype == DType.uint8:
-            var ptr = (self._data + offset).bitcast[UInt8]()
+            var ptr = self._data.unsafe_offset(offset).unsafe_bitcast[UInt8]()
             ptr[] = value.cast[DType.uint8]()
         elif self._dtype == DType.uint16:
-            var ptr = (self._data + offset).bitcast[UInt16]()
+            var ptr = self._data.unsafe_offset(offset).unsafe_bitcast[UInt16]()
             ptr[] = value.cast[DType.uint16]()
         elif self._dtype == DType.uint32:
-            var ptr = (self._data + offset).bitcast[UInt32]()
+            var ptr = self._data.unsafe_offset(offset).unsafe_bitcast[UInt32]()
             ptr[] = value.cast[DType.uint32]()
         elif self._dtype == DType.uint64:
-            var ptr = (self._data + offset).bitcast[UInt64]()
+            var ptr = self._data.unsafe_offset(offset).unsafe_bitcast[UInt64]()
             ptr[] = value.cast[DType.uint64]()
         elif self._dtype == DType.bool:
-            var ptr = (self._data + offset).bitcast[Scalar[DType.bool]]()
+            var ptr = self._data.unsafe_offset(offset).unsafe_bitcast[
+                Scalar[DType.bool]
+            ]()
             ptr[] = Scalar[DType.bool](value != 0)
 
     def _set_int32(self, index: Int, value: Int32):
@@ -1524,7 +1550,7 @@ struct AnyTensor(
     # ===----------------------------------------------------------------------===#
     # Parametric Element Access (compile-time dtype, no bounds check)
     #
-    # These replace raw `_data.bitcast[T]()` patterns throughout the codebase.
+    # These replace raw `_data.unsafe_bitcast[T]()` patterns throughout the codebase.
     # Use load[dtype]/store[dtype] for per-element access in inner loops.
     # Use data_ptr[dtype]() when SIMD load/store or bulk pointer ops are needed.
     #
@@ -1550,7 +1576,7 @@ struct AnyTensor(
         Returns:
             Element value as Scalar[dtype].
         """
-        return self._data.bitcast[Scalar[dtype]]()[index]
+        return self._data.unsafe_bitcast[Scalar[dtype]]()[unsafe_offset=index]
 
     @always_inline
     def store[dtype: DType](self, index: Int, value: Scalar[dtype]):
@@ -1566,31 +1592,53 @@ struct AnyTensor(
             index: Flat element index.
             value: Value to store.
         """
-        self._data.bitcast[Scalar[dtype]]()[index] = value
+        self._data.unsafe_bitcast[Scalar[dtype]]()[unsafe_offset=index] = value
 
     @always_inline
     def data_ptr[
         dtype: DType
-    ](self,) -> UnsafePointer[Scalar[dtype], origin=MutAnyOrigin]:
+    ](mut self,) -> Pointer[Scalar[dtype], origin_of(self)]:
         """Get typed pointer to underlying data for bulk operations.
 
-        SAFETY: Caller MUST keep the source tensor alive for the duration
-        of pointer use. The returned pointer is invalidated if the tensor
-        is destroyed.
+        WAR for modular/modular#6963 (premature `__deinit__` UAF, same class
+        as #6959/#6707): the returned pointer is origin-tied to `self` so
+        the compiler keeps this tensor alive for the whole lifetime of the
+        pointer instead of hoisting `__deinit__` to right after this call.
+        Requires `mut self` (a `MutOrigin` pointer) so callers must have a
+        mutable tensor; this is fine for the bulk-copy/loop kernels that
+        use it.
 
         Parameters:
             dtype: Compile-time DType matching self._dtype.
 
         Returns:
-            Typed UnsafePointer to element data.
+            Typed Pointer to element data, tied to this tensor's lifetime.
         """
-        return self._data.bitcast[Scalar[dtype]]()
+        return self._data.unsafe_bitcast[Scalar[dtype]]().unsafe_origin_cast[
+            origin_of(self)
+        ]()
+
+    @always_inline
+    def refcount(mut self) -> Int:
+        """Get the current shared reference count, tied to this tensor's lifetime.
+
+        WAR for modular/modular#6963 (premature `__deinit__` UAF, same class
+        as #6959/#6707): reading `_refcount` directly on an owned local can
+        hoist this tensor's `__deinit__` to right after the field access,
+        freeing the refcount pointer before it is dereferenced. Taking `mut
+        self` (a `MutOrigin`) keeps the tensor alive for the duration of the
+        read, exactly like `data_ptr`.
+
+        Returns:
+            The current reference count (1 for a freshly-created tensor).
+        """
+        return self._refcount[]
 
     def _fill_zero(mut self):
         """Internal: Fill tensor with zeros (works for all dtypes)."""
         var dtype_size = self._get_dtype_size()
         var total_bytes = self._numel * dtype_size
-        memset_zero(self._data, total_bytes)
+        unsafe_memset_zero(self._data, total_bytes)
 
     def _fill_value_float(mut self, value: Float64):
         """Internal: Fill tensor with float value.
@@ -2661,7 +2709,9 @@ struct AnyTensor(
             print(y)  # AnyTensor([[42, 42, 42], [42, 42, 42]], shape=[2, 3], dtype=int32)
             ```
         """
-        return String.write(self)
+        var s = String()
+        self.write_to(s)
+        return s
 
     def _format_element(self, flat_idx: Int) -> String:
         """Format a single element based on dtype.
@@ -2773,9 +2823,7 @@ struct AnyTensor(
                 # Canonical NaN: positive quiet NaN (0x7FF8000000000000)
                 hasher.update(UInt64(0x7FF8000000000000))
             else:
-                var int_bits = UnsafePointer[Float64, MutAnyOrigin](
-                    to=val
-                ).bitcast[UInt64]()[]
+                var int_bits = Pointer(to=val).unsafe_bitcast[UInt64]()[]
                 hasher.update(int_bits)
 
     def contiguous(self) raises -> AnyTensor:
@@ -2829,7 +2877,7 @@ struct AnyTensor(
             )
         # Zero-copy: bitcast data pointer, share refcount
         return Tensor[dtype](
-            self._data.bitcast[Scalar[dtype]](),
+            self._data.unsafe_bitcast[Scalar[dtype]](),
             self._shape,
             self._strides,
             self._refcount,

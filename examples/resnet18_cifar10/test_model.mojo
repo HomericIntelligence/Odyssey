@@ -32,9 +32,9 @@ def main() raises:
     )
     var input_shape: List[Int] = [4, 3, 32, 32]
     var input = zeros(input_shape, DType.float32)
-    var input_data = input._data.bitcast[Float32]()
+    var input_data = input._data.unsafe_bitcast[Float32]()
     for i in range(4 * 3 * 32 * 32):
-        input_data[i] = Float32(0.1)
+        input_data[unsafe_offset=i] = Float32(0.1)
     print("✓ Input created")
 
     # Test inference mode
@@ -71,10 +71,10 @@ def main() raises:
 
     # Check for NaN/Inf
     print("\nChecking for NaN/Inf in outputs...")
-    var logits_data = logits_train._data.bitcast[Float32]()
+    var logits_data = logits_train._data.unsafe_bitcast[Float32]()
     var has_nan_inf = False
     for i in range(40):
-        var val = logits_data[i]
+        var val = logits_data[unsafe_offset=i]
         if val > 1e10 or val < -1e10 or val != val:
             has_nan_inf = True
             break

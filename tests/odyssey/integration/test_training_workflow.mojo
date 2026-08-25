@@ -39,10 +39,9 @@ def _mse_loss(predictions: AnyTensor, targets: AnyTensor, n: Int) -> Float32:
     """Mean squared error over `n` scalar predictions."""
     var total = Float32(0.0)
     for i in range(n):
-        var diff = (
-            predictions._data.bitcast[Float32]()[i]
-            - targets._data.bitcast[Float32]()[i]
-        )
+        var diff = predictions.load[DType.float32](i) - targets.load[
+            DType.float32
+        ](i)
         total += diff * diff
     return total / Float32(n)
 
@@ -109,11 +108,10 @@ def _train_one_layer(
         for j in range(in_features):
             var g = Float32(0.0)
             for i in range(n_samples):
-                var err = (
-                    preds._data.bitcast[Float32]()[i]
-                    - y._data.bitcast[Float32]()[i]
+                var err = preds.load[DType.float32](i) - y.load[DType.float32](
+                    i
                 )
-                g += err * X._data.bitcast[Float32]()[i * in_features + j]
+                g += err * X.load[DType.float32](i * in_features + j)
             grad.set(j, (Float32(2.0) / Float32(n_samples)) * g)
 
         # Optimizer step (real shared-library SGD).

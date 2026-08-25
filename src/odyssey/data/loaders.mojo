@@ -61,7 +61,7 @@ struct Batch(Copyable, Movable):
 # ============================================================================
 
 
-struct BaseLoader[D: Dataset & Copyable & Movable](Copyable, Movable):
+struct BaseLoader[D: Dataset & Copyable](Copyable, Movable):
     """Base data loader with core functionality.
 
     Provides the foundation for all data loading operations.
@@ -121,9 +121,9 @@ struct BaseLoader[D: Dataset & Copyable & Movable](Copyable, Movable):
 # ============================================================================
 
 
-struct BatchLoader[
-    D: Dataset & Copyable & Movable, S: Sampler & Copyable & Movable
-](Copyable, Movable):
+struct BatchLoader[D: Dataset & Copyable, S: Sampler & Copyable](
+    Copyable, Movable
+):
     """Data loader with batching and optional shuffling.
 
     Loads data in batches, optionally shuffling the order of samples.

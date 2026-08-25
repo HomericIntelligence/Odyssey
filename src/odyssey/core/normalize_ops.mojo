@@ -84,7 +84,9 @@ def normalize_rgb(
     var normalized = zeros(shape, DType.float32)
 
     var src_data = images._data
-    var dst_data = normalized._data.bitcast[Float32]()
+    # Origin-tied pointer (WAR for modular/modular#6963): `normalized` is an
+    # owned local; a raw `_data` escape can hoist its __deinit__ mid-loop.
+    var dst_data = normalized.data_ptr[DType.float32]()
 
     # Extract mean and std values
     var mean_r = mean[0]
@@ -105,8 +107,8 @@ def normalize_rgb(
                     + h * num_cols
                     + w
                 )
-                var pixel_r = Float32(src_data[idx_r]) / 255.0
-                dst_data[idx_r] = (pixel_r - mean_r) / std_r
+                var pixel_r = Float32(src_data[unsafe_offset=idx_r]) / 255.0
+                dst_data[unsafe_offset=idx_r] = (pixel_r - mean_r) / std_r
 
                 # G channel (c=1)
                 var idx_g = (
@@ -115,8 +117,8 @@ def normalize_rgb(
                     + h * num_cols
                     + w
                 )
-                var pixel_g = Float32(src_data[idx_g]) / 255.0
-                dst_data[idx_g] = (pixel_g - mean_g) / std_g
+                var pixel_g = Float32(src_data[unsafe_offset=idx_g]) / 255.0
+                dst_data[unsafe_offset=idx_g] = (pixel_g - mean_g) / std_g
 
                 # B channel (c=2)
                 var idx_b = (
@@ -125,7 +127,7 @@ def normalize_rgb(
                     + h * num_cols
                     + w
                 )
-                var pixel_b = Float32(src_data[idx_b]) / 255.0
-                dst_data[idx_b] = (pixel_b - mean_b) / std_b
+                var pixel_b = Float32(src_data[unsafe_offset=idx_b]) / 255.0
+                dst_data[unsafe_offset=idx_b] = (pixel_b - mean_b) / std_b
 
     return normalized

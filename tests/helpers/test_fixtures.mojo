@@ -64,7 +64,7 @@ def test_sequential_tensor() raises:
     var tensor = sequential_tensor(shape, DType.float32)
 
     # Verify values: 0, 1, 2, 3, 4, 5
-    var expected_values = [0.0, 1.0, 2.0, 3.0, 4.0, 5.0]
+    var expected_values: List[Float64] = [0.0, 1.0, 2.0, 3.0, 4.0, 5.0]
 
     for i in range(6):
         var val = tensor._get_float64(i)
