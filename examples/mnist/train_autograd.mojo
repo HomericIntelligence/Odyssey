@@ -250,7 +250,9 @@ def train_batch[
     loss.backward(tape)
 
     # Extract the scalar loss before the Variables are moved below.
-    var loss_value = loss.data._data.unsafe_bitcast[Float32]()[unsafe_offset=0]
+    var loss_value = loss.data.data_ptr[DType.float32]()[
+        unsafe_offset=0
+    ]  # origin-tied (#6963)
 
     # ========== Parameter Update ==========
     # Move the 8 trainable Variables into the parameters list (Variable is not
@@ -461,7 +463,9 @@ def main() raises:
         var wanted_batches = max_batches if max_batches > 0 else 3
         var n_smoke = wanted_batches * Int(batch_size)
         train_images = zeros([n_smoke, 1, 28, 28], DType.float32)
-        var img_d = train_images._data.unsafe_bitcast[Float32]()
+        var img_d = train_images.data_ptr[
+            DType.float32
+        ]()  # origin-tied (#6963)
         for s in range(n_smoke):
             var cls = s % DEFAULT_NUM_CLASSES
             for i in range(1 * 28 * 28):
@@ -469,7 +473,7 @@ def main() raises:
                     Float32(cls) * 0.05 + Float32(i % 5) * 0.01
                 )
         train_labels = zeros([n_smoke], DType.uint8)
-        var lbl_d = train_labels._data.unsafe_bitcast[UInt8]()
+        var lbl_d = train_labels.data_ptr[DType.uint8]()  # origin-tied (#6963)
         for s in range(n_smoke):
             lbl_d[unsafe_offset=s] = UInt8(s % DEFAULT_NUM_CLASSES)
         # Reuse the synthetic batch for "test" (eval is not asserted here).

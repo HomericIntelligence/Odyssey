@@ -156,7 +156,9 @@ def compute_gradients(
 
     # Compute loss
     var loss_tensor = cross_entropy(logits, labels)
-    var loss = loss_tensor._data.unsafe_bitcast[Float32]()[unsafe_offset=0]
+    var loss = loss_tensor.data_ptr[DType.float32]()[
+        unsafe_offset=0
+    ]  # origin-tied (#6963)
 
     # Scale loss for mixed-precision training (prevents gradient underflow in FP16)
     var scaled_loss_tensor = precision_config.scale_loss(loss_tensor)
@@ -458,7 +460,9 @@ def main() raises:
         var wanted_batches = config.max_batches if config.max_batches > 0 else 3
         var n_smoke = wanted_batches * Int(config.batch_size)
         train_images = zeros([n_smoke, 1, 28, 28], DType.float32)
-        var img_d = train_images._data.unsafe_bitcast[Float32]()
+        var img_d = train_images.data_ptr[
+            DType.float32
+        ]()  # origin-tied (#6963)
         for s in range(n_smoke):
             var cls = s % num_classes
             for i in range(1 * 28 * 28):
@@ -466,7 +470,7 @@ def main() raises:
                     Float32(cls) * 0.05 + Float32(i % 5) * 0.01
                 )
         train_labels = zeros([n_smoke], DType.uint8)
-        var lbl_d = train_labels._data.unsafe_bitcast[UInt8]()
+        var lbl_d = train_labels.data_ptr[DType.uint8]()  # origin-tied (#6963)
         for s in range(n_smoke):
             lbl_d[unsafe_offset=s] = UInt8(s % num_classes)
         # Reuse the same synthetic batch for "test" (eval is not asserted here).

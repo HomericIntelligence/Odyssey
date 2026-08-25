@@ -198,7 +198,9 @@ def compute_gradients(
 
     # Compute loss
     var loss_tensor = cross_entropy(logits, labels)
-    var loss = loss_tensor._data.unsafe_bitcast[Float32]()[unsafe_offset=0]
+    var loss = loss_tensor.data_ptr[DType.float32]()[
+        unsafe_offset=0
+    ]  # origin-tied (#6963)
 
     # ========== Backward Pass ==========
 
@@ -509,17 +511,23 @@ def train_epoch(
                             + h * train_images.shape()[3]
                             + w
                         )
-                        (
-                            batch_images._data.unsafe_offset(dst_idx)
-                        ).unsafe_store(
-                            (
-                                train_images._data.unsafe_offset(src_idx)
-                            ).unsafe_load()
-                        )
+                        # batch_images is an owned local (origin-tied data_ptr
+                        # — #6963); train_images is a borrowed param (Class C:
+                        # owner lives in the caller frame, callee cannot
+                        # destroy it, so raw `_data` is safe; data_ptr would
+                        # need `mut`). Index-assign, not unsafe_store: stores
+                        # are only defined for untracked pointers.
+                        batch_images.data_ptr[DType.float32]()[
+                            unsafe_offset=dst_idx
+                        ] = train_images._data.unsafe_bitcast[Float32]()[
+                            unsafe_offset=src_idx
+                        ]
             # Copy label
-            (batch_labels_int._data.unsafe_offset(i)).unsafe_store(
-                (train_labels._data.unsafe_offset(sample_idx)).unsafe_load()
-            )
+            batch_labels_int.data_ptr[DType.uint8]()[
+                unsafe_offset=i
+            ] = train_labels._data.unsafe_bitcast[UInt8]()[
+                unsafe_offset=sample_idx
+            ]
 
         # Convert batch labels to one-hot encoding
         var batch_labels = one_hot_encode(
