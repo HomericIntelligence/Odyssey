@@ -100,6 +100,16 @@ repos:
         language: system
         pass_filenames: false
         always_run: true
+      - id: no-owned-local-raw-escapes
+        name: No owned-local raw _data escapes
+        description: >-
+          Fail if an owned local's raw `_data` pointer escapes into a variable
+          and the owner is never used again (premature __deinit__ UAF,
+          modular/modular#6963). data_ptr sites are origin-tied and safe.
+        entry: python3 scripts/audit_escape_sites.py --raw-only src examples tests
+        language: system
+        pass_filenames: false
+        always_run: true
 
   # Prevent accidentally committing the uv-managed venv (ADR-018 replacement for
   # the former no-pixi-env-in-workspace guard). The venv is developer-local and
