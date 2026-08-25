@@ -401,6 +401,53 @@ Related closed issues: #6959 (COMPLETED), #6707 (NOT_PLANNED), #6939 (DUPLICATE)
 
 ---
 
+## Premature-`__deinit__` pattern inventory (audit 2026-08-25) and hardening
+
+Four distinct code shapes can trip the 1.0.0 compiler's premature/incorrect
+`__deinit__` placement. All were re-audited after the #5802 sweep; results and
+hardening below.
+
+| # | Trigger shape | In-repo sites | Upstream | Empirical status on 1.0.0 stable |
+| --- | --- | --- | --- | --- |
+| 1 | **Raw `_data` escape into a local** (`var ptr = x._data...`, owner never used again) | migrated to origin-tied `data_ptr` (#5801/#5802); **0 remain** | [#6963](https://github.com/modular/modular/issues/6963) | minimal repro fails 3/3; value probe passes after WAR |
+| 2 | **Return-move of a custom-`deinit` refcounted struct** (`return r^`, `return Pair(a^, b^)`) | ~30 `GradientPair`/`GradientTriple`/`DualTensor`/`Variable` returns + `return output^` (batchnorm/mamba/ssm/kan/jvp) + `Tuple[...](...^)` (normalization_simd/serialization/data_generators) | [#6939](https://github.com/modular/modular/issues/6939) | minimal raw repro (`Box`) still fails 5/5 (values correct only by allocator luck; ASAN-clean on b2); **real-`AnyTensor` shapes pass 10/10 / 25 iterations** in all 3 shapes (whole-local, Pair-ctor, Tuple-ctor) |
+| 3 | **Closure capture crossing a function-value boundary** | `parallelize` kept only for scalar/keep-alive captures; pooling/conv/normalization dispatch inline via `TaskGroup`; `vectorize` closures in examples capture pointers but are `@always_inline` comptime-parameters (direct-call, not function-value pass) | [#6965](https://github.com/modular/modular/issues/6965) | repro fails (deinit at closure construction); in-repo paths WAR'd; `test_memory_pool_threadsafe` captures only `pool` (used in enclosing frame after the call — keep-alive, safe) |
+| 4 | **Borrowed-param `_data` escape in a callee** (owner lives in caller frame) | ~221 `._data` sites | #6707 (NOT_PLANNED) | safe by construction (callee cannot destroy the caller's local) |
+
+### Hardening added 2026-08-25
+
+- **Permanent FM-A canary**: `tests/odyssey/core/test_return_move_canary.mojo`
+  — exercises all three live shapes (whole-local `return output^`,
+  `GradientPair(grad_a^, grad_b^)`, `Tuple(t1^, t2^, t3^)`) with real
+  `AnyTensor`s, 25 iterations each, exact-value asserts. Heap-reuse dependent,
+  so it cannot *guarantee* catching a regressed compiler on every run, but the
+  exact-value assert trips the moment freed blocks are reused (the mechanism
+  behind the FM-A/FM-E CI flakes). Passes 4/4 on stable (2026-08-25).
+- **CI gate for pattern 1**: `scripts/audit_escape_sites.py --raw-only`
+audit now distinguishes pointer-HELD escapes (dangerous) from in-statement
+  value reads (safe), strips comments, handles multi-line statements, and
+  exits 1 on any owned-local raw `_data` escape. Wired as pre-commit hook
+  `no-owned-local-raw-escapes` (always_run). Verified: repo clean (0 sites),
+  synthetic negative control flagged.
+
+### Empirical matrix (probes, 2026-08-25, stable 1.0.0)
+
+| Probe | Shape | Result |
+| --- | --- | --- |
+| `docs/dev/probe_return_caret_c.mojo` | real AnyTensor, `return GradientPair(ga^, gb^)` vs implicit | both OK 10/10 |
+| `docs/dev/probe_return_caret_d.mojo` | real AnyTensor, `return output^` whole local | OK 10/10 (small+large) |
+| `probe_return_caret_a/b.mojo` (synthetic Box, no refcount) | explicit `^` vs implicit | explicit OK, implicit CORRUPT (no refcount — differences are model-specific) |
+| `repro_uaf_return_move.mojo` | `Box` custom-deinit + refcount + `return r^` | **FAILS 5/5** (moved-from deinit runs; ASAN heap-UAF) |
+
+Takeaway: the raw-`Box` shape (custom move + shared refcount + `return r^`)
+still demonstrates the FM-A bug deterministically; the real-`AnyTensor` shapes
+pass because `AnyTensor`'s List fields + larger allocations make the double-
+decrement land on a refcount cell that happens to survive in practice, or the
+return-move path is instantiated differently. The canary keeps watch; do NOT
+reintroduce the refcount-sentinel WAR (see `tensor.mojo` note).
+
+---
+
 ## Failure Mode G: Premature `__deinit__` of closure captures at the function-value boundary
 
 **Severity**: High (silent use-after-free — garbage reads / segfaults in every
