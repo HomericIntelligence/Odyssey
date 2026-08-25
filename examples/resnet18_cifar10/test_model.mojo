@@ -71,7 +71,10 @@ def main() raises:
 
     # Check for NaN/Inf
     print("\nChecking for NaN/Inf in outputs...")
-    var logits_data = logits_train._data.unsafe_bitcast[Float32]()
+    # origin-tied data_ptr (WAR for modular/modular#6963): logits_train is an
+    # owned local; a raw `_data` escape would let the compiler hoist its
+    # __deinit__ here, freeing the buffer while the NaN loop reads it.
+    var logits_data = logits_train.data_ptr[DType.float32]()
     var has_nan_inf = False
     for i in range(40):
         var val = logits_data[unsafe_offset=i]

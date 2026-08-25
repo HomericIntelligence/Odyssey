@@ -595,7 +595,10 @@ def _matmul_float32(
     var b_t = _transpose_matrix_float32(b, K, N)
 
     var a_ptr = a._data.unsafe_bitcast[Float32]()
-    var bt_ptr = b_t._data.unsafe_bitcast[Float32]()
+    # origin-tied data_ptr (WAR for modular/modular#6963): b_t is an owned
+    # local; a raw `_data` escape would let the compiler hoist b_t's
+    # __deinit__ to this line, freeing the buffer while bt_ptr still reads it.
+    var bt_ptr = b_t.data_ptr[DType.float32]()
     var c_ptr = c._data.unsafe_bitcast[Float32]()
 
     # Cache-blocked computation with register-blocked micro-kernel
@@ -720,7 +723,8 @@ def _matmul_float64(
     var b_t = _transpose_matrix_float64(b, K, N)
 
     var a_ptr = a._data.unsafe_bitcast[Float64]()
-    var bt_ptr = b_t._data.unsafe_bitcast[Float64]()
+    # origin-tied data_ptr (WAR for modular/modular#6963): see float32 twin.
+    var bt_ptr = b_t.data_ptr[DType.float64]()
     var c_ptr = c._data.unsafe_bitcast[Float64]()
 
     # Cache-blocked computation with register-blocked micro-kernel
