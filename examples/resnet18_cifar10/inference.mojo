@@ -124,7 +124,10 @@ def evaluate_model(
         total_correct += batch_correct
 
         # Update per-class counters
-        var logits_data = logits._data.unsafe_bitcast[Float32]()
+        # origin-tied data_ptr (WAR for modular/modular#6963): logits is an
+        # owned local; a raw `_data` escape would let the compiler hoist its
+        # __deinit__ here, freeing the buffer while the argmax loop reads it.
+        var logits_data = logits.data_ptr[DType.float32]()
         for i in range(current_batch_size):
             # Find argmax (predicted class)
             var pred_class = 0

@@ -177,8 +177,12 @@ def test_forward_with_cache_matches_forward_logits() raises:
 
     # Compare logit values element-wise: forward_with_cache must produce
     # bit-equal float32 logits to forward (40 logits = 4 batch x 10 classes).
-    var cache_logits_data = cache_logits._data.unsafe_bitcast[Float32]()
-    var forward_logits_data = forward_logits._data.unsafe_bitcast[Float32]()
+    # origin-tied data_ptr (WAR for modular/modular#6963): cache_logits and
+    # forward_logits are owned locals; raw `_data` escapes would let the
+    # compiler hoist their __deinit__ here, freeing the buffers while the
+    # comparison loop still reads them.
+    var cache_logits_data = cache_logits.data_ptr[DType.float32]()
+    var forward_logits_data = forward_logits.data_ptr[DType.float32]()
     var num_logits = cache_logits_shape[0] * cache_logits_shape[1]
     for i in range(num_logits):
         if (

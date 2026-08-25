@@ -236,7 +236,10 @@ def _multiply_scalar_typed[
     var result = Tensor[dt](t_cont.shape())
     var numel = result.numel()
 
-    var input_ptr = t_cont._data.unsafe_bitcast[Scalar[dt]]()
+    # origin-tied data_ptr (WAR for modular/modular#6963): t_cont is an owned
+    # local; a raw `_data` escape would let the compiler hoist t_cont's
+    # __deinit__ to this line, freeing the buffer while input_ptr reads it.
+    var input_ptr = t_cont.data_ptr[dt]()
     var result_ptr = result.data_ptr()
     var scalar_cast = Scalar[dt](scalar)
     for i in range(numel):
