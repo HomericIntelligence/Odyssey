@@ -1558,8 +1558,10 @@ struct AnyTensor(
     # Use data_ptr[dtype]() when SIMD load/store or bulk pointer ops are needed.
     #
     # Why: Mojo's ASAP destruction can free tensors whose bitcast-derived
-    # pointers are still live (modular/modular#6187). These methods keep
-    # `self` alive for the duration of the access.
+    # pointers are still live (the premature-deinit class, modular/modular#6707
+    # / #6939). These methods keep `self` alive for the duration of the access.
+    # (modular/modular#6187, originally cited here, was fixed upstream; the
+    # origin-tie keep-alive remains canonical per #6707/#6939 guidance.)
     # ===----------------------------------------------------------------------===#
 
     @always_inline

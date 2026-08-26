@@ -186,13 +186,15 @@ issue for it.
 
 ## Upstream issue status
 
-- **modular/modular#6187** (heap corruption, `0.26.1`) — closed COMPLETED; different
-  signature (crash at alloc, not move semantics).
+- **modular/modular#6187** (heap corruption, `0.26.1`) — closed COMPLETED (2026-03-26);
+  different signature (crash at alloc, not move semantics). The `data_ptr` keep-alive
+  pattern once attributed to it remains canonical, now cited against the still-open
+  premature-deinit class #6707/#6939.
 - **modular/modular#6707** (stale read through `UnsafePointer[MutUntrackedOrigin]`,
   closed NOT_PLANNED "expected behavior") — different mechanism: origin-tracking
   limitation, not a move-semantics violation.
-- **modular/modular#6475** (bitcast read in struct method vs external, OPEN) — different
-  mechanism (no moves involved).
+- **modular/modular#6475** (bitcast read in struct method vs external) — closed COMPLETED
+  (2026-08-23); different mechanism (no moves involved).
 
 All failure modes have been filed upstream (2026-08-20/21):
 
@@ -248,7 +250,7 @@ stdout/stderr capture. Classification:
 | --- | --- | --- | --- |
 | **FM-A: Memory corruption** | 49 tests | [#6939](https://github.com/modular/modular/issues/6939) | Return-move `__deinit__` UAF — garbage values (`~1.75`, `~4e-41`, `0.0`) or NaN in forward/backward passes |
 | **FM-B: KGEN JIT crash** | 4 tests | [#6958](https://github.com/modular/modular/issues/6958) | Runtime segfault in `libKGENCompilerRTShared.so` after successful compilation |
-| **FM-C: Atomic regression** | 1 test | [#6959](https://github.com/modular/modular/issues/6959) | Premature `__deinit__` UAF (same class as [#6707](https://github.com/modular/modular/issues/6707)) — the compiler hoists `unsafe_free` to right after the last syntactic use of a struct whose raw `Atomic` pointer escaped (e.g. `SpinLock._as_atomic`, `AtomicStats._counter` held in a local), so subsequent `Atomic` ops hit freed memory; the counter value is whatever the freed chunk holds. **WAR applied** (no pointer escapes from `SpinLock` or `AtomicStats`); repro still fails on stable |
+| **FM-C: Atomic regression** | 1 test | [#6959](https://github.com/modular/modular/issues/6959) | Premature `__deinit__` UAF (same class as [#6707](https://github.com/modular/modular/issues/6707)) — the compiler hoists `unsafe_free` to right after the last syntactic use of a struct whose raw `Atomic` pointer escaped (e.g. `SpinLock._as_atomic`, `AtomicStats._counter` held in a local), so subsequent `Atomic` ops hit freed memory; the counter value is whatever the freed chunk holds. **WAR removed 2026-08-26** (upstream closed as expected-behavior, NOT a compiler fix — the caller-side escape repro still fails on stable); production is safe because its escapes are borrow-internal (see tracker) |
 | **FM-D: Timeout/OOM** | 4 tests | N/A (resource limit) | Heavy model tests (AlexNet/VGG16 224×224, MobileNet train) timeout on 4-core container |
 | **FM-E: Non-deterministic** | 6 tests | (same as FM-A) | Pass on re-run; failed in full suite due to FM-A non-determinism |
 | **FM-F: Pre-existing** | 2 tests | **FIXED + re-enabled 2026-08-22** | `DISABLED_test_batchnorm` (SIMD type constraint) and `DISABLED_test_conv2d` (escape-UAF `_data` write in `test_conv2d_forward_batch_independence`) — both fixed and renamed back to `test_batchnorm.mojo` / `test_conv2d.mojo`; additionally `_batch_norm2d_fused_training_{float32,float64}` and both inference paths in `normalization_simd.mojo` migrated to origin-tied `data_ptr` (raw `_data` escapes on owned locals — the #6963 class) |
@@ -292,7 +294,7 @@ the non-deterministic nature of FM-A.
 | FM-2 | Scalar pow compile | OPEN | [#6940](https://github.com/modular/modular/issues/6940) |
 | FM-3 | VM limit abort | OPEN | [#6941](https://github.com/modular/modular/issues/6941) |
 | FM-B | KGEN JIT runtime crash | CLOSED COMPLETED (2026-08-22) — not reproducible in the current suite (all 363 test files pass); no code workaround existed | [#6958](https://github.com/modular/modular/issues/6958) |
-| FM-C / #6963 | Premature `__deinit__` UAF from escaping `Atomic`/raw pointers | **#6959 CLOSED COMPLETED — verified FIXED on 1.0.0 stable (2026-08-26): workaround REMOVED**, original escaping API restored (`SpinLock.lock_word`, `AtomicStats._counter`); all spinlock/memory-pool tests pass. **#6963 closed DUPLICATE of #6707 (expected behavior — use proper origin-tracking)**: origin-tied `data_ptr` IS that guidance; "workaround" labels removed 2026-08-26, pattern retained as canonical | [#6959](https://github.com/modular/modular/issues/6959) · [#6963](https://github.com/modular/modular/issues/6963) |
+| FM-C / #6963 | Premature `__deinit__` UAF from escaping `Atomic`/raw pointers | **#6959 CLOSED COMPLETED (2026-08-22, maintainer: "lifetime gotcha") — NOT a compiler fix**: the caller-side owned-local escape repro (`repro/repro_6959_inline.mojo`) **still FAILS 5/5 on 1.0.0 stable** (verified 2026-08-26). The prior "verified FIXED" claim was wrong — it was based on tests that only use single-expression escapes. WAR removal is nonetheless **safe**: production escapes are borrow-internal (pointer derived from borrowed `self` within a method, owner kept alive by the caller frame), verified by `docs/dev/reproducers/probe_update_peak_shape.mojo` passing 5/5 on the exact `update_peak_cached` shape. **#6963 closed DUPLICATE of #6707 (expected behavior — use proper origin-tracking)**: origin-tied `data_ptr` IS that guidance; "workaround" labels removed 2026-08-26, pattern retained as canonical | [#6959](https://github.com/modular/modular/issues/6959) · [#6963](https://github.com/modular/modular/issues/6963) |
 | FM-G | Premature `__deinit__` of closure captures when a `@parameter` capturing closure is passed as a function-value parameter (breaks `parallelize` batch paths in pooling/conv/normalization) | **Filed [#6965](https://github.com/modular/modular/issues/6965)** — WAR applied: inline TaskGroup dispatch at all 3 call sites (closure never crosses a function-value boundary); `parallelize` retained for scalar/keep-alive captures only | 2026-08-22 |
 
 ---
@@ -318,10 +320,12 @@ All 362 non-DISABLED test files now compile and run on 1.0.0 stable:
   migrated across 10 files to origin-tied `data_ptr[]`).
 
 Failure classes filed upstream (2026-08-26 status): FM-A/return-move
-(#6939, closed DUPLICATE — double-` still reproducible), FM-B/KGEN JIT
+(#6939, closed DUPLICATE — double-`__deinit__` still reproducible), FM-B/KGEN JIT
 (#6958, closed COMPLETED — not reproducible in the current suite),
-FM-C/Atomic (#6959, closed COMPLETED — verified fixed, workaround removed
-2026-08-26), raw-pointer escape (#6963, closed DUPLICATE — canonical
+FM-C/Atomic (#6959, closed COMPLETED as expected-behavior — the caller-side
+escape repro still fails on stable, but production escapes are borrow-internal
+so the WAR removal stands; probe evidence 2026-08-26), raw-pointer escape
+(#6963, closed DUPLICATE — canonical
 origin-tied pattern retained), FM-G/closure captures (#6965, open).
 
 ---
