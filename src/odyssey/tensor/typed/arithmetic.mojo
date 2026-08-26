@@ -91,7 +91,8 @@ def _broadcast_binary_typed[
 
     # Get typed pointers -- Tensor[dtype]._data is already typed, but
     # a_cont/b_cont are AnyTensor (from contiguity check), so use the
-    # origin-tied data_ptr (WAR for modular/modular#6963: direct `_data`
+    # origin-tied data_ptr per upstream lifetime guidance (modular/modular#6963,
+    # closed DUPLICATE of #6707): direct `_data`
     # access from an owned local hoists the owner's `__deinit__` before
     # the pointer is used, freeing the buffer mid-loop). Result uses the
     # native typed pointer directly.
@@ -236,7 +237,7 @@ def _multiply_scalar_typed[
     var result = Tensor[dt](t_cont.shape())
     var numel = result.numel()
 
-    # origin-tied data_ptr (WAR for modular/modular#6963): t_cont is an owned
+    # origin-tied data_ptr per upstream lifetime guidance (modular/modular#6963, closed DUPLICATE of #6707): t_cont is an owned
     # local; a raw `_data` escape would let the compiler hoist t_cont's
     # __deinit__ to this line, freeing the buffer while input_ptr reads it.
     var input_ptr = t_cont.data_ptr[dt]()

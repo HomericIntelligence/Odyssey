@@ -149,7 +149,7 @@ def _batch_norm2d_fused_inference_float32(
     var beta_ptr = beta._data.unsafe_bitcast[Float32]()
     var running_mean_ptr = running_mean._data.unsafe_bitcast[Float32]()
     var running_var_ptr = running_var._data.unsafe_bitcast[Float32]()
-    # Origin-tied pointer (WAR for modular/modular#6963): `result` is an
+    # Origin-tied pointer per upstream lifetime guidance (modular/modular#6963, closed DUPLICATE of #6707): `result` is an
     # owned local; a raw `_data` escape can hoist its __deinit__ and free
     # the buffer while the loop still writes it.
     var out_ptr = result.data_ptr[DType.float32]()
@@ -211,7 +211,7 @@ def _batch_norm2d_fused_inference_float64(
     var beta_ptr = beta._data.unsafe_bitcast[Float64]()
     var running_mean_ptr = running_mean._data.unsafe_bitcast[Float64]()
     var running_var_ptr = running_var._data.unsafe_bitcast[Float64]()
-    # Origin-tied pointer (WAR for modular/modular#6963): `result` is an
+    # Origin-tied pointer per upstream lifetime guidance (modular/modular#6963, closed DUPLICATE of #6707): `result` is an
     # owned local; a raw `_data` escape can hoist its __deinit__ and free
     # the buffer while the loop still writes it.
     var out_ptr = result.data_ptr[DType.float64]()
@@ -375,7 +375,7 @@ def _batch_norm2d_fused_training_float32(
     var running_var_ptr = running_var._data.unsafe_bitcast[Float32]()
 
     var output = AnyTensor(x.shape(), x._dtype)
-    # Origin-tied pointers (WAR for modular/modular#6963): `output`,
+    # Origin-tied pointers per upstream lifetime guidance (modular/modular#6963, closed DUPLICATE of #6707): `output`,
     # `new_running_mean/var` are owned locals; raw `_data` escapes can hoist
     # their __deinit__ and free the buffers while the kernels still write.
     var out_ptr = output.data_ptr[DType.float32]()
@@ -503,7 +503,7 @@ def _batch_norm2d_fused_training_float64(
     var running_var_ptr = running_var._data.unsafe_bitcast[Float64]()
 
     var output = AnyTensor(x.shape(), x._dtype)
-    # Origin-tied pointers (WAR for modular/modular#6963): owned locals.
+    # Origin-tied pointers per upstream lifetime guidance (modular/modular#6963, closed DUPLICATE of #6707): owned locals.
     var out_ptr = output.data_ptr[DType.float64]()
 
     var new_running_mean = zeros_like(running_mean)

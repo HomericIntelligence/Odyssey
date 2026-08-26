@@ -288,11 +288,11 @@ the non-deterministic nature of FM-A.
 
 | Issue | Failure mode | Status | URL |
 | --- | --- | --- | --- |
-| FM-1 / FM-A | Return-move UAF | OPEN (closed DUPLICATE of #6707, no fix) — code-level WAR added 2026-08-23: `batch_norm2d_inplace` (in-place running-stat update, single-tensor return) for BN hot paths that previously extracted `Tuple[AnyTensor, AnyTensor, AnyTensor]` | [#6939](https://github.com/modular/modular/issues/6939) |
+| FM-1 / FM-A | Return-move UAF | CLOSED DUPLICATE of #6707 (expected behavior, no fix) — double-`__deinit__` **still reproducible on 1.0.0 stable** (verified 2026-08-26); canonical single-tensor-return shape retained (`batch_norm2d_inplace`); permanent canary `test_return_move_canary.mojo` (2026-08-25) | [#6939](https://github.com/modular/modular/issues/6939) |
 | FM-2 | Scalar pow compile | OPEN | [#6940](https://github.com/modular/modular/issues/6940) |
 | FM-3 | VM limit abort | OPEN | [#6941](https://github.com/modular/modular/issues/6941) |
-| FM-B | KGEN JIT runtime crash | OPEN | [#6958](https://github.com/modular/modular/issues/6958) |
-| FM-C | Premature `__deinit__` UAF from escaping `Atomic` pointers (`SpinLock._as_atomic`, `AtomicStats._counter`) | OPEN — WAR applied (no-escape API on both) | [#6959](https://github.com/modular/modular/issues/6959) |
+| FM-B | KGEN JIT runtime crash | CLOSED COMPLETED (2026-08-22) — not reproducible in the current suite (all 363 test files pass); no code workaround existed | [#6958](https://github.com/modular/modular/issues/6958) |
+| FM-C / #6963 | Premature `__deinit__` UAF from escaping `Atomic`/raw pointers | **#6959 CLOSED COMPLETED — verified FIXED on 1.0.0 stable (2026-08-26): workaround REMOVED**, original escaping API restored (`SpinLock.lock_word`, `AtomicStats._counter`); all spinlock/memory-pool tests pass. **#6963 closed DUPLICATE of #6707 (expected behavior — use proper origin-tracking)**: origin-tied `data_ptr` IS that guidance; "workaround" labels removed 2026-08-26, pattern retained as canonical | [#6959](https://github.com/modular/modular/issues/6959) · [#6963](https://github.com/modular/modular/issues/6963) |
 | FM-G | Premature `__deinit__` of closure captures when a `@parameter` capturing closure is passed as a function-value parameter (breaks `parallelize` batch paths in pooling/conv/normalization) | **Filed [#6965](https://github.com/modular/modular/issues/6965)** — WAR applied: inline TaskGroup dispatch at all 3 call sites (closure never crosses a function-value boundary); `parallelize` retained for scalar/keep-alive captures only | 2026-08-22 |
 
 ---
@@ -317,9 +317,12 @@ All 362 non-DISABLED test files now compile and run on 1.0.0 stable:
 - Owned-local raw-pointer-escape audit: **0 remaining** in `src/` (20
   migrated across 10 files to origin-tied `data_ptr[]`).
 
-Remaining known failure classes are all filed upstream: FM-A/return-move
-(#6939), FM-B/KGEN JIT (#6958), FM-C/Atomic + raw-pointer escape
-(#6959/#6963), FM-G/closure captures (#6965).
+Failure classes filed upstream (2026-08-26 status): FM-A/return-move
+(#6939, closed DUPLICATE — double-` still reproducible), FM-B/KGEN JIT
+(#6958, closed COMPLETED — not reproducible in the current suite),
+FM-C/Atomic (#6959, closed COMPLETED — verified fixed, workaround removed
+2026-08-26), raw-pointer escape (#6963, closed DUPLICATE — canonical
+origin-tied pattern retained), FM-G/closure captures (#6965, open).
 
 ---
 

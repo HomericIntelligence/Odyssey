@@ -84,7 +84,7 @@ def normalize_rgb(
     var normalized = zeros(shape, DType.float32)
 
     var src_data = images._data
-    # Origin-tied pointer (WAR for modular/modular#6963): `normalized` is an
+    # Origin-tied pointer per upstream lifetime guidance (modular/modular#6963, closed DUPLICATE of #6707): `normalized` is an
     # owned local; a raw `_data` escape can hoist its __deinit__ mid-loop.
     var dst_data = normalized.data_ptr[DType.float32]()
 

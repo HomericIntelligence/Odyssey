@@ -539,7 +539,7 @@ def _transpose_matrix_float32(b: AnyTensor, K: Int, N: Int) raises -> AnyTensor:
     var b_t = AnyTensor(b_t_shape, DType.float32)
 
     var b_ptr = b._data.unsafe_bitcast[Float32]()
-    # Origin-tied pointer (WAR for modular/modular#6963): `b_t` is an owned
+    # Origin-tied pointer per upstream lifetime guidance (modular/modular#6963, closed DUPLICATE of #6707): `b_t` is an owned
     # local; a raw `_data` escape can hoist its __deinit__ mid-transpose.
     var bt_ptr = b_t.data_ptr[DType.float32]()
 
@@ -565,7 +565,7 @@ def _transpose_matrix_float64(b: AnyTensor, K: Int, N: Int) raises -> AnyTensor:
     var b_t = AnyTensor(b_t_shape, DType.float64)
 
     var b_ptr = b._data.unsafe_bitcast[Float64]()
-    # Origin-tied pointer (WAR for modular/modular#6963): `b_t` is an owned
+    # Origin-tied pointer per upstream lifetime guidance (modular/modular#6963, closed DUPLICATE of #6707): `b_t` is an owned
     # local; a raw `_data` escape can hoist its __deinit__ mid-transpose.
     var bt_ptr = b_t.data_ptr[DType.float64]()
 
@@ -595,7 +595,7 @@ def _matmul_float32(
     var b_t = _transpose_matrix_float32(b, K, N)
 
     var a_ptr = a._data.unsafe_bitcast[Float32]()
-    # origin-tied data_ptr (WAR for modular/modular#6963): b_t is an owned
+    # origin-tied data_ptr per upstream lifetime guidance (modular/modular#6963, closed DUPLICATE of #6707): b_t is an owned
     # local; a raw `_data` escape would let the compiler hoist b_t's
     # __deinit__ to this line, freeing the buffer while bt_ptr still reads it.
     var bt_ptr = b_t.data_ptr[DType.float32]()
@@ -723,7 +723,7 @@ def _matmul_float64(
     var b_t = _transpose_matrix_float64(b, K, N)
 
     var a_ptr = a._data.unsafe_bitcast[Float64]()
-    # origin-tied data_ptr (WAR for modular/modular#6963): see float32 twin.
+    # origin-tied data_ptr per upstream lifetime guidance (modular/modular#6963, closed DUPLICATE of #6707): see float32 twin.
     var bt_ptr = b_t.data_ptr[DType.float64]()
     var c_ptr = c._data.unsafe_bitcast[Float64]()
 
@@ -1002,7 +1002,7 @@ def verify_matmul_correctness(M: Int, K: Int, N: Int) raises -> Bool:
     var b = AnyTensor(b_shape, DType.float32)
 
     # Initialize with simple values for reproducibility
-    # Origin-tied pointers (WAR for modular/modular#6963): `a`/`b` are owned
+    # Origin-tied pointers per upstream lifetime guidance (modular/modular#6963, closed DUPLICATE of #6707): `a`/`b` are owned
     # locals; raw `_data` escapes can hoist their __deinit__ mid-fill.
     var a_ptr = a.data_ptr[DType.float32]()
     var b_ptr = b.data_ptr[DType.float32]()

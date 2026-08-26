@@ -38,15 +38,26 @@ fix preserves.
 from std.testing import assert_true, assert_equal
 from odyssey.base.memory_pool import SpinLock
 from std.atomic import Atomic
-from std.memory import Pointer, alloc
+from std.memory import Pointer
+
+
+def _lock_atomic(
+    lk: SpinLock,
+) -> Pointer[Atomic[DType.int64], MutUntrackedOrigin]:
+    """Raw atomic view of the lock word, for contender simulation."""
+    return lk.lock_word().unsafe_bitcast[Atomic[DType.int64]]()
+
+
+def _peek(lk: SpinLock) -> Int64:
+    """Read the raw lock counter through the public lock_word() accessor."""
+    return _lock_atomic(lk)[].load()
 
 
 def test_lock_sets_counter_to_one() raises:
     """After lock(), the backing counter must be exactly 1 (locked state)."""
     var lk = SpinLock()
     lk.lock()
-    # Peek at the raw counter value through the internal atomic view.
-    var val = Int(lk.peek_counter())
+    var val = Int(_peek(lk))
     assert_equal(val, 1, "counter must be 1 after lock()")
     lk.unlock()
     print("PASS: test_lock_sets_counter_to_one")
@@ -57,7 +68,7 @@ def test_unlock_resets_counter_to_zero() raises:
     var lk = SpinLock()
     lk.lock()
     lk.unlock()
-    var val = Int(lk.peek_counter())
+    var val = Int(_peek(lk))
     assert_equal(val, 0, "counter must be 0 after unlock()")
     print("PASS: test_unlock_resets_counter_to_zero")
 
@@ -69,7 +80,7 @@ def test_double_lock_unlock_cycle() raises:
     lk.unlock()
     lk.lock()
     lk.unlock()
-    var val = Int(lk.peek_counter())
+    var val = Int(_peek(lk))
     assert_equal(val, 0, "counter must be 0 after two lock/unlock cycles")
     print("PASS: test_double_lock_unlock_cycle")
 
@@ -93,15 +104,15 @@ def test_failed_fetch_add_does_not_corrupt_counter() raises:
     lk.lock()
     # Simulate 3 contenders each doing add-then-sub (backing off)
     for _ in range(3):
-        _ = lk.fetch_add_counter(1)  # contender increments
-        _ = lk.fetch_sub_counter(1)  # contender backs off
+        _ = _lock_atomic(lk)[].fetch_add(Int64(1))  # contender increments
+        _ = _lock_atomic(lk)[].fetch_sub(Int64(1))  # contender backs off
     # Counter must still be 1 (lock still held by original owner)
-    var val = Int(lk.peek_counter())
+    var val = Int(_peek(lk))
     assert_equal(
         val, 1, "counter must stay 1 while lock is held despite contenders"
     )
     lk.unlock()
-    var final = Int(lk.peek_counter())
+    var final = Int(_peek(lk))
     assert_equal(final, 0, "counter must be 0 after unlock")
     print("PASS: test_failed_fetch_add_does_not_corrupt_counter")
 
@@ -122,19 +133,21 @@ def test_store_zero_unlock_would_corrupt_counter() raises:
     var lk = SpinLock()
     lk.lock()
     # Simulate contender: fetch_add(1) increments counter to 2
-    _ = lk.fetch_add_counter(1)
+    _ = _lock_atomic(lk)[].fetch_add(Int64(1))
     # Lock holder unlocks via fetch_add(-1): counter goes 2→1 (not 0!)
     # (If unlock() used store(0), counter would be 0 here — contender sees
     # free and enters while it shouldn't yet, because it hasn't done its undo.)
-    _ = lk.fetch_add_counter(-1)  # mimic unlock via fetch_add(-1)
-    var after_unlock = Int(lk.peek_counter())
+    _ = _lock_atomic(lk)[].fetch_add(
+        Int64(-1)
+    )  # mimic unlock via fetch_add(-1)
+    var after_unlock = Int(_peek(lk))
     assert_true(
         after_unlock >= 0,
         "counter must not go negative after unlock-via-fetch_add(-1)",
     )
     # Contender backs off: fetch_add(-1) → counter returns to 0
-    _ = lk.fetch_add_counter(-1)
-    var final = Int(lk.peek_counter())
+    _ = _lock_atomic(lk)[].fetch_add(Int64(-1))
+    var final = Int(_peek(lk))
     assert_equal(final, 0, "counter must reach 0 after contender backs off")
     print("PASS: test_store_zero_unlock_would_corrupt_counter")
 
@@ -151,14 +164,14 @@ def test_counter_never_negative_under_repeated_contention() raises:
     for _ in range(20):
         lk.lock()
         # Two contenders both attempt to acquire and then back off
-        _ = lk.fetch_add_counter(1)
-        _ = lk.fetch_add_counter(1)
-        _ = lk.fetch_add_counter(-1)
-        _ = lk.fetch_add_counter(-1)
-        var mid = Int(lk.peek_counter())
+        _ = _lock_atomic(lk)[].fetch_add(Int64(1))
+        _ = _lock_atomic(lk)[].fetch_add(Int64(1))
+        _ = _lock_atomic(lk)[].fetch_add(Int64(-1))
+        _ = _lock_atomic(lk)[].fetch_add(Int64(-1))
+        var mid = Int(_peek(lk))
         assert_true(mid >= 0, "counter must not go negative while lock is held")
         lk.unlock()
-        var post = Int(lk.peek_counter())
+        var post = Int(_peek(lk))
         assert_equal(post, 0, "counter must be 0 after unlock")
     print("PASS: test_counter_never_negative_under_repeated_contention")
 
@@ -174,7 +187,7 @@ def test_many_sequential_cycles_no_drift() raises:
     for _ in range(50):
         lk.lock()
         lk.unlock()
-    var val = Int(lk.peek_counter())
+    var val = Int(_peek(lk))
     assert_equal(
         val, 0, "counter must be exactly 0 after 50 lock/unlock cycles"
     )

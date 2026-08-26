@@ -235,7 +235,7 @@ def normalize_images(mut images: AnyTensor) raises -> AnyTensor:
 
     var num_elements = images.numel()
     var src_data = images._data
-    # Origin-tied pointer (WAR for modular/modular#6963): `normalized` is an
+    # Origin-tied pointer per upstream lifetime guidance (modular/modular#6963, closed DUPLICATE of #6707): `normalized` is an
     # owned local; a raw `_data` escape can hoist its __deinit__ mid-loop.
     var dst_data = normalized.data_ptr[DType.float32]()
 
@@ -278,7 +278,7 @@ def one_hot_encode(labels: AnyTensor, num_classes: Int) raises -> AnyTensor:
 
     # Fill one-hot encoding
     var labels_data = labels._data
-    # Origin-tied pointer (WAR for modular/modular#6963): `one_hot` is an
+    # Origin-tied pointer per upstream lifetime guidance (modular/modular#6963, closed DUPLICATE of #6707): `one_hot` is an
     # owned local; a raw `_data` escape can hoist its __deinit__ mid-loop.
     var one_hot_data = one_hot.data_ptr[DType.float32]()
 
@@ -330,7 +330,7 @@ def normalize_images_rgb(mut images: AnyTensor) raises -> AnyTensor:
     var width = shape[3]
 
     var src_data = images._data
-    # Origin-tied pointer (WAR for modular/modular#6963): `normalized` is an
+    # Origin-tied pointer per upstream lifetime guidance (modular/modular#6963, closed DUPLICATE of #6707): `normalized` is an
     # owned local; a raw `_data` escape can hoist its __deinit__ mid-loop.
     var dst_data = normalized.data_ptr[DType.float32]()
 

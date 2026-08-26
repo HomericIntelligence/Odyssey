@@ -71,7 +71,7 @@ def main() raises:
 
     # Check for NaN/Inf
     print("\nChecking for NaN/Inf in outputs...")
-    # origin-tied data_ptr (WAR for modular/modular#6963): logits_train is an
+    # origin-tied data_ptr per upstream lifetime guidance (modular/modular#6963, closed DUPLICATE of #6707): logits_train is an
     # owned local; a raw `_data` escape would let the compiler hoist its
     # __deinit__ here, freeing the buffer while the NaN loop reads it.
     var logits_data = logits_train.data_ptr[DType.float32]()

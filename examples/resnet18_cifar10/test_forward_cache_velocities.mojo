@@ -177,7 +177,7 @@ def test_forward_with_cache_matches_forward_logits() raises:
 
     # Compare logit values element-wise: forward_with_cache must produce
     # bit-equal float32 logits to forward (40 logits = 4 batch x 10 classes).
-    # origin-tied data_ptr (WAR for modular/modular#6963): cache_logits and
+    # origin-tied data_ptr per upstream lifetime guidance (modular/modular#6963, closed DUPLICATE of #6707): cache_logits and
     # forward_logits are owned locals; raw `_data` escapes would let the
     # compiler hoist their __deinit__ here, freeing the buffers while the
     # comparison loop still reads them.

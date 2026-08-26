@@ -498,8 +498,11 @@ struct AnyTensor(
         decremented once for the destination and once for the moved-from
         source -> premature free -> use-after-free on the returned value.
         See docs/dev/reproducers/repro_uaf_return_move.mojo and
-        modular/modular#6939 for the minimal reproducer. Fixed upstream;
-        do NOT reintroduce the refcount-sentinel workaround here.
+        modular/modular#6939 for the minimal reproducer. Upstream closed
+        #6939 as DUPLICATE of #6707 (expected-behavior) with NO fix; the
+        triggered double-`__deinit__` is still reproducible on 1.0.0
+        stable (verified 2026-08-26). Do NOT reintroduce the
+        refcount-sentinel workaround here.
         """
         self._data = move._data
         self._base_data = move._base_data
@@ -1600,7 +1603,7 @@ struct AnyTensor(
     ](mut self,) -> Pointer[Scalar[dtype], origin_of(self)]:
         """Get typed pointer to underlying data for bulk operations.
 
-        WAR for modular/modular#6963 (premature `__deinit__` UAF, same class
+        per upstream lifetime guidance, modular/modular#6963 (closed DUPLICATE of #6707): premature `__deinit__` UAF, same class
         as #6959/#6707): the returned pointer is origin-tied to `self` so
         the compiler keeps this tensor alive for the whole lifetime of the
         pointer instead of hoisting `__deinit__` to right after this call.
@@ -1622,7 +1625,7 @@ struct AnyTensor(
     def refcount(mut self) -> Int:
         """Get the current shared reference count, tied to this tensor's lifetime.
 
-        WAR for modular/modular#6963 (premature `__deinit__` UAF, same class
+        per upstream lifetime guidance, modular/modular#6963 (closed DUPLICATE of #6707): premature `__deinit__` UAF, same class
         as #6959/#6707): reading `_refcount` directly on an owned local can
         hoist this tensor's `__deinit__` to right after the field access,
         freeing the refcount pointer before it is dereferenced. Taking `mut
