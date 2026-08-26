@@ -291,7 +291,7 @@ def _anytensor_matmul(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
         def _mm[dtype: DType]():
             var a_ptr = a._data.unsafe_bitcast[Scalar[dtype]]()
             var b_ptr = b._data.unsafe_bitcast[Scalar[dtype]]()
-            # Origin-tied pointer (WAR for modular/modular#6963): `result` is
+            # Origin-tied pointer per upstream lifetime guidance (modular/modular#6963, closed DUPLICATE of #6707): `result` is
             # an owned local; a raw `_data` escape can hoist its __deinit__.
             var r_ptr = result.data_ptr[dtype]()
             for i in range(m):

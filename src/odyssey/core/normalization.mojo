@@ -278,6 +278,9 @@ def batch_norm2d_inplace(
     runs the moved-from source's `__deinit__`, over-decrementing AnyTensor's
     shared refcount -> premature free -> reads of the returned stats fields
     hit freed memory non-deterministically ("BN stats not persisted" flakes).
+    Upstream closed #6939 as DUPLICATE of #6707 (expected behavior) with NO
+    fix; the double-`__deinit__` remains reproducible on 1.0.0 stable
+    (verified 2026-08-26 via docs/dev/reproducers/repro_uaf_return_move.mojo).
     This variant returns a single tensor (the same reliable shape as
     conv/linear/cross_entropy on stable), so running stat persistence is
     guaranteed by in-place mutation instead of by tuple extraction.

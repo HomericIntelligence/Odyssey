@@ -159,7 +159,7 @@ def infer_single(
     # Find argmax and max value
     var num_classes = logits.shape()[1]
     var max_idx = 0
-    # origin-tied data_ptr (WAR for modular/modular#6963): logits is an owned
+    # origin-tied data_ptr per upstream lifetime guidance (modular/modular#6963, closed DUPLICATE of #6707): logits is an owned
     # local; a raw `_data` escape would let the compiler hoist its __deinit__
     # here, freeing the buffer while the argmax/softmax loops read it.
     var max_val_data = logits.data_ptr[DType.float32]()

@@ -582,7 +582,7 @@ def variable_neg(
     # Create negated tensor
     var result_data = zeros_like(x.data)
     var size = x.data.numel()
-    # Origin-tied pointer (WAR for modular/modular#6963): `result_data` is an
+    # Origin-tied pointer per upstream lifetime guidance (modular/modular#6963, closed DUPLICATE of #6707): `result_data` is an
     # owned local; a raw `_data` escape can hoist its __deinit__ mid-loop.
     var rd_ptr = result_data.data_ptr[DType.uint8]()
     for i in range(size):

@@ -124,7 +124,7 @@ def evaluate_model(
         total_correct += batch_correct
 
         # Update per-class counters
-        # origin-tied data_ptr (WAR for modular/modular#6963): logits is an
+        # origin-tied data_ptr per upstream lifetime guidance (modular/modular#6963, closed DUPLICATE of #6707): logits is an
         # owned local; a raw `_data` escape would let the compiler hoist its
         # __deinit__ here, freeing the buffer while the argmax loop reads it.
         var logits_data = logits.data_ptr[DType.float32]()

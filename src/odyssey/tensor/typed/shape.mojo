@@ -50,7 +50,7 @@ def _as_contiguous_typed[
     var shape = tensor.shape()
     var numel = tensor.numel()
     var result = Tensor[dtype](shape)
-    # Origin-tied pointers (WAR for modular/modular#6963: direct `_data`
+    # Origin-tied pointers per upstream lifetime guidance (modular/modular#6963, closed DUPLICATE of #6707): direct `_data`
     # capture from an owned local hoists the owner's `__deinit__` before
     # the pointer is used, freeing the buffer mid-copy). `tensor` is a
     # borrowed param (owner is the caller — safe); `result` is an owned
