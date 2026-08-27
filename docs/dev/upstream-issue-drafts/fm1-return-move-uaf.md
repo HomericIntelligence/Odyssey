@@ -116,4 +116,4 @@ as wrong tensor values, `List._realloc` crashes, and flaky failures across the t
   heavy churn, not move semantics
 - #6707 (stale read through `UnsafePointer[MutUntrackedOrigin]`, closed NOT_PLANNED) —
   different mechanism: origin-tracking limitation, no move involved
-- #6475 (bitcast read in struct method, OPEN) — different mechanism, no moves involved
+- #6475 (bitcast read in struct method, closed COMPLETED) — different mechanism, no moves involved

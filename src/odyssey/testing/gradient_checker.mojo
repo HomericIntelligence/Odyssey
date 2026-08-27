@@ -40,9 +40,11 @@ Fix for intermittent JIT crashes (issue #5104):
     All tight loops now use data_ptr[dtype]() to obtain typed pointers once
     per loop scope, replacing per-element _get_float64/_set_float64 calls.
     The per-element bitcast in _get/_set_float64 could trigger ASAP destruction
-    of the tensor while bitcast-derived pointers were still live
-    (modular/modular#6187). The data_ptr approach keeps the tensor alive for
-    the entire pointer scope.
+    of the tensor while bitcast-derived pointers were still live (the
+    premature-deinit class, modular/modular#6707 / #6939). The data_ptr
+    approach keeps the tensor alive for the entire pointer scope.
+    (Note: modular/modular#6187, originally cited here, was fixed upstream;
+    the origin-tie keep-alive remains canonical per #6707/#6939 guidance.)
 """
 
 from odyssey.tensor.any_tensor import AnyTensor
@@ -113,8 +115,8 @@ struct IndexGradientPair(Copyable, Movable):
 # These helpers use data_ptr[dtype]() to get a typed pointer ONCE, then
 # index that pointer throughout the loop. This keeps the source tensor
 # alive for the entire scope, preventing ASAP destruction from freeing
-# tensor memory while a bitcast-derived pointer is still in use
-# (modular/modular#6187).
+# tensor memory while a bitcast-derived pointer is still in use (the
+# premature-deinit class, modular/modular#6707 / #6939).
 # ============================================================================
 
 
@@ -243,7 +245,7 @@ def _check_gradients_perturb[
         # Use data_ptr[dtype]() once per tensor to keep output_plus/output_minus
         # alive for the entire loop scope. Per-element _get_float64 performs a
         # bitcast on each call and can trigger ASAP destruction of the temporary
-        # tensor before all elements are read (modular/modular#6187).
+        # tensor before all elements are read (premature-deinit class, #6707/#6939).
         var out_plus_ptr = output_plus.data_ptr[dtype]()
         var out_minus_ptr = output_minus.data_ptr[dtype]()
         var numerical_sum: Float64 = 0.0
@@ -298,7 +300,7 @@ def _check_gradients_perturb[
         # Use data_ptr[dtype]() once per tensor to keep output_plus/output_minus
         # alive for the entire loop scope. Per-element _get_float64 performs a
         # bitcast on each call and can trigger ASAP destruction of the temporary
-        # tensor before all elements are read (modular/modular#6187).
+        # tensor before all elements are read (premature-deinit class, #6707/#6939).
         var out_plus_ptr = output_plus.data_ptr[dtype]()
         var out_minus_ptr = output_minus.data_ptr[dtype]()
         var numerical_sum: Float64 = 0.0
@@ -974,7 +976,7 @@ def _compute_numerical_grad_perturb[
         # Central difference: (f(x+ε) - f(x-ε)) / 2ε
         # Use data_ptr[dtype]() to keep f_plus/f_minus alive for the loop
         # scope. Per-element _get_float64 bitcasts can trigger ASAP destruction
-        # of temporary tensors returned by forward_fn (modular/modular#6187).
+        # of temporary tensors returned by forward_fn (premature-deinit class, #6707/#6939).
         var f_plus_ptr = f_plus.data_ptr[dtype]()
         var f_minus_ptr = f_minus.data_ptr[dtype]()
         var grad_val: Float64
@@ -1201,7 +1203,7 @@ def _compute_sampled_grad_perturb[
         # f(x + ε)
         x_ptr[unsafe_offset=idx] = Scalar[dtype](original_val + epsilon)
         var f_plus = forward_fn(x)
-        # Use data_ptr[dtype]() to keep f_plus alive across the loop (modular/modular#6187)
+        # Use data_ptr[dtype]() to keep f_plus alive across the loop (#6707/#6939 class)
         var f_plus_ptr = f_plus.data_ptr[dtype]()
         var f_plus_sum: Float64 = 0.0
         for j in range(f_plus.numel()):
@@ -1210,7 +1212,7 @@ def _compute_sampled_grad_perturb[
         # f(x - ε)
         x_ptr[unsafe_offset=idx] = Scalar[dtype](original_val - epsilon)
         var f_minus = forward_fn(x)
-        # Use data_ptr[dtype]() to keep f_minus alive across the loop (modular/modular#6187)
+        # Use data_ptr[dtype]() to keep f_minus alive across the loop (#6707/#6939 class)
         var f_minus_ptr = f_minus.data_ptr[dtype]()
         var f_minus_sum: Float64 = 0.0
         for j in range(f_minus.numel()):
@@ -1652,7 +1654,7 @@ def _check_gradient_perturb[
         var plus_ptr = x_plus.data_ptr[dtype]()
         plus_ptr[unsafe_offset=i] = Scalar[dtype](old_val + eps)
         var out_plus = forward_fn(x_plus)
-        # Use data_ptr[dtype]() to keep out_plus alive across the loop (modular/modular#6187)
+        # Use data_ptr[dtype]() to keep out_plus alive across the loop (#6707/#6939 class)
         var out_plus_ptr = out_plus.data_ptr[dtype]()
         var grad_out_ptr = grad_output.data_ptr[dtype]()
         var loss_plus: Float64 = 0.0
@@ -1666,7 +1668,7 @@ def _check_gradient_perturb[
         var minus_ptr = x_minus.data_ptr[dtype]()
         minus_ptr[unsafe_offset=i] = Scalar[dtype](old_val - eps)
         var out_minus = forward_fn(x_minus)
-        # Use data_ptr[dtype]() to keep out_minus alive across the loop (modular/modular#6187)
+        # Use data_ptr[dtype]() to keep out_minus alive across the loop (#6707/#6939 class)
         var out_minus_ptr = out_minus.data_ptr[dtype]()
         var loss_minus: Float64 = 0.0
         for j in range(out_minus.numel()):
@@ -1708,7 +1710,7 @@ def _check_gradient_perturb[
         var plus_ptr = x_plus.data_ptr[dtype]()
         plus_ptr[unsafe_offset=i] = Scalar[dtype](old_val + eps)
         var out_plus = forward_fn(x_plus)
-        # Use data_ptr[dtype]() to keep out_plus alive across the loop (modular/modular#6187)
+        # Use data_ptr[dtype]() to keep out_plus alive across the loop (#6707/#6939 class)
         var out_plus_ptr = out_plus.data_ptr[dtype]()
         var grad_out_ptr = grad_output.data_ptr[dtype]()
         var loss_plus: Float64 = 0.0
@@ -1722,7 +1724,7 @@ def _check_gradient_perturb[
         var minus_ptr = x_minus.data_ptr[dtype]()
         minus_ptr[unsafe_offset=i] = Scalar[dtype](old_val - eps)
         var out_minus = forward_fn(x_minus)
-        # Use data_ptr[dtype]() to keep out_minus alive across the loop (modular/modular#6187)
+        # Use data_ptr[dtype]() to keep out_minus alive across the loop (#6707/#6939 class)
         var out_minus_ptr = out_minus.data_ptr[dtype]()
         var loss_minus: Float64 = 0.0
         for j in range(out_minus.numel()):
