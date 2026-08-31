@@ -259,60 +259,75 @@ def test_package_path_export() raises:
     print("test_package_path_export PASSED")
 
 
-def test_functional_core_still_broken_tripwire() raises:
-    """Tripwire: the functional attention core still RAISES on all inputs.
+def test_functional_core_cross_parity() raises:
+    """Cross-parity: MultiHeadAttention.forward == multi_head_attention_masked.
 
-    `MultiHeadAttention` reimplements the forward instead of delegating to the
-    functional core (`core/attention.mojo`) because that core's `transpose(key)`
-    reverses ALL axes rather than swapping only the last two, so its QKᵀ matmul
-    raises on every documented input (Odyssey#5648, PR #5640 review MAJOR-2).
+    Odyssey#5648 fixed the functional core's transpose(key) to swap only the
+    last two axes.  This test seeds the SAME ramp weights into both the
+    Module wrapper and the functional-core weights struct, runs both paths
+    on the same input, and asserts element-wise agreement to 1e-5.
 
-    This test asserts BOTH functional paths still raise. When Odyssey#5648 is
-    fixed, this test starts FAILING — that is intentional: its failure message
-    is the actionable TODO to collapse the twin into a real cross-parity test
-    asserting `MultiHeadAttention.forward == multi_head_attention_masked` on a
-    shared input.
+    Uses an empty mask to avoid the −∞ vs −1e9 convention split between
+    the two implementations (deferred to the unification task).
     """
-    print("Running test_functional_core_still_broken_tripwire...")
-    var x = zeros([2, 3, 4], DType.float64)  # batch=2, seq=3, d_model=4
+    print("Running test_functional_core_cross_parity...")
+    var d_model = 4
+    var num_heads = 2
+    var batch = 2
+    var seq = 3
+
+    # Build and seed the Module wrapper
+    var attn = MultiHeadAttention[DType.float64](d_model, num_heads=num_heads)
+    _seed_all(attn, d_model)
+    # Zero all biases so we compare matmul-only paths (functional core has no bias)
+    _seed_ramp(attn.q_proj.bias, d_model, 0.0, 0.0)
+    _seed_ramp(attn.k_proj.bias, d_model, 0.0, 0.0)
+    _seed_ramp(attn.v_proj.bias, d_model, 0.0, 0.0)
+    _seed_ramp(attn.out_proj.bias, d_model, 0.0, 0.0)
+
+    # Build and seed the functional-core weights with the SAME ramps
+    var wq = zeros([d_model, d_model], DType.float64)
+    var wk = zeros([d_model, d_model], DType.float64)
+    var wv = zeros([d_model, d_model], DType.float64)
+    var wo = zeros([d_model, d_model], DType.float64)
+    _seed_ramp(wq, d_model * d_model, 0.01, -0.15)
+    _seed_ramp(wk, d_model * d_model, 0.013, -0.12)
+    _seed_ramp(wv, d_model * d_model, 0.008, -0.10)
+    _seed_ramp(wo, d_model * d_model, 0.006, -0.08)
+    var fw = MultiHeadAttentionWeights(wq, wk, wv, wo)
+
+    # Same input
+    var x = zeros([batch, seq, d_model], DType.float64)
+    _seed_ramp(x, batch * seq * d_model, 0.1, -0.3)
+
     var empty = zeros(List[Int](), DType.float64)
 
-    # 3D path: scaled_dot_product_attention_masked reverses [B,S,d_k] fully.
-    var sdpa_raised = False
-    try:
-        var _ = scaled_dot_product_attention_masked(x, x, x, empty)
-    except _:
-        sdpa_raised = True
-    if not sdpa_raised:
-        raise Error(
-            "functional attention core no longer raises (3D path): the"
-            " transpose bug (Odyssey#5648) appears fixed — replace this"
-            " tripwire with a true cross-parity test asserting"
-            " MultiHeadAttention == multi_head_attention_masked (see PR #5640"
-            " review MAJOR-2)"
-        )
+    # Run both paths
+    var y_layer = attn.forward(x)
+    var y_func = multi_head_attention_masked(x, x, x, fw, num_heads, empty)
 
-    # 4D / multi-head path: multi_head_attention_masked, num_heads=2.
-    var wq = zeros([4, 4], DType.float64)
-    var wk = zeros([4, 4], DType.float64)
-    var wv = zeros([4, 4], DType.float64)
-    var wo = zeros([4, 4], DType.float64)
-    var w = MultiHeadAttentionWeights(wq, wk, wv, wo)
-    var mha_raised = False
-    try:
-        var _ = multi_head_attention_masked(x, x, x, w, 2, empty)
-    except _:
-        mha_raised = True
-    if not mha_raised:
-        raise Error(
-            "functional attention core no longer raises (multi-head path): the"
-            " transpose bug (Odyssey#5648) appears fixed — replace this"
-            " tripwire with a true cross-parity test asserting"
-            " MultiHeadAttention == multi_head_attention_masked (see PR #5640"
-            " review MAJOR-2)"
-        )
-    print("  ok both functional paths still raise (Odyssey#5648 open)")
-    print("test_functional_core_still_broken_tripwire PASSED")
+    # Assert element-wise agreement to 1e-5
+    var numel = y_layer.numel()
+    for i in range(numel):
+        var d = y_layer.load[DType.float64](i) - y_func.output.load[
+            DType.float64
+        ](i)
+        if d < 0:
+            d = -d
+        if d > 1e-5:
+            raise Error(
+                "cross-parity mismatch at index "
+                + String(i)
+                + ": layer="
+                + String(y_layer.load[DType.float64](i))
+                + " func="
+                + String(y_func.output.load[DType.float64](i))
+            )
+    print(
+        "  ok multi_head_attention_masked matches MultiHeadAttention.forward to"
+        " 1e-5"
+    )
+    print("test_functional_core_cross_parity PASSED")
 
 
 def main() raises:
@@ -328,7 +343,7 @@ def main() raises:
     test_parity_single_head()
     test_parity_multi_head_causal()
     test_package_path_export()
-    test_functional_core_still_broken_tripwire()
+    test_functional_core_cross_parity()
     print("=" * 60)
     print("All MultiHeadAttention tests PASSED")
     print("=" * 60)

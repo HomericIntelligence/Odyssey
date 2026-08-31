@@ -212,7 +212,7 @@ def prodigy_step(
         new_d = d_cap
 
     # Parameter update: x' = x - gamma * d * m' / (sqrt(v') + d * eps)
-    # NOTE: uses the CURRENT d (not d'), matching Algorithm 4.
+    # NOTE (Mojo v1.0.0): uses the CURRENT d (not d'), matching Algorithm 4.
     var denom = add_simd(sqrt(new_v), full_like(new_v, d * epsilon))
     var scaled_m = multiply_simd(full_like(new_m, gamma * d), new_m)
     var update = divide_simd(scaled_m, denom)
