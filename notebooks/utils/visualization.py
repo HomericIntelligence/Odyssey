@@ -34,7 +34,8 @@ def plot_training_curves(
     Returns:
         Matplotlib figure object
     """
-    fig, axes = plt.subplots(1, 2 if train_accuracies else 1, figsize=figsize)
+    has_accuracy = train_accuracies is not None and len(train_accuracies) > 0
+    fig, axes = plt.subplots(1, 2 if has_accuracy else 1, figsize=figsize)
 
     if not isinstance(axes, np.ndarray):
         axes = np.array([axes])
@@ -51,7 +52,7 @@ def plot_training_curves(
     axes[0].grid(True, alpha=0.3)
 
     # Plot accuracy if provided
-    if train_accuracies and len(axes) > 1:
+    if has_accuracy and len(axes) > 1:
         axes[1].plot(epochs, train_accuracies, "b-", label="Train Acc", linewidth=2)
         if val_accuracies:
             axes[1].plot(epochs, val_accuracies, "r-", label="Val Acc", linewidth=2)

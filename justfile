@@ -746,8 +746,13 @@ jupyter:
 jupyter-notebook:
     @uv run --group notebook jupyter notebook --no-browser --ip=127.0.0.1
 
-# Execute all notebooks (for CI validation)
-jupyter-validate:
+# Execute all notebooks (for CI validation). Mojo-dependent notebook execution
+# runs in the development container, matching the rest of the Mojo toolchain.
+jupyter-validate: podman-up
+    @just _run "just _jupyter-validate-inner"
+
+[private]
+_jupyter-validate-inner:
     #!/usr/bin/env bash
     set -e
     NOTEBOOK_COUNT=0
@@ -767,7 +772,7 @@ jupyter-validate:
     done
     echo ""
     echo "Validated $PASSED/$NOTEBOOK_COUNT notebooks"
-    if [ $FAILED -gt 0 ]; then
+    if [ "$FAILED" -gt 0 ]; then
         echo "❌ $FAILED notebooks failed validation"
         exit 1
     fi
@@ -843,11 +848,11 @@ shell: podman-preflight
 
 # Serve documentation
 docs-serve:
-    @mkdocs serve || echo "Install mkdocs for documentation"
+    @mkdocs serve
 
 # Build documentation
 docs:
-    @mkdocs build || echo "Install mkdocs for documentation"
+    @mkdocs build
 
 # ==============================================================================
 # CI/CD
@@ -1383,14 +1388,14 @@ audit:
     @echo "Running dependency audit..."
     @echo ""
     @echo "=== Safety Scan ==="
-    -@safety check --file requirements.txt
-    -@safety check --file requirements-dev.txt
+    @uv run safety check --file requirements.txt
+    @uv run safety check --file requirements-dev.txt
     @echo ""
     @echo "=== pip-audit Scan ==="
-    -@pip-audit
+    @uv run pip-audit
     @echo ""
     @echo "=== License Check ==="
-    @pip-licenses --format=markdown
+    @uv run pip-licenses --format=markdown
 
 # ==============================================================================
 # Version Management
