@@ -345,7 +345,7 @@ def train_epoch(
         )
 
         # Copy data into batch tensors using dtype-agnostic accessors.
-        # NOTE: the previous version used `(_data + i).unsafe_load()` on the UInt8
+        # NOTE (Mojo v1.0.0): the previous version used `(_data + i).unsafe_load()` on the UInt8
         # byte pointer, copying only 1 byte per element regardless of dtype
         # and silently corrupting float32 training data. _get/_set_float64
         # round-trip through Float64 and preserve the value at whatever

@@ -106,6 +106,102 @@ def _append_inception_velocities(
     velocities.append(zeros(module.bn1x1_4_beta.shape(), DType.float32))
 
 
+def _tensor_stats(
+    t: AnyTensor,
+) raises -> Tuple[Float32, Float32, Float32, Float32]:
+    """Return (mean, std, min, max) of a 1-D tensor (float32)."""
+    var n = t.numel()
+    if n == 0:
+        return (0.0, 0.0, 0.0, 0.0)
+    var d = t._data.unsafe_bitcast[Float32]()
+    var s = Float32(0.0)
+    var s2 = Float32(0.0)
+    var lo = d[unsafe_offset=0]
+    var hi = d[unsafe_offset=0]
+    for i in range(n):
+        var v = d[unsafe_offset=i]
+        s += v
+        s2 += v * v
+        if v < lo:
+            lo = v
+        if v > hi:
+            hi = v
+    var mean = s / Float32(n)
+    var variance = s2 / Float32(n) - mean * mean
+    var std = Float32(0.0)
+    if variance > 0:
+        # Manual sqrt via Newton's method
+        std = variance
+        for _ in range(20):
+            std = 0.5 * (std + variance / std)
+    return (mean, std, lo, hi)
+
+
+def print_bn_stats(
+    label: String,
+    running_mean: AnyTensor,
+    running_var: AnyTensor,
+) raises:
+    """Print summary statistics for one BN layer's running stats."""
+    var (rm_mean, rm_std, rm_lo, rm_hi) = _tensor_stats(running_mean)
+    var (rv_mean, rv_std, rv_lo, rv_hi) = _tensor_stats(running_var)
+    print(
+        "    "
+        + label
+        + ": rm_mean="
+        + String(rm_mean)
+        + " (std="
+        + String(rm_std)
+        + ", range=["
+        + String(rm_lo)
+        + ", "
+        + String(rm_hi)
+        + "])  rv_mean="
+        + String(rv_mean)
+        + " (std="
+        + String(rv_std)
+        + ", range=["
+        + String(rv_lo)
+        + ", "
+        + String(rv_hi)
+        + "])"
+    )
+
+
+def print_bn_diagnostics(model: GoogLeNet, epoch_label: String) raises:
+    """Print BN running stats for 3 representative layers.
+
+    Chosen to span the network depth:
+      - Stem BN: first BN in the network (shallow)
+      - Inception 3a branch 1: early module (mid-shallow)
+      - Inception 5b branch 1: last module (deep)
+
+    Initial values: running_mean = 0, running_var = 1.
+    After training, deviation from these values shows how far
+    the running stats have drifted from initialization.
+    """
+    print("  BN Running Stats [" + epoch_label + "]:")
+    print_bn_stats(
+        "stem_bn",
+        model.initial_bn_running_mean,
+        model.initial_bn_running_var,
+    )
+    print_bn_stats(
+        "inception_3a.b1_bn",
+        model.inception_3a.bn1x1_1_running_mean,
+        model.inception_3a.bn1x1_1_running_var,
+    )
+    print_bn_stats(
+        "inception_5b.b1_bn",
+        model.inception_5b.bn1x1_1_running_mean,
+        model.inception_5b.bn1x1_1_running_var,
+    )
+    print(
+        "    (initial values: running_mean=0, running_var=1;"
+        + " deviation from init shows EMA drift)"
+    )
+
+
 def initialize_velocities(model: GoogLeNet) raises -> List[AnyTensor]:
     """Allocate exactly 222 zero velocity tensors for SGD-with-momentum.
 
@@ -607,6 +703,7 @@ def validate(
     val_images: AnyTensor,
     val_labels: AnyTensor,
     batch_size: Int,
+    max_batches: Int = 0,
 ) raises -> Float32:
     """Validate model on validation set.
 
@@ -615,12 +712,20 @@ def validate(
         val_images: Validation images (N, 3, 32, 32).
         val_labels: Validation labels (N,).
         batch_size: Mini-batch size.
+        max_batches: Cap on batches evaluated (0 = full set). The BN
+            diagnostic below evaluates a capped prefix because full-set
+            forward-only validation on CIFAR-10 costs ~40 min.
 
     Returns:
         Validation accuracy (percentage).
     """
     var num_samples = val_images.shape()[0]
     var num_batches = compute_num_batches(num_samples, batch_size)
+    if max_batches > 0 and num_batches > max_batches:
+        num_batches = max_batches
+    var evaluated = num_batches * batch_size
+    if evaluated > num_samples:
+        evaluated = num_samples
     var total_correct = 0
 
     for batch_idx in range(num_batches):
@@ -650,8 +755,41 @@ def validate(
             if pred_class == true_class:
                 total_correct += 1
 
-    var accuracy = Float32(total_correct) / Float32(num_samples) * 100.0
+    var accuracy = Float32(total_correct) / Float32(evaluated) * 100.0
     return accuracy
+
+
+def recalibrate_bn_stats(
+    mut model: GoogLeNet,
+    images: AnyTensor,
+    labels: AnyTensor,
+    batch_size: Int,
+    sweeps: Int,
+    max_batches: Int,
+) raises -> Int:
+    """EMA-converge BN running stats to population stats at frozen weights.
+
+    Standard BN recalibration (the train/eval stats contract): sweep the
+    training data with training-mode forward passes — these EMA-update
+    running_mean/running_var at every BN site (see InceptionModule.forward)
+    — WITHOUT touching weights or momentum velocities. With momentum 0.1,
+    `sweeps * batches` updates drive the EMA within ~0.9^(sweeps*batches)
+    of the population statistics. Returns the number of forward batches run.
+    """
+    var num_samples = images.shape()[0]
+    var num_batches = compute_num_batches(num_samples, batch_size)
+    if max_batches > 0 and num_batches > max_batches:
+        num_batches = max_batches
+    var swept = 0
+    for _sweep in range(sweeps):
+        for batch_idx in range(num_batches):
+            var start_idx = batch_idx * batch_size
+            var batch_pair = extract_batch_pair(
+                images, labels, start_idx, batch_size
+            )
+            _ = model.forward(batch_pair[0], training=True)
+            swept += 1
+    return swept
 
 
 def main() raises:
@@ -753,6 +891,8 @@ def main() raises:
     # Training loop
     print("Starting training...")
     print()
+    print_bn_diagnostics(model, "before training")
+    print()
 
     var velocities = initialize_velocities(model)
     print(
@@ -791,6 +931,7 @@ def main() raises:
             + " - Loss: "
             + String(train_loss)
         )
+        print_bn_diagnostics(model, "epoch " + String(epoch + 1))
 
         # Validate every 10 epochs
         if (epoch + 1) % 10 == 0:
@@ -823,6 +964,67 @@ def main() raises:
             print("  ✓ Weights saved successfully")
         except e:
             print("  ✗ Failed to save weights: " + String(e))
+
+    # ------------------------------------------------------------------
+    # BN running-stat diagnostic (train/infer mismatch investigation).
+    #
+    # Training-mode BN normalizes with per-batch stats; inference uses the
+    # EMA running stats (momentum 0.1 -> ~10-batch memory). After few-batch
+    # runs the EMA can be badly biased vs the population statistics
+    # inference needs, and the shift compounds across GoogLeNet's ~30 BN
+    # layers. To separate "stale stats" from an inference wiring bug we
+    # compare, on the SAME inputs:
+    #   1. train-set accuracy under inference-mode BN with the RAW
+    #      post-training EMA stats,
+    #   2. the same after recalibrating the stats to population statistics
+    #      at frozen weights (training-mode forward passes, no optimizer).
+    # Both modes share one normalization path (_batch_norm2d_normalize), so
+    # a large jump in (2) indicts EMA bias, not the inference wiring.
+    # ------------------------------------------------------------------
+    var diag_batches = 32
+    var recal_sweeps = 3
+    print("BN diagnostic: train-set accuracy under inference-mode BN")
+    var raw_train_acc = validate(
+        model, train_images, train_labels, batch_size, max_batches=diag_batches
+    )
+    print("  raw EMA stats:                 " + String(raw_train_acc) + "%")
+    print_bn_diagnostics(model, "before recalibration")
+    var swept = recalibrate_bn_stats(
+        model,
+        train_images,
+        train_labels,
+        batch_size,
+        recal_sweeps,
+        diag_batches,
+    )
+    print(
+        "  recalibrated stats over "
+        + String(swept)
+        + " forward batches ("
+        + String(recal_sweeps)
+        + " sweeps, frozen weights)"
+    )
+    print_bn_diagnostics(model, "after recalibration")
+    var recal_train_acc = validate(
+        model, train_images, train_labels, batch_size, max_batches=diag_batches
+    )
+    print("  recalibrated population stats: " + String(recal_train_acc) + "%")
+    if not smoke:
+        var recal_test_acc = validate(
+            model,
+            test_images,
+            test_labels,
+            batch_size,
+            max_batches=diag_batches,
+        )
+        print(
+            "  recalibrated test-subset accuracy (first "
+            + String(diag_batches)
+            + " batches): "
+            + String(recal_test_acc)
+            + "%"
+        )
+    print()
 
     print()
     print("=" * 60)

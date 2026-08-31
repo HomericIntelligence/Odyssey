@@ -24,7 +24,7 @@ File format (hex-encoded text):
 from std.memory import Pointer
 from std.collections import List
 
-# NOTE: relative imports are REQUIRED here. See top-of-file docstring:
+# NOTE (Mojo v1.0.0): relative imports are REQUIRED here. See top-of-file docstring:
 # absolute imports cause Mojo's package compiler to compile any_tensor.mojo
 # twice with distinct AnyTensor type identities, producing
 #   "cannot implicitly convert 'AnyTensor' value to 'AnyTensor'".
