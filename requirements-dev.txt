@@ -13,11 +13,11 @@ anyio==4.14.2
     # via
     #   httpx
     #   jupyter-server
-appnope==1.0.0 ; sys_platform == 'darwin'
+appnope==0.1.4 ; sys_platform == 'darwin'
     # via ipykernel
 argon2-cffi==25.1.0
     # via jupyter-server
-argon2-cffi-bindings==26.1.0
+argon2-cffi-bindings==25.1.0
     # via argon2-cffi
 arrow==1.4.0
     # via isoduration
@@ -39,7 +39,7 @@ babel==2.18.0
     # via
     #   jupyterlab-server
     #   mkdocs-material
-backrefs==8.0
+backrefs==7.0
     # via mkdocs-material
 bandit==1.9.4
 beautifulsoup4==4.15.0
