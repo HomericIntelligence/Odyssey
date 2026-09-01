@@ -32,7 +32,7 @@ dependencies = [
     "mojo==1.0.0",
 
     # Core libraries
-    "numpy>=2.3.5,<3",
+    "numpy>=2.5.2,<3",
     "jinja2>=3.1.0,<4",
     "pyyaml>=6.0.0,<7",
     "click>=8.0.0,<9",
@@ -40,14 +40,14 @@ dependencies = [
     "defusedxml>=0.0.1",
     # Utilities
     "prettytable>=3.17.0,<4",
-    "pygithub>=2.8.1,<3",
+    "pygithub>=2.10.0,<3",
     "jsonschema>=4.0",
-    "nbformat>=5.11.0,<6",
+    "nbformat>=5.11.1,<6",
     "nbconvert>=7.16.0,<8",
     "pydantic>=2.14.0b1,<3",
 
     # PyPI-only deps (were [pypi-dependencies] in pixi.toml)
-    "homericintelligence-hephaestus>=0.10.3,<1",
+    "homericintelligence-hephaestus>=0.10.4,<1",
     "pip-licenses>=5.5.5,<6",
 
     # Transitive-dependency CVE floors (#5386). Not imported by project code;
@@ -57,7 +57,7 @@ dependencies = [
     #   mistune    CVE-2026-33079 / -44897
     "authlib>=1.6.11",
     "cryptography>=50.0.0",  # PYSEC-2026-3552 (#5386)
-    "gitpython>=3.1.58",
+    "gitpython>=3.1.59",
     "mistune>=3.3.4",
 ]
 
@@ -74,18 +74,18 @@ dev = [
     "pytest-cov>=7.1.0,<8",
     "pytest-timeout>=2.1.0,<3",
     "pytest-xdist>=3.0.0,<4",
-    "pytest-benchmark>=5.0.0,<6",
+    "pytest-benchmark>=5.3.0,<6",
 
     # Code quality
-    "ruff>=0.16.2,<0.17",
+    "ruff>=0.16.4,<0.17",
     "bandit>=1.7.5",
-    "mypy>=2.3.0,<3",
+    "mypy>=2.3.1,<3",
     "types-PyYAML>=6.0.12.20260724",
     "safety>=3.0.0,<4",
     "pip-audit>=2.7.0,<3",
 
     # Pre-commit
-    "pre-commit>=4.6.1",
+    "pre-commit>=4.6.2",
     "pre-commit-hooks>=6.0.0,<6.1",  # pinned to match .pre-commit-config.yaml rev (Issue #4030)
     "nbstripout>=0.7.1",             # tracked to keep in sync with .pre-commit-config.yaml (Issue #4030)
 
@@ -98,7 +98,7 @@ dev = [
 notebook = [
     "jupyterlab>=4.7.0a1,<5",
     "matplotlib>=3.9.0,<4",
-    "ipywidgets>=8.1.0,<9",
+    "ipywidgets>=8.1.9,<9",
     "seaborn>=0.13.0,<1",
 ]
 
