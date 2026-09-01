@@ -319,7 +319,7 @@ nbformat==5.11.0
 nbstripout==0.9.1
 nest-asyncio2==1.7.2
     # via ipykernel
-nltk==3.10.0
+nltk==3.10.3
     # via safety
 nodeenv==1.10.0
     # via pre-commit
