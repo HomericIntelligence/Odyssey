@@ -8,19 +8,18 @@ name: Required Checks
 
 on:
   pull_request:
-  # merge_group intentionally removed: merge-queue checks are served by the
-  # single fast `merge-queue-smoke` job in merge-queue-smoke.yml. Re-running
-  # the full required matrix per queue entry serialized on runner slots
-  # (70-90 min per merge). PR-side jobs in this workflow are unchanged.
+  merge_group:
+    types: [checks_requested]
 
   push:
     branches: [main]
 
   workflow_dispatch:
 
-# One run per branch at a time; cancel any in-progress run when a new commit arrives.
+# Keep pull-request and synthetic merge-group runs in separate groups. Pull
+# request numbers also isolate forks that use the same source branch name.
 concurrency:
-  group: required-${{ github.head_ref || github.sha }}
+  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.event.pull_request.number || github.sha }}
   cancel-in-progress: true
 
 permissions:
@@ -217,7 +216,6 @@ jobs:
     timeout-minutes: 15
     permissions:
       contents: read
-      security-events: write
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:

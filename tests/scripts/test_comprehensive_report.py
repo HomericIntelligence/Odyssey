@@ -293,6 +293,7 @@ def test_required_job_that_did_not_succeed_is_a_failure(tmp_path: Path, status: 
     ("event_name", "run_extended"),
     [
         ("pull_request", False),
+        ("merge_group", False),
         ("push", False),
         ("workflow_dispatch", False),
     ],

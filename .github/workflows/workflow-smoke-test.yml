@@ -10,8 +10,8 @@ name: Workflow Smoke Tests
 
 on:
   pull_request:
-  # merge_group intentionally removed: merge-queue checks are served by the
-  # single fast `merge-queue-smoke` job in merge-queue-smoke.yml (see that file).
+  merge_group:
+    types: [checks_requested]
   push:
     branches:
       - main
@@ -27,7 +27,6 @@ on:
       - '.github/workflows/dependabot-uv-lock.yml'
       - '.github/workflows/dependabot-uv-lock-writer.yml'
       - '.github/workflows/validate-configs.yml'
-      - 'configs/github/merge-queue-policy.json'
       - 'scripts/sync_requirements.py'
       - 'tests/smoke/test_dependabot_uv_lock_workflow_properties.py'
       - 'tests/smoke/test_merge_queue_workflow_properties.py'
@@ -65,8 +64,8 @@ permissions:
   contents: read
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.event.pull_request.number || github.sha }}
+  cancel-in-progress: true
 
 jobs:
   smoke-test-security-workflows:

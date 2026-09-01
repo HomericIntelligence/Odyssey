@@ -11,8 +11,8 @@ on:
   # unreported and block workflow-only PRs.
   pull_request:
 
-  # merge_group intentionally removed: merge-queue checks are served by the
-  # single fast `merge-queue-smoke` job in merge-queue-smoke.yml (see that file).
+  merge_group:
+    types: [checks_requested]
 
   # Run on pushes to main
   push:
@@ -37,8 +37,8 @@ permissions:
   contents: read
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.event.pull_request.number || github.sha }}
+  cancel-in-progress: true
 
 jobs:
   # ============================================================================
