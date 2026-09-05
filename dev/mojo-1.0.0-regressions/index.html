@@ -1,0 +1,2198 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Mojo-based AI research platform for reproducing classic research papers">
+      
+      
+      
+        <link rel="canonical" href="https://github.com/HomericIntelligence/Odyssey/dev/mojo-1.0.0-regressions/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Mojo 1.0.0 Regressions: Validated Failure Modes - ML Odyssey</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#mojo-100-regressions-validated-failure-modes" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="ML Odyssey" class="md-header__button md-logo" aria-label="ML Odyssey" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            ML Odyssey
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Mojo 1.0.0 Regressions: Validated Failure Modes
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/HomericIntelligence/Odyssey" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    HomericIntelligence/Odyssey
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../glossary/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Glossary
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../release-process/" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../integration/supporting-directories/" class="md-tabs__link">
+          
+  
+  
+  Integration
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="ML Odyssey" class="md-nav__button md-logo" aria-label="ML Odyssey" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    ML Odyssey
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/HomericIntelligence/Odyssey" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    HomericIntelligence/Odyssey
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../glossary/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Glossary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/quickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quickstart
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/first_model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    First Model
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/repository-structure/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Repository Structure
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../release-process/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Release Process
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Integration
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Integration
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../integration/supporting-directories/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Supporting Directories
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../integration/papers-shared-integration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Papers & Shared Integration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../integration/quick-start-new-paper/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start New Paper
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#failure-mode-1-return-move-runs-the-moved-from-sources-__deinit__-use-after-free" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Failure Mode 1: Return-move runs the moved-from source's __deinit__ → use-after-free
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Failure Mode 1: Return-move runs the moved-from source&#39;s __deinit__ → use-after-free">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#symptom" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Symptom
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cross-version-evidence-identical-file-docsdevreproducersrepro_uaf_return_movemojo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cross-version evidence (identical file docs/dev/reproducers/repro_uaf_return_move.mojo)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#root-cause" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Root cause
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#impact-on-odyssey" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Impact on Odyssey
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#reproducer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reproducer
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#failure-mode-2-scalardt-05-fails-to-compile-for-non-float64-dtypes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Failure Mode 2: Scalar[dt] ** 0.5 fails to compile for non-float64 dtypes
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Failure Mode 2: Scalar[dt] ** 0.5 fails to compile for non-float64 dtypes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#symptom_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Symptom
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cross-version-evidence-identical-file-docsdevreproducersrepro_scalar_powmojo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cross-version evidence (identical file docs/dev/reproducers/repro_scalar_pow.mojo)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#root-cause_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Root cause
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#impact-on-odyssey_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Impact on Odyssey
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#reproducer_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reproducer
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#non-bugs-ruled-out-during-investigation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Non-bugs ruled out during investigation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#validation-of-modularmodular6445-kgen-jit-buffer-overflow-not-a-regression" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Validation of modular/modular#6445 (KGEN JIT buffer overflow) — NOT A REGRESSION
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#upstream-issue-status" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Upstream issue status
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cross-version-validation-full-suite" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cross-version validation (full suite)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Cross-version validation (full suite)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#compilation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Compilation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#runtime-jit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Runtime (JIT)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cross-version-regressions-pass-on-b2-fail-on-stable" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cross-version regressions (pass on b2, fail on stable)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#non-deterministic-behavior" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Non-deterministic behavior
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#reproducer-inventory" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reproducer inventory
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#complete-issue-tracker" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Complete issue tracker
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#full-suite-validation-2026-08-22" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Full-suite validation (2026-08-22)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#raw-pointer-escape-audit-premature-__deinit__-uaf-69596707-class" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Raw-pointer-escape audit (premature __deinit__ UAF — #6959/#6707 class)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Raw-pointer-escape audit (premature __deinit__ UAF — #6959/#6707 class)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#confirmed-live-probe-33-fail-on-stable-control-33-pass" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Confirmed live (probe, 3/3 fail on stable; control 3/3 pass)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#inventory-classification" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Inventory (classification)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fix-applied-origin-tie-war" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fix applied (origin-tie WAR)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#overlap-analysis-fm-a-return-move-vs-this-escape-uaf" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overlap analysis: FM-A (return-move) vs this escape UAF
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#premature-__deinit__-pattern-inventory-audit-2026-08-25-and-hardening" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Premature-__deinit__ pattern inventory (audit 2026-08-25) and hardening
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Premature-__deinit__ pattern inventory (audit 2026-08-25) and hardening">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#hardening-added-2026-08-25" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Hardening added 2026-08-25
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#empirical-matrix-probes-2026-08-25-stable-100" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Empirical matrix (probes, 2026-08-25, stable 1.0.0)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#failure-mode-g-premature-__deinit__-of-closure-captures-at-the-function-value-boundary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Failure Mode G: Premature __deinit__ of closure captures at the function-value boundary
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Failure Mode G: Premature __deinit__ of closure captures at the function-value boundary">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#symptom_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Symptom
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cross-version-evidence-identical-file-docsdevreproducersrepro_closure_capture_identicalmojo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cross-version evidence (identical file docs/dev/reproducers/repro_closure_capture_identical.mojo)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#root-cause_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Root cause
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#impact-on-odyssey_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Impact on Odyssey
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#reproducers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reproducers
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#war-proposed-pending-approval" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        WAR (proposed, pending approval)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="mojo-100-regressions-validated-failure-modes">Mojo 1.0.0 Regressions: Validated Failure Modes</h1>
+<p><strong>Status</strong>: Investigation complete — failures root-caused, each validated by running the
+<strong>identical reproducer</strong> under both <code>mojo==1.0.0b2</code> (release beta, <code>2cf4d08a</code>) and
+<code>mojo==1.0.0</code> (stable, <code>ed45d567</code>) in the odyssey-dev container.</p>
+<p><strong>Headline</strong>: every failure below <strong>passes on 1.0.0b2 and fails on 1.0.0 stable</strong>.</p>
+<p>Reproducers live in <code>docs/dev/reproducers/</code>. Each is self-contained, uses only
+the public stdlib, and is the smallest code shape that demonstrates the bug.</p>
+<hr />
+<h2 id="failure-mode-1-return-move-runs-the-moved-from-sources-__deinit__-use-after-free">Failure Mode 1: Return-move runs the moved-from source's <code>__deinit__</code> → use-after-free</h2>
+<p><strong>Severity</strong>: Critical (silent memory corruption; wrong tensor values + crashes across the
+core test suite).</p>
+<h3 id="symptom">Symptom</h3>
+<p>A struct that owns a buffer, has a custom <code>deinit move</code> constructor, and is <strong>returned by
+value</strong> (<code>return r^</code>) has its <em>moved-from source's</em> field deinit executed <strong>after the
+function returns but before the caller reads the destination</strong>. The source's deinit frees
+the buffer that the destination now owns → use-after-free.</p>
+<p>Simple shapes (parameter moves, <code>var x = src</code>) are NOT affected — only <strong>return moves</strong>.</p>
+<h3 id="cross-version-evidence-identical-file-docsdevreproducersrepro_uaf_return_movemojo">Cross-version evidence (identical file <code>docs/dev/reproducers/repro_uaf_return_move.mojo</code>)</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>$ mojo run repro_uaf_return_move.mojo          # 1.0.0b2
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>values: 0 1                                     # ✅ correct — moved-from deinit skipped
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>$ mojo run repro_uaf_return_move.mojo          # 1.0.0 stable
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    deinit freeing ptr                          # ❌ moved-from deinit RUNS before the read
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>values: 0 1                                     #    (values correct only by luck — freed
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>                                                #     block not yet reused by allocator)
+</code></pre></div>
+<p>AddressSanitizer makes the UAF unambiguous on stable; on b2 the same binary reports no
+use-after-free:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>$ mojo build --sanitize address repro_uaf_return_move.mojo -o /tmp/r &amp;&amp; /tmp/r   # 1.0.0b2
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>SUMMARY: AddressSanitizer: 16 byte(s) leaked in 1 allocation(s).                  # no UAF
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>$ mojo build --sanitize address repro_uaf_return_move.mojo -o /tmp/r &amp;&amp; /tmp/r   # 1.0.0 stable
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>==ERROR: AddressSanitizer: heap-use-after-free on address 0x502000000138
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>READ of size 8 ... in main
+</code></pre></div>
+<p>Instrumented run (1.0.0 stable) shows the deinit interleaved <em>before</em> the destination read:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>main: calling make
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>main: got p, p.a.ptr = ...
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>main: reading via p
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>    deinit freeing ptr     &lt;- moved-from r's deinit (WRONG: should be skipped)
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>    deinit freeing ptr
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>main: values 0 1 0 1       &lt;- UAF read
+</code></pre></div>
+<h3 id="root-cause">Root cause</h3>
+<p>In 1.0.0 the compiler does not reliably skip <code>__deinit__</code> of a moved-from value for the
+return-move shape. <code>AnyTensor</code>'s shared-refcount ownership model (<code>_refcount</code> cell shared
+between copies) then decrements the refcount twice for one transfer — once by the
+moved-from source's deinit, once by the destination's eventual deinit — so the buffer is
+freed while the destination still references it.</p>
+<h3 id="impact-on-odyssey">Impact on Odyssey</h3>
+<p>This is the root cause of the core-suite corruption seen during the 1.0.0 migration:</p>
+<ul>
+<li><code>tests/odyssey/core/test_arithmetic.mojo</code> — <code>test_multiply_backward</code> reads garbage at
+  element 1 (<code>5.757e-42 !≈ 5.0</code>-class failures, value varies run-to-run)</li>
+<li><code>tests/odyssey/core/test_pooling.mojo</code> — pooled output bytes corrupted</li>
+<li><code>tests/odyssey/core/test_activations.mojo</code> — gradient-check diffs (<code>1.9904632568</code>-class)</li>
+<li><code>tests/odyssey/core/test_conv.mojo</code> — deterministic crash in <code>List._realloc</code> during a
+  fresh <code>zeros()</code> (heap corruption from earlier premature frees)</li>
+<li>Any function returning <code>GradientPair(grad_a^, grad_b^)</code> or <code>Tensor</code> by value</li>
+</ul>
+<p>All of these pass on 1.0.0b2.</p>
+<h3 id="reproducer">Reproducer</h3>
+<p><code>docs/dev/reproducers/repro_uaf_return_move.mojo</code> (also the simpler
+<code>docs/dev/reproducers/repro_min.mojo</code>). Compiles and runs unchanged on both versions.</p>
+<hr />
+<h2 id="failure-mode-2-scalardt-05-fails-to-compile-for-non-float64-dtypes">Failure Mode 2: <code>Scalar[dt] ** 0.5</code> fails to compile for non-float64 dtypes</h2>
+<p><strong>Severity</strong>: High (compile failure — <code>mojo: error: failed to run the pass manager</code>).</p>
+<h3 id="symptom_1">Symptom</h3>
+<p>Raising a <code>Scalar[dt]</code> to the power <code>0.5</code> fails to instantiate for <code>float16</code>,
+<code>bfloat16</code>, and <code>float32</code>. <code>float64</code> works.</p>
+<h3 id="cross-version-evidence-identical-file-docsdevreproducersrepro_scalar_powmojo">Cross-version evidence (identical file <code>docs/dev/reproducers/repro_scalar_pow.mojo</code>)</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>$ mojo run repro_scalar_pow.mojo        # 1.0.0b2
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>float16 =&gt; 2.0
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>bfloat16 =&gt; 2.0
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>float32 =&gt; 2.0
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>float64 =&gt; 2.000000000000565
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>$ mojo run repro_scalar_pow.mojo        # 1.0.0 stable
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>error: failed to run the pass manager   # float16/bfloat16/float32 instantiation fails
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>note: constraint failed: unsupported type combination   (std/builtin/simd.mojo)
+</code></pre></div>
+<h3 id="root-cause_1">Root cause</h3>
+<p>The <code>**</code> (pow) operator on <code>Scalar[dt]</code> routes through a SIMD implementation that rejects
+the dtype combination for non-float64 types in 1.0.0. The <code>std.math.sqrt</code> function
+handles all float dtypes, which is the workaround used in <code>_sqrt_typed</code>
+(<code>src/odyssey/core/normalization.mojo</code>) to keep the suite compiling.</p>
+<h3 id="impact-on-odyssey_1">Impact on Odyssey</h3>
+<p><code>normalization._sqrt_typed</code> originally used <code>x**0.5</code>; this is the compile error that
+forced the <code>std.math.sqrt</code> change. It does not affect float64-only paths.</p>
+<h3 id="reproducer_1">Reproducer</h3>
+<p><code>docs/dev/reproducers/repro_scalar_pow.mojo</code>. Compiles and runs unchanged on both versions.</p>
+<hr />
+<h2 id="non-bugs-ruled-out-during-investigation">Non-bugs ruled out during investigation</h2>
+<p>These were suspected but verified NOT to be regressions (identical behavior on b2 and
+stable):</p>
+<table>
+<thead>
+<tr>
+<th>Pattern</th>
+<th>Result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ptr.unsafe_bitcast[T]()[unsafe_offset=i]</code> read</td>
+<td>✅ works on both</td>
+</tr>
+<tr>
+<td><code>ptr.unsafe_offset(off).unsafe_bitcast[T]()[]</code> read/write</td>
+<td>✅ works on both</td>
+</tr>
+<tr>
+<td>Parameter moves (<code>consume(x)</code>), implicit last-use moves</td>
+<td>✅ source deinit skipped on both</td>
+</tr>
+<tr>
+<td><code>List[Int]</code>-field struct return-move</td>
+<td>✅ works on both (List tracks its own moved-from state)</td>
+</tr>
+<tr>
+<td><code>SIMD[dt,1] ** 0.5</code> (non-Scalar)</td>
+<td>✅ works on both</td>
+</tr>
+</tbody>
+</table>
+<p>The garbage values originally attributed to a "bitcast read miscompile" in the earlier
+session are explained by Failure Mode 1 (reads of already-freed buffers), not by a
+separate miscompile.</p>
+<hr />
+<h2 id="validation-of-modularmodular6445-kgen-jit-buffer-overflow-not-a-regression">Validation of modular/modular#6445 (KGEN JIT buffer overflow) — NOT A REGRESSION</h2>
+<p><strong>Status: does NOT reproduce on 1.0.0b2 or 1.0.0 stable — appears fixed</strong> (consistent with
+upstream #6413, the JIT-stability fix that landed in <code>1.0.0b2.dev2026052506</code>).</p>
+<p>Issue #6445 reported a KGEN JIT <strong>compile-time</strong> crash (<code>__fortify_fail_abort</code> in
+<code>libKGENCompilerRTShared.so</code>) on mojo 0.26.3, CI-only, from: module-level <code>std.python</code>
+import + struct with <code>List[String]</code> field + 6 overloaded <code>__init__</code>s + <code>Dict[String, Value]</code>.
+The reporter (Odyssey) had already seen 10/10 clean on <code>1.0.0b2.dev2026052506</code> and suspected
+a duplicate of #6413.</p>
+<p>Validation performed on the issue's reproducer adapted to 1.0.0 syntax
+(<code>docs/dev/reproducers/repro_kgen_6445.mojo</code>) and on the actual <code>tests/configs/</code> group the
+issue claimed to block:</p>
+<table>
+<thead>
+<tr>
+<th>Check</th>
+<th>1.0.0b2</th>
+<th>1.0.0 stable</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Reproducer, 10 consecutive runs</td>
+<td>✅ 10/10</td>
+<td>✅ 10/10</td>
+</tr>
+<tr>
+<td>Reproducer, 7 GB <code>ulimit -v</code> (CI-like)</td>
+<td>✅</td>
+<td>✅ prints "KGEN crash did NOT occur"</td>
+</tr>
+<tr>
+<td>Reproducer, <code>mojo build</code> under 2 GB cap</td>
+<td>—</td>
+<td>✅ compile succeeds (exit 0)</td>
+</tr>
+<tr>
+<td><code>tests/configs/</code> group (5 files, <code>--Werror</code>)</td>
+<td>—</td>
+<td>✅ all pass</td>
+</tr>
+<tr>
+<td><code>test_jit_crash_6413.mojo</code> canary (200 Python imports)</td>
+<td>—</td>
+<td>✅ PASS</td>
+</tr>
+</tbody>
+</table>
+<p>Under an artificial 2 GB <code>ulimit -v</code> the program still compiles and starts (prints the
+first line) and only then aborts with a <strong>runtime</strong> <code>alloc.mojo:602 alloc failed: returned
+a null pointer</code> (tcmalloc cannot map under the cap) — not the compile-time
+<code>__fortify_fail_abort</code> signature from #6445. No <code>__fortify_fail_abort</code> /
+<code>libKGENCompilerRTShared</code> frames appeared in any constrained run.</p>
+<p><strong>Conclusion</strong>: the #6445 crash mode is fixed in current releases; the issue is a candidate
+for closure (with a note that it may be a duplicate of #6413). Do NOT file a new upstream
+issue for it.</p>
+<hr />
+<h2 id="upstream-issue-status">Upstream issue status</h2>
+<ul>
+<li><strong>modular/modular#6187</strong> (heap corruption, <code>0.26.1</code>) — closed COMPLETED (2026-03-26);
+  different signature (crash at alloc, not move semantics). The <code>data_ptr</code> keep-alive
+  pattern once attributed to it remains canonical, now cited against the still-open
+  premature-deinit class #6707/#6939.</li>
+<li><strong>modular/modular#6707</strong> (stale read through <code>UnsafePointer[MutUntrackedOrigin]</code>,
+  closed NOT_PLANNED "expected behavior") — different mechanism: origin-tracking
+  limitation, not a move-semantics violation.</li>
+<li><strong>modular/modular#6475</strong> (bitcast read in struct method vs external) — closed COMPLETED
+  (2026-08-23); different mechanism (no moves involved).</li>
+</ul>
+<p>All failure modes have been filed upstream (2026-08-20/21):</p>
+<ul>
+<li><strong>Failure Mode 1 (UAF)</strong>: <a href="https://github.com/modular/modular/issues/6939">https://github.com/modular/modular/issues/6939</a></li>
+<li><strong>Failure Mode 2 (compile)</strong>: <a href="https://github.com/modular/modular/issues/6940">https://github.com/modular/modular/issues/6940</a></li>
+<li><strong>Failure Mode 3 (virtual-memory limit aborts instead of degrading gracefully)</strong>:
+  <a href="https://github.com/modular/modular/issues/6941">https://github.com/modular/modular/issues/6941</a></li>
+<li><strong>Failure Mode 4 (KGEN JIT runtime crash)</strong>: <a href="https://github.com/modular/modular/issues/6958">https://github.com/modular/modular/issues/6958</a></li>
+</ul>
+<p>Each issue embeds the full reproducer and the b2-vs-stable evidence. Labels are added by
+maintainers during triage (repo restricts label permissions).</p>
+<p><strong>On the 2 GB <code>ulimit -v</code> crash (FM3)</strong>: the official Mojo system requirements document a
+<strong>8 GiB minimum RAM for Mojo development</strong> (mojolang.org/docs/requirements/), so the
+crash itself is a below-minimum condition. The upstream root cause of the large virtual
+reservation is #6433 (closed COMPLETED, reservation reduced ~3.6 GB → ~2.78 GB measured);
+FM3 (#6941) is the separate failure-mode problem: a hard <code>abort()</code> with opaque tcmalloc
+output at the limit instead of a clear, actionable error. Measured thresholds (stable
+1.0.0, identical on b2): <code>mojo run</code> reliably passes at ≥~2.75 GB virtual (non-monotonic
+crash bands below, e.g. 2 GB passes but 2.5 GB crashes — tcmalloc 1 GB-aligned mmap
+placement), built binary ≥~1.5 GB. Reproducer:
+<code>docs/dev/reproducers/repro_vm_limit_hello.mojo</code>.</p>
+<hr />
+<h2 id="cross-version-validation-full-suite">Cross-version validation (full suite)</h2>
+<p>Complete cross-version test run performed 2026-08-22, comparing <strong>Mojo 1.0.0 stable
+(ed45d567)</strong> against <strong>Mojo 1.0.0b2 (2cf4d08a)</strong> on the identical test suite
+(437 test/example files).</p>
+<h3 id="compilation">Compilation</h3>
+<table>
+<thead>
+<tr>
+<th>Scope</th>
+<th>Result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>mojo precompile src/odyssey --Werror</code></td>
+<td>✅ 0 errors (src compiles clean)</td>
+</tr>
+<tr>
+<td>Eager build all tests (<code>mojo build --Werror</code>)</td>
+<td>✅ 380 PASS / 0 FAIL (tests only)</td>
+</tr>
+<tr>
+<td>Eager build all examples (<code>mojo build --Werror</code>)</td>
+<td>❌ 57 FAIL (all deprecated syntax in examples/)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="runtime-jit">Runtime (JIT)</h3>
+<table>
+<thead>
+<tr>
+<th>Compiler</th>
+<th>Pass</th>
+<th>Fail</th>
+<th>Total</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Mojo 1.0.0 stable</strong></td>
+<td>320</td>
+<td>117</td>
+<td>437</td>
+</tr>
+<tr>
+<td><strong>Mojo 1.0.0b2</strong></td>
+<td>391</td>
+<td>45</td>
+<td>436</td>
+</tr>
+</tbody>
+</table>
+<h3 id="cross-version-regressions-pass-on-b2-fail-on-stable">Cross-version regressions (pass on b2, fail on stable)</h3>
+<p>67 tests fail on stable but pass on b2. Each was individually diagnosed with full
+stdout/stderr capture. Classification:</p>
+<table>
+<thead>
+<tr>
+<th>Failure mode</th>
+<th>Count</th>
+<th>Upstream issue</th>
+<th>Root cause</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>FM-A: Memory corruption</strong></td>
+<td>49 tests</td>
+<td><a href="https://github.com/modular/modular/issues/6939">#6939</a></td>
+<td>Return-move <code>__deinit__</code> UAF — garbage values (<code>~1.75</code>, <code>~4e-41</code>, <code>0.0</code>) or NaN in forward/backward passes</td>
+</tr>
+<tr>
+<td><strong>FM-B: KGEN JIT crash</strong></td>
+<td>4 tests</td>
+<td><a href="https://github.com/modular/modular/issues/6958">#6958</a></td>
+<td>Runtime segfault in <code>libKGENCompilerRTShared.so</code> after successful compilation</td>
+</tr>
+<tr>
+<td><strong>FM-C: Atomic regression</strong></td>
+<td>1 test</td>
+<td><a href="https://github.com/modular/modular/issues/6959">#6959</a></td>
+<td>Premature <code>__deinit__</code> UAF (same class as <a href="https://github.com/modular/modular/issues/6707">#6707</a>) — the compiler hoists <code>unsafe_free</code> to right after the last syntactic use of a struct whose raw <code>Atomic</code> pointer escaped (e.g. <code>SpinLock._as_atomic</code>, <code>AtomicStats._counter</code> held in a local), so subsequent <code>Atomic</code> ops hit freed memory; the counter value is whatever the freed chunk holds. <strong>WAR removed 2026-08-26</strong> (upstream closed as expected-behavior, NOT a compiler fix — the caller-side escape repro still fails on stable); production is safe because its escapes are borrow-internal (see tracker)</td>
+</tr>
+<tr>
+<td><strong>FM-D: Timeout/OOM</strong></td>
+<td>4 tests</td>
+<td>N/A (resource limit)</td>
+<td>Heavy model tests (AlexNet/VGG16 224×224, MobileNet train) timeout on 4-core container</td>
+</tr>
+<tr>
+<td><strong>FM-E: Non-deterministic</strong></td>
+<td>6 tests</td>
+<td>(same as FM-A)</td>
+<td>Pass on re-run; failed in full suite due to FM-A non-determinism</td>
+</tr>
+<tr>
+<td><strong>FM-F: Pre-existing</strong></td>
+<td>2 tests</td>
+<td><strong>FIXED + re-enabled 2026-08-22</strong></td>
+<td><code>DISABLED_test_batchnorm</code> (SIMD type constraint) and <code>DISABLED_test_conv2d</code> (escape-UAF <code>_data</code> write in <code>test_conv2d_forward_batch_independence</code>) — both fixed and renamed back to <code>test_batchnorm.mojo</code> / <code>test_conv2d.mojo</code>; additionally <code>_batch_norm2d_fused_training_{float32,float64}</code> and both inference paths in <code>normalization_simd.mojo</code> migrated to origin-tied <code>data_ptr</code> (raw <code>_data</code> escapes on owned locals — the #6963 class)</td>
+</tr>
+<tr>
+<td><strong>FM-G: Closure-capture premature deinit</strong></td>
+<td>~3 src paths</td>
+<td>Filed <a href="https://github.com/modular/modular/issues/6965">#6965</a>; WAR applied (inline TaskGroup dispatch)</td>
+<td>A <code>@parameter</code> capturing closure passed as a function-value parameter has its captured locals destroyed at closure-construction time — freed-memory reads in every <code>parallelize</code> batch path (pooling/conv/normalization batch ≥ 4). Passes on b2</td>
+</tr>
+<tr>
+<td><strong>Unclassified</strong></td>
+<td>2 tests</td>
+<td>N/A (timeout on re-run)</td>
+<td><code>googlenet_e2e</code>, <code>gradient_checking_batch_norm</code> — intermittent timeout or downstream corruption</td>
+</tr>
+</tbody>
+</table>
+<h3 id="non-deterministic-behavior">Non-deterministic behavior</h3>
+<p>FM-A failures are non-deterministic — the same test sometimes passes and sometimes fails,
+with different garbage values each run (<code>~1.75</code>, <code>~4e-41</code>, <code>0.0</code>). This is consistent
+with use-after-free where the freed block may or may not be reused before the read.</p>
+<p>6 tests that failed in the full suite passed on individual re-run (FM-E), confirming
+the non-deterministic nature of FM-A.</p>
+<hr />
+<h2 id="reproducer-inventory">Reproducer inventory</h2>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Failure mode</th>
+<th>Passes b2</th>
+<th>Fails stable</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>docs/dev/reproducers/repro_uaf_return_move.mojo</code></td>
+<td>FM-A (UAF)</td>
+<td>✅</td>
+<td>❌ (ASAN-confirmed)</td>
+</tr>
+<tr>
+<td><code>docs/dev/reproducers/repro_min.mojo</code></td>
+<td>FM-A (UAF, minimal)</td>
+<td>✅</td>
+<td>❌ (ASAN-confirmed)</td>
+</tr>
+<tr>
+<td><code>docs/dev/reproducers/repro_scalar_pow.mojo</code></td>
+<td>FM-2 (compile)</td>
+<td>✅</td>
+<td>❌</td>
+</tr>
+<tr>
+<td><code>repro/fmd_kgen_jit_crash_min.mojo</code></td>
+<td>FM-B (KGEN JIT)</td>
+<td>✅</td>
+<td>❌</td>
+</tr>
+<tr>
+<td><code>tests/odyssey/tensor/test_typed_batchnorm.mojo</code></td>
+<td>FM-B (KGEN JIT)</td>
+<td>✅</td>
+<td>❌</td>
+</tr>
+<tr>
+<td><code>tests/models/test_mobilenetv1_e2e.mojo</code></td>
+<td>FM-B (KGEN JIT)</td>
+<td>✅</td>
+<td>❌</td>
+</tr>
+<tr>
+<td><code>tests/models/test_mobilenetv1_layers.mojo</code></td>
+<td>FM-B (KGEN JIT)</td>
+<td>✅</td>
+<td>❌ (crashes right after <code>test_batchnorm2d_initialization</code>; identical output + crash at baseline, verified 2026-08-22)</td>
+</tr>
+<tr>
+<td><code>tests/examples/test_mobilenetv1_train_step.mojo</code></td>
+<td>FM-B (KGEN JIT, flaky)</td>
+<td>✅</td>
+<td>❌ intermittent — crashes during JIT compile (zero output) on one run; passes on rerun and at baseline (verified 2026-08-22)</td>
+</tr>
+<tr>
+<td><code>repro/fmd_kgen_jit_crash_min.mojo</code> (atomic stdlib)</td>
+<td>FM-C (Atomic)</td>
+<td>✅</td>
+<td>❌</td>
+</tr>
+<tr>
+<td><code>repro/repro_6959_inline.mojo</code></td>
+<td>FM-C (Atomic UAF)</td>
+<td>n/a (1.0.0 APIs)</td>
+<td>❌ (5/5)</td>
+</tr>
+<tr>
+<td><code>repro/repro_6959_inline_b2.mojo</code></td>
+<td>FM-C (b2-flavored mirror)</td>
+<td>✅ (5/5)</td>
+<td>n/a</td>
+</tr>
+<tr>
+<td><code>docs/dev/reproducers/repro_closure_capture_identical.mojo</code></td>
+<td>FM-G (closure-capture premature deinit)</td>
+<td>✅ (capture kept alive)</td>
+<td>❌ (deinit at closure-construction)</td>
+</tr>
+<tr>
+<td><code>docs/dev/reproducers/repro_closure_capture_uaf.mojo</code></td>
+<td>FM-G (UAF consequence, pointer payload)</td>
+<td>n/a (1.0.0 syntax)</td>
+<td>❌ (0.0 reads at elements 0-1)</td>
+</tr>
+</tbody>
+</table>
+<h2 id="complete-issue-tracker">Complete issue tracker</h2>
+<table>
+<thead>
+<tr>
+<th>Issue</th>
+<th>Failure mode</th>
+<th>Status</th>
+<th>URL</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>FM-1 / FM-A</td>
+<td>Return-move UAF</td>
+<td>CLOSED DUPLICATE of #6707 (expected behavior, no fix) — double-<code>__deinit__</code> <strong>still reproducible on 1.0.0 stable</strong> (verified 2026-08-26); canonical single-tensor-return shape retained (<code>batch_norm2d_inplace</code>); permanent canary <code>test_return_move_canary.mojo</code> (2026-08-25)</td>
+<td><a href="https://github.com/modular/modular/issues/6939">#6939</a></td>
+</tr>
+<tr>
+<td>FM-2</td>
+<td>Scalar pow compile</td>
+<td>OPEN</td>
+<td><a href="https://github.com/modular/modular/issues/6940">#6940</a></td>
+</tr>
+<tr>
+<td>FM-3</td>
+<td>VM limit abort</td>
+<td>OPEN</td>
+<td><a href="https://github.com/modular/modular/issues/6941">#6941</a></td>
+</tr>
+<tr>
+<td>FM-B</td>
+<td>KGEN JIT runtime crash</td>
+<td>CLOSED COMPLETED (2026-08-22) — not reproducible in the current suite (all 363 test files pass); no code workaround existed</td>
+<td><a href="https://github.com/modular/modular/issues/6958">#6958</a></td>
+</tr>
+<tr>
+<td>FM-C / #6963</td>
+<td>Premature <code>__deinit__</code> UAF from escaping <code>Atomic</code>/raw pointers</td>
+<td><strong>#6959 CLOSED COMPLETED (2026-08-22, maintainer: "lifetime gotcha") — NOT a compiler fix</strong>: the caller-side owned-local escape repro (<code>repro/repro_6959_inline.mojo</code>) <strong>still FAILS 5/5 on 1.0.0 stable</strong> (verified 2026-08-26). The prior "verified FIXED" claim was wrong — it was based on tests that only use single-expression escapes. WAR removal is nonetheless <strong>safe</strong>: production escapes are borrow-internal (pointer derived from borrowed <code>self</code> within a method, owner kept alive by the caller frame), verified by <code>docs/dev/reproducers/probe_update_peak_shape.mojo</code> passing 5/5 on the exact <code>update_peak_cached</code> shape. <strong>#6963 closed DUPLICATE of #6707 (expected behavior — use proper origin-tracking)</strong>: origin-tied <code>data_ptr</code> IS that guidance; "workaround" labels removed 2026-08-26, pattern retained as canonical</td>
+<td><a href="https://github.com/modular/modular/issues/6959">#6959</a> · <a href="https://github.com/modular/modular/issues/6963">#6963</a></td>
+</tr>
+<tr>
+<td>FM-G</td>
+<td>Premature <code>__deinit__</code> of closure captures when a <code>@parameter</code> capturing closure is passed as a function-value parameter (breaks <code>parallelize</code> batch paths in pooling/conv/normalization)</td>
+<td><strong>Filed <a href="https://github.com/modular/modular/issues/6965">#6965</a></strong> — WAR applied: inline TaskGroup dispatch at all 3 call sites (closure never crosses a function-value boundary); <code>parallelize</code> retained for scalar/keep-alive captures only</td>
+<td>2026-08-22</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="full-suite-validation-2026-08-22">Full-suite validation (2026-08-22)</h2>
+<p>All 362 non-DISABLED test files now compile and run on 1.0.0 stable:</p>
+<ul>
+<li><strong>70 converted files</strong>: 68 pass; 2 remaining are deterministic FM-B KGEN
+  crashes (<code>test_mobilenetv1_layers</code>, upstream #6958 — same crash at
+  baseline; <code>test_mobilenetv1_e2e</code> and <code>test_typed_batchnorm</code> are also in
+  the KGEN class). <code>test_mobilenetv1_train_step</code> is flaky-KGEN (passes on
+  rerun, verified against baseline).</li>
+<li><strong>294 non-converted files</strong>: 290 pass; 4 initially failed and were
+  root-caused + fixed this session: <code>test_lazy_expression</code> (missing
+  <code>[dtype]</code> on <code>data_ptr</code>), <code>test_slicing</code> (refcount assertions vs 1.0.0
+  last-use <code>__deinit__</code>), <code>test_multi_precision_training</code> (unneeded <code>mut</code>
+  cascade on a borrowed param), <code>test_alexnet_layers</code> (JIT time &gt; 200 s;
+  passes with a 600 s timeout — slow, not broken).</li>
+<li>The two previously-DISABLED layer suites (<code>test_batchnorm.mojo</code>,
+  <code>test_conv2d.mojo</code>) are fixed, <code>--Werror</code>-clean, and re-enabled.</li>
+<li>Owned-local raw-pointer-escape audit: <strong>0 remaining</strong> in <code>src/</code> (20
+  migrated across 10 files to origin-tied <code>data_ptr[]</code>).</li>
+</ul>
+<p>Failure classes filed upstream (2026-08-26 status): FM-A/return-move
+(#6939, closed DUPLICATE — double-<code>__deinit__</code> still reproducible), FM-B/KGEN JIT
+(#6958, closed COMPLETED — not reproducible in the current suite),
+FM-C/Atomic (#6959, closed COMPLETED as expected-behavior — the caller-side
+escape repro still fails on stable, but production escapes are borrow-internal
+so the WAR removal stands; probe evidence 2026-08-26), raw-pointer escape
+(#6963, closed DUPLICATE — canonical
+origin-tied pattern retained), FM-G/closure captures (#6965, open).</p>
+<hr />
+<h2 id="raw-pointer-escape-audit-premature-__deinit__-uaf-69596707-class">Raw-pointer-escape audit (premature <code>__deinit__</code> UAF — #6959/#6707 class)</h2>
+<p>An audit of every raw-pointer escape from heap-owning structs was performed on 1.0.0 stable
+(after the <code>SpinLock</code>/<code>AtomicStats</code> WARs). <strong>Same root cause everywhere</strong>: a struct's heap
+storage is freed by <code>__deinit__</code> that the compiler hoists to right after the last <em>syntactic</em>
+use of the struct, so any raw pointer derived from that storage and held in a local reads
+freed memory.</p>
+<h3 id="confirmed-live-probe-33-fail-on-stable-control-33-pass">Confirmed live (probe, 3/3 fail on stable; control 3/3 pass)</h3>
+<p><code>repro/repro_tensor_data_ptr_uaf.mojo</code> — owned-local <code>AnyTensor</code>, <code>data_ptr</code> captured into a
+local, then a loop reads through the pointer (the shape in <code>evaluation.mojo</code>/model e2e tests):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>acc      = 10222.0   (expected 10225.0 — 3 elements clobbered by tcmalloc freelist reuse)
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>MISMATCH: escaped data_ptr read freed memory
+</code></pre></div>
+<p><code>repro/repro_tensor_data_ptr_control.mojo</code> — identical but reads via <code>t.load[i]</code> → <code>control: OK</code> 3/3,
+proving the write path is correct and the mismatch is the escaped pointer.</p>
+<h3 id="inventory-classification">Inventory (classification)</h3>
+<table>
+<thead>
+<tr>
+<th>Class</th>
+<th>Pattern</th>
+<th>Sites</th>
+<th>Risk</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>A — WAR'd</strong></td>
+<td>no-escape API, no pointer leaves the struct</td>
+<td><code>SpinLock</code>, <code>AtomicStats</code> (<code>memory_pool.mojo</code>)</td>
+<td>✅ fixed</td>
+</tr>
+<tr>
+<td><strong>B — latent, owned-local escape</strong></td>
+<td>owned local tensor → <code>data_ptr</code>/<code>_data</code> into a local → loop</td>
+<td><code>evaluation.mojo</code> (<code>logits_data</code>), <code>gradient_checker.mojo</code> (<code>f_plus_ptr</code>/<code>out_plus_ptr</code>), model e2e tests (<code>test_vgg16_e2e.mojo</code>), and any user code. <strong>Found live in CI 2026-08-23</strong>: <code>examples/mobilenetv1_cifar10/model.mojo</code> <code>depthwise_conv2d</code> (per-channel <code>channel_input</code>/<code>channel_filter</code>/<code>channel_bias</code>/<code>channel_output</code> + classifier <code>flattened</code>/<code>out</code>) — root cause of the <code>test_bn_persistence</code> flake (<code>NaN</code>/<code>0.0</code> running stats → "not persisted (#5537)"); <code>examples/mobilenetv1_cifar10/{inference,train,train_autograd}.mojo</code>, <code>examples/alexnet_cifar10/{run_train,run_train_autograd}.mojo</code>, <code>examples/vgg16_cifar10/{train,train_autograd,train_new}.mojo</code> (smoke-dataset builders + <code>loss_tensor</code> scalar extraction) — root cause of the CI <code>training-smoke</code> NaN failures. <strong>All migrated to origin-tied <code>data_ptr</code></strong></td>
+<td>⚠️ <strong>UAF — visible as NaN/garbage in CI when heap reuse lands</strong> (probe proves the class is live)</td>
+</tr>
+<tr>
+<td><strong>B2 — full sweep 2026-08-25 (remaining owned-local escapes)</strong></td>
+<td>owned local tensor → raw <code>_data</code> into a local → loop</td>
+<td>a scripted audit (<code>scripts/audit_escape_sites.py</code>) flagged every owned-local <code>_data</code>/<code>data_ptr</code> escape whose owner is never used again. Migrated the last raw <code>_data</code> sites to origin-tied <code>data_ptr</code>: <code>src/odyssey/core/matmul.mojo</code> (<code>b_t</code> float32/float64 transpose results — the GEMM kernels held <code>bt_ptr = b_t._data</code> across the whole blocked loop), <code>src/odyssey/tensor/typed/arithmetic.mojo</code> (<code>t_cont</code> in <code>_multiply_scalar_typed</code>), <code>examples/lenet_emnist/inference.mojo</code> (<code>logits</code> argmax/softmax), <code>examples/resnet18_cifar10/inference.mojo</code> (<code>logits</code> argmax), <code>examples/resnet18_cifar10/test_forward_cache_velocities.mojo</code> (<code>cache_logits</code>/<code>forward_logits</code> compare), <code>examples/resnet18_cifar10/test_model.mojo</code> (<code>logits_train</code> NaN check). All other flagged sites are single-expression reads (pointer consumed in the same statement) or borrowed params (Class C) — safe.</td>
+<td>✅ <strong>all migrated 2026-08-25</strong> — remaining raw <code>_data</code> sites are single-expression or Class C</td>
+</tr>
+<tr>
+<td><strong>C — borrowed params (safe)</strong></td>
+<td>kernel funcs taking <code>tensor: AnyTensor</code>/<code>Tensor[dtype]</code> params, escaping <code>_data</code> into locals (~221 <code>._data</code> sites across <code>tensor_ops</code>, <code>typed/*</code>, <code>dtype_conv</code>, <code>gradient_clipping</code>, <code>inference_utils</code>, …)</td>
+<td>owner lives in the caller frame, callee cannot destroy → deinit cannot be hoisted <em>in the callee</em></td>
+<td>✅ safe from this bug (owner's own frame is the caller's responsibility)</td>
+</tr>
+<tr>
+<td><strong>D — by-design (low risk)</strong></td>
+<td>pool APIs returning blocks (<code>FreeList.pop</code>, <code>TensorMemoryPool.allocate</code>), <code>examples/mojo_patterns/trait_example.mojo</code> (no pointer returns from storage)</td>
+<td>the returned pointer is the <em>object itself</em>, not a view into the struct's persistent storage; owner kept alive by caller</td>
+<td>✅ low</td>
+</tr>
+</tbody>
+</table>
+<h3 id="fix-applied-origin-tie-war">Fix applied (origin-tie WAR)</h3>
+<p>Per modular/modular#6707, the fix ties the returned pointer's origin to the owner:
+<code>AnyTensor.data_ptr()</code> now returns <code>Pointer[Scalar[dtype], origin=origin_of(self)]</code> via
+<code>unsafe_origin_cast[origin_of(self)]()</code>. This requires <code>mut self</code>, cascading <code>mut</code> through
+the callers: <code>evaluate_logits_batch</code>/<code>compute_accuracy_on_batch</code> (<code>metrics/evaluate.mojo</code>),
+the <code>mixed_precision</code> <code>_simd</code> helpers + <code>convert_to_fp32_master</code>/<code>update_model_from_master</code>/
+<code>clip_gradients_by_value</code>, and the <code>gradient_checker</code> helpers + public functions
+(<code>check_gradients</code>, <code>check_gradients_verbose</code>, <code>compute_numerical_gradient</code>,
+<code>compute_sampled_numerical_gradient</code>, <code>check_gradient</code>, <code>assert_gradients_close</code>,
+<code>assert_sampled_gradients_close</code>). Test files that passed rvalue tensors to these now bind
+a <code>var</code> first (<code>test_gradient_checking_basic</code>, <code>test_gradient_checking_dtype</code>, autograd
+<code>test_variable_batch_norm</code>/<code>test_variable_depthwise_conv2d</code>).</p>
+<p><strong>Validated</strong>: the <code>data_ptr</code> UAF probe (<code>repro/repro_tensor_data_ptr_uaf.mojo</code>) now
+passes 3/3 on stable (was 10222 vs 10225 before); AnyTensor, memory-pool, gradient-checking,
+autograd, and training evaluation suites pass. Remaining failures in the sweep
+(<code>test_typed_*</code>, <code>test_activations</code>/<code>arithmetic_backward</code>/<code>elementwise</code>, FP16 SIMD test)
+are pre-existing FM-A/FM-B failures, identical on the unpatched baseline.</p>
+<h3 id="overlap-analysis-fm-a-return-move-vs-this-escape-uaf">Overlap analysis: FM-A (return-move) vs this escape UAF</h3>
+<p><strong>Verdict: same compiler-lifetime root-cause family, DIFFERENT triggers — the escape WAR
+does not fix FM-A and vice versa.</strong></p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>FM-A (#6939)</th>
+<th>Escape UAF (#6963/#6959)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Trigger</td>
+<td>Struct <strong>returned by value</strong> (<code>return Pair(a^, b^)</code>) — the moved-from source's <code>__deinit__</code> also runs, over-decrementing the shared refcount → buffer freed</td>
+<td>Raw pointer <strong>escapes into a local</strong> — the owner's <code>__deinit__</code> is hoisted to the last syntactic use → buffer freed early</td>
+</tr>
+<tr>
+<td>Shape</td>
+<td>No pointer escape needed</td>
+<td>No return-move needed</td>
+</tr>
+<tr>
+<td>Example</td>
+<td><code>subtract_backward</code> → <code>return GradientPair(grad_a^, grad_b^)</code> (the <code>test_subtract_scalar_backward</code> failure: <code>grad_b</code> reads 0.0 instead of -6.0)</td>
+<td><code>evaluation.mojo</code> → <code>var logits_data = logits.data_ptr()</code></td>
+</tr>
+<tr>
+<td>Evidence of non-overlap</td>
+<td>FM-A repro <code>docs/dev/reproducers/repro_uaf_return_move.mojo</code> still fails <code>0 1 0 1</code> <strong>after</strong> the escape WAR; FM-A tests fail with the same garbage class with and without the WAR; failing shapes contain no escape</td>
+<td>Escape probe passes 3/3 <strong>only</strong> with the WAR; failing shapes contain no return-move</td>
+</tr>
+</tbody>
+</table>
+<p>Both are the 1.0.0 compiler's lifetime analysis misplacing <code>__deinit__</code> (one extra, one early) —
+which is why #6939 was closed DUPLICATE and the issues cross-reference each other — but they are
+independent code shapes. FM-A remains OPEN upstream (#6939, closed as DUPLICATE without a fix;
+see the <code>tensor.mojo</code> move-constructor note not to reintroduce the refcount-sentinel WAR). Note
+FM-A garbage values are non-deterministic run-to-run (e.g. <code>4.096e-41</code> vs <code>-1.75</code> for the same
+test), consistent with freed-block reuse timing.</p>
+<p><strong>Filed upstream</strong>: <a href="https://github.com/modular/modular/issues/6963">#6963</a> — self-contained
+stdlib-only repro (<code>repro/repro_tensor_inline.mojo</code>, fails 3/3 stable / passes 3/3 b2
+mirror <code>repro/repro_tensor_inline_b2.mojo</code>, control <code>repro/repro_tensor_inline_control.mojo</code>
+passes 3/3) with cross-version evidence and the <code>mut self</code> origin-tie workaround.
+Related closed issues: #6959 (COMPLETED), #6707 (NOT_PLANNED), #6939 (DUPLICATE).</p>
+<hr />
+<h2 id="premature-__deinit__-pattern-inventory-audit-2026-08-25-and-hardening">Premature-<code>__deinit__</code> pattern inventory (audit 2026-08-25) and hardening</h2>
+<p>Four distinct code shapes can trip the 1.0.0 compiler's premature/incorrect
+<code>__deinit__</code> placement. All were re-audited after the #5802 sweep; results and
+hardening below.</p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Trigger shape</th>
+<th>In-repo sites</th>
+<th>Upstream</th>
+<th>Empirical status on 1.0.0 stable</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><strong>Raw <code>_data</code> escape into a local</strong> (<code>var ptr = x._data...</code>, owner never used again)</td>
+<td>migrated to origin-tied <code>data_ptr</code> (#5801/#5802); <strong>0 remain</strong></td>
+<td><a href="https://github.com/modular/modular/issues/6963">#6963</a></td>
+<td>minimal repro fails 3/3; value probe passes after WAR</td>
+</tr>
+<tr>
+<td>2</td>
+<td><strong>Return-move of a custom-<code>deinit</code> refcounted struct</strong> (<code>return r^</code>, <code>return Pair(a^, b^)</code>)</td>
+<td>~30 <code>GradientPair</code>/<code>GradientTriple</code>/<code>DualTensor</code>/<code>Variable</code> returns + <code>return output^</code> (batchnorm/mamba/ssm/kan/jvp) + <code>Tuple[...](...^)</code> (normalization_simd/serialization/data_generators)</td>
+<td><a href="https://github.com/modular/modular/issues/6939">#6939</a></td>
+<td>minimal raw repro (<code>Box</code>) still fails 5/5 (values correct only by allocator luck; ASAN-clean on b2); <strong>real-<code>AnyTensor</code> shapes pass 10/10 / 25 iterations</strong> in all 3 shapes (whole-local, Pair-ctor, Tuple-ctor)</td>
+</tr>
+<tr>
+<td>3</td>
+<td><strong>Closure capture crossing a function-value boundary</strong></td>
+<td><code>parallelize</code> kept only for scalar/keep-alive captures; pooling/conv/normalization dispatch inline via <code>TaskGroup</code>; <code>vectorize</code> closures in examples capture pointers but are <code>@always_inline</code> comptime-parameters (direct-call, not function-value pass)</td>
+<td><a href="https://github.com/modular/modular/issues/6965">#6965</a></td>
+<td>repro fails (deinit at closure construction); in-repo paths WAR'd; <code>test_memory_pool_threadsafe</code> captures only <code>pool</code> (used in enclosing frame after the call — keep-alive, safe)</td>
+</tr>
+<tr>
+<td>4</td>
+<td><strong>Borrowed-param <code>_data</code> escape in a callee</strong> (owner lives in caller frame)</td>
+<td>~221 <code>._data</code> sites</td>
+<td>#6707 (NOT_PLANNED)</td>
+<td>safe by construction (callee cannot destroy the caller's local)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="hardening-added-2026-08-25">Hardening added 2026-08-25</h3>
+<ul>
+<li><strong>Permanent FM-A canary</strong>: <code>tests/odyssey/core/test_return_move_canary.mojo</code>
+  — exercises all three live shapes (whole-local <code>return output^</code>,
+  <code>GradientPair(grad_a^, grad_b^)</code>, <code>Tuple(t1^, t2^, t3^)</code>) with real
+  <code>AnyTensor</code>s, 25 iterations each, exact-value asserts. Heap-reuse dependent,
+  so it cannot <em>guarantee</em> catching a regressed compiler on every run, but the
+  exact-value assert trips the moment freed blocks are reused (the mechanism
+  behind the FM-A/FM-E CI flakes). Passes 4/4 on stable (2026-08-25).</li>
+<li><strong>CI gate for pattern 1</strong>: <code>scripts/audit_escape_sites.py --raw-only</code>
+audit now distinguishes pointer-HELD escapes (dangerous) from in-statement
+  value reads (safe), strips comments, handles multi-line statements, and
+  exits 1 on any owned-local raw <code>_data</code> escape. Wired as pre-commit hook
+  <code>no-owned-local-raw-escapes</code> (always_run). Verified: repo clean (0 sites),
+  synthetic negative control flagged.</li>
+</ul>
+<h3 id="empirical-matrix-probes-2026-08-25-stable-100">Empirical matrix (probes, 2026-08-25, stable 1.0.0)</h3>
+<table>
+<thead>
+<tr>
+<th>Probe</th>
+<th>Shape</th>
+<th>Result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>docs/dev/probe_return_caret_c.mojo</code></td>
+<td>real AnyTensor, <code>return GradientPair(ga^, gb^)</code> vs implicit</td>
+<td>both OK 10/10</td>
+</tr>
+<tr>
+<td><code>docs/dev/probe_return_caret_d.mojo</code></td>
+<td>real AnyTensor, <code>return output^</code> whole local</td>
+<td>OK 10/10 (small+large)</td>
+</tr>
+<tr>
+<td><code>probe_return_caret_a/b.mojo</code> (synthetic Box, no refcount)</td>
+<td>explicit <code>^</code> vs implicit</td>
+<td>explicit OK, implicit CORRUPT (no refcount — differences are model-specific)</td>
+</tr>
+<tr>
+<td><code>repro_uaf_return_move.mojo</code></td>
+<td><code>Box</code> custom-deinit + refcount + <code>return r^</code></td>
+<td><strong>FAILS 5/5</strong> (moved-from deinit runs; ASAN heap-UAF)</td>
+</tr>
+</tbody>
+</table>
+<p>Takeaway: the raw-<code>Box</code> shape (custom move + shared refcount + <code>return r^</code>)
+still demonstrates the FM-A bug deterministically; the real-<code>AnyTensor</code> shapes
+pass because <code>AnyTensor</code>'s List fields + larger allocations make the double-
+decrement land on a refcount cell that happens to survive in practice, or the
+return-move path is instantiated differently. The canary keeps watch; do NOT
+reintroduce the refcount-sentinel WAR (see <code>tensor.mojo</code> note).</p>
+<hr />
+<h2 id="failure-mode-g-premature-__deinit__-of-closure-captures-at-the-function-value-boundary">Failure Mode G: Premature <code>__deinit__</code> of closure captures at the function-value boundary</h2>
+<p><strong>Severity</strong>: High (silent use-after-free — garbage reads / segfaults in every
+<code>parallelize</code>-driven parallel batch path: pooling, conv, normalization).</p>
+<p><strong>Status</strong>: Root-caused + documented; <strong>filed as
+<a href="https://github.com/modular/modular/issues/6965">modular/modular#6965</a></strong> (2026-08-22).
+WAR applied: the three impacted call sites (<code>pooling.mojo</code>, <code>conv.mojo</code>,
+<code>normalization.mojo</code>) now dispatch inline via <code>TaskGroup</code> so the capturing
+closure never crosses a function-value parameter boundary; <code>parallelize</code>
+remains only for scalar / keep-alive captures (e.g. the memory-pool
+thread-safety tests).</p>
+<h3 id="symptom_2">Symptom</h3>
+<p>A <code>@parameter</code> capturing closure (<code>def worker(i: Int) capturing:</code>) that captures a local
+heap-owning struct, when <strong>passed as a function-value parameter</strong>
+(<code>func: def(Int) capturing -&gt; None</code>), causes the captured local's <code>__deinit__</code> to fire at
+closure-construction time — <strong>before any call through the closure</strong> — freeing the
+captured buffer while the closure body still reads/writes it. Direct calls to the same
+closure (no function-value boundary) keep the capture alive correctly.</p>
+<p>The corruption is data-buffer-correlated, not call-order-correlated: the freed block's
+head is reused by the closure context (reads as 0.0 / garbage), the tail still holds
+stale values — e.g. <code>ones([8], float32)</code> reads as <code>0.0 0.0 1.0 1.0 1.0 1.0 1.0 1.0</code>.</p>
+<h3 id="cross-version-evidence-identical-file-docsdevreproducersrepro_closure_capture_identicalmojo">Cross-version evidence (identical file <code>docs/dev/reproducers/repro_closure_capture_identical.mojo</code>)</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>$ mojo run repro_closure_capture_identical.mojo    # 1.0.0b2
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>creating box
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>calling closure via function-value param:           # ✅ NO deinit print before reads
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>  param[ 0 ]: 700                                     #    capture kept alive
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>  ...
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>$ mojo run repro_closure_capture_identical.mojo    # 1.0.0 stable
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>creating box
+<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a>    &gt;&gt;&gt; Box.__deinit__ firing (payload= 7 )        # ❌ PREMATURE — fires at closure
+<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a>calling closure via function-value param:            #    construction, before any call
+<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a>  param[ 0 ]: 700                                    #    (reads correct here only because
+<a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a>  ...                                                #    an Int payload frees nothing)
+</code></pre></div>
+<p>With a heap-owning payload (<code>docs/dev/reproducers/repro_closure_capture_uaf.mojo</code>, 1.0.0
+only):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>$ mojo run repro_closure_capture_uaf.mojo          # 1.0.0 stable
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>    &gt;&gt;&gt; Box.__deinit__ firing (freeing buffer)     # buffer freed before closure runs
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>  param[ 0 ]: 0.0        # UAF read — expected 0.25
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>  param[ 1 ]: 0.0        # UAF read — expected 0.75
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>  param[ 2 ]: 1.25       # stale value from freed-but-unreused tail
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>  ...
+</code></pre></div>
+<h3 id="root-cause_2">Root cause</h3>
+<p>In 1.0.0 the lifetime/use analysis treats a captured local as NOT live inside a
+<code>@parameter</code> capturing closure once that closure is <strong>passed as a function-value
+parameter</strong> (<code>def(Int) capturing -&gt; None</code>):</p>
+<ul>
+<li><strong>Owned captured locals</strong>: <code>__deinit__</code> is hoisted to closure-construction time (the
+  compiler considers the closure-pass the last use), freeing the buffer the closure body
+  still reads → use-after-free.</li>
+<li><strong>Pointer/scalar captures</strong>: the closure's uses are not registered — the compiler
+  warns <code>assignment to 'xd' was never used</code> for a pointer the closure body reads, and the
+  closure reads garbage or crashes.</li>
+</ul>
+<p>Direct calls to the same closure (no function-value boundary) are correct, and a <em>later
+use of the captured variable in the enclosing frame</em> keeps owned captures alive — but
+only for the owned-local case; borrowed-param and raw-pointer captures stay broken
+(probe <code>repro_war15</code>: <code>var xd = x._data</code> captured → compiler reports <code>xd</code> unused →
+crash). This is a FOURTH trigger in the premature-<code>__deinit__</code> family — distinct from
+FM-A's return-move and FM-C/#6963's raw-pointer-escape (the pure repro has neither a
+return-move nor an escaping pointer).</p>
+<h3 id="impact-on-odyssey_2">Impact on Odyssey</h3>
+<p>Every <code>parallelize</code> call site passes a capturing closure as a function-value param:</p>
+<ul>
+<li><code>src/odyssey/core/pooling.mojo:168</code> — <code>maxpool_batch</code> captures <code>x</code>, <code>output</code> → batch ≥ 4
+  max-pooling returns all zeros / segfaults; this is the deterministic
+  <code>test_autograd_convergence</code> LeNet-shape crash (verified: standalone copy of the real
+  closure body crashes identically; batch 1-3 sequential pass, batch 4+ parallel dies)</li>
+<li><code>src/odyssey/core/conv.mojo:216</code> — <code>conv_batch</code> captures <code>x</code>, <code>output</code> → batch ≥ 4 conv
+  corrupted</li>
+<li><code>src/odyssey/core/normalization.mojo:147</code> — <code>normalize_batch</code> captures <code>typed_x</code>,
+  <code>out_ptr</code> etc. → batch ≥ 4 normalization corrupted</li>
+<li><code>src/odyssey/core/parallel_utils.mojo:95</code> — generic <code>parallel_for_batch</code> wrapper</li>
+</ul>
+<p>All of these pass on 1.0.0b2 (which keeps captures alive).</p>
+<h3 id="reproducers">Reproducers</h3>
+<ul>
+<li><code>docs/dev/reproducers/repro_closure_capture_identical.mojo</code> — identical file, both
+  versions (deinit-timing proof).</li>
+<li><code>docs/dev/reproducers/repro_closure_capture_uaf.mojo</code> — 1.0.0 pointer payload showing
+  the UAF reads.</li>
+</ul>
+<h3 id="war-proposed-pending-approval">WAR (proposed, pending approval)</h3>
+<p>Keep-alive (a later use of the captured variable after the pass) fixes ONLY the
+owned-local capture shape and is fragile. The reliable WAR is to stop passing
+tensor-capturing closures to <code>parallelize</code> on 1.0.0: restructure the pooling/conv/
+normalization closures to take the tensors as <strong>arguments</strong> (borrowed params are safe —
+Class C) instead of capturing them, or disable the parallel path (fall back to the
+sequential loop) until upstream fixes the capture liveness bug. Approval pending
+alongside the upstream filing decision.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "search.suggest", "search.highlight", "content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>
