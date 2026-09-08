@@ -148,6 +148,25 @@ See [agents/hierarchy.md](agents/hierarchy.md) for the complete agent hierarchy 
 1. **Reply to each review comment** with `✅ Fixed - [brief description]`
 1. **Delegate to skills** - Use "Use the X skill to..." pattern for automation
 
+### Mandatory Test Execution Delegation
+
+The main agent **MUST NOT execute tests directly**. This overrides the general
+skills-versus-sub-agents decision tree whenever a command's primary purpose is
+test execution or re-execution, including targeted, full-suite, regression,
+validation, and confirmation runs.
+
+1. Spawn one dedicated test-runner sub-agent using the weakest model available
+   in the active runtime (currently `gpt-5.6-luna`) with `xhigh` thinking.
+1. Give it the exact command, intended scope, relevant changed files, and any
+   prior failure output. Do not hard-code a model name in legacy agent configs.
+1. Require a report before proceeding:
+   - **PASS**: command(s) run and scope covered.
+   - **FAIL**: failing test and `file:line` where available, relevant output,
+     failure classification, first-stage root-cause hypothesis, likely owner,
+     and recommended next delegation.
+1. The main agent may inspect and triage the report, but must delegate repair
+   and every confirmation rerun. It must never run a test command itself.
+
 ### Skill Delegation Patterns
 
 Agents delegate to skills using five patterns: **Direct** (invoke for specific action),
@@ -340,7 +359,8 @@ Is the task well-defined with predictable steps?
 **Skills** - Use for automation with predictable workflows (available in ProjectMnemosyne):
 
 - **Characteristics**: Declarative YAML, fixed steps, composable, fast
-- **Best for**: GitHub API calls, running tests, formatting code, CI workflows
+- **Best for**: GitHub API calls, formatting code, CI workflows; test skills
+  may only be invoked by the dedicated test-runner sub-agent
 - **Examples**: `gh-create-pr-linked`, `mojo-format`, `run-precommit`
 - **Access**: Use `/mnemosyne:advise` to search and invoke skills
 
@@ -537,16 +557,16 @@ just help
 
 # Development commands
 just build                  # Build project in debug mode
-just test                   # Run all tests
-just test-mojo             # Run only Mojo tests
+just test                   # Run all tests (test-runner sub-agent only)
+just test-mojo             # Run only Mojo tests (test-runner sub-agent only)
 just format                # Format all files
 
 # CI-specific commands (match GitHub Actions)
-just validate           # Full validation (build + test)
+just validate           # Full validation (test-runner sub-agent only)
 just build              # Build shared package
 just package           # Compile package (validation only)
-just test-mojo          # Run all Mojo tests
-just test-group PATH PATTERN  # Run specific test group
+just test-mojo          # Run all Mojo tests (test-runner sub-agent only)
+just test-group PATH PATTERN  # Run a group (test-runner sub-agent only)
 just pre-commit               # Run pre-commit hooks
 just pre-commit-all               # Run pre-commit hooks on all files
 
@@ -593,7 +613,8 @@ GitHub Actions workflows use justfile recipes to ensure consistency:
   run: just build
 ```
 
-This ensures developers can run `just validate` locally to reproduce CI results exactly.
+This ensures developers can delegate `just validate` locally to the designated
+test-runner sub-agent to reproduce CI results exactly, then review its report.
 
 **See**: `justfile` for complete recipe list and implementation details.
 
@@ -614,7 +635,8 @@ This ensures developers can run `just validate` locally to reproduce CI results 
 
 ### Agent Testing
 
-Agent configurations are validated in CI on all PRs. Run locally before committing:
+Agent configurations are validated in CI on all PRs. Delegate this local
+validation to the designated test-runner sub-agent before committing:
 
 ```bash
 # Run all agent tests
@@ -787,7 +809,8 @@ Every component follows a hierarchical workflow with clear dependencies:
    - Create distribution archives (`.tar.gz`, `.zip` for tooling/docs)
    - Configure package metadata and installation procedures
    - Add components to existing packages
-   - Test package installation in clean environments
+   - Delegate package-installation tests in clean environments to the designated
+     test-runner sub-agent and review its report
    - Create CI/CD packaging workflows
    - **NOT just documenting** - must create actual distributable artifacts
 1. **Cleanup** - Refactor and finalize (runs after parallel phases complete)
@@ -804,7 +827,8 @@ Every component follows a hierarchical workflow with clear dependencies:
 Two-tier architecture: **Tier 1** layerwise unit tests (every PR, ~12 min, FP-representable special
 values 0.0/0.5/1.0/1.5/-1.0/-0.5, all 7 models) and **Tier 2** E2E integration tests (weekly,
 real EMNIST/CIFAR-10 datasets). Parametric layers validated with gradient checking (seed=42,
-epsilon=1e-5). Run with: `uv run mojo test tests/models/test_<model>_layers.mojo`
+epsilon=1e-5). Delegate this command to the test-runner sub-agent:
+`uv run mojo test tests/models/test_<model>_layers.mojo`
 
 See [Testing Strategy Guide](docs/dev/testing-strategy.md) for full documentation.
 
@@ -1092,7 +1116,7 @@ the local Mojo compiler works, the test runtime may fail due to binary incompati
 just podman-up              # Start container with GLIBC 2.35
 just shell                  # Open shell in container
 # Inside container:
-just test-mojo              # Run tests in container
+just test-mojo              # Test-runner sub-agent only: run tests in container
 
 # Option 2: Use CI for validation
 git push origin <branch>    # Push to GitHub

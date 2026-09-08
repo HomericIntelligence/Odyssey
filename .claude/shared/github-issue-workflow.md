@@ -234,7 +234,7 @@ Related issues:
 ### Testing Plan
 - [ ] Add regression test
 - [ ] Verify fix in isolation
-- [ ] Run full test suite
+- [ ] Delegate the full test suite to the designated test-runner sub-agent and review its report
 ```
 
 ### Review Findings
