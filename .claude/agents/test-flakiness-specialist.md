@@ -80,9 +80,9 @@ and implementation-level flakiness sources.
 
 ## Investigation Checklist
 
-- [ ] Reproduce failure consistently locally
-- [ ] Run test multiple times in sequence
-- [ ] Run test in different order (first/last/middle)
+- [ ] Delegate failure reproduction to the designated test-runner sub-agent and review its report
+- [ ] Delegate repeated sequential runs to the designated test-runner sub-agent and review its report
+- [ ] Delegate alternate-order runs to the designated test-runner sub-agent and review its report
 - [ ] Check for random seed initialization
 - [ ] Verify test isolation (no shared state)
 - [ ] Check for timing assumptions
@@ -127,9 +127,9 @@ and implementation-level flakiness sources.
 
 ## Verification Plan
 
-- [ ] Run test 10x in sequence
-- [ ] Run test in different order
-- [ ] Run in CI environment
+- [ ] Delegate ten sequential runs to the designated test-runner sub-agent and review its report
+- [ ] Delegate alternate-order runs to the designated test-runner sub-agent and review its report
+- [ ] Delegate CI-environment validation to the designated test-runner sub-agent and review its report
 - [ ] Monitor for regressions
 ```
 

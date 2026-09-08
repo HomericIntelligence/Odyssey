@@ -123,10 +123,10 @@ BAD: Here's 20 random issues in no particular order
 
 ## Terminal Output
 
-**DO**: Use structured formatting for command output:
+**DO**: Have the designated test-runner sub-agent use structured formatting for test output:
 
 ```bash
-$ mojo test tests/shared/core/test_tensor.mojo
+[Test-runner sub-agent] $ mojo test tests/shared/core/test_tensor.mojo
 Testing: /home/user/Odyssey/tests/shared/core/test_tensor.mojo
   test_tensor_creation ... PASSED
   test_tensor_indexing ... PASSED

@@ -93,7 +93,7 @@ Level 5 is the lowest level - no delegation to other agents.
 
 1. **Select Engineer Type**
    - Junior Implementation Engineer (simple functions, boilerplate)
-   - Junior Test Engineer (simple tests, test execution)
+   - Junior Test Engineer (simple tests, delegated test execution)
    - Junior Documentation Engineer (docstrings, formatting)
 
 1. **Define Task Scope**:
@@ -123,8 +123,8 @@ Level 5 is the lowest level - no delegation to other agents.
 
 - Simple unit tests
 - Test boilerplate
-- Test execution
-- Result reporting
+- Execute tests only when assigned as the designated test-runner sub-agent
+- PASS/FAIL result reporting with first-stage failure analysis
 
 ### Junior Documentation Engineer
 
