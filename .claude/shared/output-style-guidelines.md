@@ -126,12 +126,14 @@ BAD: Here's 20 random issues in no particular order
 **DO**: Have the designated test-runner sub-agent use structured formatting for test output:
 
 ```bash
-[Test-runner sub-agent] $ mojo test tests/shared/core/test_tensor.mojo
+[Test-runner sub-agent] $ mojo run tests/shared/core/test_tensor.mojo
 Testing: /home/user/Odyssey/tests/shared/core/test_tensor.mojo
   test_tensor_creation ... PASSED
   test_tensor_indexing ... PASSED
   test_tensor_reshape ... PASSED
-All tests passed (3/3)
+PASS
+Command: mojo run tests/shared/core/test_tensor.mojo
+Scope: tests/shared/core/test_tensor.mojo (3 tests)
 ```
 
 **DO**: Include error context when reporting failures:
