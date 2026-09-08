@@ -51,7 +51,7 @@ Position: receives component specs from design agents, delegates test implementa
 | Skill | When to Invoke |
 | --- | --- |
 | phase-test-tdd | Coordinating TDD workflow |
-| mojo-test-runner | Executing tests and verifying coverage |
+| mojo-test-runner | Used by the designated test-runner sub-agent only |
 | quality-coverage-report | Analyzing test coverage |
 
 ## Constraints
@@ -63,6 +63,8 @@ See [mojo-guidelines.md](../shared/mojo-guidelines.md) for Mojo-specific pattern
 **Agent-specific constraints**:
 
 - Do NOT implement tests yourself - delegate to engineers
+- Do NOT execute tests yourself - delegate test runs to the designated
+  test-runner sub-agent and review its report
 - DO focus on quality over quantity (avoid 100% coverage chase)
 - DO test critical functionality and error handling
 - DO coordinate TDD with Implementation Specialist
