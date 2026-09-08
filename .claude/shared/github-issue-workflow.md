@@ -94,12 +94,16 @@ gh issue comment <number> --body "$(cat <<'EOF'
 - `path/to/file2.mojo` - [what changed]
 
 ### Testing
-- All tests pass
+- Designated test-runner report:
+  - **PASS** — Commands: `[exact command(s)]`; Scope: `[tests or validation covered]`
+  - **FAIL** — Failing test and `file:line` where available; relevant output; failure classification; first-stage root-cause hypothesis; likely owner; recommended next delegation
 - Coverage: [percentage if known]
 
 ### Verification
-- [x] `uv run pytest` passes
-- [x] `just pre-commit-all` passes
+- [ ] Reviewed the designated test-runner report above
+- [ ] On PASS: commands and intended scope are recorded
+- [ ] On FAIL: first-stage analysis and the recommended next delegation are recorded
+- [ ] `just pre-commit-all` passes, if run
 - [x] Manual testing complete
 EOF
 )"
