@@ -57,7 +57,7 @@ tree — only the **stdlib** (`mojo/stdlib/std/`) and documentation are open.
 This is the file that *every* AVX-512 path in your crash traces ultimately
 queries (`src/odyssey/...` → `math.abs` → `SIMD.__abs__` → `CompilationTarget.has_avx512f()`).
 
-URL: <https://github.com/modular/modular/blob/main/mojo/stdlib/std/sys/info.mojo>
+URL: <https://github.com/modular/modular/blob/main/Mojo/stdlib/std/sys/info.mojo>
 
 Key definitions (line numbers approximate; file is ~1386 lines):
 
@@ -118,7 +118,7 @@ the open-source docs:
 
 ### `mojo/docs/code/tools/README-Compilation-Targets.md`
 
-URL: <https://github.com/modular/modular/blob/main/mojo/docs/code/tools/README-Compilation-Targets.md>
+URL: <https://github.com/modular/modular/blob/main/Mojo/docs/site/code/tools/README-Compilation-Targets.md>
 
 The "Known issue (MOCO-3686)" section says, verbatim:
 
@@ -308,12 +308,12 @@ the CPU as Zen 4 and inherited that family's static AVX-512 feature set.
 
 | Path | URL | Role |
 | --- | --- | --- |
-| `mojo/stdlib/std/sys/info.mojo` | <https://github.com/modular/modular/blob/main/mojo/stdlib/std/sys/info.mojo> | Compile-time feature queries (`has_avx512f`, `CompilationTarget`, `_current_target`). No runtime detection. |
-| `mojo/stdlib/std/sys/_assembly.mojo` | <https://github.com/modular/modular/blob/main/mojo/stdlib/std/sys/_assembly.mojo> | Generic `inlined_assembly`. No CPU detection. |
-| `mojo/stdlib/std/sys/intrinsics.mojo` | <https://github.com/modular/modular/blob/main/mojo/stdlib/std/sys/intrinsics.mojo> | LLVM intrinsics. No CPU detection. |
-| `mojo/stdlib/std/sys/_build.mojo` | <https://github.com/modular/modular/blob/main/mojo/stdlib/std/sys/_build.mojo> | Debug/release build detection only. |
-| `mojo/stdlib/std/sys/defines.mojo` | <https://github.com/modular/modular/blob/main/mojo/stdlib/std/sys/defines.mojo> | `#kgen.param.expr` defines. |
-| `mojo/docs/code/tools/README-Compilation-Targets.md` | <https://github.com/modular/modular/blob/main/mojo/docs/code/tools/README-Compilation-Targets.md> | **Names `CLOptions.h:118` + `getHostCPUFeatures()` as the host-feature entry point.** |
+| `mojo/stdlib/std/sys/info.mojo` | <https://github.com/modular/modular/blob/main/Mojo/stdlib/std/sys/info.mojo> | Compile-time feature queries (`has_avx512f`, `CompilationTarget`, `_current_target`). No runtime detection. |
+| `mojo/stdlib/std/sys/_assembly.mojo` | <https://github.com/modular/modular/blob/main/Mojo/stdlib/std/sys/_assembly.mojo> | Generic `inlined_assembly`. No CPU detection. |
+| `mojo/stdlib/std/sys/intrinsics.mojo` | <https://github.com/modular/modular/blob/main/Mojo/stdlib/std/sys/intrinsics.mojo> | LLVM intrinsics. No CPU detection. |
+| `mojo/stdlib/std/sys/_build.mojo` | <https://github.com/modular/modular/blob/main/Mojo/stdlib/std/sys/_build.mojo> | Debug/release build detection only. |
+| `mojo/stdlib/std/sys/defines.mojo` | <https://github.com/modular/modular/blob/main/Mojo/stdlib/std/sys/defines.mojo> | `#kgen.param.expr` defines. |
+| `mojo/docs/code/tools/README-Compilation-Targets.md` | <https://github.com/modular/modular/blob/main/Mojo/docs/site/code/tools/README-Compilation-Targets.md> | **Names `CLOptions.h:118` + `getHostCPUFeatures()` as the host-feature entry point.** |
 | `mojo/docs/tools/compilation.mdx` (rendered) | <https://mojolang.org/docs/tools/compilation/> | User-facing flag docs; documents `--print-effective-target`. |
 | *(closed source)* `CLOptions.h` | not in repo | Compiler-driver option parsing; initializes `targetFeatures = getHostCPUFeatures()` at line 118. |
 | *(closed source)* `libKGENCompilerRTShared.so` | not in repo | In-process JIT runtime where the SIGILL fires. Consumes the `!kgen.target` attribute populated from `CLOptions.h`. |

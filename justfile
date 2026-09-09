@@ -1382,10 +1382,6 @@ clean-worktrees mode="dry-run":
 audit:
     @echo "Running dependency audit..."
     @echo ""
-    @echo "=== Safety Scan ==="
-    -@safety check --file requirements.txt
-    -@safety check --file requirements-dev.txt
-    @echo ""
     @echo "=== pip-audit Scan ==="
     -@pip-audit
     @echo ""

@@ -436,7 +436,7 @@ events. An obsolete writer exits without changing comments.
 
 **Scanning Jobs (scheduled weekly)**:
 
-1. **python-audit** - Safety and pip-audit for vulnerability scanning
+1. **python-audit** - pip-audit vulnerability scanning
 2. **pixi-audit** - uv/PyPI package listing and version tracking (job id unchanged)
 3. **license-audit** - License compliance checking (blocks GPL-3.0, AGPL-3.0)
 

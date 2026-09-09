@@ -1408,7 +1408,7 @@ above:
 - LLVM `X86TargetParser.cpp::Processors[]`:
   <https://github.com/llvm/llvm-project/blob/main/llvm/lib/TargetParser/X86TargetParser.cpp>
 - Mojo *Known issue MOCO-3686* docs:
-  <https://github.com/modular/modular/blob/main/mojo/docs/code/tools/README-Compilation-Targets.md>
+  <https://github.com/modular/modular/blob/main/Mojo/docs/site/code/tools/README-Compilation-Targets.md>
 
 ### Odyssey PRs that participated
 
