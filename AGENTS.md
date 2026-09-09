@@ -131,7 +131,7 @@ This project uses a hierarchical agent system for all development work. **Always
 method for completing tasks.
 
 Sub-agent use is required at the task level, not per command: existing sub-agents may be reused, and routine
-test or validation reruns do not require spawning a new sub-agent.
+test or validation runs do not themselves require spawning a new sub-agent.
 
 ### Agent Hierarchy
 
