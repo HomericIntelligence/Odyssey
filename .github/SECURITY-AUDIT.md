@@ -4,7 +4,7 @@
 
 | Package Source | Tool | Coverage |
 | --- | --- | --- |
-| Python (`requirements*.txt`) | `safety` + `pip-audit` | Full — PyPI advisory DB |
+| Python (`requirements*.txt`) | `pip-audit` | Full — PyPI advisory DB |
 | PyPI packages in `pixi.lock` | `pip-audit` (pixi-audit job) | Full — PyPI advisory DB |
 | conda-forge packages in `pixi.lock` | None (see gap below) | Manual review only |
 
