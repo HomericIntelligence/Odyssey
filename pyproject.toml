@@ -57,7 +57,8 @@ dependencies = [
     #   mistune    CVE-2026-33079 / -44897
     "authlib>=1.6.11",
     "cryptography>=50.0.0",  # PYSEC-2026-3552 (#5386)
-    "gitpython>=3.1.58",
+    "gitpython>=3.1.59",
+    "tornado>=6.5.8",
     "mistune>=3.3.4",
 ]
 
@@ -81,7 +82,6 @@ dev = [
     "bandit>=1.7.5",
     "mypy>=2.3.0,<3",
     "types-PyYAML>=6.0.12.20260724",
-    "safety>=3.0.0,<4",
     "pip-audit>=2.7.0,<3",
 
     # Pre-commit

@@ -761,6 +761,6 @@ current.
 - [`mojo-1.0-migration-status.md`](mojo-1.0-migration-status.md) — per-file
   status (output of Phase C survey)
 - v1.0.0b1 release notes:
-  <https://raw.githubusercontent.com/modular/modular/main/mojo/docs/releases/v1.0.0b1.md>
+  <https://raw.githubusercontent.com/modular/modular/main/Mojo/docs/site/releases/v1.0.0b1.md>
 - Nightly changelog:
-  <https://raw.githubusercontent.com/modular/modular/main/mojo/docs/nightly-changelog.md>
+  <https://raw.githubusercontent.com/modular/modular/main/Mojo/docs/site/nightly-changelog.md>
