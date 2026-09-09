@@ -130,6 +130,9 @@ gh pr merge --auto --rebase
 This project uses a hierarchical agent system for all development work. **Always use agents** as the primary
 method for completing tasks.
 
+Sub-agent use is required at the task level, not per command: existing sub-agents may be reused, and routine
+test or validation reruns do not require spawning a new sub-agent.
+
 ### Agent Hierarchy
 
 See [agents/hierarchy.md](agents/hierarchy.md) for the complete agent hierarchy including:
