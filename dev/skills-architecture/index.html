@@ -1,0 +1,4005 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Mojo-based AI research platform for reproducing classic research papers">
+      
+      
+      
+        <link rel="canonical" href="https://github.com/HomericIntelligence/Odyssey/dev/skills-architecture/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>ML Odyssey Claude Skills Architecture - ML Odyssey</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#ml-odyssey-claude-skills-architecture" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="ML Odyssey" class="md-header__button md-logo" aria-label="ML Odyssey" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            ML Odyssey
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              ML Odyssey Claude Skills Architecture
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/HomericIntelligence/Odyssey" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    HomericIntelligence/Odyssey
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../glossary/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Glossary
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../release-process/" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../integration/supporting-directories/" class="md-tabs__link">
+          
+  
+  
+  Integration
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="ML Odyssey" class="md-nav__button md-logo" aria-label="ML Odyssey" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    ML Odyssey
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/HomericIntelligence/Odyssey" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    HomericIntelligence/Odyssey
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../glossary/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Glossary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/quickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quickstart
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/first_model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    First Model
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/repository-structure/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Repository Structure
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../release-process/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Release Process
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Integration
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Integration
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../integration/supporting-directories/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Supporting Directories
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../integration/papers-shared-integration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Papers & Shared Integration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../integration/quick-start-new-paper/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start New Paper
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#executive-summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Executive Summary
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#skill-categories" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Skill Categories
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Skill Categories">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-github-integration-skills-7-skills" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. GitHub Integration Skills (7 skills)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-worktree-management-skills-4-skills" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Worktree Management Skills (4 skills)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-phase-workflow-skills-5-skills" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Phase Workflow Skills (5 skills)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-mojo-development-skills-6-skills" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Mojo Development Skills (6 skills)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-agent-system-skills-5-skills" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Agent System Skills (5 skills)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#6-documentation-skills-4-skills" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Documentation Skills (4 skills)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#7-cicd-skills-4-skills" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. CI/CD Skills (4 skills)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#8-plan-management-skills-3-skills" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Plan Management Skills (3 skills)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#9-code-quality-skills-5-skills" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. Code Quality Skills (5 skills)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#skill-specifications" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Skill Specifications
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Skill Specifications">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-github-integration-skills" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. GitHub Integration Skills
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. GitHub Integration Skills">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#gh-review-pr" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        gh-review-pr
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#use-cases" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Use Cases
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#file-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        File Structure
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="File Structure">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#gh-get-review-comments" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        gh-get-review-comments
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#use-cases_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Use Cases
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#file-structure_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        File Structure
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="File Structure">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#gh-reply-review-comment" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        gh-reply-review-comment
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#use-cases_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Use Cases
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#file-structure_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        File Structure
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="File Structure">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#gh-fix-pr-feedback" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        gh-fix-pr-feedback
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#use-cases_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Use Cases
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#file-structure_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        File Structure
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="File Structure">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#gh-create-pr-linked" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        gh-create-pr-linked
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#use-cases_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Use Cases
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#file-structure_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        File Structure
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="File Structure">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#gh-implement-issue" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        gh-implement-issue
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#use-cases_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Use Cases
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#file-structure_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        File Structure
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="File Structure">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#gh-check-ci-status" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        gh-check-ci-status
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#use-cases_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Use Cases
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#file-structure_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        File Structure
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-worktree-management-skills" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Worktree Management Skills
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Worktree Management Skills">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#worktree-create" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        worktree-create
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#use-cases_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Use Cases
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#file-structure_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        File Structure
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="File Structure">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#worktree-cleanup" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        worktree-cleanup
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#use-cases_8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Use Cases
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#file-structure_8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        File Structure
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="File Structure">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#worktree-switch" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        worktree-switch
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#use-cases_9" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Use Cases
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#file-structure_9" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        File Structure
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="File Structure">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#worktree-sync" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        worktree-sync
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#use-cases_10" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Use Cases
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#file-structure_10" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        File Structure
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-phase-workflow-skills" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Phase Workflow Skills
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Phase Workflow Skills">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#phase-plan-generate" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        phase-plan-generate
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#use-cases_11" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Use Cases
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#file-structure_11" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        File Structure
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="File Structure">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#phase-test-tdd" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        phase-test-tdd
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#use-cases_12" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Use Cases
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#file-structure_12" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        File Structure
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="File Structure">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#phase-implement" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        phase-implement
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#use-cases_13" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Use Cases
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#file-structure_13" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        File Structure
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="File Structure">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#phase-package" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        phase-package
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#use-cases_14" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Use Cases
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#file-structure_14" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        File Structure
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="File Structure">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#phase-cleanup" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        phase-cleanup
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#use-cases_15" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Use Cases
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#file-structure_15" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        File Structure
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-mojo-development-skills" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Mojo Development Skills
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Mojo Development Skills">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#mojo-format" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        mojo-format
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#use-cases_16" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Use Cases
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#file-structure_16" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        File Structure
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="File Structure">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#mojo-test-runner" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        mojo-test-runner
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#use-cases_17" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Use Cases
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#file-structure_17" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        File Structure
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="File Structure">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#mojo-build-package" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        mojo-build-package
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#use-cases_18" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Use Cases
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#file-structure_18" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        File Structure
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="File Structure">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#mojo-simd-optimize" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        mojo-simd-optimize
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#use-cases_19" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Use Cases
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#file-structure_19" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        File Structure
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="File Structure">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#mojo-memory-check" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        mojo-memory-check
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#use-cases_20" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Use Cases
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#file-structure_20" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        File Structure
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="File Structure">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#mojo-type-safety" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        mojo-type-safety
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#use-cases_21" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Use Cases
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#file-structure_21" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        File Structure
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-agent-system-skills" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Agent System Skills
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. Agent System Skills">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#agent-validate-config" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        agent-validate-config
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#use-cases_22" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Use Cases
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#file-structure_22" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        File Structure
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="File Structure">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#agent-test-delegation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        agent-test-delegation
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#use-cases_23" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Use Cases
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#file-structure_23" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        File Structure
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="File Structure">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#agent-run-orchestrator" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        agent-run-orchestrator
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#use-cases_24" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Use Cases
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#file-structure_24" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        File Structure
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="File Structure">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#agent-hierarchy-diagram" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        agent-hierarchy-diagram
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#use-cases_25" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Use Cases
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#file-structure_25" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        File Structure
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="File Structure">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#agent-coverage-check" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        agent-coverage-check
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#use-cases_26" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Use Cases
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#file-structure_26" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        File Structure
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#6-documentation-skills" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Documentation Skills
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. Documentation Skills">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#doc-update-blog" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        doc-update-blog
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#use-cases_27" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Use Cases
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#file-structure_27" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        File Structure
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="File Structure">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#doc-generate-adr" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        doc-generate-adr
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#use-cases_28" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Use Cases
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#file-structure_28" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        File Structure
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="File Structure">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#doc-issue-readme" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        doc-issue-readme
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#use-cases_29" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Use Cases
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#file-structure_29" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        File Structure
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="File Structure">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#doc-validate-markdown" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        doc-validate-markdown
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#use-cases_30" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Use Cases
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#file-structure_30" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        File Structure
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#7-cicd-skills" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. CI/CD Skills
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7. CI/CD Skills">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#run-precommit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        run-precommit
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#use-cases_31" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Use Cases
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#file-structure_31" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        File Structure
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="File Structure">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#validate-workflow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        validate-workflow
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#use-cases_32" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Use Cases
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#file-structure_32" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        File Structure
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="File Structure">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#fix-ci-failures" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        fix-ci-failures
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#use-cases_33" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Use Cases
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#file-structure_33" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        File Structure
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="File Structure">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#install-workflow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        install-workflow
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#use-cases_34" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Use Cases
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#file-structure_34" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        File Structure
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#8-code-quality-skills" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Code Quality Skills
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="8. Code Quality Skills">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#quality-run-linters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        quality-run-linters
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#use-cases_35" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Use Cases
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#file-structure_35" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        File Structure
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="File Structure">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#quality-fix-formatting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        quality-fix-formatting
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#use-cases_36" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Use Cases
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#file-structure_36" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        File Structure
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="File Structure">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#quality-security-scan" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        quality-security-scan
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#use-cases_37" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Use Cases
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#file-structure_37" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        File Structure
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="File Structure">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#quality-complexity-check" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        quality-complexity-check
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#use-cases_38" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Use Cases
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#file-structure_38" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        File Structure
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="File Structure">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#quality-coverage-report" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        quality-coverage-report
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#use-cases_39" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Use Cases
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#file-structure_39" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        File Structure
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#priority-levels" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Priority Levels
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Priority Levels">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#high-priority-must-have-18-skills" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        High Priority (Must Have) - 18 skills
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#medium-priority-should-have-12-skills" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Medium Priority (Should Have) - 12 skills
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#low-priority-nice-to-have-5-skills" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Low Priority (Nice to Have) - 5 skills
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#implementation-roadmap" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Implementation Roadmap
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Implementation Roadmap">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#phase-1-foundation-week-1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 1: Foundation (Week 1)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-2-core-workflows-week-2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 2: Core Workflows (Week 2)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-3-advanced-features-week-3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 3: Advanced Features (Week 3)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-4-optimization-week-4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 4: Optimization (Week 4)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-5-polish-week-5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 5: Polish (Week 5)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#integration-patterns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Integration Patterns
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Integration Patterns">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#skill-composition-examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Skill Composition Examples
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Skill Composition Examples">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#example-1-complete-pr-review-and-fix" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example 1: Complete PR Review and Fix
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-2-implement-new-feature" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example 2: Implement New Feature
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-3-fix-ci-failure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example 3: Fix CI Failure
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#skill-dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Skill Dependencies
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#testing-strategy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Testing Strategy
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Testing Strategy">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#skill-validation-levels" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Skill Validation Levels
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#test-coverage-requirements" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Test Coverage Requirements
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#testing-tools" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Testing Tools
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="ml-odyssey-claude-skills-architecture">ML Odyssey Claude Skills Architecture</h1>
+<h2 id="executive-summary">Executive Summary</h2>
+<p>This document defines a comprehensive suite of 58 Claude skills designed to automate and
+simplify agent workflows in the ML Odyssey project. Skills are organized into functional
+categories aligned with the project's 5-phase development workflow (Plan → Test →
+Implementation → Package → Cleanup) and support the hierarchical agent system from Level 0
+(Chief Architect) through Level 5 (Junior Engineers).</p>
+<p>Skills are designed to be:</p>
+<ul>
+<li><strong>Composable</strong>: Work together seamlessly</li>
+<li><strong>Focused</strong>: Single responsibility per skill</li>
+<li><strong>Efficient</strong>: Under 500 lines with progressive disclosure</li>
+<li><strong>Robust</strong>: Comprehensive error handling</li>
+<li><strong>Model-invoked</strong>: Claude decides when to use them</li>
+</ul>
+<h2 id="skill-categories">Skill Categories</h2>
+<h3 id="1-github-integration-skills-7-skills">1. GitHub Integration Skills (7 skills)</h3>
+<p>Handle all GitHub operations including PR management, issue tracking, and review workflows.</p>
+<h3 id="2-worktree-management-skills-4-skills">2. Worktree Management Skills (4 skills)</h3>
+<p>Manage git worktrees for parallel development across multiple features.</p>
+<h3 id="3-phase-workflow-skills-5-skills">3. Phase Workflow Skills (5 skills)</h3>
+<p>Automate the 5-phase development workflow (Plan, Test, Implementation, Package, Cleanup).</p>
+<h3 id="4-mojo-development-skills-6-skills">4. Mojo Development Skills (6 skills)</h3>
+<p>Support Mojo-specific development including SIMD optimization and memory safety.</p>
+<h3 id="5-agent-system-skills-5-skills">5. Agent System Skills (5 skills)</h3>
+<p>Validate, test, and orchestrate the hierarchical agent system.</p>
+<h3 id="6-documentation-skills-4-skills">6. Documentation Skills (4 skills)</h3>
+<p>Generate and maintain various documentation types including ADRs and blog posts.</p>
+<h3 id="7-cicd-skills-4-skills">7. CI/CD Skills (4 skills)</h3>
+<p>Handle continuous integration and deployment operations.</p>
+<h3 id="8-plan-management-skills-3-skills">8. Plan Management Skills (3 skills)</h3>
+<p>Manage hierarchical planning structure and GitHub issue generation.</p>
+<h3 id="9-code-quality-skills-5-skills">9. Code Quality Skills (5 skills)</h3>
+<p>Ensure code quality through linting, formatting, and security scanning.</p>
+<h2 id="skill-specifications">Skill Specifications</h2>
+<h3 id="1-github-integration-skills">1. GitHub Integration Skills</h3>
+<h4 id="gh-review-pr">gh-review-pr</h4>
+<p><strong>Priority</strong>: High
+<strong>Description</strong>: Comprehensively review a pull request including code changes, CI status, and test coverage.
+<strong>Purpose</strong>: Automate thorough PR reviews following project standards.</p>
+<h3 id="use-cases">Use Cases</h3>
+<ul>
+<li>Review incoming PRs</li>
+<li>Check for adherence to coding standards</li>
+<li>Validate CI passes</li>
+<li>Ensure proper issue linking</li>
+</ul>
+<p><strong>Tool Requirements</strong>: <code>Read</code>, <code>Bash</code>, <code>Grep</code></p>
+<h3 id="file-structure">File Structure</h3>
+<p><code>text
+gh-review-pr/
+├── SKILL.md (main skill with review checklist)
+├── reference.md (review standards and criteria)
+├── scripts/
+│   ├── check_pr_status.sh
+│   ├── analyze_changes.sh
+│   └── validate_tests.sh
+└── templates/
+    └── review_comment.md</code>text</p>
+<h4 id="gh-get-review-comments">gh-get-review-comments</h4>
+<p><strong>Priority</strong>: High
+<strong>Description</strong>: Retrieve all open review comments from a PR using the correct GitHub API.
+<strong>Purpose</strong>: Collect feedback that needs to be addressed.</p>
+<h3 id="use-cases_1">Use Cases</h3>
+<ul>
+<li>Get all unresolved comments</li>
+<li>Filter comments by reviewer</li>
+<li>Check comment status</li>
+</ul>
+<p><strong>Tool Requirements</strong>: <code>Bash</code></p>
+<h3 id="file-structure_1">File Structure</h3>
+<p><code>text
+gh-get-review-comments/
+├── SKILL.md (API interaction logic)
+└── scripts/
+    └── fetch_comments.sh</code>text</p>
+<h4 id="gh-reply-review-comment">gh-reply-review-comment</h4>
+<p><strong>Priority</strong>: High
+<strong>Description</strong>: Reply to PR review comments using the correct API (not gh pr comment).
+<strong>Purpose</strong>: Properly respond to inline code review feedback.</p>
+<h3 id="use-cases_2">Use Cases</h3>
+<ul>
+<li>Reply to specific review comments</li>
+<li>Mark comments as resolved</li>
+<li>Provide fix confirmations</li>
+</ul>
+<p><strong>Tool Requirements</strong>: <code>Bash</code></p>
+<h3 id="file-structure_2">File Structure</h3>
+<p><code>text
+gh-reply-review-comment/
+├── SKILL.md (correct API usage)
+├── reference.md (API documentation)
+└── scripts/
+    └── reply_to_comment.sh</code>text</p>
+<h4 id="gh-fix-pr-feedback">gh-fix-pr-feedback</h4>
+<p><strong>Priority</strong>: High
+<strong>Description</strong>: Automatically fix issues identified in PR reviews.
+<strong>Purpose</strong>: Streamline the feedback incorporation process.</p>
+<h3 id="use-cases_3">Use Cases</h3>
+<ul>
+<li>Apply requested changes</li>
+<li>Update code based on feedback</li>
+<li>Push fixes and reply to comments</li>
+</ul>
+<p><strong>Tool Requirements</strong>: <code>Read</code>, <code>Write</code>, <code>Bash</code>, <code>Grep</code></p>
+<h3 id="file-structure_3">File Structure</h3>
+<p><code>text
+gh-fix-pr-feedback/
+├── SKILL.md (feedback processing logic)
+├── scripts/
+│   ├── apply_fixes.sh
+│   └── verify_fixes.sh
+└── templates/
+    └── fix_confirmation.md</code>text</p>
+<h4 id="gh-create-pr-linked">gh-create-pr-linked</h4>
+<p><strong>Priority</strong>: High
+<strong>Description</strong>: Create a pull request with proper issue linking using --issue flag or "Closes #" pattern.
+<strong>Purpose</strong>: Ensure all PRs are properly linked to GitHub issues.</p>
+<h3 id="use-cases_4">Use Cases</h3>
+<ul>
+<li>Create new PR from branch</li>
+<li>Link to existing issue</li>
+<li>Verify linkage in GitHub</li>
+</ul>
+<p><strong>Tool Requirements</strong>: <code>Bash</code></p>
+<h3 id="file-structure_4">File Structure</h3>
+<p><code>text
+gh-create-pr-linked/
+├── SKILL.md (PR creation with validation)
+└── scripts/
+    └── create_linked_pr.sh</code>text</p>
+<h4 id="gh-implement-issue">gh-implement-issue</h4>
+<p><strong>Priority</strong>: High
+<strong>Description</strong>: Coordinate sub-agents to implement a GitHub issue end-to-end.
+<strong>Purpose</strong>: Automate complete issue implementation workflow.</p>
+<h3 id="use-cases_5">Use Cases</h3>
+<ul>
+<li>Parse issue requirements</li>
+<li>Delegate to appropriate agents</li>
+<li>Track implementation progress</li>
+</ul>
+<p><strong>Tool Requirements</strong>: <code>Read</code>, <code>Bash</code></p>
+<h3 id="file-structure_5">File Structure</h3>
+<p><code>text
+gh-implement-issue/
+├── SKILL.md (orchestration logic)
+├── reference.md (delegation patterns)
+└── scripts/
+    ├── parse_issue.sh
+    └── track_progress.sh</code>text</p>
+<h4 id="gh-check-ci-status">gh-check-ci-status</h4>
+<p><strong>Priority</strong>: Medium
+<strong>Description</strong>: Check CI status for a PR or commit.
+<strong>Purpose</strong>: Monitor build and test status.</p>
+<h3 id="use-cases_6">Use Cases</h3>
+<ul>
+<li>Check if CI passes</li>
+<li>Get failure details</li>
+<li>Monitor CI progress</li>
+</ul>
+<p><strong>Tool Requirements</strong>: <code>Bash</code></p>
+<h3 id="file-structure_6">File Structure</h3>
+<p><code>text
+gh-check-ci-status/
+├── SKILL.md (CI monitoring)
+└── scripts/
+    └── check_ci.sh</code>text</p>
+<h3 id="2-worktree-management-skills">2. Worktree Management Skills</h3>
+<h4 id="worktree-create">worktree-create</h4>
+<p><strong>Priority</strong>: High
+<strong>Description</strong>: Create a new git worktree for feature development.
+<strong>Purpose</strong>: Enable parallel development across multiple features.</p>
+<h3 id="use-cases_7">Use Cases</h3>
+<ul>
+<li>Create worktree for new feature</li>
+<li>Set up worktree from issue branch</li>
+<li>Configure worktree environment</li>
+</ul>
+<p><strong>Tool Requirements</strong>: <code>Bash</code></p>
+<h3 id="file-structure_7">File Structure</h3>
+<p><code>text
+worktree-create/
+├── SKILL.md (worktree creation logic)
+└── scripts/
+    └── create_worktree.sh</code>text</p>
+<h4 id="worktree-cleanup">worktree-cleanup</h4>
+<p><strong>Priority</strong>: High
+<strong>Description</strong>: Clean up unused worktrees and their associated branches.
+<strong>Purpose</strong>: Maintain clean development environment.</p>
+<h3 id="use-cases_8">Use Cases</h3>
+<ul>
+<li>Remove merged worktrees</li>
+<li>Clean orphaned worktrees</li>
+<li>Prune worktree list</li>
+</ul>
+<p><strong>Tool Requirements</strong>: <code>Bash</code></p>
+<h3 id="file-structure_8">File Structure</h3>
+<p><code>text
+worktree-cleanup/
+├── SKILL.md (cleanup logic)
+└── scripts/
+    └── cleanup_worktrees.sh</code>text</p>
+<h4 id="worktree-switch">worktree-switch</h4>
+<p><strong>Priority</strong>: Medium
+<strong>Description</strong>: Switch between existing worktrees.
+<strong>Purpose</strong>: Navigate between parallel development efforts.</p>
+<h3 id="use-cases_9">Use Cases</h3>
+<ul>
+<li>Switch to different feature</li>
+<li>List available worktrees</li>
+<li>Check worktree status</li>
+</ul>
+<p><strong>Tool Requirements</strong>: <code>Bash</code></p>
+<h3 id="file-structure_9">File Structure</h3>
+<p><code>text
+worktree-switch/
+├── SKILL.md (switching logic)
+└── scripts/
+    └── switch_worktree.sh</code>text</p>
+<h4 id="worktree-sync">worktree-sync</h4>
+<p><strong>Priority</strong>: Medium
+<strong>Description</strong>: Sync worktree with upstream changes.
+<strong>Purpose</strong>: Keep worktrees up to date.</p>
+<h3 id="use-cases_10">Use Cases</h3>
+<ul>
+<li>Pull upstream changes</li>
+<li>Rebase worktree</li>
+<li>Resolve conflicts</li>
+</ul>
+<p><strong>Tool Requirements</strong>: <code>Bash</code></p>
+<h3 id="file-structure_10">File Structure</h3>
+<p><code>text
+worktree-sync/
+├── SKILL.md (sync logic)
+└── scripts/
+    └── sync_worktree.sh</code>text</p>
+<h3 id="3-phase-workflow-skills">3. Phase Workflow Skills</h3>
+<h4 id="phase-plan-generate">phase-plan-generate</h4>
+<p><strong>Priority</strong>: High
+<strong>Description</strong>: Generate comprehensive plan documentation for a component.
+<strong>Purpose</strong>: Automate planning phase of 5-phase workflow.</p>
+<h3 id="use-cases_11">Use Cases</h3>
+<ul>
+<li>Create plan.md files</li>
+<li>Generate specifications</li>
+<li>Update parent/child links</li>
+</ul>
+<p><strong>Tool Requirements</strong>: <code>Read</code>, <code>Write</code>, <code>Glob</code></p>
+<h3 id="file-structure_11">File Structure</h3>
+<p><code>text
+phase-plan-generate/
+├── SKILL.md (plan generation)
+├── reference.md (plan template)
+└── templates/
+    ├── plan.md
+    └── github_issue.md</code>text</p>
+<h4 id="phase-test-tdd">phase-test-tdd</h4>
+<p><strong>Priority</strong>: High
+<strong>Description</strong>: Generate and run tests following TDD practices.
+<strong>Purpose</strong>: Automate test-driven development workflow.</p>
+<h3 id="use-cases_12">Use Cases</h3>
+<ul>
+<li>Generate test scaffolding</li>
+<li>Run test suites</li>
+<li>Check coverage</li>
+</ul>
+<p><strong>Tool Requirements</strong>: <code>Read</code>, <code>Write</code>, <code>Bash</code></p>
+<h3 id="file-structure_12">File Structure</h3>
+<p><code>text
+phase-test-tdd/
+├── SKILL.md (TDD workflow)
+├── reference.md (TDD practices)
+└── scripts/
+    ├── generate_tests.sh
+    └── run_tests.sh</code>text</p>
+<h4 id="phase-implement">phase-implement</h4>
+<p><strong>Priority</strong>: High
+<strong>Description</strong>: Coordinate implementation phase across multiple engineers.
+<strong>Purpose</strong>: Orchestrate parallel implementation work.</p>
+<h3 id="use-cases_13">Use Cases</h3>
+<ul>
+<li>Delegate implementation tasks</li>
+<li>Track progress</li>
+<li>Integrate components</li>
+</ul>
+<p><strong>Tool Requirements</strong>: <code>Read</code>, <code>Write</code>, <code>Bash</code></p>
+<h3 id="file-structure_13">File Structure</h3>
+<p><code>text
+phase-implement/
+├── SKILL.md (implementation orchestration)
+└── scripts/
+    └── track_implementation.sh</code>text</p>
+<h4 id="phase-package">phase-package</h4>
+<p><strong>Priority</strong>: High
+<strong>Description</strong>: Create distributable packages (.mojopkg, .tar.gz, etc.).
+<strong>Purpose</strong>: Automate packaging phase.</p>
+<h3 id="use-cases_14">Use Cases</h3>
+<ul>
+<li>Build Mojo packages</li>
+<li>Create distribution archives</li>
+<li>Test package installation</li>
+</ul>
+<p><strong>Tool Requirements</strong>: <code>Bash</code>, <code>Read</code></p>
+<h3 id="file-structure_14">File Structure</h3>
+<p><code>text
+phase-package/
+├── SKILL.md (packaging logic)
+├── reference.md (package formats)
+└── scripts/
+    ├── build_mojopkg.sh
+    └── create_archive.sh</code>text</p>
+<h4 id="phase-cleanup">phase-cleanup</h4>
+<p><strong>Priority</strong>: Medium
+<strong>Description</strong>: Refactor and finalize code after implementation.
+<strong>Purpose</strong>: Ensure code quality and consistency.</p>
+<h3 id="use-cases_15">Use Cases</h3>
+<ul>
+<li>Apply refactoring</li>
+<li>Update documentation</li>
+<li>Clean up technical debt</li>
+</ul>
+<p><strong>Tool Requirements</strong>: <code>Read</code>, <code>Write</code>, <code>Grep</code></p>
+<h3 id="file-structure_15">File Structure</h3>
+<p><code>text
+phase-cleanup/
+├── SKILL.md (cleanup workflow)
+└── scripts/
+    └── refactor_code.sh</code>text</p>
+<h3 id="4-mojo-development-skills">4. Mojo Development Skills</h3>
+<h4 id="mojo-format">mojo-format</h4>
+<p><strong>Priority</strong>: High
+<strong>Description</strong>: Format Mojo code according to project standards.
+<strong>Purpose</strong>: Ensure consistent Mojo code formatting.</p>
+<h3 id="use-cases_16">Use Cases</h3>
+<ul>
+<li>Format .mojo files</li>
+<li>Format .🔥 files</li>
+<li>Check formatting compliance</li>
+</ul>
+<p><strong>Tool Requirements</strong>: <code>Read</code>, <code>Write</code>, <code>Bash</code></p>
+<h3 id="file-structure_16">File Structure</h3>
+<p><code>text
+mojo-format/
+├── SKILL.md (formatting logic)
+└── scripts/
+    └── format_mojo.sh</code>text</p>
+<h4 id="mojo-test-runner">mojo-test-runner</h4>
+<p><strong>Priority</strong>: High
+<strong>Description</strong>: Run Mojo test suites and parse results.
+<strong>Purpose</strong>: Execute and analyze Mojo tests.</p>
+<h3 id="use-cases_17">Use Cases</h3>
+<ul>
+<li>Run unit tests</li>
+<li>Parse test output</li>
+<li>Generate test reports</li>
+</ul>
+<p><strong>Tool Requirements</strong>: <code>Bash</code>, <code>Read</code></p>
+<h3 id="file-structure_17">File Structure</h3>
+<p><code>text
+mojo-test-runner/
+├── SKILL.md (test execution)
+└── scripts/
+    └── run_mojo_tests.sh</code>text</p>
+<h4 id="mojo-build-package">mojo-build-package</h4>
+<p><strong>Priority</strong>: High
+<strong>Description</strong>: Build .mojopkg packages from Mojo modules.
+<strong>Purpose</strong>: Create distributable Mojo packages.</p>
+<h3 id="use-cases_18">Use Cases</h3>
+<ul>
+<li>Compile Mojo modules</li>
+<li>Create package manifest</li>
+<li>Build .mojopkg file</li>
+</ul>
+<p><strong>Tool Requirements</strong>: <code>Bash</code>, <code>Read</code></p>
+<h3 id="file-structure_18">File Structure</h3>
+<p><code>text
+mojo-build-package/
+├── SKILL.md (package building)
+├── reference.md (package structure)
+└── scripts/
+    └── build_package.sh</code>text</p>
+<h4 id="mojo-simd-optimize">mojo-simd-optimize</h4>
+<p><strong>Priority</strong>: Medium
+<strong>Description</strong>: Apply SIMD optimizations to Mojo code.
+<strong>Purpose</strong>: Optimize performance-critical code paths.</p>
+<h3 id="use-cases_19">Use Cases</h3>
+<ul>
+<li>Vectorize loops</li>
+<li>Apply SIMD operations</li>
+<li>Optimize tensor operations</li>
+</ul>
+<p><strong>Tool Requirements</strong>: <code>Read</code>, <code>Write</code></p>
+<h3 id="file-structure_19">File Structure</h3>
+<p><code>text
+mojo-simd-optimize/
+├── SKILL.md (optimization patterns)
+├── reference.md (SIMD guidelines)
+└── templates/
+    └── simd_kernel.mojo</code>text</p>
+<h4 id="mojo-memory-check">mojo-memory-check</h4>
+<p><strong>Priority</strong>: Medium
+<strong>Description</strong>: Verify memory safety in Mojo code.
+<strong>Purpose</strong>: Ensure proper memory management.</p>
+<h3 id="use-cases_20">Use Cases</h3>
+<ul>
+<li>Check ownership patterns</li>
+<li>Verify borrow checking</li>
+<li>Detect memory leaks</li>
+</ul>
+<p><strong>Tool Requirements</strong>: <code>Read</code>, <code>Grep</code></p>
+<h3 id="file-structure_20">File Structure</h3>
+<p><code>text
+mojo-memory-check/
+├── SKILL.md (memory checking)
+└── scripts/
+    └── check_memory.sh</code>text</p>
+<h4 id="mojo-type-safety">mojo-type-safety</h4>
+<p><strong>Priority</strong>: Medium
+<strong>Description</strong>: Validate type safety and type hints in Mojo code.
+<strong>Purpose</strong>: Ensure type correctness.</p>
+<h3 id="use-cases_21">Use Cases</h3>
+<ul>
+<li>Check type annotations</li>
+<li>Validate generic types</li>
+<li>Verify trait implementations</li>
+</ul>
+<p><strong>Tool Requirements</strong>: <code>Read</code>, <code>Grep</code></p>
+<h3 id="file-structure_21">File Structure</h3>
+<p><code>text
+mojo-type-safety/
+├── SKILL.md (type checking)
+└── scripts/
+    └── check_types.sh</code>text</p>
+<h3 id="5-agent-system-skills">5. Agent System Skills</h3>
+<h4 id="agent-validate-config">agent-validate-config</h4>
+<p><strong>Priority</strong>: High
+<strong>Description</strong>: Validate agent YAML configurations and frontmatter.
+<strong>Purpose</strong>: Ensure agent configurations are correct.</p>
+<h3 id="use-cases_22">Use Cases</h3>
+<ul>
+<li>Check YAML syntax</li>
+<li>Validate required fields</li>
+<li>Verify tool specifications</li>
+</ul>
+<p><strong>Tool Requirements</strong>: <code>Read</code>, <code>Bash</code></p>
+<h3 id="file-structure_22">File Structure</h3>
+<p><code>text
+agent-validate-config/
+├── SKILL.md (validation logic)
+└── scripts/
+    └── validate_agents.py</code>text</p>
+<h4 id="agent-test-delegation">agent-test-delegation</h4>
+<p><strong>Priority</strong>: High
+<strong>Description</strong>: Test agent delegation patterns and chains.
+<strong>Purpose</strong>: Verify delegation works correctly.</p>
+<h3 id="use-cases_23">Use Cases</h3>
+<ul>
+<li>Test delegation chains</li>
+<li>Verify escalation paths</li>
+<li>Check skip-level rules</li>
+</ul>
+<p><strong>Tool Requirements</strong>: <code>Read</code>, <code>Bash</code></p>
+<h3 id="file-structure_23">File Structure</h3>
+<p><code>text
+agent-test-delegation/
+├── SKILL.md (delegation testing)
+└── scripts/
+    └── test_delegation.py</code>text</p>
+<h4 id="agent-run-orchestrator">agent-run-orchestrator</h4>
+<p><strong>Priority</strong>: High
+<strong>Description</strong>: Run a specific orchestrator as a sub-agent.
+<strong>Purpose</strong>: Delegate work to section orchestrators.</p>
+<h3 id="use-cases_24">Use Cases</h3>
+<ul>
+<li>Run Foundation Orchestrator</li>
+<li>Run CI/CD Orchestrator</li>
+<li>Coordinate multiple orchestrators</li>
+</ul>
+<p><strong>Tool Requirements</strong>: <code>Bash</code></p>
+<h3 id="file-structure_24">File Structure</h3>
+<p><code>text
+agent-run-orchestrator/
+├── SKILL.md (orchestrator execution)
+├── reference.md (orchestrator list)
+└── scripts/
+    └── run_orchestrator.sh</code>text</p>
+<h4 id="agent-hierarchy-diagram">agent-hierarchy-diagram</h4>
+<p><strong>Priority</strong>: Low
+<strong>Description</strong>: Generate visual hierarchy diagrams for agents.
+<strong>Purpose</strong>: Visualize agent relationships.</p>
+<h3 id="use-cases_25">Use Cases</h3>
+<ul>
+<li>Create hierarchy diagrams</li>
+<li>Update visual documentation</li>
+<li>Generate team charts</li>
+</ul>
+<p><strong>Tool Requirements</strong>: <code>Read</code>, <code>Write</code></p>
+<h3 id="file-structure_25">File Structure</h3>
+<p><code>text
+agent-hierarchy-diagram/
+├── SKILL.md (diagram generation)
+└── scripts/
+    └── generate_diagram.py</code>text</p>
+<h4 id="agent-coverage-check">agent-coverage-check</h4>
+<p><strong>Priority</strong>: Low
+<strong>Description</strong>: Check agent coverage across workflow phases.
+<strong>Purpose</strong>: Ensure all phases have agent support.</p>
+<h3 id="use-cases_26">Use Cases</h3>
+<ul>
+<li>Verify phase coverage</li>
+<li>Identify gaps</li>
+<li>Generate coverage reports</li>
+</ul>
+<p><strong>Tool Requirements</strong>: <code>Read</code>, <code>Grep</code></p>
+<h3 id="file-structure_26">File Structure</h3>
+<p><code>text
+agent-coverage-check/
+├── SKILL.md (coverage analysis)
+└── scripts/
+    └── check_coverage.py</code>text</p>
+<h3 id="6-documentation-skills">6. Documentation Skills</h3>
+<h4 id="doc-update-blog">doc-update-blog</h4>
+<p><strong>Priority</strong>: Medium
+<strong>Description</strong>: Update blog posts to current format and standards.
+<strong>Purpose</strong>: Maintain consistent blog documentation.</p>
+<h3 id="use-cases_27">Use Cases</h3>
+<ul>
+<li>Update formatting</li>
+<li>Fix broken links</li>
+<li>Add metadata</li>
+</ul>
+<p><strong>Tool Requirements</strong>: <code>Read</code>, <code>Write</code></p>
+<h3 id="file-structure_27">File Structure</h3>
+<p><code>text
+doc-update-blog/
+├── SKILL.md (blog update logic)
+└── templates/
+    └── blog_template.md</code>text</p>
+<h4 id="doc-generate-adr">doc-generate-adr</h4>
+<p><strong>Priority</strong>: High
+<strong>Description</strong>: Create Architectural Decision Records.
+<strong>Purpose</strong>: Document architectural decisions.</p>
+<h3 id="use-cases_28">Use Cases</h3>
+<ul>
+<li>Create new ADR</li>
+<li>Update ADR status</li>
+<li>Link related ADRs</li>
+</ul>
+<p><strong>Tool Requirements</strong>: <code>Write</code></p>
+<h3 id="file-structure_28">File Structure</h3>
+<p><code>text
+doc-generate-adr/
+├── SKILL.md (ADR generation)
+└── templates/
+    └── adr_template.md</code>text</p>
+<h4 id="doc-issue-readme">doc-issue-readme</h4>
+<p><strong>Priority</strong>: High
+<strong>Description</strong>: Generate issue-specific README documentation.
+<strong>Purpose</strong>: Create focused issue documentation.</p>
+<h3 id="use-cases_29">Use Cases</h3>
+<ul>
+<li>Initialize issue directory</li>
+<li>Update issue status</li>
+<li>Link to shared docs</li>
+</ul>
+<p><strong>Tool Requirements</strong>: <code>Write</code>, <code>Read</code></p>
+<h3 id="file-structure_29">File Structure</h3>
+<p><code>text
+doc-issue-readme/
+├── SKILL.md (issue doc generation)
+└── templates/
+    └── issue_readme.md</code>text</p>
+<h4 id="doc-validate-markdown">doc-validate-markdown</h4>
+<p><strong>Priority</strong>: Medium
+<strong>Description</strong>: Validate markdown against linting rules.
+<strong>Purpose</strong>: Ensure markdown quality.</p>
+<h3 id="use-cases_30">Use Cases</h3>
+<ul>
+<li>Check markdown syntax</li>
+<li>Validate link formatting</li>
+<li>Fix common issues</li>
+</ul>
+<p><strong>Tool Requirements</strong>: <code>Read</code>, <code>Bash</code></p>
+<h3 id="file-structure_30">File Structure</h3>
+<p><code>text
+doc-validate-markdown/
+├── SKILL.md (markdown validation)
+└── scripts/
+    └── validate_markdown.sh</code>text</p>
+<h3 id="7-cicd-skills">7. CI/CD Skills</h3>
+<h4 id="run-precommit">run-precommit</h4>
+<p><strong>Priority</strong>: High
+<strong>Description</strong>: Run pre-commit hooks locally.
+<strong>Purpose</strong>: Validate code before committing.</p>
+<h3 id="use-cases_31">Use Cases</h3>
+<ul>
+<li>Run all hooks</li>
+<li>Run specific hooks</li>
+<li>Fix hook failures</li>
+</ul>
+<p><strong>Tool Requirements</strong>: <code>Bash</code>, <code>Read</code>, <code>Write</code></p>
+<h3 id="file-structure_31">File Structure</h3>
+<p><code>text
+run-precommit/
+├── SKILL.md (pre-commit execution)
+└── scripts/
+    └── run_precommit.sh</code>text</p>
+<h4 id="validate-workflow">validate-workflow</h4>
+<p><strong>Priority</strong>: Medium
+<strong>Description</strong>: Validate GitHub Actions workflow files.
+<strong>Purpose</strong>: Ensure CI/CD workflows are correct.</p>
+<h3 id="use-cases_32">Use Cases</h3>
+<ul>
+<li>Check workflow syntax</li>
+<li>Validate job dependencies</li>
+<li>Test workflow locally</li>
+</ul>
+<p><strong>Tool Requirements</strong>: <code>Read</code>, <code>Bash</code></p>
+<h3 id="file-structure_32">File Structure</h3>
+<p><code>text
+validate-workflow/
+├── SKILL.md (workflow validation)
+└── scripts/
+    └── validate_workflow.sh</code>text</p>
+<h4 id="fix-ci-failures">fix-ci-failures</h4>
+<p><strong>Priority</strong>: High
+<strong>Description</strong>: Diagnose and fix CI failures.
+<strong>Purpose</strong>: Quickly resolve CI issues.</p>
+<h3 id="use-cases_33">Use Cases</h3>
+<ul>
+<li>Analyze failure logs</li>
+<li>Identify root cause</li>
+<li>Apply fixes</li>
+</ul>
+<p><strong>Tool Requirements</strong>: <code>Read</code>, <code>Write</code>, <code>Bash</code></p>
+<h3 id="file-structure_33">File Structure</h3>
+<p><code>text
+fix-ci-failures/
+├── SKILL.md (failure diagnosis)
+└── scripts/
+    └── analyze_failures.sh</code>text</p>
+<h4 id="install-workflow">install-workflow</h4>
+<p><strong>Priority</strong>: Medium
+<strong>Description</strong>: Create CI/CD packaging workflows.
+<strong>Purpose</strong>: Automate package building in CI.</p>
+<h3 id="use-cases_34">Use Cases</h3>
+<ul>
+<li>Generate workflow files</li>
+<li>Configure package jobs</li>
+<li>Set up artifact uploads</li>
+</ul>
+<p><strong>Tool Requirements</strong>: <code>Write</code></p>
+<h3 id="file-structure_34">File Structure</h3>
+<p><code>text
+install-workflow/
+├── SKILL.md (workflow generation)
+└── templates/
+    └── package_workflow.yml</code>text</p>
+<h3 id="8-code-quality-skills">8. Code Quality Skills</h3>
+<h4 id="quality-run-linters">quality-run-linters</h4>
+<p><strong>Priority</strong>: High
+<strong>Description</strong>: Run all configured linters on codebase.
+<strong>Purpose</strong>: Ensure code quality standards.</p>
+<h3 id="use-cases_35">Use Cases</h3>
+<ul>
+<li>Run Python linters</li>
+<li>Run Mojo linters</li>
+<li>Check markdown</li>
+</ul>
+<p><strong>Tool Requirements</strong>: <code>Bash</code>, <code>Read</code></p>
+<h3 id="file-structure_35">File Structure</h3>
+<p><code>text
+quality-run-linters/
+├── SKILL.md (linter execution)
+└── scripts/
+    └── run_all_linters.sh</code>text</p>
+<h4 id="quality-fix-formatting">quality-fix-formatting</h4>
+<p><strong>Priority</strong>: High
+<strong>Description</strong>: Automatically fix formatting issues.
+<strong>Purpose</strong>: Apply consistent formatting.</p>
+<h3 id="use-cases_36">Use Cases</h3>
+<ul>
+<li>Fix Python formatting</li>
+<li>Fix Mojo formatting</li>
+<li>Fix markdown issues</li>
+</ul>
+<p><strong>Tool Requirements</strong>: <code>Read</code>, <code>Write</code>, <code>Bash</code></p>
+<h3 id="file-structure_36">File Structure</h3>
+<p><code>text
+quality-fix-formatting/
+├── SKILL.md (formatting fixes)
+└── scripts/
+    └── fix_formatting.sh</code>text</p>
+<h4 id="quality-security-scan">quality-security-scan</h4>
+<p><strong>Priority</strong>: Medium
+<strong>Description</strong>: Run security vulnerability scans.
+<strong>Purpose</strong>: Identify security issues.</p>
+<h3 id="use-cases_37">Use Cases</h3>
+<ul>
+<li>Scan dependencies</li>
+<li>Check for vulnerabilities</li>
+<li>Generate security report</li>
+</ul>
+<p><strong>Tool Requirements</strong>: <code>Bash</code>, <code>Read</code></p>
+<h3 id="file-structure_37">File Structure</h3>
+<p><code>text
+quality-security-scan/
+├── SKILL.md (security scanning)
+└── scripts/
+    └── security_scan.sh</code>text</p>
+<h4 id="quality-complexity-check">quality-complexity-check</h4>
+<p><strong>Priority</strong>: Low
+<strong>Description</strong>: Analyze code complexity metrics.
+<strong>Purpose</strong>: Identify complex code needing refactoring.</p>
+<h3 id="use-cases_38">Use Cases</h3>
+<ul>
+<li>Calculate cyclomatic complexity</li>
+<li>Identify long functions</li>
+<li>Find deep nesting</li>
+</ul>
+<p><strong>Tool Requirements</strong>: <code>Read</code>, <code>Grep</code></p>
+<h3 id="file-structure_38">File Structure</h3>
+<p><code>text
+quality-complexity-check/
+├── SKILL.md (complexity analysis)
+└── scripts/
+    └── check_complexity.py</code>text</p>
+<h4 id="quality-coverage-report">quality-coverage-report</h4>
+<p><strong>Priority</strong>: Medium
+<strong>Description</strong>: Generate test coverage reports.
+<strong>Purpose</strong>: Track test coverage metrics.</p>
+<h3 id="use-cases_39">Use Cases</h3>
+<ul>
+<li>Run coverage analysis</li>
+<li>Generate HTML reports</li>
+<li>Identify untested code</li>
+</ul>
+<p><strong>Tool Requirements</strong>: <code>Bash</code>, <code>Read</code></p>
+<h3 id="file-structure_39">File Structure</h3>
+<p><code>text
+quality-coverage-report/
+├── SKILL.md (coverage reporting)
+└── scripts/
+    └── generate_coverage.sh</code>text</p>
+<h2 id="priority-levels">Priority Levels</h2>
+<h3 id="high-priority-must-have-18-skills">High Priority (Must Have) - 18 skills</h3>
+<p>These skills are essential for basic workflow automation:</p>
+<ul>
+<li>All GitHub integration skills (7)</li>
+<li>Core worktree skills (2)</li>
+<li>Phase workflow skills (4)</li>
+<li>Essential Mojo skills (3)</li>
+<li>Core agent skills (3)</li>
+<li>Critical quality skills (2)</li>
+<li>Essential documentation (2)</li>
+</ul>
+<h3 id="medium-priority-should-have-12-skills">Medium Priority (Should Have) - 12 skills</h3>
+<p>These skills enhance productivity:</p>
+<ul>
+<li>Additional worktree skills (2)</li>
+<li>Phase cleanup skill (1)</li>
+<li>Mojo optimization skills (3)</li>
+<li>Documentation skills (2)</li>
+<li>CI/CD skills (3)</li>
+<li>Plan management skills (2)</li>
+<li>Quality analysis (2)</li>
+</ul>
+<h3 id="low-priority-nice-to-have-5-skills">Low Priority (Nice to Have) - 5 skills</h3>
+<p>These skills provide additional capabilities:</p>
+<ul>
+<li>Agent visualization (2)</li>
+<li>Complex analysis (1)</li>
+<li>Advanced reporting (2)</li>
+</ul>
+<h2 id="implementation-roadmap">Implementation Roadmap</h2>
+<h3 id="phase-1-foundation-week-1">Phase 1: Foundation (Week 1)</h3>
+<ol>
+<li><strong>GitHub Integration Core</strong></li>
+<li>gh-review-pr</li>
+<li>gh-get-review-comments</li>
+<li>gh-reply-review-comment</li>
+<li>
+<p>gh-create-pr-linked</p>
+</li>
+<li>
+<p><strong>Basic Workflow</strong></p>
+</li>
+<li>phase-plan-generate</li>
+<li>phase-test-tdd</li>
+<li>worktree-create</li>
+</ol>
+<h3 id="phase-2-core-workflows-week-2">Phase 2: Core Workflows (Week 2)</h3>
+<ol>
+<li><strong>Complete GitHub Suite</strong></li>
+<li>gh-fix-pr-feedback</li>
+<li>gh-implement-issue</li>
+<li>
+<p>gh-check-ci-status</p>
+</li>
+<li>
+<p><strong>Mojo Essentials</strong></p>
+</li>
+<li>mojo-format</li>
+<li>mojo-test-runner</li>
+<li>
+<p>mojo-build-package</p>
+</li>
+<li>
+<p><strong>Agent Validation</strong></p>
+</li>
+<li>agent-validate-config</li>
+<li>agent-test-delegation</li>
+</ol>
+<h3 id="phase-3-advanced-features-week-3">Phase 3: Advanced Features (Week 3)</h3>
+<ol>
+<li><strong>Phase Automation</strong></li>
+<li>phase-implement</li>
+<li>phase-package</li>
+<li>
+<p>phase-cleanup</p>
+</li>
+<li>
+<p><strong>Documentation</strong></p>
+</li>
+<li>doc-generate-adr</li>
+<li>
+<p>doc-issue-readme</p>
+</li>
+<li>
+<p><strong>Quality Tools</strong></p>
+</li>
+<li>quality-run-linters</li>
+<li>quality-fix-formatting</li>
+<li>run-precommit</li>
+</ol>
+<h3 id="phase-4-optimization-week-4">Phase 4: Optimization (Week 4)</h3>
+<ol>
+<li><strong>Mojo Advanced</strong></li>
+<li>mojo-simd-optimize</li>
+<li>mojo-memory-check</li>
+<li>
+<p>mojo-type-safety</p>
+</li>
+<li>
+<p><strong>CI/CD Suite</strong></p>
+</li>
+<li>validate-workflow</li>
+<li>fix-ci-failures</li>
+<li>install-workflow</li>
+</ol>
+<h3 id="phase-5-polish-week-5">Phase 5: Polish (Week 5)</h3>
+<ol>
+<li><strong>Remaining Skills</strong></li>
+<li>All low priority skills</li>
+<li>Additional quality tools</li>
+<li>Visualization tools</li>
+</ol>
+<h2 id="integration-patterns">Integration Patterns</h2>
+<h3 id="skill-composition-examples">Skill Composition Examples</h3>
+<h4 id="example-1-complete-pr-review-and-fix">Example 1: Complete PR Review and Fix</h4>
+<p><code>text
+1. gh-review-pr → Identify issues
+2. gh-get-review-comments → Collect feedback
+3. gh-fix-pr-feedback → Apply fixes
+4. quality-fix-formatting → Clean up code
+5. run-precommit → Validate changes
+6. gh-reply-review-comment → Respond to reviewers</code>text</p>
+<h4 id="example-2-implement-new-feature">Example 2: Implement New Feature</h4>
+<p><code>text
+1. gh-implement-issue → Parse requirements
+2. worktree-create → Set up workspace
+3. phase-plan-generate → Create plan
+4. phase-test-tdd → Write tests
+5. phase-implement → Build feature
+6. mojo-format → Format code
+7. mojo-test-runner → Run tests
+8. phase-package → Create package
+9. gh-create-pr-linked → Submit PR</code>text</p>
+<h4 id="example-3-fix-ci-failure">Example 3: Fix CI Failure</h4>
+<p><code>text
+1. gh-check-ci-status → Get failure details
+2. fix-ci-failures → Diagnose issue
+3. quality-fix-formatting → Fix formatting
+4. run-precommit → Validate locally
+5. worktree-sync → Update branch
+6. validate-workflow → Check workflow</code>text</p>
+<h3 id="skill-dependencies">Skill Dependencies</h3>
+<p><code>mermaid
+graph TD
+    A[gh-implement-issue] --&gt; B[phase-plan-generate]
+    B --&gt; C[phase-test-tdd]
+    B --&gt; D[phase-implement]
+    C --&gt; E[mojo-test-runner]
+    D --&gt; F[mojo-format]
+    D --&gt; G[quality-run-linters]
+    E --&gt; H[quality-coverage-report]
+    F --&gt; I[gh-create-pr-linked]
+    G --&gt; I
+    H --&gt; I
+    I --&gt; J[gh-review-pr]
+    J --&gt; K[gh-get-review-comments]
+    K --&gt; L[gh-fix-pr-feedback]
+    L --&gt; M[gh-reply-review-comment]</code>text</p>
+<h2 id="testing-strategy">Testing Strategy</h2>
+<h3 id="skill-validation-levels">Skill Validation Levels</h3>
+<ol>
+<li><strong>Unit Testing</strong></li>
+<li>Test individual skill functions</li>
+<li>Validate input/output handling</li>
+<li>
+<p>Check error conditions</p>
+</li>
+<li>
+<p><strong>Integration Testing</strong></p>
+</li>
+<li>Test skill combinations</li>
+<li>Validate data flow between skills</li>
+<li>
+<p>Check composition patterns</p>
+</li>
+<li>
+<p><strong>End-to-End Testing</strong></p>
+</li>
+<li>Test complete workflows</li>
+<li>Validate real-world scenarios</li>
+<li>Check performance metrics</li>
+</ol>
+<h3 id="test-coverage-requirements">Test Coverage Requirements</h3>
+<ul>
+<li><strong>High Priority Skills</strong>: 90% coverage required</li>
+<li><strong>Medium Priority Skills</strong>: 80% coverage required</li>
+<li><strong>Low Priority Skills</strong>: 70% coverage required</li>
+</ul>
+<h3 id="testing-tools">Testing Tools</h3>
+<p>```bash</p>
+<h1 id="validate-skill-configuration">Validate skill configuration</h1>
+<p>python3 tests/skills/validate_skills.py .claude/skills/</p>
+<h1 id="test-skill-loading">Test skill loading</h1>
+<p>python3 tests/skills/test_loading.py .claude/skills/</p>
+<h1 id="test-skill-execution">Test skill execution</h1>
+<p>python3 tests/skills/test_execution.py .claude/skills/</p>
+<h1 id="test-skill-composition">Test skill composition</h1>
+<p>python3 tests/skills/test_composition.py .claude/skills/
+```text</p>
+<h2 id="best-practices">Best Practices</h2>
+<h3 id="skill-design-guidelines">Skill Design Guidelines</h3>
+<ol>
+<li><strong>Single Responsibility</strong></li>
+<li>Each skill does ONE thing well</li>
+<li>Clear, focused purpose</li>
+<li>
+<p>No feature creep</p>
+</li>
+<li>
+<p><strong>Progressive Disclosure</strong></p>
+</li>
+<li>Essential info in SKILL.md (&lt; 500 lines)</li>
+<li>Details in reference.md</li>
+<li>
+<p>Scripts in separate files</p>
+</li>
+<li>
+<p><strong>Error Handling</strong></p>
+</li>
+<li>Explicit error cases</li>
+<li>Clear error messages</li>
+<li>
+<p>Recovery strategies</p>
+</li>
+<li>
+<p><strong>Documentation</strong></p>
+</li>
+<li>Clear description in frontmatter</li>
+<li>Usage examples</li>
+<li>
+<p>Error scenarios</p>
+</li>
+<li>
+<p><strong>Tool Efficiency</strong></p>
+</li>
+<li>Only request needed tools</li>
+<li>Minimize tool calls</li>
+<li>Cache results when possible</li>
+</ol>
+<h3 id="naming-conventions">Naming Conventions</h3>
+<ul>
+<li><strong>Skill Names</strong>: lowercase-with-hyphens</li>
+<li><strong>Categories</strong>: domain-action format (e.g., gh-review-pr)</li>
+<li><strong>Scripts</strong>: snake_case.sh or snake_case.py</li>
+<li><strong>Templates</strong>: template_type.md</li>
+</ul>
+<h3 id="file-structure-standards">File Structure Standards</h3>
+<p><code>text
+skill-name/
+├── SKILL.md          # Required: Main skill definition
+├── reference.md      # Optional: Detailed documentation
+├── scripts/          # Optional: Executable scripts
+│   ├── main.sh       # Primary script
+│   └── helper.py     # Supporting scripts
+└── templates/        # Optional: File templates
+    └── template.md   # Template files</code>text</p>
+<h2 id="success-metrics">Success Metrics</h2>
+<h3 id="adoption-metrics">Adoption Metrics</h3>
+<ul>
+<li><strong>Usage Rate</strong>: % of agents using skills</li>
+<li><strong>Invocation Frequency</strong>: Skills used per task</li>
+<li><strong>Success Rate</strong>: % of successful skill executions</li>
+</ul>
+<h3 id="quality-metrics">Quality Metrics</h3>
+<ul>
+<li><strong>Error Rate</strong>: Failures per 100 invocations</li>
+<li><strong>Performance</strong>: Average execution time</li>
+<li><strong>Token Usage</strong>: Tokens consumed per skill</li>
+</ul>
+<h3 id="impact-metrics">Impact Metrics</h3>
+<ul>
+<li><strong>Time Saved</strong>: Hours saved per week</li>
+<li><strong>Quality Improvement</strong>: Reduction in bugs/issues</li>
+<li><strong>Developer Satisfaction</strong>: Survey feedback</li>
+</ul>
+<h2 id="notes">Notes</h2>
+<ul>
+<li>Skills are model-invoked based on description matching</li>
+<li>Skills share the conversation's context window</li>
+<li>Progressive disclosure is critical for token efficiency</li>
+<li>Skills can be composed for complex workflows</li>
+<li>Both project (.claude/skills/) and personal (~/.claude/skills/) locations supported</li>
+<li>Skills should align with existing agent hierarchy</li>
+<li>Focus on automating repetitive tasks</li>
+<li>Prioritize high-impact workflows</li>
+</ul>
+<h2 id="references">References</h2>
+<ul>
+<li><a href="https://code.claude.com/docs/en/skills">Claude Code Skills Documentation</a></li>
+<li><a href="https://github.com/HomericIntelligence/Odyssey/blob/main/agents/hierarchy.md">Agent Hierarchy</a></li>
+<li><a href="../orchestration-patterns/">Orchestration Patterns</a></li>
+<li><a href="https://github.com/HomericIntelligence/Odyssey/blob/main/CLAUDE.md">CLAUDE.md</a></li>
+<li><a href="../phases/">5-Phase Workflow</a></li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "search.suggest", "search.highlight", "content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>

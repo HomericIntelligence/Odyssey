@@ -1,0 +1,1780 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Mojo-based AI research platform for reproducing classic research papers">
+      
+      
+      
+        <link rel="canonical" href="https://github.com/HomericIntelligence/Odyssey/integration/supporting-directories/">
+      
+      
+        <link rel="prev" href="../../dev/release-process/">
+      
+      
+        <link rel="next" href="../papers-shared-integration/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Supporting Directories - ML Odyssey</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#supporting-directories-integration-guide" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="ML Odyssey" class="md-header__button md-logo" aria-label="ML Odyssey" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            ML Odyssey
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Supporting Directories
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/HomericIntelligence/Odyssey" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    HomericIntelligence/Odyssey
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../glossary/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Glossary
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../dev/release-process/" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="./" class="md-tabs__link">
+          
+  
+  
+  Integration
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="ML Odyssey" class="md-nav__button md-logo" aria-label="ML Odyssey" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    ML Odyssey
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/HomericIntelligence/Odyssey" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    HomericIntelligence/Odyssey
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../glossary/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Glossary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/quickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quickstart
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/first_model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    First Model
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/repository-structure/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Repository Structure
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../dev/release-process/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Release Process
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Integration
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Integration
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Supporting Directories
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Supporting Directories
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-five-supporting-directories" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Five Supporting Directories
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="The Five Supporting Directories">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#quick-reference" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quick Reference
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#integration-patterns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Integration Patterns
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Integration Patterns">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pattern-1-new-paper-implementation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pattern 1: New Paper Implementation
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../papers-shared-integration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Papers & Shared Integration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../quick-start-new-paper/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start New Paper
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-five-supporting-directories" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Five Supporting Directories
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="The Five Supporting Directories">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#quick-reference" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quick Reference
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#integration-patterns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Integration Patterns
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Integration Patterns">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pattern-1-new-paper-implementation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pattern 1: New Paper Implementation
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="supporting-directories-integration-guide">Supporting Directories Integration Guide</h1>
+<h2 id="overview">Overview</h2>
+<p>The five supporting directories (benchmarks/, docs/, agents/, tools/, configs/) provide critical infrastructure for
+ML Odyssey. This guide explains how they work together, common integration patterns, and best practices for using them
+in combination.</p>
+<h2 id="the-five-supporting-directories">The Five Supporting Directories</h2>
+<h3 id="quick-reference">Quick Reference</h3>
+<table>
+<thead>
+<tr>
+<th>Directory</th>
+<th>Purpose</th>
+<th>Primary Users</th>
+<th>Key Integration Points</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>benchmarks/</strong></td>
+<td>Performance measurement</td>
+<td>Developers, CI/CD</td>
+<td>papers/, src/odyssey/, configs/</td>
+</tr>
+<tr>
+<td><strong>docs/</strong></td>
+<td>User documentation</td>
+<td>All users</td>
+<td>All directories</td>
+</tr>
+<tr>
+<td><strong>agents/</strong></td>
+<td>AI automation</td>
+<td>Claude Code</td>
+<td>All directories</td>
+</tr>
+<tr>
+<td><strong>tools/</strong></td>
+<td>Development utilities</td>
+<td>Developers</td>
+<td>papers/, configs/, tests/</td>
+</tr>
+<tr>
+<td><strong>configs/</strong></td>
+<td>Configuration management</td>
+<td>All users</td>
+<td>papers/, benchmarks/, src/odyssey/</td>
+</tr>
+</tbody>
+</table>
+<h2 id="integration-patterns">Integration Patterns</h2>
+<h3 id="pattern-1-new-paper-implementation">Pattern 1: New Paper Implementation</h3>
+<p><strong>Complete workflow using all supporting directories</strong></p>
+<p><code>bash</code>bash</p>
+<h1 id="step-1-use-tools-to-scaffold-paper-structure">Step 1: Use tools/ to scaffold paper structure</h1>
+<p>python tools/paper-scaffold/scaffold.py \
+    --paper resnet \
+    --title "Deep Residual Learning" \
+    --authors "He et al." \
+    --year 2015</p>
+<h1 id="step-2-create-configs-for-the-paper">Step 2: Create configs/ for the paper</h1>
+<p>cp configs/templates/paper.yaml configs/papers/resnet/model.yaml
+cp configs/templates/experiment.yaml configs/experiments/resnet/baseline.yaml</p>
+<h1 id="step-3-implement-the-paper-in-papersresnet">Step 3: Implement the paper (in papers/resnet/)</h1>
+<h1 id="implement-modelmojo-trainmojo">... implement model.mojo, train.mojo</h1>
+<h1 id="step-4-add-benchmarks-for-performance-tracking">Step 4: Add benchmarks/ for performance tracking</h1>
+<h1 id="create-benchmarksscriptsresnet_benchmarkmojo">... create benchmarks/scripts/resnet_benchmark.mojo</h1>
+<h1 id="step-5-document-in-docs">Step 5: Document in docs/</h1>
+<h1 id="update-docsapipapersresnetmd">... update docs/api/papers/resnet.md</h1>
+<p>```text</p>
+<p><strong>Directory Interactions</strong>:</p>
+<ol>
+<li><strong>tools/</strong> → <strong>papers/</strong> (scaffolding)</li>
+<li><strong>configs/templates/</strong> → <strong>configs/papers/</strong> (configuration)</li>
+<li><strong>papers/</strong> + <strong>configs/</strong> → Training</li>
+<li><strong>benchmarks/</strong> ← <strong>papers/</strong> (performance measurement)</li>
+<li><strong>docs/</strong> ← All directories (documentation)</li>
+</ol>
+<h3 id="pattern-2-performance-optimization">Pattern 2: Performance Optimization</h3>
+<p><strong>Using benchmarks/ and tools/ together</strong></p>
+<p>```bash</p>
+<p>```bash</p>
+<h1 id="step-1-run-benchmarks-to-identify-bottleneck">Step 1: Run benchmarks/ to identify bottleneck</h1>
+<p>mojo benchmarks/scripts/run_benchmarks.mojo --paper lenet5</p>
+<h1 id="step-2-use-toolsbenchmarking-for-detailed-profiling">Step 2: Use tools/benchmarking/ for detailed profiling</h1>
+<p>mojo tools/benchmarking/runner.mojo --target lenet5 --profile</p>
+<h1 id="step-3-implement-optimization-in-paperslenet5">Step 3: Implement optimization in papers/lenet5/</h1>
+<h1 id="optimize-code-based-on-profiling-results">... optimize code based on profiling results</h1>
+<h1 id="step-4-re-run-benchmarks-to-verify-improvement">Step 4: Re-run benchmarks/ to verify improvement</h1>
+<p>mojo benchmarks/scripts/run_benchmarks.mojo --paper lenet5 --compare</p>
+<h1 id="step-5-document-in-docsadvanced">Step 5: Document in docs/advanced/</h1>
+<h1 id="document-optimization-technique">... document optimization technique</h1>
+<p>```text</p>
+<h3 id="directory-interactions">Directory Interactions</h3>
+<ol>
+<li><strong>benchmarks/</strong> → Identify bottleneck</li>
+<li><strong>tools/benchmarking/</strong> → Profile specific code</li>
+<li><strong>papers/</strong> → Implement optimization</li>
+<li><strong>benchmarks/</strong> → Verify improvement</li>
+<li><strong>docs/advanced/</strong> → Document technique</li>
+</ol>
+<h3 id="pattern-3-experiment-management">Pattern 3: Experiment Management</h3>
+<h3 id="using-configs-across-all-directories">Using configs/ across all directories</h3>
+<p><code>bash</code>bash</p>
+<h1 id="step-1-create-experiment-config">Step 1: Create experiment config</h1>
+<p>cp configs/templates/experiment.yaml configs/experiments/lenet5/augmented.yaml</p>
+<h1 id="step-2-edit-experiment-specific-overrides">Step 2: Edit experiment-specific overrides</h1>
+<h1 id="configsexperimentslenet5augmentedyaml">configs/experiments/lenet5/augmented.yaml</h1>
+<h1 id="augmentation">augmentation</h1>
+<h1 id="enabled-true">enabled: true</h1>
+<h1 id="rotation-15">rotation: 15</h1>
+<h1 id="translation-01">translation: 0.1</h1>
+<h1 id="step-3-run-training-with-config">Step 3: Run training with config</h1>
+<p>mojo papers/lenet5/train.mojo --config experiments/lenet5/augmented</p>
+<h1 id="step-4-benchmark-the-experiment">Step 4: Benchmark the experiment</h1>
+<p>mojo benchmarks/scripts/run_benchmarks.mojo --experiment lenet5/augmented</p>
+<h1 id="step-5-document-results">Step 5: Document results</h1>
+<h1 id="docsresearchexperimentslenet5_augmentationmd">docs/research/experiments/lenet5_augmentation.md</h1>
+<p>```text</p>
+<p><strong>Directory Interactions</strong>:</p>
+<ol>
+<li><strong>configs/templates/</strong> → <strong>configs/experiments/</strong> (creation)</li>
+<li><strong>configs/experiments/</strong> → <strong>papers/</strong> (training)</li>
+<li><strong>configs/experiments/</strong> → <strong>benchmarks/</strong> (performance)</li>
+<li><strong>Results</strong> → <strong>docs/research/</strong> (documentation)</li>
+</ol>
+<h3 id="pattern-4-documentation-creation">Pattern 4: Documentation Creation</h3>
+<p><strong>Using agents/ to automate documentation</strong></p>
+<p>```bash</p>
+<p>```bash</p>
+<h1 id="step-1-agent-reviews-code-structure">Step 1: Agent reviews code structure</h1>
+<h1 id="agents-analyzes-paperslenet5">agents/ → analyzes papers/lenet5/</h1>
+<h1 id="step-2-generate-api-documentation">Step 2: Generate API documentation</h1>
+<h1 id="toolscodegen-creates-api-docs-from-code">tools/codegen/ → creates API docs from code</h1>
+<h1 id="step-3-create-user-guide">Step 3: Create user guide</h1>
+<h1 id="docsgetting-startedlenet5_tutorialmd">docs/getting-started/lenet5_tutorial.md</h1>
+<h1 id="step-4-validate-documentation">Step 4: Validate documentation</h1>
+<p>python scripts/validate_links.py docs/</p>
+<h1 id="step-5-integrate-with-docs">Step 5: Integrate with docs/</h1>
+<h1 id="update-docsindexmd-with-new-links">Update docs/index.md with new links</h1>
+<p>```text</p>
+<h3 id="directory-interactions_1">Directory Interactions</h3>
+<ol>
+<li><strong>agents/</strong> → Analyze code structure</li>
+<li><strong>tools/codegen/</strong> → Generate API docs</li>
+<li><strong>docs/</strong> → Create and organize documentation</li>
+<li><strong>scripts/</strong> → Validate documentation quality</li>
+</ol>
+<h3 id="pattern-5-cicd-integration">Pattern 5: CI/CD Integration</h3>
+<h3 id="all-directories-working-with-cicd">All directories working with CI/CD</h3>
+<p><code>yaml</code>yaml</p>
+<h1 id="githubworkflowspaper-validationyml">.github/workflows/paper-validation.yml</h1>
+<p>name: Paper Validation</p>
+<p>on: [push, pull_request]</p>
+<p>jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      # Use tools/ for setup</p>
+<div class="highlight"><pre><span></span><code>  - name: Setup environment
+  - name: Setup environment
+
+    run: python scripts/setup.py
+
+  # Use configs/ for test configuration
+
+  - name: Load test config
+  - name: Load test config
+
+    run: cp configs/defaults/testing.yaml .test_config.yaml
+
+  # Run tests
+
+  - name: Run tests
+  - name: Run tests
+
+    run: mojo test tests/papers/lenet5/
+
+  # Use benchmarks/ for performance check
+
+  - name: Run benchmarks
+  - name: Run benchmarks
+
+    run: mojo benchmarks/scripts/run_benchmarks.mojo
+
+  # Use agents/ for code review
+
+  - name: AI code review
+  - name: AI code review
+
+    run: python scripts/agents/review_pr.py
+
+  # Validate docs/
+
+  - name: Check documentation
+  - name: Check documentation
+
+    run: python scripts/validate_links.py docs/
+</code></pre></div>
+<p>```text</p>
+<p><strong>Directory Interactions</strong>:</p>
+<ol>
+<li><strong>scripts/</strong> → CI/CD setup</li>
+<li><strong>configs/</strong> → Test configuration</li>
+<li><strong>tests/</strong> → Test execution</li>
+<li><strong>benchmarks/</strong> → Performance verification</li>
+<li><strong>agents/</strong> → Automated code review</li>
+<li><strong>docs/</strong> → Documentation validation</li>
+</ol>
+<h2 id="cross-directory-dependencies">Cross-Directory Dependencies</h2>
+<h3 id="dependency-map">Dependency Map</h3>
+<p>```text</p>
+<p>```text</p>
+<p>papers/
+  ├─&gt; src/odyssey/ (uses layers, optimizers)
+  ├─&gt; configs/ (loads configurations)
+  └─&gt; tools/ (uses utilities)</p>
+<p>src/odyssey/
+  └─&gt; configs/ (config loading utilities)</p>
+<p>benchmarks/
+  ├─&gt; papers/ (benchmarks implementations)
+  ├─&gt; src/odyssey/ (benchmarks components)
+  └─&gt; configs/ (benchmark configurations)</p>
+<p>tools/
+  ├─&gt; papers/ (scaffolds papers)
+  ├─&gt; configs/ (generates configs)
+  └─&gt; tests/ (generates test templates)</p>
+<p>configs/
+  (no dependencies - foundation layer)</p>
+<p>docs/
+  (documents all directories)</p>
+<p>agents/
+  (coordinates all directories)</p>
+<p>```text</p>
+<h3 id="foundation-layer">Foundation Layer</h3>
+<p><strong>configs/</strong> is the foundation - no dependencies:</p>
+<ul>
+<li>Provides configuration to all other directories</li>
+<li>Used by papers/, benchmarks/, tools/</li>
+<li>Loaded by src/odyssey/utils/config_loader</li>
+</ul>
+<h3 id="integration-layer">Integration Layer</h3>
+<p><strong>tools/</strong> integrates multiple directories:</p>
+<ul>
+<li>Scaffolds papers/</li>
+<li>Generates configs/</li>
+<li>Creates test templates</li>
+<li>Provides utilities for all</li>
+</ul>
+<h3 id="coordination-layer">Coordination Layer</h3>
+<p><strong>agents/</strong> coordinates all workflows:</p>
+<ul>
+<li>Automates paper implementation</li>
+<li>Manages code review</li>
+<li>Generates documentation</li>
+<li>Orchestrates multi-step workflows</li>
+</ul>
+<h2 id="common-usage-scenarios">Common Usage Scenarios</h2>
+<h3 id="scenario-1-starting-a-new-paper">Scenario 1: Starting a New Paper</h3>
+<p><strong>Goal</strong>: Implement a new research paper efficiently</p>
+<h3 id="steps">Steps</h3>
+<ol>
+<li><strong>Scaffold</strong> with <code>tools/paper-scaffold/</code></li>
+<li><strong>Configure</strong> with <code>configs/templates/</code></li>
+<li><strong>Implement</strong> in <code>papers/{name}/</code></li>
+<li><strong>Test</strong> with <code>tests/papers/{name}/</code></li>
+<li><strong>Benchmark</strong> with <code>benchmarks/scripts/</code></li>
+<li><strong>Document</strong> in <code>docs/</code></li>
+</ol>
+<h3 id="integration">Integration</h3>
+<ul>
+<li>Tools generate structure → Papers implement → Configs provide parameters → Benchmarks measure → Docs explain</li>
+</ul>
+<h3 id="scenario-2-optimizing-performance">Scenario 2: Optimizing Performance</h3>
+<p><strong>Goal</strong>: Improve performance of existing implementation</p>
+<h3 id="steps_1">Steps</h3>
+<ol>
+<li><strong>Measure</strong> with <code>benchmarks/scripts/</code></li>
+<li><strong>Profile</strong> with <code>tools/benchmarking/</code></li>
+<li><strong>Optimize</strong> in <code>papers/{name}/</code> or <code>src/odyssey/</code></li>
+<li><strong>Verify</strong> with <code>benchmarks/scripts/</code></li>
+<li><strong>Document</strong> in <code>docs/advanced/</code></li>
+</ol>
+<h3 id="integration_1">Integration</h3>
+<ul>
+<li>Benchmarks identify issue → Tools profile → Code optimization → Benchmarks verify → Docs preserve knowledge</li>
+</ul>
+<h3 id="scenario-3-running-experiments">Scenario 3: Running Experiments</h3>
+<p><strong>Goal</strong>: Test variations of a paper implementation</p>
+<h3 id="steps_2">Steps</h3>
+<ol>
+<li><strong>Create</strong> experiment config in <code>configs/experiments/</code></li>
+<li><strong>Run</strong> training with <code>papers/{name}/train.mojo</code></li>
+<li><strong>Benchmark</strong> with <code>benchmarks/scripts/</code></li>
+<li><strong>Compare</strong> results across experiments</li>
+<li><strong>Document</strong> findings in <code>docs/research/</code></li>
+</ol>
+<h3 id="integration_2">Integration</h3>
+<ul>
+<li>Configs define variations → Papers execute → Benchmarks measure → Docs record results</li>
+</ul>
+<h3 id="scenario-4-contributing-documentation">Scenario 4: Contributing Documentation</h3>
+<p><strong>Goal</strong>: Add or improve documentation</p>
+<h3 id="steps_3">Steps</h3>
+<ol>
+<li><strong>Identify</strong> gap in <code>docs/</code></li>
+<li><strong>Write</strong> content following markdown standards</li>
+<li><strong>Link</strong> from <code>docs/index.md</code></li>
+<li><strong>Validate</strong> with <code>scripts/validate_links.py</code></li>
+<li><strong>Review</strong> with <code>agents/</code> (optional)</li>
+</ol>
+<h3 id="integration_3">Integration</h3>
+<ul>
+<li>Docs created → Scripts validate → Agents review → Team benefits</li>
+</ul>
+<h3 id="scenario-5-automating-workflows">Scenario 5: Automating Workflows</h3>
+<p><strong>Goal</strong>: Use agents to automate repetitive tasks</p>
+<h3 id="steps_4">Steps</h3>
+<ol>
+<li><strong>Define</strong> agent in <code>.claude/agents/</code></li>
+<li><strong>Document</strong> in <code>agents/</code></li>
+<li><strong>Integrate</strong> with <code>tools/</code> or <code>scripts/</code></li>
+<li><strong>Configure</strong> behavior with <code>configs/</code></li>
+<li><strong>Document</strong> usage in <code>docs/</code></li>
+</ol>
+<h3 id="integration_4">Integration</h3>
+<ul>
+<li>Agents automate → Tools provide capabilities → Configs control behavior → Docs explain usage</li>
+</ul>
+<h2 id="best-practices">Best Practices</h2>
+<h3 id="integration-best-practices">Integration Best Practices</h3>
+<p><strong>1. Use Configs for All Parameters</strong></p>
+<p>Don't hardcode:</p>
+<p><code>mojo</code>mojo</p>
+<h1 id="bad">Bad</h1>
+<p>var learning_rate = 0.001
+var batch_size = 32</p>
+<h1 id="good">Good</h1>
+<p>var config = load_experiment_config("lenet5", "baseline")
+var learning_rate = config.get_float("optimizer.learning_rate")
+var batch_size = config.get_int("training.batch_size")</p>
+<p>```text</p>
+<p><strong>2. Benchmark After Changes</strong></p>
+<p>Always run benchmarks after code changes:</p>
+<p>```bash</p>
+<p>```bash</p>
+<h1 id="after-implementing-optimization">After implementing optimization</h1>
+<p>mojo benchmarks/scripts/run_benchmarks.mojo --compare</p>
+<p>```text</p>
+<p><strong>3. Generate Before Implementing</strong></p>
+<p>Use tools to avoid boilerplate:</p>
+<p><code>bash</code>bash</p>
+<h1 id="generate-structure-first">Generate structure first</h1>
+<p>python tools/paper-scaffold/scaffold.py --paper new_paper</p>
+<h1 id="then-implement">Then implement</h1>
+<p>cd papers/new_paper/</p>
+<h1 id="implementation">... implementation</h1>
+<p>```text</p>
+<p><strong>4. Document as You Go</strong></p>
+<p>Update documentation with code:</p>
+<p>```bash</p>
+<p>```bash</p>
+<h1 id="after-implementing-feature">After implementing feature</h1>
+<p>vim papers/new_paper/README.md  # Update paper docs
+vim docs/api/papers/new_paper.md  # Update API docs</p>
+<p>```text</p>
+<p><strong>5. Validate Continuously</strong></p>
+<p>Run validation throughout development:</p>
+<p><code>bash</code>bash</p>
+<h1 id="validate-structure">Validate structure</h1>
+<p>python scripts/validate_structure.py</p>
+<h1 id="validate-docs">Validate docs</h1>
+<p>python scripts/validate_links.py</p>
+<h1 id="run-tests">Run tests</h1>
+<p>mojo test tests/</p>
+<p>```text</p>
+<h3 id="anti-patterns-to-avoid">Anti-Patterns to Avoid</h3>
+<p><strong>Don't: Bypass Configs</strong></p>
+<p>```mojo</p>
+<p>```mojo</p>
+<h1 id="bad-hardcoded-parameters">Bad - hardcoded parameters</h1>
+<p>var lr = 0.001</p>
+<p>```text</p>
+<h3 id="do-use-config-system">Do: Use Config System</h3>
+<p><code>mojo</code>mojo</p>
+<h1 id="good-configurable-parameters">Good - configurable parameters</h1>
+<p>var config = load_paper_config("lenet5", "training")
+var lr = config.get_float("optimizer.learning_rate")</p>
+<p>```text</p>
+<p><strong>Don't: Skip Benchmarking</strong></p>
+<p>```bash</p>
+<p>```bash</p>
+<h1 id="bad-deploy-without-measuring">Bad - deploy without measuring</h1>
+<p>git commit -m "optimized code" &amp;&amp; git push</p>
+<p>```text</p>
+<h3 id="do-benchmark-before-committing">Do: Benchmark Before Committing</h3>
+<p><code>bash</code>bash</p>
+<h1 id="good-verify-performance">Good - verify performance</h1>
+<p>mojo benchmarks/scripts/run_benchmarks.mojo
+git commit -m "optimized code (15% faster)" &amp;&amp; git push</p>
+<p>```text</p>
+<p><strong>Don't: Duplicate Boilerplate</strong></p>
+<p>```bash</p>
+<p>```bash</p>
+<h1 id="bad-manually-create-every-file">Bad - manually create every file</h1>
+<p>mkdir papers/new_paper
+touch papers/new_paper/model.mojo</p>
+<h1 id="create-10-more-files-manually">... create 10 more files manually</h1>
+<p>```text</p>
+<h3 id="do-use-scaffolding-tools">Do: Use Scaffolding Tools</h3>
+<p><code>bash</code>bash</p>
+<h1 id="good-generate-structure">Good - generate structure</h1>
+<p>python tools/paper-scaffold/scaffold.py --paper new_paper</p>
+<p>```text</p>
+<p><strong>Don't: Document in Isolation</strong></p>
+<p>```text</p>
+<p>```text</p>
+<h1 id="bad-docs-not-linked-or-indexed">Bad - docs not linked or indexed</h1>
+<p>papers/my_paper/some_notes.txt</p>
+<p>```text</p>
+<h3 id="do-integrate-with-doc-system">Do: Integrate with Doc System</h3>
+<p><code>text</code>text</p>
+<h1 id="good-proper-location-and-linking">Good - proper location and linking</h1>
+<p>docs/research/my_paper_analysis.md
+docs/index.md (with link to analysis)</p>
+<p>```text</p>
+<h2 id="troubleshooting">Troubleshooting</h2>
+<h3 id="issue-config-not-loading">Issue: Config Not Loading</h3>
+<p><strong>Symptoms</strong>: Configuration values not found or errors loading config</p>
+<p><strong>Check</strong>:</p>
+<ol>
+<li>File exists at expected path</li>
+<li>YAML syntax is valid</li>
+<li>Environment variables are set</li>
+<li>Config hierarchy is correct</li>
+</ol>
+<p><strong>Solution</strong>:</p>
+<p>```bash</p>
+<p>```bash</p>
+<h1 id="validate-config-syntax">Validate config syntax</h1>
+<p>python scripts/lint_configs.py configs/experiments/my_experiment.yaml</p>
+<h1 id="check-environment">Check environment</h1>
+<p>echo $ML_ODYSSEY_DATA</p>
+<h1 id="test-loading">Test loading</h1>
+<p>mojo -c "from odyssey.utils.config_loader import load_experiment_config; var c = load_experiment_config('paper', 'exp')"</p>
+<p>```text</p>
+<h3 id="issue-benchmark-regression">Issue: Benchmark Regression</h3>
+<p><strong>Symptoms</strong>: Benchmarks show performance degradation</p>
+<h3 id="check">Check</h3>
+<ol>
+<li>Recent code changes</li>
+<li>Configuration changes</li>
+<li>Dependency updates</li>
+<li>System resource contention</li>
+</ol>
+<h3 id="solution">Solution</h3>
+<p><code>bash</code>bash</p>
+<h1 id="compare-with-baseline">Compare with baseline</h1>
+<p>mojo benchmarks/scripts/compare_results.mojo \
+  --baseline benchmarks/baselines/baseline_results.json \
+  --current benchmarks/results/latest_results.json</p>
+<h1 id="profile-to-find-bottleneck">Profile to find bottleneck</h1>
+<p>mojo tools/benchmarking/runner.mojo --profile --target problem_area</p>
+<h1 id="review-recent-changes">Review recent changes</h1>
+<p>git diff HEAD~1 papers/affected_paper/</p>
+<p>```python</p>
+<h3 id="issue-tool-not-found">Issue: Tool Not Found</h3>
+<p><strong>Symptoms</strong>: Tool script not executing or import errors</p>
+<p><strong>Check</strong>:</p>
+<ol>
+<li>Tool exists in correct directory</li>
+<li>Python path includes tools/</li>
+<li>Dependencies installed</li>
+<li>File permissions correct</li>
+</ol>
+<p><strong>Solution</strong>:</p>
+<p>```bash</p>
+<p>```bash</p>
+<h1 id="check-tool-exists">Check tool exists</h1>
+<p>ls -la tools/paper-scaffold/scaffold.py</p>
+<h1 id="check-permissions">Check permissions</h1>
+<p>chmod +x tools/paper-scaffold/scaffold.py</p>
+<h1 id="add-to-python-path">Add to Python path</h1>
+<p>export PYTHONPATH="${PYTHONPATH}:/home/user/Odyssey/tools"</p>
+<h1 id="run-with-explicit-path">Run with explicit path</h1>
+<p>python /home/user/Odyssey/tools/paper-scaffold/scaffold.py</p>
+<p>```text</p>
+<h3 id="issue-documentation-links-broken">Issue: Documentation Links Broken</h3>
+<p><strong>Symptoms</strong>: Link validation errors or 404s in docs</p>
+<h3 id="check_1">Check</h3>
+<ol>
+<li>File paths are correct</li>
+<li>Relative paths used properly</li>
+<li>Files not moved or renamed</li>
+<li>Markdown syntax correct</li>
+</ol>
+<h3 id="solution_1">Solution</h3>
+<p><code>bash</code>bash</p>
+<h1 id="validate-all-links">Validate all links</h1>
+<p>python scripts/validate_links.py docs/</p>
+<h1 id="check-specific-file">Check specific file</h1>
+<p>python scripts/validate_links.py docs/path/to/file.md</p>
+<h1 id="fix-and-re-validate">Fix and re-validate</h1>
+<p>vim docs/path/to/file.md  # Fix links
+python scripts/validate_links.py docs/path/to/file.md</p>
+<p>```text</p>
+<h2 id="advanced-integration">Advanced Integration</h2>
+<h3 id="multi-directory-workflows">Multi-Directory Workflows</h3>
+<p><strong>Complex Workflow Example: Paper + Optimization + Documentation</strong></p>
+<p>```bash</p>
+<p>```bash</p>
+<h1 id="binbash">!/bin/bash</h1>
+<h1 id="complete-workflow-using-all-5-supporting-directories">Complete workflow using all 5 supporting directories</h1>
+<p>PAPER="resnet"
+EXPERIMENT="baseline"</p>
+<h1 id="1-tools-scaffold-paper-structure">1. Tools: Scaffold paper structure</h1>
+<p>echo "Step 1: Scaffolding paper structure..."
+python tools/paper-scaffold/scaffold.py \
+    --paper $PAPER \
+    --title "Deep Residual Learning" \
+    --authors "He et al." \
+    --year 2015</p>
+<h1 id="2-configs-create-experiment-configuration">2. Configs: Create experiment configuration</h1>
+<p>echo "Step 2: Creating experiment config..."
+cp configs/templates/experiment.yaml configs/experiments/$PAPER/$EXPERIMENT.yaml</p>
+<h1 id="3-papers-implement-manual-step">3. Papers: Implement (manual step)</h1>
+<p>echo "Step 3: Implement the paper in papers/$PAPER/"
+echo "  - Edit papers/$PAPER/model.mojo"
+echo "  - Edit papers/$PAPER/train.mojo"</p>
+<h1 id="manual-implementation">... manual implementation</h1>
+<h1 id="4-benchmarks-establish-baseline">4. Benchmarks: Establish baseline</h1>
+<p>echo "Step 4: Running initial benchmarks..."
+mojo benchmarks/scripts/run_benchmarks.mojo --paper $PAPER &gt; benchmarks/baselines/${PAPER}_baseline.json</p>
+<h1 id="5-tools-profile-for-optimization">5. Tools: Profile for optimization</h1>
+<p>echo "Step 5: Profiling for optimization..."
+mojo tools/benchmarking/runner.mojo --target $PAPER --profile</p>
+<h1 id="6-papers-optimize-based-on-profiling">6. Papers: Optimize based on profiling</h1>
+<p>echo "Step 6: Implement optimizations..."</p>
+<h1 id="manual-optimization">... manual optimization</h1>
+<h1 id="7-benchmarks-verify-improvement">7. Benchmarks: Verify improvement</h1>
+<p>echo "Step 7: Verifying performance improvement..."
+mojo benchmarks/scripts/run_benchmarks.mojo --paper $PAPER --compare</p>
+<h1 id="8-docs-document-everything">8. Docs: Document everything</h1>
+<p>echo "Step 8: Creating documentation..."</p>
+<h1 id="create-paper-documentation">Create paper documentation</h1>
+<p>vim docs/api/papers/$PAPER.md</p>
+<h1 id="create-optimization-guide">Create optimization guide</h1>
+<p>vim docs/advanced/optimization_${PAPER}.md</p>
+<h1 id="9-validate-all">9. Validate all</h1>
+<p>echo "Step 9: Running validation..."
+python scripts/validate_structure.py
+python scripts/validate_links.py
+mojo test tests/papers/$PAPER/</p>
+<p>echo "Workflow complete!"</p>
+<p>```text</p>
+<h3 id="automated-integration-with-agents">Automated Integration with Agents</h3>
+<h3 id="using-agents-to-orchestrate-workflows">Using agents/ to orchestrate workflows</h3>
+<p><code>yaml</code>yaml</p>
+<h1 id="agentsworkflowsnew-paperyaml">agents/workflows/new-paper.yaml</h1>
+<p>name: New Paper Implementation
+description: Complete workflow for implementing a new research paper</p>
+<p>steps:</p>
+<ul>
+<li>name: scaffold</li>
+<li>
+<p>name: scaffold</p>
+<p>agent: implementation-specialist
+action: scaffold_paper
+inputs:
+  paper_name: "{{ paper }}"
+  template: papers/_template/</p>
+</li>
+<li>
+<p>name: configure</p>
+</li>
+<li>
+<p>name: configure</p>
+<p>agent: configuration-specialist
+action: create_configs
+inputs:
+  paper_name: "{{ paper }}"
+  config_template: configs/templates/</p>
+</li>
+<li>
+<p>name: implement</p>
+</li>
+<li>
+<p>name: implement</p>
+<p>agent: senior-implementation-engineer
+action: implement_model
+inputs:
+  paper_path: "papers/{{ paper }}/"
+  spec: "{{ specification }}"</p>
+</li>
+<li>
+<p>name: test</p>
+</li>
+<li>
+<p>name: test</p>
+<p>agent: test-engineer
+action: create_tests
+inputs:
+  paper_path: "papers/{{ paper }}/"
+  coverage_target: 80</p>
+</li>
+<li>
+<p>name: benchmark</p>
+</li>
+<li>
+<p>name: benchmark</p>
+<p>agent: performance-engineer
+action: create_benchmarks
+inputs:
+  paper_name: "{{ paper }}"
+  benchmark_path: "benchmarks/scripts/"</p>
+</li>
+<li>
+<p>name: document</p>
+</li>
+<li>
+<p>name: document</p>
+<p>agent: documentation-engineer
+action: create_docs
+inputs:
+  paper_name: "{{ paper }}"
+  docs_path: "docs/api/papers/"</p>
+</li>
+</ul>
+<p>```text</p>
+<h2 id="summary">Summary</h2>
+<h3 id="key-takeaways">Key Takeaways</h3>
+<ol>
+<li><strong>Five Directories Work Together</strong>: Each has a specific role but they integrate seamlessly</li>
+<li><strong>Configs are Foundation</strong>: All other directories build on configuration system</li>
+<li><strong>Tools Automate</strong>: Use tools/ to avoid manual boilerplate</li>
+<li><strong>Benchmarks Verify</strong>: Always measure performance impact</li>
+<li><strong>Docs Preserve</strong>: Document knowledge for team and future</li>
+</ol>
+<h3 id="quick-reference_1">Quick Reference</h3>
+<p><strong>Need to...</strong></p>
+<ul>
+<li><strong>Start new paper</strong> → tools/paper-scaffold/ + configs/templates/</li>
+<li><strong>Measure performance</strong> → benchmarks/scripts/ + tools/benchmarking/</li>
+<li><strong>Run experiments</strong> → configs/experiments/ + papers/</li>
+<li><strong>Find documentation</strong> → docs/ (user) or notes/review/ (architectural)</li>
+<li><strong>Automate workflows</strong> → agents/ + scripts/</li>
+</ul>
+<h3 id="next-steps">Next Steps</h3>
+<ol>
+<li>Review STRUCTURE.md (in repository root) for repository organization</li>
+<li>Check <a href="../../getting-started/repository-structure/">getting-started/repository-structure.md</a> for team onboarding</li>
+<li>Read individual directory READMEs for detailed usage</li>
+<li>Try the example workflows in this guide</li>
+</ol>
+<h2 id="references">References</h2>
+<ul>
+<li><strong>STRUCTURE.md</strong> (in repository root): Repository structure overview</li>
+<li><strong>Issue #80</strong>: Package phase documentation</li>
+<li><strong>benchmarks/README.md</strong>: Benchmarking infrastructure</li>
+<li><strong>docs/README.md</strong>: Documentation system</li>
+<li><strong>agents/README.md</strong>: Agent system</li>
+<li><strong>tools/README.md</strong>: Development utilities</li>
+<li><strong>configs/README.md</strong>: Configuration management</li>
+</ul>
+<hr />
+<p><strong>Last Updated</strong>: 2025-11-16
+<strong>Maintained By</strong>: Documentation Specialist</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "search.suggest", "search.highlight", "content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>

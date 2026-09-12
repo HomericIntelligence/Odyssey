@@ -1,0 +1,1873 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Mojo-based AI research platform for reproducing classic research papers">
+      
+      
+      
+        <link rel="canonical" href="https://github.com/HomericIntelligence/Odyssey/adr/ADR-001-language-selection-tooling/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>ADR-001: Pragmatic Hybrid Language Approach for Tooling and Automation - ML Odyssey</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#adr-001-pragmatic-hybrid-language-approach-for-tooling-and-automation" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="ML Odyssey" class="md-header__button md-logo" aria-label="ML Odyssey" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            ML Odyssey
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              ADR-001: Pragmatic Hybrid Language Approach for Tooling and Automation
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/HomericIntelligence/Odyssey" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    HomericIntelligence/Odyssey
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../glossary/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Glossary
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../dev/release-process/" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../integration/supporting-directories/" class="md-tabs__link">
+          
+  
+  
+  Integration
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="ML Odyssey" class="md-nav__button md-logo" aria-label="ML Odyssey" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    ML Odyssey
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/HomericIntelligence/Odyssey" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    HomericIntelligence/Odyssey
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../glossary/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Glossary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/quickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quickstart
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/first_model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    First Model
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/repository-structure/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Repository Structure
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../dev/release-process/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Release Process
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Integration
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Integration
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../integration/supporting-directories/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Supporting Directories
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../integration/papers-shared-integration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Papers & Shared Integration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../integration/quick-start-new-paper/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start New Paper
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#executive-summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Executive Summary
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#context" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Context
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Context">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-philosophical-conflict" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Philosophical Conflict
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-technical-reality" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Technical Reality
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="adr-001-pragmatic-hybrid-language-approach-for-tooling-and-automation">ADR-001: Pragmatic Hybrid Language Approach for Tooling and Automation</h1>
+<p><strong>Status</strong>: Accepted</p>
+<p><strong>Date</strong>: 2025-11-10</p>
+<p><strong>Issue Reference</strong>: <a href="https://github.com/HomericIntelligence/Odyssey/issues/8">Issue #8</a></p>
+<p><strong>Decision Owner</strong>: Chief Architect</p>
+<h2 id="executive-summary">Executive Summary</h2>
+<p>This ADR establishes a <strong>Pragmatic Hybrid Language Approach</strong> for the ML Odyssey project, resolving the conflict
+between the project's "Mojo First" philosophy and the practical limitations of Mojo v0.26.1 for automation and
+tooling tasks.</p>
+<p><strong>Core Decision</strong>: Use the right tool for the job. Mojo for ML/AI implementations and performance-critical code;
+Python for automation tasks that require subprocess output capture, regex parsing, or GitHub API interaction.</p>
+<p><strong>Strategic Rationale</strong>: Project velocity and reliability are more important than philosophical consistency. Python is
+the right tool for automation - Mojo's subprocess API lacks exit code access (causing silent failures) and regex
+support is not production-ready.</p>
+<h2 id="context">Context</h2>
+<h3 id="the-philosophical-conflict">The Philosophical Conflict</h3>
+<p>The ML Odyssey project was established with a "Mojo First" philosophy as documented in CLAUDE.md:</p>
+<blockquote>
+<p><strong>Rule of Thumb</strong>: If you're asking "Should I use Mojo or Python?", the answer is Mojo. Python requires justification.</p>
+</blockquote>
+<p>This philosophy was grounded in valid technical reasons:</p>
+<ul>
+<li>Performance: 10-100x faster for ML workloads</li>
+<li>Type safety: Catch errors at compile time</li>
+<li>Memory safety: Built-in ownership and borrow checking</li>
+<li>Consistency: One language across the project</li>
+<li>Future-proof: Designed for AI/ML from the ground up</li>
+</ul>
+<p>The Chief Architect guidelines reinforced this:</p>
+<blockquote>
+<p><strong>Critical</strong>: ALL new scripts, tools, and automation MUST be written in Mojo unless there's explicit
+justification documented in the issue.</p>
+</blockquote>
+<h3 id="the-technical-reality">The Technical Reality</h3>
+<p>Issue #8 conducted a comprehensive feasibility assessment to convert the project's Python automation scripts
+(1,502 LOC) to Mojo. The assessment revealed critical blockers:</p>
+<p><strong>CRITICAL BLOCKER - No Exit Code Access (Silent Failures)</strong>:</p>
+<p>Mojo's <code>subprocess.run()</code> can capture stdout but has NO access to exit codes, causing dangerous silent failures:</p>
+<p>```python</p>
+<h1 id="python-current-safe">Python (current - SAFE)</h1>
+<p>result = subprocess.run(['gh', 'issue', 'create', ...], capture_output=True)
+if result.returncode != 0:
+    raise Exception(f"Command failed: {result.stderr}")
+issue_url = result.stdout.strip()</p>
+<h1 id="mojo-unsafe-silent-failures">Mojo (UNSAFE - Silent Failures)</h1>
+<p>from subprocess import run
+var output = run("false")  # Exit code 1 - NO ERROR RAISED!
+var output = run("exit 42")  # Exit code 42 - NO ERROR RAISED!
+var output = run("gh issue create ...")  # If this fails, no way to detect!
+```text</p>
+<p><strong>Testing Evidence</strong>: Created test scripts (<code>test_mojo_capabilities.mojo</code>, <code>test_exit_code.mojo</code>) that prove:</p>
+<ul>
+<li>✓ stdout capture works: <code>run()</code> returns String output</li>
+<li>✗ Exit code access: NOT AVAILABLE - failures are silent</li>
+<li>✗ Error detection: No exceptions on non-zero exit</li>
+<li>⚠️ stderr capture: Only via shell redirect (<code>2&gt;&amp;1</code>)</li>
+</ul>
+<p>Without exit code access, scripts cannot detect command failures, making automation unreliable and unsafe.</p>
+<h3 id="high-risk-regex-not-production-ready">HIGH RISK - Regex Not Production-Ready</h3>
+<p>The scripts use 15+ regex patterns for markdown parsing. While a third-party <code>mojo-regex</code> library exists
+(<a href="https://github.com/msaelices/mojo-regex">mojo-regex on GitHub</a>), it is explicitly <strong>not production-ready</strong>:</p>
+<p>```python</p>
+<h1 id="python-regex-patterns-used-throughout-scripts">Python regex patterns used throughout scripts</h1>
+<p>ISSUE_SECTION_PATTERN = re.compile(
+    r'^(?:##\s+|**)(Plan|Test|Implementation)...',
+    re.MULTILINE
+)
+title_match = re.search(r'**Title**:\s*<code>([^</code>]+)<code>', content)
+labels = re.findall(r'</code>([^<code>]+)</code>', labels_text)
+```text</p>
+<p><strong>mojo-regex limitations</strong>:</p>
+<ul>
+<li>Early development stage (author warns: "not yet feature-complete and may contain bugs")</li>
+<li>Missing: compile(), case-insensitive matching, lookaheads, backreferences</li>
+<li>Not available in pixi (installation failed during testing)</li>
+<li>Manual string parsing would be required for complex patterns</li>
+</ul>
+<p><strong>The Conflict</strong>: The philosophy demands Mojo for all scripts, but Mojo lacks reliable subprocess error handling
+and production-ready regex support.</p>
+<h3 id="scripts-affected">Scripts Affected</h3>
+<ol>
+<li><strong>create_issues.py</strong> (854 LOC)</li>
+<li>Automates GitHub issue creation via <code>gh</code> CLI</li>
+<li>Requires: stdout capture (issue URLs), exit code checking, retry logic</li>
+<li>Usage: 20+ subprocess calls with output capture</li>
+<li>
+<p>Critical to project workflow</p>
+</li>
+<li>
+<p><strong>regenerate_github_issues.py</strong> (446 LOC)</p>
+</li>
+<li>Generates github_issue.md from plan.md sources</li>
+<li>Requires: 15+ regex patterns for markdown parsing</li>
+<li>
+<p>Critical for maintaining planning hierarchy</p>
+</li>
+<li>
+<p><strong>create_single_component_issues.py</strong> (197 LOC)</p>
+</li>
+<li>Testing utility for issue creation</li>
+<li>Same requirements as create_issues.py</li>
+</ol>
+<p><strong>Total Impact</strong>: 1,502 lines of production automation code</p>
+<h3 id="assessment-results">Assessment Results</h3>
+<p>Issue #8's comprehensive testing revealed:</p>
+<table>
+<thead>
+<tr>
+<th>Capability</th>
+<th>Available</th>
+<th>Maturity</th>
+<th>Risk</th>
+<th>Blocks Conversion</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>File I/O</td>
+<td>Yes</td>
+<td>Mature</td>
+<td>Low</td>
+<td>No</td>
+</tr>
+<tr>
+<td>Subprocess Exec</td>
+<td>Yes</td>
+<td>Beta</td>
+<td>Medium</td>
+<td>No</td>
+</tr>
+<tr>
+<td><strong>Subprocess Stdout</strong></td>
+<td><strong>Partial</strong></td>
+<td><strong>Beta</strong></td>
+<td><strong>Medium</strong></td>
+<td><strong>No</strong></td>
+</tr>
+<tr>
+<td><strong>Exit Code Access</strong></td>
+<td><strong>NO</strong></td>
+<td><strong>Missing</strong></td>
+<td><strong>CRITICAL</strong></td>
+<td><strong>YES</strong></td>
+</tr>
+<tr>
+<td><strong>Error Detection</strong></td>
+<td><strong>NO</strong></td>
+<td><strong>Missing</strong></td>
+<td><strong>CRITICAL</strong></td>
+<td><strong>YES</strong></td>
+</tr>
+<tr>
+<td>Stderr Capture</td>
+<td>Workaround</td>
+<td>Alpha</td>
+<td>High</td>
+<td>No*</td>
+</tr>
+<tr>
+<td>String Basics</td>
+<td>Yes</td>
+<td>Mature</td>
+<td>Low</td>
+<td>No</td>
+</tr>
+<tr>
+<td>String Methods</td>
+<td>Partial</td>
+<td>Beta</td>
+<td>Medium</td>
+<td>No</td>
+</tr>
+<tr>
+<td><strong>Regex (stdlib)</strong></td>
+<td><strong>NO</strong></td>
+<td><strong>Missing</strong></td>
+<td><strong>High</strong></td>
+<td><strong>YES</strong></td>
+</tr>
+<tr>
+<td><strong>Regex (3rd party)</strong></td>
+<td><strong>Alpha</strong></td>
+<td><strong>Not Prod-Ready</strong></td>
+<td><strong>High</strong></td>
+<td><strong>YES</strong></td>
+</tr>
+<tr>
+<td>JSON</td>
+<td>Yes</td>
+<td>Beta</td>
+<td>Medium</td>
+<td>No</td>
+</tr>
+</tbody>
+</table>
+<p><strong>*</strong> = Workaround exists but increases complexity; <strong>CRITICAL</strong> = Complete blocker for production use</p>
+<p><strong>Estimated Conversion Effort</strong>: 7-9 weeks with low confidence</p>
+<h3 id="roi-analysis">ROI Analysis</h3>
+<ul>
+<li>Estimated Effort: 7-9 weeks</li>
+<li>Estimated Benefit: Zero (current scripts work perfectly)</li>
+<li>Risk: High (introducing bugs into working system)</li>
+<li><strong>ROI</strong>: Highly negative</li>
+</ul>
+<h3 id="decision-drivers">Decision Drivers</h3>
+<ol>
+<li><strong>Project Velocity</strong>: Converting working scripts would delay ML implementation by 2-3 months</li>
+<li><strong>Risk Management</strong>: High probability of introducing bugs into critical automation</li>
+<li><strong>Resource Efficiency</strong>: 7-9 weeks of effort for zero functional benefit</li>
+<li><strong>Technical Maturity</strong>: Mojo v0.26.1 is not ready for systems scripting</li>
+<li><strong>Pragmatic Engineering</strong>: Use the right tool for each job</li>
+</ol>
+<h2 id="decision">Decision</h2>
+<h3 id="strategic-language-boundaries">Strategic Language Boundaries</h3>
+<p>We adopt a <strong>Pragmatic Hybrid Approach</strong> with clear boundaries for when to use each language:</p>
+<h4 id="mojo-required">Mojo REQUIRED</h4>
+<p><strong>Core ML/AI Implementation</strong> (Performance-Critical):</p>
+<ul>
+<li>✅ Neural network implementations (forward/backward passes)</li>
+<li>✅ Training loops and optimization algorithms</li>
+<li>✅ Tensor operations and data structures</li>
+<li>✅ SIMD-optimized kernels</li>
+<li>✅ Performance-critical data pipelines</li>
+<li>✅ Custom layer implementations</li>
+<li>✅ Gradient computation</li>
+<li>✅ Model inference engines</li>
+</ul>
+<h3 id="new-code-default">New Code Default</h3>
+<ul>
+<li>✅ Any new ML algorithm implementation</li>
+<li>✅ Any new performance-critical component</li>
+<li>✅ Any new data processing requiring SIMD</li>
+<li>✅ Any code where type safety is critical</li>
+</ul>
+<h4 id="python-allowed">Python ALLOWED</h4>
+<p><strong>Automation Requiring Subprocess Output</strong> (Technical Limitation):</p>
+<ul>
+<li>✅ Scripts calling <code>gh</code> CLI that need to capture output</li>
+<li>✅ Scripts calling external tools requiring stdout/stderr access</li>
+<li>✅ Scripts requiring command exit code checking</li>
+<li>✅ CI/CD automation requiring process output</li>
+</ul>
+<p><strong>Regex-Heavy Text Processing</strong> (Technical Limitation):</p>
+<ul>
+<li>✅ Markdown parsing with complex patterns</li>
+<li>✅ Configuration file parsing requiring regex</li>
+<li>✅ Log analysis requiring pattern matching</li>
+<li>✅ Code generation requiring template substitution</li>
+</ul>
+<p><strong>GitHub API Interaction</strong> (Ecosystem Limitation):</p>
+<ul>
+<li>✅ Scripts using GitHub CLI (<code>gh</code>) for issue/PR management</li>
+<li>✅ Scripts using GitHub REST API via Python libraries</li>
+<li>✅ Workflow automation requiring GitHub integration</li>
+</ul>
+<p><strong>Rapid Prototyping</strong> (With Conversion Plan):</p>
+<ul>
+<li>⚠️ Quick validation scripts (must document Mojo conversion plan)</li>
+<li>⚠️ One-off debugging utilities (mark as temporary)</li>
+<li>⚠️ Experimental features (plan migration path)</li>
+</ul>
+<h4 id="decision-process">Decision Process</h4>
+<p>When creating a new component:</p>
+<ol>
+<li><strong>What is it?</strong></li>
+<li>ML/AI implementation → Mojo (required)</li>
+<li>
+<p>Automation/tooling → Check requirements</p>
+</li>
+<li>
+<p><strong>Does it need subprocess output capture?</strong></p>
+</li>
+<li>Yes → Python (allowed, document why)</li>
+<li>
+<p>No → Continue to next check</p>
+</li>
+<li>
+<p><strong>Does it need regex parsing?</strong></p>
+</li>
+<li>Yes → Python (allowed, document why)</li>
+<li>
+<p>No → Continue to next check</p>
+</li>
+<li>
+<p><strong>Does it interface with Python-only libraries?</strong></p>
+</li>
+<li>Yes → Python (allowed, document why)</li>
+<li>
+<p>No → <strong>Mojo (required)</strong></p>
+</li>
+<li>
+<p><strong>Document the decision</strong> in code comments and issue notes</p>
+</li>
+</ol>
+<h3 id="justification-requirements">Justification Requirements</h3>
+<h3 id="for-python-usage-in-automation">For Python Usage in Automation</h3>
+<p>All Python automation scripts MUST include a header comment explaining the justification:</p>
+<p>```python</p>
+<h1 id="usrbinenv-python3">!/usr/bin/env python3</h1>
+<p>"""
+Script: create_issues.py
+Purpose: Automate GitHub issue creation via gh CLI</p>
+<p>Language: Python
+Justification:
+  - Requires subprocess stdout capture to get issue URLs from gh CLI
+  - Mojo v0.26.1 subprocess module cannot capture output (blocking limitation)
+  - Uses 15+ regex patterns for markdown parsing (no Mojo regex support)</p>
+<p>Conversion Plan:
+  - Monitor Mojo releases for subprocess output capture support
+  - Reassess quarterly (see ADR-001 monitoring strategy)
+  - Target conversion: Q2-Q3 2026 (estimated)</p>
+<p>Reference: ADR-001, Issue #8
+"""
+```text</p>
+<h3 id="for-new-python-code">For New Python Code</h3>
+<p>Any new Python code MUST have an associated GitHub issue documenting:</p>
+<ul>
+<li>Why Python is required (technical limitation, ecosystem, etc.)</li>
+<li>What Mojo capabilities are blocking conversion</li>
+<li>When the decision will be reassessed</li>
+<li>Link to this ADR</li>
+</ul>
+<h3 id="update-to-claudemd">Update to CLAUDE.md</h3>
+<p>The "Language Preference" section in CLAUDE.md will be updated to reflect this decision:</p>
+<p>```markdown</p>
+<h3 id="language-preference">Language Preference</h3>
+<h4 id="mojo-first-with-pragmatic-exceptions">Mojo First - With Pragmatic Exceptions</h4>
+<p><strong>Default to Mojo</strong> for ALL new ML/AI code:</p>
+<ul>
+<li>✅ Neural network implementations</li>
+<li>✅ Training loops and optimization</li>
+<li>✅ Tensor operations and SIMD kernels</li>
+<li>✅ Performance-critical data processing</li>
+<li>✅ Type-safe model components</li>
+</ul>
+<p><strong>Use Python for Automation</strong> when technical limitations require it:</p>
+<ul>
+<li>✅ Subprocess output capture (Mojo limitation in v0.26.1)</li>
+<li>✅ Regex-heavy text processing (no Mojo regex support)</li>
+<li>✅ GitHub API interaction via Python libraries</li>
+<li>⚠️ Must document justification (see ADR-001)</li>
+</ul>
+<p><strong>Rule of Thumb</strong>:</p>
+<ul>
+<li>ML/AI implementation? → Mojo (required)</li>
+<li>Automation needing subprocess output? → Python (allowed)</li>
+<li>Automation needing regex? → Python (allowed)</li>
+<li>Everything else? → Mojo (default)</li>
+</ul>
+<p><strong>See</strong>: ADR-001 for complete language selection strategy
+```text</p>
+<h3 id="update-to-chief-architect-guidelines">Update to Chief Architect Guidelines</h3>
+<p>The "Language Selection Strategy" section in chief-architect.md will be updated:</p>
+<p>```markdown</p>
+<h3 id="language-selection-strategy">Language Selection Strategy</h3>
+<p><strong>Mojo Required</strong>:</p>
+<ul>
+<li>ALL ML/AI implementations (neural networks, training, inference)</li>
+<li>ALL performance-critical code (SIMD kernels, tensor ops)</li>
+<li>ALL new code unless technical limitation documented</li>
+</ul>
+<p><strong>Python Allowed</strong>:</p>
+<ul>
+<li>Automation requiring subprocess output capture (Mojo v0.26.1 limitation)</li>
+<li>Text processing requiring regex (no Mojo stdlib support)</li>
+<li>GitHub API interaction via Python libraries</li>
+<li>Must document justification per ADR-001</li>
+</ul>
+<p><strong>Decision Authority</strong>:</p>
+<ul>
+<li>Chief Architect approves new Python automation</li>
+<li>All Python usage must link to this ADR or have issue documenting justification</li>
+<li>Quarterly reviews of Python code for conversion opportunities</li>
+</ul>
+<p><strong>See</strong>: ADR-001 for monitoring strategy and reassessment criteria
+```text</p>
+<h2 id="rationale">Rationale</h2>
+<h3 id="why-hybrid-over-pure-mojo">Why Hybrid Over Pure Mojo</h3>
+<h3 id="technical-feasibility">Technical Feasibility</h3>
+<ul>
+<li>Mojo v0.26.1 cannot capture subprocess output (confirmed by Issue #8 testing)</li>
+<li>No Mojo stdlib regex support (confirmed by documentation review)</li>
+<li>Workarounds (Python interop) defeat the purpose of conversion</li>
+<li>Manual parsing alternatives are high-risk and time-consuming</li>
+</ul>
+<h3 id="engineering-economics">Engineering Economics</h3>
+<ul>
+<li>7-9 weeks conversion effort vs. 0 functional benefit</li>
+<li>High risk of introducing bugs in critical automation</li>
+<li>Delays ML implementation (the actual project goal)</li>
+<li>Python scripts are battle-tested and reliable</li>
+</ul>
+<h3 id="strategic-focus">Strategic Focus</h3>
+<ul>
+<li>Project goal is ML research implementation, not language purity</li>
+<li>Mojo's value is in ML performance, not scripting convenience</li>
+<li>Python excels at automation and tooling</li>
+<li>Use each language where it provides the most value</li>
+</ul>
+<h3 id="why-this-decision-is-strategic-not-tactical">Why This Decision Is Strategic, Not Tactical</h3>
+<p>This is an <strong>architectural decision</strong> affecting the entire project:</p>
+<ol>
+<li><strong>Defines Language Boundaries</strong>: Clear rules for when to use each language</li>
+<li><strong>Establishes Patterns</strong>: Template for future technology decisions</li>
+<li><strong>Prioritizes Project Goals</strong>: ML implementation over tooling consistency</li>
+<li><strong>Plans for Future</strong>: Monitoring and reassessment strategy</li>
+<li><strong>Balances Pragmatism with Vision</strong>: Keeps Mojo focus where it matters</li>
+</ol>
+<p>This is not a one-off exception—it's a strategic framework for technology selection.</p>
+<h2 id="consequences">Consequences</h2>
+<h3 id="positive-consequences">Positive Consequences</h3>
+<h3 id="immediate-benefits">Immediate Benefits</h3>
+<ul>
+<li>✅ Project can proceed without 2-3 month delay</li>
+<li>✅ Reliable automation scripts remain stable</li>
+<li>✅ Team can focus on ML implementation (actual project goal)</li>
+<li>✅ Risk of bugs in critical tooling eliminated</li>
+<li>✅ Clear decision framework for future choices</li>
+</ul>
+<h3 id="long-term-benefits">Long-Term Benefits</h3>
+<ul>
+<li>✅ Pragmatic approach attracts contributors</li>
+<li>✅ Flexibility to adapt as Mojo matures</li>
+<li>✅ Each language used for its strengths</li>
+<li>✅ Quarterly reviews ensure continuous improvement</li>
+<li>✅ Documented rationale for all decisions</li>
+</ul>
+<h3 id="strategic-benefits">Strategic Benefits</h3>
+<ul>
+<li>✅ Demonstrates mature engineering judgment</li>
+<li>✅ Prioritizes project outcomes over ideology</li>
+<li>✅ Establishes pattern for future technology decisions</li>
+<li>✅ Shows understanding of tool limitations</li>
+</ul>
+<h3 id="negative-consequences">Negative Consequences</h3>
+<h3 id="technical-debt">Technical Debt</h3>
+<ul>
+<li>⚠️ Two languages to maintain (Python + Mojo)</li>
+<li>⚠️ Potential for inconsistent patterns across languages</li>
+<li>⚠️ Learning curve for contributors</li>
+<li>⚠️ Future conversion work when Mojo matures</li>
+</ul>
+<h3 id="mitigation-strategy">Mitigation Strategy</h3>
+<ul>
+<li>Clear boundaries prevent confusion</li>
+<li>Quarterly reviews minimize conversion effort</li>
+<li>Documentation ensures consistency</li>
+<li>Monitoring strategy tracks Mojo progress</li>
+</ul>
+<h3 id="philosophical-inconsistency">Philosophical Inconsistency</h3>
+<ul>
+<li>⚠️ Appears to violate "Mojo First" principle</li>
+<li>⚠️ May confuse contributors about language choice</li>
+</ul>
+<h3 id="mitigation-strategy_1">Mitigation Strategy</h3>
+<ul>
+<li>Update documentation to clarify boundaries</li>
+<li>ADR provides clear justification</li>
+<li>Decision process guides contributors</li>
+<li>"Mojo First for ML" is the actual principle</li>
+</ul>
+<h3 id="monitoring-overhead">Monitoring Overhead</h3>
+<ul>
+<li>⚠️ Quarterly reviews require time</li>
+<li>⚠️ Tracking Mojo releases for features</li>
+</ul>
+<h3 id="mitigation-strategy_2">Mitigation Strategy</h3>
+<ul>
+<li>Lightweight monitoring (check changelog)</li>
+<li>Only test when relevant features added</li>
+<li>Community forums provide early signals</li>
+</ul>
+<h3 id="trade-offs-accepted">Trade-offs Accepted</h3>
+<p>We explicitly accept these trade-offs:</p>
+<ol>
+<li><strong>Two languages</strong> instead of one → But each used appropriately</li>
+<li><strong>Future conversion work</strong> → But only when Mojo is ready</li>
+<li><strong>Philosophical inconsistency</strong> → But pragmatic and data-driven</li>
+<li><strong>Monitoring overhead</strong> → But ensures timely conversion</li>
+</ol>
+<p>These trade-offs are <strong>preferable</strong> to:</p>
+<ul>
+<li>2-3 month delay in ML implementation</li>
+<li>High risk of bugs in critical automation</li>
+<li>Wasted effort on impossible conversion</li>
+<li>Ideological purity at expense of project success</li>
+</ul>
+<h2 id="future-considerations">Future Considerations</h2>
+<h3 id="if-mojo-capabilities-mature">If Mojo Capabilities Mature</h3>
+<p>While Python is the right choice today, Mojo's subprocess and regex capabilities may improve in the future.
+<strong>Reassessment should only occur if ALL of the following become available</strong>:</p>
+<p><strong>Critical Requirements</strong> (must ALL be present):</p>
+<ol>
+<li><strong>Exit Code Access</strong>:</li>
+<li>subprocess API returns exit codes</li>
+<li>Non-zero exits can be detected and handled</li>
+<li>
+<p>No silent failures on command errors</p>
+</li>
+<li>
+<p><strong>Reliable Error Handling</strong>:</p>
+</li>
+<li>Exceptions raised on subprocess failures</li>
+<li>stderr capture available independently</li>
+<li>
+<p>Timeout and error handling mechanisms</p>
+</li>
+<li>
+<p><strong>Production-Ready Regex</strong>:</p>
+</li>
+<li>Native stdlib regex module, OR</li>
+<li>Mature third-party library with compile(), findall(), sub()</li>
+<li>Documented, stable, and widely adopted</li>
+</ol>
+<h3 id="decision-process-if-requirements-met">Decision Process If Requirements Met</h3>
+<ol>
+<li><strong>Validate</strong> with updated test suite (<code>test_mojo_capabilities.mojo</code>)</li>
+<li><strong>Assess</strong> conversion effort for highest-impact scripts</li>
+<li><strong>Compare</strong> effort vs. benefit (likely still minimal benefit)</li>
+<li><strong>Document</strong> findings in new ADR if conversion is warranted</li>
+</ol>
+<p><strong>Current Stance</strong>: Python automation is the permanent solution until Mojo fundamentally changes its subprocess
+and regex support. No active monitoring planned - reassessment only if Mojo announces major scripting improvements.</p>
+<h2 id="alternatives-considered">Alternatives Considered</h2>
+<h3 id="alternative-1-pure-mojo-with-python-interop">Alternative 1: Pure Mojo with Python Interop</h3>
+<p><strong>Approach</strong>: Write scripts in Mojo, call Python subprocess module via interop</p>
+<h3 id="pros">Pros</h3>
+<ul>
+<li>Maintains "Mojo First" principle</li>
+<li>Learning experience for team</li>
+<li>Could work technically</li>
+</ul>
+<h3 id="cons">Cons</h3>
+<ul>
+<li>Defeats the purpose (still dependent on Python)</li>
+<li>Adds complexity (Mojo + Python interop layer)</li>
+<li>No performance benefit (bottlenecked by Python)</li>
+<li>More brittle (interop can break)</li>
+<li>Harder to maintain</li>
+</ul>
+<p><strong>Why Rejected</strong>: Adds complexity without benefits. If we're calling Python anyway, use Python directly.</p>
+<h3 id="alternative-2-wait-for-mojo-to-mature">Alternative 2: Wait for Mojo to Mature</h3>
+<p><strong>Approach</strong>: Pause all automation work until Mojo supports required capabilities</p>
+<h3 id="pros_1">Pros</h3>
+<ul>
+<li>Eventually achieves "Mojo First" goal</li>
+<li>No technical debt</li>
+<li>One language eventually</li>
+</ul>
+<h3 id="cons_1">Cons</h3>
+<ul>
+<li>6-12 month delay (unacceptable)</li>
+<li>Project cannot proceed</li>
+<li>ML implementation blocked</li>
+<li>No guarantee of timeline</li>
+<li>Existing Python scripts sit unused</li>
+</ul>
+<p><strong>Why Rejected</strong>: Unacceptable project delay. Current scripts work perfectly.</p>
+<h3 id="alternative-3-partial-conversion">Alternative 3: Partial Conversion</h3>
+<p><strong>Approach</strong>: Convert simple scripts, keep complex ones in Python</p>
+<h3 id="pros_2">Pros</h3>
+<ul>
+<li>Learning experience</li>
+<li>Some progress toward Mojo</li>
+<li>Proves feasibility for simple cases</li>
+</ul>
+<h3 id="cons_2">Cons</h3>
+<ul>
+<li>Doesn't solve the main problems</li>
+<li>Wastes time on non-critical work</li>
+<li>Same limitations apply to complex scripts</li>
+<li>Creates inconsistency</li>
+<li>No clear benefit</li>
+</ul>
+<p><strong>Why Rejected</strong>: Wastes effort on low-value work. Focus on ML implementation instead.</p>
+<h3 id="alternative-4-abandon-python-scripts-build-new-mojo-workflow">Alternative 4: Abandon Python Scripts, Build New Mojo Workflow</h3>
+<p><strong>Approach</strong>: Design new workflow that works within Mojo limitations</p>
+<h3 id="pros_3">Pros</h3>
+<ul>
+<li>Pure Mojo solution</li>
+<li>Opportunity to redesign workflow</li>
+<li>No Python dependency</li>
+</ul>
+<h3 id="cons_3">Cons</h3>
+<ul>
+<li>Requires redesigning GitHub integration</li>
+<li>No way to get issue URLs without subprocess output</li>
+<li>Would need to manually track issues</li>
+<li>Massive engineering effort</li>
+<li>Lower reliability than current system</li>
+</ul>
+<p><strong>Why Rejected</strong>: Infeasible without subprocess output. Can't integrate with GitHub CLI.</p>
+<h3 id="alternative-5-hybrid-approach-selected">Alternative 5: Hybrid Approach (SELECTED)</h3>
+<p><strong>Approach</strong>: Python for automation, Mojo for ML/AI implementation</p>
+<h3 id="pros_4">Pros</h3>
+<ul>
+<li>No project delay</li>
+<li>Uses each language appropriately</li>
+<li>Maintains working automation</li>
+<li>Allows focus on ML implementation</li>
+<li>Pragmatic and data-driven</li>
+<li>Clear decision framework</li>
+</ul>
+<h3 id="cons_4">Cons</h3>
+<ul>
+<li>Two languages to maintain</li>
+<li>Future conversion work</li>
+<li>Philosophical inconsistency</li>
+</ul>
+<p><strong>Why Selected</strong>: Best balance of pragmatism, project velocity, and strategic focus. Allows immediate progress
+while planning for future.</p>
+<h2 id="implementation-plan">Implementation Plan</h2>
+<h3 id="phase-1-documentation-updates-week-1">Phase 1: Documentation Updates (Week 1)</h3>
+<h3 id="update-claudemd">Update CLAUDE.md</h3>
+<ul>
+<li>[ ] Revise "Language Preference" section</li>
+<li>[ ] Add link to ADR-001</li>
+<li>[ ] Update examples to show both Mojo and Python cases</li>
+<li>[ ] Clarify decision process</li>
+</ul>
+<h3 id="update-chief-architect-guidelines">Update Chief Architect Guidelines</h3>
+<ul>
+<li>[ ] Revise "Language Selection Strategy" section</li>
+<li>[ ] Add decision authority for Python usage</li>
+<li>[ ] Link to ADR-001</li>
+<li>[ ] Add quarterly review responsibility</li>
+</ul>
+<h3 id="create-monitoring-document">Create Monitoring Document</h3>
+<ul>
+<li>[ ] Create <code>/notes/review/adr/ADR-001-monitoring.md</code></li>
+<li>[ ] Document quarterly review template</li>
+<li>[ ] Set up tracking for Mojo releases</li>
+<li>[ ] Define reassessment criteria</li>
+</ul>
+<h3 id="update-issue-8">Update Issue #8</h3>
+<ul>
+<li>[ ] Link to ADR-001</li>
+<li>[ ] Document decision accepted</li>
+<li>[ ] Close issue as "Decision Made"</li>
+</ul>
+<h3 id="phase-2-script-documentation-week-1-2">Phase 2: Script Documentation (Week 1-2)</h3>
+<h3 id="add-justification-headers">Add Justification Headers</h3>
+<ul>
+<li>[ ] Update <code>create_issues.py</code> with header comment</li>
+<li>[ ] Update <code>regenerate_github_issues.py</code> with header comment</li>
+<li>[ ] Update <code>create_single_component_issues.py</code> with header comment</li>
+<li>[ ] Reference ADR-001 in all headers</li>
+</ul>
+<h3 id="document-current-state">Document Current State</h3>
+<ul>
+<li>[ ] List all Python automation scripts</li>
+<li>[ ] Document why each requires Python</li>
+<li>[ ] Identify conversion blockers for each</li>
+<li>[ ] Estimate conversion effort when ready</li>
+</ul>
+<h3 id="phase-3-process-integration-week-2">Phase 3: Process Integration (Week 2)</h3>
+<h3 id="update-agent-guidelines">Update Agent Guidelines</h3>
+<ul>
+<li>[ ] Update all orchestrators with language selection guidance</li>
+<li>[ ] Add ADR-001 reference to implementation specialists</li>
+<li>[ ] Update review specialists with dual-language checks</li>
+</ul>
+<h3 id="create-decision-template">Create Decision Template</h3>
+<ul>
+<li>[ ] Template for justifying Python usage</li>
+<li>[ ] Checklist for language selection</li>
+<li>[ ] Process for quarterly reviews</li>
+</ul>
+<h3 id="team-communication">Team Communication</h3>
+<ul>
+<li>[ ] Update team documentation</li>
+<li>[ ] Add FAQ about language selection</li>
+<li>[ ] Document escalation path for exceptions</li>
+</ul>
+<h3 id="phase-4-first-quarterly-review-q1-2026">Phase 4: First Quarterly Review (Q1 2026)</h3>
+<h3 id="establish-monitoring-routine">Establish Monitoring Routine</h3>
+<ul>
+<li>[ ] Check Mojo v0.26+ changelog</li>
+<li>[ ] Test subprocess improvements if any</li>
+<li>[ ] Document findings</li>
+<li>[ ] Update conversion timeline if applicable</li>
+</ul>
+<h3 id="success-criteria">Success Criteria</h3>
+<p>This implementation is successful when:</p>
+<ul>
+<li>[ ] All documentation updated and consistent</li>
+<li>[ ] All Python scripts have justification headers</li>
+<li>[ ] Team understands decision framework</li>
+<li>[ ] Quarterly monitoring established</li>
+<li>[ ] No confusion about when to use which language</li>
+<li>[ ] ML implementation proceeds without delay</li>
+</ul>
+<h2 id="references">References</h2>
+<h3 id="issue-8-findings">Issue #8 Findings</h3>
+<p><strong>Comprehensive Assessment</strong>: <a href="https://github.com/HomericIntelligence/Odyssey/issues/8">Issue #8: Mojo Script Conversion Feasibility Assessment</a></p>
+<h3 id="key-findings">Key Findings</h3>
+<ul>
+<li>Subprocess stdout capture: AVAILABLE (returns String)</li>
+<li>Exit code access: NOT AVAILABLE (silent failures - CRITICAL BLOCKER)</li>
+<li>Error detection: NOT AVAILABLE (no exceptions on failure - CRITICAL BLOCKER)</li>
+<li>Stderr capture: WORKAROUND ONLY (shell redirect)</li>
+<li>Regex support (stdlib): NOT AVAILABLE</li>
+<li>Regex support (3rd party): ALPHA/NOT PRODUCTION-READY (mojo-regex exists but immature)</li>
+<li>Estimated effort: 7-9 weeks (low confidence)</li>
+<li>ROI: Highly negative</li>
+<li>Recommendation: NO-GO - Python is the right tool</li>
+</ul>
+<p><strong>Test Results</strong> (validated with test_mojo_capabilities.mojo):</p>
+<ul>
+<li>File I/O: PASS (mature)</li>
+<li>Subprocess stdout: PASS (works, returns String)</li>
+<li>Exit code access: FAIL (NOT AVAILABLE - silent failures)</li>
+<li>Error detection: FAIL (NO exceptions on non-zero exit)</li>
+<li>String operations: PARTIAL (basic only)</li>
+<li>Regex (stdlib): FAIL (NOT AVAILABLE)</li>
+<li>Regex (3rd party): FAIL (mojo-regex not prod-ready, pixi install failed)</li>
+</ul>
+<p><strong>Decision Criteria Met</strong>: 3 CRITICAL blockers (exit codes, error detection, prod-ready regex)</p>
+<h3 id="related-documentation">Related Documentation</h3>
+<h3 id="project-guidelines">Project Guidelines</h3>
+<ul>
+<li><a href="https://github.com/HomericIntelligence/Odyssey/blob/main/CLAUDE.md">CLAUDE.md</a> - Project-wide guidelines</li>
+<li><a href="https://github.com/HomericIntelligence/Odyssey/blob/main/.claude/agents/chief-architect.md">Chief Architect Guidelines</a> - Strategic decisions</li>
+</ul>
+<h3 id="mojo-documentation">Mojo Documentation</h3>
+<ul>
+<li><a href="https://docs.modular.com/mojo/changelog/">Mojo Changelog</a> - Release notes</li>
+<li><a href="https://docs.modular.com/mojo/stdlib/">Mojo Stdlib</a> - Standard library</li>
+<li><a href="https://docs.modular.com/mojo/stdlib/subprocess/">Mojo Subprocess</a> - Subprocess module</li>
+<li><a href="https://github.com/msaelices/mojo-regex">mojo-regex</a> - Third-party regex (alpha, not production-ready)</li>
+</ul>
+<p><strong>Test Scripts</strong> (evidence for this ADR):</p>
+<ul>
+<li><code>test_mojo_capabilities.mojo</code> - Comprehensive capability testing (203 LOC)</li>
+<li><code>test_exit_code.mojo</code> - Exit code access testing (34 LOC)</li>
+<li><code>test_mojo_capabilities_results.md</code> - Detailed test results documentation</li>
+</ul>
+<h3 id="scripts-affected_1">Scripts Affected</h3>
+<ul>
+<li><code>scripts/create_issues.py</code> - GitHub issue creation (854 LOC)</li>
+<li><code>scripts/regenerate_github_issues.py</code> - Issue generation (446 LOC)</li>
+<li><code>scripts/create_single_component_issues.py</code> - Testing utility (197 LOC)</li>
+</ul>
+<h3 id="stakeholder-communication">Stakeholder Communication</h3>
+<h3 id="internal">Internal</h3>
+<ul>
+<li>All section orchestrators</li>
+<li>Implementation specialists</li>
+<li>Review specialists</li>
+</ul>
+<h3 id="external">External</h3>
+<ul>
+<li>Mojo team (monitoring for feature requests)</li>
+<li>Contributors (via updated guidelines)</li>
+</ul>
+<h2 id="appendices">Appendices</h2>
+<h3 id="appendix-a-mojo-maturity-assessment">Appendix A: Mojo Maturity Assessment</h3>
+<p>Based on Issue #8 testing with Mojo v0.26.1:</p>
+<h3 id="mature-for-production">Mature for Production</h3>
+<ul>
+<li>File I/O (read/write)</li>
+<li>Basic string operations</li>
+<li>Compile-time optimization</li>
+<li>SIMD operations</li>
+<li>Memory management</li>
+</ul>
+<h3 id="not-ready-for-production">Not Ready for Production</h3>
+<ul>
+<li>Subprocess output capture (missing)</li>
+<li>Exit code access (missing)</li>
+<li>Regex support (missing)</li>
+<li>Advanced string methods (partial)</li>
+<li>Error handling (basic)</li>
+</ul>
+<h3 id="appendix-b-language-selection-decision-tree">Appendix B: Language Selection Decision Tree</h3>
+<p>```text
+┌─────────────────────────────────────┐
+│ What type of component?             │
+└─────────────┬───────────────────────┘
+              │
+      ┌───────┴────────┐
+      │                │
+      ▼                ▼
+  ML/AI Code?     Automation?
+      │                │
+      │                └──────┐
+      ▼                       │
+   USE MOJO             ┌─────┴──────┐
+  (REQUIRED)            │            │
+                        ▼            ▼
+                 Need subprocess  Need regex?
+                    output?         │
+                        │            │
+                  ┌─────┴─────┐     │
+                  │           │     │
+                  ▼           ▼     ▼
+                YES          NO    YES
+                  │           │     │
+                  ▼           │     │
+            USE PYTHON   ┌────┴─────┘
+            (ALLOWED)    │
+                         ▼
+                    USE MOJO
+                   (DEFAULT)</p>
+<p>Document all Python usage with justification!
+```text</p>
+<h3 id="appendix-c-quarterly-review-template">Appendix C: Quarterly Review Template</h3>
+<p>```markdown</p>
+<h1 id="adr-001-quarterly-review-quarter-year">ADR-001 Quarterly Review: [Quarter] [Year]</h1>
+<p><strong>Review Date</strong>: YYYY-MM-DD
+<strong>Mojo Version Checked</strong>: X.XX.X
+<strong>Reviewer</strong>: [Name/Role]</p>
+<h2 id="changelog-review">Changelog Review</h2>
+<p><strong>Subprocess Improvements</strong>:</p>
+<ul>
+<li>[ ] Checked changelog: [Link]</li>
+<li>[ ] Findings: [None / Description]</li>
+<li>[ ] Tested: [Yes/No]</li>
+</ul>
+<p><strong>Regex Support</strong>:</p>
+<ul>
+<li>[ ] Checked changelog: [Link]</li>
+<li>[ ] Findings: [None / Description]</li>
+<li>[ ] Tested: [Yes/No]</li>
+</ul>
+<p><strong>Other Relevant Changes</strong>:</p>
+<ul>
+<li>[List any other improvements]</li>
+</ul>
+<h2 id="capability-testing">Capability Testing</h2>
+<p><strong>If improvements noted, test results</strong>:</p>
+<ul>
+<li>[ ] Subprocess output capture: [PASS/FAIL]</li>
+<li>[ ] Exit code access: [PASS/FAIL]</li>
+<li>[ ] Regex or alternative: [PASS/FAIL]</li>
+</ul>
+<h2 id="decision_1">Decision</h2>
+<ul>
+<li>[ ] Capabilities available → Proceed to conversion planning</li>
+<li>[ ] Still blocked → Continue monitoring</li>
+<li>[ ] Partial progress → Re-evaluate at next quarter</li>
+</ul>
+<p><strong>Next Steps</strong>: [Description]</p>
+<p><strong>Next Review</strong>: [Quarter Year]
+```text</p>
+<h3 id="appendix-d-justification-header-template">Appendix D: Justification Header Template</h3>
+<p>```python</p>
+<h1 id="usrbinenv-python3_1">!/usr/bin/env python3</h1>
+<p>"""
+Script: [script_name].py
+Purpose: [Brief description of what the script does]</p>
+<p>Language: Python
+Justification:
+  - [Specific Mojo limitation #1]
+  - [Specific Mojo limitation #2]
+  - [Any other technical requirements]</p>
+<p>Conversion Blockers:
+  - [Feature 1] - Mojo version needed: [X.XX+]
+  - [Feature 2] - Mojo version needed: [X.XX+]</p>
+<p>Conversion Plan:
+  - Monitor Mojo releases for [specific features]
+  - Reassess quarterly (see ADR-001 monitoring strategy)
+  - Target conversion: [Quarter Year] (estimated)</p>
+<p>Reference: ADR-001, Issue #[number]
+Last Review: [YYYY-MM-DD]
+"""
+```text</p>
+<h2 id="revision-history">Revision History</h2>
+<table>
+<thead>
+<tr>
+<th>Version</th>
+<th>Date</th>
+<th>Author</th>
+<th>Changes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1.0</td>
+<td>2025-11-10</td>
+<td>Chief Architect</td>
+<td>Initial ADR creation</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="document-metadata">Document Metadata</h3>
+<ul>
+<li>Location: <code>/docs/adr/ADR-001-language-selection-tooling.md</code></li>
+<li>Status: Accepted</li>
+<li>Review Frequency: As-needed (only if Mojo announces major subprocess/regex improvements)</li>
+<li>Next Review: TBD (triggered by Mojo announcements, not scheduled)</li>
+<li>Supersedes: Original "Mojo First" language preference in CLAUDE.md</li>
+<li>Superseded By: None (current)</li>
+</ul>
+<hr />
+<p><em>This ADR represents a strategic architectural decision affecting the entire ML Odyssey project. All changes to
+language selection strategy must reference this document or create a superseding ADR.</em></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "search.suggest", "search.highlight", "content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>
