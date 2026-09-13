@@ -38,20 +38,25 @@ grep_structs = Grep(pattern="struct .*", glob="*.mojo")
 
 ## Bash Command Patterns
 
+**Test-execution policy**: The main agent must delegate every test command,
+test rerun, and failure reproduction to the designated test-runner sub-agent.
+The owning agent reviews that runner's PASS/FAIL report and delegates any
+repair or confirmation rerun; it does not execute test commands itself.
+
 **DO**: Use absolute paths in bash commands (cwd resets between calls):
 
 ```bash
-# GOOD - Absolute paths
+# GOOD - a designated test-runner sub-agent uses absolute paths
 cd /home/user/Odyssey && uv run mojo test tests/shared/core/test_tensor.mojo
 
-# BAD - Relative paths (cwd not guaranteed)
+# BAD - a test runner using a relative path (cwd not guaranteed)
 cd Odyssey && uv run mojo test tests/shared/core/test_tensor.mojo
 ```
 
-**DO**: Combine related commands with && for atomicity:
+**DO**: Have the designated test-runner sub-agent combine related test commands with && for atomicity:
 
 ```bash
-# GOOD - Atomic operation
+# GOOD - Atomic test-runner operation
 cd /home/user/Odyssey && \
   git checkout -b 2549-claude-md && \
   git add CLAUDE.md && \
@@ -63,7 +68,8 @@ git checkout -b 2549-claude-md  # Might run in different directory!
 git add CLAUDE.md
 ```
 
-**DO**: Capture output explicitly when needed:
+**DO**: Have the designated test-runner sub-agent capture output explicitly
+when needed, then return it for the owning agent's review:
 
 ```bash
 # GOOD - Capture and parse output
@@ -121,21 +127,24 @@ Claude Code supports iterative exploration through agentic loops. Use this patte
 - Break down the problem into subtasks
 - Identify files to modify and create
 - Design interfaces and data structures
-- Plan verification steps (tests, linting, CI)
+- Plan verification steps, including delegation of every test command to the
+  designated test-runner sub-agent
 - Tools: Extended thinking, structured reasoning
 
 **Phase 3: Execution** - Implement the solution:
 
 - Make code changes (Edit, Write)
-- Run verification (Bash: mojo test, pre-commit)
-- Fix errors iteratively (Read error output → Edit → Rerun)
+- Delegate all test verification to the designated test-runner sub-agent and
+  review its report (run other non-test checks as appropriate)
+- Delegate repairs and confirmation reruns after reviewing failure output
 - Create PR and link to issue (gh-create-pr-linked skill)
 - Tools: Edit, Write, Bash, agent skills
 
 ### Key Principles
 
 1. **Iterate, don't perfect upfront** - Start with exploration, refine through execution
-2. **Fail fast** - Run verification early and often
+2. **Fail fast** - Delegate test verification early and often, then review the
+   runner's report
 3. **Learn from errors** - Each failure provides information for the next iteration
 4. **Checkpoint progress** - Commit working states, even if incomplete
 5. **Adapt the plan** - If exploration reveals new constraints, update the plan

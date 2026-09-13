@@ -25,7 +25,8 @@ Complete directory structure, configuration files, and build system before other
 
 1. **Receive Requirements** - Parse setup needs from Chief Architect
 2. **Coordinate Setup Work** - Delegate to design agents (structure, configs, security)
-3. **Validate Foundation** - Test on clean environments, verify compatibility
+3. **Validate Foundation** - Delegate clean-environment and compatibility
+   testing to the designated test-runner sub-agent; review its report
 4. **Report Status** - Document completion, signal readiness to other sections
 
 ## Skills
@@ -45,7 +46,8 @@ See [common-constraints.md](../shared/common-constraints.md),
 **Foundation Specific**:
 
 - Do NOT start implementation before Chief Architect approval
-- Do NOT skip validation on clean environments
+- Do NOT skip clean-environment validation; delegate its execution to the
+  designated test-runner sub-agent and review the report
 - Create complete foundation (blocks other sections if incomplete)
 - Support all target platforms (Windows, Linux, macOS)
 
@@ -58,7 +60,8 @@ See [common-constraints.md](../shared/common-constraints.md),
 1. Receive requirements from Chief Architect
 2. Delegate directory structure to Architecture Design
 3. Delegate build configuration to Integration Design
-4. Test setup on three platforms
+4. Delegate setup testing on three platforms to the designated test-runner
+   sub-agent and review its report
 5. Report completion and readiness signal
 
 **Outcome**: Complete foundation enabling all other sections to begin work

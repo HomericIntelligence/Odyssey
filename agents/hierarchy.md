@@ -121,7 +121,8 @@
 - **Decisions**: None (follows instructions)
 - **Phase**: Test
 - **Language Context**: Generates test boilerplate, applies formatting
-- **Package Phase**: Run package builds, verify installations, execute packaging commands
+- **Package Phase**: Delegate test execution to the designated test-runner
+  sub-agent; review its report before verifying installations or package builds
 
 ## Mojo-Specific Considerations
 
@@ -547,12 +548,12 @@ cross-section dependency graphs
 
 - Implement security requirements
 - Code security best practices
-- Perform security testing
+- Delegate security testing to the designated test-runner sub-agent and review its report
 - Fix vulnerabilities
 
 **Delegates To**: Implementation Engineers (Level 4)
 
-**Artifacts**: Security test results, vulnerability reports
+**Artifacts**: Reviewed designated test-runner reports, security test results, vulnerability reports
 
 **Workflow Phase**: Plan, Implementation, Test, Cleanup
 
@@ -600,7 +601,7 @@ cross-section dependency graphs
 - Implement integration tests
 - Create test fixtures
 - Maintain test suite
-- Fix failing tests
+- Fix failing tests after reviewing designated test-runner reports; delegate every confirmation rerun to that runner
 
 **Coordinates With**: Implementation Engineers
 
@@ -608,7 +609,7 @@ cross-section dependency graphs
 
 **Workflow Phase**: Test
 
-**Skills Used**: test_generation, test_execution, coverage_analysis
+**Skills Used**: test_generation, delegated_test_execution, coverage_analysis
 
 **Configuration File**: `.claude/agents/test-engineer.md`
 
@@ -641,7 +642,7 @@ cross-section dependency graphs
 - Write benchmark code
 - Profile code execution
 - Implement optimizations
-- Verify performance improvements
+- Review the designated test-runner's report before verifying performance improvements
 
 **Artifacts**: Benchmark code, profiling results
 
@@ -664,13 +665,13 @@ cross-section dependency graphs
 - Write simple unit tests
 - Generate test boilerplate
 - Update existing tests
-- Run test suites
+- Execute test suites only when assigned as the designated test-runner sub-agent
 
 **Artifacts**: Basic test implementations
 
 **Workflow Phase**: Test
 
-**Skills Used**: test_generation, test_execution
+**Skills Used**: test_generation, delegated_test_execution
 
 **Configuration File**: `.claude/agents/junior-test-engineer.md`
 

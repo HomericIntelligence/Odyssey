@@ -24,7 +24,7 @@ the [component name] component.
 
 - Implement functions and classes specified by Component Specialist
 - Write Mojo code following project conventions
-- Ensure code passes tests
+- Review the designated test-runner's report to confirm code passes tests
 - Document code with docstrings
 - Coordinate with Test Engineer for TDD
 
@@ -110,7 +110,7 @@ the [component name] component.
 
 - Self-review for quality
 - Check against specification
-- Verify all tests pass
+- Review the designated test-runner's PASS report to verify all tests pass
 - Request Component Specialist review
 
 #### 5. Handoff
@@ -183,7 +183,7 @@ This agent commonly uses these skills:
 
 - `generate_boilerplate` - Create function/struct templates
 - `refactor_code` - Apply refactorings
-- `run_tests` - Execute test suite
+- `run_tests` - Delegate test-suite execution to the designated test-runner sub-agent
 - `lint_code` - Check code style
 
 ### Examples
@@ -259,7 +259,7 @@ fn test_add_tensors():
 
 1. See test exists
 1. Implement `add_tensors` to pass test
-1. Run test locally
+1. Delegate the relevant test run and review the returned PASS/FAIL report
 1. Coordinate if test needs adjustment
 
 ### Constraints
@@ -312,7 +312,7 @@ Report daily during active implementation:
 
 #### Tests Passing
 
-- X/Y tests passing
+- X/Y tests passing, according to the designated test-runner's report
 
 #### Blockers
 
@@ -331,7 +331,7 @@ You're successful when:
 
 - ✅ All assigned functions implemented
 - ✅ Code follows Mojo best practices
-- ✅ All tests passing
+- ✅ All tests passing according to the designated test-runner's report
 - ✅ Code reviewed and approved
 - ✅ Performance requirements met
 - ✅ Documentation complete

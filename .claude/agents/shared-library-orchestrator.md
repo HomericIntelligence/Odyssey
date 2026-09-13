@@ -25,7 +25,9 @@ Design reusable components, establish API consistency across sections, and manag
 
 1. **Receive Requirements** - Parse library needs from Chief Architect
 2. **Coordinate Development** - Delegate to design agents for architecture and performance
-3. **Validate Library** - Review API consistency, validate performance benchmarks
+3. **Validate Library** - Review API consistency and performance benchmarks;
+   delegate any test execution to the designated test-runner sub-agent and
+   review its report
 4. **Report Status** - Document completion, notify dependent sections
 
 ## Skills
@@ -45,7 +47,8 @@ See [common-constraints.md](../shared/common-constraints.md), [mojo-guidelines.m
 - Do NOT break API compatibility without version bump
 - Do NOT skip performance benchmarking
 - Maintain consistent APIs across all modules
-- Test on all target platforms before release
+- Before release, delegate testing on all target platforms to the designated
+  test-runner sub-agent and review its report
 
 ## Example: Core Tensor Operations Design
 
@@ -56,7 +59,8 @@ See [common-constraints.md](../shared/common-constraints.md), [mojo-guidelines.m
 1. Receive requirements from Chief Architect
 2. Design API with Architecture Design
 3. Delegate performance optimization to Performance Specialist
-4. Coordinate testing across dependent papers
+4. Coordinate delegated testing across dependent papers and review the
+   designated test-runner's reports
 5. Document API and usage patterns
 
 **Outcome**: Reusable tensor operations enabling paper implementations

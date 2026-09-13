@@ -25,7 +25,8 @@ Design CLI interfaces, build automation scripts, and developer productivity tool
 
 1. **Receive Tool Requirements** - Parse automation needs from other sections
 2. **Coordinate Tool Development** - Delegate to implementation and test specialists
-3. **Validate Tools** - Test on all platforms, validate usability
+3. **Validate Tools** - Delegate platform testing to the designated test-runner
+   sub-agent, then review its report and validate usability
 4. **Report Status** - Document completed tools and adoption metrics
 
 ## Skills
@@ -58,7 +59,8 @@ See [common-constraints.md](../shared/common-constraints.md),
 1. Design build script interface with team
 2. Implement build automation (Mojo)
 3. Implement test runner script
-4. Test on Windows, Linux, macOS
+4. Delegate testing on Windows, Linux, and macOS to the designated test-runner
+   sub-agent and review its report
 5. Document tool usage in README
 
 **Outcome**: Automated build and test tools improving developer workflow

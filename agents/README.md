@@ -357,14 +357,14 @@ The operational agent configurations are in `.claude/agents/` (30 agents total):
 ### Level 4: Implementation Engineers (5 agents)
 
 - `implementation-engineer.md` - Standard and complex functions/classes, boilerplate, following specifications
-- `test-engineer.md` - Unit and integration tests, test fixtures, test maintenance
+- `test-engineer.md` - Unit and integration tests, fixtures, maintenance, and delegated test-run reports
 - `documentation-engineer.md` - Docstrings, code examples, README updates
 - `performance-engineer.md` - Benchmark code, profiling, optimization implementation
 - `log-analyzer.md` - Parses build, test, and execution logs to extract diagnostic information
 
 ### Level 5: Junior Engineers (1 agent)
 
-- `junior-test-engineer.md` - Simple test cases, test boilerplate, test execution
+- `junior-test-engineer.md` - Simple test cases, test boilerplate, and delegated test-run reporting
 
 ## Best Practices
 
@@ -408,7 +408,8 @@ The operational agent configurations are in `.claude/agents/` (30 agents total):
 1. **Test Engineer** writes failing test
 1. **Component Specialist** analyzes root cause
 1. **Implementation Engineer** fixes code
-1. **Test Engineer** verifies fix
+1. **Test Engineer** delegates fix verification to the designated test-runner
+   sub-agent and reviews its report
 1. **Documentation Writer** updates docs if needed
 
 ### Pattern: Refactoring
@@ -416,7 +417,8 @@ The operational agent configurations are in `.claude/agents/` (30 agents total):
 1. **Component Specialist** identifies refactoring need
 1. **Architecture Design Agent** reviews impact
 1. **Implementation Engineer** performs refactoring
-1. **Test Engineer** ensures tests still pass
+1. **Test Engineer** delegates regression verification to the designated
+   test-runner sub-agent and reviews its report
 1. **Performance Engineer** verifies no performance regression
 
 ## Troubleshooting

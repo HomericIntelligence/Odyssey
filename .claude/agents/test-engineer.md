@@ -30,7 +30,9 @@ mocking), and ensures all tests integrate with CI/CD pipeline.
 1. Receive test specification from Test Specialist
 2. Coordinate with Implementation Engineer on TDD
 3. Write tests using real implementations and simple data
-4. Run tests locally and verify passing
+4. When assigned as the designated test-runner sub-agent, execute the requested
+   tests and return the required PASS/FAIL report; otherwise delegate test
+   execution as required by `AGENTS.md`
 5. Verify tests run in CI/CD pipeline
 6. Fix any integration issues
 7. Generate coverage reports
@@ -41,7 +43,7 @@ mocking), and ensures all tests integrate with CI/CD pipeline.
 | Skill | When to Invoke |
 | --- | --- |
 | `phase-test-tdd` | Starting TDD workflow, test scaffolding |
-| `mojo-test-runner` | Running Mojo test suites |
+| `mojo-test-runner` | Running requested Mojo test suites as the designated test runner |
 | `quality-coverage-report` | Generating test coverage analysis |
 | `run-precommit` | Pre-commit validation |
 | `gh-create-pr-linked` | When tests complete |
@@ -55,6 +57,8 @@ See [common-constraints.md](../shared/common-constraints.md) for minimal changes
 - DO: Use real implementations (no complex mocking)
 - DO: Create simple, concrete test data
 - DO: Ensure tests run in CI/CD
+- DO: Report PASS with commands and scope, or FAIL with failing test/file:line,
+  relevant output, classification, initial hypothesis, likely owner, and next delegation
 - DO: Test edge cases and error conditions
 - DO NOT: Create elaborate mock frameworks
 - DO NOT: Add tests that can't run automatically in CI
@@ -73,11 +77,11 @@ See [common-constraints.md](../shared/common-constraints.md) for minimal changes
 3. Write test for edge case (1x1 matrices)
 4. Write test for larger matrices (100x100)
 5. Write test for dimension mismatch error handling
-6. Run locally and verify all passing
+6. As the designated test runner, run the requested suite and return a PASS report
 7. Verify tests run in CI/CD pipeline
 8. Generate coverage report
 
-**Deliverable:** Comprehensive test suite with edge case coverage, all tests passing locally and in CI/CD.
+**Deliverable:** Comprehensive test suite with edge case coverage and a delegated test-run report.
 
 ## Thinking Guidance
 
@@ -90,7 +94,8 @@ See [common-constraints.md](../shared/common-constraints.md) for minimal changes
 
 **Thinking budget:**
 
-- Standard test implementation: Standard thinking
+- Test execution and first-stage failure analysis: `xhigh` thinking when assigned
+  by the active runtime
 - Complex test scenarios with SIMD or memory issues: Extended thinking enabled
 - Test debugging and root cause analysis: Extended thinking enabled
 - Routine test maintenance: Standard thinking
@@ -125,7 +130,7 @@ See [common-constraints.md](../shared/common-constraints.md) for minimal changes
 **Use skills for:**
 
 - `phase-test-tdd` - Starting TDD workflow and test scaffolding
-- `mojo-test-runner` - Running Mojo test suites locally
+- `mojo-test-runner` - Running requested test suites as the designated test runner
 - `quality-coverage-report` - Generating test coverage analysis
 - `run-precommit` - Pre-commit validation
 - `gh-create-pr-linked` - Creating PRs linked to issues
@@ -140,7 +145,7 @@ See [common-constraints.md](../shared/common-constraints.md) for minimal changes
 **Do NOT use sub-agents for:**
 
 - Standard test implementation (your core responsibility)
-- Running tests (use mojo-test-runner skill)
+- Test execution requested by a main agent when you are the designated test runner
 - Generating coverage reports (use quality-coverage-report skill)
 - Simple test fixes
 
