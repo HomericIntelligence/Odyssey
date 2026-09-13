@@ -56,7 +56,7 @@ EXPECTED_PRODUCERS = {
 }
 
 _VALID_STATUSES = frozenset({"success", "failure", "cancelled", "skipped"})
-_SIMD_SKIP_EVENTS = frozenset({"pull_request", "push", "workflow_dispatch"})
+_SIMD_SKIP_EVENTS = frozenset({"pull_request", "merge_group", "push", "workflow_dispatch"})
 
 
 @dataclass(frozen=True)
