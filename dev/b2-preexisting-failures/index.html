@@ -1,0 +1,1458 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Mojo-based AI research platform for reproducing classic research papers">
+      
+      
+      
+        <link rel="canonical" href="https://github.com/HomericIntelligence/Odyssey/dev/b2-preexisting-failures/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Mojo 1.0.0b2 Pre-existing Failures Report - ML Odyssey</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#mojo-100b2-pre-existing-failures-report" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="ML Odyssey" class="md-header__button md-logo" aria-label="ML Odyssey" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            ML Odyssey
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Mojo 1.0.0b2 Pre-existing Failures Report
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/HomericIntelligence/Odyssey" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    HomericIntelligence/Odyssey
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../glossary/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Glossary
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../release-process/" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../integration/supporting-directories/" class="md-tabs__link">
+          
+  
+  
+  Integration
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="ML Odyssey" class="md-nav__button md-logo" aria-label="ML Odyssey" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    ML Odyssey
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/HomericIntelligence/Odyssey" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    HomericIntelligence/Odyssey
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../glossary/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Glossary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/quickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quickstart
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/first_model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    First Model
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/repository-structure/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Repository Structure
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../release-process/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Release Process
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Integration
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Integration
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../integration/supporting-directories/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Supporting Directories
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../integration/papers-shared-integration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Papers & Shared Integration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../integration/quick-start-new-paper/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start New Paper
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Summary
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#category-a-utility-modules-without-main-11-files-false-positive" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Category A: Utility modules without main() — 11 files (FALSE POSITIVE)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Category A: Utility modules without main() — 11 files (FALSE POSITIVE)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#test-files-7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Test files (7)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-files-4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example files (4)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#category-b-kgen-jit-crash-on-b2-4-examples-real-bug" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Category B: KGEN JIT crash on b2 — 4 examples (REAL BUG)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Category B: KGEN JIT crash on b2 — 4 examples (REAL BUG)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#affected-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Affected files
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#stack-trace-identical-for-all-4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Stack trace (identical for all 4)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#impact" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Impact
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#category-c-pre-existing-disabled-test-1-file-known-bug" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Category C: Pre-existing disabled test — 1 file (KNOWN BUG)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Category C: Pre-existing disabled test — 1 file (KNOWN BUG)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#affected-file" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Affected file
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#error" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Error
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#root-cause" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Root cause
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#category-d-deprecated-api-runtime-failures-20-examples-pre-existing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Category D: Deprecated API runtime failures — 20 examples (PRE-EXISTING)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Category D: Deprecated API runtime failures — 20 examples (PRE-EXISTING)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#sub-categories" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sub-categories
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Sub-categories">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#d1-deprecated-bitcast-not-unsafe_bitcast-3-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        D1. Deprecated bitcast (not unsafe_bitcast) — 3 files
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#d2-deprecated-positional-__getitem__-on-pointers-8-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        D2. Deprecated positional __getitem__ on pointers — 8 files
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#d3-runtime-exit-code-1-deprecated-api-paths-8-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        D3. Runtime exit code 1 (deprecated API paths) — 8 files
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#d4-missing-file-dependency-1-file" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        D4. Missing file dependency — 1 file
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#root-cause_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Root cause
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#category-e-timeout-oom-on-heavy-tests-4-files-resource-limit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Category E: Timeout / OOM on heavy tests — 4 files (RESOURCE LIMIT)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Category E: Timeout / OOM on heavy tests — 4 files (RESOURCE LIMIT)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#affected-files_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Affected files
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#root-cause_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Root cause
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#category-f-non-deterministic-passes-on-re-run-5-files-false-positive" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Category F: Non-deterministic (passes on re-run) — 5 files (FALSE POSITIVE)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Category F: Non-deterministic (passes on re-run) — 5 files (FALSE POSITIVE)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#affected-files_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Affected files
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#root-cause_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Root cause
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#recommendations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Recommendations
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="mojo-100b2-pre-existing-failures-report">Mojo 1.0.0b2 Pre-existing Failures Report</h1>
+<p><strong>Date</strong>: 2026-08-22
+<strong>Compiler</strong>: Mojo 1.0.0b2 (2cf4d08a)
+<strong>Codebase</strong>: Odyssey at commit febfcd23 (pre-1.0.0-migration)
+<strong>Total failures</strong>: 45 out of 436 tests/examples</p>
+<hr />
+<h2 id="summary">Summary</h2>
+<p>The 45 b2 failures fall into <strong>6 unique root causes</strong>, none of which are regressions
+introduced by the 1.0.0 migration. They are pre-existing issues that exist on b2
+and were already present before any migration work.</p>
+<table>
+<thead>
+<tr>
+<th>Category</th>
+<th>Count</th>
+<th>Root Cause</th>
+<th>Severity</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A. Utility modules without main()</td>
+<td>11</td>
+<td>Test runner tries to run import-only modules</td>
+<td>False positive</td>
+</tr>
+<tr>
+<td>B. KGEN JIT crash on b2</td>
+<td>4</td>
+<td>Same crash as #6958, also affects b2</td>
+<td>High</td>
+</tr>
+<tr>
+<td>C. Pre-existing disabled test</td>
+<td>1</td>
+<td>Numerical mismatch in DISABLED_test_conv2d</td>
+<td>Low (disabled)</td>
+</tr>
+<tr>
+<td>D. Deprecated API runtime failures</td>
+<td>20</td>
+<td>Deprecated bitcast/load/store/index APIs</td>
+<td>Medium</td>
+</tr>
+<tr>
+<td>E. Timeout / OOM on heavy tests</td>
+<td>4</td>
+<td>Model tests too heavy for 4-core container</td>
+<td>Resource limit</td>
+</tr>
+<tr>
+<td>F. Non-deterministic (passes on re-run)</td>
+<td>5</td>
+<td>Memory pressure or JIT timing in full suite</td>
+<td>False positive</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Total real failures (B+C+D)</strong>: 25
+<strong>False positives (A+E+F)</strong>: 20</p>
+<hr />
+<h2 id="category-a-utility-modules-without-main-11-files-false-positive">Category A: Utility modules without main() — 11 files (FALSE POSITIVE)</h2>
+<p>These files are <strong>import-only modules</strong> (conftest, fixtures, utils, model definitions)
+that the test runner incorrectly tries to execute as standalone programs. They have
+no <code>def main()</code> because they're libraries, not executables.</p>
+<h3 id="test-files-7">Test files (7)</h3>
+<ol>
+<li><code>tests/conftest.mojo</code> — shared test assertions</li>
+<li><code>tests/helpers/fixtures.mojo</code> — test fixture utilities</li>
+<li><code>tests/helpers/utils.mojo</code> — test helper functions</li>
+<li><code>tests/odyssey/conftest.mojo</code> — shared test config</li>
+<li><code>tests/odyssey/fixtures/config_fixtures.mojo</code> — config test fixtures</li>
+<li><code>tests/odyssey/fixtures/mock_data.mojo</code> — mock data generators</li>
+<li><code>tests/odyssey/fixtures/mock_tensors.mojo</code> — mock tensor factories</li>
+</ol>
+<h3 id="example-files-4">Example files (4)</h3>
+<ol>
+<li><code>examples/grok/lenet_emnist/model.mojo</code> — model definition (no main)</li>
+<li><code>examples/mnist/model.mojo</code> — model definition (no main)</li>
+<li><code>examples/mobilenetv1_cifar10/model.mojo</code> — model definition (no main)</li>
+<li><code>examples/resnet18_cifar10/model.mojo</code> — model definition (no main)</li>
+</ol>
+<p><strong>Action needed</strong>: Exclude these from the test runner's direct execution. They should
+only be compiled as libraries, not run as executables.</p>
+<hr />
+<h2 id="category-b-kgen-jit-crash-on-b2-4-examples-real-bug">Category B: KGEN JIT crash on b2 — 4 examples (REAL BUG)</h2>
+<p>These examples crash with <code>libKGENCompilerRTShared.so</code> / <code>libAsyncRTRuntimeGlobals.so</code>
+stack traces on b2 — the same crash pattern documented in #6958/#6413/#6445.</p>
+<h3 id="affected-files">Affected files</h3>
+<ol>
+<li><code>examples/autograd/linear_regression.mojo</code> — JIT crash</li>
+<li><code>examples/autograd/simple_example.mojo</code> — JIT crash</li>
+<li><code>examples/custom_layers/attention_layer.mojo</code> — JIT crash</li>
+<li><code>examples/data_pipeline_demo.mojo</code> — JIT crash</li>
+</ol>
+<h3 id="stack-trace-identical-for-all-4">Stack trace (identical for all 4)</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>#0 libKGENCompilerRTShared.so+0xfbf8e
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>#1 libKGENCompilerRTShared.so+0xf90a6
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>#2 libKGENCompilerRTShared.so+0xfcdd0
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>#3 libc.so.6+0x45330
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>#4 libAsyncRTRuntimeGlobals.so+0x4e8c2
+</code></pre></div>
+<h3 id="impact">Impact</h3>
+<p>This proves the KGEN JIT crash is NOT stable-only — it also affects b2 under heavy
+JIT load. The crash is related to the autograd runtime (variable tracking, gradient
+computation) which exercises complex JIT code paths.</p>
+<p><strong>Filed</strong>: modular/modular#6958 (noted in comment that b2 is also affected)</p>
+<hr />
+<h2 id="category-c-pre-existing-disabled-test-1-file-known-bug">Category C: Pre-existing disabled test — 1 file (KNOWN BUG)</h2>
+<h3 id="affected-file">Affected file</h3>
+<ol>
+<li><code>tests/odyssey/core/layers/DISABLED_test_conv2d.mojo</code></li>
+</ol>
+<h3 id="error">Error</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>Unhandled exception caught during execution: -0.12866569 !≈ -0.17696491 (diff: 0.048299223)
+</code></pre></div>
+<h3 id="root-cause">Root cause</h3>
+<p>Numerical mismatch in Conv2dLayer test — the test was <strong>already disabled</strong> (filename
+prefix <code>DISABLED_</code>) before the 1.0.0 migration. This is a pre-existing bug in the
+conv2d backward pass numerical precision.</p>
+<p><strong>Action</strong>: No action needed — test is already disabled.</p>
+<hr />
+<h2 id="category-d-deprecated-api-runtime-failures-20-examples-pre-existing">Category D: Deprecated API runtime failures — 20 examples (PRE-EXISTING)</h2>
+<p>These examples use APIs deprecated in earlier Mojo versions (pre-b2 or during b2
+development). On b2 they fail with compile errors or runtime crashes because the
+deprecated APIs were removed or changed.</p>
+<h3 id="sub-categories">Sub-categories</h3>
+<h4 id="d1-deprecated-bitcast-not-unsafe_bitcast-3-files">D1. Deprecated <code>bitcast</code> (not <code>unsafe_bitcast</code>) — 3 files</h4>
+<ul>
+<li><code>examples/googlenet_cifar10/test_backward.mojo</code></li>
+<li><code>examples/lenet_emnist/run_train_autograd.mojo</code></li>
+<li><code>examples/lenet_emnist/train_autograd.mojo</code></li>
+</ul>
+<h4 id="d2-deprecated-positional-__getitem__-on-pointers-8-files">D2. Deprecated positional <code>__getitem__</code> on pointers — 8 files</h4>
+<ul>
+<li><code>examples/alexnet_cifar10/run_train.mojo</code></li>
+<li><code>examples/alexnet_cifar10/run_train_autograd.mojo</code></li>
+<li><code>examples/googlenet_cifar10/train.mojo</code></li>
+<li><code>examples/googlenet_cifar10/train_autograd.mojo</code></li>
+<li><code>examples/grok/lenet_emnist/run_train.mojo</code></li>
+<li><code>examples/lenet_emnist/run_train.mojo</code></li>
+<li><code>examples/mobilenetv1_cifar10/train.mojo</code></li>
+<li><code>examples/mobilenetv1_cifar10/train_autograd.mojo</code></li>
+</ul>
+<h4 id="d3-runtime-exit-code-1-deprecated-api-paths-8-files">D3. Runtime exit code 1 (deprecated API paths) — 8 files</h4>
+<ul>
+<li><code>examples/alexnet_cifar10/inference.mojo</code></li>
+<li><code>examples/googlenet_cifar10/inference.mojo</code></li>
+<li><code>examples/lenet_emnist/inference.mojo</code></li>
+<li><code>examples/mnist/train.mojo</code></li>
+<li><code>examples/mobilenetv1_cifar10/inference.mojo</code></li>
+<li><code>examples/resnet18_cifar10/train.mojo</code></li>
+<li><code>examples/resnet18_cifar10/train_autograd.mojo</code></li>
+<li><code>examples/vgg16_cifar10/train.mojo</code> + <code>train_autograd.mojo</code> + <code>train_new.mojo</code></li>
+</ul>
+<h4 id="d4-missing-file-dependency-1-file">D4. Missing file dependency — 1 file</h4>
+<ul>
+<li><code>examples/mnist/train_autograd.mojo</code> — "No such file or directory"</li>
+</ul>
+<h3 id="root-cause_1">Root cause</h3>
+<p>The examples/ directory was not migrated to b2-compatible syntax. The deprecated
+APIs (<code>bitcast</code>, positional subscripts, <code>load</code>/<code>store</code> without <code>unsafe_</code> prefix)
+were already removed by the time b2 was released.</p>
+<p><strong>Action</strong>: Migrate examples/ to b2-compatible syntax (same fixes needed for 1.0.0).</p>
+<hr />
+<h2 id="category-e-timeout-oom-on-heavy-tests-4-files-resource-limit">Category E: Timeout / OOM on heavy tests — 4 files (RESOURCE LIMIT)</h2>
+<h3 id="affected-files_1">Affected files</h3>
+<ol>
+<li><code>tests/models/test_alexnet_layers.mojo</code> — 224×224 forward pass, heavy</li>
+<li><code>tests/models/test_mobilenetv1_e2e.mojo</code> — full model E2E</li>
+<li><code>tests/models/test_googlenet_e2e.mojo</code> — full model E2E</li>
+<li><code>tests/models/test_vgg16_e2e.mojo</code> — 224×224 forward pass, very heavy</li>
+</ol>
+<h3 id="root-cause_2">Root cause</h3>
+<p>Heavy model tests with large tensor operations exceed the 4-core container's
+memory and CPU capacity when run sequentially after 400+ other tests. These pass
+when run individually.</p>
+<p><strong>Action</strong>: No code fix needed — resource constraint. Consider splitting heavy
+tests into separate CI jobs or increasing container resources.</p>
+<hr />
+<h2 id="category-f-non-deterministic-passes-on-re-run-5-files-false-positive">Category F: Non-deterministic (passes on re-run) — 5 files (FALSE POSITIVE)</h2>
+<h3 id="affected-files_2">Affected files</h3>
+<ol>
+<li><code>tests/models/test_alexnet_layers.mojo</code> — passes on re-run</li>
+<li><code>tests/odyssey/core/test_backward_conv_padding.mojo</code> — passes on re-run</li>
+<li><code>tests/odyssey/core/test_backward_losses.mojo</code> — passes on re-run</li>
+<li><code>tests/odyssey/core/test_conv_noncontiguous.mojo</code> — passes on re-run</li>
+<li><code>tests/odyssey/core/test_reduction.mojo</code> — passes on re-run</li>
+</ol>
+<h3 id="root-cause_3">Root cause</h3>
+<p>These tests pass when run individually but fail in the full suite due to memory
+pressure, JIT compilation side effects, or allocator state from preceding tests.
+The failures are non-deterministic — they appear in different positions on different
+runs.</p>
+<p><strong>Action</strong>: No code fix needed — environmental non-determinism.</p>
+<hr />
+<h2 id="recommendations">Recommendations</h2>
+<ol>
+<li><strong>Fix test runner</strong> to skip import-only modules (Category A) — exclude files
+   without <code>main()</code> from direct execution</li>
+<li><strong>Migrate examples/</strong> to b2-compatible syntax (Category D) — apply the same
+   <code>bitcast→unsafe_bitcast</code>, <code>ptr[i]→ptr[unsafe_offset=i]</code> fixes</li>
+<li><strong>Note b2 KGEN JIT crash</strong> in #6958 (Category B) — the crash is not stable-only</li>
+<li><strong>No action needed</strong> for Categories C, E, F — pre-existing, resource limits, or
+   non-deterministic</li>
+</ol>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "search.suggest", "search.highlight", "content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>

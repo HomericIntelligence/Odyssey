@@ -1,0 +1,1382 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Mojo-based AI research platform for reproducing classic research papers">
+      
+      
+      
+        <link rel="canonical" href="https://github.com/HomericIntelligence/Odyssey/dev/autograd-phase2-design/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Autograd Phase 2 — Design Doc (post-Phase 0 discovery) - ML Odyssey</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#autograd-phase-2-design-doc-post-phase-0-discovery" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="ML Odyssey" class="md-header__button md-logo" aria-label="ML Odyssey" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            ML Odyssey
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Autograd Phase 2 — Design Doc (post-Phase 0 discovery)
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/HomericIntelligence/Odyssey" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    HomericIntelligence/Odyssey
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../glossary/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Glossary
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../release-process/" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../integration/supporting-directories/" class="md-tabs__link">
+          
+  
+  
+  Integration
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="ML Odyssey" class="md-nav__button md-logo" aria-label="ML Odyssey" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    ML Odyssey
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/HomericIntelligence/Odyssey" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    HomericIntelligence/Odyssey
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../glossary/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Glossary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/quickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quickstart
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/first_model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    First Model
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/repository-structure/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Repository Structure
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../release-process/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Release Process
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Integration
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Integration
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../integration/supporting-directories/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Supporting Directories
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../integration/papers-shared-integration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Papers & Shared Integration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../integration/quick-start-new-paper/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start New Paper
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#ground-truth-state-after-reading-tape_typesmojo-tapemojo-variablemojo-samples-backward_opsmojo-samples" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Ground-truth state (after reading tape_types.mojo, tape.mojo, variable.mojo (samples), backward_ops.mojo (samples))
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Ground-truth state (after reading tape_types.mojo, tape.mojo, variable.mojo (samples), backward_ops.mojo (samples))">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#what-works-today" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What works today
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#whats-missing-phase-2-scope" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What's missing (Phase 2 scope)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bugs-found-in-phase-0-must-fix-as-part-of-phase-2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bugs found in Phase 0 (must fix as part of Phase 2)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#architecture-decisions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Architecture decisions
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Architecture decisions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#tapenode-polymorphism-use-existing-savedtensors-triple" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TapeNode polymorphism: use existing SavedTensors triple
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#op-type-constants-ordinal-indexed-lookup-table-later-string-eq-for-now" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Op type constants: ordinal-indexed lookup table later, string-eq for now
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#variable-value-semantics-rely-on-registry-not-variable-copies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Variable value semantics: rely on registry, not Variable copies
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gradient-accumulation-already-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Gradient accumulation: already works
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#forward-topo-order-reverse-iteration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Forward = topo order = reverse iteration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#backward-starting-point" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Backward starting point
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#implementation-phases-revised-after-phase-0" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Implementation phases (revised after Phase 0)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mojo-language-risks-identified-in-phase-0" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mojo-language risks identified in Phase 0
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#definition-of-done-phase-2-milestone" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Definition of done (Phase 2 milestone)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#out-of-scope-for-this-milestone" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Out of scope for this milestone
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="autograd-phase-2-design-doc-post-phase-0-discovery">Autograd Phase 2 — Design Doc (post-Phase 0 discovery)</h1>
+<p><strong>Goal:</strong> Complete tape-based autograd so convnet training works without manual <code>*_backward</code> chains.</p>
+<h2 id="ground-truth-state-after-reading-tape_typesmojo-tapemojo-variablemojo-samples-backward_opsmojo-samples">Ground-truth state (after reading tape_types.mojo, tape.mojo, variable.mojo (samples), backward_ops.mojo (samples))</h2>
+<h3 id="what-works-today">What works today</h3>
+<table>
+<thead>
+<tr>
+<th>Component</th>
+<th>Status</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Variable</code> wrapper</td>
+<td>✅</td>
+<td><code>variable.mojo</code> — 11 ops: add/sub/mul/div/matmul/sum/mean/relu/sigmoid/tanh/neg</td>
+</tr>
+<tr>
+<td><code>GradientTape.record()</code></td>
+<td>✅</td>
+<td>Appends TapeNode in execution order</td>
+</tr>
+<tr>
+<td><code>GradientTape.backward()</code></td>
+<td>✅</td>
+<td><strong>Traverses nodes in LINEAR REVERSE ORDER</strong> (tape.mojo:301-303). Works correctly because forward execution = topo order. <strong>No separate topo sort needed.</strong></td>
+</tr>
+<tr>
+<td><code>VariableRegistry.set_grad()</code></td>
+<td>✅</td>
+<td><strong>Already accumulates</strong> gradients (L189-200): if has_grad, add to existing; else copy. So shared-param gradient summation is solved.</td>
+</tr>
+<tr>
+<td><code>_dispatch_backward_op</code></td>
+<td>✅</td>
+<td>Dispatches 10 op types (ADD/SUB/MUL/DIV/SUM/MEAN/MATMUL/RELU/SIGMOID/TANH) via if/elif string match.</td>
+</tr>
+<tr>
+<td><code>SavedTensors</code> polymorphism</td>
+<td>✅ (sufficient)</td>
+<td>Has <code>tensors: List[AnyTensor]</code> + <code>shapes: List[List[Int]]</code> + <code>scalars: List[Float64]</code> — enough to encode all convnet op hyperparams without struct changes.</td>
+</tr>
+<tr>
+<td>40+ raw <code>*_backward</code> functions</td>
+<td>✅</td>
+<td>In <code>core/{activation,loss,linear,conv,pooling,normalization,dropout}.mojo</code>. Confirmed via TODO.md inventory.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="whats-missing-phase-2-scope">What's missing (Phase 2 scope)</h3>
+<table>
+<thead>
+<tr>
+<th>Component</th>
+<th>Required for</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>variable_linear</code></td>
+<td>LeNet, AlexNet, ResNet, VGG, GoogLeNet, MobileNet, MNIST</td>
+<td>Wraps core.linear.linear + saves (input, weight) for <code>linear_backward</code></td>
+</tr>
+<tr>
+<td><code>variable_conv2d</code></td>
+<td>All convnets</td>
+<td>Wraps core.conv.conv2d + saves (input, weight, stride, padding)</td>
+</tr>
+<tr>
+<td><code>variable_maxpool2d</code></td>
+<td>LeNet, AlexNet, VGG, GoogLeNet</td>
+<td>Wraps core.pooling.maxpool2d + saves (input, kernel_size, stride, padding)</td>
+</tr>
+<tr>
+<td><code>variable_flatten</code> / <code>variable_reshape</code></td>
+<td>All FC-headed convnets</td>
+<td>Save (original_shape) only — backward is reshape-back</td>
+</tr>
+<tr>
+<td><code>variable_cross_entropy</code></td>
+<td>All classifiers</td>
+<td>Wraps core.loss.cross_entropy + saves (logits, labels)</td>
+</tr>
+<tr>
+<td><code>variable_batch_norm2d</code></td>
+<td>ResNet, MobileNet</td>
+<td>Wraps core.normalization.batch_norm2d + saves (input, scale, bias, mean, variance)</td>
+</tr>
+<tr>
+<td><code>variable_avgpool2d</code>, <code>variable_global_avgpool2d</code>, <code>variable_dropout</code>, <code>variable_softmax</code>, <code>variable_leaky_relu</code>, <code>variable_gelu</code></td>
+<td>One or more architectures</td>
+<td>Same pattern as linear</td>
+</tr>
+<tr>
+<td>Op-type constants <code>OP_CONV2D</code> / <code>OP_LINEAR</code> / <code>OP_MAXPOOL2D</code> / etc.</td>
+<td>Tape dispatch</td>
+<td>Add to <code>tape_types.mojo</code> or <code>tape.mojo</code></td>
+</tr>
+<tr>
+<td>Dispatch arms in <code>_dispatch_backward_op</code></td>
+<td>Each new op</td>
+<td>Add elif branch + <code>backward_&lt;op&gt;(...)</code> helper</td>
+</tr>
+<tr>
+<td><code>backward_linear</code> / <code>backward_conv2d</code> etc. in <code>backward_ops.mojo</code></td>
+<td>Dispatch glue</td>
+<td>Unpack SavedTensors, call core <code>*_backward</code>, route grads via <code>set_grad</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="bugs-found-in-phase-0-must-fix-as-part-of-phase-2">Bugs found in Phase 0 (must fix as part of Phase 2)</h3>
+<ol>
+<li><strong><code>SavedTensors.add_tensor</code> hardcodes Float32</strong> (tape_types.mojo:51).
+   Breaks fp64/fp16/bf16 silently — returns garbage cast values. Fix:
+   dispatch on <code>tensor.dtype()</code> (same pattern as <code>core/numerical_safety.mojo</code>,
+   or pre-allocate via <code>zeros_like</code> + bulk memcpy).</li>
+<li><strong><code>VariableRegistry.set_grad</code> hardcodes Float32</strong> (L197-198, 205).
+   Same bug. Same fix.</li>
+<li><strong><code>VariableRegistry.register</code> creates a 1-element Float32 placeholder</strong>
+   (L170-173) for every variable. Acceptable but wasteful; could use
+   <code>Optional[AnyTensor]</code> once Mojo Optional is stable.</li>
+</ol>
+<p>These three are independent of the new ops and should be fixed in Phase 1 alongside the dispatch extensions.</p>
+<h2 id="architecture-decisions">Architecture decisions</h2>
+<h3 id="tapenode-polymorphism-use-existing-savedtensors-triple">TapeNode polymorphism: use existing <code>SavedTensors</code> triple</h3>
+<p>No new struct types. Each new op defines its saved-tensors layout as a
+comment in its <code>variable_*</code> function. Example for conv2d:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>SavedTensors layout for OP_CONV2D:
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>  tensors[0] = input tensor          (for grad_weight + grad_input)
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>  tensors[1] = weight tensor         (for grad_input)
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>  shapes[0]  = bias.shape() if has_bias, else []
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>  scalars[0] = stride (Float64-cast Int)
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>  scalars[1] = padding (Float64-cast Int)
+</code></pre></div>
+<p>Each <code>backward_*</code> helper unpacks this in reverse order. Comments adjacent to
+both forward and backward sites make the contract obvious.</p>
+<h3 id="op-type-constants-ordinal-indexed-lookup-table-later-string-eq-for-now">Op type constants: ordinal-indexed lookup table later, string-eq for now</h3>
+<p>Current dispatch uses string comparison (<code>if op_type == "add"</code>). Mojo string
+compare is slow but correct. For Phase 2 we keep strings (faster to ship).
+Phase 3 (out of scope): replace with integer ordinals + dispatch table.</p>
+<h3 id="variable-value-semantics-rely-on-registry-not-variable-copies">Variable value semantics: rely on registry, not Variable copies</h3>
+<p>Variables hold <code>(data: AnyTensor, id: Int, requires_grad: Bool)</code> plus optionally
+a tape reference. The <code>id</code> is the source of truth — when a Variable is copied
+(<code>var y = x</code>), both copies have the same <code>id</code>. The registry handles grad
+lookup by id. So Variable copies don't break gradient flow.</p>
+<p><strong>Critical rule:</strong> never reassign <code>.id</code> on an existing Variable. Always create
+a new Variable via <code>variable_*</code> op (which calls <code>tape.register_variable()</code> to
+get a fresh id). The optimizer must therefore mutate <code>Variable.data</code> in place
+(not return a new Variable), to preserve id continuity.</p>
+<h3 id="gradient-accumulation-already-works">Gradient accumulation: already works</h3>
+<p><code>VariableRegistry.set_grad</code> already does <code>has_grad ? accumulate : init</code>.
+Multi-use parameters get summed contributions for free. <strong>No change needed.</strong></p>
+<h3 id="forward-topo-order-reverse-iteration">Forward = topo order = reverse iteration</h3>
+<p>Forward execution naturally appends nodes in topological order. So reverse
+iteration (current behavior) is correct reverse-topological order. <strong>No DAG
+topo sort needed.</strong> This is the single biggest simplification vs the audit.</p>
+<h3 id="backward-starting-point">Backward starting point</h3>
+<p><code>tape.backward(loss_var_id, ones_like(loss_var.data))</code> already works. For
+convnets, loss is a scalar from <code>cross_entropy</code>, so <code>ones_like(loss)</code> is
+just <code>[[1.0]]</code>. Caller provides this.</p>
+<h2 id="implementation-phases-revised-after-phase-0">Implementation phases (revised after Phase 0)</h2>
+<table>
+<thead>
+<tr>
+<th>Phase</th>
+<th>Scope</th>
+<th>LOC</th>
+<th>Risk</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>1 (foundation + first new op)</strong></td>
+<td>Fix 3 Float32-hardcoded bugs, add OP_FLATTEN, implement <code>variable_flatten</code> + dispatch, FD unit test.</td>
+<td>~150</td>
+<td>Low</td>
+</tr>
+<tr>
+<td><strong>2 (variable_linear + variable_cross_entropy)</strong></td>
+<td>End-to-end MLP training on EMNIST.</td>
+<td>~300</td>
+<td>Medium</td>
+</tr>
+<tr>
+<td><strong>3 (variable_conv2d + variable_maxpool2d)</strong></td>
+<td>Enable LeNet-shaped convnet training.</td>
+<td>~400</td>
+<td>Med-high</td>
+</tr>
+<tr>
+<td><strong>4 (variable_batch_norm2d)</strong></td>
+<td>Optional; LeNet doesn't use BN.</td>
+<td>~200</td>
+<td>Medium</td>
+</tr>
+<tr>
+<td><strong>5 (port lenet_emnist/train.mojo to autograd)</strong></td>
+<td>Integration test. Loss/acc within 1pp of manual version after 10 epochs.</td>
+<td>~80 net</td>
+<td>High</td>
+</tr>
+<tr>
+<td><strong>6 (tests + docs)</strong></td>
+<td>Per-op FD checks, update README/TODO, rewrite simple_example.</td>
+<td>~300</td>
+<td>Low</td>
+</tr>
+<tr>
+<td><strong>7 (PR + auto-merge)</strong></td>
+<td>Open PR closing #5452.</td>
+<td>—</td>
+<td>Low</td>
+</tr>
+</tbody>
+</table>
+<p>Phase 4 + post-LeNet architecture ports are deferred until LeNet + tests
+prove the approach works.</p>
+<p><strong>Total estimated LOC: ~1,400</strong> (not 5,000 — <code>SavedTensors</code> and
+<code>VariableRegistry</code> already exist and accumulate; we just need new op
+wrappers and dispatch arms).</p>
+<h2 id="mojo-language-risks-identified-in-phase-0">Mojo-language risks identified in Phase 0</h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Risk</th>
+<th>Mitigation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>R1</td>
+<td><code>SavedTensors.add_tensor</code> hardcoded <code>bitcast[Float32]</code> only works for fp32 inputs — for fp64/fp16/bf16 it silently copies garbage.</td>
+<td>Fix in Phase 1 by dispatching on dtype. All <code>variable_*</code> ops can stay fp32-only until R1 is fixed.</td>
+</tr>
+<tr>
+<td>R2</td>
+<td><code>_dispatch_backward_op</code> uses if/elif string-equality on <code>op_type</code>. As N ops grows this is O(N) per backward node. With ~20 ops + LeNet's ~12-node tape per batch + 1500 batches = ~360k dispatches/epoch. Currently fine; future Phase 3 optimization.</td>
+<td>Accept for Phase 2.</td>
+</tr>
+<tr>
+<td>R3</td>
+<td>Variable identity via <code>id</code> requires optimizer to mutate <code>Variable.data</code> in place. Need to verify the existing <code>SGD.step()</code> in <code>autograd/optimizers.mojo</code> does this (line 90 takes <code>inout parameters: DynamicVector[Variable]</code> — looks correct).</td>
+<td>Verify by reading optimizers.mojo lines 80-150 before Phase 2.</td>
+</tr>
+<tr>
+<td>R4</td>
+<td><code>core/conv.mojo</code>, <code>core/linear.mojo</code>, etc. backward functions return <code>GradResult</code> structs (per audit S4 reading). Need to confirm exact signatures (do they take input + weight, or input + saved-cache?).</td>
+<td>Read first 60 lines of each <code>*_backward</code> in core/ before writing the autograd wrapper.</td>
+</tr>
+<tr>
+<td>R5</td>
+<td>Mojo 1.0 <code>out self</code> vs <code>mut self</code> constructor distinctions — must follow project conventions per CLAUDE.md.</td>
+<td>Apply to all new <code>variable_*</code> ops.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="definition-of-done-phase-2-milestone">Definition of done (Phase 2 milestone)</h2>
+<ul>
+<li><code>examples/lenet_emnist/train_autograd.mojo</code> (new file, parallel to existing
+  train.mojo) trains LeNet on EMNIST using <code>loss.backward(tape)</code> +
+  <code>optimizer.step(params, tape)</code>. Manual <code>*_backward</code> chain eliminated.</li>
+<li>Loss curve + final test accuracy within 1 percentage point of the existing manual-grad version after 10 epochs.</li>
+<li>6+ new <code>variable_*</code> ops in <code>variable.mojo</code> (flatten, linear, conv2d, maxpool2d, cross_entropy, optionally batch_norm2d).</li>
+<li>Tests pass at <code>uv run mojo run tests/odyssey/autograd/test_variable_layers.mojo</code>.</li>
+<li>autograd/README.md status updated, TODO.md Phase 2 items checked off.</li>
+<li>All pre-commit hooks pass (no <code>--no-verify</code>).</li>
+<li>PR opened, auto-merge enabled.</li>
+</ul>
+<h2 id="out-of-scope-for-this-milestone">Out of scope for this milestone</h2>
+<ul>
+<li>Higher-order gradients (Phase 3 in TODO.md)</li>
+<li>Gradient checkpointing for memory efficiency</li>
+<li>Custom user-registered gradients</li>
+<li>Mixed precision in autograd path (fp16 weights with fp32 grads)</li>
+<li>Distributed autograd</li>
+<li>Replacing string op-type with integer ordinal dispatch (Phase 3 optimization)</li>
+<li>Porting all 7 example architectures (only LeNet for proof-of-concept; rest tracked under #5454)</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "search.suggest", "search.highlight", "content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>
