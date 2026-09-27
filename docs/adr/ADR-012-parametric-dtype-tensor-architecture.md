@@ -368,7 +368,7 @@ details.
 
 ### External Documentation
 
-- [Mojo SIMD Documentation](https://docs.modular.com/mojo/std/builtin/simd/SIMD/):
+- [Mojo SIMD Documentation](https://docs.modular.com/mojo/std/simd/SIMD/):
   Target behavior for Tensor[dtype]
 - [AnyTensor Refactor Plan](../dev/extensor-refactor-plan.md): Complete 17 sub-phase
   migration plan with review findings
