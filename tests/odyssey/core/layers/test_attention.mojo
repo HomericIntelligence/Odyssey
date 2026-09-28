@@ -42,9 +42,22 @@ from odyssey.core.attention import (
 def _seed_ramp(
     mut t: AnyTensor, count: Int, scale: Float64, off: Float64
 ) raises:
-    """Seed a tensor's flat buffer with value[i] = i*scale + off (float64)."""
+    """Seed a float64 tensor's flat buffer with value[i] = i*scale + off."""
     for i in range(count):
         t.store[DType.float64](i, Float64(i) * scale + off)
+
+
+def _seed_ramp_f32(
+    mut t: AnyTensor, count: Int, scale: Float64, off: Float64
+) raises:
+    """Seed a float32 tensor with value[i] = i*scale + off.
+
+    AnyTensor.store/load are raw bitcasts, so a float32 tensor must be
+    written through set() at float32 width; store[DType.float64] would put
+    8 bytes into a 4-byte element and run past the end of the buffer.
+    """
+    for i in range(count):
+        t.set(i, Float32(Float64(i) * scale + off))
 
 
 def _seed_projection(
@@ -352,13 +365,13 @@ def test_functional_core_float32_matches_float64() raises:
     var wk32 = zeros([d_model, d_model], DType.float32)
     var wv32 = zeros([d_model, d_model], DType.float32)
     var wo32 = zeros([d_model, d_model], DType.float32)
-    _seed_ramp(wq32, d_model * d_model, 0.01, -0.15)
-    _seed_ramp(wk32, d_model * d_model, 0.013, -0.12)
-    _seed_ramp(wv32, d_model * d_model, 0.008, -0.10)
-    _seed_ramp(wo32, d_model * d_model, 0.006, -0.08)
+    _seed_ramp_f32(wq32, d_model * d_model, 0.01, -0.15)
+    _seed_ramp_f32(wk32, d_model * d_model, 0.013, -0.12)
+    _seed_ramp_f32(wv32, d_model * d_model, 0.008, -0.10)
+    _seed_ramp_f32(wo32, d_model * d_model, 0.006, -0.08)
     var fw32 = MultiHeadAttentionWeights(wq32, wk32, wv32, wo32)
     var x32 = zeros([batch, seq, d_model], DType.float32)
-    _seed_ramp(x32, batch * seq * d_model, 0.1, -0.3)
+    _seed_ramp_f32(x32, batch * seq * d_model, 0.1, -0.3)
     var empty32 = zeros(List[Int](), DType.float32)
 
     # float64 reference from the identical seeds
@@ -383,12 +396,13 @@ def test_functional_core_float32_matches_float64() raises:
     )
 
     # Narrow the failure mode if the paths still diverge: check the pieces
-    # that are not shared with the float64 run.
+    # that are not shared with the float64 run. Note AnyTensor.load is a raw
+    # bitcast, so a float32 tensor must be read as float32 and widened here.
     var zs = zeros([4], DType.float32)
     for i in range(4):
         zs.set(i, Float32(0.5))
     for i in range(4):
-        var got = zs.load[DType.float64](i)
+        var got = Float64(zs.load[DType.float32](i))
         if got != 0.5:
             raise Error(
                 "zeros/set round-trip is broken at index "
@@ -398,7 +412,7 @@ def test_functional_core_float32_matches_float64() raises:
             )
     var zl = zeros_like(zs)
     for i in range(4):
-        var got = zl.load[DType.float64](i)
+        var got = Float64(zl.load[DType.float32](i))
         if got != 0.0:
             raise Error(
                 "zeros_like is not zero at index "
@@ -411,7 +425,7 @@ def test_functional_core_float32_matches_float64() raises:
         ones32.set(i, Float32(1.0))
     var mm32 = matmul(ones32, ones32)
     for i in range(4):
-        var got = mm32.load[DType.float64](i)
+        var got = Float64(mm32.load[DType.float32](i))
         if got != 2.0:
             raise Error(
                 "float32 2D matmul of ones is not 2 at index "
@@ -421,7 +435,7 @@ def test_functional_core_float32_matches_float64() raises:
             )
     var sm32 = softmax(zeros([2, 2], DType.float32))
     for i in range(4):
-        var got = sm32.load[DType.float64](i)
+        var got = Float64(sm32.load[DType.float32](i))
         if got != 0.5:
             raise Error(
                 "float32 softmax(0) is not 0.5 at index "
@@ -440,7 +454,7 @@ def test_functional_core_float32_matches_float64() raises:
     var numel = y32.output.numel()
     var worst = Float64(0.0)
     for i in range(numel):
-        var a = y32.output.load[DType.float64](i)
+        var a = Float64(y32.output.load[DType.float32](i))
         var b = y64.output.load[DType.float64](i)
         if a != a or b != b:
             raise Error(
