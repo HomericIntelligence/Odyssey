@@ -39,7 +39,8 @@ with Test Engineer on test-driven development.
    benchmark and profile, optimize based on profiling data
 6. Coordinate with Test Engineer (TDD: tests first if specified)
 7. Write docstrings and inline comments
-8. Run local tests and verify
+8. Request the designated test-runner sub-agent to run the relevant tests and
+   review its PASS/FAIL report; do not run test commands directly
 9. Request code review
 
 ## Skills
@@ -47,7 +48,7 @@ with Test Engineer on test-driven development.
 | Skill | When to Invoke |
 | --- | --- |
 | `mojo-format` | Before committing code |
-| `mojo-test-runner` | Running Mojo test suites |
+| `mojo-test-runner` | Available only to the designated test-runner sub-agent |
 | `mojo-build-package` | Creating distributable .mojopkg files |
 | `mojo-simd-optimize` | Optimizing tensor operations, vectorizable loops |
 | `mojo-memory-check` | Verifying ownership, borrowing, lifetimes |
@@ -64,7 +65,7 @@ See [common-constraints.md](../shared/common-constraints.md) for minimal changes
 
 - DO: Follow specifications exactly
 - DO: Write clear, readable code
-- DO: Test thoroughly before submission
+- DO: Delegate thorough test execution before submission and review the report
 - DO: Coordinate with Test Engineer on TDD
 - DO: Format all code before committing
 - DO: Run linters before submitting
@@ -94,7 +95,7 @@ mistakes (ownership violations, constructor signatures, syntax errors).
 4. Add error handling for shape mismatches
 5. Write comprehensive docstrings
 6. Coordinate TDD: write tests then implementation
-7. Run tests locally and verify passing
+7. Delegate the relevant test run and verify the returned PASS report
 8. Submit with documentation complete
 
 **Deliverable:** Working layer implementation with docstrings, passing unit tests, and clean code review.
@@ -162,7 +163,7 @@ mistakes (ownership violations, constructor signatures, syntax errors).
 **Use skills for:**
 
 - `mojo-format` - Formatting code before commits
-- `mojo-test-runner` - Running test suites locally
+- `mojo-test-runner` - Reserved for the designated test-runner sub-agent
 - `mojo-build-package` - Creating .mojopkg distributions
 - `mojo-simd-optimize` - Optimizing vectorizable code
 - `mojo-memory-check` - Verifying memory safety
@@ -180,7 +181,7 @@ mistakes (ownership violations, constructor signatures, syntax errors).
 **Do NOT use sub-agents for:**
 
 - Standard function implementation (your core responsibility)
-- Running tests (use mojo-test-runner skill)
+- Test execution or reruns (delegate to the designated test-runner sub-agent)
 - Code formatting (use mojo-format skill)
 - Simple docstring updates
 
