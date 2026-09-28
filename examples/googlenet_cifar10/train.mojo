@@ -931,7 +931,10 @@ def main() raises:
             + " - Loss: "
             + String(train_loss)
         )
-        print_bn_diagnostics(model, "epoch " + String(epoch + 1))
+        # BN running-stat drift is a first/last-epoch signal, not a per-epoch
+        # one: default_epochs=200 would otherwise emit ~2400 lines of stats.
+        if epoch == 0 or epoch == epochs - 1:
+            print_bn_diagnostics(model, "epoch " + String(epoch + 1))
 
         # Validate every 10 epochs
         if (epoch + 1) % 10 == 0:

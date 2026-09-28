@@ -330,6 +330,91 @@ def test_functional_core_cross_parity() raises:
     print("test_functional_core_cross_parity PASSED")
 
 
+def test_functional_core_float32_matches_float64() raises:
+    """float32 multi-head path must track the float64 path element-wise.
+
+    Regression guard (Odyssey#5648 follow-up): the per-head matmul helper
+    allocated its output at the caller's dtype but bitcast the operands to a
+    hardcoded `Float64` pointer, so a float32 call read past both input
+    buffers and issued 8-byte stores into a 4-byte output buffer. The float64
+    cross-parity test could not see this because it only ever ran float64.
+    """
+    print("Running test_functional_core_float32_matches_float64...")
+    var d_model = 4
+    var num_heads = 2
+    var batch = 2
+    var seq = 3
+
+    # float32 weights + input
+    var wq32 = zeros([d_model, d_model], DType.float32)
+    var wk32 = zeros([d_model, d_model], DType.float32)
+    var wv32 = zeros([d_model, d_model], DType.float32)
+    var wo32 = zeros([d_model, d_model], DType.float32)
+    _seed_ramp(wq32, d_model * d_model, 0.01, -0.15)
+    _seed_ramp(wk32, d_model * d_model, 0.013, -0.12)
+    _seed_ramp(wv32, d_model * d_model, 0.008, -0.10)
+    _seed_ramp(wo32, d_model * d_model, 0.006, -0.08)
+    var fw32 = MultiHeadAttentionWeights(wq32, wk32, wv32, wo32)
+    var x32 = zeros([batch, seq, d_model], DType.float32)
+    _seed_ramp(x32, batch * seq * d_model, 0.1, -0.3)
+    var empty32 = zeros(List[Int](), DType.float32)
+
+    # float64 reference from the identical seeds
+    var wq64 = zeros([d_model, d_model], DType.float64)
+    var wk64 = zeros([d_model, d_model], DType.float64)
+    var wv64 = zeros([d_model, d_model], DType.float64)
+    var wo64 = zeros([d_model, d_model], DType.float64)
+    _seed_ramp(wq64, d_model * d_model, 0.01, -0.15)
+    _seed_ramp(wk64, d_model * d_model, 0.013, -0.12)
+    _seed_ramp(wv64, d_model * d_model, 0.008, -0.10)
+    _seed_ramp(wo64, d_model * d_model, 0.006, -0.08)
+    var fw64 = MultiHeadAttentionWeights(wq64, wk64, wv64, wo64)
+    var x64 = zeros([batch, seq, d_model], DType.float64)
+    _seed_ramp(x64, batch * seq * d_model, 0.1, -0.3)
+    var empty64 = zeros(List[Int](), DType.float64)
+
+    var y32 = multi_head_attention_masked(
+        x32, x32, x32, fw32, num_heads, empty32
+    )
+    var y64 = multi_head_attention_masked(
+        x64, x64, x64, fw64, num_heads, empty64
+    )
+
+    if y32.dtype() != DType.float32:
+        raise Error(
+            "float32 multi-head path did not preserve the float32 dtype"
+        )
+
+    # Explicit NaN guard: an out-of-bounds read can yield NaN, and every
+    # comparison against NaN is false, so a plain tolerance check would pass.
+    var numel = y32.numel()
+    var worst = Float64(0.0)
+    for i in range(numel):
+        var a = y32.load[DType.float64](i)
+        var b = y64.load[DType.float64](i)
+        if a != a or b != b:
+            raise Error(
+                "float32 multi-head path produced NaN at index " + String(i)
+            )
+        var d = a - b
+        if d < 0:
+            d = -d
+        if d > worst:
+            worst = d
+    if worst > 1e-4:
+        raise Error(
+            "float32 multi-head path diverges from float64: max |delta| = "
+            + String(worst)
+            + " > 1e-4"
+        )
+    print(
+        "  ok float32 matches float64 to 1e-4 (max |delta| = "
+        + String(worst)
+        + ")"
+    )
+    print("test_functional_core_float32_matches_float64 PASSED")
+
+
 def main() raises:
     """Run all MultiHeadAttention tests."""
     print("=" * 60)
@@ -344,6 +429,7 @@ def main() raises:
     test_parity_multi_head_causal()
     test_package_path_export()
     test_functional_core_cross_parity()
+    test_functional_core_float32_matches_float64()
     print("=" * 60)
     print("All MultiHeadAttention tests PASSED")
     print("=" * 60)

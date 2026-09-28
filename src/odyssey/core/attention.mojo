@@ -19,6 +19,7 @@ from odyssey.core.matrix import matmul, transpose
 from odyssey.core.activation import softmax
 from odyssey.core.arithmetic import multiply, divide, add
 from odyssey.core.gradient_types import GradientTriple, GradientQuad
+from odyssey.core.dtype_dispatch import _format_dtype_name
 from std.math import sqrt
 
 
@@ -612,7 +613,7 @@ def multi_head_attention_masked(
 
     # Apply attention to values, explicitly materializing the batched operands
     # so batched matmul never treats a shared operand as batch-indexed.
-    var attended = _batched_attention_matmul(
+    var attended = _dispatch_batched_attention_matmul(
         attention_weights, v_heads, batch, num_heads, seq_len, d_k
     )
 
@@ -648,7 +649,7 @@ def _reshape_for_heads(
     return transpose(split, perm^)
 
 
-def _batched_attention_matmul(
+def _batched_attention_matmul[dtype: DType](
     weights: AnyTensor,
     values: AnyTensor,
     batch: Int,
@@ -657,16 +658,21 @@ def _batched_attention_matmul(
     d_k: Int,
 ) raises -> AnyTensor:
     """Multiply per-head attention weights and values without broadcast assumptions.
+
+    `dtype` must match `weights`/`values`; the caller dispatches at runtime (see
+    `_dispatch_batched_attention_matmul`). Element access goes through
+    `Scalar[dtype]` so float16/32/64 are all handled at their real width — a
+    hardcoded Float64 bitcast here would overrun `out` for narrower dtypes.
     """
-    var out = zeros([batch, heads, seq_len, d_k], weights.dtype())
-    var w_ptr = weights._data.unsafe_bitcast[Float64]()
-    var v_ptr = values._data.unsafe_bitcast[Float64]()
-    var out_ptr = out._data.unsafe_bitcast[Float64]()
+    var out = AnyTensor([batch, heads, seq_len, d_k], dtype)
+    var w_ptr = weights._data.unsafe_bitcast[Scalar[dtype]]()
+    var v_ptr = values._data.unsafe_bitcast[Scalar[dtype]]()
+    var out_ptr = out.data_ptr[dtype]()
     for b in range(batch):
         for h in range(heads):
             for i in range(seq_len):
                 for j in range(d_k):
-                    var total = Float64(0.0)
+                    var total = Scalar[dtype](0)
                     for k in range(seq_len):
                         var w_idx = (
                             (b * heads + h) * seq_len + i
@@ -679,6 +685,41 @@ def _batched_attention_matmul(
                     var out_idx = ((b * heads + h) * seq_len + i) * d_k + j
                     out_ptr[unsafe_offset=out_idx] = total
     return out^
+
+
+def _dispatch_batched_attention_matmul(
+    weights: AnyTensor,
+    values: AnyTensor,
+    batch: Int,
+    heads: Int,
+    seq_len: Int,
+    d_k: Int,
+) raises -> AnyTensor:
+    """Runtime dtype dispatch for `_batched_attention_matmul`."""
+    if weights._dtype != values._dtype:
+        raise Error(
+            "_batched_attention_matmul: dtype mismatch. weights="
+            + _format_dtype_name(weights._dtype)
+            + ", values="
+            + _format_dtype_name(values._dtype)
+        )
+    if weights._dtype == DType.float16:
+        return _batched_attention_matmul[DType.float16](
+            weights, values, batch, heads, seq_len, d_k
+        )
+    elif weights._dtype == DType.float32:
+        return _batched_attention_matmul[DType.float32](
+            weights, values, batch, heads, seq_len, d_k
+        )
+    elif weights._dtype == DType.float64:
+        return _batched_attention_matmul[DType.float64](
+            weights, values, batch, heads, seq_len, d_k
+        )
+    else:
+        raise Error(
+            "_batched_attention_matmul: only float16/32/64 supported. Got "
+            + _format_dtype_name(weights._dtype)
+        )
 
 
 def _reshape_from_heads(
