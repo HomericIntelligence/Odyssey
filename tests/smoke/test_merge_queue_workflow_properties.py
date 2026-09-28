@@ -66,8 +66,11 @@ EXPECTED_CONCURRENCY_GROUP = (
     "${{ github.workflow }}-${{ github.event_name }}-${{ github.event.pull_request.number || github.sha }}"
 )
 
-# The report explicitly accepts the optional workflow-dispatch-only SIMD lane.
-# Its separate report-contract tests prove that every other skipped result fails.
+# The report explicitly accepts a skipped SIMD lane: that optional job does not
+# run on pull_request/push/merge_group events, and workflow_dispatch tolerates a
+# skip only when the extended SIMD run was not requested. Toleration is limited
+# to a `skipped` SIMD result on those events; every other non-success result
+# (including a SIMD failure) still fails, per its report-contract tests.
 OPTIONAL_DEPENDENCY_CONDITIONS = {
     (
         "comprehensive-tests.yml",
