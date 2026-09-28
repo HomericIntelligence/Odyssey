@@ -21,15 +21,17 @@ the transpose.
 """
 
 from odyssey.tensor.any_tensor import AnyTensor
-from odyssey.tensor.tensor_creation import zeros
+from odyssey.tensor.tensor_creation import zeros, zeros_like
 from odyssey.core.layers.attention import MultiHeadAttention
+from odyssey.core.activation import softmax
+from odyssey.core.matrix import matmul
 
 # Package-path import (via core/layers/__init__.mojo) — asserts the public
 # export exists; if the __init__ export line is dropped, this fails to compile.
 from odyssey.core.layers import MultiHeadAttention as MultiHeadAttentionPkg
 from odyssey.core.layers.linear import Linear
 
-# Functional attention core — used only by the raises-regression tripwire.
+# Functional attention core — cross-parity and dtype-regression coverage.
 from odyssey.core.attention import (
     scaled_dot_product_attention_masked,
     multi_head_attention_masked,
@@ -379,6 +381,54 @@ def test_functional_core_float32_matches_float64() raises:
     var y64 = multi_head_attention_masked(
         x64, x64, x64, fw64, num_heads, empty64
     )
+
+    # Narrow the failure mode if the paths still diverge: check the pieces
+    # that are not shared with the float64 run.
+    var zs = zeros([4], DType.float32)
+    for i in range(4):
+        zs.set(i, Float32(0.5))
+    for i in range(4):
+        var got = zs.load[DType.float64](i)
+        if got != 0.5:
+            raise Error(
+                "zeros/set round-trip is broken at index "
+                + String(i)
+                + ": got "
+                + String(got)
+            )
+    var zl = zeros_like(zs)
+    for i in range(4):
+        var got = zl.load[DType.float64](i)
+        if got != 0.0:
+            raise Error(
+                "zeros_like is not zero at index "
+                + String(i)
+                + ": got "
+                + String(got)
+            )
+    var ones32 = zeros([2, 2], DType.float32)
+    for i in range(4):
+        ones32.set(i, Float32(1.0))
+    var mm32 = matmul(ones32, ones32)
+    for i in range(4):
+        var got = mm32.load[DType.float64](i)
+        if got != 2.0:
+            raise Error(
+                "float32 2D matmul of ones is not 2 at index "
+                + String(i)
+                + ": got "
+                + String(got)
+            )
+    var sm32 = softmax(zeros([2, 2], DType.float32))
+    for i in range(4):
+        var got = sm32.load[DType.float64](i)
+        if got != 0.5:
+            raise Error(
+                "float32 softmax(0) is not 0.5 at index "
+                + String(i)
+                + ": got "
+                + String(got)
+            )
 
     if y32.output.dtype() != DType.float32:
         raise Error(

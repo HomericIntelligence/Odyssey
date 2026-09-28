@@ -129,7 +129,7 @@ def scaled_dot_product_attention_masked(
     if scores.dtype() == DType.float32:
         var scale_f32 = Float32(scale)
         for i in range(numel):
-            scale_tensor[i] = Float32(scale_f32)
+            scale_tensor.set(i, scale_f32)
     elif scores.dtype() == DType.float64:
         for i in range(numel):
             scale_tensor.set(i, scale)
@@ -265,7 +265,7 @@ def scaled_dot_product_attention_backward_masked(
     if grad_softmax.dtype() == DType.float32:
         var scale_f32 = Float32(scale)
         for i in range(numel):
-            scale_tensor[i] = Float32(scale_f32)
+            scale_tensor.set(i, scale_f32)
     elif grad_softmax.dtype() == DType.float64:
         for i in range(numel):
             scale_tensor.set(i, scale)
@@ -596,7 +596,7 @@ def multi_head_attention_masked(
     if scores.dtype() == DType.float32:
         var scale_f32 = Float32(scale)
         for i in range(numel):
-            scale_tensor[i] = Float32(scale_f32)
+            scale_tensor.set(i, scale_f32)
     else:
         for i in range(numel):
             scale_tensor.set(i, scale)
