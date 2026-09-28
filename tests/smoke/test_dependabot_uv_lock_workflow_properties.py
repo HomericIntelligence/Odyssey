@@ -15,10 +15,9 @@ SETUP_UV_ACTION = REPO_ROOT / ".github" / "actions" / "setup-uv" / "action.yml"
 PRODUCER_WORKFLOW = WORKFLOW_DIR / "dependabot-uv-lock.yml"
 WRITER_WORKFLOW = WORKFLOW_DIR / "dependabot-uv-lock-writer.yml"
 PUBLISHER_SCRIPT = REPO_ROOT / "scripts" / "ci" / "commit_generated_dependencies.py"
-SETUP_UV_V9 = "astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9"
+SETUP_UV_ACTION_REF = "astral-sh/setup-uv@"
 UPLOAD_ARTIFACT_V7 = "actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a"
 CHECKOUT_V7 = "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1"
-UV_VERSION = "0.12.0"
 SYNC_COMMAND = "python scripts/sync_requirements.py --repo-root ."
 CHECK_COMMAND = "python scripts/sync_requirements.py --check --repo-root ."
 ALLOWLIST = (
@@ -34,6 +33,29 @@ def _load(path: Path) -> dict[Any, Any]:
     assert isinstance(workflow, dict)
     return workflow
 
+
+def _assert_pinned_setup_uv(step: dict[Any, Any]) -> str:
+    """Assert a setup-uv step is immutably pinned; return its uv version.
+
+    This asserts the properties the trust boundary depends on, not a
+    particular version: the step is pinned to a 40-hex commit SHA (never a
+    floating tag or branch) and names an explicit uv version. The exact
+    action major and uv version are upgradeable pins, and the resolved
+    dependency set is already guaranteed by `uv.lock` + `uv lock --check`
+    (asserted in test_required_dependency_sync_jobs_check_lock_and_exports),
+    so pinning their literal values here only produced churn on every
+    Dependabot action bump.
+    """
+    uses = str(step.get("uses", ""))
+    assert uses.startswith(SETUP_UV_ACTION_REF), uses
+    ref = uses.split("@", 1)[1]
+    assert len(ref) == 40 and all(c in "0123456789abcdef" for c in ref), (
+        f"setup-uv must be pinned to a commit SHA, got {ref!r}"
+    )
+    with_ = step.get("with") or {}
+    version = str(with_.get("version", "")).strip()
+    assert version, "setup-uv step must pin an explicit uv version"
+    return version
 
 def _on(workflow: dict[Any, Any]) -> dict[str, Any]:
     triggers = workflow.get("on", workflow.get(True))
@@ -183,11 +205,9 @@ def test_default_branch_writer_is_the_only_write_scope_and_never_uses_pr_code() 
     assert "head_sha" not in str(checkout)
 
     trusted_uv = steps[1]
-    assert trusted_uv["uses"] == SETUP_UV_V9
-    assert trusted_uv["with"] == {
-        "version": UV_VERSION,
-        "enable-cache": False,
-    }
+    _assert_pinned_setup_uv(trusted_uv)
+    # Isolation, not speed: the trusted publisher runs with no shared cache.
+    assert trusted_uv["with"].get("enable-cache") is False
 
     publish = steps[2]
     assert _run(publish) == (
@@ -203,7 +223,10 @@ def test_default_branch_writer_is_the_only_write_scope_and_never_uses_pr_code() 
             action = str(step.get("uses", ""))
             command = _run(step)
             assert not action.startswith("./")
-            assert action in {"", CHECKOUT_V7, SETUP_UV_V9}
+            assert action in {"", CHECKOUT_V7} or (
+                action.startswith(SETUP_UV_ACTION_REF)
+                and len(action.split("@", 1)[1]) == 40
+            ), action
             assert command in {"", *approved_run_commands}
             assert "workflow_run.head_sha" not in str(step.get("with", {}))
 
@@ -249,11 +272,20 @@ def test_writer_dispatches_the_comment_monitor_beside_required_checks() -> None:
     assert "comprehensive-test-pr-comments.yml" not in ALLOWLIST
 
 
-def test_dependency_generation_uses_one_pinned_uv_version() -> None:
+def test_dependency_generation_uses_one_uv_version_everywhere() -> None:
+    """Every dependency-generation job installs the SAME uv version.
+
+    This is a consistency property, not a version pin: the composite
+    action's default and all four producer jobs must agree, so the trusted
+    publisher and the PR-side regeneration cannot drift onto different uv
+    releases (which is what scripts/ci/commit_generated_dependencies.py's
+    TRUSTED_UV_VERSION gate exists to catch downstream).
+    """
     setup_action = _load(SETUP_UV_ACTION)
-    assert setup_action["inputs"]["uv-version"]["default"] == UV_VERSION
+    default_version = str(setup_action["inputs"]["uv-version"]["default"]).strip()
+    assert default_version, "composite setup-uv action must declare a uv-version default"
     setup_step = setup_action["runs"]["steps"][0]
-    assert setup_step["uses"] == SETUP_UV_V9
+    assert setup_step["uses"].startswith(SETUP_UV_ACTION_REF), setup_step["uses"]
     assert setup_step["with"]["version"] == "${{ inputs.uv-version }}"
 
     expected_jobs = {
@@ -266,11 +298,9 @@ def test_dependency_generation_uses_one_pinned_uv_version() -> None:
         install = next(
             step
             for step in _steps(_load(WORKFLOW_DIR / workflow_name), job_id)
-            if str(step.get("uses", "")).startswith("astral-sh/setup-uv@")
+            if str(step.get("uses", "")).startswith(SETUP_UV_ACTION_REF)
         )
-        assert install["uses"] == SETUP_UV_V9
-        assert install["with"]["version"] == UV_VERSION
-
+        assert _assert_pinned_setup_uv(install) == default_version, workflow_name
 
 def test_required_dependency_sync_jobs_check_lock_and_exports() -> None:
     for workflow_name, job_id in {
@@ -291,8 +321,7 @@ def test_python_producer_installs_pinned_uv_before_running_full_suite() -> None:
     test_index = next(index for index, step in enumerate(steps) if step.get("name") == "Run Python tests")
 
     assert install_index < test_index
-    assert install["uses"] == SETUP_UV_V9
-    assert install["with"] == {"version": UV_VERSION, "enable-cache": False}
+    _assert_pinned_setup_uv(install)
 
 
 def test_workflow_smoke_tracks_both_halves_of_the_trust_boundary() -> None:
