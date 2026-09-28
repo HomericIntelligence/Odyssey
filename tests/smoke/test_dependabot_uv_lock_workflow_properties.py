@@ -57,6 +57,7 @@ def _assert_pinned_setup_uv(step: dict[Any, Any]) -> str:
     assert version, "setup-uv step must pin an explicit uv version"
     return version
 
+
 def _on(workflow: dict[Any, Any]) -> dict[str, Any]:
     triggers = workflow.get("on", workflow.get(True))
     assert isinstance(triggers, dict)
@@ -224,8 +225,7 @@ def test_default_branch_writer_is_the_only_write_scope_and_never_uses_pr_code() 
             command = _run(step)
             assert not action.startswith("./")
             assert action in {"", CHECKOUT_V7} or (
-                action.startswith(SETUP_UV_ACTION_REF)
-                and len(action.split("@", 1)[1]) == 40
+                action.startswith(SETUP_UV_ACTION_REF) and len(action.split("@", 1)[1]) == 40
             ), action
             assert command in {"", *approved_run_commands}
             assert "workflow_run.head_sha" not in str(step.get("with", {}))
@@ -301,6 +301,7 @@ def test_dependency_generation_uses_one_uv_version_everywhere() -> None:
             if str(step.get("uses", "")).startswith(SETUP_UV_ACTION_REF)
         )
         assert _assert_pinned_setup_uv(install) == default_version, workflow_name
+
 
 def test_required_dependency_sync_jobs_check_lock_and_exports() -> None:
     for workflow_name, job_id in {
