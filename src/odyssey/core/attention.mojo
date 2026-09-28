@@ -649,7 +649,9 @@ def _reshape_for_heads(
     return transpose(split, perm^)
 
 
-def _batched_attention_matmul[dtype: DType](
+def _batched_attention_matmul[
+    dtype: DType
+](
     weights: AnyTensor,
     values: AnyTensor,
     batch: Int,
