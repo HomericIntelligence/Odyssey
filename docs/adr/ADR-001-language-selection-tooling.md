@@ -715,8 +715,8 @@ This implementation is successful when:
 ### Mojo Documentation
 
 - [Mojo Changelog](https://docs.modular.com/mojo/changelog/) - Release notes
-- [Mojo Stdlib](https://docs.modular.com/mojo/stdlib/) - Standard library
-- [Mojo Subprocess](https://docs.modular.com/mojo/stdlib/subprocess/) - Subprocess module
+- [Mojo Stdlib](https://docs.modular.com/mojo/std/) - Standard library
+- [Mojo Subprocess](https://docs.modular.com/mojo/std/subprocess/) - Subprocess module
 - [mojo-regex](https://github.com/msaelices/mojo-regex) - Third-party regex (alpha, not production-ready)
 
 **Test Scripts** (evidence for this ADR):

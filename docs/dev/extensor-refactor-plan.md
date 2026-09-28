@@ -161,7 +161,7 @@ Key behaviors:
 - No implicit widening or narrowing between float types
 - The compiler selects a single concrete code path per instantiation
 
-**Source**: Mojo SIMD docs — https://docs.modular.com/mojo/std/builtin/simd/SIMD/
+**Source**: Mojo SIMD docs — https://docs.modular.com/mojo/std/simd/SIMD/
 **Verified**: Tested locally with `SIMD[DType.float32, 4]` and `SIMD[DType.float64, 4]`
 
 ---
@@ -1156,7 +1156,7 @@ Source: [Traits docs](https://github.com/modular/modular/blob/modular/v26.1/mojo
 
 | Source | URL |
 | --- | --- |
-| Mojo SIMD documentation | https://docs.modular.com/mojo/std/builtin/simd/SIMD/ |
+| Mojo SIMD documentation | https://docs.modular.com/mojo/std/simd/SIMD/ |
 | Mojo parameters documentation | https://docs.modular.com/mojo/manual/parameters/ |
 | Python Array API Standard | https://data-apis.org/array-api/latest/ |
 | Modular upstream issue (bitcast UAF) | https://github.com/modular/modular/issues/6187 |
