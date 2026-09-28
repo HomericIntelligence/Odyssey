@@ -29,7 +29,7 @@ attrs==26.1.0
     # via
     #   jsonschema
     #   referencing
-authlib==1.7.2
+authlib==1.8.0
     # via odyssey
 babel==2.18.0
     # via
@@ -46,7 +46,7 @@ blinker==1.9.0
     # via flask
 boolean-py==5.0
     # via license-expression
-build==1.5.0
+build==1.6.0
 cachecontrol==0.14.4
     # via pip-audit
 certifi==2026.7.22
@@ -64,7 +64,7 @@ cfgv==3.5.0
     # via pre-commit
 charset-normalizer==3.4.9
     # via requests
-click==8.4.2
+click==8.5.0
     # via
     #   flask
     #   mblack
@@ -74,7 +74,6 @@ colorama==0.4.6
     # via
     #   bandit
     #   build
-    #   click
     #   ipython
     #   mkdocs
     #   mkdocs-material
@@ -88,7 +87,7 @@ contourpy==1.3.3
     # via matplotlib
 coverage==7.15.2
     # via pytest-cov
-cryptography==50.0.0
+cryptography==50.0.1
     # via
     #   authlib
     #   joserfc
@@ -133,7 +132,7 @@ gitpython==3.1.62
     # via odyssey
 h11==0.16.0
     # via httpcore
-homericintelligence-hephaestus==0.10.3
+homericintelligence-hephaestus==0.10.6
     # via odyssey
 httpcore==1.0.9
     # via httpx
@@ -157,7 +156,7 @@ ipython==9.15.0
     #   ipywidgets
 ipython-pygments-lexers==1.1.1
     # via ipython
-ipywidgets==8.1.8
+ipywidgets==8.1.9
 isoduration==20.11.0
     # via jsonschema
 itsdangerous==2.2.0
@@ -223,7 +222,7 @@ jupyterlab-pygments==0.3.0
     # via nbconvert
 jupyterlab-server==2.28.0
     # via jupyterlab
-jupyterlab-widgets==3.0.16
+jupyterlab-widgets==3.0.17
     # via ipywidgets
 kiwisolver==1.5.0
     # via matplotlib
@@ -277,7 +276,7 @@ mkdocs-material-extensions==1.3.1
     # via mojo
 msgpack==1.2.1
     # via cachecontrol
-mypy==2.3.0
+mypy==2.3.1
 mypy-extensions==1.1.0
     # via
     #   mblack
@@ -288,7 +287,7 @@ nbconvert==7.17.1
     # via
     #   jupyter-server
     #   odyssey
-nbformat==5.11.0
+nbformat==5.11.1
     # via
     #   jupyter-server
     #   nbclient
@@ -302,7 +301,7 @@ nodeenv==1.10.0
     # via pre-commit
 notebook-shim==0.2.4
     # via jupyterlab
-numpy==2.5.1
+numpy==2.5.2
     # via
     #   contourpy
     #   matplotlib
@@ -364,7 +363,7 @@ pluggy==1.6.0
     # via
     #   pytest
     #   pytest-cov
-pre-commit==4.6.1
+pre-commit==4.6.2
 pre-commit-hooks==6.0.0
 prettytable==3.18.0
     # via
@@ -384,7 +383,7 @@ ptyprocess==0.7.0 ; os_name != 'nt' or (sys_platform != 'emscripten' and sys_pla
     #   terminado
 pure-eval==0.2.3
     # via stack-data
-py-cpuinfo==9.0.0
+py-cpuinfo2==10.1.1
     # via pytest-benchmark
 py-serializable==2.1.0
     # via cyclonedx-python-lib
@@ -394,7 +393,7 @@ pydantic==2.14.0b1
     # via odyssey
 pydantic-core==2.48.0
     # via pydantic
-pygithub==2.9.1
+pygithub==2.10.0
     # via odyssey
 pygments==2.20.0
     # via
@@ -422,7 +421,7 @@ pytest==9.1.1
     #   pytest-cov
     #   pytest-timeout
     #   pytest-xdist
-pytest-benchmark==5.2.3
+pytest-benchmark==5.3.0
 pytest-cov==7.1.0
 pytest-timeout==2.4.0
 pytest-xdist==3.8.0
@@ -492,7 +491,7 @@ rpds-py==2026.6.3
     #   referencing
 ruamel-yaml==0.19.1
     # via pre-commit-hooks
-ruff==0.16.2
+ruff==0.16.5
 seaborn==0.13.2
 send2trash==2.1.0
     # via jupyter-server
@@ -586,5 +585,5 @@ websocket-client==1.9.0
     # via jupyter-server
 werkzeug==3.1.8
     # via flask
-widgetsnbextension==4.0.15
+widgetsnbextension==4.0.16
     # via ipywidgets
