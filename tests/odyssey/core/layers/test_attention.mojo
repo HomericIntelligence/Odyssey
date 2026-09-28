@@ -331,7 +331,7 @@ def test_functional_core_cross_parity() raises:
 
 
 def test_functional_core_float32_matches_float64() raises:
-    """float32 multi-head path must track the float64 path element-wise.
+    """Float32 multi-head path must track the float64 path element-wise.
 
     Regression guard (Odyssey#5648 follow-up): the per-head matmul helper
     allocated its output at the caller's dtype but bitcast the operands to a
@@ -380,18 +380,18 @@ def test_functional_core_float32_matches_float64() raises:
         x64, x64, x64, fw64, num_heads, empty64
     )
 
-    if y32.dtype() != DType.float32:
+    if y32.output.dtype() != DType.float32:
         raise Error(
             "float32 multi-head path did not preserve the float32 dtype"
         )
 
     # Explicit NaN guard: an out-of-bounds read can yield NaN, and every
     # comparison against NaN is false, so a plain tolerance check would pass.
-    var numel = y32.numel()
+    var numel = y32.output.numel()
     var worst = Float64(0.0)
     for i in range(numel):
-        var a = y32.load[DType.float64](i)
-        var b = y64.load[DType.float64](i)
+        var a = y32.output.load[DType.float64](i)
+        var b = y64.output.load[DType.float64](i)
         if a != a or b != b:
             raise Error(
                 "float32 multi-head path produced NaN at index " + String(i)
