@@ -41,14 +41,8 @@ class TestREADME:
             repo_root: Repository root path
         """
         readme = repo_root / "README.md"
-        content = """# ML Odyssey
-
-A Mojo-based AI research platform.
-"""
         if not readme.exists():
             pytest.skip(f"Documentation file not created yet: {readme}")
-
-        readme.write_text(content)
 
         text = readme.read_text()
         assert text.startswith("# "), "README should start with title"
@@ -62,19 +56,8 @@ A Mojo-based AI research platform.
             repo_root: Repository root path
         """
         readme = repo_root / "README.md"
-        content = """# ML Odyssey
-
-A Mojo-based AI research platform for reproducing classic papers.
-
-## Features
-
-- Feature 1
-- Feature 2
-"""
         if not readme.exists():
             pytest.skip(f"Documentation file not created yet: {readme}")
-
-        readme.write_text(content)
 
         text = readme.read_text()
         lines = [line for line in text.split("\n") if line.strip()]
@@ -88,29 +71,66 @@ A Mojo-based AI research platform for reproducing classic papers.
             repo_root: Repository root path
         """
         readme = repo_root / "README.md"
-        content = """# ML Odyssey
-
-Description here.
-
-## Features
-
-Features list.
-
-## Getting Started
-
-Quick start guide.
-
-## Installation
-
-Installation steps.
-"""
         if not readme.exists():
             pytest.skip(f"Documentation file not created yet: {readme}")
 
-        readme.write_text(content)
-
         text = readme.read_text()
         assert "## Features" in text or "## " in text, "README should have sections"
+
+    def test_readme_is_not_a_placeholder_stub(self, repo_root: Path) -> None:
+        """
+        Guard against this suite clobbering the real README.md.
+
+        These doc tests used to overwrite the real repository files with
+        placeholder content and then assert on what they had just written, so
+        the assertions were tautological and a plain `pytest` run silently
+        truncated the 300+ line README to a 7 line stub. A stub would satisfy
+        every other test in this class, so pin the real document's size here.
+
+        Args:
+            repo_root: Repository root directory path
+        """
+        readme = repo_root / "README.md"
+        if not readme.exists():
+            pytest.skip(f"Documentation file not created yet: {readme}")
+
+        line_count = len(readme.read_text().splitlines())
+        assert line_count > 50, (
+            f"README.md is {line_count} lines, which looks like a placeholder"
+            " stub rather than the real README; if this suite was reverted to"
+            " writing the real file, restore it with"
+            " `git checkout -- README.md`"
+        )
+
+
+class TestDocsAreNotWrittenByThisSuite:
+    """Structural guard: the doc tests must only ever read the real files."""
+
+    def test_no_module_writes_to_the_repository(self) -> None:
+        """
+        Test that no doc test module writes to the real repository.
+
+        The fixtures in conftest.py resolve to real tracked paths
+        (repo_root -> the checkout root, getting_started_dir -> the real
+        docs/getting-started), so writing a file from these suites mutates
+        tracked content during an ordinary test run. Anything that genuinely
+        needs to write must use pytest's tmp_path instead.
+
+        This checks the whole docs suite rather than only this module, so a
+        sibling file reintroducing the pattern fails here too.
+
+        Returns:
+            None
+        """
+        # Assembled at runtime so this guard never matches its own source.
+        marker = "write" + "_text("
+        here = Path(__file__).parent
+        offenders = []
+        for module in sorted(here.glob("test_*.py")):
+            for number, line in enumerate(module.read_text(encoding="utf-8").splitlines(), start=1):
+                if marker in line:
+                    offenders.append(f"{module.name}:{number}: {line.strip()}")
+        assert not offenders, "Doc tests must not write to real repository files: " + "; ".join(offenders)
 
 
 class TestQuickstart:
@@ -138,14 +158,8 @@ class TestQuickstart:
             getting_started_dir: Path to getting-started directory
         """
         quickstart = getting_started_dir / "quickstart.md"
-        content = """# Quick Start Guide
-
-Get started quickly.
-"""
         if not quickstart.exists():
             pytest.skip(f"Documentation file not created yet: {quickstart}")
-
-        quickstart.write_text(content)
 
         text = quickstart.read_text()
         assert text.startswith("# "), "quickstart should start with title"
@@ -158,20 +172,8 @@ Get started quickly.
             getting_started_dir: Path to getting-started directory
         """
         quickstart = getting_started_dir / "quickstart.md"
-        content = """# Quick Start
-
-## Example
-
-```python
-import ml_odyssey
-```
-
-More examples.
-"""
         if not quickstart.exists():
             pytest.skip(f"Documentation file not created yet: {quickstart}")
-
-        quickstart.write_text(content)
 
         text = quickstart.read_text()
         assert "```" in text, "quickstart should have code examples"
@@ -202,14 +204,8 @@ class TestInstallation:
             getting_started_dir: Path to getting-started directory
         """
         installation = getting_started_dir / "installation.md"
-        content = """# Installation Guide
-
-How to install ML Odyssey.
-"""
         if not installation.exists():
             pytest.skip(f"Documentation file not created yet: {installation}")
-
-        installation.write_text(content)
 
         text = installation.read_text()
         assert text.startswith("# "), "installation should start with title"
@@ -222,22 +218,8 @@ How to install ML Odyssey.
             getting_started_dir: Path to getting-started directory
         """
         installation = getting_started_dir / "installation.md"
-        content = """# Installation
-
-## Prerequisites
-
-Requirements.
-
-## Installation Steps
-
-1. Step 1
-2. Step 2
-3. Step 3
-"""
         if not installation.exists():
             pytest.skip(f"Documentation file not created yet: {installation}")
-
-        installation.write_text(content)
 
         text = installation.read_text()
         assert "## " in text, "installation should have sections"
@@ -268,14 +250,8 @@ class TestFirstPaper:
             getting_started_dir: Path to getting-started directory
         """
         first_paper = getting_started_dir / "first-paper.md"
-        content = """# Your First Paper Implementation
-
-Tutorial for first paper.
-"""
         if not first_paper.exists():
             pytest.skip(f"Documentation file not created yet: {first_paper}")
-
-        first_paper.write_text(content)
 
         text = first_paper.read_text()
         assert text.startswith("# "), "first-paper should start with title"
@@ -288,27 +264,8 @@ Tutorial for first paper.
             getting_started_dir: Path to getting-started directory
         """
         first_paper = getting_started_dir / "first-paper.md"
-        content = """# First Paper
-
-## Overview
-
-What you'll learn.
-
-## Implementation
-
-```mojo
-fn main():
-    print("Hello")
-```
-
-## Next Steps
-
-Where to go next.
-"""
         if not first_paper.exists():
             pytest.skip(f"Documentation file not created yet: {first_paper}")
-
-        first_paper.write_text(content)
 
         text = first_paper.read_text()
         assert "## " in text, "first-paper should have sections"

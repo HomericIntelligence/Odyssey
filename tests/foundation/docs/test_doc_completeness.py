@@ -109,11 +109,8 @@ class TestTier2Completeness:
         if not tier_dir.exists():
             pytest.skip(f"Tier directory not yet created: {tier_dir}")
         doc_path = tier_dir / doc_name
-        content = f"# {doc_name.replace('-', ' ').title()}\n\nContent here.\n"
         if not doc_path.exists():
             pytest.skip(f"Documentation file not created yet: {doc_path}")
-
-        doc_path.write_text(content)
 
         assert doc_path.exists(), f"{doc_name} should exist"
         text = doc_path.read_text()
@@ -178,11 +175,8 @@ class TestTier3Completeness:
         if not tier_dir.exists():
             pytest.skip(f"Tier directory not yet created: {tier_dir}")
         doc_path = tier_dir / doc_name
-        content = f"# {doc_name.replace('-', ' ').title()}\n\nContent here.\n"
         if not doc_path.exists():
             pytest.skip(f"Documentation file not created yet: {doc_path}")
-
-        doc_path.write_text(content)
 
         assert doc_path.exists(), f"{doc_name} should exist"
         text = doc_path.read_text()
@@ -243,11 +237,8 @@ class TestTier4Completeness:
         if not tier_dir.exists():
             pytest.skip(f"Tier directory not yet created: {tier_dir}")
         doc_path = tier_dir / doc_name
-        content = f"# {doc_name.replace('-', ' ').title()}\n\nContent here.\n"
         if not doc_path.exists():
             pytest.skip(f"Documentation file not created yet: {doc_path}")
-
-        doc_path.write_text(content)
 
         assert doc_path.exists(), f"{doc_name} should exist"
         text = doc_path.read_text()
@@ -350,8 +341,6 @@ class TestDocumentCompleteness:
             if not test_doc.exists():
                 pytest.skip(f"Documentation file not created yet: {test_doc}")
 
-            test_doc.write_text("# Test\n\nContent.\n")
-
             assert test_doc.read_text(), f"Document in {tier}/ should not be empty"
 
     def test_all_documents_have_headers(self, docs_root: Path) -> None:
@@ -368,11 +357,8 @@ class TestDocumentCompleteness:
                 pytest.skip(f"Tier directory not yet created: {tier_dir}")
 
             test_doc = tier_dir / "test.md"
-            content = "# Test Document\n\nContent here.\n"
             if not test_doc.exists():
                 pytest.skip(f"Documentation file not created yet: {test_doc}")
-
-            test_doc.write_text(content)
 
             text = test_doc.read_text()
             assert "# " in text, f"Document in {tier}/ should have a header"
@@ -403,24 +389,8 @@ class TestEnhancedQualityChecks:
 
         doc = tier_dir / "example.md"
         # Valid Python code example
-        content = """# Code Examples
-
-Example usage:
-
-```python
-def hello_world():
-    return "Hello, World!"
-
-result = hello_world()
-print(result)
-```
-
-More content here.
-"""
         if not doc.exists():
             pytest.skip(f"Documentation file not created yet: {doc}")
-
-        doc.write_text(content)
 
         text = doc.read_text()
         # Extract code from code blocks
@@ -448,16 +418,8 @@ More content here.
 
         doc = tier_dir / "reference.md"
         # Good: descriptive link text
-        content = """# Cross References
-
-See the [architecture documentation](../getting-started/architecture.md) for details.
-
-For more information, refer to [testing guidelines](testing.md).
-"""
         if not doc.exists():
             pytest.skip(f"Documentation file not created yet: {doc}")
-
-        doc.write_text(content)
 
         text = doc.read_text()
         # Check for markdown links
@@ -488,37 +450,8 @@ For more information, refer to [testing guidelines](testing.md).
             pytest.skip(f"Tier directory not yet created: {tier_dir}")
 
         doc = tier_dir / "detailed.md"
-        content = """# Detailed Documentation
-
-## Introduction
-
-This section provides a comprehensive overview of the component, including
-its purpose, architecture, and key features. It contains enough detail to
-help users understand the fundamentals.
-
-## Usage
-
-Here we demonstrate how to use the component with clear examples and
-explanations. Each example is accompanied by descriptive text that explains
-what the code does and why.
-
-```python
-# Example usage
-component = MyComponent()
-result = component.process()
-```
-
-The above example shows the basic usage pattern.
-
-## Advanced Topics
-
-For advanced users, this section covers edge cases, performance optimization,
-and integration patterns. It builds on the basics covered earlier.
-"""
         if not doc.exists():
             pytest.skip(f"Documentation file not created yet: {doc}")
-
-        doc.write_text(content)
 
         text = doc.read_text()
         lines = text.split("\n")
@@ -566,42 +499,8 @@ and integration patterns. It builds on the basics covered earlier.
             pytest.skip(f"Tier directory not yet created: {tier_dir}")
 
         doc = tier_dir / "tutorial.md"
-        content = """# Tutorial
-
-## Example 1: Basic Usage
-
-Here's how to create a simple component:
-
-```python
-# Create a new component instance
-component = MyComponent(name="example")
-
-# Configure the component
-component.set_option("verbose", True)
-
-# Process some data
-result = component.process(data)
-```
-
-This example demonstrates the basic workflow: create, configure, and process.
-
-## Example 2: Advanced Pattern
-
-For more complex scenarios:
-
-```python
-# Advanced usage with context manager
-with MyComponent(name="advanced") as comp:
-    comp.configure(options)
-    result = comp.process_batch(items)
-```
-
-The context manager ensures proper cleanup.
-"""
         if not doc.exists():
             pytest.skip(f"Documentation file not created yet: {doc}")
-
-        doc.write_text(content)
 
         text = doc.read_text()
         import re
@@ -668,11 +567,8 @@ This section provides information about a specific aspect of the topic.
 """
             )
 
-        content = f"# {doc_path.stem.title()}\n\nIntroduction text.\n\n" + "\n".join(sections)
         if not doc_path.exists():
             pytest.skip(f"Documentation file not created yet: {doc_path}")
-
-        doc_path.write_text(content)
 
         text = doc_path.read_text()
         section_count = text.count("\n## ")

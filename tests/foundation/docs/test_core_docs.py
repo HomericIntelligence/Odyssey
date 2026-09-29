@@ -75,12 +75,8 @@ class TestCoreDocsExistence:
             doc_name: Name of document to test
         """
         doc_path = core_docs_dir / doc_name
-        title = doc_name.replace("-", " ").title().replace(".Md", "")
-        content = f"# {title}\n\nContent here.\n"
         if not doc_path.exists():
             pytest.skip(f"Documentation file not created yet: {doc_path}")
-
-        doc_path.write_text(content)
 
         text = doc_path.read_text()
         assert text.startswith("# "), f"{doc_name} should start with title"
@@ -94,20 +90,8 @@ class TestCoreDocsExistence:
             doc_name: Name of document to test
         """
         doc_path = core_docs_dir / doc_name
-        content = """# Document Title
-
-## Overview
-
-Overview content.
-
-## Details
-
-Detailed information.
-"""
         if not doc_path.exists():
             pytest.skip(f"Documentation file not created yet: {doc_path}")
-
-        doc_path.write_text(content)
 
         text = doc_path.read_text()
         assert len(text) > 50, f"{doc_name} should have substantial content"
@@ -125,23 +109,8 @@ class TestProjectStructure:
             core_docs_dir: Path to core docs directory
         """
         doc = core_docs_dir / "project-structure.md"
-        content = """# Project Structure
-
-## Directory Layout
-
-```text
-Odyssey/
-├── src/odyssey/
-├── papers/
-└── tests/
-```
-
-More content.
-"""
         if not doc.exists():
             pytest.skip(f"Documentation file not created yet: {doc}")
-
-        doc.write_text(content)
 
         text = doc.read_text()
         assert "```" in text, "Should have code block for directory tree"
@@ -158,20 +127,8 @@ class TestSharedLibrary:
             core_docs_dir: Path to core docs directory
         """
         doc = core_docs_dir / "shared-library.md"
-        content = """# Shared Library
-
-## Modules
-
-Description of modules.
-
-## API
-
-Function signatures.
-"""
         if not doc.exists():
             pytest.skip(f"Documentation file not created yet: {doc}")
-
-        doc.write_text(content)
 
         text = doc.read_text()
         assert "## " in text, "Should have sections"
@@ -188,22 +145,8 @@ class TestPaperImplementation:
             core_docs_dir: Path to core docs directory
         """
         doc = core_docs_dir / "paper-implementation.md"
-        content = """# Paper Implementation Guide
-
-## Steps
-
-1. Read paper
-2. Plan implementation
-3. Write code
-
-## Examples
-
-Code examples here.
-"""
         if not doc.exists():
             pytest.skip(f"Documentation file not created yet: {doc}")
-
-        doc.write_text(content)
 
         text = doc.read_text()
         assert "## Steps" in text or "## " in text, "Should have implementation steps"
@@ -220,22 +163,8 @@ class TestTestingStrategy:
             core_docs_dir: Path to core docs directory
         """
         doc = core_docs_dir / "testing-strategy.md"
-        content = """# Testing Strategy
-
-## Test Types
-
-- Unit tests
-- Integration tests
-- End-to-end tests
-
-## Coverage
-
-Coverage requirements.
-"""
         if not doc.exists():
             pytest.skip(f"Documentation file not created yet: {doc}")
-
-        doc.write_text(content)
 
         text = doc.read_text()
         assert "## " in text, "Should have sections"
@@ -253,21 +182,8 @@ class TestMojoPatterns:
             core_docs_dir: Path to core docs directory
         """
         doc = core_docs_dir / "mojo-patterns.md"
-        content = """# Mojo Patterns
-
-## Memory Management
-
-```mojo
-fn example():
-    pass
-```
-
-More patterns.
-"""
         if not doc.exists():
             pytest.skip(f"Documentation file not created yet: {doc}")
-
-        doc.write_text(content)
 
         text = doc.read_text()
         assert "```mojo" in text, "Should have Mojo code examples"
@@ -284,25 +200,8 @@ class TestAgentSystem:
             core_docs_dir: Path to core docs directory
         """
         doc = core_docs_dir / "agent-system.md"
-        content = """# Agent System
-
-## Architecture
-
-System architecture.
-
-## Agents
-
-- Agent 1
-- Agent 2
-
-## Workflow
-
-How agents work together.
-"""
         if not doc.exists():
             pytest.skip(f"Documentation file not created yet: {doc}")
-
-        doc.write_text(content)
 
         text = doc.read_text()
         assert "## Architecture" in text or "## " in text, "Should have architecture section"
@@ -319,24 +218,8 @@ class TestWorkflow:
             core_docs_dir: Path to core docs directory
         """
         doc = core_docs_dir / "workflow.md"
-        content = """# Development Workflow
-
-## Phases
-
-1. Plan
-2. Test
-3. Implementation
-4. Packaging
-5. Cleanup
-
-## Process
-
-Detailed process.
-"""
         if not doc.exists():
             pytest.skip(f"Documentation file not created yet: {doc}")
-
-        doc.write_text(content)
 
         text = doc.read_text()
         assert "## " in text, "Should have sections"
@@ -353,25 +236,8 @@ class TestConfiguration:
             core_docs_dir: Path to core docs directory
         """
         doc = core_docs_dir / "configuration.md"
-        content = """# Configuration
-
-## Options
-
-Configuration options.
-
-## Files
-
-- pixi.toml
-- mojo.toml
-
-## Environment
-
-Environment setup.
-"""
         if not doc.exists():
             pytest.skip(f"Documentation file not created yet: {doc}")
-
-        doc.write_text(content)
 
         text = doc.read_text()
         assert "## " in text, "Should have sections"

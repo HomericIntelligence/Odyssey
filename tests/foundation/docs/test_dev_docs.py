@@ -67,12 +67,8 @@ class TestDevDocsExistence:
             doc_name: Name of document to test
         """
         doc_path = dev_docs_dir / doc_name
-        title = doc_name.replace("-", " ").title().replace(".Md", "")
-        content = f"# {title}\n\nContent here.\n"
         if not doc_path.exists():
             pytest.skip(f"Documentation file not created yet: {doc_path}")
-
-        doc_path.write_text(content)
 
         text = doc_path.read_text()
         assert text.startswith("# "), f"{doc_name} should start with title"
@@ -86,20 +82,8 @@ class TestDevDocsExistence:
             doc_name: Name of document to test
         """
         doc_path = dev_docs_dir / doc_name
-        content = """# Document Title
-
-## Overview
-
-Development documentation overview.
-
-## Details
-
-Technical details for developers.
-"""
         if not doc_path.exists():
             pytest.skip(f"Documentation file not created yet: {doc_path}")
-
-        doc_path.write_text(content)
 
         text = doc_path.read_text()
         assert len(text) > 50, f"{doc_name} should have substantial content"
@@ -117,25 +101,8 @@ class TestArchitecture:
             dev_docs_dir: Path to dev docs directory
         """
         doc = dev_docs_dir / "architecture.md"
-        content = """# System Architecture
-
-## Overview
-
-High-level architecture.
-
-## Components
-
-- Component 1
-- Component 2
-
-## Design Decisions
-
-Architectural decisions.
-"""
         if not doc.exists():
             pytest.skip(f"Documentation file not created yet: {doc}")
-
-        doc.write_text(content)
 
         text = doc.read_text()
         assert "## " in text, "Should have sections"
@@ -149,22 +116,8 @@ Architectural decisions.
             dev_docs_dir: Path to dev docs directory
         """
         doc = dev_docs_dir / "architecture.md"
-        content = """# Architecture
-
-## System Structure
-
-```text
-┌─────────┐
-│  System │
-└─────────┘
-```
-
-More details.
-"""
         if not doc.exists():
             pytest.skip(f"Documentation file not created yet: {doc}")
-
-        doc.write_text(content)
 
         text = doc.read_text()
         # Either has code block or detailed structure description
@@ -183,29 +136,8 @@ class TestAPIReference:
             dev_docs_dir: Path to dev docs directory
         """
         doc = dev_docs_dir / "api-reference.md"
-        content = """# API Reference
-
-## Modules
-
-Module documentation.
-
-## Functions
-
-Function signatures.
-
-```mojo
-fn api_function():
-    pass
-```
-
-## Classes
-
-Class documentation.
-"""
         if not doc.exists():
             pytest.skip(f"Documentation file not created yet: {doc}")
-
-        doc.write_text(content)
 
         text = doc.read_text()
         assert "## " in text, "Should have sections"
@@ -219,28 +151,8 @@ Class documentation.
             dev_docs_dir: Path to dev docs directory
         """
         doc = dev_docs_dir / "api-reference.md"
-        content = """# API Reference
-
-## Core Module
-
-### Function 1
-
-Description.
-
-### Function 2
-
-Description.
-
-## Utils Module
-
-### Helper 1
-
-Description.
-"""
         if not doc.exists():
             pytest.skip(f"Documentation file not created yet: {doc}")
-
-        doc.write_text(content)
 
         text = doc.read_text()
         # Should have nested sections (### for sub-items)
@@ -258,23 +170,8 @@ class TestReleaseProcess:
             dev_docs_dir: Path to dev docs directory
         """
         doc = dev_docs_dir / "release-process.md"
-        content = """# Release Process
-
-## Steps
-
-1. Version bump
-2. Create release
-3. Deploy
-
-## Checklist
-
-- [ ] Tests pass
-- [ ] Docs updated
-"""
         if not doc.exists():
             pytest.skip(f"Documentation file not created yet: {doc}")
-
-        doc.write_text(content)
 
         text = doc.read_text()
         assert "## Steps" in text or "## " in text, "Should have release steps"
@@ -290,20 +187,8 @@ class TestReleaseProcess:
             dev_docs_dir: Path to dev docs directory
         """
         doc = dev_docs_dir / "release-process.md"
-        content = """# Release Process
-
-## Versioning
-
-Semantic versioning (semver).
-
-## Version Bump
-
-How to bump versions.
-"""
         if not doc.exists():
             pytest.skip(f"Documentation file not created yet: {doc}")
-
-        doc.write_text(content)
 
         text = doc.read_text()
         assert "Version" in text or "version" in text, "Should cover versioning"
@@ -320,24 +205,8 @@ class TestCICD:
             dev_docs_dir: Path to dev docs directory
         """
         doc = dev_docs_dir / "ci-cd.md"
-        content = """# CI/CD Pipeline
-
-## GitHub Actions
-
-Workflow configuration.
-
-## Tests
-
-Automated testing.
-
-## Deployment
-
-Deployment process.
-"""
         if not doc.exists():
             pytest.skip(f"Documentation file not created yet: {doc}")
-
-        doc.write_text(content)
 
         text = doc.read_text()
         assert "## " in text, "Should have sections"
@@ -350,24 +219,8 @@ Deployment process.
             dev_docs_dir: Path to dev docs directory
         """
         doc = dev_docs_dir / "ci-cd.md"
-        content = """# CI/CD
-
-## Workflow Example
-
-```yaml
-name: Test
-on: [push]
-jobs:
-  test:
-    runs-on: ubuntu-latest
-```
-
-More examples.
-"""
         if not doc.exists():
             pytest.skip(f"Documentation file not created yet: {doc}")
-
-        doc.write_text(content)
 
         text = doc.read_text()
         assert "```yaml" in text or "```" in text, "Should have workflow examples"
