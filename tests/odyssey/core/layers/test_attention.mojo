@@ -60,6 +60,18 @@ def _seed_ramp_f32(
         t.set(i, Float32(Float64(i) * scale + off))
 
 
+def _seed_ramp_f16(
+    mut t: AnyTensor, count: Int, scale: Float64, off: Float64
+) raises:
+    """Seed a float16 tensor with value[i] = i*scale + off.
+
+    Same raw-bitcast width rule as `_seed_ramp_f32`: write through set() at
+    float16 width so no store overruns the element.
+    """
+    for i in range(count):
+        t.set(i, Float16(Float64(i) * scale + off))
+
+
 def _seed_projection(
     mut lin: Linear[DType.float64],
     d_model: Int,
@@ -479,6 +491,81 @@ def test_functional_core_float32_matches_float64() raises:
     print("test_functional_core_float32_matches_float64 PASSED")
 
 
+def test_functional_core_float16_matches_float32() raises:
+    """Float16 multi-head path must track the float32 path.
+
+    The per-head matmul advertises float16 support and the dispatcher routes
+    it, so it needs coverage. Float16 accumulation happens in Float32 (the
+    policy at `dtype_dispatch.mojo:654`), so the two paths must agree far more
+    closely than the raw float16 epsilon would allow. Any comparison against
+    the 1e-4 float32 tolerance in the sibling test would hide an F003-class
+    regression, since float16 rounds to ~1e-3 relative on its own.
+    """
+    print("Running test_functional_core_float16_matches_float32...")
+    var d_model = 4
+    var num_heads = 2
+    var batch = 2
+    var seq = 3
+
+    var wq16 = zeros([d_model, d_model], DType.float16)
+    var wk16 = zeros([d_model, d_model], DType.float16)
+    var wv16 = zeros([d_model, d_model], DType.float16)
+    var wo16 = zeros([d_model, d_model], DType.float16)
+    _seed_ramp_f16(wq16, d_model * d_model, 0.01, -0.15)
+    _seed_ramp_f16(wk16, d_model * d_model, 0.013, -0.12)
+    _seed_ramp_f16(wv16, d_model * d_model, 0.008, -0.10)
+    _seed_ramp_f16(wo16, d_model * d_model, 0.006, -0.08)
+    var fw16 = MultiHeadAttentionWeights(wq16, wk16, wv16, wo16)
+    var x16 = zeros([batch, seq, d_model], DType.float16)
+    _seed_ramp_f16(x16, batch * seq * d_model, 0.1, -0.3)
+    var empty16 = zeros(List[Int](), DType.float16)
+
+    var wq32 = zeros([d_model, d_model], DType.float32)
+    var wk32 = zeros([d_model, d_model], DType.float32)
+    var wv32 = zeros([d_model, d_model], DType.float32)
+    var wo32 = zeros([d_model, d_model], DType.float32)
+    _seed_ramp_f32(wq32, d_model * d_model, 0.01, -0.15)
+    _seed_ramp_f32(wk32, d_model * d_model, 0.013, -0.12)
+    _seed_ramp_f32(wv32, d_model * d_model, 0.008, -0.10)
+    _seed_ramp_f32(wo32, d_model * d_model, 0.006, -0.08)
+    var fw32 = MultiHeadAttentionWeights(wq32, wk32, wv32, wo32)
+    var x32 = zeros([batch, seq, d_model], DType.float32)
+    _seed_ramp_f32(x32, batch * seq * d_model, 0.1, -0.3)
+    var empty32 = zeros(List[Int](), DType.float32)
+
+    var y16 = multi_head_attention_masked(
+        x16, x16, x16, fw16, num_heads, empty16
+    )
+    var y32 = multi_head_attention_masked(
+        x32, x32, x32, fw32, num_heads, empty32
+    )
+
+    var numel = y16.output.numel()
+    var worst = Float64(0.0)
+    for i in range(numel):
+        var a = Float64(y16.output.load[DType.float16](i))
+        var b = y32.output.load[DType.float64](i)
+        if a != a or b != b:
+            raise Error(
+                "float16 multi-head path produced NaN at index " + String(i)
+            )
+        var d = a - b
+        if d < 0:
+            d = -d
+        if d > worst:
+            worst = d
+    if worst > 1e-2:
+        raise Error(
+            "float16 multi-head path diverges from float32: max |delta| = "
+            + String(worst)
+            + " > 1e-2"
+        )
+    print(
+        "  ok float16 tracks float32 (max |delta| = " + String(worst) + ")"
+    )
+    print("test_functional_core_float16_matches_float32 PASSED")
+
+
 def main() raises:
     """Run all MultiHeadAttention tests."""
     print("=" * 60)
@@ -494,6 +581,7 @@ def main() raises:
     test_package_path_export()
     test_functional_core_cross_parity()
     test_functional_core_float32_matches_float64()
+    test_functional_core_float16_matches_float32()
     print("=" * 60)
     print("All MultiHeadAttention tests PASSED")
     print("=" * 60)

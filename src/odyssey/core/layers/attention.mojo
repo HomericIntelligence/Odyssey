@@ -27,17 +27,13 @@ Relationship to the functional attention core (`core/attention.mojo`): this is a
 parameter-owning `Module` wrapper that implements its OWN forward, and is
 deliberately NOT a caller of that core's `multi_head_attention_masked`. Unlike
 `ReLULayer` and `FeedForward` (which delegate to their functional cores), reuse
-is blocked here: the functional core's `transpose(key)` is called with no `axes`
-argument, so it reverses ALL axes instead of swapping only the last two. Its QKᵀ
-matmul then mismatches and RAISES on every documented input — empirically,
-`scaled_dot_product_attention_masked` on a 3D `[2,3,4]` input raises
-"Incompatible dimensions for matmul: 4 != 3", and `multi_head_attention_masked`
-raises for every multi-head config (filed as Odyssey#5648). This layer instead
-transposes only the last two axes and is parity-verified against PyTorch to
-1e-5. A `raises`-regression tripwire in
-`tests/odyssey/core/layers/test_attention.mojo` will fire once Odyssey#5648 is
-fixed, at which point `forward` should delegate to the functional core to remove
-this twin and the (currently deferred) −∞ vs −1e9 mask-convention split.
+is blocked here: this layer is parity-verified against PyTorch to 1e-5 and its
+mask convention differs from the functional core's (see `_apply_causal_mask`).
+Both now transcribe only the last two axes. Collapsing this twin into the
+functional core is a follow-up; until then the two implementations are held in
+agreement by the cross-parity test in
+`tests/odyssey/core/layers/test_attention.mojo`, which seeds identical weights
+into both and asserts agreement to 1e-5.
 
 Odyssey `Linear` uses y = x @ W + b with W of shape (in, out). torch.nn.Linear
 uses W of shape (out, in), so a PyTorch parity reference sets torch's weights to
@@ -279,9 +275,10 @@ struct MultiHeadAttention[dtype: DType = DType.float32](
         honest choice; `softmax`'s max-subtraction makes it safe — a masked entry
         maps to exp(−∞) = 0 without overflow). The functional core's
         `create_causal_mask` (`core/attention.mojo`) instead uses −1e9; unifying
-        the two conventions is deferred to the core-fix issue (Odyssey#5648),
-        since that core is currently non-executable anyway (see the module
-        docstring and the cross-parity tripwire test).
+        the two conventions is tracked separately and deliberately not done here,
+        because it would change numerical output for existing callers of either
+        path. The cross-parity test therefore compares the two paths with an
+        empty mask to avoid depending on this split.
 
         Args:
             scores: Attention scores of shape [B, H, S, S].
