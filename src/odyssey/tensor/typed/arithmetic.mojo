@@ -55,7 +55,7 @@ def _broadcast_binary_typed[
     # are not reflected in flat index arithmetic, causing silent wrong results.
     # Tensor[dtype] lacks as_contiguous(), so we round-trip via AnyTensor only
     # when needed (rare path -- most tensors are contiguous).
-    # NOTE: Function-scoped import to avoid circular dependency
+    # NOTE (Mojo v1.0.0): Function-scoped import to avoid circular dependency
     # (odyssey.tensor.typed -> odyssey.core -> odyssey.tensor.typed).
     from odyssey.core.shape import as_contiguous
 
@@ -228,7 +228,7 @@ def _multiply_scalar_typed[
     """
     # Ensure input is contiguous before flat-buffer kernel access.
     # Tensor[dt] lacks as_contiguous() so round-trip via AnyTensor if needed.
-    # NOTE: Function-scoped import to avoid circular dependency.
+    # NOTE (Mojo v1.0.0): Function-scoped import to avoid circular dependency.
     from odyssey.core.shape import as_contiguous
 
     var t_any = tensor.as_any()

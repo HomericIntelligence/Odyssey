@@ -234,6 +234,7 @@ repos:
     rev: v2.3.0
     hooks:
       - id: mypy
+        language_version: python3.13
         files: ^(scripts|tests|tools)/.*\.py$
         args: [--ignore-missing-imports, --no-strict-optional, --explicit-package-bases, --check-untyped-defs, --python-version, "3.13", --exclude, generators/]
         additional_dependencies: [types-PyYAML]

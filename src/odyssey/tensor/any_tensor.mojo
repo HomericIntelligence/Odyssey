@@ -3004,7 +3004,7 @@ struct AnyTensor(
             weights.save("checkpoint/weights.bin", "conv1_weights")
             ```
         """
-        # NOTE: relative import is REQUIRED here. tensor_io.mojo's docstring
+        # NOTE (Mojo v1.0.0): relative import is REQUIRED here. tensor_io.mojo's docstring
         # explains: an absolute import causes Mojo's package compiler to
         # compile any_tensor.mojo twice with distinct AnyTensor type
         # identities, producing
@@ -3036,7 +3036,7 @@ struct AnyTensor(
             var tensor = AnyTensor.load("checkpoint/weights.bin")
             ```
         """
-        # NOTE: relative import REQUIRED — see save() above and the
+        # NOTE (Mojo v1.0.0): relative import REQUIRED — see save() above and the
         # tensor_io.mojo docstring for the type-doubling rationale.
         from .tensor_io import load_tensor
 

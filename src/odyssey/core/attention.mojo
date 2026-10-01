@@ -22,6 +22,20 @@ from odyssey.core.gradient_types import GradientTriple, GradientQuad
 from std.math import sqrt
 
 
+def _last2_axes(ndim: Int) -> List[Int]:
+    """Return permutation that swaps only the last two axes.
+
+    For a 3D tensor (B, S, D): returns [0, 2, 1].
+    For a 4D tensor (B, H, S, D): returns [0, 1, 3, 2].
+    """
+    var perm = List[Int](capacity=ndim)
+    for i in range(ndim - 2):
+        perm.append(i)
+    perm.append(ndim - 1)
+    perm.append(ndim - 2)
+    return perm.copy()
+
+
 def scaled_dot_product_attention(
     query: AnyTensor,
     key: AnyTensor,
@@ -104,7 +118,7 @@ def scaled_dot_product_attention_masked(
     # Compute QK^T
     # For 3D: (batch, seq_q, d_k) @ (batch, d_k, seq_k) -> (batch, seq_q, seq_k)
     # For 4D: (batch, heads, seq_q, d_k) @ (batch, heads, d_k, seq_k) -> (batch, heads, seq_q, seq_k)
-    var key_t = transpose(key)
+    var key_t = transpose(key, _last2_axes(ndim))
     var scores = matmul(query, key_t)
 
     # Scale scores
@@ -114,7 +128,7 @@ def scaled_dot_product_attention_masked(
     if scores.dtype() == DType.float32:
         var scale_f32 = Float32(scale)
         for i in range(numel):
-            scale_tensor[i] = Float32(scale_f32)
+            scale_tensor.set(i, scale_f32)
     elif scores.dtype() == DType.float64:
         for i in range(numel):
             scale_tensor.set(i, scale)
@@ -232,11 +246,11 @@ def scaled_dot_product_attention_backward_masked(
     var scale = Float64(1.0) / sqrt(Float64(d_k))
 
     # Gradient w.r.t. value: attention_weights^T @ grad_output
-    var attention_weights_t = transpose(attention_weights)
+    var attention_weights_t = transpose(attention_weights, _last2_axes(ndim))
     var grad_value = matmul(attention_weights_t, grad_output)
 
     # Gradient w.r.t. attention weights: grad_output @ value^T
-    var value_t = transpose(value)
+    var value_t = transpose(value, _last2_axes(ndim))
     var grad_attention = matmul(grad_output, value_t)
 
     # Gradient through softmax
@@ -250,7 +264,7 @@ def scaled_dot_product_attention_backward_masked(
     if grad_softmax.dtype() == DType.float32:
         var scale_f32 = Float32(scale)
         for i in range(numel):
-            scale_tensor[i] = Float32(scale_f32)
+            scale_tensor.set(i, scale_f32)
     elif grad_softmax.dtype() == DType.float64:
         for i in range(numel):
             scale_tensor.set(i, scale)
@@ -263,7 +277,7 @@ def scaled_dot_product_attention_backward_masked(
     var grad_query = matmul(grad_scores, key)
 
     # Gradient w.r.t. key: grad_scores^T @ query
-    var grad_scores_t = transpose(grad_scores)
+    var grad_scores_t = transpose(grad_scores, _last2_axes(ndim))
     var grad_key = matmul(grad_scores_t, query)
 
     return GradientTriple(grad_query, grad_key, grad_value)
@@ -409,7 +423,7 @@ def create_causal_mask(
 # ============================================================================
 
 
-struct MultiHeadAttentionWeights(Movable):
+struct MultiHeadAttentionWeights(Copyable, Movable):
     """Container for multi-head attention weight matrices.
 
     Holds the projection matrices for Q, K, V and output projection.
@@ -539,11 +553,26 @@ def multi_head_attention_masked(
 
     var d_k = d_model // num_heads
 
+    # Extract weight tensors into local variables to prevent premature-deinit
+    # UAF: the struct is consumed when fields are passed to matmul(), which
+    # can trigger __deinit__ on remaining fields (modular/modular#6965 class).
+    var wq = weights.wq
+    var wk = weights.wk
+    var wv = weights.wv
+    var wo = weights.wo
+
     # Project Q, K, V through weight matrices
-    # (batch, seq, d_model) @ (d_model, d_model) -> (batch, seq, d_model)
-    var q_proj = matmul(query, weights.wq)
-    var k_proj = matmul(key, weights.wk)
-    var v_proj = matmul(value, weights.wv)
+    # Use 2D matmul to avoid matmul batched-path bug with 3D @ 2D:
+    # the batched path incorrectly offsets into b as if it has batch dims.
+    var q_flat = query.reshape([batch * seq_len, d_model])
+    var k_flat = key.reshape([batch * seq_len, d_model])
+    var v_flat = value.reshape([batch * seq_len, d_model])
+    var q_proj_flat = matmul(q_flat, wq)
+    var k_proj_flat = matmul(k_flat, wk)
+    var v_proj_flat = matmul(v_flat, wv)
+    var q_proj = q_proj_flat.reshape([batch, seq_len, d_model])
+    var k_proj = k_proj_flat.reshape([batch, seq_len, d_model])
+    var v_proj = v_proj_flat.reshape([batch, seq_len, d_model])
 
     # Reshape to (batch, seq, num_heads, d_k) then transpose to (batch, num_heads, seq, d_k)
     var q_heads = _reshape_for_heads(q_proj, batch, seq_len, num_heads, d_k)
@@ -555,7 +584,8 @@ def multi_head_attention_masked(
     var scale = Float64(1.0) / sqrt(Float64(d_k))
 
     # Compute attention scores: (batch, heads, seq, d_k) @ (batch, heads, d_k, seq)
-    var k_heads_t = transpose(k_heads)
+    var _tmp_axes = _last2_axes(4)
+    var k_heads_t = transpose(k_heads, _tmp_axes^)
     var scores = matmul(q_heads, k_heads_t)
 
     # Scale scores
@@ -565,10 +595,12 @@ def multi_head_attention_masked(
     if scores.dtype() == DType.float32:
         var scale_f32 = Float32(scale)
         for i in range(numel):
-            scale_tensor[i] = Float32(scale_f32)
-    else:
+            scale_tensor.set(i, scale_f32)
+    elif scores.dtype() == DType.float64:
         for i in range(numel):
             scale_tensor.set(i, scale)
+    else:
+        raise Error("Error: only float32/64 supported.")
 
     var scaled_scores = multiply(scores, scale_tensor)
 
@@ -580,8 +612,11 @@ def multi_head_attention_masked(
     # Softmax over last dimension
     var attention_weights = softmax(scaled_scores)
 
-    # Apply attention to values
-    var attended = matmul(attention_weights, v_heads)
+    # Apply attention to values, explicitly materializing the batched operands
+    # so batched matmul never treats a shared operand as batch-indexed.
+    var attended = _dispatch_batched_attention_matmul(
+        attention_weights, v_heads, batch, num_heads, seq_len, d_k
+    )
 
     # Reshape back: (batch, heads, seq, d_k) -> (batch, seq, d_model)
     var concat_heads = _reshape_from_heads(
@@ -589,7 +624,9 @@ def multi_head_attention_masked(
     )
 
     # Final output projection
-    var output = matmul(concat_heads, weights.wo)
+    var concat_flat = concat_heads.reshape([batch * seq_len, d_model])
+    var output_flat = matmul(concat_flat, wo)
+    var output = output_flat.reshape([batch, seq_len, d_model])
 
     return MultiHeadAttentionResult(output, attention_weights)
 
@@ -600,66 +637,159 @@ def _reshape_for_heads(
     """Reshape from (batch, seq, d_model) to (batch, num_heads, seq, d_k).
 
     Internal helper for multi-head attention.
-
-    Raises:
-            Error: If operation fails.
     """
     # x shape: (batch, seq_len, d_model) where d_model = num_heads * d_k
     # Target: (batch, num_heads, seq_len, d_k)
-    var d_model = num_heads * d_k
+    var split = x.reshape([batch, seq_len, num_heads, d_k])
+    # [B, S, H, d_k] -> [B, H, S, d_k]
+    var perm = List[Int]()
+    perm.append(0)
+    perm.append(2)
+    perm.append(1)
+    perm.append(3)
+    return transpose(split, perm^)
 
-    var out_shape = List[Int]()
-    out_shape.append(batch)
-    out_shape.append(num_heads)
-    out_shape.append(seq_len)
-    out_shape.append(d_k)
 
-    var result = zeros(out_shape, x.dtype())
-    var x_ptr = x._data
+def _batched_attention_matmul_impl[
+    dtype: DType
+](
+    result: AnyTensor,
+    weights: AnyTensor,
+    values: AnyTensor,
+    batch: Int,
+    heads: Int,
+    seq_len: Int,
+    d_k: Int,
+):
+    """Dtype-specialized per-head matmul writing into a caller-owned `result`.
 
-    if x.dtype() == DType.float32:
-        for b in range(batch):
-            for s in range(seq_len):
-                for h in range(num_heads):
-                    for k in range(d_k):
-                        # Source: (b, s, h * d_k + k)
-                        var src_idx = (
-                            b * (seq_len * d_model) + s * d_model + h * d_k + k
-                        )
-                        # Dest: (b, h, s, k)
-                        var dst_idx = (
-                            b * (num_heads * seq_len * d_k)
-                            + h * (seq_len * d_k)
-                            + s * d_k
-                            + k
-                        )
-                        result[dst_idx] = Float32(
-                            x_ptr.unsafe_bitcast[Float32]()[
-                                unsafe_offset=src_idx
-                            ]
-                        )
-    else:
-        for b in range(batch):
-            for s in range(seq_len):
-                for h in range(num_heads):
-                    for k in range(d_k):
-                        var src_idx = (
-                            b * (seq_len * d_model) + s * d_model + h * d_k + k
-                        )
-                        var dst_idx = (
-                            b * (num_heads * seq_len * d_k)
-                            + h * (seq_len * d_k)
-                            + s * d_k
-                            + k
-                        )
-                        result.set(
-                            dst_idx,
-                            x_ptr.unsafe_bitcast[Float64]()[
-                                unsafe_offset=src_idx
-                            ],
-                        )
+    Follows the allocation convention in `dtype_dispatch.mojo`: the dispatcher
+    allocates `result` and moves it out with `return result^`, while the impl
+    writes through `result._data`. Composing `data_ptr` with `return result^`
+    would take an origin-tied borrow on `result` and then move the tensor out
+    from under it.
 
-    return result
+    float16 is deliberately not routed here: it currently returns zeros
+    upstream of this kernel (Odyssey#5850), and the dispatcher rejects it
+    rather than advertising support that does not work.
+    """
+    var w_ptr = weights._data.unsafe_bitcast[Scalar[dtype]]()
+    var v_ptr = values._data.unsafe_bitcast[Scalar[dtype]]()
+    var out_ptr = result._data.unsafe_bitcast[Scalar[dtype]]()
+    for b in range(batch):
+        for h in range(heads):
+            for i in range(seq_len):
+                for j in range(d_k):
+                    var total = Scalar[dtype](0)
+                    for k in range(seq_len):
+                        var w_idx = (
+                            (b * heads + h) * seq_len + i
+                        ) * seq_len + k
+                        var v_idx = ((b * heads + h) * seq_len + k) * d_k + j
+                        total += (
+                            w_ptr[unsafe_offset=w_idx]
+                            * v_ptr[unsafe_offset=v_idx]
+                        )
+                    var out_idx = ((b * heads + h) * seq_len + i) * d_k + j
+                    out_ptr[unsafe_offset=out_idx] = total
+
+
+def _dispatch_batched_attention_matmul(
+    weights: AnyTensor,
+    values: AnyTensor,
+    batch: Int,
+    heads: Int,
+    seq_len: Int,
+    d_k: Int,
+) raises -> AnyTensor:
+    """Runtime dtype dispatch for `_batched_attention_matmul_impl`."""
+    # Materialize contiguous copies: the kernel indexes the flat buffer as
+    # dense C-order, and a strided view would silently produce wrong numbers.
+    # `matmul` performs the same normalization via `as_contiguous`.
+    from odyssey.core.shape import as_contiguous
+
+    # Function-scoped to avoid a module-level cross-module private import,
+    # matching the lazy-import convention in matrix.mojo.
+    from odyssey.core.dtype_dispatch import _format_dtype_name
+
+    var w = weights
+    var v = values
+    if not w.is_contiguous():
+        w = as_contiguous(w)
+    if not v.is_contiguous():
+        v = as_contiguous(v)
+
+    if weights._dtype != values._dtype:
+        raise Error(
+            "_batched_attention_matmul: dtype mismatch. weights="
+            + _format_dtype_name(weights._dtype)
+            + ", values="
+            + _format_dtype_name(values._dtype)
+        )
+
+    # float16 currently yields zeros on this path (Odyssey#5850). Reject it
+    # rather than returning a silently wrong result.
+    if weights._dtype == DType.float16:
+        raise Error(
+            "_batched_attention_matmul: float16 is not supported yet; it"
+            " returns zeros today. See Odyssey#5850."
+        )
+
+    # Shape contract: weights is (batch, heads, seq_len, seq_len) and values is
+    # (batch, heads, seq_len, d_k).
+    var w_shape = w.shape()
+    var v_shape = v.shape()
+    if (
+        len(w_shape) != 4
+        or len(v_shape) != 4
+        or w_shape[0] != batch
+        or v_shape[0] != batch
+        or w_shape[1] != heads
+        or v_shape[1] != heads
+        or w_shape[2] != seq_len
+        or w_shape[3] != seq_len
+        or v_shape[2] != seq_len
+        or v_shape[3] != d_k
+    ):
+        raise Error(
+            "_batched_attention_matmul: expected weights ["
+            + String(batch)
+            + ", "
+            + String(heads)
+            + ", "
+            + String(seq_len)
+            + ", "
+            + String(seq_len)
+            + "] and values ["
+            + String(batch)
+            + ", "
+            + String(heads)
+            + ", "
+            + String(seq_len)
+            + ", "
+            + String(d_k)
+            + "], got rank "
+            + String(len(w_shape))
+            + " and rank "
+            + String(len(v_shape))
+            + " tensors with mismatched leading dimensions"
+        )
+
+    var result = AnyTensor([batch, heads, seq_len, d_k], weights._dtype)
+
+    # Reuse the shared float dispatcher rather than re-implementing the
+    # branch chain. Only float32/64 reach it: float16 was rejected above.
+    from odyssey.core.dtype_dispatch import dispatch_float3
+
+    @parameter
+    def _run[dtype: DType]() raises:
+        _batched_attention_matmul_impl[dtype](
+            result, w, v, batch, heads, seq_len, d_k
+        )
+
+    dispatch_float3[_run](weights._dtype)
+
+    return result^
 
 
 def _reshape_from_heads(
@@ -675,58 +805,14 @@ def _reshape_from_heads(
     # x shape: (batch, num_heads, seq_len, d_k)
     # Target: (batch, seq_len, d_model) where d_model = num_heads * d_k
     var d_model = num_heads * d_k
-
-    var out_shape = List[Int]()
-    out_shape.append(batch)
-    out_shape.append(seq_len)
-    out_shape.append(d_model)
-
-    var result = zeros(out_shape, x.dtype())
-    var x_ptr = x._data
-
-    if x.dtype() == DType.float32:
-        for b in range(batch):
-            for s in range(seq_len):
-                for h in range(num_heads):
-                    for k in range(d_k):
-                        # Source: (b, h, s, k)
-                        var src_idx = (
-                            b * (num_heads * seq_len * d_k)
-                            + h * (seq_len * d_k)
-                            + s * d_k
-                            + k
-                        )
-                        # Dest: (b, s, h * d_k + k)
-                        var dst_idx = (
-                            b * (seq_len * d_model) + s * d_model + h * d_k + k
-                        )
-                        result[dst_idx] = Float32(
-                            x_ptr.unsafe_bitcast[Float32]()[
-                                unsafe_offset=src_idx
-                            ]
-                        )
-    else:
-        for b in range(batch):
-            for s in range(seq_len):
-                for h in range(num_heads):
-                    for k in range(d_k):
-                        var src_idx = (
-                            b * (num_heads * seq_len * d_k)
-                            + h * (seq_len * d_k)
-                            + s * d_k
-                            + k
-                        )
-                        var dst_idx = (
-                            b * (seq_len * d_model) + s * d_model + h * d_k + k
-                        )
-                        result.set(
-                            dst_idx,
-                            x_ptr.unsafe_bitcast[Float64]()[
-                                unsafe_offset=src_idx
-                            ],
-                        )
-
-    return result
+    # [B, H, S, d_k] -> [B, S, H, d_k]
+    var perm = List[Int]()
+    perm.append(0)
+    perm.append(2)
+    perm.append(1)
+    perm.append(3)
+    var merged = transpose(x, perm^)
+    return merged.reshape([batch, seq_len, d_model])
 
 
 struct MultiHeadAttentionBackwardResult(Movable):
@@ -826,7 +912,7 @@ def multi_head_attention_backward(
     var concat_heads = _reshape_from_heads(
         attended, batch, seq_len, num_heads, d_k
     )
-    var concat_heads_t = transpose(concat_heads)
+    var concat_heads_t = transpose(concat_heads, _last2_axes(3))
     var grad_wo = matmul(concat_heads_t, grad_output)
 
     # Reshape gradient for heads
@@ -836,11 +922,11 @@ def multi_head_attention_backward(
 
     # Gradient through attention: attended = attention_weights @ v_heads
     # grad_v_heads = attention_weights^T @ grad_attended
-    var attention_weights_t = transpose(attention_weights)
+    var attention_weights_t = transpose(attention_weights, _last2_axes(4))
     var grad_v_heads = matmul(attention_weights_t, grad_attended)
 
     # grad_attention_weights = grad_attended @ v_heads^T
-    var v_heads_t = transpose(v_heads)
+    var v_heads_t = transpose(v_heads, _last2_axes(4))
     var grad_attn_weights = matmul(grad_attended, v_heads_t)
 
     # Gradient through softmax
@@ -863,7 +949,7 @@ def multi_head_attention_backward(
     var grad_q_heads = matmul(grad_scores, k_heads)
 
     # grad_k_heads = grad_scores^T @ q_heads
-    var grad_scores_t = transpose(grad_scores)
+    var grad_scores_t = transpose(grad_scores, _last2_axes(4))
     var grad_k_heads = matmul(grad_scores_t, q_heads)
 
     # Reshape gradients back to (batch, seq, d_model)
@@ -890,13 +976,13 @@ def multi_head_attention_backward(
 
     # Gradient w.r.t. weight matrices
     # grad_Wq = query^T @ grad_q_proj
-    var query_t = transpose(query)
+    var query_t = transpose(query, _last2_axes(3))
     var grad_wq = matmul(query_t, grad_q_proj)
 
-    var key_t = transpose(key)
+    var key_t = transpose(key, _last2_axes(3))
     var grad_wk = matmul(key_t, grad_k_proj)
 
-    var value_t = transpose(value)
+    var value_t = transpose(value, _last2_axes(3))
     var grad_wv = matmul(value_t, grad_v_proj)
 
     return MultiHeadAttentionBackwardResult(

@@ -12,7 +12,7 @@ from std.math import sqrt, log, cos, sin
 from std.utils.numerics import inf as numeric_inf, neg_inf as numeric_neg_inf
 from std.random import random_float64, seed as random_seed
 
-# NOTE: relative imports REQUIRED for sibling tensor modules — see
+# NOTE (Mojo v1.0.0): relative imports REQUIRED for sibling tensor modules — see
 # src/odyssey/tensor/tensor_io.mojo top-of-file docstring for the type-doubling
 # rationale. (D5: D1's relative→absolute conversion accidentally broke this.)
 from .any_tensor import AnyTensor

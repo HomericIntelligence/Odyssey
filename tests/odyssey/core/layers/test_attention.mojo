@@ -21,15 +21,17 @@ the transpose.
 """
 
 from odyssey.tensor.any_tensor import AnyTensor
-from odyssey.tensor.tensor_creation import zeros
+from odyssey.tensor.tensor_creation import zeros, zeros_like
 from odyssey.core.layers.attention import MultiHeadAttention
+from odyssey.core.activation import softmax
+from odyssey.core.matrix import matmul
 
 # Package-path import (via core/layers/__init__.mojo) — asserts the public
 # export exists; if the __init__ export line is dropped, this fails to compile.
 from odyssey.core.layers import MultiHeadAttention as MultiHeadAttentionPkg
 from odyssey.core.layers.linear import Linear
 
-# Functional attention core — used only by the raises-regression tripwire.
+# Functional attention core — cross-parity and dtype-regression coverage.
 from odyssey.core.attention import (
     scaled_dot_product_attention_masked,
     multi_head_attention_masked,
@@ -40,9 +42,34 @@ from odyssey.core.attention import (
 def _seed_ramp(
     mut t: AnyTensor, count: Int, scale: Float64, off: Float64
 ) raises:
-    """Seed a tensor's flat buffer with value[i] = i*scale + off (float64)."""
+    """Seed a float64 tensor's flat buffer with value[i] = i*scale + off."""
     for i in range(count):
         t.store[DType.float64](i, Float64(i) * scale + off)
+
+
+def _seed_ramp_f32(
+    mut t: AnyTensor, count: Int, scale: Float64, off: Float64
+) raises:
+    """Seed a float32 tensor with value[i] = i*scale + off.
+
+    AnyTensor.store/load are raw bitcasts, so a float32 tensor must be
+    written through set() at float32 width; store[DType.float64] would put
+    8 bytes into a 4-byte element and run past the end of the buffer.
+    """
+    for i in range(count):
+        t.set(i, Float32(Float64(i) * scale + off))
+
+
+def _seed_ramp_f16(
+    mut t: AnyTensor, count: Int, scale: Float64, off: Float64
+) raises:
+    """Seed a float16 tensor with value[i] = i*scale + off.
+
+    Same raw-bitcast width rule as `_seed_ramp_f32`: write through set() at
+    float16 width so no store overruns the element.
+    """
+    for i in range(count):
+        t.set(i, Float16(Float64(i) * scale + off))
 
 
 def _seed_projection(
@@ -259,60 +286,252 @@ def test_package_path_export() raises:
     print("test_package_path_export PASSED")
 
 
-def test_functional_core_still_broken_tripwire() raises:
-    """Tripwire: the functional attention core still RAISES on all inputs.
+def test_functional_core_cross_parity() raises:
+    """Cross-parity: MultiHeadAttention.forward == multi_head_attention_masked.
 
-    `MultiHeadAttention` reimplements the forward instead of delegating to the
-    functional core (`core/attention.mojo`) because that core's `transpose(key)`
-    reverses ALL axes rather than swapping only the last two, so its QKᵀ matmul
-    raises on every documented input (Odyssey#5648, PR #5640 review MAJOR-2).
+    Odyssey#5648 fixed the functional core's transpose(key) to swap only the
+    last two axes.  This test seeds the SAME ramp weights into both the
+    Module wrapper and the functional-core weights struct, runs both paths
+    on the same input, and asserts element-wise agreement to 1e-5.
 
-    This test asserts BOTH functional paths still raise. When Odyssey#5648 is
-    fixed, this test starts FAILING — that is intentional: its failure message
-    is the actionable TODO to collapse the twin into a real cross-parity test
-    asserting `MultiHeadAttention.forward == multi_head_attention_masked` on a
-    shared input.
+    Uses an empty mask to avoid the −∞ vs −1e9 convention split between
+    the two implementations (deferred to the unification task).
     """
-    print("Running test_functional_core_still_broken_tripwire...")
-    var x = zeros([2, 3, 4], DType.float64)  # batch=2, seq=3, d_model=4
+    print("Running test_functional_core_cross_parity...")
+    var d_model = 4
+    var num_heads = 2
+    var batch = 2
+    var seq = 3
+
+    # Build and seed the Module wrapper
+    var attn = MultiHeadAttention[DType.float64](d_model, num_heads=num_heads)
+    _seed_all(attn, d_model)
+    # Zero all biases so we compare matmul-only paths (functional core has no bias)
+    _seed_ramp(attn.q_proj.bias, d_model, 0.0, 0.0)
+    _seed_ramp(attn.k_proj.bias, d_model, 0.0, 0.0)
+    _seed_ramp(attn.v_proj.bias, d_model, 0.0, 0.0)
+    _seed_ramp(attn.out_proj.bias, d_model, 0.0, 0.0)
+
+    # Build and seed the functional-core weights with the SAME ramps
+    var wq = zeros([d_model, d_model], DType.float64)
+    var wk = zeros([d_model, d_model], DType.float64)
+    var wv = zeros([d_model, d_model], DType.float64)
+    var wo = zeros([d_model, d_model], DType.float64)
+    _seed_ramp(wq, d_model * d_model, 0.01, -0.15)
+    _seed_ramp(wk, d_model * d_model, 0.013, -0.12)
+    _seed_ramp(wv, d_model * d_model, 0.008, -0.10)
+    _seed_ramp(wo, d_model * d_model, 0.006, -0.08)
+    var fw = MultiHeadAttentionWeights(wq, wk, wv, wo)
+
+    # Same input
+    var x = zeros([batch, seq, d_model], DType.float64)
+    _seed_ramp(x, batch * seq * d_model, 0.1, -0.3)
+
     var empty = zeros(List[Int](), DType.float64)
 
-    # 3D path: scaled_dot_product_attention_masked reverses [B,S,d_k] fully.
-    var sdpa_raised = False
-    try:
-        var _ = scaled_dot_product_attention_masked(x, x, x, empty)
-    except _:
-        sdpa_raised = True
-    if not sdpa_raised:
+    # Run both paths
+    var y_layer = attn.forward(x)
+    var y_func = multi_head_attention_masked(x, x, x, fw, num_heads, empty)
+
+    # Assert element-wise agreement to 1e-5
+    var numel = y_layer.numel()
+    for i in range(numel):
+        var d = y_layer.load[DType.float64](i) - y_func.output.load[
+            DType.float64
+        ](i)
+        if d < 0:
+            d = -d
+        if d > 1e-5:
+            raise Error(
+                "cross-parity mismatch at index "
+                + String(i)
+                + ": layer="
+                + String(y_layer.load[DType.float64](i))
+                + " func="
+                + String(y_func.output.load[DType.float64](i))
+            )
+    print(
+        "  ok multi_head_attention_masked matches MultiHeadAttention.forward to"
+        " 1e-5"
+    )
+    print("test_functional_core_cross_parity PASSED")
+
+
+def test_functional_core_float32_matches_float64() raises:
+    """Float32 multi-head path must track the float64 path element-wise.
+
+    Regression guard (Odyssey#5648 follow-up): the per-head matmul helper
+    allocated its output at the caller's dtype but bitcast the operands to a
+    hardcoded `Float64` pointer, so a float32 call read past both input
+    buffers and issued 8-byte stores into a 4-byte output buffer. The float64
+    cross-parity test could not see this because it only ever ran float64.
+    """
+    print("Running test_functional_core_float32_matches_float64...")
+    var d_model = 4
+    var num_heads = 2
+    var batch = 2
+    var seq = 3
+
+    # float32 weights + input
+    var wq32 = zeros([d_model, d_model], DType.float32)
+    var wk32 = zeros([d_model, d_model], DType.float32)
+    var wv32 = zeros([d_model, d_model], DType.float32)
+    var wo32 = zeros([d_model, d_model], DType.float32)
+    _seed_ramp_f32(wq32, d_model * d_model, 0.01, -0.15)
+    _seed_ramp_f32(wk32, d_model * d_model, 0.013, -0.12)
+    _seed_ramp_f32(wv32, d_model * d_model, 0.008, -0.10)
+    _seed_ramp_f32(wo32, d_model * d_model, 0.006, -0.08)
+    var fw32 = MultiHeadAttentionWeights(wq32, wk32, wv32, wo32)
+    var x32 = zeros([batch, seq, d_model], DType.float32)
+    _seed_ramp_f32(x32, batch * seq * d_model, 0.1, -0.3)
+    var empty32 = zeros(List[Int](), DType.float32)
+
+    # float64 reference from the identical seeds
+    var wq64 = zeros([d_model, d_model], DType.float64)
+    var wk64 = zeros([d_model, d_model], DType.float64)
+    var wv64 = zeros([d_model, d_model], DType.float64)
+    var wo64 = zeros([d_model, d_model], DType.float64)
+    _seed_ramp(wq64, d_model * d_model, 0.01, -0.15)
+    _seed_ramp(wk64, d_model * d_model, 0.013, -0.12)
+    _seed_ramp(wv64, d_model * d_model, 0.008, -0.10)
+    _seed_ramp(wo64, d_model * d_model, 0.006, -0.08)
+    var fw64 = MultiHeadAttentionWeights(wq64, wk64, wv64, wo64)
+    var x64 = zeros([batch, seq, d_model], DType.float64)
+    _seed_ramp(x64, batch * seq * d_model, 0.1, -0.3)
+    var empty64 = zeros(List[Int](), DType.float64)
+
+    var y32 = multi_head_attention_masked(
+        x32, x32, x32, fw32, num_heads, empty32
+    )
+    var y64 = multi_head_attention_masked(
+        x64, x64, x64, fw64, num_heads, empty64
+    )
+
+    # Narrow the failure mode if the paths still diverge: check the pieces
+    # that are not shared with the float64 run. Note AnyTensor.load is a raw
+    # bitcast, so a float32 tensor must be read as float32 and widened here.
+    var zs = zeros([4], DType.float32)
+    for i in range(4):
+        zs.set(i, Float32(0.5))
+    for i in range(4):
+        var got = Float64(zs.load[DType.float32](i))
+        if got != 0.5:
+            raise Error(
+                "zeros/set round-trip is broken at index "
+                + String(i)
+                + ": got "
+                + String(got)
+            )
+    var zl = zeros_like(zs)
+    for i in range(4):
+        var got = Float64(zl.load[DType.float32](i))
+        if got != 0.0:
+            raise Error(
+                "zeros_like is not zero at index "
+                + String(i)
+                + ": got "
+                + String(got)
+            )
+    var ones32 = zeros([2, 2], DType.float32)
+    for i in range(4):
+        ones32.set(i, Float32(1.0))
+    var mm32 = matmul(ones32, ones32)
+    for i in range(4):
+        var got = Float64(mm32.load[DType.float32](i))
+        if got != 2.0:
+            raise Error(
+                "float32 2D matmul of ones is not 2 at index "
+                + String(i)
+                + ": got "
+                + String(got)
+            )
+    var sm32 = softmax(zeros([2, 2], DType.float32))
+    for i in range(4):
+        var got = Float64(sm32.load[DType.float32](i))
+        if got != 0.5:
+            raise Error(
+                "float32 softmax(0) is not 0.5 at index "
+                + String(i)
+                + ": got "
+                + String(got)
+            )
+
+    if y32.output.dtype() != DType.float32:
         raise Error(
-            "functional attention core no longer raises (3D path): the"
-            " transpose bug (Odyssey#5648) appears fixed — replace this"
-            " tripwire with a true cross-parity test asserting"
-            " MultiHeadAttention == multi_head_attention_masked (see PR #5640"
-            " review MAJOR-2)"
+            "float32 multi-head path did not preserve the float32 dtype"
         )
 
-    # 4D / multi-head path: multi_head_attention_masked, num_heads=2.
-    var wq = zeros([4, 4], DType.float64)
-    var wk = zeros([4, 4], DType.float64)
-    var wv = zeros([4, 4], DType.float64)
-    var wo = zeros([4, 4], DType.float64)
-    var w = MultiHeadAttentionWeights(wq, wk, wv, wo)
-    var mha_raised = False
-    try:
-        var _ = multi_head_attention_masked(x, x, x, w, 2, empty)
-    except _:
-        mha_raised = True
-    if not mha_raised:
+    # Explicit NaN guard: an out-of-bounds read can yield NaN, and every
+    # comparison against NaN is false, so a plain tolerance check would pass.
+    var numel = y32.output.numel()
+    var worst = Float64(0.0)
+    for i in range(numel):
+        var a = Float64(y32.output.load[DType.float32](i))
+        var b = y64.output.load[DType.float64](i)
+        if a != a or b != b:
+            raise Error(
+                "float32 multi-head path produced NaN at index " + String(i)
+            )
+        var d = a - b
+        if d < 0:
+            d = -d
+        if d > worst:
+            worst = d
+    if worst > 1e-4:
         raise Error(
-            "functional attention core no longer raises (multi-head path): the"
-            " transpose bug (Odyssey#5648) appears fixed — replace this"
-            " tripwire with a true cross-parity test asserting"
-            " MultiHeadAttention == multi_head_attention_masked (see PR #5640"
-            " review MAJOR-2)"
+            "float32 multi-head path diverges from float64: max |delta| = "
+            + String(worst)
+            + " > 1e-4"
         )
-    print("  ok both functional paths still raise (Odyssey#5648 open)")
-    print("test_functional_core_still_broken_tripwire PASSED")
+    print(
+        "  ok float32 matches float64 to 1e-4 (max |delta| = "
+        + String(worst)
+        + ")"
+    )
+    print("test_functional_core_float32_matches_float64 PASSED")
+
+
+def test_functional_core_float16_is_rejected() raises:
+    """Float16 must be rejected, not silently wrong.
+
+    The per-head matmul routes float16 into a path that returns zeros: a
+    float16-vs-float32 differential on a fixed seed reports a divergence equal
+    to the entire output magnitude, while a NumPy simulation accumulating the
+    same contraction in float32 agrees to 2e-5. So float16 is a real bug
+    (Odyssey#5850), not an epsilon issue, and the dispatcher raises instead of
+    returning zeros.
+
+    This test pins that refusal so float16 cannot start returning silently
+    wrong numbers without a test failing here first.
+    """
+    print("Running test_functional_core_float16_is_rejected...")
+    var d_model = 4
+    var num_heads = 2
+    var batch = 2
+    var seq = 3
+
+    var wq = zeros([d_model, d_model], DType.float16)
+    var wk = zeros([d_model, d_model], DType.float16)
+    var wv = zeros([d_model, d_model], DType.float16)
+    var wo = zeros([d_model, d_model], DType.float16)
+    var fw = MultiHeadAttentionWeights(wq, wk, wv, wo)
+    var x = zeros([batch, seq, d_model], DType.float16)
+    _seed_ramp_f16(x, batch * seq * d_model, 0.1, -0.3)
+    var empty = zeros(List[Int](), DType.float16)
+
+    var raised = False
+    try:
+        var _ = multi_head_attention_masked(x, x, x, fw, num_heads, empty)
+    except _:
+        raised = True
+
+    if not raised:
+        raise Error(
+            "float16 multi-head input did not raise. If Odyssey#5850 has been"
+            " fixed, replace this with a float16-vs-float32 parity assertion"
+            " rather than deleting it."
+        )
+    print("test_functional_core_float16_is_rejected PASSED")
 
 
 def main() raises:
@@ -328,7 +547,9 @@ def main() raises:
     test_parity_single_head()
     test_parity_multi_head_causal()
     test_package_path_export()
-    test_functional_core_still_broken_tripwire()
+    test_functional_core_cross_parity()
+    test_functional_core_float32_matches_float64()
+    test_functional_core_float16_is_rejected()
     print("=" * 60)
     print("All MultiHeadAttention tests PASSED")
     print("=" * 60)

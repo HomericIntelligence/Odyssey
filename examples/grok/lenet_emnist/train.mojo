@@ -336,7 +336,7 @@ def compute_gradients(
         # (L [m,m], R [n,n], momentum [m,n]).  Conv kernels (rank-4) and all
         # biases (rank-1) are ineligible; they fall back to SGD for this step.
         #
-        # NOTE: this fallback uses momentum-free `sgd_step_simple`, which differs
+        # NOTE (Mojo v1.0.0): this fallback uses momentum-free `sgd_step_simple`, which differs
         # from the default `--optimizer sgd` path below (model.update_parameters,
         # SGD with momentum 0.9).  See the "Fallback divergence" note in
         # src/odyssey/training/optimizers/README.md before smoke-comparing

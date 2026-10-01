@@ -346,7 +346,7 @@ def train_epoch[
         )
 
         # Copy data into the batch tensors using dtype-agnostic accessors.
-        # NOTE: the manual train.mojo copies via `(_data + i).unsafe_load()` on the
+        # NOTE (Mojo v1.0.0): the manual train.mojo copies via `(_data + i).unsafe_load()` on the
         # raw UInt8 byte pointer — that moves only 1 byte per element and
         # silently corrupts float32. _get_float64/_set_float64 round-trip
         # through Float64 and preserve the value at the tensor's real precision.

@@ -636,6 +636,12 @@ def matmul(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
             - 1D @ 2D: a.shape() = (k,), b.shape() = (k, n) -> result.shape() = (n,)
             - ND tensors: batched matrix multiplication
 
+            Note:
+                The batched path assumes `b` carries the same batch rank as `a`
+                and is indexed as if replicated per batch slice. A 3D-or-higher
+                `a` with a 2D `b` therefore reads past the end of `b`. Reshape
+                to 2D and broadcast explicitly. Tracked as Odyssey#5848.
+
         Preconditions:
             - a and b must have compatible dimensions
             - a and b must have the same dtype
