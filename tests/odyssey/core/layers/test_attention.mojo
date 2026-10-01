@@ -491,77 +491,50 @@ def test_functional_core_float32_matches_float64() raises:
     print("test_functional_core_float32_matches_float64 PASSED")
 
 
-def test_functional_core_float16_matches_float32() raises:
-    """Float16 multi-head path must track the float32 path.
+def test_functional_core_float16_is_rejected() raises:
+    """Float16 must be rejected, not silently wrong.
 
-    The per-head matmul advertises float16 support and the dispatcher routes
-    it, so it needs coverage. Float16 accumulation happens in Float32 (the
-    policy at `dtype_dispatch.mojo:654`), so the two paths must agree far more
-    closely than the raw float16 epsilon would allow. Any comparison against
-    the 1e-4 float32 tolerance in the sibling test would hide an F003-class
-    regression, since float16 rounds to ~1e-3 relative on its own.
+    The per-head matmul routes float16 into a path that returns zeros: a
+    float16-vs-float32 differential on a fixed seed reports a divergence equal
+    to the entire output magnitude, while a NumPy simulation accumulating the
+    same contraction in float32 agrees to 2e-5. So float16 is a real bug
+    (Odyssey#5850), not an epsilon issue, and the dispatcher raises instead of
+    returning zeros.
+
+    This test pins that refusal so float16 cannot start returning silently
+    wrong numbers without a test failing here first.
     """
-    print("Running test_functional_core_float16_matches_float32...")
+    print("Running test_functional_core_float16_is_rejected...")
     var d_model = 4
     var num_heads = 2
     var batch = 2
     var seq = 3
 
-    var wq16 = zeros([d_model, d_model], DType.float16)
-    var wk16 = zeros([d_model, d_model], DType.float16)
-    var wv16 = zeros([d_model, d_model], DType.float16)
-    var wo16 = zeros([d_model, d_model], DType.float16)
-    _seed_ramp_f16(wq16, d_model * d_model, 0.01, -0.15)
-    _seed_ramp_f16(wk16, d_model * d_model, 0.013, -0.12)
-    _seed_ramp_f16(wv16, d_model * d_model, 0.008, -0.10)
-    _seed_ramp_f16(wo16, d_model * d_model, 0.006, -0.08)
-    var fw16 = MultiHeadAttentionWeights(wq16, wk16, wv16, wo16)
-    var x16 = zeros([batch, seq, d_model], DType.float16)
-    _seed_ramp_f16(x16, batch * seq * d_model, 0.1, -0.3)
-    var empty16 = zeros(List[Int](), DType.float16)
+    var wq = zeros([d_model, d_model], DType.float16)
+    var wk = zeros([d_model, d_model], DType.float16)
+    var wv = zeros([d_model, d_model], DType.float16)
+    var wo = zeros([d_model, d_model], DType.float16)
+    var fw = MultiHeadAttentionWeights(wq, wk, wv, wo)
+    var x = zeros([batch, seq, d_model], DType.float16)
+    _seed_ramp_f16(x, batch * seq * d_model, 0.1, -0.3)
+    var empty = zeros(List[Int](), DType.float16)
 
-    var wq32 = zeros([d_model, d_model], DType.float32)
-    var wk32 = zeros([d_model, d_model], DType.float32)
-    var wv32 = zeros([d_model, d_model], DType.float32)
-    var wo32 = zeros([d_model, d_model], DType.float32)
-    _seed_ramp_f32(wq32, d_model * d_model, 0.01, -0.15)
-    _seed_ramp_f32(wk32, d_model * d_model, 0.013, -0.12)
-    _seed_ramp_f32(wv32, d_model * d_model, 0.008, -0.10)
-    _seed_ramp_f32(wo32, d_model * d_model, 0.006, -0.08)
-    var fw32 = MultiHeadAttentionWeights(wq32, wk32, wv32, wo32)
-    var x32 = zeros([batch, seq, d_model], DType.float32)
-    _seed_ramp_f32(x32, batch * seq * d_model, 0.1, -0.3)
-    var empty32 = zeros(List[Int](), DType.float32)
-
-    var y16 = multi_head_attention_masked(
-        x16, x16, x16, fw16, num_heads, empty16
-    )
-    var y32 = multi_head_attention_masked(
-        x32, x32, x32, fw32, num_heads, empty32
-    )
-
-    var numel = y16.output.numel()
-    var worst = Float64(0.0)
-    for i in range(numel):
-        var a = Float64(y16.output.load[DType.float16](i))
-        var b = y32.output.load[DType.float64](i)
-        if a != a or b != b:
-            raise Error(
-                "float16 multi-head path produced NaN at index " + String(i)
-            )
-        var d = a - b
-        if d < 0:
-            d = -d
-        if d > worst:
-            worst = d
-    if worst > 1e-2:
-        raise Error(
-            "float16 multi-head path diverges from float32: max |delta| = "
-            + String(worst)
-            + " > 1e-2"
+    var raised = False
+    try:
+        var _ = multi_head_attention_masked(
+            x, x, x, fw, num_heads, empty
         )
-    print("  ok float16 tracks float32 (max |delta| = " + String(worst) + ")")
-    print("test_functional_core_float16_matches_float32 PASSED")
+    except _:
+        raised = True
+
+    if not raised:
+        raise Error(
+            "float16 multi-head input did not raise. If Odyssey#5850 has been"
+            " fixed, replace this with a float16-vs-float32 parity assertion"
+            " rather than deleting it."
+        )
+    print("test_functional_core_float16_is_rejected PASSED")
+
 
 
 def main() raises:
@@ -579,7 +552,7 @@ def main() raises:
     test_package_path_export()
     test_functional_core_cross_parity()
     test_functional_core_float32_matches_float64()
-    test_functional_core_float16_matches_float32()
+    test_functional_core_float16_is_rejected()
     print("=" * 60)
     print("All MultiHeadAttention tests PASSED")
     print("=" * 60)
