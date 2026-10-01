@@ -342,7 +342,7 @@ jobs:
           cat release-notes.md
 
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@3d0d9888cb7fd7b750713d6e236d1fcb99157228  # v2
+        uses: softprops/action-gh-release@efb35369e0ad2afab669f228072c1b0d510eae64  # v2
         with:
           tag_name: ${{ needs.validate-version.outputs.version }}
           name: ${{ needs.validate-version.outputs.version }}
@@ -424,14 +424,14 @@ jobs:
           podman push "ghcr.io/$IMAGE_NAME:latest"
 
       - name: Generate SBOM
-        uses: anchore/sbom-action@e22c389904149dbc22b58101806040fa8d37a610  # v0
+        uses: anchore/sbom-action@3ad7283483fc7af8ff2b4ea19663c2d5ca935e26  # v0.24.2
         with:
           image: ghcr.io/${{ env.IMAGE_NAME }}:${{ needs.validate-version.outputs.version }}
           artifact-name: sbom.spdx.json
           output-file: sbom.spdx.json
 
       - name: Upload SBOM to release
-        uses: softprops/action-gh-release@3d0d9888cb7fd7b750713d6e236d1fcb99157228  # v2
+        uses: softprops/action-gh-release@efb35369e0ad2afab669f228072c1b0d510eae64  # v2
         with:
           tag_name: ${{ needs.validate-version.outputs.version }}
           files: |

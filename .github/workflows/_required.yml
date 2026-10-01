@@ -317,7 +317,7 @@ jobs:
       # All checks run inside the CI container — the same image developers
       # use via `just ci-deps-version-sync`.
       - name: Setup uv
-        uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d  # v10.0.1
+        uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7  # v10.2.0
         with:
           version: "0.12.0"
           enable-cache: true
@@ -372,7 +372,7 @@ jobs:
           fi
       - name: Setup pixi
         if: steps.detect.outputs.skip == 'false'
-        uses: prefix-dev/setup-pixi@f00437f565399d418b0acc85936d12c1fb668347  # v0.10.1
+        uses: prefix-dev/setup-pixi@d3f436a425481402e6a95a1d1fc10331c708cd9e  # v0.10.2
         with:
           # Must read lockfile v7 (written by local pixi 0.70.x); <=0.67 cannot.
           pixi-version: v0.70.2
