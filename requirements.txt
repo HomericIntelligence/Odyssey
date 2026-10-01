@@ -132,7 +132,7 @@ pygithub==2.9.1
     # via odyssey
 pygments==2.20.0
     # via nbconvert
-pyjwt==2.13.0
+pyjwt==2.15.1
     # via pygithub
 pynacl==1.6.2
     # via pygithub
@@ -162,7 +162,7 @@ soupsieve==2.9.1
     # via beautifulsoup4
 tinycss2==1.5.1
     # via bleach
-tornado==6.5.8
+tornado==6.5.10
     # via
     #   jupyter-client
     #   odyssey
@@ -187,7 +187,7 @@ typing-inspection==0.4.2
     # via pydantic
 tzdata==2026.3 ; sys_platform == 'win32'
     # via homericintelligence-hephaestus
-urllib3==2.7.0
+urllib3==2.8.0
     # via
     #   pygithub
     #   requests
