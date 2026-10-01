@@ -661,7 +661,7 @@ def _reshape_for_heads(
 def _batched_attention_matmul_impl[
     dtype: DType
 ](
-    out: AnyTensor,
+    result: AnyTensor,
     weights: AnyTensor,
     values: AnyTensor,
     batch: Int,
@@ -669,12 +669,12 @@ def _batched_attention_matmul_impl[
     seq_len: Int,
     d_k: Int,
 ):
-    """Dtype-specialized per-head matmul writing into a caller-owned `out`.
+    """Dtype-specialized per-head matmul writing into a caller-owned `result`.
 
     Follows the allocation convention in `dtype_dispatch.mojo`: the dispatcher
-    allocates `out` and moves it out with `return out^`, while the impl writes
-    through `out._data`. Composing `data_ptr` with `return out^` would take an
-    origin-tied borrow on `out` and then move the tensor out from under it.
+    allocates `result` and moves it result with `return result^`, while the impl writes
+    through `result._data`. Composing `data_ptr` with `return result^` would take an
+    origin-tied borrow on `result` and then move the tensor result from under it.
 
     Float16 accumulates in Float32, matching `_softmax_impl` and the policy
     stated at `dtype_dispatch.mojo:654`.
@@ -682,7 +682,7 @@ def _batched_attention_matmul_impl[
     comptime if dtype == DType.float16:
         var w_ptr = weights._data.unsafe_bitcast[Scalar[DType.float16]]()
         var v_ptr = values._data.unsafe_bitcast[Scalar[DType.float16]]()
-        var out_ptr = out._data.unsafe_bitcast[Scalar[DType.float16]]()
+        var out_ptr = result._data.unsafe_bitcast[Scalar[DType.float16]]()
         for b in range(batch):
             for h in range(heads):
                 for i in range(seq_len):
@@ -695,17 +695,15 @@ def _batched_attention_matmul_impl[
                             var v_idx = (
                                 (b * heads + h) * seq_len + k
                             ) * d_k + j
-                            total += (
-                                Float32(
-                                    w_ptr[unsafe_offset=w_idx]
-                                ) * Float32(v_ptr[unsafe_offset=v_idx])
-                            )
+                            total += Float32(
+                                w_ptr[unsafe_offset=w_idx]
+                            ) * Float32(v_ptr[unsafe_offset=v_idx])
                         var out_idx = ((b * heads + h) * seq_len + i) * d_k + j
                         out_ptr[unsafe_offset=out_idx] = Float16(total)
     else:
         var w_ptr = weights._data.unsafe_bitcast[Scalar[dtype]]()
         var v_ptr = values._data.unsafe_bitcast[Scalar[dtype]]()
-        var out_ptr = out._data.unsafe_bitcast[Scalar[dtype]]()
+        var out_ptr = result._data.unsafe_bitcast[Scalar[dtype]]()
         for b in range(batch):
             for h in range(heads):
                 for i in range(seq_len):
@@ -799,7 +797,7 @@ def _dispatch_batched_attention_matmul(
             + " tensors with mismatched leading dimensions"
         )
 
-    var out = AnyTensor([batch, heads, seq_len, d_k], weights._dtype)
+    var result = AnyTensor([batch, heads, seq_len, d_k], weights._dtype)
 
     # Reuse the shared float16/32/64 dispatcher rather than re-implementing
     # the branch chain here.
@@ -808,12 +806,12 @@ def _dispatch_batched_attention_matmul(
     @parameter
     def _run[dtype: DType]() raises:
         _batched_attention_matmul_impl[dtype](
-            out, w, v, batch, heads, seq_len, d_k
+            result, w, v, batch, heads, seq_len, d_k
         )
 
     dispatch_float3[_run](weights._dtype)
 
-    return out^
+    return result^
 
 
 def _reshape_from_heads(
@@ -861,7 +859,7 @@ struct MultiHeadAttentionBackwardResult(Movable):
     """Gradient with respect to output projection weight matrix."""
 
     def __init__(
-        out self,
+        result self,
         grad_query: AnyTensor,
         grad_key: AnyTensor,
         grad_value: AnyTensor,

@@ -560,9 +560,7 @@ def test_functional_core_float16_matches_float32() raises:
             + String(worst)
             + " > 1e-2"
         )
-    print(
-        "  ok float16 tracks float32 (max |delta| = " + String(worst) + ")"
-    )
+    print("  ok float16 tracks float32 (max |delta| = " + String(worst) + ")")
     print("test_functional_core_float16_matches_float32 PASSED")
 
 
