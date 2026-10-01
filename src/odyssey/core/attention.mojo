@@ -685,9 +685,7 @@ def _batched_attention_matmul_impl[
                         var w_idx = (
                             (b * heads + h) * seq_len + i
                         ) * seq_len + k
-                        var v_idx = (
-                            (b * heads + h) * seq_len + k
-                        ) * d_k + j
+                        var v_idx = ((b * heads + h) * seq_len + k) * d_k + j
                         total += (
                             w_ptr[unsafe_offset=w_idx]
                             * v_ptr[unsafe_offset=v_idx]

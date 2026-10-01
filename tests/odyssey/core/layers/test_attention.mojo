@@ -521,9 +521,7 @@ def test_functional_core_float16_is_rejected() raises:
 
     var raised = False
     try:
-        var _ = multi_head_attention_masked(
-            x, x, x, fw, num_heads, empty
-        )
+        var _ = multi_head_attention_masked(x, x, x, fw, num_heads, empty)
     except _:
         raised = True
 
@@ -534,7 +532,6 @@ def test_functional_core_float16_is_rejected() raises:
             " rather than deleting it."
         )
     print("test_functional_core_float16_is_rejected PASSED")
-
 
 
 def main() raises:
