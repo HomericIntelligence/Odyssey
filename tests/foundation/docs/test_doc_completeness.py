@@ -556,17 +556,6 @@ class TestEnhancedQualityChecks:
         """
         doc_path = docs_root / doc_file
 
-        # Create content with required sections
-        sections = []
-        for i in range(min_sections):
-            sections.append(
-                f"""## Section {i + 1}
-
-Content for section {i + 1} with sufficient detail to be useful.
-This section provides information about a specific aspect of the topic.
-"""
-            )
-
         if not doc_path.exists():
             pytest.skip(f"Documentation file not created yet: {doc_path}")
 

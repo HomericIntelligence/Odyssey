@@ -12,6 +12,8 @@ Tier 1 Documents (3):
 Coverage Target: >95%
 """
 
+import re
+
 import pytest
 from pathlib import Path
 
@@ -223,8 +225,11 @@ class TestInstallation:
 
         text = installation.read_text()
         assert "## " in text, "installation should have sections"
-        # Check for numbered list or steps
-        assert any(char.isdigit() for char in text), "installation should have steps"
+        # Require a real numbered list. A bare digit check is satisfied by
+        # placeholder text such as "1. Step 1", which is how a stub passed
+        # this assertion before.
+        assert re.search(r"^\s*\d+\.\s+\S", text, re.MULTILINE), "installation should have a numbered list of steps"
+        assert len(text) > 200, "installation should have substantial content, not a placeholder"
 
 
 class TestFirstPaper:
