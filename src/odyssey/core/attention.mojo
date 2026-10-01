@@ -672,9 +672,10 @@ def _batched_attention_matmul_impl[
     """Dtype-specialized per-head matmul writing into a caller-owned `result`.
 
     Follows the allocation convention in `dtype_dispatch.mojo`: the dispatcher
-    allocates `result` and moves it result with `return result^`, while the impl writes
-    through `result._data`. Composing `data_ptr` with `return result^` would take an
-    origin-tied borrow on `result` and then move the tensor result from under it.
+    allocates `result` and moves it out with `return result^`, while the impl
+    writes through `result._data`. Composing `data_ptr` with `return result^`
+    would take an origin-tied borrow on `result` and then move the tensor out
+    from under it.
 
     Float16 accumulates in Float32, matching `_softmax_impl` and the policy
     stated at `dtype_dispatch.mojo:654`.
@@ -859,7 +860,7 @@ struct MultiHeadAttentionBackwardResult(Movable):
     """Gradient with respect to output projection weight matrix."""
 
     def __init__(
-        result self,
+        out self,
         grad_query: AnyTensor,
         grad_key: AnyTensor,
         grad_value: AnyTensor,
