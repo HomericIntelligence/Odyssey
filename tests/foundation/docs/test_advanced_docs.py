@@ -71,12 +71,8 @@ class TestAdvancedDocsExistence:
             doc_name: Name of document to test
         """
         doc_path = advanced_docs_dir / doc_name
-        title = doc_name.replace("-", " ").title().replace(".Md", "")
-        content = f"# {title}\n\nContent here.\n"
         if not doc_path.exists():
             pytest.skip(f"Documentation file not created yet: {doc_path}")
-
-        doc_path.write_text(content)
 
         text = doc_path.read_text()
         assert text.startswith("# "), f"{doc_name} should start with title"
@@ -90,24 +86,8 @@ class TestAdvancedDocsExistence:
             doc_name: Name of document to test
         """
         doc_path = advanced_docs_dir / doc_name
-        content = """# Document Title
-
-## Overview
-
-Advanced topic overview.
-
-## Details
-
-Technical details.
-
-## Examples
-
-Example code.
-"""
         if not doc_path.exists():
             pytest.skip(f"Documentation file not created yet: {doc_path}")
-
-        doc_path.write_text(content)
 
         text = doc_path.read_text()
         assert len(text) > 50, f"{doc_name} should have substantial content"
@@ -125,29 +105,8 @@ class TestPerformance:
             advanced_docs_dir: Path to advanced docs directory
         """
         doc = advanced_docs_dir / "performance.md"
-        content = """# Performance Optimization
-
-## Profiling
-
-How to profile code.
-
-## SIMD Optimization
-
-Using SIMD for performance.
-
-```mojo
-fn simd_example():
-    pass
-```
-
-## Benchmarking
-
-How to benchmark.
-"""
         if not doc.exists():
             pytest.skip(f"Documentation file not created yet: {doc}")
-
-        doc.write_text(content)
 
         text = doc.read_text()
         assert "## " in text, "Should have sections"
@@ -165,27 +124,8 @@ class TestCustomLayers:
             advanced_docs_dir: Path to advanced docs directory
         """
         doc = advanced_docs_dir / "custom-layers.md"
-        content = """# Custom Layer Development
-
-## Layer Interface
-
-Interface definition.
-
-## Implementation
-
-```mojo
-struct CustomLayer:
-    pass
-```
-
-## Testing
-
-How to test layers.
-"""
         if not doc.exists():
             pytest.skip(f"Documentation file not created yet: {doc}")
-
-        doc.write_text(content)
 
         text = doc.read_text()
         assert "```mojo" in text or "```" in text, "Should have code examples"
@@ -202,24 +142,8 @@ class TestDistributedTraining:
             advanced_docs_dir: Path to advanced docs directory
         """
         doc = advanced_docs_dir / "distributed-training.md"
-        content = """# Distributed Training
-
-## Setup
-
-Distributed setup.
-
-## Communication
-
-Inter-process communication.
-
-## Scaling
-
-How to scale.
-"""
         if not doc.exists():
             pytest.skip(f"Documentation file not created yet: {doc}")
-
-        doc.write_text(content)
 
         text = doc.read_text()
         assert "## " in text, "Should have sections"
@@ -236,24 +160,8 @@ class TestVisualization:
             advanced_docs_dir: Path to advanced docs directory
         """
         doc = advanced_docs_dir / "visualization.md"
-        content = """# Visualization
-
-## Tools
-
-Available tools.
-
-## Plotting
-
-How to create plots.
-
-## Interactive Visualizations
-
-Interactive tools.
-"""
         if not doc.exists():
             pytest.skip(f"Documentation file not created yet: {doc}")
-
-        doc.write_text(content)
 
         text = doc.read_text()
         assert "## " in text, "Should have sections"
@@ -270,24 +178,8 @@ class TestDebugging:
             advanced_docs_dir: Path to advanced docs directory
         """
         doc = advanced_docs_dir / "debugging.md"
-        content = """# Debugging Guide
-
-## Common Issues
-
-Common problems.
-
-## Debugging Tools
-
-Available tools.
-
-## Strategies
-
-Debugging strategies.
-"""
         if not doc.exists():
             pytest.skip(f"Documentation file not created yet: {doc}")
-
-        doc.write_text(content)
 
         text = doc.read_text()
         assert "## " in text, "Should have sections"
@@ -304,24 +196,8 @@ class TestIntegration:
             advanced_docs_dir: Path to advanced docs directory
         """
         doc = advanced_docs_dir / "integration.md"
-        content = """# Integration Patterns
-
-## External Libraries
-
-Integrating with libraries.
-
-## APIs
-
-API integration.
-
-## Examples
-
-Integration examples.
-"""
         if not doc.exists():
             pytest.skip(f"Documentation file not created yet: {doc}")
-
-        doc.write_text(content)
 
         text = doc.read_text()
         assert "## " in text, "Should have sections"
