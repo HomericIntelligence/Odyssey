@@ -1,0 +1,1541 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Mojo-based AI research platform for reproducing classic research papers">
+      
+      
+      
+        <link rel="canonical" href="https://github.com/HomericIntelligence/Odyssey/adr/ADR-013-slice-view-destructor-fix/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>ADR-013: Slice View Destructor Fix - ML Odyssey</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#adr-013-slice-view-destructor-fix" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="ML Odyssey" class="md-header__button md-logo" aria-label="ML Odyssey" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            ML Odyssey
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              ADR-013: Slice View Destructor Fix
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/HomericIntelligence/Odyssey" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    HomericIntelligence/Odyssey
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../glossary/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Glossary
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../dev/release-process/" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../integration/supporting-directories/" class="md-tabs__link">
+          
+  
+  
+  Integration
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="ML Odyssey" class="md-nav__button md-logo" aria-label="ML Odyssey" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    ML Odyssey
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/HomericIntelligence/Odyssey" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    HomericIntelligence/Odyssey
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../glossary/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Glossary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/quickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quickstart
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/first_model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    First Model
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/repository-structure/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Repository Structure
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../dev/release-process/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Release Process
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Integration
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Integration
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../integration/supporting-directories/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Supporting Directories
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../integration/papers-shared-integration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Papers & Shared Integration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../integration/quick-start-new-paper/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start New Paper
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#executive-summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Executive Summary
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#context" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Context
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Context">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#problem-statement" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Problem Statement
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#minimum-reproducer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Minimum Reproducer
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#constraints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Constraints
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#requirements" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Requirements
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#decision" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Decision
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Decision">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#solution-overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Solution Overview
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#technical-details" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Technical Details
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#rationale" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Rationale
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Rationale">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#key-factors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key Factors
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#trade-offs-accepted" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Trade-offs Accepted
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#consequences" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Consequences
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Consequences">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#positive" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Positive
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#negative" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Negative
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#neutral" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Neutral
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#alternatives-considered" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Alternatives Considered
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Alternatives Considered">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#alternative-1-make-slice-return-a-copy-instead-of-a-view" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Alternative 1: Make slice() return a copy instead of a view
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#alternative-2-add-_-parent-keepalive-at-every-slice-callsite" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Alternative 2: Add _ = parent keepalive at every slice() callsite
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#alternative-3-store-the-original-base-pointer-in-view-tensors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Alternative 3: Store the original base pointer in view tensors
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#relationship-to-the-heap-corruption-file-splitting-workaround" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Relationship to the Heap-Corruption File-Splitting Workaround
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#implementation-plan" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Implementation Plan
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Implementation Plan">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#phase-1-fix-complete" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 1: Fix (COMPLETE)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#success-criteria" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Success Criteria
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#references" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        References
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="References">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#related-adrs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Related ADRs
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#related-issues" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Related Issues
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#affected-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Affected Files
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#revision-history" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Revision History
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#document-metadata" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Document Metadata
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="adr-013-slice-view-destructor-fix">ADR-013: Slice View Destructor Fix</h1>
+<p><strong>Status</strong>: Accepted</p>
+<p><strong>Date</strong>: 2026-03-24</p>
+<p><strong>Issue Reference</strong>: <a href="https://github.com/HomericIntelligence/Odyssey/issues/5056">Issue #5056</a></p>
+<p><strong>Decision Owner</strong>: ML Odyssey Team</p>
+<h2 id="executive-summary">Executive Summary</h2>
+<p><code>AnyTensor.slice()</code> created zero-copy views by offsetting <code>_data</code> into the parent tensor's
+allocation, but <code>__del__</code> called <code>pooled_free</code> unconditionally on every tensor -- including
+views. Freeing an offset pointer is undefined behavior: ASAN catches it as "bad-free", and
+without ASAN it silently corrupts the heap allocator metadata. After ~15-17 test functions
+with tensor allocations, the accumulated corruption triggered an abort in
+<code>libKGENCompilerRTShared.so</code>. The fix is a one-line guard: check <code>_is_view</code> before freeing
+<code>_data</code>.</p>
+<h2 id="context">Context</h2>
+<h3 id="problem-statement">Problem Statement</h3>
+<p><code>AnyTensor.slice()</code> (at <code>any_tensor.mojo:677</code>) creates a zero-copy view by computing an
+offset pointer into the parent tensor's data allocation:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">var</span><span class="w"> </span><span class="nv">batch</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">data</span><span class="o">.</span><span class="n">slice</span><span class="p">(</span><span class="n">start</span><span class="p">,</span><span class="w"> </span><span class="n">end</span><span class="p">)</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="c1"># batch._data = data._data + (start * stride * element_size)</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="c1"># batch._is_view = True</span>
+</code></pre></div>
+<p><code>AnyTensor.__del__</code> (at <code>any_tensor.mojo:491</code>) calls <code>pooled_free(self._data,
+self._allocated_size)</code> unconditionally -- regardless of whether <code>_data</code> is an owned
+allocation or an offset pointer into another tensor's allocation.</p>
+<p>When <code>_is_view == True</code>, <code>_data</code> is <strong>not</strong> the pointer returned by <code>malloc</code>. It is
+<code>parent._data + offset</code>. Passing this offset pointer to <code>free()</code> is undefined behavior
+per the C standard. The allocator expects the exact pointer it handed out; an interior
+pointer corrupts the allocator's bookkeeping metadata (free-list pointers, chunk headers,
+etc.).</p>
+<p>The corruption is silent. Each bad-free slightly damages the heap, but the allocator
+continues to function. After ~15-17 test functions that allocate and destroy tensors
+(each bad-free compounding the corruption), the metadata becomes inconsistent enough that
+a subsequent <code>malloc</code> or <code>free</code> triggers an abort:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>SIGABRT in libKGENCompilerRTShared.so+0x3cb78b
+</code></pre></div>
+<p>This crash signature matches the heap-corruption bug (the bitcast UAF bug),
+which led to months of misclassification as "Mojo JIT compiler flakiness."</p>
+<h3 id="minimum-reproducer">Minimum Reproducer</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">var</span><span class="w"> </span><span class="nv">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ones</span><span class="p">([</span><span class="mi">8</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">],</span><span class="w"> </span><span class="nb">DType</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="k">var</span><span class="w"> </span><span class="nv">batch</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">data</span><span class="o">.</span><span class="n">slice</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="mi">8</span><span class="p">)</span><span class="w">  </span><span class="c1"># _data = data._data + 512 bytes</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="c1"># batch.__del__() -&gt; pooled_free(offset_ptr) -&gt; bad-free -&gt; heap corruption</span>
+</code></pre></div>
+<p>Under ASAN, this immediately reports:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>ERROR: AddressSanitizer: attempting free on address which was not malloc()-ed
+</code></pre></div>
+<p>Without ASAN, the corruption accumulates silently until the allocator aborts.</p>
+<h3 id="constraints">Constraints</h3>
+<ul>
+<li><code>slice()</code> must remain zero-copy for performance (batch slicing in training loops)</li>
+<li>The fix must not break the existing reference-counting scheme for shared data</li>
+<li>Must be backward-compatible with all existing callsites</li>
+</ul>
+<h3 id="requirements">Requirements</h3>
+<ul>
+<li>Views must not free the parent's data allocation</li>
+<li>Owned tensors must continue to free their data on destruction</li>
+<li>The fix must be verifiable with ASAN to confirm no further bad-frees</li>
+</ul>
+<h2 id="decision">Decision</h2>
+<h3 id="solution-overview">Solution Overview</h3>
+<p>Guard the <code>pooled_free</code> call in <code>__del__</code> with an <code>_is_view</code> check. Views do not own
+their <code>_data</code> pointer -- it points into the parent's allocation, which is managed by the
+parent's reference count. Only non-view tensors (those that obtained <code>_data</code> from the
+allocator) should free it.</p>
+<h3 id="technical-details">Technical Details</h3>
+<p>The fix in <code>AnyTensor.__del__</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">fn</span><span class="w"> </span><span class="fm">__del__</span><span class="p">(</span><span class="n">owned</span><span class="w"> </span><span class="bp">self</span><span class="p">):</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">    </span><span class="c1"># ... other cleanup ...</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="ow">not</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">_is_view</span><span class="p">:</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">        </span><span class="n">pooled_free</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">,</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">_allocated_size</span><span class="p">)</span>
+</code></pre></div>
+<p>Previously, the destructor unconditionally called:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="k">fn</span><span class="w"> </span><span class="fm">__del__</span><span class="p">(</span><span class="n">owned</span><span class="w"> </span><span class="bp">self</span><span class="p">):</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">    </span><span class="c1"># ... other cleanup ...</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">    </span><span class="n">pooled_free</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">,</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">_allocated_size</span><span class="p">)</span><span class="w">  </span><span class="c1"># BAD: _data may be offset pointer</span>
+</code></pre></div>
+<p>The <code>_is_view</code> field already existed and was set correctly by <code>slice()</code>. It was simply
+never consulted during destruction.</p>
+<h2 id="rationale">Rationale</h2>
+<h3 id="key-factors">Key Factors</h3>
+<ol>
+<li>
+<p><strong>Correctness</strong>: Freeing an offset pointer is undefined behavior. The fix eliminates
+   UB from every <code>slice()</code> call in the codebase.</p>
+</li>
+<li>
+<p><strong>Simplicity</strong>: A one-line conditional is the minimal correct fix. No new fields,
+   no architectural changes, no new allocation strategies required.</p>
+</li>
+<li>
+<p><strong>Existing infrastructure</strong>: The <code>_is_view</code> flag was already maintained by <code>slice()</code>.
+   The only missing piece was checking it in <code>__del__</code>.</p>
+</li>
+</ol>
+<h3 id="trade-offs-accepted">Trade-offs Accepted</h3>
+<ol>
+<li>Views depend on the parent tensor outliving them (or the shared refcount keeping the
+   data alive). This is the existing contract and is not changed by this fix.</li>
+</ol>
+<h2 id="consequences">Consequences</h2>
+<h3 id="positive">Positive</h3>
+<ul>
+<li>Eliminates silent heap corruption from every <code>slice()</code> view destruction</li>
+<li>Fixes the "flaky" CI crashes that occurred after ~15-17 test functions</li>
+<li>3-line ASAN reproducer makes regression testing trivial</li>
+<li>No performance cost (a single branch in the destructor)</li>
+</ul>
+<h3 id="negative">Negative</h3>
+<ul>
+<li>None. The fix is a one-line conditional that enforces an invariant that should have
+  existed from the start.</li>
+</ul>
+<h3 id="neutral">Neutral</h3>
+<ul>
+<li>The <code>_is_view</code> field was already present and correctly maintained; this fix only
+  adds the destructor check</li>
+</ul>
+<h2 id="alternatives-considered">Alternatives Considered</h2>
+<h3 id="alternative-1-make-slice-return-a-copy-instead-of-a-view">Alternative 1: Make slice() return a copy instead of a view</h3>
+<p><strong>Description</strong>: Allocate new memory in <code>slice()</code> and copy the data, so the returned
+tensor owns its <code>_data</code> pointer.</p>
+<p><strong>Pros</strong>:</p>
+<ul>
+<li>Every tensor owns its data, simplifying lifetime management</li>
+<li>No view/non-view distinction needed</li>
+</ul>
+<p><strong>Cons</strong>:</p>
+<ul>
+<li>Defeats the purpose of zero-copy batch slicing</li>
+<li>Training loops slice batches every iteration; copying would add significant overhead</li>
+<li>Increases peak memory usage (two copies of every batch)</li>
+</ul>
+<p><strong>Why Rejected</strong>: Unacceptable performance regression for the primary use case (batch
+slicing in training loops).</p>
+<h3 id="alternative-2-add-_-parent-keepalive-at-every-slice-callsite">Alternative 2: Add <code>_ = parent</code> keepalive at every slice() callsite</h3>
+<p><strong>Description</strong>: Keep the parent tensor alive at each callsite by binding it to <code>_</code>,
+preventing early destruction.</p>
+<p><strong>Pros</strong>:</p>
+<ul>
+<li>No changes to <code>AnyTensor</code> internals</li>
+</ul>
+<p><strong>Cons</strong>:</p>
+<ul>
+<li>Fragile: every callsite must remember the keepalive pattern</li>
+<li>Easy to forget, leading to the same bug resurfacing</li>
+<li>Does not fix the fundamental issue (views still call <code>free</code> on offset pointers)</li>
+</ul>
+<p><strong>Why Rejected</strong>: Does not address the root cause. The destructor still frees an offset
+pointer; the keepalive only delays when that happens.</p>
+<h3 id="alternative-3-store-the-original-base-pointer-in-view-tensors">Alternative 3: Store the original base pointer in view tensors</h3>
+<p><strong>Description</strong>: Add a <code>_base_data</code> field that stores the original <code>malloc</code>-returned
+pointer, and always free <code>_base_data</code> instead of <code>_data</code>.</p>
+<p><strong>Pros</strong>:</p>
+<ul>
+<li>Views could participate in ownership without a separate flag</li>
+</ul>
+<p><strong>Cons</strong>:</p>
+<ul>
+<li>Adds a field to every tensor (8 bytes per tensor), even non-views</li>
+<li>Complicates the ownership model -- who frees the base pointer?</li>
+<li>The <code>_is_view</code> flag already distinguishes views from owners; adding another field is
+  redundant</li>
+</ul>
+<p><strong>Why Rejected</strong>: Unnecessary complexity. The <code>_is_view</code> flag is sufficient and already
+exists.</p>
+<h2 id="relationship-to-the-heap-corruption-file-splitting-workaround">Relationship to the Heap-Corruption File-Splitting Workaround</h2>
+<p>The heap-corruption workaround (late 2025, now resolved) applied file splitting to work
+around what appeared to be a distinct crash. The root cause was identified as the same
+bitcast UAF fixed by this ADR.</p>
+<p>This ADR-013 bug produces <strong>identical crash symptoms</strong>:</p>
+<ul>
+<li>Same crash offset: <code>libKGENCompilerRTShared.so+0x3cb78b</code></li>
+<li>Same threshold: ~15-17 test functions before abort</li>
+<li>Same misleading signal: appears to be a Mojo runtime bug</li>
+</ul>
+<p>But the root cause is entirely different:</p>
+<ul>
+<li><strong>Heap-corruption workaround</strong>: Mojo compiler bug -- ASAP destruction destroys tensor before bitcast write
+  completes</li>
+<li><strong>ADR-013</strong>: Our code bug -- <code>__del__</code> frees an offset pointer that was never
+  <code>malloc</code>-ed</li>
+</ul>
+<p>The file-splitting workaround from the heap-corruption workaround also inadvertently masked this bug: fewer
+tests per file meant fewer tensor destructions, which meant less accumulated heap
+corruption before process exit.</p>
+<h2 id="implementation-plan">Implementation Plan</h2>
+<h3 id="phase-1-fix-complete">Phase 1: Fix (COMPLETE)</h3>
+<ul>
+<li>[x] Add <code>_is_view</code> guard in <code>AnyTensor.__del__</code></li>
+<li>[x] Verify fix under ASAN (no bad-free reports)</li>
+<li>[x] Run full test suite without file-splitting workaround</li>
+</ul>
+<h3 id="success-criteria">Success Criteria</h3>
+<ul>
+<li>[x] ASAN reports zero bad-free errors on slice() view destruction</li>
+<li>[x] Full test suite passes without crashes</li>
+<li>[x] No regression in tensor memory management (owned tensors still freed correctly)</li>
+</ul>
+<h2 id="references">References</h2>
+<h3 id="related-adrs">Related ADRs</h3>
+<ul>
+<li><a href="../ADR-003-memory-pool-architecture/">ADR-003</a>: Memory pool architecture (<code>pooled_free</code>
+  is the allocator entry point affected by the bad-free)</li>
+</ul>
+<h3 id="related-issues">Related Issues</h3>
+<ul>
+<li><a href="https://github.com/HomericIntelligence/Odyssey/issues/5056">Issue #5056</a>:
+  Slice view destructor bug</li>
+<li><a href="https://github.com/HomericIntelligence/Odyssey/issues/2942">Issue #2942</a>:
+  Original heap corruption report</li>
+</ul>
+<h3 id="affected-files">Affected Files</h3>
+<ul>
+<li><code>src/odyssey/core/any_tensor.mojo</code> -- <code>__del__</code> method (line ~491), <code>slice()</code> method
+  (line ~677)</li>
+</ul>
+<h2 id="revision-history">Revision History</h2>
+<table>
+<thead>
+<tr>
+<th>Version</th>
+<th>Date</th>
+<th>Author</th>
+<th>Changes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1.0</td>
+<td>2026-03-24</td>
+<td>Claude Code</td>
+<td>Initial ADR</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="document-metadata">Document Metadata</h2>
+<ul>
+<li><strong>Location</strong>: <code>/docs/adr/ADR-013-slice-view-destructor-fix.md</code></li>
+<li><strong>Status</strong>: Accepted</li>
+<li><strong>Review Frequency</strong>: N/A (bug fix, no ongoing review needed)</li>
+<li><strong>Next Review</strong>: N/A</li>
+<li><strong>Supersedes</strong>: None</li>
+<li><strong>Superseded By</strong>: None</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "search.suggest", "search.highlight", "content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>
