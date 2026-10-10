@@ -1,0 +1,1557 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Mojo-based AI research platform for reproducing classic research papers">
+      
+      
+      
+        <link rel="canonical" href="https://github.com/HomericIntelligence/Odyssey/dev/fix-guide/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Data Test Suite - Quick Fix Guide - ML Odyssey</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#data-test-suite-quick-fix-guide" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="ML Odyssey" class="md-header__button md-logo" aria-label="ML Odyssey" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            ML Odyssey
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Data Test Suite - Quick Fix Guide
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/HomericIntelligence/Odyssey" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    HomericIntelligence/Odyssey
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../glossary/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Glossary
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../release-process/" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../integration/supporting-directories/" class="md-tabs__link">
+          
+  
+  
+  Integration
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="ML Odyssey" class="md-nav__button md-logo" aria-label="ML Odyssey" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    ML Odyssey
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/HomericIntelligence/Odyssey" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    HomericIntelligence/Odyssey
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../glossary/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Glossary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/quickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quickstart
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/first_model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    First Model
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/repository-structure/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Repository Structure
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../release-process/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Release Process
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Integration
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Integration
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../integration/supporting-directories/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Supporting Directories
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../integration/papers-shared-integration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Papers & Shared Integration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../integration/quick-start-new-paper/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start New Paper
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#error-pattern-1-__init__-missing-return-type-17-errors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Error Pattern 1: __init__ Missing Return Type (17 errors)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Error Pattern 1: __init__ Missing Return Type (17 errors)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#symptom" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Symptom
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#affected-files-5-test-files-2-implementation-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Affected Files (5 test files + 2 implementation files)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#current-code-pattern" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Current Code Pattern
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fixed-code-pattern" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fixed Code Pattern
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#key-changes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key Changes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-fix" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example Fix
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#error-pattern-2-anytensor-ownership-violations-11-errors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Error Pattern 2: AnyTensor Ownership Violations (11 errors)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Error Pattern 2: AnyTensor Ownership Violations (11 errors)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#symptom_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Symptom
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#affected-files-1-file-srcodysseydatatransformsmojo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Affected Files (1 file: src/odyssey/data/transforms.mojo)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#current-code-pattern_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Current Code Pattern
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fixed-code-pattern_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fixed Code Pattern
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#key-change" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key Change
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-fix_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example Fix
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#error-pattern-3-missing-tensor-import-1-error-17-usages" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Error Pattern 3: Missing Tensor Import (1 error, 17 usages)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Error Pattern 3: Missing Tensor Import (1 error, 17 usages)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#symptom_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Symptom
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#affected-file-1-file-test_augmentationsmojo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Affected File (1 file: test_augmentations.mojo)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#current-code" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Current Code
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#solution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Solution
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="data-test-suite-quick-fix-guide">Data Test Suite - Quick Fix Guide</h1>
+<h2 id="overview">Overview</h2>
+<p>39 compilation errors blocking all data tests. All errors are fixable with systematic pattern replacements.</p>
+<hr />
+<h2 id="error-pattern-1-__init__-missing-return-type-17-errors">Error Pattern 1: <code>__init__</code> Missing Return Type (17 errors)</h2>
+<h3 id="symptom">Symptom</h3>
+<p><code>text
+error: __init__ method must return Self type with 'out' argument
+    fn __init__(mut self, size: Int):
+       ^</code>text</p>
+<h3 id="affected-files-5-test-files-2-implementation-files">Affected Files (5 test files + 2 implementation files)</h3>
+<ul>
+<li>tests/odyssey/data/datasets/test_base_dataset.mojo:25</li>
+<li>tests/odyssey/data/datasets/test_tensor_dataset.mojo:32</li>
+<li>tests/odyssey/data/loaders/test_base_loader.mojo:20</li>
+<li>tests/odyssey/data/transforms/test_pipeline.mojo:25 &amp; 35</li>
+<li>src/odyssey/data/transforms.mojo:621 &amp; 400</li>
+<li>(Plus more in other implementation files)</li>
+</ul>
+<h3 id="current-code-pattern">Current Code Pattern</h3>
+<p>```mojo
+struct MyStruct:
+    var field1: Type1
+    var field2: Type2</p>
+<div class="highlight"><pre><span></span><code>fn __init__(mut self, arg1: Type1, arg2: Type2):
+    self.field1 = arg1
+    self.field2 = arg2
+</code></pre></div>
+<p>```text</p>
+<h3 id="fixed-code-pattern">Fixed Code Pattern</h3>
+<p>```mojo
+struct MyStruct:
+    var field1: Type1
+    var field2: Type2</p>
+<div class="highlight"><pre><span></span><code>fn __init__(mut self, arg1: Type1, arg2: Type2) -&gt; Self:
+    return Self(field1=arg1, field2=arg2)
+</code></pre></div>
+<p>```text</p>
+<h3 id="key-changes">Key Changes</h3>
+<ol>
+<li>Add <code>-&gt; Self</code> return type annotation</li>
+<li>Replace body with <code>return Self(...)</code></li>
+<li>Use named parameters in Self constructor</li>
+</ol>
+<h3 id="example-fix">Example Fix</h3>
+<p><strong>File</strong>: tests/odyssey/data/datasets/test_base_dataset.mojo</p>
+<p><strong>Before</strong>:</p>
+<p><code>mojo
+fn __init__(mut self, size: Int):
+    """Create stub dataset with specified size."""
+    self.size = size
+    self.data = List[Float32](capacity=size)
+    for i in range(size):
+        self.data.append(Float32(i))</code>text</p>
+<p><strong>After</strong>:</p>
+<p><code>mojo
+fn __init__(mut self, size: Int) -&gt; Self:
+    """Create stub dataset with specified size."""
+    var data = List[Float32](capacity=size)
+    for i in range(size):
+        data.append(Float32(i))
+    return Self(size=size, data=data)</code>text</p>
+<hr />
+<h2 id="error-pattern-2-anytensor-ownership-violations-11-errors">Error Pattern 2: AnyTensor Ownership Violations (11 errors)</h2>
+<h3 id="symptom_1">Symptom</h3>
+<p><code>text
+error: value of type 'AnyTensor' cannot be implicitly copied, it does not conform to 'ImplicitlyCopyable'
+            return data
+                   ^~~~
+note: consider transferring the value with '^'</code>text</p>
+<h3 id="affected-files-1-file-srcodysseydatatransformsmojo">Affected Files (1 file: src/odyssey/data/transforms.mojo)</h3>
+<ul>
+<li>Line 523: RandomRotation.<strong>call</strong></li>
+<li>Line 769: RandomErasing.<strong>call</strong> (path 1)</li>
+<li>Line 806: RandomErasing.<strong>call</strong> (path 2)</li>
+<li>Line 814: RandomErasing.<strong>call</strong> (path 3)</li>
+</ul>
+<h3 id="current-code-pattern_1">Current Code Pattern</h3>
+<p><code>mojo
+fn __call__(self, data: AnyTensor) raises -&gt; AnyTensor:
+    # ... process data ...
+    return data  # ERROR: implicit copy</code>text</p>
+<h3 id="fixed-code-pattern_1">Fixed Code Pattern</h3>
+<p><code>mojo
+fn __call__(self, data: AnyTensor) raises -&gt; AnyTensor:
+    # ... process data ...
+    return data^  # Transfer ownership</code>text</p>
+<h3 id="key-change">Key Change</h3>
+<p>Add <code>^</code> caret operator after <code>data</code> to explicitly transfer ownership.</p>
+<h3 id="example-fix_1">Example Fix</h3>
+<p><strong>File</strong>: src/odyssey/data/transforms.mojo, line 523</p>
+<p><strong>Before</strong>:</p>
+<p><code>mojo
+fn __call__(self, data: AnyTensor) raises -&gt; AnyTensor:
+    # ... rotation logic ...
+    return data</code>text</p>
+<p><strong>After</strong>:</p>
+<p><code>mojo
+fn __call__(self, data: AnyTensor) raises -&gt; AnyTensor:
+    # ... rotation logic ...
+    return data^</code>text</p>
+<hr />
+<h2 id="error-pattern-3-missing-tensor-import-1-error-17-usages">Error Pattern 3: Missing Tensor Import (1 error, 17 usages)</h2>
+<h3 id="symptom_2">Symptom</h3>
+<p><code>text
+error: use of unknown declaration 'Tensor'
+    var data = Tensor(data_list^)
+               ^~~~~~</code>text</p>
+<h3 id="affected-file-1-file-test_augmentationsmojo">Affected File (1 file: test_augmentations.mojo)</h3>
+<ul>
+<li>Lines: 37, 63, 67, 97, 116, 140, 164, 168, 187, 215, 242, 263, 288, 313, 346, 372</li>
+</ul>
+<h3 id="current-code">Current Code</h3>
+<p><strong>File</strong>: tests/odyssey/data/transforms/test_augmentations.mojo</p>
+<p><strong>Current imports</strong> (lines 7-19):</p>
+<p><code>mojo
+from tests.shared.conftest import assert_true, assert_equal, assert_false, TestFixtures
+from odyssey.data.transforms import (
+    Transform,
+    RandomHorizontalFlip,
+    RandomVerticalFlip,
+    RandomRotation,
+    RandomCrop,
+    CenterCrop,
+    RandomErasing,
+    Pipeline,
+    Compose,
+)
+from odyssey.core.any_tensor import AnyTensor</code>text</p>
+<h3 id="solution">Solution</h3>
+<p><strong>Option A</strong>: Add Tensor import</p>
+<p>```mojo</p>
+<h1 id="change-line-19-from">Change line 19 from:</h1>
+<p>from odyssey.core.any_tensor import AnyTensor</p>
+<h1 id="to">To:</h1>
+<p>from odyssey.core.any_tensor import AnyTensor, Tensor
+```text</p>
+<p><strong>Option B</strong>: Replace all Tensor usages (if Tensor is not available)</p>
+<p>```bash</p>
+<h1 id="run-in-testsodysseydatatransforms-directory">Run in tests/odyssey/data/transforms/ directory</h1>
+<p>sed -i 's/Tensor(/AnyTensor(/g' test_augmentations.mojo
+sed -i 's/List[Tensor]/List[AnyTensor]/g' test_augmentations.mojo
+```text</p>
+<h3 id="verify-which-works">Verify Which Works</h3>
+<ol>
+<li>Check <code>/shared/core/any_tensor.mojo</code> for Tensor definition</li>
+<li>If Tensor exists and is different from AnyTensor, use Option A (add import)</li>
+<li>If Tensor is an alias for AnyTensor, use Option A (add import)</li>
+<li>If Tensor doesn't exist, use Option B (replace with AnyTensor)</li>
+</ol>
+<hr />
+<h2 id="error-pattern-4-invalid-optional-subscripting-1-error">Error Pattern 4: Invalid Optional Subscripting (1 error)</h2>
+<h3 id="symptom_3">Symptom</h3>
+<p><code>text
+error: 'Int' is not subscriptable
+            var pad = self.padding.value()[]
+                      ~~~~~~~~~~~~~~~~~~~~^</code>text</p>
+<h3 id="affected-file-1-file-srcodysseydatatransformsmojo">Affected File (1 file: src/odyssey/data/transforms.mojo)</h3>
+<ul>
+<li>Line 458: RandomCrop.<strong>call</strong></li>
+</ul>
+<h3 id="current-code-pattern_2">Current Code Pattern</h3>
+<p><code>mojo
+if self.padding:
+    var pad = self.padding.value()[]  # WRONG
+    actual_top = top - pad</code>text</p>
+<h3 id="fixed-code-pattern_2">Fixed Code Pattern</h3>
+<p><code>mojo
+if self.padding:
+    var pad = self.padding.value()  # CORRECT - no subscript
+    actual_top = top - pad</code>text</p>
+<h3 id="explanation">Explanation</h3>
+<ul>
+<li><code>self.padding</code> is <code>Optional[Int]</code></li>
+<li><code>self.padding.value()</code> returns the contained <code>Int</code> value</li>
+<li>You cannot subscript an <code>Int</code> with <code>[]</code></li>
+<li>Remove the <code>[]</code> subscript operator</li>
+</ul>
+<h3 id="example-fix_2">Example Fix</h3>
+<p><strong>File</strong>: src/odyssey/data/transforms.mojo, line 458</p>
+<p><strong>Before</strong>:</p>
+<p><code>mojo
+if self.padding:
+    var pad = self.padding.value()[]
+    actual_top = top - pad
+    actual_left = left - pad</code>text</p>
+<p><strong>After</strong>:</p>
+<p><code>mojo
+if self.padding:
+    var pad = self.padding.value()
+    actual_top = top - pad
+    actual_left = left - pad</code>text</p>
+<hr />
+<h2 id="error-pattern-5-missing-trait-conformances-9-cascading-errors">Error Pattern 5: Missing Trait Conformances (9 cascading errors)</h2>
+<h3 id="symptom-cascading">Symptom (Cascading)</h3>
+<p>Various implicit copy errors in loops and variable assignments</p>
+<h3 id="affected-structs-test-files">Affected Structs (Test files)</h3>
+<ul>
+<li><code>StubDataset</code> in test_base_dataset.mojo</li>
+<li><code>TestTensorDataset</code> in test_tensor_dataset.mojo</li>
+<li><code>SimpleDataLoader</code> in test_base_loader.mojo</li>
+<li><code>SimpleTransform</code> in test_pipeline.mojo</li>
+</ul>
+<h3 id="current-code-pattern_3">Current Code Pattern</h3>
+<p><code>mojo
+struct MyStruct:
+    var field1: Type1
+    var field2: Type2
+    # Missing traits</code>text</p>
+<h3 id="fixed-code-pattern_3">Fixed Code Pattern</h3>
+<p><code>mojo
+@fieldwise_init
+struct MyStruct(Copyable, Movable):
+    var field1: Type1
+    var field2: Type2
+    # Now supports copy/move semantics</code>text</p>
+<h3 id="key-changes_1">Key Changes</h3>
+<ol>
+<li>Add <code>@fieldwise_init</code> decorator (auto-generates constructor)</li>
+<li>Add <code>(Copyable, Movable)</code> trait conformance</li>
+<li>This enables implicit copying in loops and assignments</li>
+</ol>
+<h3 id="example-fix_3">Example Fix</h3>
+<p><strong>File</strong>: tests/odyssey/data/datasets/test_base_dataset.mojo, line 15</p>
+<p><strong>Before</strong>:</p>
+<p>```mojo
+struct StubDataset:
+    """Minimal stub dataset for testing Dataset interface requirements."""</p>
+<div class="highlight"><pre><span></span><code>var size: Int
+var data: List[Float32]
+</code></pre></div>
+<p>```text</p>
+<p><strong>After</strong>:</p>
+<p>```mojo
+@fieldwise_init
+struct StubDataset(Copyable, Movable):
+    """Minimal stub dataset for testing Dataset interface requirements."""</p>
+<div class="highlight"><pre><span></span><code>var size: Int
+var data: List[Float32]
+</code></pre></div>
+<p>```text</p>
+<h3 id="note">Note</h3>
+<p>If struct has custom <code>__init__</code>, you may not be able to use <code>@fieldwise_init</code>. In that case:</p>
+<ol>
+<li>Keep custom <code>__init__</code> with <code>-&gt; Self</code> return type</li>
+<li>Just add <code>(Copyable, Movable)</code> traits without decorator</li>
+<li>Ensure implicit copies work in the code</li>
+</ol>
+<hr />
+<h2 id="fix-application-order">Fix Application Order</h2>
+<h3 id="step-1-fix-init-return-types-30-min">Step 1: Fix <strong>init</strong> Return Types (30 min)</h3>
+<p>Fixes 17 errors - unblocks all test compilation</p>
+<p>```bash</p>
+<h1 id="edit-these-files-and-add-self-to-all-init-methods">Edit these files and add -&gt; Self to all <strong>init</strong> methods:</h1>
+<ol>
+<li>tests/odyssey/data/datasets/test_base_dataset.mojo (line 25)</li>
+<li>tests/odyssey/data/datasets/test_tensor_dataset.mojo (line 32)</li>
+<li>tests/odyssey/data/loaders/test_base_loader.mojo (line 20)</li>
+<li>tests/odyssey/data/transforms/test_pipeline.mojo (lines 25, 35)</li>
+<li>src/odyssey/data/transforms.mojo (lines 621, 400)
+```text</li>
+</ol>
+<p><strong>After Step 1</strong>: Run <code>uv run mojo -I . tests/odyssey/data/run_all_tests.mojo</code> to check progress</p>
+<h3 id="step-2-fix-anytensor-ownership-15-min">Step 2: Fix AnyTensor Ownership (15 min)</h3>
+<p>Fixes 11 errors - enables transform tests</p>
+<p>```bash</p>
+<h1 id="add-to-return-statements-in-srcodysseydatatransformsmojo">Add ^ to return statements in src/odyssey/data/transforms.mojo:</h1>
+<ol>
+<li>Line 523: return data^ (RandomRotation)</li>
+<li>Line 769: return data^ (RandomErasing path 1)</li>
+<li>Line 806: return data^ (RandomErasing path 2)</li>
+<li>Line 814: return data^ (RandomErasing path 3)
+```text</li>
+</ol>
+<p><strong>After Step 2</strong>: Run <code>uv run mojo -I . tests/odyssey/data/run_all_tests.mojo</code> to check progress</p>
+<h3 id="step-3-fix-tensor-import-10-min">Step 3: Fix Tensor Import (10 min)</h3>
+<p>Fixes 17 usage errors - enables augmentation tests</p>
+<p>```bash</p>
+<h1 id="edit-testsodysseydatatransformstest_augmentationsmojo">Edit tests/odyssey/data/transforms/test_augmentations.mojo:</h1>
+<h1 id="add-tensor-to-import-on-line-19">Add Tensor to import on line 19:</h1>
+<p>from odyssey.core.any_tensor import AnyTensor, Tensor
+```text</p>
+<p><strong>After Step 3</strong>: Run full test suite - should reach runtime</p>
+<h3 id="step-4-fix-optional-syntax-5-min">Step 4: Fix Optional Syntax (5 min)</h3>
+<p>Fixes 1 error - enables RandomCrop</p>
+<p>```bash</p>
+<h1 id="edit-srcodysseydatatransformsmojo-line-458">Edit src/odyssey/data/transforms.mojo, line 458:</h1>
+<h1 id="before-var-pad-selfpaddingvalue">Before: var pad = self.padding.value()[]</h1>
+<h1 id="after-var-pad-selfpaddingvalue">After:  var pad = self.padding.value()</h1>
+<p>```text</p>
+<h3 id="step-5-add-trait-conformances-20-min">Step 5: Add Trait Conformances (20 min)</h3>
+<p>Fixes 9 cascading errors - proper type safety</p>
+<p>```bash</p>
+<h1 id="add-fieldwise_init-and-copyable-movable-to-these-structs">Add @fieldwise_init and (Copyable, Movable) to these structs:</h1>
+<ol>
+<li>StubDataset in test_base_dataset.mojo (line 15)</li>
+<li>TestTensorDataset in test_tensor_dataset.mojo</li>
+<li>SimpleDataLoader in test_base_loader.mojo</li>
+<li>SimpleTransform in test_pipeline.mojo
+```text</li>
+</ol>
+<hr />
+<h2 id="verification-checklist">Verification Checklist</h2>
+<p>After each fix step, run:</p>
+<p><code>bash
+uv run mojo -I . tests/odyssey/data/run_all_tests.mojo</code>text</p>
+<h3 id="after-step-1-fix-init">After Step 1 (Fix <strong>init</strong>)</h3>
+<p>Expected: More compilation errors, but different ones
+Should not see: <code>__init__ method must return Self</code></p>
+<h3 id="after-step-2-fix-ownership">After Step 2 (Fix ownership)</h3>
+<p>Expected: Fewer compilation errors
+Should not see: <code>AnyTensor' cannot be implicitly copied</code></p>
+<h3 id="after-step-3-fix-tensor-import">After Step 3 (Fix Tensor import)</h3>
+<p>Expected: No compilation errors
+Should see: Test execution starting</p>
+<h3 id="after-step-4-fix-optional">After Step 4 (Fix Optional)</h3>
+<p>Expected: No <code>Int is not subscriptable</code> errors</p>
+<h3 id="after-step-5-add-traits">After Step 5 (Add traits)</h3>
+<p>Expected: All 43 tests run successfully
+Pattern: <code>✓ test_name</code> for passes, <code>✗ test_name</code> for fails</p>
+<hr />
+<h2 id="reference-key-mojo-v0261-syntax">Reference: Key Mojo v0.26.1+ Syntax</h2>
+<h3 id="__init__-method"><code>__init__</code> Method</h3>
+<p>```mojo</p>
+<h1 id="wrong-old-syntax">WRONG (old syntax)</h1>
+<p>fn <strong>init</strong>(mut self, arg: Type):
+    self.field = arg</p>
+<h1 id="correct-v0261">CORRECT (v0.26.1+)</h1>
+<p>fn <strong>init</strong>(mut self, arg: Type) -&gt; Self:
+    return Self(field=arg)
+```text</p>
+<h3 id="ownership-transfer">Ownership Transfer</h3>
+<p>```mojo</p>
+<h1 id="wrong-implicit-copy">WRONG (implicit copy)</h1>
+<p>return data</p>
+<h1 id="correct-explicit-transfer">CORRECT (explicit transfer)</h1>
+<p>return data^
+```text</p>
+<h3 id="optional-value-extraction">Optional Value Extraction</h3>
+<p>```mojo</p>
+<h1 id="wrong-subscript-after-value">WRONG (subscript after value())</h1>
+<p>var x = optional.value()[]</p>
+<h1 id="correct-value-returns-the-contained-value">CORRECT (value() returns the contained value)</h1>
+<p>var x = optional.value()
+```text</p>
+<h3 id="struct-definition">Struct Definition</h3>
+<p>```mojo</p>
+<h1 id="wrong-missing-traits">WRONG (missing traits)</h1>
+<p>struct MyStruct:
+    var field: Type</p>
+<h1 id="correct-with-traits">CORRECT (with traits)</h1>
+<p>@fieldwise_init
+struct MyStruct(Copyable, Movable):
+    var field: Type
+```text</p>
+<h3 id="trait-conformance">Trait Conformance</h3>
+<p>```mojo</p>
+<h1 id="wrong-no-traits">WRONG (no traits)</h1>
+<p>struct MyStruct:
+    var field: Type</p>
+<h1 id="correct-with-traits_1">CORRECT (with traits)</h1>
+<p>struct MyStruct(Copyable, Movable):
+    var field: Type
+```text</p>
+<hr />
+<h2 id="files-to-modify">Files to Modify</h2>
+<h3 id="test-files-5">Test Files (5)</h3>
+<ol>
+<li><code>/tests/shared/data/datasets/test_base_dataset.mojo</code></li>
+<li><code>/tests/shared/data/datasets/test_tensor_dataset.mojo</code></li>
+<li><code>/tests/shared/data/loaders/test_base_loader.mojo</code></li>
+<li><code>/tests/shared/data/transforms/test_pipeline.mojo</code></li>
+<li><code>/tests/shared/data/transforms/test_augmentations.mojo</code></li>
+</ol>
+<h3 id="implementation-files-2">Implementation Files (2)</h3>
+<ol>
+<li><code>/shared/data/transforms.mojo</code></li>
+<li><code>/shared/core/any_tensor.mojo</code> (check for Tensor definition)</li>
+</ol>
+<hr />
+<h2 id="success-criteria">Success Criteria</h2>
+<p>All fixes complete when:</p>
+<ul>
+<li><code>uv run mojo -I . tests/odyssey/data/run_all_tests.mojo</code> executes without compilation errors</li>
+<li>Test output shows: <code>Total Tests: 43</code>, <code>Passed: X</code>, <code>Failed: Y</code></li>
+<li>No errors of the 5 types listed above appear</li>
+</ul>
+<hr />
+<h2 id="notes">Notes</h2>
+<ul>
+<li>These are systematic, low-risk fixes</li>
+<li>All changes follow Mojo v0.26.1+ best practices</li>
+<li>No logic changes required</li>
+<li>Estimated total time: 80 minutes for all 5 priority levels</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "search.suggest", "search.highlight", "content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>

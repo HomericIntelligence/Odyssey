@@ -1,0 +1,1356 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Mojo-based AI research platform for reproducing classic research papers">
+      
+      
+      
+        <link rel="canonical" href="https://github.com/HomericIntelligence/Odyssey/MEMORY_REQUIREMENTS/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Memory Requirements and Batch Size Guidelines - ML Odyssey</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#memory-requirements-and-batch-size-guidelines" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="ML Odyssey" class="md-header__button md-logo" aria-label="ML Odyssey" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            ML Odyssey
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Memory Requirements and Batch Size Guidelines
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/HomericIntelligence/Odyssey" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    HomericIntelligence/Odyssey
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href=".." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../glossary/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Glossary
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../dev/release-process/" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../integration/supporting-directories/" class="md-tabs__link">
+          
+  
+  
+  Integration
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="ML Odyssey" class="md-nav__button md-logo" aria-label="ML Odyssey" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    ML Odyssey
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/HomericIntelligence/Odyssey" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    HomericIntelligence/Odyssey
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../glossary/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Glossary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/quickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quickstart
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/first_model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    First Model
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/repository-structure/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Repository Structure
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../dev/release-process/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Release Process
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Integration
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Integration
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../integration/supporting-directories/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Supporting Directories
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../integration/papers-shared-integration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Papers & Shared Integration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../integration/quick-start-new-paper/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start New Paper
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#memory-calculation-basics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Memory Calculation Basics
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Memory Calculation Basics">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#tensor-memory-formula" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tensor Memory Formula
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-emnist-images" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example: EMNIST Images
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#lenet-5-memory-requirements" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        LeNet-5 Memory Requirements
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="LeNet-5 Memory Requirements">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#forward-pass-memory" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Forward Pass Memory
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#backward-pass-memory" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Backward Pass Memory
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#model-parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Model Parameters
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#full-training-iteration-memory" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Full Training Iteration Memory
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#memory-limits-and-safety" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Memory Limits and Safety
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Memory Limits and Safety">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#built-in-limits" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Built-in Limits
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#calculating-maximum-batch-size" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Calculating Maximum Batch Size
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="memory-requirements-and-batch-size-guidelines">Memory Requirements and Batch Size Guidelines</h1>
+<h2 id="overview">Overview</h2>
+<p>This document provides guidelines for memory management when training neural networks with ML Odyssey, specifically
+addressing the LeNet-5 EMNIST example and general best practices.</p>
+<h2 id="memory-calculation-basics">Memory Calculation Basics</h2>
+<h3 id="tensor-memory-formula">Tensor Memory Formula</h3>
+<p><code>text
+Memory (bytes) = num_elements × bytes_per_element</code>text</p>
+<p>Where:</p>
+<ul>
+<li><code>num_elements</code> = product of all shape dimensions</li>
+<li><code>bytes_per_element</code> depends on data type:</li>
+<li><code>DType.float32</code>: 4 bytes</li>
+<li><code>DType.float64</code>: 8 bytes</li>
+<li><code>DType.float16</code>: 2 bytes</li>
+<li><code>DType.int32</code>: 4 bytes</li>
+<li><code>DType.uint8</code>: 1 byte</li>
+</ul>
+<h3 id="example-emnist-images">Example: EMNIST Images</h3>
+<p>Single EMNIST image: <code>(1, 28, 28)</code> with <code>float32</code></p>
+<p><code>text
+Memory = 1 × 28 × 28 × 4 bytes = 3,136 bytes ≈ 3.1 KB</code>text</p>
+<p>Batch of 32 images:</p>
+<p><code>text
+Memory = 32 × 1 × 28 × 28 × 4 bytes = 100,352 bytes ≈ 98 KB</code>text</p>
+<p>Full training set (112,800 images):</p>
+<p><code>text
+Memory = 112,800 × 1 × 28 × 28 × 4 bytes = 353,894,400 bytes ≈ 337 MB</code>text</p>
+<h2 id="lenet-5-memory-requirements">LeNet-5 Memory Requirements</h2>
+<h3 id="forward-pass-memory">Forward Pass Memory</h3>
+<p>For a single forward pass with batch size <code>B</code>:</p>
+<ol>
+<li><strong>Input</strong>: <code>(B, 1, 28, 28)</code> = <code>B × 3,136</code> bytes</li>
+<li><strong>Conv1 Output</strong>: <code>(B, 6, 24, 24)</code> = <code>B × 13,824</code> bytes</li>
+<li><strong>Pool1 Output</strong>: <code>(B, 6, 12, 12)</code> = <code>B × 3,456</code> bytes</li>
+<li><strong>Conv2 Output</strong>: <code>(B, 16, 8, 8)</code> = <code>B × 4,096</code> bytes</li>
+<li><strong>Pool2 Output</strong>: <code>(B, 16, 4, 4)</code> = <code>B × 1,024</code> bytes</li>
+<li><strong>FC1 Output</strong>: <code>(B, 120)</code> = <code>B × 480</code> bytes</li>
+<li><strong>FC2 Output</strong>: <code>(B, 84)</code> = <code>B × 336</code> bytes</li>
+<li><strong>FC3 Output</strong>: <code>(B, 47)</code> = <code>B × 188</code> bytes</li>
+</ol>
+<p><strong>Total per forward pass</strong>: ~<code>B × 26,540 bytes</code> ≈ <code>B × 26 KB</code></p>
+<h3 id="backward-pass-memory">Backward Pass Memory</h3>
+<p>Backward pass requires gradients for each layer, roughly <strong>doubling</strong> forward pass memory:</p>
+<p><strong>Total with gradients</strong>: ~<code>B × 53 KB</code></p>
+<h3 id="model-parameters">Model Parameters</h3>
+<p>LeNet-5 parameters (~61,706 parameters with <code>float32</code>):</p>
+<p><code>text
+Parameters = 61,706 × 4 bytes = 246,824 bytes ≈ 241 KB</code>text</p>
+<h3 id="full-training-iteration-memory">Full Training Iteration Memory</h3>
+<p>For batch size <code>B</code>:</p>
+<p><code>text
+Total ≈ (B × 53 KB) + 241 KB + dataset_memory</code>text</p>
+<h2 id="memory-limits-and-safety">Memory Limits and Safety</h2>
+<h3 id="built-in-limits">Built-in Limits</h3>
+<p>ML Odyssey enforces the following limits (defined in <code>src/odyssey/core/extensor.mojo</code>):</p>
+<ul>
+<li><strong>MAX_TENSOR_BYTES</strong>: 2,000,000,000 bytes (2 GB) - Hard limit per tensor</li>
+<li><strong>WARN_TENSOR_BYTES</strong>: 500,000,000 bytes (500 MB) - Warning threshold</li>
+</ul>
+<p>Any attempt to create a tensor exceeding <code>MAX_TENSOR_BYTES</code> will raise an error:</p>
+<p><code>text
+Error: Tensor too large: 1500000000 bytes exceeds maximum 2000000000 bytes.
+Consider using smaller batch sizes.</code>text</p>
+<h3 id="calculating-maximum-batch-size">Calculating Maximum Batch Size</h3>
+<p>Use the <code>calculate_max_batch_size()</code> helper function:</p>
+<p>```mojo
+from odyssey.core.extensor import calculate_max_batch_size</p>
+<h1 id="for-emnist-images-1-28-28-with-float32">For EMNIST images (1, 28, 28) with float32</h1>
+<p>var sample_shape = List<a href="">Int</a>
+sample_shape.append(1)
+sample_shape.append(28)
+sample_shape.append(28)</p>
+<p>var max_batch = calculate_max_batch_size(
+    sample_shape,
+    DType.float32,
+    max_memory_bytes=500_000_000  # 500 MB limit
+)
+print("Maximum batch size:", max_batch)  # ~159,439 samples
+```text</p>
+<h2 id="recommended-batch-sizes">Recommended Batch Sizes</h2>
+<h3 id="emnist-dataset-47-classes-2828-images">EMNIST Dataset (47 classes, 28×28 images)</h3>
+<table>
+<thead>
+<tr>
+<th>Batch Size</th>
+<th>Input Memory</th>
+<th>Forward Memory</th>
+<th>Total Estimate</th>
+<th>Recommendation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>32</td>
+<td>98 KB</td>
+<td>832 KB</td>
+<td>~1.7 MB</td>
+<td>Ideal for testing</td>
+</tr>
+<tr>
+<td>64</td>
+<td>196 KB</td>
+<td>1.6 MB</td>
+<td>~3.4 MB</td>
+<td>Good for training</td>
+</tr>
+<tr>
+<td>128</td>
+<td>393 KB</td>
+<td>3.3 MB</td>
+<td>~6.8 MB</td>
+<td>Good for training</td>
+</tr>
+<tr>
+<td>256</td>
+<td>786 KB</td>
+<td>6.6 MB</td>
+<td>~13.6 MB</td>
+<td>Good for training</td>
+</tr>
+<tr>
+<td>512</td>
+<td>1.6 MB</td>
+<td>13.2 MB</td>
+<td>~27 MB</td>
+<td>Monitor memory</td>
+</tr>
+<tr>
+<td>1024</td>
+<td>3.1 MB</td>
+<td>26.5 MB</td>
+<td>~54 MB</td>
+<td>Monitor memory</td>
+</tr>
+<tr>
+<td>112,800</td>
+<td>337 MB</td>
+<td>2.9 GB</td>
+<td>~5.9 GB</td>
+<td>Exceeds limits!</td>
+</tr>
+</tbody>
+</table>
+<h3 id="general-guidelines">General Guidelines</h3>
+<ol>
+<li><strong>Start small</strong>: Begin with batch size 32 for testing</li>
+<li><strong>Increase gradually</strong>: Double batch size until you reach memory warnings</li>
+<li><strong>Monitor output</strong>: Watch for "Warning: Large tensor allocation" messages</li>
+<li><strong>Leave headroom</strong>: Don't use 100% of available memory (leave ~20% free)</li>
+<li><strong>Consider GPU memory</strong>: If using GPU, memory is typically more constrained</li>
+</ol>
+<h2 id="error-handling">Error Handling</h2>
+<h3 id="out-of-memory-errors">Out of Memory Errors</h3>
+<p>If you encounter an error like:</p>
+<p><code>text
+Error: Tensor too large: 1500000000 bytes exceeds maximum 2000000000 bytes.
+Consider using smaller batch sizes.</code>text</p>
+<p><strong>Solutions</strong>:</p>
+<ol>
+<li>Reduce batch size (try half the current size)</li>
+<li>Use mixed precision (float16 instead of float32)</li>
+<li>Process dataset in smaller chunks</li>
+</ol>
+<h3 id="memory-warnings">Memory Warnings</h3>
+<p>If you see:</p>
+<p><code>text
+Warning: Large tensor allocation: 600000000 bytes</code>text</p>
+<p><strong>Actions</strong>:</p>
+<ul>
+<li>This is informational - the allocation succeeded</li>
+<li>Consider reducing batch size if you encounter crashes later</li>
+<li>Monitor system memory usage</li>
+</ul>
+<h2 id="best-practices">Best Practices</h2>
+<h3 id="1-use-mini-batch-processing">1. Use Mini-Batch Processing</h3>
+<p><strong>DON'T</strong> process the entire dataset at once:</p>
+<p>```mojo</p>
+<h1 id="bad-processes-all-112800-samples">❌ BAD: Processes all 112,800 samples</h1>
+<p>var output = model.forward(all_training_data)
+```text</p>
+<p><strong>DO</strong> use mini-batches with slicing:</p>
+<p>```mojo</p>
+<h1 id="good-process-in-batches-of-32">✅ GOOD: Process in batches of 32</h1>
+<p>for batch_idx in range(num_batches):
+    var start = batch_idx * 32
+    var end = min(start + 32, num_samples)
+    var batch = train_images.slice(start, end, axis=0)
+    var output = model.forward(batch)
+```text</p>
+<h3 id="2-calculate-batch-size-programmatically">2. Calculate Batch Size Programmatically</h3>
+<p>```mojo</p>
+<h1 id="calculate-safe-batch-size-based-on-available-memory">Calculate safe batch size based on available memory</h1>
+<p>var sample_shape = List<a href="">Int</a>
+sample_shape.append(1)
+sample_shape.append(28)
+sample_shape.append(28)</p>
+<p>var max_batch = calculate_max_batch_size(sample_shape, DType.float32)
+var batch_size = min(max_batch, 256)  # Cap at 256 for training stability
+```text</p>
+<h3 id="3-use-views-for-slicing">3. Use Views for Slicing</h3>
+<p>The <code>slice()</code> method creates memory-efficient views:</p>
+<p>```mojo</p>
+<h1 id="creates-a-view-shares-memory-zero-copy">Creates a view (shares memory, zero copy)</h1>
+<p>var batch = dataset.slice(0, 32, axis=0)
+```text</p>
+<p>This avoids copying data, saving both time and memory.</p>
+<h3 id="4-monitor-memory-during-development">4. Monitor Memory During Development</h3>
+<p>Add logging to track memory usage:</p>
+<p>```mojo
+var sample_shape = List<a href="">Int</a>
+// ... set up shape ...
+var bytes_per_sample = calculate_bytes_per_sample(sample_shape, dtype)
+var batch_memory = batch_size * bytes_per_sample</p>
+<p>print("Batch memory requirement:", batch_memory, "bytes")
+if batch_memory &gt; 100_000_000:  # 100 MB
+    print("⚠️  Large batch - consider reducing size")
+```text</p>
+<h2 id="platform-specific-considerations">Platform-Specific Considerations</h2>
+<h3 id="desktopworkstation">Desktop/Workstation</h3>
+<ul>
+<li>Typical RAM: 16-64 GB</li>
+<li>Safe batch sizes: 128-512 for EMNIST</li>
+<li>Can handle larger models</li>
+</ul>
+<h3 id="laptop">Laptop</h3>
+<ul>
+<li>Typical RAM: 8-16 GB</li>
+<li>Safe batch sizes: 32-128 for EMNIST</li>
+<li>Be conservative with batch sizes</li>
+</ul>
+<h3 id="cloudserver">Cloud/Server</h3>
+<ul>
+<li>Typical RAM: 32-256 GB</li>
+<li>Safe batch sizes: 256-2048 for EMNIST</li>
+<li>Can handle very large batches</li>
+</ul>
+<h2 id="troubleshooting">Troubleshooting</h2>
+<h3 id="segmentation-fault-segfault">Segmentation Fault (Segfault)</h3>
+<p><strong>Cause</strong>: Attempting to allocate more memory than available</p>
+<p><strong>Solution</strong>:</p>
+<ol>
+<li>Check if batch size × sample size exceeds <code>MAX_TENSOR_BYTES</code></li>
+<li>Reduce batch size significantly (try 32 or 64)</li>
+<li>Verify you're using <code>slice()</code> for batching, not processing full dataset</li>
+</ol>
+<h3 id="training-extremely-slow">Training Extremely Slow</h3>
+<p><strong>Cause</strong>: Batch size too small (excessive overhead) or too large (memory swapping)</p>
+<p><strong>Solution</strong>:</p>
+<ol>
+<li>Try batch sizes in range [64, 256] for EMNIST</li>
+<li>Monitor system memory usage (<code>htop</code> or <code>top</code> on Linux)</li>
+<li>Aim for ~50-80% memory utilization</li>
+</ol>
+<h3 id="inconsistent-results-between-runs">Inconsistent Results Between Runs</h3>
+<p><strong>Cause</strong>: Memory errors or data corruption from oversized batches</p>
+<p><strong>Solution</strong>:</p>
+<ol>
+<li>Use recommended batch sizes</li>
+<li>Validate that all tensors are properly allocated</li>
+<li>Check for memory warnings in output</li>
+</ol>
+<h2 id="references">References</h2>
+<ul>
+<li>LeNet-5 Paper: LeCun et al. (1998), "Gradient-based learning applied to document recognition"</li>
+<li>EMNIST Dataset: Cohen et al. (2017), "EMNIST: an extension of MNIST to handwritten letters"</li>
+<li>ML Odyssey Documentation: <a href="../">Repository README</a></li>
+</ul>
+<h2 id="quick-reference">Quick Reference</h2>
+<p>```python</p>
+<h1 id="calculate-memory-for-a-tensor">Calculate memory for a tensor</h1>
+<p>memory_bytes = product(shape) * dtype_size</p>
+<h1 id="emnist-recommended-batch-sizes">EMNIST recommended batch sizes</h1>
+<p>batch_sizes = {
+    "testing": 32,
+    "training": 128,
+    "maximum_safe": 256
+}</p>
+<h1 id="memory-limits">Memory limits</h1>
+<p>MAX_TENSOR_BYTES = 2_000_000_000  # 2 GB
+WARN_TENSOR_BYTES = 500_000_000   # 500 MB
+```text</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "search.suggest", "search.highlight", "content.code.copy"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>
