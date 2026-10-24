@@ -49,7 +49,7 @@ boolean-py==5.0
 build==1.5.0
 cachecontrol==0.14.4
     # via pip-audit
-certifi==2026.10.19
+certifi==2026.7.22
     # via
     #   httpcore
     #   httpx

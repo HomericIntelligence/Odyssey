@@ -18,7 +18,7 @@ beautifulsoup4==4.15.0
     # via nbconvert
 bleach==6.4.0
     # via nbconvert
-certifi==2026.10.19
+certifi==2026.7.22
     # via requests
 cffi==2.1.0 ; implementation_name == 'pypy' or platform_python_implementation != 'PyPy'
     # via
