@@ -342,7 +342,7 @@ pathspec==1.1.1
     #   mypy
 pexpect==4.9.0 ; sys_platform != 'emscripten' and sys_platform != 'win32'
     # via ipython
-pillow==13.0.0
+pillow==12.3.0
     # via matplotlib
 pip==26.2.1
     # via pip-api
