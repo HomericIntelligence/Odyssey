@@ -175,7 +175,7 @@ jinja2==3.1.6
     #   mkdocs-material
     #   nbconvert
     #   odyssey
-joserfc==1.7.4
+joserfc==1.7.6
     # via authlib
 json5==0.15.0
     # via jupyterlab-server
