@@ -7,7 +7,7 @@
 #
 annotated-types==0.8.0
     # via pydantic
-anyio==4.14.2
+anyio==4.15.1
     # via
     #   httpx
     #   jupyter-server
@@ -19,11 +19,11 @@ argon2-cffi-bindings==25.1.0
     # via argon2-cffi
 arrow==1.4.0
     # via isoduration
-ast-serialize==0.8.0
+ast-serialize==0.13.1
     # via mypy
 asttokens==3.0.2
     # via stack-data
-async-lru==2.3.0
+async-lru==2.4.0
     # via jupyterlab
 attrs==26.1.0
     # via
@@ -49,12 +49,12 @@ boolean-py==5.0
 build==1.5.0
 cachecontrol==0.14.4
     # via pip-audit
-certifi==2026.7.22
+certifi==2026.10.23
     # via
     #   httpcore
     #   httpx
     #   requests
-cffi==2.1.0
+cffi==2.1.1
     # via
     #   argon2-cffi-bindings
     #   cryptography
@@ -62,7 +62,7 @@ cffi==2.1.0
     #   pyzmq
 cfgv==3.5.0
     # via pre-commit
-charset-normalizer==3.4.9
+charset-normalizer==3.5.2
     # via requests
 click==8.4.2
     # via
@@ -84,9 +84,9 @@ comm==0.2.3
     # via
     #   ipykernel
     #   ipywidgets
-contourpy==1.3.3
+contourpy==1.4.0
     # via matplotlib
-coverage==7.15.2
+coverage==7.17.0
     # via pytest-cov
 cryptography==50.0.0
     # via
@@ -96,9 +96,9 @@ cryptography==50.0.0
     #   pyjwt
 cycler==0.12.1
     # via matplotlib
-cyclonedx-python-lib==11.11.0
+cyclonedx-python-lib==11.12.0
     # via pip-audit
-debugpy==1.8.21
+debugpy==1.8.22
     # via ipykernel
 decorator==5.3.1
     # via ipython
@@ -107,13 +107,13 @@ defusedxml==0.7.1
     #   nbconvert
     #   odyssey
     #   py-serializable
-distlib==0.4.3
+distlib==0.4.4
     # via virtualenv
 execnet==2.1.2
     # via pytest-xdist
-executing==2.2.1
+executing==2.3.0
     # via stack-data
-fastjsonschema==2.21.2
+fastjsonschema==2.22.2
     # via nbformat
 filelock==3.32.0
     # via
@@ -121,9 +121,9 @@ filelock==3.32.0
     #   python-discovery
     #   virtualenv
 flask==3.1.3
-fonttools==4.63.0
+fonttools==4.67.0
     # via matplotlib
-fqdn==1.5.1
+fqdn==1.6.0
     # via jsonschema
 ghp-import==2.1.0
     # via mkdocs
@@ -139,19 +139,19 @@ httpcore==1.0.9
     # via httpx
 httpx==0.28.1
     # via jupyterlab
-identify==2.6.19
+identify==2.6.20
     # via pre-commit
-idna==3.18
+idna==3.20
     # via
     #   anyio
     #   httpx
     #   jsonschema
     #   requests
-iniconfig==2.3.0
+iniconfig==2.3.1
     # via pytest
-ipykernel==7.3.0
+ipykernel==7.4.0
     # via jupyterlab
-ipython==9.15.0
+ipython==9.17.1
     # via
     #   ipykernel
     #   ipywidgets
@@ -162,7 +162,7 @@ isoduration==20.11.0
     # via jsonschema
 itsdangerous==2.2.0
     # via flask
-jedi==0.20.0
+jedi==0.20.1
     # via ipython
 jinja2==3.1.6
     # via
@@ -175,11 +175,11 @@ jinja2==3.1.6
     #   mkdocs-material
     #   nbconvert
     #   odyssey
-joserfc==1.7.4
+joserfc==1.7.7
     # via authlib
-json5==0.15.0
+json5==0.17.3
     # via jupyterlab-server
-jsonpointer==3.1.1
+jsonpointer==3.5
     # via jsonschema
 jsonschema==4.26.0
     # via
@@ -189,9 +189,9 @@ jsonschema==4.26.0
     #   odyssey
 jsonschema-specifications==2025.9.1
     # via jsonschema
-jupyter-builder==1.1.1
+jupyter-builder==1.2.3
     # via jupyterlab
-jupyter-client==8.9.1
+jupyter-client==8.10.0
     # via
     #   ipykernel
     #   jupyter-server
@@ -221,26 +221,26 @@ jupyter-server-terminals==0.5.4
 jupyterlab==4.7.0a1
 jupyterlab-pygments==0.3.0
     # via nbconvert
-jupyterlab-server==2.28.0
+jupyterlab-server==2.28.1
     # via jupyterlab
-jupyterlab-widgets==3.0.16
+jupyterlab-widgets==3.0.17
     # via ipywidgets
-kiwisolver==1.5.0
+kiwisolver==1.5.1
     # via matplotlib
 lark==1.3.1
     # via rfc3987-syntax
-librt==0.13.0 ; platform_python_implementation != 'PyPy'
+librt==0.16.0 ; platform_python_implementation != 'PyPy'
     # via mypy
 license-expression==30.4.4
     # via cyclonedx-python-lib
-markdown==3.10.2
+markdown==3.11.2
     # via
     #   mkdocs
     #   mkdocs-material
     #   pymdown-extensions
 markdown-it-py==4.2.0
     # via rich
-markupsafe==3.0.3
+markupsafe==3.0.4
     # via
     #   flask
     #   jinja2
@@ -275,7 +275,7 @@ mkdocs-material-extensions==1.3.1
     # via mojo
     # via mojo-compiler
     # via mojo
-msgpack==1.2.1
+msgpack==1.2.3
     # via cachecontrol
 mypy==2.3.0
 mypy-extensions==1.1.0
@@ -296,9 +296,9 @@ nbformat==5.11.0
     #   nbstripout
     #   odyssey
 nbstripout==0.9.1
-nest-asyncio2==1.7.2
+nest-asyncio2==1.7.4
     # via ipykernel
-nodeenv==1.10.0
+nodeenv==1.11.0
     # via pre-commit
 notebook-shim==0.2.4
     # via jupyterlab
@@ -311,7 +311,7 @@ numpy==2.5.1
     #   seaborn
 packageurl-python==0.17.6
     # via cyclonedx-python-lib
-packaging==26.2
+packaging==26.3
     # via
     #   build
     #   homericintelligence-hephaestus
@@ -329,7 +329,7 @@ packaging==26.2
     #   virtualenv
 paginate==0.5.7
     # via mkdocs-material
-pandas==3.0.5
+pandas==3.1.0
     # via seaborn
 pandocfilters==1.5.1
     # via nbconvert
@@ -346,21 +346,21 @@ pillow==12.3.0
     # via matplotlib
 pip==26.2.1
     # via pip-api
-pip-api==0.0.34
+pip-api==0.0.35
     # via pip-audit
 pip-audit==2.10.1
 pip-licenses==5.5.5
     # via odyssey
 pip-requirements-parser==32.0.1
     # via pip-audit
-platformdirs==4.11.0
+platformdirs==4.13.5
     # via
     #   jupyter-core
     #   mblack
     #   mkdocs-get-deps
     #   pip-audit
     #   virtualenv
-pluggy==1.6.0
+pluggy==1.7.0
     # via
     #   pytest
     #   pytest-cov
@@ -370,9 +370,9 @@ prettytable==3.18.0
     # via
     #   odyssey
     #   pip-licenses
-prometheus-client==0.25.0
+prometheus-client==0.26.0
     # via jupyter-server
-prompt-toolkit==3.0.52
+prompt-toolkit==3.0.53
     # via ipython
 psutil==7.2.2
     # via
@@ -382,21 +382,21 @@ ptyprocess==0.7.0 ; os_name != 'nt' or (sys_platform != 'emscripten' and sys_pla
     # via
     #   pexpect
     #   terminado
-pure-eval==0.2.3
+pure-eval==0.2.4
     # via stack-data
 py-cpuinfo==9.0.0
     # via pytest-benchmark
 py-serializable==2.1.0
     # via cyclonedx-python-lib
-pycparser==3.0 ; implementation_name != 'PyPy'
+pycparser==3.12 ; implementation_name != 'PyPy'
     # via cffi
 pydantic==2.14.0b1
     # via odyssey
-pydantic-core==2.48.0
+pydantic-core==2.50.1
     # via pydantic
 pygithub==2.9.1
     # via odyssey
-pygments==2.20.0
+pygments==2.21.0
     # via
     #   ipython
     #   ipython-pygments-lexers
@@ -410,11 +410,11 @@ pymdown-extensions==11.0.1
     # via mkdocs-material
 pynacl==1.6.2
     # via pygithub
-pyparsing==3.3.2
+pyparsing==3.3.3
     # via
     #   matplotlib
     #   pip-requirements-parser
-pyproject-hooks==1.2.0
+pyproject-hooks==1.3.3
     # via build
 pytest==9.1.1
     # via
@@ -433,11 +433,11 @@ python-dateutil==2.9.0.post0
     #   jupyter-client
     #   matplotlib
     #   pandas
-python-discovery==1.6.1
+python-discovery==1.6.4
     # via virtualenv
-python-json-logger==4.1.0
+python-json-logger==4.2.0
     # via jupyter-events
-pywinpty==3.0.5 ; os_name == 'nt'
+pywinpty==3.1.0 ; os_name == 'nt'
     # via
     #   jupyter-server
     #   jupyter-server-terminals
@@ -455,7 +455,7 @@ pyyaml==6.0.3
     #   pyyaml-env-tag
 pyyaml-env-tag==1.1
     # via mkdocs
-pyzmq==27.1.0
+pyzmq==27.2.0
     # via
     #   ipykernel
     #   jupyter-client
@@ -486,7 +486,7 @@ rich==15.0.0
     # via
     #   bandit
     #   pip-audit
-rpds-py==2026.6.3
+rpds-py==2026.9.1
     # via
     #   jsonschema
     #   referencing
@@ -508,7 +508,7 @@ soupsieve==2.9.1
     # via beautifulsoup4
 stack-data==0.6.3
     # via ipython
-stevedore==5.9.0
+stevedore==5.9.1
     # via bandit
 terminado==0.18.1
     # via
@@ -516,7 +516,7 @@ terminado==0.18.1
     #   jupyter-server-terminals
 tinycss2==1.5.1
     # via bleach
-tomli==2.4.1
+tomli==2.5.0
     # via pip-audit
 tomli-w==1.2.0
     # via pip-audit
@@ -530,7 +530,7 @@ tornado==6.5.10
     #   terminado
 tqdm==4.70.0
     # via odyssey
-traitlets==5.15.1
+traitlets==5.16.1
     # via
     #   ipykernel
     #   ipython
@@ -555,9 +555,9 @@ typing-extensions==4.16.0
     #   pydantic-core
     #   pygithub
     #   typing-inspection
-typing-inspection==0.4.2
+typing-inspection==0.4.4
     # via pydantic
-tzdata==2026.3
+tzdata==2026.5
     # via
     #   arrow
     #   homericintelligence-hephaestus
@@ -568,23 +568,23 @@ urllib3==2.8.0
     # via
     #   pygithub
     #   requests
-virtualenv==21.14.1
+virtualenv==21.14.13
     # via pre-commit
 watchdog==6.0.0
     # via mkdocs
-wcwidth==0.8.2
+wcwidth==0.9.4
     # via
     #   prettytable
     #   prompt-toolkit
 webcolors==25.10.0
     # via jsonschema
-webencodings==0.5.1
+webencodings==0.6.1
     # via
     #   bleach
     #   tinycss2
-websocket-client==1.9.0
+websocket-client==1.9.2
     # via jupyter-server
-werkzeug==3.1.8
+werkzeug==3.1.9
     # via flask
-widgetsnbextension==4.0.15
+widgetsnbextension==4.0.16
     # via ipywidgets
