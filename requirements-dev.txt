@@ -11,11 +11,11 @@ anyio==4.14.2
     # via
     #   httpx
     #   jupyter-server
-appnope==0.1.4 ; sys_platform == 'darwin'
+appnope==1.0.0 ; sys_platform == 'darwin'
     # via ipykernel
 argon2-cffi==25.1.0
     # via jupyter-server
-argon2-cffi-bindings==25.1.0
+argon2-cffi-bindings==26.1.0
     # via argon2-cffi
 arrow==1.4.0
     # via isoduration
@@ -35,7 +35,7 @@ babel==2.18.0
     # via
     #   jupyterlab-server
     #   mkdocs-material
-backrefs==7.0
+backrefs==8.1
     # via mkdocs-material
 bandit==1.9.4
 beautifulsoup4==4.15.0
@@ -115,7 +115,7 @@ executing==2.2.1
     # via stack-data
 fastjsonschema==2.21.2
     # via nbformat
-filelock==3.32.0
+filelock==4.2.4
     # via
     #   cachecontrol
     #   python-discovery
@@ -342,7 +342,7 @@ pathspec==1.1.1
     #   mypy
 pexpect==4.9.0 ; sys_platform != 'emscripten' and sys_platform != 'win32'
     # via ipython
-pillow==12.3.0
+pillow==13.0.0
     # via matplotlib
 pip==26.2.1
     # via pip-api
@@ -406,7 +406,7 @@ pygments==2.20.0
     #   rich
 pyjwt==2.15.1
     # via pygithub
-pymdown-extensions==11.0.1
+pymdown-extensions==12.3
     # via mkdocs-material
 pynacl==1.6.2
     # via pygithub
@@ -426,7 +426,7 @@ pytest-benchmark==5.2.3
 pytest-cov==7.1.0
 pytest-timeout==2.4.0
 pytest-xdist==3.8.0
-python-dateutil==2.9.0.post0
+python-dateutil==3.0.0
     # via
     #   arrow
     #   ghp-import
@@ -504,7 +504,7 @@ smmap==5.0.3
     # via gitdb
 sortedcontainers==2.4.0
     # via cyclonedx-python-lib
-soupsieve==2.9.1
+soupsieve==3.0.4
     # via beautifulsoup4
 stack-data==0.6.3
     # via ipython
