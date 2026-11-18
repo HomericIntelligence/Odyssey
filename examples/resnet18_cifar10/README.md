@@ -28,7 +28,7 @@ This downloads CIFAR-10 (50,000 training + 10,000 test samples) to `datasets/cif
 ### 2. Train Model
 
 ```bash
-# NOTE: Training requires batch_norm2d_backward implementation
+# NOTE (Mojo v1.0.0): Training requires batch_norm2d_backward implementation
 # See GAP_ANALYSIS.md for details
 mojo run examples/resnet18_cifar10/train.mojo --epochs 200 --batch-size 128 --lr 0.01
 ```text

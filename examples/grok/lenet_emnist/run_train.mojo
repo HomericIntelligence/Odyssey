@@ -82,7 +82,7 @@ def parse_args() raises -> TrainConfig:
     parser.add_argument("max-batches", "int", "0")
     parser.add_argument("log-every", "int", "1")
     parser.add_argument("checkpoint-every", "int", "1")
-    # NOTE: arg_parser does not support repeated flags; pass comma-separated
+    # NOTE (Mojo v1.0.0): arg_parser does not support repeated flags; pass comma-separated
     # list e.g. --track-metric test_acc:max,test_loss:both
     parser.add_argument("track-metric", "string", "test_acc:max")
 

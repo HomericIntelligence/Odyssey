@@ -52,10 +52,10 @@ sibling of scaled dot-product attention. It reuses the same QKV-projection /
 head-split / head-merge conventions but replaces the softmax score matrix with
 the kernel-feature factorization above, so no S×S score matrix is ever
 materialized. It does NOT call the functional softmax attention core
-(`core/attention.mojo`), which is broken at this SHA (Odyssey#5648) and computes
-softmax attention regardless. (The `Module`-conforming softmax `MultiHeadAttention`
-layer sits alongside this one at `core/layers/attention.mojo` — this module does
-not depend on it.)
+(`core/attention.mojo`), because that core always computes softmax attention
+regardless of the kernel-feature factorization used here. (The `Module`-conforming
+softmax `MultiHeadAttention` layer sits alongside this one at
+`core/layers/attention.mojo` — this module does not depend on it.)
 
 Cached surface (for a downstream PC activation-cache wrapper): unlike the
 softmax block, there is no `scores`/`weights` S×S matrix here. A PC wrapper that
